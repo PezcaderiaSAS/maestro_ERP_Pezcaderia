@@ -597,12 +597,10 @@ export default function App() {
             dynamicFields={dynamicFields}
             publishEvent={publishEvent}
             userRole={userRole}
-            setCurrentView={setCurrentView}
             stock={stock}
             setStock={setStock}
             lastClientPrices={lastClientPrices}
             updateLastClientPrice={updateLastClientPrice}
-            cartera={cartera}
             setCartera={setCartera}
           />
         );

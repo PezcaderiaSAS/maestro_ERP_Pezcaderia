@@ -36,14 +36,12 @@ export default function POSView({
   dynamicFields,
   publishEvent,
   userRole,
-  setCurrentView,
   stock,
   setStock,
   lastClientPrices,
   updateLastClientPrice,
-  cartera,
   setCartera
-}: POSViewProps) {
+}: Omit<POSViewProps, 'setCurrentView' | 'cartera'>) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('TODOS');
   const [barcodeInput, setBarcodeInput] = useState('');
@@ -449,7 +447,7 @@ export default function POSView({
       }
     }).then((result) => {
       if (result.isConfirmed && result.value) {
-        const { transfer, card, cash, credit, totalPaid, change } = result.value;
+        const { transfer, card, cash, credit, change } = result.value;
 
         // Decrease stock in Bodega Principal
         setStock(prev => {

@@ -37,7 +37,7 @@ function MetricCard({ title, value, change, positive, icon }: MetricCardProps) {
   );
 }
 
-export default function DashboardView({ setView }: { setView: (v: string) => void }) {
+export default function DashboardView({ setView }: any) {
   const transaccionesRecientes = [
     { id: 'TX-001', descripcion: 'Venta Factura POS (PED-004312)', tipo: 'INGRESO', valor: 45000, hora: '12:30 PM' },
     { id: 'TX-002', descripcion: 'Gasto Combustible Ruta Norte (RUT-0081)', tipo: 'EGRESO', valor: 35000, hora: '11:15 AM' },
