@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Menu, LayoutDashboard, ShoppingBag, Box, Users, DollarSign, HelpCircle, Home, ShoppingCart, LogOut, FileText, PlusCircle } from 'lucide-react';
+import { Menu, LayoutDashboard, ShoppingBag, Box, Users, DollarSign, HelpCircle, Home, ShoppingCart, LogOut, FileText, PlusCircle, Wallet } from 'lucide-react';
 import DashboardView from './views/DashboardView.tsx';
 import POSView from './views/POSView.tsx';
 import InventoryView from './views/InventoryView.tsx';
 import HRView from './views/HRView.tsx';
 import PricingView from './views/PricingView.tsx';
+import ARView, { InvoiceAR } from './views/ARView.tsx';
+
 
 export interface Product {
   id: string;
@@ -354,6 +356,48 @@ export default function App() {
     return saved ? JSON.parse(saved) : {};
   });
 
+  const [cartera, setCartera] = useState<InvoiceAR[]>(() => {
+    const saved = localStorage.getItem('pezcaderia_cartera');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    return [
+      {
+        id: 'PED-045091',
+        clienteId: 'c-1',
+        clienteNombre: 'Restaurante Central',
+        clienteIdentificacion: '123',
+        fecha: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        total: 350000,
+        saldo: 200000,
+        pagado: 150000,
+        pagos: [
+          {
+            id: 'pgo-1',
+            fecha: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+            monto: 150000,
+            metodo: 'Transferencia'
+          }
+        ]
+      },
+      {
+        id: 'PED-098231',
+        clienteId: 'c-2',
+        clienteNombre: 'Restaurante del Mar',
+        clienteIdentificacion: '900123456-1',
+        fecha: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+        total: 500000,
+        saldo: 500000,
+        pagado: 0,
+        pagos: []
+      }
+    ];
+  });
+
   // Save changes to local storage on change
   useEffect(() => {
     localStorage.setItem('pezcaderia_events', JSON.stringify(events));
@@ -378,6 +422,10 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('pezcaderia_last_client_prices', JSON.stringify(lastClientPrices));
   }, [lastClientPrices]);
+
+  useEffect(() => {
+    localStorage.setItem('pezcaderia_cartera', JSON.stringify(cartera));
+  }, [cartera]);
 
   // Synchronize stock based on current products catalog
   useEffect(() => {
@@ -554,6 +602,8 @@ export default function App() {
             setStock={setStock}
             lastClientPrices={lastClientPrices}
             updateLastClientPrice={updateLastClientPrice}
+            cartera={cartera}
+            setCartera={setCartera}
           />
         );
       case 'inventario':
@@ -582,6 +632,15 @@ export default function App() {
         );
       case 'rrhh':
         return <HRView />;
+      case 'cartera':
+        return (
+          <ARView 
+            cartera={cartera}
+            setCartera={setCartera}
+            publishEvent={publishEvent}
+            userRole={userRole}
+          />
+        );
       default:
         return <DashboardView setView={setCurrentView} />;
     }
@@ -599,6 +658,8 @@ export default function App() {
         return { cat: 'Comercial', sub: 'Precios y Cotizaciones' };
       case 'rrhh':
         return { cat: 'Administrativo', sub: 'Recursos Humanos' };
+      case 'cartera':
+        return { cat: 'Comercial', sub: 'Cartera de Clientes' };
       default:
         return { cat: 'General', sub: 'ERP' };
     }
@@ -693,6 +754,14 @@ export default function App() {
             >
               <DollarSign size={16} />
               <span>Precios y Cotizaciones</span>
+            </div>
+
+            <div
+              className={`sidebar-item ${currentView === 'cartera' ? 'active' : ''}`}
+              onClick={() => { setCurrentView('cartera'); setSidebarOpen(false); }}
+            >
+              <Wallet size={16} />
+              <span>Cartera de Clientes</span>
             </div>
 
             <div className="sidebar-category-header">Inventario y Planta</div>

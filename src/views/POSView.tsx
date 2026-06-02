@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Search, Plus, Minus, X, Check, Barcode, Save, CreditCard } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { Product, DynamicField } from '../App.tsx';
+import { InvoiceAR } from './ARView.tsx';
 
 interface CartItem {
   product: Product;
@@ -26,6 +27,8 @@ interface POSViewProps {
   setStock: React.Dispatch<React.SetStateAction<Record<string, any[]>>>;
   lastClientPrices: Record<string, Record<string, number>>;
   updateLastClientPrice: (clientKey: string, sku: string, price: number) => void;
+  cartera: any[];
+  setCartera: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
 export default function POSView({
@@ -37,7 +40,9 @@ export default function POSView({
   stock,
   setStock,
   lastClientPrices,
-  updateLastClientPrice
+  updateLastClientPrice,
+  cartera,
+  setCartera
 }: POSViewProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('TODOS');
@@ -229,15 +234,223 @@ export default function POSView({
     }
 
     Swal.fire({
-      title: 'Confirmar Cobro',
-      text: `¿Desea liquidar el pedido por un total de $${totalFinal.toLocaleString('es-CO')}?`,
-      icon: 'question',
+      title: 'Procesar Pago de Venta',
+      html: `
+        <div style="text-align: left; font-size: 14px; color: var(--text-primary);">
+          <div style="margin-bottom: 12px; display: flex; justify-content: space-between; font-size: 16px; border-bottom: 2px solid #E2E8F0; padding-bottom: 8px;">
+            <strong>Total a Pagar:</strong> <strong style="color: var(--primary-color);">$${totalFinal.toLocaleString('es-CO')}</strong>
+          </div>
+
+          <!-- Selector de Tipo de Pago -->
+          <div style="margin-bottom: 16px; display: flex; gap: 8px; justify-content: center;">
+            <button id="btn-sale-contado" type="button" style="flex: 1; padding: 10px; border: 2px solid var(--primary-color); background-color: var(--primary-light); color: var(--primary-color); font-weight: 700; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s;">
+              💰 Contado
+            </button>
+            <button id="btn-sale-credito" type="button" style="flex: 1; padding: 10px; border: 2px solid #E2E8F0; background-color: #F8FAFC; color: var(--text-secondary); font-weight: 700; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; ${!cliente ? 'opacity: 0.5; cursor: not-allowed;' : ''}">
+              💳 Crédito
+            </button>
+          </div>
+
+          <!-- Alerta de Cliente Requerido para Crédito -->
+          <div id="credit-client-warning" style="display: none; padding: 8px 12px; background-color: #FFF5F5; border: 1px solid #FEB2B2; color: #C53030; border-radius: var(--radius-sm); font-size: 12px; margin-bottom: 12px; text-align: center; font-weight: 600;">
+            ⚠️ Debe vincular un Cliente en el POS para poder vender a Crédito.
+          </div>
+
+          <!-- Sección Contado -->
+          <div id="section-contado">
+            <div style="margin-bottom: 10px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 4px;">Transferencia Bancaria ($):</label>
+              <input id="pay-transfer" type="number" class="swal2-input" style="margin: 0; width: 100%; box-sizing: border-box;" placeholder="Valor en transferencia..." value="0" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 4px;">Datáfono (Tarjeta Crédito/Débito) ($):</label>
+              <input id="pay-card" type="number" class="swal2-input" style="margin: 0; width: 100%; box-sizing: border-box;" placeholder="Valor con tarjeta..." value="0" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 4px;">Efectivo Recibido ($):</label>
+              <input id="pay-cash" type="number" class="swal2-input" style="margin: 0; width: 100%; box-sizing: border-box;" placeholder="Monto entregado en efectivo..." value="0" />
+            </div>
+          </div>
+
+          <!-- Sección Crédito -->
+          <div id="section-credito" style="display: none; padding: 16px; background-color: #EEF2F6; border-radius: 8px; border: 1px solid #CBD5E1; margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 8px; color: #334155; font-size: 14px; font-weight: 600; margin-bottom: 8px;">
+              <span>💳 Compra a Crédito Autorizada</span>
+            </div>
+            <p style="color: #64748B; font-size: 13px; margin: 0;">
+              El total de la factura por valor de <strong>$${totalFinal.toLocaleString('es-CO')}</strong> se cargará por completo a la cartera del cliente: <br/>
+              <strong style="color: #1E293B;">${cliente ? cliente.nombre : ''}</strong> (${cliente ? cliente.identificacion : ''}).
+            </p>
+          </div>
+
+          <!-- Totales (sólo para Contado) -->
+          <div id="section-totals" style="margin-top: 16px; padding: 12px; background-color: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+              <span>Total Recibido:</span>
+              <strong id="pay-total-paid" style="color: #1E293B;">$0</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span id="pay-change-label" style="font-weight: 600;">Faltante:</span>
+              <strong id="pay-change" style="color: #EF4444;">$${totalFinal.toLocaleString('es-CO')}</strong>
+            </div>
+          </div>
+
+          <!-- Entrada Crédito Oculta/Interna -->
+          <input id="pay-credit" type="hidden" value="0" />
+        </div>
+      `,
+      focusConfirm: false,
       showCancelButton: true,
       confirmButtonText: 'Liquidar y Facturar',
       cancelButtonText: 'Cancelar',
       confirmButtonColor: 'var(--primary-color)',
+      didOpen: () => {
+        const btnContado = document.getElementById('btn-sale-contado') as HTMLButtonElement;
+        const btnCredito = document.getElementById('btn-sale-credito') as HTMLButtonElement;
+        const sectionContado = document.getElementById('section-contado') as HTMLDivElement;
+        const sectionCredito = document.getElementById('section-credito') as HTMLDivElement;
+        const sectionTotals = document.getElementById('section-totals') as HTMLDivElement;
+        const creditClientWarning = document.getElementById('credit-client-warning') as HTMLDivElement;
+
+        const inputTransfer = document.getElementById('pay-transfer') as HTMLInputElement;
+        const inputCard = document.getElementById('pay-card') as HTMLInputElement;
+        const inputCash = document.getElementById('pay-cash') as HTMLInputElement;
+        const inputCredit = document.getElementById('pay-credit') as HTMLInputElement;
+
+        let activeMode: 'contado' | 'credito' = 'contado';
+
+        const setMode = (mode: 'contado' | 'credito') => {
+          activeMode = mode;
+          if (mode === 'contado') {
+            // Activar botón Contado
+            btnContado.style.borderColor = 'var(--primary-color)';
+            btnContado.style.backgroundColor = 'var(--primary-light)';
+            btnContado.style.color = 'var(--primary-color)';
+
+            // Desactivar botón Crédito
+            btnCredito.style.borderColor = '#E2E8F0';
+            btnCredito.style.backgroundColor = '#F8FAFC';
+            btnCredito.style.color = 'var(--text-secondary)';
+
+            // Alternar secciones
+            sectionContado.style.display = 'block';
+            sectionCredito.style.display = 'none';
+            sectionTotals.style.display = 'block';
+            creditClientWarning.style.display = 'none';
+
+            inputCredit.value = '0';
+          } else {
+            if (!cliente) {
+              creditClientWarning.style.display = 'block';
+              return;
+            }
+
+            // Activar botón Crédito
+            btnCredito.style.borderColor = 'var(--primary-color)';
+            btnCredito.style.backgroundColor = 'var(--primary-light)';
+            btnCredito.style.color = 'var(--primary-color)';
+
+            // Desactivar botón Contado
+            btnContado.style.borderColor = '#E2E8F0';
+            btnContado.style.backgroundColor = '#F8FAFC';
+            btnContado.style.color = 'var(--text-secondary)';
+
+            // Alternar secciones
+            sectionContado.style.display = 'none';
+            sectionCredito.style.display = 'block';
+            sectionTotals.style.display = 'none';
+            creditClientWarning.style.display = 'none';
+
+            // Todo a crédito
+            inputCredit.value = totalFinal.toString();
+            inputTransfer.value = '0';
+            inputCard.value = '0';
+            inputCash.value = '0';
+          }
+          updateCalculations();
+        };
+
+        btnContado.addEventListener('click', () => setMode('contado'));
+        btnCredito.addEventListener('click', () => {
+          if (!cliente) {
+            creditClientWarning.style.display = 'block';
+            setTimeout(() => {
+              if (creditClientWarning) creditClientWarning.style.display = 'none';
+            }, 3000);
+          } else {
+            setMode('credito');
+          }
+        });
+
+        const updateCalculations = () => {
+          if (activeMode === 'credito') {
+            return;
+          }
+          const total = totalFinal;
+          const transfer = parseFloat(inputTransfer.value) || 0;
+          const card = parseFloat(inputCard.value) || 0;
+          const cash = parseFloat(inputCash.value) || 0;
+
+          const totalPaid = transfer + card + cash;
+          const diff = totalPaid - total;
+
+          const totalPaidEl = document.getElementById('pay-total-paid');
+          const changeEl = document.getElementById('pay-change');
+          const changeLabelEl = document.getElementById('pay-change-label');
+
+          if (totalPaidEl) totalPaidEl.innerText = '$' + totalPaid.toLocaleString('es-CO');
+
+          if (changeEl && changeLabelEl) {
+            if (diff >= 0) {
+              changeLabelEl.innerText = 'Cambio a Devolver:';
+              changeEl.innerText = '$' + diff.toLocaleString('es-CO');
+              changeEl.style.color = '#10B981';
+            } else {
+              changeLabelEl.innerText = 'Faltante:';
+              changeEl.innerText = '$' + Math.abs(diff).toLocaleString('es-CO');
+              changeEl.style.color = '#EF4444';
+            }
+          }
+        };
+
+        [inputTransfer, inputCard, inputCash].forEach(input => {
+          input.addEventListener('input', updateCalculations);
+          input.addEventListener('focus', () => {
+            if (input.value === '0') input.value = '';
+          });
+          input.addEventListener('blur', () => {
+            if (input.value === '') input.value = '0';
+          });
+        });
+
+        updateCalculations();
+      },
+      preConfirm: () => {
+        const transfer = parseFloat((document.getElementById('pay-transfer') as HTMLInputElement).value) || 0;
+        const card = parseFloat((document.getElementById('pay-card') as HTMLInputElement).value) || 0;
+        const cash = parseFloat((document.getElementById('pay-cash') as HTMLInputElement).value) || 0;
+        const credit = parseFloat((document.getElementById('pay-credit') as HTMLInputElement).value) || 0;
+
+        const totalPaid = transfer + card + cash + credit;
+
+        if (credit > 0 && !cliente) {
+          Swal.showValidationMessage('Debe vincular un Cliente registrado para poder procesar pagos a Crédito.');
+          return false;
+        }
+
+        if (totalPaid < totalFinal) {
+          Swal.showValidationMessage(`El pago total ($${totalPaid.toLocaleString('es-CO')}) es menor al valor de la venta ($${totalFinal.toLocaleString('es-CO')}). Faltan $${(totalFinal - totalPaid).toLocaleString('es-CO')}`);
+          return false;
+        }
+
+        return { transfer, card, cash, credit, totalPaid, change: totalPaid - totalFinal };
+      }
     }).then((result) => {
-      if (result.isConfirmed) {
+      if (result.isConfirmed && result.value) {
+        const { transfer, card, cash, credit, totalPaid, change } = result.value;
+
         // Decrease stock in Bodega Principal
         setStock(prev => {
           const newStock = { ...prev };
@@ -261,19 +474,94 @@ export default function POSView({
           });
         }
 
+        // If credit was used, create or append to cartera
+        const orderNo = 'PED-' + Math.floor(100000 + Math.random() * 900000);
+        if (credit > 0 && cliente) {
+          const newAR: InvoiceAR = {
+            id: orderNo,
+            clienteId: 'c-' + Date.now(),
+            clienteNombre: cliente.nombre,
+            clienteIdentificacion: cliente.identificacion,
+            fecha: new Date().toISOString(),
+            total: totalFinal,
+            saldo: credit,
+            pagado: totalFinal - credit,
+            pagos: []
+          };
+          
+          if (transfer > 0) {
+            newAR.pagos.push({ id: 'pgo-t-' + Date.now(), fecha: new Date().toISOString(), monto: transfer, metodo: 'Transferencia' });
+          }
+          if (card > 0) {
+            newAR.pagos.push({ id: 'pgo-c-' + Date.now(), fecha: new Date().toISOString(), monto: card, metodo: 'Datáfono' });
+          }
+          if (cash > 0) {
+            const efectivoAbonado = Math.max(0, cash - change);
+            if (efectivoAbonado > 0) {
+              newAR.pagos.push({ id: 'pgo-cs-' + Date.now(), fecha: new Date().toISOString(), monto: efectivoAbonado, metodo: 'Efectivo' });
+            }
+          }
+
+          setCartera(prev => [newAR, ...prev]);
+        }
+
         publishEvent(
           'SALE_COMPLETED',
           userRole,
-          `Venta liquidada para ${cliente ? cliente.nombre : 'Consumidor Final'} por un total de $${totalFinal.toLocaleString('es-CO')}`,
-          { cliente, total: totalFinal, items: cart.map(i => ({ sku: i.product.sku, cantidad: i.cantidad })) }
+          `Venta liquidada para ${cliente ? cliente.nombre : 'Consumidor Final'} por total de $${totalFinal.toLocaleString('es-CO')} (Transf: $${transfer.toLocaleString('es-CO')}, Tarjeta: $${card.toLocaleString('es-CO')}, Efectivo: $${cash.toLocaleString('es-CO')}, Crédito: $${credit.toLocaleString('es-CO')})`,
+          { cliente, total: totalFinal, items: cart.map(i => ({ sku: i.product.sku, cantidad: i.cantidad })), transfer, card, cash, credit, change }
         );
+
+        let desgloseHtml = `
+          <div style="text-align: left; font-size: 14px; color: var(--text-primary); margin-top: 10px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+              <strong>Total Factura:</strong> <span>$${totalFinal.toLocaleString('es-CO')}</span>
+            </div>
+        `;
+
+        if (transfer > 0) {
+          desgloseHtml += `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #475569;">
+              <span>• Transferencia:</span> <span>$${transfer.toLocaleString('es-CO')}</span>
+            </div>
+          `;
+        }
+        if (card > 0) {
+          desgloseHtml += `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #475569;">
+              <span>• Tarjeta (Datáfono):</span> <span>$${card.toLocaleString('es-CO')}</span>
+            </div>
+          `;
+        }
+        if (cash > 0) {
+          desgloseHtml += `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #475569;">
+              <span>• Efectivo Recibido:</span> <span>$${cash.toLocaleString('es-CO')}</span>
+            </div>
+          `;
+        }
+        if (credit > 0) {
+          desgloseHtml += `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #EF4444; font-weight: 600;">
+              <span>• Crédito Otorgado:</span> <span>$${credit.toLocaleString('es-CO')}</span>
+            </div>
+          `;
+        }
+
+        desgloseHtml += `
+            <div style="display: flex; justify-content: space-between; margin-top: 12px; padding-top: 8px; border-top: 1px solid #E2E8F0; font-size: 16px; font-weight: 800; color: #10B981;">
+              <span>Cambio a Devolver:</span> <span>$${change.toLocaleString('es-CO')}</span>
+            </div>
+          </div>
+        `;
 
         Swal.fire({
           icon: 'success',
-          title: 'Venta Realizada',
-          text: 'Se ha registrado la transacción de forma exitosa, se descontó del inventario y se encoló la sincronización con Siigo.',
+          title: 'Venta Realizada con Éxito',
+          html: desgloseHtml,
           confirmButtonColor: 'var(--primary-color)'
         });
+
         setCart([]);
         setCliente(null);
         setDescuentoGlobal(0);

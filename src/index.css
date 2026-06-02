@@ -168,14 +168,53 @@ body {
 
 /* Navegación Lateral (Sidebar) */
 .sidebar {
-  width: 260px;
+  width: 64px;
   background-color: var(--sidebar-bg);
   color: white;
   display: flex;
   flex-direction: column;
   border-right: 1px solid rgba(255, 255, 255, 0.05);
-  transition: var(--transition);
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 100;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sidebar:hover, .sidebar.open {
+  width: 260px;
+}
+
+/* Hide labels when sidebar is collapsed */
+.sidebar:not(:hover):not(.open) .sidebar-profile-info,
+.sidebar:not(:hover):not(.open) .sidebar-btn-facturar span,
+.sidebar:not(:hover):not(.open) .sidebar-item span,
+.sidebar:not(:hover):not(.open) .sidebar-btn-exit span,
+.sidebar:not(:hover):not(.open) .sidebar-category-header {
+  display: none !important;
+}
+
+/* Centering elements when collapsed */
+.sidebar:not(:hover):not(.open) .sidebar-profile-card {
+  justify-content: center;
+  padding: 16px 0;
+}
+
+.sidebar:not(:hover):not(.open) .sidebar-btn-facturar {
+  justify-content: center;
+  padding: 12px 0;
+  margin: 12px 8px;
+}
+
+.sidebar:not(:hover):not(.open) .sidebar-item {
+  justify-content: center;
+  padding: 12px 0;
+  margin: 4px 8px;
+}
+
+.sidebar:not(:hover):not(.open) .sidebar-btn-exit {
+  justify-content: center;
+  padding: 12px 0;
+  margin: auto 8px 16px 8px;
 }
 
 .sidebar-header {
