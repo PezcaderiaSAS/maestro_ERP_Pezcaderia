@@ -520,7 +520,7 @@ export default function ARView({ cartera, setCartera, publishEvent, userRole }: 
                     <span style={{ fontSize: '11px' }}>No hay abonos registrados para esta factura.</span>
                   </div>
                 ) : (
-                  selectedInvoice.pagos.map((p, idx) => (
+                  selectedInvoice.pagos.map((p) => (
                     <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', border: '1px solid #E2E8F0', borderRadius: '6px' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                         <span style={{ fontSize: '12px', fontWeight: 700, color: '#1E293B' }}>${p.monto.toLocaleString('es-CO')}</span>

@@ -1,6 +1,6 @@
 // src/views/HRView.tsx
 import React, { useState } from 'react';
-import { UserPlus, FileText, Lock, Calendar, Trash2, Edit } from 'lucide-react';
+import { UserPlus, FileText, Lock, Calendar, Trash2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 interface Empleado {

@@ -1,6 +1,6 @@
 // src/views/PricingView.tsx
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Save, Printer, Search, DollarSign, Percent, ShoppingCart, FileText, Check, X } from 'lucide-react';
+import { Plus, Edit2, Save, Printer, Search, DollarSign, ShoppingCart, FileText, Check, X } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { Product } from '../App.tsx';
 
@@ -67,8 +67,6 @@ export default function PricingView({
   const [clientIdent, setClientIdent] = useState('');
   const [quoteItems, setQuoteItems] = useState<{ product: Product; cantidad: number; descuento: number; precioOverride?: number }[]>([]);
   const [quoteDiscountGlobal, setQuoteDiscountGlobal] = useState(0); // Porcentaje
-  const [showQuotePrint, setShowQuotePrint] = useState(false);
-  const [generatedQuoteNo, setGeneratedQuoteNo] = useState('');
   const [quoteSearchTerm, setQuoteSearchTerm] = useState('');
 
   // Obtener categorías únicas
@@ -419,7 +417,7 @@ export default function PricingView({
 
         <div style={{ display: 'flex', gap: '8px', backgroundColor: '#E2E8F0', padding: '4px', borderRadius: '12px' }}>
           <button
-            onClick={() => { setActiveTab('catalog'); setShowQuotePrint(false); }}
+            onClick={() => { setActiveTab('catalog'); }}
             className={`pos-category-tab ${activeTab === 'catalog' ? 'active' : ''}`}
             style={{ margin: 0, padding: '8px 16px', borderRadius: '8px' }}
           >
@@ -427,7 +425,7 @@ export default function PricingView({
             Catálogo
           </button>
           <button
-            onClick={() => { setActiveTab('pricing'); setShowQuotePrint(false); }}
+            onClick={() => { setActiveTab('pricing'); }}
             className={`pos-category-tab ${activeTab === 'pricing' ? 'active' : ''}`}
             style={{ margin: 0, padding: '8px 16px', borderRadius: '8px' }}
           >
