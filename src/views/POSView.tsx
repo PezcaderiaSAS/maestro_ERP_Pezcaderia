@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Search, Plus, Minus, X, Check, Barcode, Save, CreditCard } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { Product, DynamicField } from '../App.tsx';
+import { Product, DynamicField, Cliente, generateId, Venta, MovimientoInventario } from '../App.tsx';
 import { InvoiceAR } from './ARView.tsx';
 
 interface CartItem {
@@ -29,6 +29,12 @@ interface POSViewProps {
   updateLastClientPrice: (clientKey: string, sku: string, price: number) => void;
   cartera: any[];
   setCartera: React.Dispatch<React.SetStateAction<any[]>>;
+  clientes: Cliente[];
+  setClientes: React.Dispatch<React.SetStateAction<Cliente[]>>;
+  ventas: Venta[];
+  setVentas: React.Dispatch<React.SetStateAction<Venta[]>>;
+  movimientos: MovimientoInventario[];
+  setMovimientos: React.Dispatch<React.SetStateAction<MovimientoInventario[]>>;
 }
 
 export default function POSView({
@@ -40,8 +46,15 @@ export default function POSView({
   setStock,
   lastClientPrices,
   updateLastClientPrice,
-  setCartera
-}: Omit<POSViewProps, 'setCurrentView' | 'cartera'>) {
+  cartera,
+  setCartera,
+  clientes,
+  setClientes,
+  ventas,
+  setVentas,
+  movimientos,
+  setMovimientos
+}: Omit<POSViewProps, 'setCurrentView'>) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('TODOS');
   const [barcodeInput, setBarcodeInput] = useState('');
@@ -56,8 +69,31 @@ export default function POSView({
     const defaultItems = activeProducts.filter(p => p.sku.startsWith('BAT-') || p.sku.startsWith('ENS-')).slice(0, 3);
     return defaultItems.map(p => ({ product: p, cantidad: 1 }));
   });
-  const [cliente, setCliente] = useState<{ nombre: string; identificacion: string } | null>(null);
+  const [cliente, setCliente] = useState<Cliente | null>(null);
   const [descuentoGlobal, setDescuentoGlobal] = useState(0); // Porcentaje
+
+  const getClienteDeuda = (cId: string) => {
+    return cartera
+      .filter(inv => inv.clienteId === cId)
+      .reduce((sum, inv) => sum + inv.saldo, 0);
+  };
+
+  const getProductPrice = (product: Product) => {
+    if (cliente) {
+      // CLAVE: usa identificacion (NIT/CC) — campo inmutable, no el nombre
+      const clientKey = (cliente.identificacion || '').trim().toLowerCase();
+      if (lastClientPrices[clientKey] && lastClientPrices[clientKey][product.sku] !== undefined) {
+        return lastClientPrices[clientKey][product.sku];
+      }
+
+      if (cliente.tipoPrecio === 'RESTAURANTE') {
+        return product.precio_venta_restaurante;
+      } else if (cliente.tipoPrecio === 'MAYORISTA') {
+        return product.precio_venta_mayorista;
+      }
+    }
+    return product.precio_venta_pos;
+  };
 
   const handleAddProduct = (product: Product) => {
     setCart(prevCart => {
@@ -90,33 +126,253 @@ export default function POSView({
   };
 
   const handleAgregarCliente = async () => {
-    const { value: formValues } = await Swal.fire({
+    const { value: selectedCliente } = await Swal.fire({
       title: 'Vincular Cliente al Pedido',
-      html:
-        '<input id="swal-input1" class="swal2-input" placeholder="Nombre completo o Razón Social">' +
-        '<input id="swal-input2" class="swal2-input" placeholder="Identificación / NIT">',
+      width: '550px',
+      html: `
+        <div style="font-family: var(--font-family); text-align: left;">
+          <!-- Tabs / Acciones -->
+          <div style="display: flex; gap: 8px; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
+            <button type="button" id="tab-search-client" class="pos-category-tab active" style="flex: 1; padding: 8px; margin: 0; background-color: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer;">Buscar Cliente</button>
+            <button type="button" id="tab-new-client" class="pos-category-tab" style="flex: 1; padding: 8px; margin: 0; background-color: #f1f5f9; color: #475569; border: none; border-radius: 6px; cursor: pointer;">Crear Nuevo Cliente</button>
+          </div>
+
+          <!-- Pestaña Buscar -->
+          <div id="panel-search-client">
+            <input type="text" id="swal-client-search" class="swal2-input" placeholder="Buscar por Nombre o NIT..." style="margin: 0 0 10px 0; width: 100%; box-sizing: border-box;" />
+            <div id="swal-client-results" style="max-height: 220px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 8px; margin-top: 10px; background: white;">
+              <!-- Se cargan dinámicamente -->
+            </div>
+            <input type="hidden" id="selected-client-id" value="" />
+          </div>
+
+          <!-- Pestaña Crear -->
+          <div id="panel-new-client" style="display: none; flex-direction: column; gap: 10px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <div>
+                <label style="font-size: 11px; font-weight: bold; color: #475569;">Tipo Persona</label>
+                <select id="new-client-persona" class="swal2-select" style="margin: 4px 0 0 0; width: 100%; height: 38px; padding: 4px; font-size: 13px;">
+                  <option value="JURIDICA">Jurídica</option>
+                  <option value="NATURAL">Natural</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size: 11px; font-weight: bold; color: #475569;">Tipo Identificación</label>
+                <select id="new-client-ident-tipo" class="swal2-select" style="margin: 4px 0 0 0; width: 100%; height: 38px; padding: 4px; font-size: 13px;">
+                  <option value="NIT">NIT</option>
+                  <option value="CC">Cédula (CC)</option>
+                  <option value="CE">Cédula Ext. (CE)</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 11px; font-weight: bold; color: #475569;">Número Identificación / NIT *</label>
+              <input type="text" id="new-client-ident" class="swal2-input" placeholder="Ej: 900.123.456-1" style="margin: 4px 0 0 0; width: 100%; height: 38px; box-sizing: border-box;" />
+            </div>
+            <div>
+              <label style="font-size: 11px; font-weight: bold; color: #475569;">Nombre o Razón Social *</label>
+              <input type="text" id="new-client-nombre" class="swal2-input" placeholder="Nombre completo o razón social" style="margin: 4px 0 0 0; width: 100%; height: 38px; box-sizing: border-box;" />
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <div>
+                <label style="font-size: 11px; font-weight: bold; color: #475569;">Tipo Tarifa *</label>
+                <select id="new-client-tarifa" class="swal2-select" style="margin: 4px 0 0 0; width: 100%; height: 38px; padding: 4px; font-size: 13px;">
+                  <option value="POS">POS (Público)</option>
+                  <option value="RESTAURANTE">Restaurante</option>
+                  <option value="MAYORISTA">Mayorista</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size: 11px; font-weight: bold; color: #475569;">Cupo Crédito ($)</label>
+                <input type="number" id="new-client-cupo" class="swal2-input" placeholder="0" style="margin: 4px 0 0 0; width: 100%; height: 38px; box-sizing: border-box;" />
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <div>
+                <label style="font-size: 11px; font-weight: bold; color: #475569;">Celular</label>
+                <input type="text" id="new-client-telefono" class="swal2-input" style="margin: 4px 0 0 0; width: 100%; height: 38px; box-sizing: border-box;" />
+              </div>
+              <div>
+                <label style="font-size: 11px; font-weight: bold; color: #475569;">Ciudad</label>
+                <input type="text" id="new-client-ciudad" class="swal2-input" value="Bogotá" style="margin: 4px 0 0 0; width: 100%; height: 38px; box-sizing: border-box;" />
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 11px; font-weight: bold; color: #475569;">Dirección</label>
+              <input type="text" id="new-client-direccion" class="swal2-input" style="margin: 4px 0 0 0; width: 100%; height: 38px; box-sizing: border-box;" />
+            </div>
+            <div>
+              <label style="font-size: 11px; font-weight: bold; color: #475569;">Correo Electrónico</label>
+              <input type="email" id="new-client-email" class="swal2-input" style="margin: 4px 0 0 0; width: 100%; height: 38px; box-sizing: border-box;" />
+            </div>
+          </div>
+        </div>
+      `,
       focusConfirm: false,
       showCancelButton: true,
-      confirmButtonText: 'Guardar',
+      confirmButtonText: 'Vincular Cliente',
       cancelButtonText: 'Cancelar',
       confirmButtonColor: 'var(--primary-color)',
-      preConfirm: () => {
-        return {
-          nombre: (document.getElementById('swal-input1') as HTMLInputElement).value,
-          identificacion: (document.getElementById('swal-input2') as HTMLInputElement).value
+      didOpen: () => {
+        const tabSearch = document.getElementById('tab-search-client')!;
+        const tabNew = document.getElementById('tab-new-client')!;
+        const panelSearch = document.getElementById('panel-search-client')!;
+        const panelNew = document.getElementById('panel-new-client')!;
+        const searchInput = document.getElementById('swal-client-search') as HTMLInputElement;
+        const resultsDiv = document.getElementById('swal-client-results')!;
+        const hiddenId = document.getElementById('selected-client-id') as HTMLInputElement;
+
+        const toggleTabs = (target: 'search' | 'new') => {
+          if (target === 'search') {
+            tabSearch.style.backgroundColor = 'var(--primary-color)';
+            tabSearch.style.color = 'white';
+            tabNew.style.backgroundColor = '#f1f5f9';
+            tabNew.style.color = '#475569';
+            panelSearch.style.display = 'block';
+            panelNew.style.display = 'none';
+          } else {
+            tabNew.style.backgroundColor = 'var(--primary-color)';
+            tabNew.style.color = 'white';
+            tabSearch.style.backgroundColor = '#f1f5f9';
+            tabSearch.style.color = '#475569';
+            panelNew.style.display = 'flex';
+            panelSearch.style.display = 'none';
+          }
         };
+
+        tabSearch.addEventListener('click', () => toggleTabs('search'));
+        tabNew.addEventListener('click', () => toggleTabs('new'));
+
+        const renderResults = (query: string) => {
+          resultsDiv.innerHTML = '';
+          const filtered = clientes.filter(c => 
+            c.activo && (
+              c.nombre.toLowerCase().includes(query.toLowerCase()) || 
+              c.identificacion.includes(query)
+            )
+          );
+
+          if (filtered.length === 0) {
+            resultsDiv.innerHTML = '<div style="padding: 12px; color: #64748B; text-align: center; font-size: 13px;">No se encontraron clientes activos.</div>';
+            return;
+          }
+
+          filtered.forEach(c => {
+            const row = document.createElement('div');
+            row.style.padding = '8px 12px';
+            row.style.borderBottom = '1px solid #f1f5f9';
+            row.style.cursor = 'pointer';
+            row.style.display = 'flex';
+            row.style.justifyContent = 'space-between';
+            row.style.alignItems = 'center';
+            row.style.fontSize = '13px';
+            row.className = 'swal-client-row';
+            if (hiddenId.value === c.id) {
+              row.style.backgroundColor = 'rgba(2, 132, 199, 0.1)';
+              row.style.fontWeight = 'bold';
+            }
+
+            row.innerHTML = `
+              <div>
+                <strong style="display:block; text-transform: uppercase;">${c.nombre}</strong>
+                <span style="font-size: 11px; color:#64748B;">NIT/CC: ${c.identificacion} | Tarifa: ${c.tipoPrecio}</span>
+              </div>
+              <span style="font-size: 10px; padding: 2px 6px; border-radius: 10px; background:#F1F5F9; color:#475569;">Seleccionar</span>
+            `;
+
+            row.addEventListener('click', () => {
+              document.querySelectorAll('.swal-client-row').forEach((el: any) => {
+                el.style.backgroundColor = 'white';
+                el.style.fontWeight = 'normal';
+              });
+              row.style.backgroundColor = 'rgba(2, 132, 199, 0.1)';
+              row.style.fontWeight = 'bold';
+              hiddenId.value = c.id;
+            });
+
+            resultsDiv.appendChild(row);
+          });
+        };
+
+        renderResults('');
+
+        searchInput.addEventListener('input', (e) => {
+          renderResults((e.target as HTMLInputElement).value);
+        });
+      },
+      preConfirm: () => {
+        const isSearch = document.getElementById('panel-search-client')!.style.display !== 'none';
+        if (isSearch) {
+          const selectedId = (document.getElementById('selected-client-id') as HTMLInputElement).value;
+          if (!selectedId) {
+            Swal.showValidationMessage('Debe seleccionar un cliente de la lista.');
+            return false;
+          }
+          const client = clientes.find(c => c.id === selectedId);
+          return { action: 'select', client };
+        } else {
+          const nombre = (document.getElementById('new-client-nombre') as HTMLInputElement).value;
+          const identificacion = (document.getElementById('new-client-ident') as HTMLInputElement).value;
+          const tipoIdentificacion = (document.getElementById('new-client-ident-tipo') as HTMLInputElement).value as any;
+          const tipoPersona = (document.getElementById('new-client-persona') as HTMLInputElement).value as any;
+          const tipoPrecio = (document.getElementById('new-client-tarifa') as HTMLInputElement).value as any;
+          const cupoCredito = parseInt((document.getElementById('new-client-cupo') as HTMLInputElement).value) || 0;
+          const telefono = (document.getElementById('new-client-telefono') as HTMLInputElement).value;
+          const ciudad = (document.getElementById('new-client-ciudad') as HTMLInputElement).value;
+          const direccion = (document.getElementById('new-client-direccion') as HTMLInputElement).value;
+          const email = (document.getElementById('new-client-email') as HTMLInputElement).value;
+
+          if (!nombre || !identificacion) {
+            Swal.showValidationMessage('El nombre y número de identificación son obligatorios.');
+            return false;
+          }
+
+          if (clientes.some(c => c.identificacion === identificacion)) {
+            Swal.showValidationMessage('Ya existe un cliente con esta identificación.');
+            return false;
+          }
+
+          const newClient: Cliente = {
+            id: `c-${Date.now()}`,
+            nombre: nombre.toUpperCase(),
+            identificacion,
+            tipoIdentificacion,
+            tipoPersona,
+            direccion,
+            telefono,
+            email,
+            ciudad,
+            cupoCredito,
+            tipoPrecio,
+            activo: true
+          };
+
+          return { action: 'create', client: newClient };
+        }
       }
     });
 
-    if (formValues && formValues.nombre && formValues.identificacion) {
-      setCliente(formValues);
-      Swal.fire({
-        icon: 'success',
-        title: 'Cliente Vinculado',
-        text: `${formValues.nombre} agregado al pedido.`,
-        timer: 1500,
-        showConfirmButton: false
-      });
+    if (selectedCliente) {
+      if (selectedCliente.action === 'create') {
+        setClientes(prev => [...prev, selectedCliente.client]);
+        setCliente(selectedCliente.client);
+        Swal.fire({
+          icon: 'success',
+          title: 'Cliente Creado y Vinculado',
+          text: `${selectedCliente.client.nombre} agregado al pedido.`,
+          timer: 1500,
+          showConfirmButton: false
+        });
+      } else {
+        setCliente(selectedCliente.client);
+        Swal.fire({
+          icon: 'success',
+          title: 'Cliente Vinculado',
+          text: `${selectedCliente.client.nombre} agregado al pedido.`,
+          timer: 1500,
+          showConfirmButton: false
+        });
+      }
     }
   };
 
@@ -433,9 +689,17 @@ export default function POSView({
 
         const totalPaid = transfer + card + cash + credit;
 
-        if (credit > 0 && !cliente) {
-          Swal.showValidationMessage('Debe vincular un Cliente registrado para poder procesar pagos a Crédito.');
-          return false;
+        if (credit > 0) {
+          if (!cliente) {
+            Swal.showValidationMessage('Debe vincular un Cliente registrado para poder procesar pagos a Crédito.');
+            return false;
+          }
+          const currentDebt = getClienteDeuda(cliente.id);
+          const proposedDebt = currentDebt + credit;
+          if (proposedDebt > cliente.cupoCredito) {
+            Swal.showValidationMessage(`Límite de crédito excedido. Cupo total: $${cliente.cupoCredito.toLocaleString('es-CO')}. Deuda actual: $${currentDebt.toLocaleString('es-CO')}. Deuda propuesta: $${proposedDebt.toLocaleString('es-CO')}. Cupo disponible: $${Math.max(0, cliente.cupoCredito - currentDebt).toLocaleString('es-CO')}`);
+            return false;
+          }
         }
 
         if (totalPaid < totalFinal) {
@@ -448,6 +712,8 @@ export default function POSView({
     }).then((result) => {
       if (result.isConfirmed && result.value) {
         const { transfer, card, cash, credit, change } = result.value;
+        const orderNo = 'PED-' + Math.floor(100000 + Math.random() * 900000);
+        const vtaId = generateId('vta');
 
         // Decrease stock in Bodega Principal
         setStock(prev => {
@@ -464,20 +730,85 @@ export default function POSView({
           return newStock;
         });
 
-        // Record last prices per client if client is selected
+        // Registrar últimos precios por cliente usando identificacion como clave
         if (cliente) {
           cart.forEach(item => {
-            const finalUnitPrice = item.precioOverride !== undefined ? item.precioOverride : item.product.precio_venta_pos;
-            updateLastClientPrice(cliente.identificacion || cliente.nombre, item.product.sku, finalUnitPrice);
+            const finalUnitPrice = item.precioOverride !== undefined ? item.precioOverride : getProductPrice(item.product);
+            updateLastClientPrice(cliente.identificacion, item.product.sku, finalUnitPrice);
           });
         }
 
-        // If credit was used, create or append to cartera
-        const orderNo = 'PED-' + Math.floor(100000 + Math.random() * 900000);
+        // F2: Crear y registrar entidad Venta
+        let paymentMethod: 'EFECTIVO' | 'TRANSFERENCIA' | 'TARJETA' | 'CREDITO' | 'MIXTO' = 'EFECTIVO';
+        if (credit > 0) {
+          paymentMethod = (cash > 0 || transfer > 0 || card > 0) ? 'MIXTO' : 'CREDITO';
+        } else {
+          const activeMethods = [cash > 0, transfer > 0, card > 0].filter(Boolean).length;
+          if (activeMethods > 1) {
+            paymentMethod = 'MIXTO';
+          } else if (transfer > 0) {
+            paymentMethod = 'TRANSFERENCIA';
+          } else if (card > 0) {
+            paymentMethod = 'TARJETA';
+          } else {
+            paymentMethod = 'EFECTIVO';
+          }
+        }
+
+        const newVenta: Venta = {
+          id: vtaId,
+          clienteId: cliente ? cliente.id : null,
+          clienteNombre: cliente ? cliente.nombre : 'Consumidor Final',
+          clienteIdentificacion: cliente ? cliente.identificacion : '',
+          fecha: new Date().toISOString(),
+          items: cart.map(item => {
+            const unitPrice = item.precioOverride !== undefined ? item.precioOverride : getProductPrice(item.product);
+            return {
+              sku: item.product.sku,
+              nombre: item.product.nombre,
+              cantidad: item.cantidad,
+              precioUnitario: unitPrice,
+              subtotal: item.cantidad * unitPrice
+            };
+          }),
+          subtotal: subtotal,
+          descuento: totalDescuento,
+          total: totalFinal,
+          metodoPago: paymentMethod,
+          montoPagadoEfectivo: cash,
+          montoPagadoTransferencia: transfer,
+          montoPagadoTarjeta: card,
+          montoPagadoCredito: credit,
+          cambioEntregado: change,
+          actor: userRole
+        };
+        setVentas(prev => [newVenta, ...prev]);
+
+        // F2: Registrar Movimiento de Inventario de tipo SALIDA_VENTA para cada item
+        const newMovements: MovimientoInventario[] = cart.map(item => {
+          const prodStock = stock['Bodega Principal']?.find((s: any) => s.sku === item.product.sku);
+          const lote = prodStock ? prodStock.lote : 'VENTA';
+          return {
+            id: generateId('mov'),
+            timestamp: new Date().toISOString(),
+            tipo: 'SALIDA_VENTA',
+            sku: item.product.sku,
+            nombreProducto: item.product.nombre,
+            bodegaOrigen: 'Bodega Principal',
+            cantidad: item.cantidad,
+            lote: lote,
+            referenciaId: vtaId,
+            referenciaTipo: 'VENTA',
+            actor: userRole,
+            notas: `Venta POS a ${cliente ? cliente.nombre : 'Consumidor Final'}`
+          };
+        });
+        setMovimientos(prev => [...newMovements, ...prev]);
+
         if (credit > 0 && cliente) {
           const newAR: InvoiceAR = {
             id: orderNo,
-            clienteId: 'c-' + Date.now(),
+            clienteId: cliente.id,
             clienteNombre: cliente.nombre,
             clienteIdentificacion: cliente.identificacion,
             fecha: new Date().toISOString(),
@@ -488,15 +819,15 @@ export default function POSView({
           };
           
           if (transfer > 0) {
-            newAR.pagos.push({ id: 'pgo-t-' + Date.now(), fecha: new Date().toISOString(), monto: transfer, metodo: 'Transferencia' });
+            newAR.pagos.push({ id: generateId('pgo-t'), fecha: new Date().toISOString(), monto: transfer, metodo: 'Transferencia' });
           }
           if (card > 0) {
-            newAR.pagos.push({ id: 'pgo-c-' + Date.now(), fecha: new Date().toISOString(), monto: card, metodo: 'Datáfono' });
+            newAR.pagos.push({ id: generateId('pgo-c'), fecha: new Date().toISOString(), monto: card, metodo: 'Datáfono' });
           }
           if (cash > 0) {
             const efectivoAbonado = Math.max(0, cash - change);
             if (efectivoAbonado > 0) {
-              newAR.pagos.push({ id: 'pgo-cs-' + Date.now(), fecha: new Date().toISOString(), monto: efectivoAbonado, metodo: 'Efectivo' });
+              newAR.pagos.push({ id: generateId('pgo-cs'), fecha: new Date().toISOString(), monto: efectivoAbonado, metodo: 'Efectivo' });
             }
           }
 
@@ -576,7 +907,7 @@ export default function POSView({
 
   // Cálculos financieros
   const subtotal = cart.reduce((acc, item) => {
-    const unitPrice = item.precioOverride !== undefined ? item.precioOverride : item.product.precio_venta_pos;
+    const unitPrice = item.precioOverride !== undefined ? item.precioOverride : getProductPrice(item.product);
     return acc + unitPrice * item.cantidad;
   }, 0);
   const totalDescuento = subtotal * (descuentoGlobal / 100);
@@ -652,7 +983,12 @@ export default function POSView({
                 <div className="product-info-panel">
                   <span className="product-card-name">{prod.nombre}</span>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '4px' }}>
-                    <span className="product-card-price-tag">${prod.precio_venta_pos.toLocaleString('es-CO')}</span>
+                    <span className="product-card-price-tag">${getProductPrice(prod).toLocaleString('es-CO')}</span>
+                    {cliente && (cliente.tipoPrecio === 'RESTAURANTE' || cliente.tipoPrecio === 'MAYORISTA') && (
+                      <span style={{ fontSize: '9px', backgroundColor: 'var(--primary-light)', color: 'var(--primary-color)', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
+                        {cliente.tipoPrecio}
+                      </span>
+                    )}
                   </div>
                   {dynamicFields.map(field => {
                     const val = prod.metadata?.[field.key] || field.defaultValue;
@@ -723,7 +1059,7 @@ export default function POSView({
           ) : (
             cart.map(item => {
               const stockPrincipal = getProductStock(item.product.sku, 'Bodega Principal');
-              const finalUnitPrice = item.precioOverride !== undefined ? item.precioOverride : item.product.precio_venta_pos;
+              const finalUnitPrice = item.precioOverride !== undefined ? item.precioOverride : getProductPrice(item.product);
               const isInsufficient = stockPrincipal < item.cantidad;
               const clientKey = cliente ? (cliente.identificacion || cliente.nombre).trim().toLowerCase() : '';
               const historicalPrice = (cliente && clientKey) ? lastClientPrices[clientKey]?.[item.product.sku] : undefined;

@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Search, DollarSign, Wallet, FileText, Check, Plus, Calendar, Clock, AlertCircle } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { Cliente } from '../App.tsx';
 
 export interface PaymentAR {
   id: string;
@@ -12,9 +13,9 @@ export interface PaymentAR {
 
 export interface InvoiceAR {
   id: string;
-  clienteId: string;
-  clienteNombre: string;
-  clienteIdentificacion: string;
+  clienteId: string;              // FK formal hacia Cliente.id
+  clienteNombre: string;          // ⚠️ Legado — usar sólo como fallback
+  clienteIdentificacion: string;  // ⚠️ Legado — usar sólo como fallback
   fecha: string;
   total: number;
   saldo: number;
@@ -25,6 +26,7 @@ export interface InvoiceAR {
 interface ARViewProps {
   cartera: InvoiceAR[];
   setCartera: React.Dispatch<React.SetStateAction<InvoiceAR[]>>;
+  clientes: Cliente[];            // Fuente de verdad para nombres en runtime
   publishEvent: (
     tipo: 'SALE_COMPLETED' | 'PRICE_CHANGED' | 'MERMA_ALERT' | 'QUOTE_STATUS_CHANGED' | 'METADATA_CONFIGURED',
     actor: string,
@@ -35,10 +37,31 @@ interface ARViewProps {
   userRole: string;
 }
 
-export default function ARView({ cartera, setCartera, publishEvent, userRole }: ARViewProps) {
+export default function ARView({ cartera, setCartera, clientes, publishEvent, userRole }: ARViewProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'TODAS' | 'PENDIENTES' | 'CANCELADAS'>('PENDIENTES');
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceAR | null>(null);
+
+  /**
+   * Resuelve el nombre de un cliente usando la fuente de verdad (clientes[]).
+   * Si el invoice tiene clienteId y se encuentra el cliente, usa el nombre actualizado.
+   * Si no, usa el nombre almacenado en la factura como fallback (datos históricos).
+   */
+  const resolveClienteName = (inv: InvoiceAR): string => {
+    if (inv.clienteId) {
+      const found = clientes.find(c => c.id === inv.clienteId);
+      if (found) return found.nombre;
+    }
+    return inv.clienteNombre || 'Cliente desconocido';
+  };
+
+  const resolveClienteIdentificacion = (inv: InvoiceAR): string => {
+    if (inv.clienteId) {
+      const found = clientes.find(c => c.id === inv.clienteId);
+      if (found) return found.identificacion;
+    }
+    return inv.clienteIdentificacion || '—';
+  };
 
   // Cálculos consolidados de cartera
   const totalPorCobrar = cartera.reduce((sum, inv) => sum + inv.saldo, 0);
@@ -47,14 +70,16 @@ export default function ARView({ cartera, setCartera, publishEvent, userRole }: 
   }, 0);
   const facturasPendientesCount = cartera.filter(inv => inv.saldo > 0).length;
 
-  // Filtrado de facturas
+  // Filtrado de facturas — usa resolveClienteName para buscar por nombre actualizado
   const filteredInvoices = cartera.filter(inv => {
-    const matchesSearch = 
-      inv.clienteNombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      inv.clienteIdentificacion.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const nombre = resolveClienteName(inv);
+    const identificacion = resolveClienteIdentificacion(inv);
+    const matchesSearch =
+      nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      identificacion.toLowerCase().includes(searchTerm.toLowerCase()) ||
       inv.id.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus = 
+    const matchesStatus =
       statusFilter === 'TODAS' ||
       (statusFilter === 'PENDIENTES' && inv.saldo > 0) ||
       (statusFilter === 'CANCELADAS' && inv.saldo === 0);
@@ -406,8 +431,8 @@ export default function ARView({ cartera, setCartera, publishEvent, userRole }: 
                     <td style={{ padding: '12px', fontSize: '13px', fontWeight: 700, color: 'var(--primary-color)' }}>{inv.id}</td>
                     <td style={{ padding: '12px' }}>
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={{ fontSize: '13px', fontWeight: 600, color: '#1E293B' }}>{inv.clienteNombre}</span>
-                        <span style={{ fontSize: '11px', color: '#64748B' }}>NIT: {inv.clienteIdentificacion}</span>
+                        <span style={{ fontSize: '13px', fontWeight: 600, color: '#1E293B' }}>{resolveClienteName(inv)}</span>
+                        <span style={{ fontSize: '11px', color: '#64748B' }}>NIT: {resolveClienteIdentificacion(inv)}</span>
                       </div>
                     </td>
                     <td style={{ padding: '12px', fontSize: '12px', color: '#64748B' }}>
@@ -477,11 +502,11 @@ export default function ARView({ cartera, setCartera, publishEvent, userRole }: 
             <div style={{ backgroundColor: '#F8FAFC', borderRadius: '8px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
                 <span style={{ color: '#64748B' }}>Cliente:</span>
-                <strong style={{ color: '#1E293B' }}>{selectedInvoice.clienteNombre}</strong>
+                <strong style={{ color: '#1E293B' }}>{resolveClienteName(selectedInvoice)}</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
                 <span style={{ color: '#64748B' }}>NIT / Identificación:</span>
-                <span style={{ color: '#1E293B' }}>{selectedInvoice.clienteIdentificacion}</span>
+                <span style={{ color: '#1E293B' }}>{resolveClienteIdentificacion(selectedInvoice)}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
                 <span style={{ color: '#64748B' }}>Fecha de Emisión:</span>

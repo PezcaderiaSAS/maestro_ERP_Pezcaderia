@@ -2,11 +2,15 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Save, Printer, Search, DollarSign, ShoppingCart, FileText, Check, X } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { Product } from '../App.tsx';
+import { Product, ProductCatalog, ProductPricing, Cliente, generateId } from '../App.tsx';
 
 interface PricingViewProps {
   products: Product[];
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
+  productsCatalog?: ProductCatalog[];
+  setProductsCatalog?: React.Dispatch<React.SetStateAction<ProductCatalog[]>>;
+  productPricings?: ProductPricing[];
+  setProductPricings?: React.Dispatch<React.SetStateAction<ProductPricing[]>>;
   quotations: any[];
   setQuotations: React.Dispatch<React.SetStateAction<any[]>>;
   publishEvent: (
@@ -21,11 +25,16 @@ interface PricingViewProps {
   setStock: React.Dispatch<React.SetStateAction<Record<string, any[]>>>;
   lastClientPrices: Record<string, Record<string, number>>;
   updateLastClientPrice: (clientKey: string, sku: string, price: number) => void;
+  clientes: Cliente[];
 }
 
 export default function PricingView({
   products,
   setProducts,
+  productsCatalog,
+  setProductsCatalog,
+  productPricings,
+  setProductPricings,
   quotations,
   setQuotations,
   publishEvent,
@@ -33,7 +42,8 @@ export default function PricingView({
   stock,
   setStock,
   lastClientPrices,
-  updateLastClientPrice
+  updateLastClientPrice,
+  clientes
 }: PricingViewProps) {
   const [activeTab, setActiveTab] = useState<'catalog' | 'pricing' | 'quotes'>('catalog');
   const [quoteSubTab, setQuoteSubTab] = useState<'create' | 'history'>('create');
@@ -45,6 +55,7 @@ export default function PricingView({
     sku: '',
     nombre: '',
     categoria: '',
+    unidadMedida: 'kg' as 'kg' | 'und' | 'lb' | 'gr',
     precio_compra: 0,
     buffer_seguridad: 5,
   });
@@ -60,6 +71,7 @@ export default function PricingView({
     precio_venta_restaurante: 0,
     precio_venta_mayorista: 0,
   });
+  const [selectedProductHistory, setSelectedProductHistory] = useState<string | null>(null);
 
   // --- ESTADO: PESTAÑA COTIZACIONES ---
   const [clientType, setClientType] = useState<'POS' | 'RESTAURANTE' | 'MAYORISTA'>('POS');
@@ -147,13 +159,16 @@ export default function PricingView({
       sku: prod.sku,
       nombre: prod.nombre,
       categoria: prod.categoria,
+      unidadMedida: prod.unidadMedida || 'kg',
       precio_compra: prod.precio_compra,
       buffer_seguridad: prod.buffer_seguridad,
     });
   };
 
   const handleToggleStatus = (id: string) => {
-    setProducts(prev => prev.map(p => p.id === id ? { ...p, activo: !p.activo } : p));
+    if (setProductsCatalog) {
+      setProductsCatalog(prev => prev.map(p => p.id === id ? { ...p, activo: !p.activo } : p));
+    }
   };
 
   // --- MANEJADORES PRECIOS ---
@@ -183,24 +198,27 @@ export default function PricingView({
   }, [priceForm.precio_compra, priceForm.buffer_seguridad]);
 
   const handleSavePrices = (prodId: string) => {
-    setProducts(prev => prev.map(p => {
-      if (p.id === prodId) {
-        return {
-          ...p,
-          precio_compra: priceForm.precio_compra,
-          buffer_seguridad: priceForm.buffer_seguridad,
-          precio_venta_pos: priceForm.precio_venta_pos,
-          precio_venta_restaurante: priceForm.precio_venta_restaurante,
-          precio_venta_mayorista: priceForm.precio_venta_mayorista
-        };
-      }
-      return p;
-    }));
+    if (setProductPricings) {
+      const newPricing: ProductPricing = {
+        id: generateId('prc'),
+        productoId: prodId,
+        vigenciaDesde: new Date().toISOString(),
+        precio_compra: priceForm.precio_compra,
+        buffer_seguridad: priceForm.buffer_seguridad,
+        precio_venta_pos: priceForm.precio_venta_pos,
+        precio_venta_restaurante: priceForm.precio_venta_restaurante,
+        precio_venta_mayorista: priceForm.precio_venta_mayorista,
+        actualizadoPor: userRole
+      };
+      setProductPricings(prev => [...prev, newPricing]);
+      publishEvent('PRICE_CHANGED', userRole, `Actualización de precios para el producto ${prodId}`);
+    }
+
     setEditingPriceId(null);
     Swal.fire({
       icon: 'success',
       title: 'Precios Actualizados',
-      text: 'Los nuevos precios de venta y costos han sido guardados.',
+      text: 'Los nuevos precios de venta y costos han sido guardados en el historial.',
       timer: 1500,
       showConfirmButton: false
     });
@@ -278,9 +296,14 @@ export default function PricingView({
     }
 
     const randomNo = 'COT-' + Math.floor(100000 + Math.random() * 900000);
+    // Buscar clienteId en la base de datos — null si el cliente no está registrado
+    const clienteRegistrado = clientes.find(
+      c => c.identificacion === clientIdent || c.nombre === clientName.toUpperCase()
+    );
     const newQuote = {
-      id: 'q-' + Date.now(),
+      id: generateId('q'),
       no: randomNo,
+      clienteId: clienteRegistrado?.id || null,  // FK formal (DEF-02 corregido)
       clientName,
       clientIdent,
       clientType,
@@ -740,24 +763,36 @@ export default function PricingView({
                             <button
                               onClick={() => handleSavePrices(p.id)}
                               style={{ background: 'var(--primary-color)', border: 'none', color: 'white', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                              title="Guardar"
                             >
                               <Check size={14} />
                             </button>
                             <button
                               onClick={() => setEditingPriceId(null)}
                               style={{ background: '#EF4444', border: 'none', color: 'white', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                              title="Cancelar"
                             >
                               <X size={14} />
                             </button>
                           </div>
                         ) : (
-                          <button
-                            onClick={() => handleStartEditPrice(p)}
-                            className="btn-primary"
-                            style={{ padding: '6px 12px', fontSize: '12px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none' }}
-                          >
-                            Editar
-                          </button>
+                          <div style={{ display: 'flex', gap: '6px' }}>
+                            <button
+                              onClick={() => handleStartEditPrice(p)}
+                              className="btn-primary"
+                              style={{ padding: '6px 10px', fontSize: '12px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none' }}
+                            >
+                              Editar
+                            </button>
+                            <button
+                              onClick={() => setSelectedProductHistory(p.id)}
+                              className="btn-secondary"
+                              style={{ padding: '6px 10px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                              title="Ver historial de cambios"
+                            >
+                              <FileText size={14} />
+                            </button>
+                          </div>
                         )}
                       </td>
                     </tr>
@@ -799,6 +834,34 @@ export default function PricingView({
                   <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '16px' }}>Datos de la Cotización</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label className="form-label" style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>Buscar/Vincular Cliente Registrado</label>
+                      <select
+                        className="form-control"
+                        style={{ border: '2px solid var(--primary-color)', borderRadius: '8px' }}
+                        value={clientes.find(c => c.identificacion === clientIdent)?.id || ''}
+                        onChange={e => {
+                          const selected = clientes.find(c => c.id === e.target.value);
+                          if (selected) {
+                            setClientName(selected.nombre);
+                            setClientIdent(selected.identificacion);
+                            setClientType(selected.tipoPrecio as any);
+                          } else {
+                            setClientName('');
+                            setClientIdent('');
+                            setClientType('POS');
+                          }
+                        }}
+                      >
+                        <option value="">-- Seleccionar cliente de base de datos --</option>
+                        {clientes.filter(c => c.activo).map(c => (
+                          <option key={c.id} value={c.id}>
+                            {c.nombre} ({c.identificacion}) [Tarifa: {c.tipoPrecio}]
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
                     <div className="form-group" style={{ marginBottom: 0 }}>
                       <label className="form-label">Lista de Precios del Cliente</label>
                       <select
@@ -1392,6 +1455,73 @@ export default function PricingView({
               </div>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE HISTORIAL DE PRECIOS */}
+      {selectedProductHistory && productPricings && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ width: '800px' }}>
+            <div className="modal-header">
+              <h2>Historial de Precios</h2>
+              <button className="btn-icon" onClick={() => setSelectedProductHistory(null)}>
+                <X size={24} />
+              </button>
+            </div>
+            <div className="modal-body" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+              <p style={{ marginBottom: '16px', color: '#475569' }}>
+                Producto: <strong>{products.find(p => p.id === selectedProductHistory)?.nombre || 'Desconocido'}</strong>
+              </p>
+              <table className="hr-table">
+                <thead>
+                  <tr>
+                    <th>Fecha Vigencia</th>
+                    <th>Costo</th>
+                    <th>Buffer</th>
+                    <th>Precio POS</th>
+                    <th>Precio Rest.</th>
+                    <th>Precio Mayor.</th>
+                    <th>Actor</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {productPricings
+                    .filter(pr => pr.productoId === selectedProductHistory)
+                    .sort((a, b) => new Date(b.vigenciaDesde).getTime() - new Date(a.vigenciaDesde).getTime())
+                    .map((pr, i) => (
+                    <tr key={pr.id}>
+                      <td>
+                        {new Date(pr.vigenciaDesde).toLocaleDateString('es-CO')}
+                        <br/>
+                        <span style={{ fontSize: '11px', color: '#64748B' }}>
+                          {new Date(pr.vigenciaDesde).toLocaleTimeString('es-CO')}
+                          {i === 0 && <span style={{ marginLeft: '6px', color: 'green', fontWeight: 'bold' }}>(Vigente)</span>}
+                        </span>
+                      </td>
+                      <td style={{ fontWeight: 600 }}>${pr.precio_compra.toLocaleString('es-CO')}</td>
+                      <td>{pr.buffer_seguridad}%</td>
+                      <td>${pr.precio_venta_pos.toLocaleString('es-CO')}</td>
+                      <td>${pr.precio_venta_restaurante.toLocaleString('es-CO')}</td>
+                      <td>${pr.precio_venta_mayorista.toLocaleString('es-CO')}</td>
+                      <td>
+                        <span style={{ fontSize: '12px', padding: '4px 8px', borderRadius: '4px', backgroundColor: '#F1F5F9' }}>
+                          {pr.actualizadoPor}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                  {productPricings.filter(pr => pr.productoId === selectedProductHistory).length === 0 && (
+                    <tr><td colSpan={7} style={{ textAlign: 'center', padding: '24px' }}>No hay historial para este producto.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <div className="modal-footer" style={{ borderTop: '1px solid var(--border-color)', padding: '16px', display: 'flex', justifyContent: 'flex-end' }}>
+              <button className="btn-secondary" onClick={() => setSelectedProductHistory(null)}>
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>
       )}

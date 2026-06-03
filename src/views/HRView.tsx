@@ -1,7 +1,9 @@
 // src/views/HRView.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UserPlus, FileText, Lock, Calendar, Trash2 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { generateId } from '../App.tsx';
+import * as localDb from '../services/localDb.ts';
 
 interface Empleado {
   id: string;
@@ -24,7 +26,12 @@ const EMPLEADOS_MOCK: Empleado[] = [
 ];
 
 export default function HRView() {
-  const [empleados, setEmpleados] = useState<Empleado[]>(EMPLEADOS_MOCK);
+  // Persistencia en localStorage — antes los cambios se perdían al recargar la página
+  const [empleados, setEmpleados] = useState<Empleado[]>(() => localDb.load('empleados', EMPLEADOS_MOCK));
+
+  useEffect(() => {
+    localDb.save('empleados', empleados);
+  }, [empleados]);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({
     nombre: '',
@@ -45,7 +52,7 @@ export default function HRView() {
     }
 
     const nuevo: Empleado = {
-      id: (empleados.length + 1).toString(),
+      id: generateId('emp'),
       nombre: form.nombre,
       identificacion: form.identificacion,
       cargo: form.cargo,

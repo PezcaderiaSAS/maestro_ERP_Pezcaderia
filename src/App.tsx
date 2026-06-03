@@ -1,26 +1,231 @@
 import { useState, useEffect } from 'react';
-import { Menu, LayoutDashboard, ShoppingBag, Box, Users, DollarSign, HelpCircle, Home, ShoppingCart, LogOut, FileText, PlusCircle, Wallet } from 'lucide-react';
+import { Menu, LayoutDashboard, ShoppingBag, Box, Users, DollarSign, HelpCircle, Home, ShoppingCart, LogOut, FileText, PlusCircle, Wallet, Database, Truck, RefreshCw } from 'lucide-react';
 import DashboardView from './views/DashboardView.tsx';
 import POSView from './views/POSView.tsx';
 import InventoryView from './views/InventoryView.tsx';
 import HRView from './views/HRView.tsx';
 import PricingView from './views/PricingView.tsx';
 import ARView, { InvoiceAR } from './views/ARView.tsx';
+import ClientsView from './views/ClientsView.tsx';
+import SuppliersView from './views/SuppliersView.tsx';
+import * as localDb from './services/localDb.ts';
 
+/** Genera IDs únicos usando crypto.randomUUID() — resistente a colisiones en operaciones rápidas */
+export const generateId = (prefix: string): string =>
+  `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
 
-export interface Product {
+export interface Cliente {
+  id: string;
+  nombre: string;
+  identificacion: string;
+  tipoIdentificacion: 'NIT' | 'CC' | 'CE';
+  tipoPersona: 'NATURAL' | 'JURIDICA';
+  direccion: string;
+  telefono: string;
+  email: string;
+  ciudad: string;
+  tipoPrecio: 'POS' | 'RESTAURANTE' | 'MAYORISTA';
+  encargadoCompras?: string;
+  cupoCredito: number; // Para validación en ventas a crédito
+  activo: boolean;
+}
+
+export interface Proveedor {
+  id: string;
+  nombre: string;
+  nit: string;
+  tipoIdentificacion: 'NIT' | 'CC';
+  direccion: string;
+  telefono: string;
+  email: string;
+  ciudad: string;
+  contactoCompras?: string;
+  plazoPagoDias: number;
+  activo: boolean;
+}
+
+const INITIAL_CLIENTS: Cliente[] = [
+  {
+    id: 'c-1',
+    nombre: 'Restaurante Central',
+    identificacion: '123',
+    tipoIdentificacion: 'NIT',
+    tipoPersona: 'JURIDICA',
+    direccion: 'Calle 45 # 12-30, Bogotá',
+    telefono: '3151234567',
+    email: 'compras@restaurantecentral.com',
+    ciudad: 'Bogotá',
+    tipoPrecio: 'RESTAURANTE',
+    encargadoCompras: 'Martín Gómez',
+    cupoCredito: 1500000,
+    activo: true
+  },
+  {
+    id: 'c-2',
+    nombre: 'Restaurante del Mar',
+    identificacion: '900123456-1',
+    tipoIdentificacion: 'NIT',
+    tipoPersona: 'JURIDICA',
+    direccion: 'Av. Santander # 5-10, Cartagena',
+    telefono: '3207654321',
+    email: 'contacto@restdelmar.co',
+    ciudad: 'Cartagena',
+    tipoPrecio: 'RESTAURANTE',
+    encargadoCompras: 'Lucía Fernández',
+    cupoCredito: 2500000,
+    activo: true
+  },
+  {
+    id: 'c-3',
+    nombre: 'Pescadería La Playa',
+    identificacion: '800987654-2',
+    tipoIdentificacion: 'NIT',
+    tipoPersona: 'JURIDICA',
+    direccion: 'Carrera 10 # 14-50, Barranquilla',
+    telefono: '3009876543',
+    email: 'gerencia@laplayapescaderia.com',
+    ciudad: 'Barranquilla',
+    tipoPrecio: 'MAYORISTA',
+    encargadoCompras: 'Carlos Rojas',
+    cupoCredito: 4000000,
+    activo: true
+  },
+  {
+    id: 'c-4',
+    nombre: 'Consumidor Final (POS)',
+    identificacion: '22222222',
+    tipoIdentificacion: 'CC',
+    tipoPersona: 'NATURAL',
+    direccion: 'Calle 100 # 15-22, Bogotá',
+    telefono: '3109999999',
+    email: 'pos@pezcaderia.com',
+    ciudad: 'Bogotá',
+    tipoPrecio: 'POS',
+    cupoCredito: 0,
+    activo: true
+  }
+];
+
+const INITIAL_PROVEEDORES: Proveedor[] = [
+  {
+    id: 'prov-1',
+    nombre: 'Distribuidores del Pacífico',
+    nit: '900111222-1',
+    tipoIdentificacion: 'NIT',
+    direccion: 'Calle 15 # 4-20, Buenaventura',
+    telefono: '3101234567',
+    email: 'contacto@distripacifico.com',
+    ciudad: 'Buenaventura',
+    contactoCompras: 'Carlos Mendoza',
+    plazoPagoDias: 30,
+    activo: true
+  },
+  {
+    id: 'prov-2',
+    nombre: 'Mariscos del Atlántico',
+    nit: '800222333-2',
+    tipoIdentificacion: 'NIT',
+    direccion: 'Av. Pedro de Heredia, Cartagena',
+    telefono: '3207654321',
+    email: 'ventas@mariscosatlantico.co',
+    ciudad: 'Cartagena',
+    contactoCompras: 'Sofía Restrepo',
+    plazoPagoDias: 15,
+    activo: true
+  },
+  {
+    id: 'prov-3',
+    nombre: 'Empaques y Logística del Eje',
+    nit: '700333444-3',
+    tipoIdentificacion: 'NIT',
+    direccion: 'Zona Industrial, Pereira',
+    telefono: '3159876543',
+    email: 'empaques@logisticaeje.com',
+    ciudad: 'Pereira',
+    contactoCompras: 'Andrés Gómez',
+    plazoPagoDias: 45,
+    activo: true
+  }
+];
+
+export interface CategoriaConfig {
+  id: string;
+  tipo: string;
+  linea: string;
+  clase: string;
+}
+
+export interface ProductCatalog {
   id: string;
   sku: string;
   nombre: string;
   categoria: string;
+  unidadMedida: 'kg' | 'und' | 'lb' | 'gr';
+  imagen?: string;
+  codigo_barras?: string;
+  iva?: number;
+  ivaIncluido?: boolean;
+  control_inventario?: boolean;
+  produccion?: boolean;
+  activo: boolean;
+  metadata?: Record<string, string>;
+}
+
+export interface ProductPricing {
+  id: string;
+  productoId: string;
+  vigenciaDesde: string;
   precio_compra: number;
   buffer_seguridad: number;
   precio_venta_pos: number;
   precio_venta_restaurante: number;
   precio_venta_mayorista: number;
-  imagen?: string;
-  activo: boolean;
-  metadata?: Record<string, string>;
+  actualizadoPor: string;
+}
+
+export interface Product extends ProductCatalog {
+  precio_compra: number;
+  buffer_seguridad: number;
+  precio_venta_pos: number;
+  precio_venta_restaurante: number;
+  precio_venta_mayorista: number;
+}
+
+export function migrateProductsToCatalogAndPricing(oldProducts: any[], currentActor: string): { catalog: ProductCatalog[], pricings: ProductPricing[] } {
+  const catalog: ProductCatalog[] = [];
+  const pricings: ProductPricing[] = [];
+  const now = new Date().toISOString();
+  
+  oldProducts.forEach(p => {
+    catalog.push({
+      id: p.id,
+      sku: p.sku,
+      nombre: p.nombre,
+      categoria: p.categoria,
+      unidadMedida: p.unidadMedida || 'kg',
+      imagen: p.imagen,
+      codigo_barras: p.codigo_barras || '',
+      iva: p.iva || 0,
+      ivaIncluido: p.ivaIncluido ?? true,
+      control_inventario: p.control_inventario ?? true,
+      produccion: p.produccion ?? false,
+      activo: p.activo ?? true,
+      metadata: p.metadata
+    });
+    pricings.push({
+      id: generateId('prc'),
+      productoId: p.id,
+      vigenciaDesde: now,
+      precio_compra: p.precio_compra || 0,
+      buffer_seguridad: p.buffer_seguridad || 0,
+      precio_venta_pos: p.precio_venta_pos || 0,
+      precio_venta_restaurante: p.precio_venta_restaurante || 0,
+      precio_venta_mayorista: p.precio_venta_mayorista || 0,
+      actualizadoPor: currentActor
+    });
+  });
+  
+  return { catalog, pricings };
 }
 
 const INITIAL_PRODUCTS: Product[] = [
@@ -269,102 +474,177 @@ export interface DynamicField {
   defaultValue: string;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// F2 — ENTIDADES TRANSACCIONALES
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Registro inmutable de cada cambio físico de stock. Fuente de verdad de auditoría. */
+export interface MovimientoInventario {
+  id: string;
+  timestamp: string;
+  tipo: 'ENTRADA_COMPRA' | 'TRASLADO_SALIDA' | 'TRASLADO_ENTRADA' | 'PRODUCCION_CONSUMO' | 'PRODUCCION_SALIDA' | 'VENTA' | 'AJUSTE';
+  sku: string;
+  nombreProducto: string;
+  bodegaOrigen?: string;
+  bodegaDestino?: string;
+  cantidad: number;           // Siempre positivo — el tipo indica dirección
+  lote: string;
+  referenciaId?: string;      // ID de OrdenCompra, Venta, etc.
+  referenciaTipo?: string;    // 'ORDEN_COMPRA' | 'VENTA' | 'PRODUCCION'
+  actor: string;
+  notas?: string;
+}
+
+/** Ítem dentro de una orden de compra */
+export interface ItemOrdenCompra {
+  sku: string;
+  nombre: string;
+  cantidad: number;
+  precioUnitario: number;
+  lote: string;
+}
+
+/** Orden de compra emitida a un proveedor */
+export interface OrdenCompra {
+  id: string;
+  proveedorId: string;
+  proveedorNombre: string;    // Desnormalizado para lectura rápida (histórico)
+  fecha: string;
+  estado: 'RECIBIDA';
+  items: ItemOrdenCompra[];
+  totalCompra: number;
+  bodegaDestino: string;
+  actor: string;
+  notas?: string;
+}
+
+/** Ítem vendido dentro de una Venta */
+export interface ItemVenta {
+  sku: string;
+  nombre: string;
+  cantidad: number;
+  precioUnitario: number;
+  descuento: number;
+}
+
+/** Registro permanente de toda venta (contado Y crédito) */
+export interface Venta {
+  id: string;
+  clienteId: string | null;   // null = consumidor final anónimo
+  clienteNombre: string;       // Desnormalizado para lectura histórica
+  fecha: string;
+  items: ItemVenta[];
+  subtotal: number;
+  total: number;
+  metodoPago: 'CONTADO' | 'CREDITO' | 'MIXTO';
+  facturaCarteraId?: string;   // Si hay crédito → referencia a InvoiceAR
+  actor: string;
+}
+
 export default function App() {
-  const [userRole, setUserRole] = useState<'admin' | 'vendedor' | 'bodega' | 'administrativo'>('admin');
+  // Role persistent loading
+  const initialRole = localDb.load('role', 'admin');
+  const [userRole, setUserRole] = useState<'admin' | 'vendedor' | 'bodega' | 'administrativo'>(initialRole);
+
   const [currentView, setCurrentView] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Products state (loaded from local storage or pre-populated with metadata)
-  const [products, setProducts] = useState<Product[]>(() => {
-    const saved = localStorage.getItem('pezcaderia_products');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error(e);
-      }
+  // States F3: Catalog and Pricing
+  const [productsCatalog, setProductsCatalog] = useState<ProductCatalog[]>(() => {
+    const savedCat = localDb.load('productsCatalog', null as ProductCatalog[] | null);
+    if (savedCat) return savedCat;
+    
+    // Migración o inicialización
+    const oldSaved = localStorage.getItem('pezcaderia_products');
+    let sourceProducts = INITIAL_PRODUCTS;
+    if (oldSaved) {
+      try { sourceProducts = JSON.parse(oldSaved); } catch (e) {}
+    } else {
+      sourceProducts = INITIAL_PRODUCTS.map(p => {
+        let grp = 'General';
+        if (p.categoria === 'MATERIA PRIMA') grp = 'Materia Prima';
+        else if (p.categoria === 'PESCADOS') grp = 'Pescado Blanco';
+        else if (p.categoria === 'MARISCOS') grp = 'Camarones';
+        else if (p.categoria === 'BATIDOS') grp = 'Batidos Saludables';
+        else if (p.categoria === 'BEBIDAS') grp = 'Jugos Naturales';
+        else if (p.categoria === 'ENSALADAS') grp = 'Ensaladas Frescas';
+        else if (p.categoria === 'ENTRADAS') grp = 'Entradas';
+        return { ...p, metadata: p.metadata || { categoria_descriptiva: grp } };
+      });
     }
-    return INITIAL_PRODUCTS.map(p => {
-      let grp = 'General';
-      if (p.categoria === 'MATERIA PRIMA') grp = 'Materia Prima';
-      else if (p.categoria === 'PESCADOS') grp = 'Pescado Blanco';
-      else if (p.categoria === 'MARISCOS') grp = 'Camarones';
-      else if (p.categoria === 'BATIDOS') grp = 'Batidos Saludables';
-      else if (p.categoria === 'BEBIDAS') grp = 'Jugos Naturales';
-      else if (p.categoria === 'ENSALADAS') grp = 'Ensaladas Frescas';
-      else if (p.categoria === 'ENTRADAS') grp = 'Entradas';
-      return {
-        ...p,
-        metadata: p.metadata || { categoria_descriptiva: grp }
-      };
-    });
+    
+    const { catalog, pricings } = migrateProductsToCatalogAndPricing(sourceProducts, initialRole);
+    localDb.save('productPricings', pricings);
+    localDb.removeRaw('pezcaderia_products'); // Limpiar viejo estado
+    return catalog;
   });
 
-  // Save products to localStorage on change
-  useEffect(() => {
-    localStorage.setItem('pezcaderia_products', JSON.stringify(products));
-  }, [products]);
+  const [productPricings, setProductPricings] = useState<ProductPricing[]>(() => {
+    return localDb.load('productPricings', []);
+  });
 
-  // Role persistent loading
   useEffect(() => {
-    const savedRole = localStorage.getItem('pezcaderia_role');
-    if (savedRole) {
-      setUserRole(savedRole as any);
+    localDb.save('productsCatalog', productsCatalog);
+  }, [productsCatalog]);
+
+  useEffect(() => {
+    localDb.save('productPricings', productPricings);
+  }, [productPricings]);
+
+  // DERIVACIÓN DINÁMICA de products para retrocompatibilidad
+  const products: Product[] = productsCatalog.map(cat => {
+    const pricings = productPricings.filter(pr => pr.productoId === cat.id);
+    let currentPricing = pricings[0];
+    if (pricings.length > 1) {
+      currentPricing = pricings.reduce((latest, current) => 
+        new Date(current.vigenciaDesde) > new Date(latest.vigenciaDesde) ? current : latest
+      );
     }
-  }, []);
+    const fallbackPricing = { precio_compra: 0, buffer_seguridad: 0, precio_venta_pos: 0, precio_venta_restaurante: 0, precio_venta_mayorista: 0 };
+    return { ...cat, ...(currentPricing || fallbackPricing) } as Product;
+  });
+
+  useEffect(() => {
+    if (initialRole) {
+      setUserRole(initialRole);
+    }
+  }, [initialRole]);
 
   const handleSetUserRole = (role: 'admin' | 'vendedor' | 'bodega' | 'administrativo') => {
     setUserRole(role);
-    localStorage.setItem('pezcaderia_role', role);
+    localDb.save('role', role);
   };
 
   // Other dynamic states
-  const [events, setEvents] = useState<DomainEvent[]>(() => {
-    const saved = localStorage.getItem('pezcaderia_events');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [events, setEvents] = useState<DomainEvent[]>(() => localDb.load('events', []));
+  const [syncQueue, setSyncQueue] = useState<SyncJob[]>(() => localDb.load('syncQueue', []));
+  
+  const [dynamicFields, setDynamicFields] = useState<DynamicField[]>(() => localDb.load('dynamicFields', [
+    {
+      key: 'categoria_descriptiva',
+      label: 'Categoría Descriptiva (Grupo)',
+      tipo: 'text',
+      defaultValue: 'General'
+    }
+  ]));
 
-  const [syncQueue, setSyncQueue] = useState<SyncJob[]>(() => {
-    const saved = localStorage.getItem('pezcaderia_sync_queue');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [quotations, setQuotations] = useState<any[]>(() => localDb.load('quotations', []));
+  const [stock, setStock] = useState<Record<string, any[]>>(() => localDb.load('stock', {}));
+  const [lastClientPrices, setLastClientPrices] = useState<Record<string, Record<string, number>>>(() => localDb.load('lastClientPrices', {}));
 
-  const [dynamicFields, setDynamicFields] = useState<DynamicField[]>(() => {
-    const saved = localStorage.getItem('pezcaderia_dynamic_fields');
-    return saved ? JSON.parse(saved) : [
-      {
-        key: 'categoria_descriptiva',
-        label: 'Categoría Descriptiva (Grupo)',
-        tipo: 'text',
-        defaultValue: 'General'
-      }
-    ];
-  });
+  const [categorias, setCategorias] = useState<CategoriaConfig[]>(() => localDb.load('categorias', [
+    { id: generateId('cat'), tipo: 'Producto', linea: 'Pescados', clase: 'Filetes' },
+    { id: generateId('cat'), tipo: 'Producto', linea: 'Mariscos', clase: 'Camarones' },
+    { id: generateId('cat'), tipo: 'Materia Prima', linea: 'Pescados Enteros', clase: 'Corvina' }
+  ]));
 
-  const [quotations, setQuotations] = useState<any[]>(() => {
-    const saved = localStorage.getItem('pezcaderia_quotations');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  const [stock, setStock] = useState<Record<string, any[]>>(() => {
-    const saved = localStorage.getItem('pezcaderia_stock');
-    return saved ? JSON.parse(saved) : {};
-  });
-
-  const [lastClientPrices, setLastClientPrices] = useState<Record<string, Record<string, number>>>(() => {
-    const saved = localStorage.getItem('pezcaderia_last_client_prices');
-    return saved ? JSON.parse(saved) : {};
-  });
+  useEffect(() => {
+    localDb.save('categorias', categorias);
+  }, [categorias]);
 
   const [cartera, setCartera] = useState<InvoiceAR[]>(() => {
-    const saved = localStorage.getItem('pezcaderia_cartera');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error(e);
-      }
-    }
+    const saved = localDb.load('cartera', null as InvoiceAR[] | null);
+    if (saved) return saved;
     return [
       {
         id: 'PED-045091',
@@ -398,34 +678,29 @@ export default function App() {
     ];
   });
 
-  // Save changes to local storage on change
-  useEffect(() => {
-    localStorage.setItem('pezcaderia_events', JSON.stringify(events));
-  }, [events]);
+  const [clientes, setClientes] = useState<Cliente[]>(() => localDb.load('clientes', INITIAL_CLIENTS));
+  const [proveedores, setProveedores] = useState<Proveedor[]>(() => localDb.load('proveedores', INITIAL_PROVEEDORES));
 
-  useEffect(() => {
-    localStorage.setItem('pezcaderia_sync_queue', JSON.stringify(syncQueue));
-  }, [syncQueue]);
+  useEffect(() => { localDb.save('clientes', clientes); }, [clientes]);
+  useEffect(() => { localDb.save('proveedores', proveedores); }, [proveedores]);
+  useEffect(() => { localDb.save('events', events); }, [events]);
+  useEffect(() => { localDb.save('syncQueue', syncQueue); }, [syncQueue]);
+  useEffect(() => { localDb.save('dynamicFields', dynamicFields); }, [dynamicFields]);
+  useEffect(() => { localDb.save('quotations', quotations); }, [quotations]);
+  useEffect(() => { localDb.save('stock', stock); }, [stock]);
+  useEffect(() => { localDb.save('lastClientPrices', lastClientPrices); }, [lastClientPrices]);
+  useEffect(() => { localDb.save('cartera', cartera); }, [cartera]);
 
-  useEffect(() => {
-    localStorage.setItem('pezcaderia_dynamic_fields', JSON.stringify(dynamicFields));
-  }, [dynamicFields]);
+  // ─ F2: Estado de entidades transaccionales ───────────────────────────────────────────────
+  const [movimientos, setMovimientos] = useState<MovimientoInventario[]>(() => localDb.load('movimientos', []));
+  useEffect(() => { localDb.save('movimientos', movimientos); }, [movimientos]);
 
-  useEffect(() => {
-    localStorage.setItem('pezcaderia_quotations', JSON.stringify(quotations));
-  }, [quotations]);
+  const [ordenesCompra, setOrdenesCompra] = useState<OrdenCompra[]>(() => localDb.load('ordenesCompra', []));
+  useEffect(() => { localDb.save('ordenesCompra', ordenesCompra); }, [ordenesCompra]);
 
-  useEffect(() => {
-    localStorage.setItem('pezcaderia_stock', JSON.stringify(stock));
-  }, [stock]);
-
-  useEffect(() => {
-    localStorage.setItem('pezcaderia_last_client_prices', JSON.stringify(lastClientPrices));
-  }, [lastClientPrices]);
-
-  useEffect(() => {
-    localStorage.setItem('pezcaderia_cartera', JSON.stringify(cartera));
-  }, [cartera]);
+  const [ventas, setVentas] = useState<Venta[]>(() => localDb.load('ventas', []));
+  useEffect(() => { localDb.save('ventas', ventas); }, [ventas]);
+  // ──────────────────────────────────────────────────────────────────────────────
 
   // Synchronize stock based on current products catalog
   useEffect(() => {
@@ -477,13 +752,18 @@ export default function App() {
     });
   }, [products]);
 
-  const updateLastClientPrice = (clientKey: string, sku: string, price: number) => {
+  /**
+   * Registra el último precio acordado por cliente y SKU.
+   * CLAVE: usa `identificacion` (NIT/CC) — campo inmutable — no el nombre del cliente.
+   * Antes usaba el nombre, lo que provocaba pérdida del historial al editar el nombre.
+   */
+  const updateLastClientPrice = (identificacion: string, sku: string, price: number) => {
     setLastClientPrices(prev => {
-      const clientKeyNormalized = clientKey.trim().toLowerCase();
+      const key = identificacion.trim().toLowerCase();
       const updated = {
         ...prev,
-        [clientKeyNormalized]: {
-          ...(prev[clientKeyNormalized] || {}),
+        [key]: {
+          ...(prev[key] || {}),
           [sku]: price
         }
       };
@@ -573,6 +853,8 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', userRole);
   }, [userRole]);
 
+  const setProductsShim = () => console.warn('setProducts is deprecated in F3. Use setProductsCatalog and setProductPricings instead.');
+
   const renderView = () => {
     switch (currentView) {
       case 'dashboard':
@@ -586,7 +868,7 @@ export default function App() {
             dynamicFields={dynamicFields}
             setDynamicFields={setDynamicFields}
             products={products}
-            setProducts={setProducts}
+            setProducts={setProductsShim as any}
             publishEvent={publishEvent}
           />
         );
@@ -601,23 +883,43 @@ export default function App() {
             setStock={setStock}
             lastClientPrices={lastClientPrices}
             updateLastClientPrice={updateLastClientPrice}
+            cartera={cartera}
             setCartera={setCartera}
+            clientes={clientes}
+            setClientes={setClientes}
+            ventas={ventas}
+            setVentas={setVentas}
+            movimientos={movimientos}
+            setMovimientos={setMovimientos}
           />
         );
       case 'inventario':
         return (
           <InventoryView 
             products={products} 
-            setProducts={setProducts} 
+            setProducts={setProductsShim as any} 
             stock={stock}
             setStock={setStock}
+            proveedores={proveedores}
+            publishEvent={publishEvent}
+            userRole={userRole}
+            movimientos={movimientos}
+            setMovimientos={setMovimientos}
+            ordenesCompra={ordenesCompra}
+            setOrdenesCompra={setOrdenesCompra}
+            categorias={categorias}
+            setCategorias={setCategorias}
           />
         );
       case 'precios':
         return (
           <PricingView 
             products={products} 
-            setProducts={setProducts} 
+            setProducts={setProductsShim as any} 
+            productsCatalog={productsCatalog}
+            setProductsCatalog={setProductsCatalog}
+            productPricings={productPricings}
+            setProductPricings={setProductPricings} 
             quotations={quotations}
             setQuotations={setQuotations}
             publishEvent={publishEvent}
@@ -626,6 +928,7 @@ export default function App() {
             setStock={setStock}
             lastClientPrices={lastClientPrices}
             updateLastClientPrice={updateLastClientPrice}
+            clientes={clientes}
           />
         );
       case 'rrhh':
@@ -635,6 +938,29 @@ export default function App() {
           <ARView 
             cartera={cartera}
             setCartera={setCartera}
+            clientes={clientes}
+            publishEvent={publishEvent}
+            userRole={userRole}
+          />
+        );
+      case 'clientes':
+        return (
+          <ClientsView 
+            clientes={clientes}
+            setClientes={setClientes}
+            ventas={ventas}
+            cartera={cartera}
+            publishEvent={publishEvent}
+            userRole={userRole}
+          />
+        );
+      case 'compras':
+        return (
+          <SuppliersView
+            proveedores={proveedores}
+            setProveedores={setProveedores}
+            ordenesCompra={ordenesCompra}
+            movimientos={movimientos}
             publishEvent={publishEvent}
             userRole={userRole}
           />
@@ -658,6 +984,10 @@ export default function App() {
         return { cat: 'Administrativo', sub: 'Recursos Humanos' };
       case 'cartera':
         return { cat: 'Comercial', sub: 'Cartera de Clientes' };
+      case 'clientes':
+        return { cat: 'Comercial', sub: 'Directorio de Clientes' };
+      case 'compras':
+        return { cat: 'Administrativo', sub: 'Compras y Gastos' };
       default:
         return { cat: 'General', sub: 'ERP' };
     }
@@ -737,13 +1067,12 @@ export default function App() {
 
           {/* Categories and links */}
           <nav className="sidebar-menu">
-            <div className="sidebar-category-header">Comercial</div>
             <div
               className={`sidebar-item ${currentView === 'pos' ? 'active' : ''}`}
               onClick={() => { setCurrentView('pos'); setSidebarOpen(false); }}
             >
               <ShoppingBag size={16} />
-              <span>Punto de Venta (POS)</span>
+              <span>POS</span>
             </div>
 
             <div
@@ -751,7 +1080,28 @@ export default function App() {
               onClick={() => { setCurrentView('precios'); setSidebarOpen(false); }}
             >
               <DollarSign size={16} />
-              <span>Precios y Cotizaciones</span>
+              <span>Cotizacion</span>
+            </div>
+
+            <div
+              className={`sidebar-item ${currentView === 'clientes' ? 'active' : ''}`}
+              onClick={() => { setCurrentView('clientes'); setSidebarOpen(false); }}
+            >
+              <Users size={16} />
+              <span>Clientes</span>
+            </div>
+
+            <div className={`sidebar-item`} style={{ opacity: 0.5 }}>
+              <FileText size={16} />
+              <span>Documentos</span>
+            </div>
+
+            <div
+              className={`sidebar-item ${currentView === 'compras' ? 'active' : ''}`}
+              onClick={() => { setCurrentView('compras'); setSidebarOpen(false); }}
+            >
+              <ShoppingCart size={16} />
+              <span>Compras y Gastos</span>
             </div>
 
             <div
@@ -759,30 +1109,59 @@ export default function App() {
               onClick={() => { setCurrentView('cartera'); setSidebarOpen(false); }}
             >
               <Wallet size={16} />
-              <span>Cartera de Clientes</span>
+              <span>Cartera</span>
             </div>
 
-            <div className="sidebar-category-header">Inventario y Planta</div>
             <div
               className={`sidebar-item ${currentView === 'inventario' ? 'active' : ''}`}
               onClick={() => { setCurrentView('inventario'); setSidebarOpen(false); }}
             >
               <Box size={16} />
-              <span>Bodegas y Producción</span>
+              <span>Inventario</span>
             </div>
 
-            <div className="sidebar-category-header">Administrativo</div>
+            <div className={`sidebar-item`} style={{ opacity: 0.5 }}>
+              <Truck size={16} />
+              <span>Traslados</span>
+            </div>
+
+            <div className={`sidebar-item`} style={{ opacity: 0.5 }}>
+              <RefreshCw size={16} />
+              <span>Ajuste</span>
+            </div>
+
+            <div className={`sidebar-item`} style={{ opacity: 0.5 }}>
+              <Database size={16} />
+              <span>Caja</span>
+            </div>
+
+            <div className={`sidebar-item`} style={{ opacity: 0.5 }}>
+              <FileText size={16} />
+              <span>Cuentas</span>
+            </div>
+
             <div
               className={`sidebar-item ${currentView === 'rrhh' ? 'active' : ''}`}
               onClick={() => { setCurrentView('rrhh'); setSidebarOpen(false); }}
             >
-              <Users size={16} />
-              <span>Recursos Humanos</span>
+              <LayoutDashboard size={16} />
+              <span>Informes</span>
             </div>
 
+            <div className={`sidebar-item`} style={{ opacity: 0.5 }}>
+              <Box size={16} />
+              <span>Logistica</span>
+            </div>
+
+            <div className={`sidebar-item`} style={{ opacity: 0.5 }}>
+              <RefreshCw size={16} />
+              <span>Produccion</span>
+            </div>
+            
             <div
               className={`sidebar-item ${currentView === 'dashboard' ? 'active' : ''}`}
               onClick={() => { setCurrentView('dashboard'); setSidebarOpen(false); }}
+              style={{ marginTop: 'auto' }}
             >
               <LayoutDashboard size={16} />
               <span>Panel de Control</span>
