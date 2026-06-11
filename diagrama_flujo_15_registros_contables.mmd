@@ -1,0 +1,6 @@
+flowchart TD
+    A[Transacción en ERP Venta/Compra/Gasto] --> B[Disparador Motor Contable]
+    B --> C[Mapeo de Cuentas PUC]
+    C --> D[Generación Asiento Contable Débito/Crédito]
+    D --> E[Almacenamiento Local ERP]
+    E --> F[Sincronización API con Sistema Contable Siigo]

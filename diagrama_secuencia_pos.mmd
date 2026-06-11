@@ -1,0 +1,43 @@
+sequenceDiagram
+    autonumber
+    actor Operario
+    participant Vercel as Frontend POS (Vercel/React)
+    participant Hardware as Balanza / Impresora (Local)
+    participant Supabase as Base de Datos & Auth
+    participant Siigo as Facturación Electrónica (API Siigo)
+    participant n8n as WhatsApp (Docker Local)
+
+    Operario->>Vercel: Selecciona producto a granel (Checkout)
+    
+    alt Conexión Web Serial Activa
+        Vercel->>Hardware: Petición Web Serial API (Puerto COM)
+        Hardware-->>Vercel: Retorna string de peso (ej. 005.450 KG)
+    else Contingencia / Fallo de Conexión
+        Vercel-->>Operario: Muestra alerta "Balanza no detectada"
+        Operario->>Vercel: Digita peso manualmente
+    end
+    
+    Vercel->>Vercel: Calcula subtotal exacto
+    Operario->>Vercel: Define ¿Requiere Factura Electrónica? (Checkbox)
+    Operario->>Vercel: Confirma Pago (Efectivo/Transferencia)
+    
+    Vercel->>Supabase: POST /rest/v1/ventas (Registra Venta + Baja Stock)
+    Supabase-->>Vercel: 201 Created (Venta ID)
+    
+    alt Requiere Facturación Electrónica = SÍ
+        Vercel->>Siigo: POST /v1/invoices (Generar Factura Electrónica)
+        Siigo-->>Vercel: 200 OK (Link de Factura DIAN)
+    else Requiere Facturación Electrónica = NO
+        Vercel->>Vercel: Genera Ticket Interno (Sin FE)
+    end
+    
+    alt Impresora Conectada
+        Vercel->>Hardware: Comandos ESC/POS RAW vía Web Serial
+        Hardware-->>Operario: Imprime Recibo / Abre Gaveta de Dinero
+    else Contingencia / Sin Impresora
+        Vercel->>Vercel: Genera PDF en pantalla para impresión clásica
+    end
+    
+    Supabase->>n8n: Database Webhook Trigger (Nueva Venta)
+    n8n->>n8n: Evolution API genera mensaje con PDF/Link
+    n8n-->>Operario: Cliente recibe WhatsApp con el comprobante

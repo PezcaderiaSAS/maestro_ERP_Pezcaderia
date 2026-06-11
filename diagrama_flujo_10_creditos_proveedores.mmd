@@ -1,0 +1,7 @@
+flowchart TD
+    A[Recepción de Factura de Proveedor] --> B[Validación contra Recepción de Mercancía]
+    B --> C[Registro en Cuentas por Pagar]
+    C --> D[Programación Fecha de Vencimiento]
+    D --> E[Aprobación de Pago por Gerencia]
+    E --> F[Ejecución de Pago Bancario]
+    F --> G[Registro Comprobante de Egreso y Cierre de Deuda]

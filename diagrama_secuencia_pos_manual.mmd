@@ -1,0 +1,33 @@
+sequenceDiagram
+    autonumber
+    actor Operario
+    participant BalanzaFisica as Balanza Tradicional (Offline)
+    participant Vercel as Frontend POS (Vercel/React)
+    participant Supabase as Base de Datos & Auth
+    participant Siigo as Facturación Electrónica (API Siigo)
+    participant n8n as WhatsApp (Docker Local)
+
+    Operario->>BalanzaFisica: Pesa el producto físicamente
+    BalanzaFisica-->>Operario: Muestra peso en display
+    Operario->>Vercel: Selecciona producto en interfaz
+    Operario->>Vercel: Digita el peso manualmente
+    Vercel->>Vercel: Calcula subtotal exacto
+    Operario->>Vercel: Define ¿Requiere Factura Electrónica? (Checkbox)
+    Operario->>Vercel: Confirma Pago (Efectivo/Transferencia)
+    
+    Vercel->>Supabase: POST /rest/v1/ventas (Registra Venta + Baja Stock)
+    Supabase-->>Vercel: 201 Created (Venta ID)
+    
+    alt Requiere Facturación Electrónica = SÍ
+        Vercel->>Siigo: POST /v1/invoices (Generar Factura Electrónica)
+        Siigo-->>Vercel: 200 OK (Link de Factura DIAN)
+    else Requiere Facturación Electrónica = NO
+        Vercel->>Vercel: Genera Ticket Interno (Sin FE)
+    end
+    
+    Vercel->>Vercel: Muestra modal con Ticket PDF
+    Operario->>Vercel: Imprime usando Ctrl+P (Impresora de sistema)
+    
+    Supabase->>n8n: Database Webhook Trigger (Nueva Venta)
+    n8n->>n8n: Evolution API genera mensaje con PDF/Link
+    n8n-->>Operario: Cliente recibe WhatsApp con el comprobante

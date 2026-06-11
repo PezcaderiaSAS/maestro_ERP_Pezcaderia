@@ -25,6 +25,13 @@ Este documento define la matriz de casos de prueba para validar el comportamient
 | **B-3** | **Aprobación de Cotización (Admin/Administrativo)** | Cambiar el rol en el perfil a **Administrativo** y transicionar la cotización a `Aprobada`. | La cotización cambia de estado a `Aprobada` correctamente sin bloqueos. |
 | **B-4** | **Deducción de Stock al Facturar (Sold)** | Transicionar una cotización aprobada a `Vendida (Sold)`. | El stock global de la Bodega Principal disminuye y el precio facturado se registra en el historial del cliente. |
 
+### Grupo C: Generación de Imágenes con IA
+
+| ID | Caso de Prueba | Descripción | Resultado Esperado |
+| :--- | :--- | :--- | :--- |
+| **C-1** | **Bloqueo por Nombre Vacío** | Abrir el formulario de edición de un producto o creación, dejar el nombre en blanco y presionar "✨ Generar con IA". | Debe mostrarse una alerta SweetAlert2 indicando que el nombre del producto es obligatorio. |
+| **C-2** | **Ajuste del Prompt y Previsualización** | Con un nombre escrito (ej: "Filete de Salmón"), hacer clic en "✨ Generar con IA", editar el prompt en el cuadro de texto y dar clic en aceptar. | Se debe ver el overlay "Generando con IA..." con spinner de carga, y luego la imagen fotorrealista generada debe mostrarse en el panel izquierdo y asignarse al campo de imagen en el formulario. |
+
 ---
 
 ## 🛠️ Ejecución de Pruebas en Navegador

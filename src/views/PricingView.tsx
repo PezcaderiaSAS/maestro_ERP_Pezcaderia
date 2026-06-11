@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Save, Printer, Search, DollarSign, ShoppingCart, FileText, Check, X } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { Product, ProductCatalog, ProductPricing, Cliente, generateId } from '../App.tsx';
+import { Product, ProductCatalog, ProductPricing, Cliente, generateId, Conductor, DevolucionPedido } from '../App.tsx';
 
 interface PricingViewProps {
   products: Product[];
@@ -26,12 +26,14 @@ interface PricingViewProps {
   lastClientPrices: Record<string, Record<string, number>>;
   updateLastClientPrice: (clientKey: string, sku: string, price: number) => void;
   clientes: Cliente[];
+  conductores?: Conductor[];
+  devoluciones?: DevolucionPedido[];
+  setDevoluciones?: React.Dispatch<React.SetStateAction<DevolucionPedido[]>>;
 }
 
 export default function PricingView({
   products,
   setProducts,
-  productsCatalog,
   setProductsCatalog,
   productPricings,
   setProductPricings,
@@ -41,12 +43,14 @@ export default function PricingView({
   userRole,
   stock,
   setStock,
-  lastClientPrices,
   updateLastClientPrice,
-  clientes
+  clientes,
+  conductores = [],
+  devoluciones = [],
+  setDevoluciones
 }: PricingViewProps) {
-  const [activeTab, setActiveTab] = useState<'catalog' | 'pricing' | 'quotes'>('catalog');
-  const [quoteSubTab, setQuoteSubTab] = useState<'create' | 'history'>('create');
+  const [activeTab, setActiveTab] = useState<'catalog' | 'pricing' | 'quotes'>('quotes');
+  const [quoteSubTab, setQuoteSubTab] = useState<'create' | 'history' | 'devoluciones'>('create');
   const [selectedQuoteForPrint, setSelectedQuoteForPrint] = useState<any>(null);
 
   // --- ESTADO: PESTAÑA CATALOGO (CRUD) ---
@@ -77,9 +81,68 @@ export default function PricingView({
   const [clientType, setClientType] = useState<'POS' | 'RESTAURANTE' | 'MAYORISTA'>('POS');
   const [clientName, setClientName] = useState('');
   const [clientIdent, setClientIdent] = useState('');
-  const [quoteItems, setQuoteItems] = useState<{ product: Product; cantidad: number; descuento: number; precioOverride?: number }[]>([]);
+  const [quoteItems, setQuoteItems] = useState<{ 
+    product: Product; 
+    cantidad: number; 
+    descuento: number; 
+    precioOverride?: number;
+    detalle?: string;
+    listo?: boolean;
+    esDevolucion?: boolean;
+    devolucionId?: string;
+  }[]>([]);
+  
+  // --- ESTADOS NUEVOS DEL WIZARD ---
+  const [wizardStep, setWizardStep] = useState<1 | 2 | 3>(1);
+  const [origenPedido, setOrigenPedido] = useState('WHATSAPP');
+  const [origenesDisponibles] = useState(['VISITA', 'LLAMADA', 'WHATSAPP']);
+  const [nuevoOrigen, setNuevoOrigen] = useState('');
+  const [facturaElectronica, setFacturaElectronica] = useState(false);
+  const [formaPago, setFormaPago] = useState<'CREDITO' | 'CONTADO'>('CREDITO');
+  
+  // Modal de Detalle de Producto
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [editingItemIndex, setEditingItemIndex] = useState<number | null>(null);
+  const [currentProductLine, setCurrentProductLine] = useState<{
+    product: Product | null;
+    cantidad: number;
+    descuento: number;
+    precioOverride: number;
+    detalle: string;
+    listo: boolean;
+    esDevolucion: boolean;
+    devolucionId: string;
+  }>({
+    product: null,
+    cantidad: 1,
+    descuento: 0,
+    precioOverride: 0,
+    detalle: '',
+    listo: false,
+    esDevolucion: false,
+    devolucionId: ''
+  });
   const [quoteDiscountGlobal, setQuoteDiscountGlobal] = useState(0); // Porcentaje
   const [quoteSearchTerm, setQuoteSearchTerm] = useState('');
+
+  // --- ESTADO: LOGÍSTICA DE ENTREGA B2B ---
+  const [logisticaTipo, setLogisticaTipo] = useState<'EN_RUTA' | 'INMEDIATA' | 'RECOGEN'>('EN_RUTA');
+  const [logisticaDireccion, setLogisticaDireccion] = useState('');
+  const [logisticaFecha, setLogisticaFecha] = useState(() => new Date().toISOString().split('T')[0]);
+  const [logisticaJornada, setLogisticaJornada] = useState<'MANANA' | 'TARDE'>('MANANA');
+  const [logisticaConductorId, setLogisticaConductorId] = useState('');
+  const [observacionesPedido, setObservacionesPedido] = useState('');
+
+  // --- ESTADO: SOLICITUD DE DEVOLUCIÓN ---
+  const [devClienteId, setDevClienteId] = useState('');
+  const [devConductorId, setDevConductorId] = useState('');
+  const [devFechaProg, setDevFechaProg] = useState(() => new Date().toISOString().split('T')[0]);
+  const [devPedidoId, setDevPedidoId] = useState('');
+  const [devItems, setDevItems] = useState<{ sku: string; nombre: string; cantidad: number; precio: number; motivo: string }[]>([]);
+  
+  const [devSelProductSku, setDevSelProductSku] = useState('');
+  const [devSelProductCant, setDevSelProductCant] = useState(1);
+  const [devSelProductMotivo, setDevSelProductMotivo] = useState('MAL_ESTADO');
 
   // Obtener categorías únicas
   const categoriasUnicas = ['TODAS', ...Array.from(new Set(products.map(p => p.categoria)))];
@@ -150,7 +213,7 @@ export default function PricingView({
       Swal.fire({ icon: 'success', title: 'Producto creado', text: 'El producto se ha añadido con éxito.', confirmButtonColor: 'var(--primary-color)' });
     }
 
-    setProductForm({ sku: '', nombre: '', categoria: '', precio_compra: 0, buffer_seguridad: 5 });
+    setProductForm({ sku: '', nombre: '', categoria: '', unidadMedida: 'kg', precio_compra: 0, buffer_seguridad: 5 });
   };
 
   const handleEditProduct = (prod: Product) => {
@@ -224,29 +287,6 @@ export default function PricingView({
     });
   };
 
-  // --- MANEJADORES COTIZACIONES ---
-  const handleAddToQuote = (prod: Product) => {
-    setQuoteItems(prev => {
-      const exists = prev.find(item => item.product.id === prod.id);
-      if (exists) {
-        return prev.map(item => item.product.id === prod.id ? { ...item, cantidad: item.cantidad + 1 } : item);
-      }
-      return [...prev, { product: prod, cantidad: 1, descuento: 0 }];
-    });
-  };
-
-  const handleRemoveFromQuote = (prodId: string) => {
-    setQuoteItems(prev => prev.filter(item => item.product.id !== prodId));
-  };
-
-  const handleUpdateQuoteQty = (prodId: string, qty: number) => {
-    setQuoteItems(prev => prev.map(item => item.product.id === prodId ? { ...item, cantidad: Math.max(1, qty) } : item));
-  };
-
-  const handleUpdateQuoteItemDiscount = (prodId: string, desc: number) => {
-    setQuoteItems(prev => prev.map(item => item.product.id === prodId ? { ...item, descuento: Math.min(100, Math.max(0, desc)) } : item));
-  };
-
   // Obtener el precio correspondiente al tipo de cliente
   const getProductPriceByClientType = (prod: Product) => {
     switch (clientType) {
@@ -263,35 +303,40 @@ export default function PricingView({
     return item.precioOverride !== undefined ? item.precioOverride : getProductPriceByClientType(item.product);
   };
 
-  const getProductStock = (sku: string, bodega: string) => {
-    const list = stock[bodega] || [];
-    const matched = list.find((item: any) => item.sku === sku);
-    return matched ? matched.stock : 0;
-  };
+
 
   // Cálculos financieros cotización
   const quoteSubtotal = quoteItems.reduce((sum, item) => {
+    if (item.esDevolucion) return sum;
     const unitPrice = getQuoteItemUnitPrice(item);
     return sum + (unitPrice * item.cantidad);
   }, 0);
 
   const quoteLineDiscountsTotal = quoteItems.reduce((sum, item) => {
+    if (item.esDevolucion) return sum;
     const unitPrice = getQuoteItemUnitPrice(item);
     const lineSubtotal = unitPrice * item.cantidad;
-    return sum + (lineSubtotal * (item.descuento / 100));
+    return sum + (lineSubtotal * ((item.descuento || 0) / 100));
+  }, 0);
+
+  const quoteDevolucionesTotal = quoteItems.reduce((sum, item) => {
+    if (!item.esDevolucion) return sum;
+    const unitPrice = getQuoteItemUnitPrice(item);
+    return sum + (unitPrice * item.cantidad);
   }, 0);
 
   const quoteSubtotalAfterLineDiscounts = quoteSubtotal - quoteLineDiscountsTotal;
   const quoteGlobalDiscountValue = quoteSubtotalAfterLineDiscounts * (quoteDiscountGlobal / 100);
-  const quoteTotalFinal = quoteSubtotalAfterLineDiscounts - quoteGlobalDiscountValue;
+  const totalPrevio = quoteSubtotalAfterLineDiscounts - quoteGlobalDiscountValue - quoteDevolucionesTotal;
+  const quoteTotalFinal = Math.max(0, totalPrevio);
 
-  const handleSaveQuotation = (estadoInicial: 'Draft' | 'Sent') => {
+  const handleSaveQuotation = () => {
     if (!clientName) {
       Swal.fire({ icon: 'warning', title: 'Falta Cliente', text: 'Ingrese el nombre o razón social del cliente.', confirmButtonColor: 'var(--primary-color)' });
       return;
     }
     if (quoteItems.length === 0) {
-      Swal.fire({ icon: 'warning', title: 'Sin productos', text: 'Añada al menos un producto a la cotización.', confirmButtonColor: 'var(--primary-color)' });
+      Swal.fire({ icon: 'warning', title: 'Sin productos', text: 'Añada al menos un producto al pedido.', confirmButtonColor: 'var(--primary-color)' });
       return;
     }
 
@@ -300,6 +345,17 @@ export default function PricingView({
     const clienteRegistrado = clientes.find(
       c => c.identificacion === clientIdent || c.nombre === clientName.toUpperCase()
     );
+    
+    // Estado automático por rol
+    let estadoCalculado = 'Creado';
+    if (userRole === 'Administrador' || userRole === 'Jefe de Bodega') {
+        estadoCalculado = 'Listo';
+    } else {
+        estadoCalculado = 'Creado';
+    }
+
+    const origenFinal = origenPedido === 'OTRO' ? nuevoOrigen : origenPedido;
+
     const newQuote = {
       id: generateId('q'),
       no: randomNo,
@@ -307,19 +363,35 @@ export default function PricingView({
       clientName,
       clientIdent,
       clientType,
+      origenPedido: origenFinal,
+      facturaElectronica,
+      formaPago,
       items: quoteItems.map(i => ({
         sku: i.product.sku,
         nombre: i.product.nombre,
         cantidad: i.cantidad,
         precio: getQuoteItemUnitPrice(i),
-        descuento: i.descuento
+        descuento: i.descuento,
+        detalle: i.detalle,
+        listo: i.listo,
+        esDevolucion: i.esDevolucion,
+        devolucionId: i.devolucionId
       })),
       subtotal: quoteSubtotal,
       descuentos: quoteLineDiscountsTotal + quoteGlobalDiscountValue,
       total: Math.round(quoteTotalFinal),
-      estado: estadoInicial,
+      estado: estadoCalculado,
+      observaciones: observacionesPedido,
       fecha: new Date().toLocaleDateString('es-CO'),
-      vencimiento: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('es-CO')
+      vencimiento: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('es-CO'),
+      logistica: {
+        tipoEntrega: logisticaTipo,
+        direccionEntrega: logisticaTipo === 'RECOGEN' ? 'Retira en Punto de Venta' : logisticaDireccion,
+        fechaEntrega: logisticaFecha,
+        jornada: logisticaJornada,
+        conductorId: logisticaConductorId,
+        conductorNombre: conductores.find(c => c.id === logisticaConductorId)?.nombre || ''
+      }
     };
 
     setQuotations(prev => [newQuote, ...prev]);
@@ -327,32 +399,43 @@ export default function PricingView({
     publishEvent(
       'QUOTE_STATUS_CHANGED',
       userRole,
-      `Nueva cotización ${randomNo} creada en estado ${estadoInicial} para ${clientName}`,
+      `Nuevo pedido ${randomNo} creado en estado ${estadoCalculado} para ${clientName}`,
       { quoteId: newQuote.id, total: newQuote.total }
     );
 
-    // Reset form
+    // Reset form wizard
+    setWizardStep(1);
     setClientName('');
     setClientIdent('');
+    setOrigenPedido('WHATSAPP');
+    setNuevoOrigen('');
+    setFacturaElectronica(false);
+    setFormaPago('CREDITO');
     setQuoteItems([]);
     setQuoteDiscountGlobal(0);
+    setLogisticaTipo('EN_RUTA');
+    setLogisticaDireccion('');
+    setLogisticaFecha(new Date().toISOString().split('T')[0]);
+    setLogisticaJornada('MANANA');
+    setLogisticaConductorId('');
+    setObservacionesPedido('');
     setQuoteSubTab('history');
 
     Swal.fire({
       icon: 'success',
-      title: 'Cotización Creada',
-      text: `Cotización ${randomNo} registrada como ${estadoInicial}.`,
+      title: 'Pedido Creado',
+      text: `Pedido ${randomNo} registrado como ${estadoCalculado}.`,
       confirmButtonColor: 'var(--primary-color)'
     });
   };
 
-  const handleTransitionQuote = (quoteId: string, nuevoEstado: 'Sent' | 'Approved' | 'Sold' | 'Expired') => {
+  const handleTransitionQuote = (quoteId: string, nuevoEstado: 'Sent' | 'Approved' | 'Pausado' | 'Listo' | 'Sold' | 'Expired') => {
     if (nuevoEstado === 'Approved') {
-      if (userRole !== 'admin' && userRole !== 'administrativo') {
+      if (userRole !== 'admin' && userRole !== 'administrativo' && userRole !== 'vendedor') {
         Swal.fire({
           icon: 'error',
           title: 'Acceso Denegado',
-          text: 'Solo roles de Super Administrador o Administrativo pueden aprobar cotizaciones.',
+          text: 'Solo roles de Super Administrador, Administrativo o Vendedor pueden aprobar cotizaciones.',
           confirmButtonColor: 'var(--primary-color)'
         });
         return;
@@ -374,9 +457,11 @@ export default function PricingView({
             const newStock = { ...prev };
             if (newStock['Bodega Principal']) {
               newStock['Bodega Principal'] = newStock['Bodega Principal'].map((stockItem: any) => {
+                // If it was prepared, we deduct the quantity_real; otherwise the quantity_solicitada
                 const quoteItem = q.items.find((i: any) => i.sku === stockItem.sku);
                 if (quoteItem) {
-                  return { ...stockItem, stock: Math.max(0, stockItem.stock - quoteItem.cantidad) };
+                  const cantADescontar = quoteItem.cantidad_real !== undefined ? quoteItem.cantidad_real : quoteItem.cantidad;
+                  return { ...stockItem, stock: Math.max(0, stockItem.stock - cantADescontar) };
                 }
                 return stockItem;
               });
@@ -421,11 +506,6 @@ export default function PricingView({
     const matchesSearch = p.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || p.sku.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === 'TODAS' || p.categoria === categoryFilter;
     return matchesSearch && matchesCategory;
-  });
-
-  const quoteFilteredProducts = products.filter(p => {
-    const matchesSearch = p.nombre.toLowerCase().includes(quoteSearchTerm.toLowerCase()) || p.sku.toLowerCase().includes(quoteSearchTerm.toLowerCase());
-    return matchesSearch && p.activo;
   });
 
   return (
@@ -557,7 +637,7 @@ export default function PricingView({
                     type="button"
                     onClick={() => {
                       setEditingProductId(null);
-                      setProductForm({ sku: '', nombre: '', categoria: '', precio_compra: 0, buffer_seguridad: 5 });
+                      setProductForm({ sku: '', nombre: '', categoria: '', unidadMedida: 'kg', precio_compra: 0, buffer_seguridad: 5 });
                     }}
                     className="btn-secondary"
                     style={{ flex: 0.5, justifyContent: 'center', display: 'flex', alignItems: 'center', padding: '12px' }}
@@ -817,374 +897,712 @@ export default function PricingView({
             >
               Nuevo Cotizador
             </button>
-            <button
+             <button
               onClick={() => setQuoteSubTab('history')}
               className={`pos-category-tab ${quoteSubTab === 'history' ? 'active' : ''}`}
               style={{ margin: 0, padding: '8px 16px', borderRadius: '8px', fontSize: '13px' }}
             >
               Historial y Workflows ({quotations.length})
             </button>
+            <button
+              onClick={() => setQuoteSubTab('devoluciones')}
+              className={`pos-category-tab ${quoteSubTab === 'devoluciones' ? 'active' : ''}`}
+              style={{ margin: 0, padding: '8px 16px', borderRadius: '8px', fontSize: '13px' }}
+            >
+              Devoluciones B2B ({devoluciones.length})
+            </button>
           </div>
 
           {quoteSubTab === 'create' ? (
-            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr', gap: '24px' }}>
-              {/* Formulario Cliente y Selección de Precios */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                <div className="hr-table-card" style={{ padding: '24px' }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '16px' }}>Datos de la Cotización</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              
+              {/* Wizard Header / Tabs */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'white', padding: '16px 24px', borderRadius: '12px', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <ShoppingCart size={20} color="var(--primary-color)" />
+                  Nuevo Pedido B2B
+                </h3>
+                
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <button 
+                    onClick={() => setWizardStep(1)}
+                    className={`btn-secondary ${wizardStep >= 1 ? 'active' : ''}`}
+                    style={{ padding: '8px 16px', borderRadius: '24px', border: wizardStep === 1 ? '2px solid var(--primary-color)' : '1px solid #E2E8F0', backgroundColor: wizardStep >= 1 ? 'var(--primary-color)' : 'white', color: wizardStep >= 1 ? 'white' : '#64748B', fontWeight: 700 }}
+                  >
+                    1. Datos Cliente
+                  </button>
+                  <button 
+                    onClick={() => { if(wizardStep >= 1 && clientName) setWizardStep(2); }}
+                    className={`btn-secondary ${wizardStep >= 2 ? 'active' : ''}`}
+                    style={{ padding: '8px 16px', borderRadius: '24px', border: wizardStep === 2 ? '2px solid var(--primary-color)' : '1px solid #E2E8F0', backgroundColor: wizardStep >= 2 ? 'var(--primary-color)' : 'white', color: wizardStep >= 2 ? 'white' : '#64748B', fontWeight: 700, cursor: clientName ? 'pointer' : 'not-allowed' }}
+                    disabled={!clientName}
+                  >
+                    2. Datos Envío
+                  </button>
+                  <button 
+                    onClick={() => { if(wizardStep >= 2) setWizardStep(3); }}
+                    className={`btn-secondary ${wizardStep >= 3 ? 'active' : ''}`}
+                    style={{ padding: '8px 16px', borderRadius: '24px', border: wizardStep === 3 ? '2px solid var(--primary-color)' : '1px solid #E2E8F0', backgroundColor: wizardStep >= 3 ? 'var(--primary-color)' : 'white', color: wizardStep >= 3 ? 'white' : '#64748B', fontWeight: 700, cursor: clientName ? 'pointer' : 'not-allowed' }}
+                    disabled={!clientName}
+                  >
+                    3. Datos del Pedido
+                  </button>
+                </div>
+              </div>
+
+              <div className="hr-table-card" style={{ padding: '24px', minHeight: '400px' }}>
+                
+                {/* --- PASO 1: DATOS CLIENTE --- */}
+                {wizardStep === 1 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'fadeIn 0.3s' }}>
+                    <h4 style={{ fontSize: '16px', fontWeight: 700, color: '#1E293B', marginBottom: '8px', borderBottom: '1px solid #E2E8F0', paddingBottom: '12px' }}>Paso 1: Información Comercial</h4>
                     
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label className="form-label" style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>Buscar/Vincular Cliente Registrado</label>
-                      <select
-                        className="form-control"
-                        style={{ border: '2px solid var(--primary-color)', borderRadius: '8px' }}
-                        value={clientes.find(c => c.identificacion === clientIdent)?.id || ''}
-                        onChange={e => {
-                          const selected = clientes.find(c => c.id === e.target.value);
-                          if (selected) {
-                            setClientName(selected.nombre);
-                            setClientIdent(selected.identificacion);
-                            setClientType(selected.tipoPrecio as any);
-                          } else {
-                            setClientName('');
-                            setClientIdent('');
-                            setClientType('POS');
-                          }
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label" style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>Buscar Cliente en BD</label>
+                        <select
+                          className="form-control"
+                          style={{ border: '2px solid var(--primary-color)', borderRadius: '8px' }}
+                          value={clientes.find(c => c.identificacion === clientIdent)?.id || ''}
+                          onChange={e => {
+                            const selected = clientes.find(c => c.id === e.target.value);
+                            if (selected) {
+                              setClientName(selected.nombre);
+                              setClientIdent(selected.identificacion);
+                              setClientType(selected.tipoPrecio as any);
+                              setLogisticaDireccion(selected.direccion || '');
+                            } else {
+                              setClientName('');
+                              setClientIdent('');
+                              setClientType('POS');
+                              setLogisticaDireccion('');
+                            }
+                          }}
+                        >
+                          <option value="">-- Seleccionar cliente --</option>
+                          {clientes.filter(c => c.activo).map(c => (
+                            <option key={c.id} value={c.id}>
+                              {c.nombre} ({c.identificacion}) [Tarifa: {c.tipoPrecio}]
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label">Cliente (Nombre o Razón Social) *</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Ej. Restaurante Puerto Mar"
+                          value={clientName}
+                          onChange={e => setClientName(e.target.value)}
+                        />
+                      </div>
+
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label">NIT / Cédula</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Ej. 900.123.456-1"
+                          value={clientIdent}
+                          onChange={e => setClientIdent(e.target.value)}
+                        />
+                      </div>
+                      
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label">Lista de Precios a Aplicar</label>
+                        <select
+                          className="form-control"
+                          value={clientType}
+                          onChange={e => setClientType(e.target.value as any)}
+                          style={{ fontWeight: 700, color: 'var(--primary-color)' }}
+                        >
+                          <option value="POS">Lista POS (Venta Directa)</option>
+                          <option value="RESTAURANTE">Lista Restaurante (Margen intermedio)</option>
+                          <option value="MAYORISTA">Lista Mayorista / B2B (Mejor Precio)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginTop: '8px' }}>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label">Origen de Pedido</label>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <select 
+                            className="form-control" 
+                            value={origenPedido} 
+                            onChange={e => setOrigenPedido(e.target.value)}
+                            style={{ flex: 1 }}
+                          >
+                            {origenesDisponibles.map(origen => (
+                              <option key={origen} value={origen}>{origen}</option>
+                            ))}
+                            <option value="OTRO">Otro (Especificar)</option>
+                          </select>
+                          {origenPedido === 'OTRO' && (
+                            <input 
+                              type="text" 
+                              className="form-control" 
+                              placeholder="Nuevo origen..."
+                              value={nuevoOrigen}
+                              onChange={e => setNuevoOrigen(e.target.value.toUpperCase())}
+                              style={{ flex: 1 }}
+                            />
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label">Forma de Pago</label>
+                        <select className="form-control" value={formaPago} onChange={e => setFormaPago(e.target.value as any)}>
+                          <option value="CREDITO">Crédito (Cartera)</option>
+                          <option value="CONTADO">Contado (Pago Inmediato)</option>
+                        </select>
+                      </div>
+
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label">Factura Electrónica</label>
+                        <div style={{ display: 'flex', gap: '12px', marginTop: '6px' }}>
+                          <button
+                            onClick={() => setFacturaElectronica(true)}
+                            className={`btn-secondary ${facturaElectronica ? 'active' : ''}`}
+                            style={{ flex: 1, padding: '8px', borderRadius: '6px', border: facturaElectronica ? '2px solid var(--primary-color)' : '1px solid #E2E8F0', backgroundColor: facturaElectronica ? '#EFF6FF' : 'white', color: facturaElectronica ? 'var(--primary-color)' : '#64748B', fontWeight: 600 }}
+                          >
+                            Sí
+                          </button>
+                          <button
+                            onClick={() => setFacturaElectronica(false)}
+                            className={`btn-secondary ${!facturaElectronica ? 'active' : ''}`}
+                            style={{ flex: 1, padding: '8px', borderRadius: '6px', border: !facturaElectronica ? '2px solid var(--primary-color)' : '1px solid #E2E8F0', backgroundColor: !facturaElectronica ? '#EFF6FF' : 'white', color: !facturaElectronica ? 'var(--primary-color)' : '#64748B', fontWeight: 600 }}
+                          >
+                            No
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* --- PASO 2: DATOS ENVÍO --- */}
+                {wizardStep === 2 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'fadeIn 0.3s' }}>
+                    <h4 style={{ fontSize: '16px', fontWeight: 700, color: '#1E293B', marginBottom: '8px', borderBottom: '1px solid #E2E8F0', paddingBottom: '12px' }}>Paso 2: Logística de Entrega</h4>
+                    
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label">Tipo de Entrega</label>
+                        <select className="form-control" value={logisticaTipo} onChange={e => setLogisticaTipo(e.target.value as any)}>
+                          <option value="EN_RUTA">En Ruta (Domicilio programado)</option>
+                          <option value="INMEDIATA">Entrega Inmediata (Express)</option>
+                          <option value="RECOGEN">Cliente Recoge en Punto de Venta</option>
+                        </select>
+                      </div>
+                      
+                      {logisticaTipo !== 'RECOGEN' && (
+                        <div className="form-group" style={{ marginBottom: 0 }}>
+                          <label className="form-label">Dirección de Entrega</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Dirección completa del cliente"
+                            value={logisticaDireccion}
+                            onChange={e => setLogisticaDireccion(e.target.value)}
+                          />
+                        </div>
+                      )}
+                      
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label">Fecha Programada</label>
+                        <input
+                          type="date"
+                          className="form-control"
+                          value={logisticaFecha}
+                          onChange={e => setLogisticaFecha(e.target.value)}
+                        />
+                      </div>
+                      
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label">Jornada</label>
+                        <select className="form-control" value={logisticaJornada} onChange={e => setLogisticaJornada(e.target.value as any)}>
+                          <option value="MANANA">Mañana (6:00 AM - 12:00 PM)</option>
+                          <option value="TARDE">Tarde (12:00 PM - 6:00 PM)</option>
+                        </select>
+                      </div>
+                      
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label">Conductor Asignado (Opcional)</label>
+                        <select className="form-control" value={logisticaConductorId} onChange={e => setLogisticaConductorId(e.target.value)}>
+                          <option value="">-- Sin asignar por ahora --</option>
+                          {conductores.map(c => (
+                            <option key={c.id} value={c.id}>{c.nombre} ({c.celular})</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* --- PASO 3: DATOS DEL PEDIDO --- */}
+                {wizardStep === 3 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'fadeIn 0.3s' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #E2E8F0', paddingBottom: '12px' }}>
+                      <h4 style={{ fontSize: '16px', fontWeight: 700, color: '#1E293B', margin: 0 }}>Paso 3: Productos y Descuentos</h4>
+                      <button 
+                        onClick={() => {
+                          setCurrentProductLine({
+                            product: null,
+                            cantidad: 1,
+                            descuento: 0,
+                            precioOverride: 0,
+                            detalle: '',
+                            listo: false,
+                            esDevolucion: false,
+                            devolucionId: ''
+                          });
+                          setEditingItemIndex(null);
+                          setIsProductModalOpen(true);
                         }}
+                        className="btn-primary"
+                        style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', backgroundColor: 'var(--primary-color)', color: 'white', display: 'flex', alignItems: 'center', gap: '6px' }}
                       >
-                        <option value="">-- Seleccionar cliente de base de datos --</option>
-                        {clientes.filter(c => c.activo).map(c => (
-                          <option key={c.id} value={c.id}>
-                            {c.nombre} ({c.identificacion}) [Tarifa: {c.tipoPrecio}]
-                          </option>
-                        ))}
-                      </select>
+                        <Plus size={16} /> Añadir Producto
+                      </button>
                     </div>
 
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label className="form-label">Lista de Precios del Cliente</label>
-                      <select
-                        className="form-control"
-                        value={clientType}
-                        onChange={e => setClientType(e.target.value as any)}
-                        style={{ fontWeight: 700, color: 'var(--primary-color)' }}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {quoteItems.length === 0 ? (
+                        <div style={{ padding: '40px', textAlign: 'center', color: '#64748B', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px dashed #CBD5E1' }}>
+                          <span style={{ fontSize: '32px' }}>🛍️</span>
+                          <p style={{ marginTop: '8px', fontWeight: 500 }}>Aún no hay productos en este pedido.</p>
+                          <p style={{ fontSize: '13px' }}>Haz clic en "Añadir Producto" para comenzar a armar la lista.</p>
+                        </div>
+                      ) : (
+                        <div style={{ overflowX: 'auto' }}>
+                          <table className="hr-table">
+                            <thead>
+                              <tr>
+                                <th>Estado</th>
+                                <th>Producto</th>
+                                <th>Cant.</th>
+                                <th>Precio Unit.</th>
+                                <th>Dcto.</th>
+                                <th>Subtotal Línea</th>
+                                <th>Acciones</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {quoteItems.map((item, index) => {
+                                const unitPrice = getQuoteItemUnitPrice(item);
+                                const lineTotal = unitPrice * item.cantidad * (1 - (item.descuento || 0) / 100);
+                                
+                                return (
+                                  <tr key={`${item.product.id}-${index}`} style={{ backgroundColor: item.esDevolucion ? '#FEF2F2' : 'white' }}>
+                                    <td>
+                                      {item.listo ? (
+                                        <span style={{ padding: '2px 6px', borderRadius: '4px', backgroundColor: '#D1FAE5', color: '#065F46', fontSize: '11px', fontWeight: 'bold' }}>LISTO</span>
+                                      ) : (
+                                        <span style={{ padding: '2px 6px', borderRadius: '4px', backgroundColor: '#FEF3C7', color: '#D97706', fontSize: '11px', fontWeight: 'bold' }}>PNDT</span>
+                                      )}
+                                      {item.esDevolucion && (
+                                        <span style={{ display: 'block', marginTop: '4px', padding: '2px 6px', borderRadius: '4px', backgroundColor: '#FEE2E2', color: '#B91C1C', fontSize: '10px', fontWeight: 'bold' }}>DEVOLUCIÓN</span>
+                                      )}
+                                    </td>
+                                    <td>
+                                      <div style={{ fontWeight: 600 }}>{item.product.nombre}</div>
+                                      <div style={{ fontSize: '11px', color: '#64748B' }}>SKU: {item.product.sku}</div>
+                                      {item.detalle && (
+                                        <div style={{ fontSize: '11px', color: '#0EA5E9', marginTop: '2px', fontStyle: 'italic' }}>Nota: {item.detalle}</div>
+                                      )}
+                                    </td>
+                                    <td>
+                                      <span style={{ fontWeight: 600 }}>{item.cantidad}</span> <span style={{ fontSize: '11px', color: '#64748B' }}>{item.product.unidadMedida || 'kg'}</span>
+                                    </td>
+                                    <td>${unitPrice.toLocaleString('es-CO')}</td>
+                                    <td>
+                                      {item.descuento > 0 ? (
+                                        <span style={{ color: '#EF4444', fontWeight: 600 }}>{item.descuento}%</span>
+                                      ) : '-'}
+                                    </td>
+                                    <td style={{ fontWeight: 700, color: item.esDevolucion ? '#B91C1C' : '#1E293B' }}>
+                                      {item.esDevolucion ? '-' : ''}${Math.round(lineTotal).toLocaleString('es-CO')}
+                                    </td>
+                                    <td>
+                                      <div style={{ display: 'flex', gap: '8px' }}>
+                                        <button 
+                                          onClick={() => {
+                                            setEditingItemIndex(index);
+                                            setCurrentProductLine({
+                                              product: item.product,
+                                              cantidad: item.cantidad,
+                                              descuento: item.descuento || 0,
+                                              precioOverride: item.precioOverride || unitPrice,
+                                              detalle: item.detalle || '',
+                                              listo: item.listo || false,
+                                              esDevolucion: item.esDevolucion || false,
+                                              devolucionId: item.devolucionId || ''
+                                            });
+                                            setIsProductModalOpen(true);
+                                          }}
+                                          style={{ background: 'none', border: 'none', color: 'var(--primary-color)', cursor: 'pointer' }}
+                                        >
+                                          <Edit2 size={16} />
+                                        </button>
+                                        <button 
+                                          onClick={() => {
+                                            setQuoteItems(prev => prev.filter((_, i) => i !== index));
+                                          }}
+                                          style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer' }}
+                                        >
+                                          <X size={16} />
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px', gap: '24px' }}>
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                        <label className="form-label" style={{ fontWeight: 600, color: '#475569', marginBottom: '8px' }}>Observaciones sobre el pedido</label>
+                        <textarea
+                          className="form-control"
+                          placeholder="Instrucciones especiales, notas para entrega, etc..."
+                          value={observacionesPedido}
+                          onChange={e => setObservacionesPedido(e.target.value)}
+                          style={{ minHeight: '120px', resize: 'vertical', padding: '12px', borderRadius: '8px', border: '1px solid #CBD5E1' }}
+                        />
+                      </div>
+
+                      <div style={{ width: '350px', backgroundColor: '#F8FAFC', padding: '16px', borderRadius: '8px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', gap: '8px', flexShrink: 0 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#64748B' }}>
+                          <span>Subtotal Venta Bruta</span>
+                          <span>${Math.round(quoteSubtotal).toLocaleString('es-CO')}</span>
+                        </div>
+                        {quoteLineDiscountsTotal > 0 && (
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#EF4444' }}>
+                            <span>Descuentos (por línea)</span>
+                            <span>-${Math.round(quoteLineDiscountsTotal).toLocaleString('es-CO')}</span>
+                          </div>
+                        )}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: 600, color: '#1E293B', borderBottom: '1px dashed #CBD5E1', paddingBottom: '8px' }}>
+                          <span>Subtotal Neto Venta</span>
+                          <span>${Math.round(quoteSubtotalAfterLineDiscounts).toLocaleString('es-CO')}</span>
+                        </div>
+                        
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                          <span style={{ fontSize: '13px', color: '#64748B' }}>Descuento Global Adicional:</span>
+                          <input
+                            type="number"
+                            min="0"
+                            max="50"
+                            className="form-control"
+                            style={{ width: '70px', padding: '4px 8px', fontSize: '12px' }}
+                            value={quoteDiscountGlobal}
+                            onChange={e => setQuoteDiscountGlobal(parseInt(e.target.value) || 0)}
+                          />
+                          <span style={{ fontSize: '12px' }}>%</span>
+                        </div>
+                        
+                        {quoteGlobalDiscountValue > 0 && (
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#EF4444' }}>
+                            <span>Valor Descuento Global</span>
+                            <span>-${Math.round(quoteGlobalDiscountValue).toLocaleString('es-CO')}</span>
+                          </div>
+                        )}
+
+                        {quoteDevolucionesTotal > 0 && (
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#10B981', fontWeight: 600, backgroundColor: '#D1FAE5', padding: '4px 8px', borderRadius: '4px' }}>
+                            <span>Cruce Devoluciones (Saldo)</span>
+                            <span>-${Math.round(quoteDevolucionesTotal).toLocaleString('es-CO')}</span>
+                          </div>
+                        )}
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '18px', fontWeight: 800, color: 'var(--primary-color)', borderTop: '2px solid #E2E8F0', paddingTop: '12px', marginTop: '4px' }}>
+                          <span>TOTAL A PAGAR</span>
+                          <span>${Math.round(quoteTotalFinal).toLocaleString('es-CO')}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* --- BOTONES DE NAVEGACIÓN --- */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '32px', paddingTop: '16px', borderTop: '1px solid #E2E8F0' }}>
+                  <button 
+                    onClick={() => {
+                      setWizardStep(1);
+                      setClientName('');
+                      setQuoteItems([]);
+                      setQuoteSubTab('history');
+                    }}
+                    style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid #CBD5E1', backgroundColor: 'white', color: '#64748B', fontWeight: 600, cursor: 'pointer' }}
+                  >
+                    Cancelar
+                  </button>
+                  
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    {wizardStep > 1 && (
+                      <button 
+                        onClick={() => setWizardStep(prev => (prev - 1) as any)}
+                        style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid #CBD5E1', backgroundColor: 'white', color: '#475569', fontWeight: 600, cursor: 'pointer' }}
                       >
-                        <option value="POS">Lista POS (Venta Directa)</option>
-                        <option value="RESTAURANTE">Lista Restaurante (Margen intermedio)</option>
-                        <option value="MAYORISTA">Lista Mayorista / B2B (Mejor Precio)</option>
-                      </select>
-                    </div>
-
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label className="form-label">Cliente (Nombre o Razón Social) *</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Ej. Restaurante Puerto Mar"
-                        value={clientName}
-                        onChange={e => setClientName(e.target.value)}
-                      />
-                    </div>
-
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label className="form-label">NIT / Cédula</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Ej. 900.123.456-1"
-                        value={clientIdent}
-                        onChange={e => setClientIdent(e.target.value)}
-                      />
-                    </div>
-
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span>Descuento Global Adicional</span>
-                        <span style={{ color: 'var(--primary-color)', fontWeight: 700 }}>{quoteDiscountGlobal}%</span>
-                      </label>
-                      <input
-                        type="range"
-                        min="0"
-                        max="30"
-                        step="1"
-                        className="form-control"
-                        value={quoteDiscountGlobal}
-                        onChange={e => setQuoteDiscountGlobal(parseInt(e.target.value) || 0)}
-                      />
-                    </div>
-
+                        Anterior
+                      </button>
+                    )}
+                    
+                    {wizardStep < 3 ? (
+                      <button 
+                        onClick={() => {
+                          if (wizardStep === 1 && !clientName) {
+                            Swal.fire({ icon: 'warning', title: 'Falta Cliente', text: 'Debe ingresar el nombre del cliente para continuar.', confirmButtonColor: 'var(--primary-color)' });
+                            return;
+                          }
+                          setWizardStep(prev => (prev + 1) as any);
+                        }}
+                        className="btn-primary"
+                        style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', backgroundColor: 'var(--primary-color)', color: 'white', fontWeight: 600, cursor: 'pointer' }}
+                      >
+                        Siguiente
+                      </button>
+                    ) : (
+                      <button 
+                        onClick={handleSaveQuotation}
+                        className="btn-primary"
+                        style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', backgroundColor: '#10B981', color: 'white', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                      >
+                        <Save size={18} /> Guardar Pedido
+                      </button>
+                    )}
                   </div>
                 </div>
 
-                {/* Listado de items del carrito de la cotización */}
-                <div className="hr-table-card" style={{ padding: '24px', flex: 1, minHeight: '300px', display: 'flex', flexDirection: 'column' }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <ShoppingCart size={18} color="var(--primary-color)" /> Detalle de la Cotización
-                  </h3>
-                  
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', maxHeight: '350px', marginBottom: '16px' }}>
-                    {quoteItems.length === 0 ? (
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#64748B', gap: '8px', flex: 1 }}>
-                        <span style={{ fontSize: '32px' }}>📝</span>
-                        <span style={{ fontSize: '13px', fontWeight: 500 }}>No hay productos agregados</span>
-                      </div>
-                    ) : (
-                      quoteItems.map(item => {
-                        const stockPrincipal = getProductStock(item.product.sku, 'Bodega Principal');
-                        const isInsufficient = stockPrincipal < item.cantidad;
-                        const clientKey = (clientIdent || clientName).trim().toLowerCase();
-                        const historicalPrice = clientKey ? lastClientPrices[clientKey]?.[item.product.sku] : undefined;
-                        const unitPrice = getQuoteItemUnitPrice(item);
-                        const lineTotal = unitPrice * item.cantidad * (1 - item.descuento / 100);
+              </div>
 
-                        return (
-                          <div key={item.product.id} style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '12px', border: '1px solid #E2E8F0', borderRadius: '8px', animation: 'fadeIn 0.2s' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                <span style={{ fontSize: '13px', fontWeight: 700 }}>{item.product.nombre}</span>
-                                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                                  <span style={{ fontSize: '11px', color: '#64748B' }}>SKU: {item.product.sku}</span>
-                                  <span style={{
-                                    fontSize: '10px',
-                                    padding: '1px 6px',
-                                    borderRadius: '4px',
-                                    backgroundColor: isInsufficient ? '#FEE2E2' : '#F1F5F9',
-                                    color: isInsufficient ? '#EF4444' : '#64748B',
-                                    fontWeight: 600
-                                  }}>
-                                    P: {stockPrincipal} {isInsufficient && '⚠️ Insuficiente'}
-                                  </span>
-                                </div>
-                                <span style={{ fontSize: '11px', color: 'var(--primary-color)', fontWeight: 600 }}>
-                                  Unitario: ${unitPrice.toLocaleString('es-CO')}
-                                </span>
-                              </div>
-                              <button onClick={() => handleRemoveFromQuote(item.product.id)} style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer' }}>
-                                <X size={16} />
-                              </button>
-                            </div>
-
-                            {/* Alerta de Precio Histórico y Botón de Variación */}
-                            {historicalPrice !== undefined && (
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                {historicalPrice === unitPrice ? (
-                                  <span style={{
-                                    fontSize: '9px',
-                                    padding: '2px 6px',
-                                    borderRadius: '4px',
-                                    backgroundColor: '#D1FAE5',
-                                    color: '#065F46',
-                                    fontWeight: 'bold',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '2px'
-                                  }}>
-                                    ✓ Tarifa histórica aplicada
-                                  </span>
-                                ) : (
-                                  <button
+              {/* --- MODAL DETALLE DE PRODUCTO --- */}
+              {isProductModalOpen && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', justifyContent: 'flex-end' }}>
+                  <div style={{ width: '450px', backgroundColor: 'white', height: '100%', display: 'flex', flexDirection: 'column', animation: 'slideInRight 0.3s ease-out', boxShadow: '-5px 0 15px rgba(0,0,0,0.1)' }}>
+                    <div style={{ padding: '20px', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#F8FAFC' }}>
+                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#1E293B' }}>{editingItemIndex !== null ? 'Editar Producto' : 'Añadir Producto'}</h3>
+                      <button onClick={() => setIsProductModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B' }}>
+                        <X size={24} />
+                      </button>
+                    </div>
+                    
+                    <div style={{ padding: '24px', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                      
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label" style={{ fontWeight: 'bold' }}>Producto *</label>
+                        {!currentProductLine.product ? (
+                          <div style={{ position: 'relative' }}>
+                            <Search size={16} color="#64748B" style={{ position: 'absolute', left: '12px', top: '10px' }} />
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Buscar por SKU o Nombre..."
+                              value={quoteSearchTerm}
+                              onChange={e => setQuoteSearchTerm(e.target.value)}
+                              style={{ paddingLeft: '36px' }}
+                            />
+                            {quoteSearchTerm && (
+                              <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: 'white', border: '1px solid #E2E8F0', borderRadius: '0 0 8px 8px', maxHeight: '200px', overflowY: 'auto', zIndex: 10, boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                                {products.filter(p => p.activo && (p.nombre.toLowerCase().includes(quoteSearchTerm.toLowerCase()) || p.sku.toLowerCase().includes(quoteSearchTerm.toLowerCase()))).map(p => (
+                                  <div 
+                                    key={p.id}
                                     onClick={() => {
-                                      setQuoteItems(prev => prev.map(i => i.product.id === item.product.id ? { ...i, precioOverride: historicalPrice } : i));
-                                      Swal.fire({
-                                        toast: true,
-                                        position: 'top-end',
-                                        icon: 'success',
-                                        title: `Precio histórico aplicado: $${historicalPrice.toLocaleString('es-CO')}`,
-                                        showConfirmButton: false,
-                                        timer: 1500
-                                      });
+                                      setCurrentProductLine(prev => ({
+                                        ...prev,
+                                        product: p,
+                                        precioOverride: getProductPriceByClientType(p)
+                                      }));
+                                      setQuoteSearchTerm('');
                                     }}
-                                    className="btn-warning"
-                                    style={{
-                                      fontSize: '9px',
-                                      padding: '2px 6px',
-                                      borderRadius: '4px',
-                                      border: '1px solid #F59E0B',
-                                      backgroundColor: '#FEF3C7',
-                                      color: '#D97706',
-                                      fontWeight: 'bold',
-                                      cursor: 'pointer',
-                                      display: 'inline-flex',
-                                      alignItems: 'center',
-                                      gap: '2px'
-                                    }}
+                                    style={{ padding: '10px 12px', borderBottom: '1px solid #F1F5F9', cursor: 'pointer', display: 'flex', justifyContent: 'space-between' }}
                                   >
-                                    💡 Último: ${historicalPrice.toLocaleString('es-CO')} (Aplicar)
-                                  </button>
-                                )}
-
-                                {item.precioOverride !== undefined && (
-                                  <button
-                                    onClick={() => {
-                                      setQuoteItems(prev => prev.map(i => i.product.id === item.product.id ? { ...i, precioOverride: undefined } : i));
-                                    }}
-                                    style={{
-                                      fontSize: '9px',
-                                      background: 'none',
-                                      border: 'none',
-                                      color: '#EF4444',
-                                      textDecoration: 'underline',
-                                      cursor: 'pointer'
-                                    }}
-                                  >
-                                    Restablecer
-                                  </button>
-                                )}
+                                    <div>
+                                      <div style={{ fontWeight: 600, fontSize: '13px' }}>{p.nombre}</div>
+                                      <div style={{ fontSize: '11px', color: '#64748B' }}>SKU: {p.sku} | Costo: ${p.precio_compra.toLocaleString('es-CO')}</div>
+                                    </div>
+                                    <div style={{ fontWeight: 700, color: 'var(--primary-color)' }}>
+                                      ${getProductPriceByClientType(p).toLocaleString('es-CO')}
+                                    </div>
+                                  </div>
+                                ))}
                               </div>
                             )}
+                          </div>
+                        ) : (
+                          <div style={{ padding: '12px', border: '1px solid #E2E8F0', borderRadius: '8px', backgroundColor: '#F8FAFC', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                              <div style={{ fontWeight: 700, color: 'var(--primary-color)' }}>{currentProductLine.product.nombre}</div>
+                              <div style={{ fontSize: '12px', color: '#64748B' }}>SKU: {currentProductLine.product.sku}</div>
+                            </div>
+                            <button 
+                              onClick={() => setCurrentProductLine(prev => ({ ...prev, product: null }))}
+                              style={{ fontSize: '12px', padding: '4px 8px', borderRadius: '4px', border: '1px solid #CBD5E1', backgroundColor: 'white', cursor: 'pointer' }}
+                            >
+                              Cambiar
+                            </button>
+                          </div>
+                        )}
+                      </div>
 
-                            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1 }}>
-                                <span style={{ fontSize: '11px', color: '#64748B', fontWeight: 600 }}>Cant:</span>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  style={{ padding: '4px 8px', fontSize: '12px' }}
-                                  value={item.cantidad}
-                                  onChange={e => handleUpdateQuoteQty(item.product.id, parseInt(e.target.value) || 1)}
-                                />
-                              </div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1 }}>
-                                <span style={{ fontSize: '11px', color: '#64748B', fontWeight: 600 }}>Desc:</span>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  max="100"
-                                  className="form-control"
-                                  style={{ padding: '4px 8px', fontSize: '12px' }}
-                                  value={item.descuento}
-                                  onChange={e => handleUpdateQuoteItemDiscount(item.product.id, parseInt(e.target.value) || 0)}
-                                />
-                                <span style={{ fontSize: '12px' }}>%</span>
-                              </div>
-                              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', minWidth: '80px' }}>
-                                <span style={{ fontSize: '13px', fontWeight: 700, color: '#1E293B' }}>${Math.round(lineTotal).toLocaleString('es-CO')}</span>
-                              </div>
+                      {currentProductLine.product && (
+                        <>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                              <label className="form-label">Cantidad ({currentProductLine.product.unidadMedida || 'kg'}) *</label>
+                              <input
+                                type="number"
+                                min="0.1"
+                                step="0.1"
+                                className="form-control"
+                                value={currentProductLine.cantidad}
+                                onChange={e => setCurrentProductLine(prev => ({ ...prev, cantidad: parseFloat(e.target.value) || 1 }))}
+                              />
+                            </div>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                              <label className="form-label">Precio Venta (Unit)</label>
+                              <input
+                                type="number"
+                                className="form-control"
+                                value={currentProductLine.precioOverride}
+                                onChange={e => setCurrentProductLine(prev => ({ ...prev, precioOverride: parseInt(e.target.value) || 0 }))}
+                              />
                             </div>
                           </div>
-                        );
-                      })
-                    )}
-                  </div>
 
-                  <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#64748B' }}>
-                      <span>Subtotal bruto</span>
-                      <span>${quoteSubtotal.toLocaleString('es-CO')}</span>
-                    </div>
-                    {quoteLineDiscountsTotal > 0 && (
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#EF4444' }}>
-                        <span>Descuentos de línea</span>
-                        <span>-${Math.round(quoteLineDiscountsTotal).toLocaleString('es-CO')}</span>
-                      </div>
-                    )}
-                    {quoteDiscountGlobal > 0 && (
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#EF4444' }}>
-                        <span>Descuento global ({quoteDiscountGlobal}%)</span>
-                        <span>-${Math.round(quoteGlobalDiscountValue).toLocaleString('es-CO')}</span>
-                      </div>
-                    )}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', fontWeight: 800, color: '#1E293B', borderTop: '2px solid #E2E8F0', paddingTop: '8px' }}>
-                      <span>TOTAL COTIZADO</span>
-                      <span>${Math.round(quoteTotalFinal).toLocaleString('es-CO')}</span>
-                    </div>
+                          <div className="form-group" style={{ marginBottom: 0 }}>
+                            <label className="form-label">Detalle / Observación</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Ej. Sin cabeza, fileteado..."
+                              value={currentProductLine.detalle}
+                              onChange={e => setCurrentProductLine(prev => ({ ...prev, detalle: e.target.value }))}
+                            />
+                          </div>
 
-                    <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
-                      <button 
-                        onClick={() => handleSaveQuotation('Draft')} 
-                        className="btn-secondary" 
-                        style={{ flex: 1, justifyContent: 'center', padding: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}
-                      >
-                        <Save size={16} />
-                        <span>Borrador</span>
-                      </button>
-                      <button 
-                        onClick={() => handleSaveQuotation('Sent')} 
-                        className="btn-primary" 
-                        style={{ flex: 2, border: 'none', justifyContent: 'center', padding: '12px', backgroundColor: 'var(--primary-color)', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}
-                      >
-                        <FileText size={18} />
-                        <span>Crear y Enviar</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Buscador y listado para añadir rápidamente */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div className="pos-search-bar" style={{ marginBottom: 0 }}>
-                  <Search size={18} color="#64748B" />
-                  <input
-                    type="text"
-                    className="pos-search-input"
-                    placeholder="Buscar productos activos para la cotización..."
-                    value={quoteSearchTerm}
-                    onChange={e => setQuoteSearchTerm(e.target.value)}
-                  />
-                </div>
-
-                <div className="hr-table-card">
-                  <table className="hr-table">
-                    <thead>
-                      <tr>
-                        <th>SKU</th>
-                        <th>Nombre</th>
-                        <th>Categoría</th>
-                        <th>Precio ({clientType})</th>
-                        <th>Acción</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                       {quoteFilteredProducts.map(p => {
-                        const stockPrincipal = getProductStock(p.sku, 'Bodega Principal');
-                        const stockSecundaria = getProductStock(p.sku, 'Bodega Secundaria');
-                        const stockAverias = getProductStock(p.sku, 'Bodega Averías');
-                        return (
-                          <tr key={p.id}>
-                            <td style={{ fontWeight: 700, color: '#64748B' }}>{p.sku}</td>
-                            <td style={{ fontWeight: 600 }}>
-                              <div>{p.nombre}</div>
-                              <div style={{ display: 'flex', gap: '8px', fontSize: '10px', color: '#64748B', marginTop: '2px' }}>
-                                <span>P: <strong style={{ color: stockPrincipal === 0 ? '#EF4444' : stockPrincipal <= p.buffer_seguridad ? '#F59E0B' : '#10B981' }}>{stockPrincipal}</strong></span>
-                                <span>S: <strong>{stockSecundaria}</strong></span>
-                                <span>A: <strong style={{ color: '#E11D48' }}>{stockAverias}</strong></span>
-                              </div>
-                            </td>
-                            <td>
-                              <span style={{ fontSize: '11px', fontWeight: 600, padding: '3px 8px', borderRadius: '12px', backgroundColor: '#F1F5F9' }}>
-                                {p.categoria}
-                              </span>
-                            </td>
-                            <td style={{ fontWeight: 700, color: 'var(--primary-color)' }}>
-                              ${getProductPriceByClientType(p).toLocaleString('es-CO')}
-                            </td>
-                            <td>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                              <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <span>Descuento (%)</span>
+                                <span style={{ color: '#EF4444', fontWeight: 'bold' }}>{currentProductLine.descuento}%</span>
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                className="form-control"
+                                value={currentProductLine.descuento}
+                                onChange={e => setCurrentProductLine(prev => ({ ...prev, descuento: parseInt(e.target.value) || 0 }))}
+                              />
+                            </div>
+                            
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                              <label className="form-label">Estado Preparación</label>
                               <button
-                                onClick={() => handleAddToQuote(p)}
-                                className="btn-primary"
-                                style={{ padding: '6px 12px', fontSize: '11px', borderRadius: '8px', border: 'none', backgroundColor: 'var(--primary-color)', color: 'white' }}
+                                onClick={() => setCurrentProductLine(prev => ({ ...prev, listo: !prev.listo }))}
+                                style={{
+                                  width: '100%',
+                                  padding: '10px',
+                                  borderRadius: '8px',
+                                  border: currentProductLine.listo ? '2px solid #10B981' : '1px solid #CBD5E1',
+                                  backgroundColor: currentProductLine.listo ? '#D1FAE5' : 'white',
+                                  color: currentProductLine.listo ? '#065F46' : '#64748B',
+                                  fontWeight: 600,
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  gap: '8px'
+                                }}
                               >
-                                <Plus size={12} /> Añadir
+                                {currentProductLine.listo ? <><Check size={16}/> Listo</> : 'Pendiente'}
                               </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                      {quoteFilteredProducts.length === 0 && (
-                        <tr>
-                          <td colSpan={5} style={{ textAlign: 'center', padding: '24px', color: '#64748B' }}>
-                            No se encontraron productos activos.
-                          </td>
-                        </tr>
+                            </div>
+                          </div>
+
+                          <div className="form-group" style={{ marginBottom: 0, padding: '16px', backgroundColor: currentProductLine.esDevolucion ? '#FEF2F2' : '#F1F5F9', borderRadius: '8px', border: currentProductLine.esDevolucion ? '1px dashed #EF4444' : '1px dashed #CBD5E1' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <div>
+                                <label className="form-label" style={{ margin: 0, fontWeight: 'bold', color: currentProductLine.esDevolucion ? '#B91C1C' : '#475569' }}>¿Es Devolución?</label>
+                                <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#64748B' }}>Marca si esta línea cruza un saldo a favor de devolución.</p>
+                              </div>
+                              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                                <input 
+                                  type="checkbox" 
+                                  checked={currentProductLine.esDevolucion}
+                                  onChange={e => setCurrentProductLine(prev => ({ ...prev, esDevolucion: e.target.checked, descuento: e.target.checked ? 0 : prev.descuento }))}
+                                  style={{ width: '20px', height: '20px', accentColor: '#EF4444' }}
+                                />
+                              </label>
+                            </div>
+                          </div>
+
+                          <div style={{ marginTop: 'auto', padding: '16px', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '18px', fontWeight: 800, color: 'var(--primary-color)' }}>
+                              <span>Total Línea:</span>
+                              <span>${Math.round(currentProductLine.cantidad * currentProductLine.precioOverride * (1 - currentProductLine.descuento / 100)).toLocaleString('es-CO')}</span>
+                            </div>
+                          </div>
+                        </>
                       )}
-                    </tbody>
-                  </table>
+                    </div>
+
+                    <div style={{ padding: '20px', borderTop: '1px solid #E2E8F0', display: 'flex', gap: '12px' }}>
+                      <button 
+                        onClick={() => setIsProductModalOpen(false)}
+                        style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #CBD5E1', backgroundColor: 'white', color: '#64748B', fontWeight: 600, cursor: 'pointer' }}
+                      >
+                        Cancelar
+                      </button>
+                      <button 
+                        onClick={() => {
+                          if (!currentProductLine.product) {
+                            Swal.fire({ icon: 'warning', title: 'Producto Requerido', text: 'Debe seleccionar un producto.', confirmButtonColor: 'var(--primary-color)' });
+                            return;
+                          }
+                          
+                          setQuoteItems(prev => {
+                            const newItems = [...prev];
+                            const itemToSave = {
+                              product: currentProductLine.product!,
+                              cantidad: currentProductLine.cantidad,
+                              descuento: currentProductLine.descuento,
+                              precioOverride: currentProductLine.precioOverride,
+                              detalle: currentProductLine.detalle,
+                              listo: currentProductLine.listo,
+                              esDevolucion: currentProductLine.esDevolucion,
+                              devolucionId: currentProductLine.devolucionId
+                            };
+
+                            if (editingItemIndex !== null) {
+                              newItems[editingItemIndex] = itemToSave;
+                            } else {
+                              newItems.push(itemToSave);
+                            }
+                            return newItems;
+                          });
+                          setIsProductModalOpen(false);
+                        }}
+                        className="btn-primary"
+                        style={{ flex: 1, padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: 'var(--primary-color)', color: 'white', fontWeight: 600, cursor: 'pointer' }}
+                      >
+                        {editingItemIndex !== null ? 'Actualizar' : 'Añadir a Pedido'}
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
-          ) : (
+          ) : quoteSubTab === 'history' ? (
             /* Historial de Cotizaciones y Estados de Flujo */
             <div className="hr-table-card" style={{ padding: '24px' }}>
               <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '16px' }}>Cotizaciones Registradas en el Sistema</h3>
@@ -1300,6 +1718,315 @@ export default function PricingView({
                   </table>
                 </div>
               )}
+            </div>
+          ) : (
+            /* --- DEVOLUCIONES B2B --- */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '24px' }}>
+                
+                {/* Formulario Nueva Devolución */}
+                <div className="hr-table-card" style={{ padding: '24px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '16px' }}>Programar Nueva Devolución</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label className="form-label">Cliente B2B *</label>
+                      <select
+                        className="form-control"
+                        value={devClienteId}
+                        onChange={e => {
+                          setDevClienteId(e.target.value);
+                          setDevPedidoId('');
+                          setDevItems([]);
+                        }}
+                      >
+                        <option value="">Seleccione un cliente...</option>
+                        {clientes.filter(c => c.tipoPrecio === 'MAYORISTA' || c.tipoPrecio === 'RESTAURANTE').map(c => (
+                          <option key={c.id} value={c.id}>{c.nombre}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label className="form-label">Asociar a Pedido / Factura (Opcional)</label>
+                      <select
+                        className="form-control"
+                        value={devPedidoId}
+                        onChange={e => {
+                          const pId = e.target.value;
+                          setDevPedidoId(pId);
+                          // Auto-fill items from this quote if selected
+                          const q = quotations.find(qt => qt.id === pId);
+                          if (q && q.items) {
+                            setDevItems(q.items.map((i: any) => ({
+                              sku: i.sku,
+                              nombre: i.nombre,
+                              cantidad: i.cantidad,
+                              precio: i.precio,
+                              motivo: 'MAL_ESTADO'
+                            })));
+                          } else {
+                            setDevItems([]);
+                          }
+                        }}
+                        disabled={!devClienteId}
+                      >
+                        <option value="">Seleccione un pedido...</option>
+                        {quotations
+                          .filter(q => q.clienteId === devClienteId && (q.estado === 'Sold' || q.estado === 'Listo' || q.estado === 'FACTURADO'))
+                          .map(q => (
+                            <option key={q.id} value={q.id}>{q.no} ({q.fecha} - ${q.total.toLocaleString('es-CO')})</option>
+                          ))
+                        }
+                      </select>
+                    </div>
+
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label className="form-label">Conductor Asignado para Recogida *</label>
+                      <select
+                        className="form-control"
+                        value={devConductorId}
+                        onChange={e => setDevConductorId(e.target.value)}
+                      >
+                        <option value="">Seleccione un conductor...</option>
+                        {conductores.map(c => (
+                          <option key={c.id} value={c.id}>{c.nombre}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label className="form-label">Fecha de Recogida Programada</label>
+                      <input
+                        type="date"
+                        className="form-control"
+                        value={devFechaProg}
+                        onChange={e => setDevFechaProg(e.target.value)}
+                      />
+                    </div>
+
+                    {/* Agregar productos individualmente si no se asocia pedido */}
+                    {!devPedidoId && (
+                      <div style={{ border: '1px solid #E2E8F0', padding: '12px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
+                        <span style={{ fontSize: '12px', fontWeight: 700, color: '#475569' }}>Agregar Producto Individual</span>
+                        <div className="form-group" style={{ marginBottom: 0 }}>
+                          <select
+                            className="form-control"
+                            value={devSelProductSku}
+                            onChange={e => setDevSelProductSku(e.target.value)}
+                          >
+                            <option value="">Seleccione producto...</option>
+                            {products.map(p => (
+                              <option key={p.id} value={p.sku}>{p.nombre} ({p.sku})</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <div className="form-group" style={{ marginBottom: 0, flex: 1 }}>
+                            <input
+                              type="number"
+                              className="form-control"
+                              placeholder="Cant (kg)"
+                              value={devSelProductCant}
+                              onChange={e => setDevSelProductCant(parseFloat(e.target.value) || 1)}
+                            />
+                          </div>
+                          <div className="form-group" style={{ marginBottom: 0, flex: 1.5 }}>
+                            <select
+                              className="form-control"
+                              value={devSelProductMotivo}
+                              onChange={e => setDevSelProductMotivo(e.target.value)}
+                            >
+                              <option value="MAL_ESTADO">Mal Estado / Caducado</option>
+                              <option value="CAMBIO">Cambio / Devolución Comercial</option>
+                              <option value="EXCESO_PEDIDO">Exceso en Pedido</option>
+                            </select>
+                          </div>
+                          <button
+                            type="button"
+                            className="btn-primary"
+                            style={{ border: 'none', backgroundColor: 'var(--primary-color)', color: 'white', padding: '8px 12px', borderRadius: '8px' }}
+                            onClick={() => {
+                              const prod = products.find(p => p.sku === devSelProductSku);
+                              if (!prod) {
+                                Swal.fire({ icon: 'warning', title: 'Seleccione Producto', text: 'Por favor seleccione un producto del catálogo.', confirmButtonColor: 'var(--primary-color)' });
+                                return;
+                              }
+                              if (devItems.some(i => i.sku === devSelProductSku)) {
+                                Swal.fire({ icon: 'warning', title: 'Producto duplicado', text: 'El producto ya está en la lista de devolución.', confirmButtonColor: 'var(--primary-color)' });
+                                return;
+                              }
+                              // Get unit price based on client type
+                              const cli = clientes.find(c => c.id === devClienteId);
+                              const cliType = cli?.tipoPrecio || 'POS';
+                              let price = prod.precio_venta_pos;
+                              if (cliType === 'RESTAURANTE') price = prod.precio_venta_restaurante;
+                              else if (cliType === 'MAYORISTA') price = prod.precio_venta_mayorista;
+
+                              setDevItems(prev => [...prev, {
+                                sku: prod.sku,
+                                nombre: prod.nombre,
+                                cantidad: devSelProductCant,
+                                precio: price,
+                                motivo: devSelProductMotivo
+                              }]);
+                              setDevSelProductSku('');
+                              setDevSelProductCant(1);
+                            }}
+                            disabled={!devClienteId}
+                          >
+                            Agregar
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Detalle Devolución */}
+                    <div style={{ marginTop: '8px' }}>
+                      <span style={{ fontSize: '12px', fontWeight: 700, color: '#475569', display: 'block', marginBottom: '8px' }}>Ítems a Recoger</span>
+                      {devItems.length === 0 ? (
+                        <div style={{ padding: '12px', border: '1px dashed #CBD5E1', borderRadius: '8px', textAlign: 'center', fontSize: '11px', color: '#64748B' }}>
+                          No hay ítems para devolución
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '180px', overflowY: 'auto' }}>
+                          {devItems.map((item, index) => (
+                            <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '11px' }}>
+                              <div>
+                                <span style={{ fontWeight: 700 }}>{item.nombre}</span> ({item.sku})<br />
+                                <span style={{ color: 'var(--primary-color)', fontWeight: 600 }}>Cant: {item.cantidad} kg</span> | Motivo: {item.motivo}
+                              </div>
+                              <button
+                                type="button"
+                                style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer' }}
+                                onClick={() => setDevItems(prev => prev.filter((_, idx) => idx !== index))}
+                                disabled={!!devPedidoId}
+                              >
+                                <X size={14} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <button
+                      type="button"
+                      className="btn-primary"
+                      style={{ border: 'none', backgroundColor: 'var(--primary-color)', color: 'white', padding: '12px', borderRadius: '8px', fontWeight: 'bold', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '12px' }}
+                      onClick={() => {
+                        if (!devClienteId || !devConductorId || devItems.length === 0) {
+                          Swal.fire({ icon: 'warning', title: 'Campos incompletos', text: 'Por favor complete todos los campos requeridos (Cliente, Conductor y al menos un producto).', confirmButtonColor: 'var(--primary-color)' });
+                          return;
+                        }
+                        const cli = clientes.find(c => c.id === devClienteId);
+                        const cond = conductores.find(c => c.id === devConductorId);
+                        const newDev: DevolucionPedido = {
+                          id: generateId('dev'),
+                          pedidoId: devPedidoId || '',
+                          pedidoNo: quotations.find(q => q.id === devPedidoId)?.no || 'S/O',
+                          clienteId: devClienteId,
+                          clienteNombre: cli?.nombre || '',
+                          conductorId: devConductorId,
+                          conductorNombre: cond?.nombre || '',
+                          estado: 'PROGRAMADA',
+                          fechaProgramacion: devFechaProg,
+                          items: devItems.map(i => ({
+                            sku: i.sku,
+                            nombre: i.nombre,
+                            cantidadSolicitada: i.cantidad,
+                            precioUnitarioVenta: i.precio,
+                            motivo: i.motivo
+                          }))
+                        };
+
+                        if (setDevoluciones) {
+                          setDevoluciones(prev => [newDev, ...prev]);
+                        }
+                        publishEvent(
+                          'QUOTE_STATUS_CHANGED',
+                          userRole,
+                          `Solicitud de devolución programada para cliente ${newDev.clienteNombre} asignada a conductor ${newDev.conductorNombre}`
+                        );
+
+                        // Reset
+                        setDevClienteId('');
+                        setDevPedidoId('');
+                        setDevConductorId('');
+                        setDevItems([]);
+
+                        Swal.fire({
+                          icon: 'success',
+                          title: 'Devolución Programada',
+                          text: 'La orden de recogida ha sido registrada y notificada al conductor.',
+                          confirmButtonColor: 'var(--primary-color)'
+                        });
+                      }}
+                    >
+                      Programar Recogida
+                    </button>
+
+                  </div>
+                </div>
+
+                {/* Listado de Devoluciones Programadas */}
+                <div className="hr-table-card" style={{ padding: '24px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '16px' }}>Estado de Devoluciones B2B</h3>
+                  {devoluciones.length === 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '200px', color: '#64748B', gap: '8px' }}>
+                      <span style={{ fontSize: '32px' }}>🔄</span>
+                      <span style={{ fontSize: '13px', fontWeight: 500 }}>No hay devoluciones programadas</span>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '550px', overflowY: 'auto' }}>
+                      {devoluciones.map(dev => {
+                        const totalEstimado = dev.items.reduce((sum, i) => sum + (i.precioUnitarioVenta * i.cantidadSolicitada), 0);
+                        return (
+                          <div key={dev.id} style={{ border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <span style={{ fontSize: '13px', fontWeight: 800, color: '#1E293B' }}>{dev.clienteNombre}</span>
+                              <span style={{
+                                fontSize: '11px',
+                                padding: '2px 8px',
+                                borderRadius: '6px',
+                                fontWeight: 700,
+                                backgroundColor: dev.estado === 'PROGRAMADA' ? '#FEF3C7' : dev.estado === 'RECIBIDA_BODEGA' ? '#DBEAFE' : dev.estado === 'VALIDADA_FINANZAS' ? '#D1FAE5' : '#F1F5F9',
+                                color: dev.estado === 'PROGRAMADA' ? '#D97706' : dev.estado === 'RECIBIDA_BODEGA' ? '#2563EB' : dev.estado === 'VALIDADA_FINANZAS' ? '#059669' : '#475569'
+                              }}>
+                                {dev.estado}
+                              </span>
+                            </div>
+                            <div style={{ fontSize: '12px', color: '#64748B', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                              <span><strong>Pedido:</strong> {dev.pedidoNo}</span>
+                              <span><strong>Fecha Prog:</strong> {dev.fechaProgramacion}</span>
+                              <span style={{ gridColumn: 'span 2' }}><strong>Conductor:</strong> {dev.conductorNombre}</span>
+                            </div>
+                            
+                            {/* Items preview */}
+                            <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: '8px', marginTop: '4px' }}>
+                              <span style={{ fontSize: '11px', fontWeight: 700, color: '#475569' }}>Productos:</span>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginTop: '4px' }}>
+                                {dev.items.map((it, idx) => (
+                                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#475569' }}>
+                                    <span>{it.nombre}</span>
+                                    <span>{it.cantidadRecibida !== undefined ? `${it.cantidadRecibida} / ${it.cantidadSolicitada}` : it.cantidadSolicitada} kg</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #F1F5F9', paddingTop: '8px', marginTop: '4px' }}>
+                              <span style={{ fontSize: '11px', color: '#64748B' }}>Total Estimado:</span>
+                              <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--primary-color)' }}>${totalEstimado.toLocaleString('es-CO')}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+              </div>
             </div>
           )}
 

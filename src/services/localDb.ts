@@ -17,7 +17,12 @@ export const DB_KEYS = {
   syncQueue: 'pezcaderia_sync_queue',
   lastClientPrices: 'pezcaderia_last_client_prices',
   dynamicFields: 'pezcaderia_dynamic_fields',
-  role: 'pezcaderia_role'
+  role: 'pezcaderia_role',
+  categorias: 'pezcaderia_categorias',
+  devoluciones: 'pezcaderia_devoluciones',
+  conductores: 'pezcaderia_conductores',
+  logIntegracion: 'pezcaderia_log_integracion',
+  parametros: 'pezcaderia_parametros'
 } as const;
 
 export type DbKey = keyof typeof DB_KEYS;

@@ -1,6 +1,6 @@
 // src/views/DashboardView.tsx
 import { ReactNode } from 'react';
-import { DollarSign, Truck, Percent, TrendingUp, ShoppingBag, PlusCircle, ArrowUpRight } from 'lucide-react';
+import { DollarSign, ShoppingBag, PlusCircle, ArrowUpRight, Wallet, RefreshCw } from 'lucide-react';
 
 interface MetricCardProps {
   title: string;
@@ -37,13 +37,55 @@ function MetricCard({ title, value, change, positive, icon }: MetricCardProps) {
   );
 }
 
-export default function DashboardView({ setView }: any) {
-  const transaccionesRecientes = [
-    { id: 'TX-001', descripcion: 'Venta Factura POS (PED-004312)', tipo: 'INGRESO', valor: 45000, hora: '12:30 PM' },
-    { id: 'TX-002', descripcion: 'Gasto Combustible Ruta Norte (RUT-0081)', tipo: 'EGRESO', valor: 35000, hora: '11:15 AM' },
-    { id: 'TX-003', descripcion: 'Venta Factura POS (PED-004311)', tipo: 'INGRESO', valor: 120000, hora: '10:45 AM' },
-    { id: 'TX-004', descripcion: 'Gasto Peaje Ruta Sur (RUT-0082)', tipo: 'EGRESO', valor: 14500, hora: '09:20 AM' }
-  ];
+export default function DashboardView({ setView, ventas = [], parametros: _parametros = {}, devoluciones = [] }: any) {
+  const todayStr = new Date().toISOString().split('T')[0];
+  const salesToday = ventas.filter((v: any) => v.fecha.startsWith(todayStr));
+  
+  // 1. Ventas del Día
+  const totalSalesToday = salesToday.reduce((sum: number, v: any) => sum + v.total, 0);
+
+  // 2. Caja Chica (Efectivo Neto en POS) - RN-06: Aislar canales digitales
+  const isolatedCajaFisica = salesToday.reduce((sum: number, v: any) => {
+    // Excluir si viene de un canal digital
+    if (v.metadata?.canal) return sum;
+    
+    // Sumar el efectivo recibido neto del cambio entregado
+    const efectivoRecibido = v.montoPagadoEfectivo || 0;
+    const cambio = v.cambioEntregado || 0;
+    return sum + Math.max(0, efectivoRecibido - cambio);
+  }, 0);
+
+  // 3. Ventas por Canales Digitales
+  const totalDigitalSales = salesToday
+    .filter((v: any) => v.metadata?.canal)
+    .reduce((sum: number, v: any) => sum + v.total, 0);
+
+  // 4. Devoluciones / Notas de Crédito
+  const totalDevoluciones = devoluciones
+    .filter((d: any) => d.fechaValidacion && d.fechaValidacion.startsWith(todayStr))
+    .reduce((sum: number, d: any) => {
+      const devAmount = (d.items || []).reduce((s: number, item: any) => {
+        const qty = item.cantidadRecibida || 0;
+        return s + qty * (item.precioUnitarioVenta || 0);
+      }, 0);
+      return sum + devAmount;
+    }, 0);
+
+  // Mapear transacciones recientes dinámicamente
+  const transaccionesRecientes = ventas.slice(0, 5).map((v: any) => {
+    const hora = new Date(v.fecha).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+    const esDigital = !!v.metadata?.canal;
+    const desc = esDigital 
+      ? `Pedido Digital (${v.metadata.canal.toUpperCase()}) - ${v.metadata.id_pedido_externo}` 
+      : `Venta POS (${v.clienteNombre})`;
+    return {
+      id: v.id.slice(0, 10).toUpperCase(),
+      descripcion: desc,
+      tipo: 'INGRESO',
+      valor: v.total,
+      hora
+    };
+  });
 
   return (
     <div className="hr-layout animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -53,39 +95,39 @@ export default function DashboardView({ setView }: any) {
         <span style={{ fontSize: '14px', color: '#64748B', fontWeight: 500 }}>Resumen Ejecutivo</span>
         <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px', letterSpacing: '-0.5px' }}>Panel de Control La Pezcadería</h2>
       </div>
-
+ 
       {/* Grid de Metricas */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
         <MetricCard
           title="Ventas del Día"
-          value="$1.240.000"
-          change="12% vs ayer"
-          positive={true}
+          value={`$${totalSalesToday.toLocaleString('es-CO')}`}
+          change={`${salesToday.length} transacciones`}
+          positive={totalSalesToday > 0}
           icon={<DollarSign size={18} color="#00B171" />}
         />
         <MetricCard
-          title="Rutas Activas"
-          value="4 Rutas"
-          change="2 en despacho"
+          title="Caja Chica (Efectivo Neto)"
+          value={`$${isolatedCajaFisica.toLocaleString('es-CO')}`}
+          change="Excluye canales digitales (RN-06)"
           positive={true}
-          icon={<Truck size={18} color="#00B171" />}
+          icon={<Wallet size={18} color="#00B171" />}
         />
         <MetricCard
-          title="Merma de Planta"
-          value="18.4%"
-          change="-2.1% esta semana"
-          positive={true}
-          icon={<Percent size={18} color="#00B171" />}
+          title="Canales Digitales (Shopify/Rappi)"
+          value={`$${totalDigitalSales.toLocaleString('es-CO')}`}
+          change="Procesado en cola (RN-03)"
+          positive={totalDigitalSales > 0}
+          icon={<ShoppingBag size={18} color="#00B171" />}
         />
         <MetricCard
-          title="Gastos de Ruta"
-          value="$124.500"
-          change="4.8% del recaudo"
+          title="Notas de Crédito Hoy"
+          value={`$${totalDevoluciones.toLocaleString('es-CO')}`}
+          change="Cancelaciones de pedido"
           positive={false}
-          icon={<TrendingUp size={18} color="#EF4444" />}
+          icon={<RefreshCw size={18} color="#EF4444" />}
         />
       </div>
-
+ 
       {/* Dashboard Body */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '24px' }}>
         
@@ -103,24 +145,32 @@ export default function DashboardView({ setView }: any) {
               </tr>
             </thead>
             <tbody>
-              {transaccionesRecientes.map(tx => (
-                <tr key={tx.id}>
-                  <td style={{ padding: '12px 16px', fontWeight: 700, color: '#64748B' }}>{tx.id}</td>
-                  <td style={{ padding: '12px 16px', fontWeight: 600 }}>{tx.descripcion}</td>
-                  <td style={{ padding: '12px 16px' }}>
-                    <span className={`badge-status ${tx.tipo === 'INGRESO' ? 'activo' : 'inactivo'}`}>
-                      {tx.tipo}
-                    </span>
-                  </td>
-                  <td style={{ padding: '12px 16px', color: '#64748B', fontSize: '13px' }}>{tx.hora}</td>
-                  <td style={{
-                    padding: '12px 16px', fontWeight: 700,
-                    color: tx.tipo === 'INGRESO' ? '#10B981' : '#EF4444'
-                  }}>
-                    {tx.tipo === 'INGRESO' ? '+' : '-'}${tx.valor.toLocaleString('es-CO')}
+              {transaccionesRecientes.length === 0 ? (
+                <tr>
+                  <td colSpan={5} style={{ padding: '24px', textAlign: 'center', color: '#64748B' }}>
+                    No se han registrado transacciones el día de hoy.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                transaccionesRecientes.map((tx: any) => (
+                  <tr key={tx.id}>
+                    <td style={{ padding: '12px 16px', fontWeight: 700, color: '#64748B' }}>{tx.id}</td>
+                    <td style={{ padding: '12px 16px', fontWeight: 600 }}>{tx.descripcion}</td>
+                    <td style={{ padding: '12px 16px' }}>
+                      <span className={`badge-status ${tx.tipo === 'INGRESO' ? 'activo' : 'inactivo'}`}>
+                        {tx.tipo}
+                      </span>
+                    </td>
+                    <td style={{ padding: '12px 16px', color: '#64748B', fontSize: '13px' }}>{tx.hora}</td>
+                    <td style={{
+                      padding: '12px 16px', fontWeight: 700,
+                      color: tx.tipo === 'INGRESO' ? '#10B981' : '#EF4444'
+                    }}>
+                      {tx.tipo === 'INGRESO' ? '+' : '-'}${tx.valor.toLocaleString('es-CO')}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

@@ -1,0 +1,33 @@
+flowchart TD
+    subgraph Cliente [Cliente]
+        A[Solicita Pedido Ej: 5 Unidades de Trucha 500g c/u]
+    end
+
+    subgraph Vendedor [Vendedor Externo / App]
+        B[Ingresa al Sistema]
+        C[Selecciona Cliente]
+        D[Agrega Producto 'Trucha']
+        E[Selecciona UdeM: 'Unidades']
+        F[Ingresa Cantidad: 5]
+        G[Añade Observación: 'Peso aprox 500g c/u']
+        H[Guarda Cotización]
+        A --> B
+        B --> C --> D --> E --> F --> G --> H
+    end
+
+    subgraph Bodega [Jefe de Bodega / Alistamiento]
+        I[Visualiza Cotización Pendiente]
+        J[Toma 5 Unidades Físicas]
+        K[Pesa las 5 Unidades en Conjunto]
+        L[Registra Peso Real Ej: 4.8 KG]
+        M[Actualiza UdeM a 'Kilogramos' para facturación si aplica]
+        N[Confirma Alistamiento]
+        H --> I --> J --> K --> L --> M --> N
+    end
+
+    subgraph Facturacion [Sistema ERP]
+        O[Recalcula Total basado en Peso Real 4.8 KG]
+        P[Descuenta 4.8 KG del Inventario]
+        Q[Genera Factura Final]
+        N --> O --> P --> Q
+    end

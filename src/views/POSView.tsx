@@ -1,8 +1,8 @@
 // src/views/POSView.tsx
 import React, { useState } from 'react';
-import { Search, Plus, Minus, X, Check, Barcode, Save, CreditCard } from 'lucide-react';
+import { Search, Plus, Minus, X, Check, Barcode, Save, CreditCard, FileText, Truck, RefreshCw, AlertTriangle, AlertCircle } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { Product, DynamicField, Cliente, generateId, Venta, MovimientoInventario } from '../App.tsx';
+import { Product, DynamicField, Cliente, generateId, Venta, MovimientoInventario, Conductor, DevolucionPedido } from '../App.tsx';
 import { InvoiceAR } from './ARView.tsx';
 
 interface CartItem {
@@ -35,6 +35,16 @@ interface POSViewProps {
   setVentas: React.Dispatch<React.SetStateAction<Venta[]>>;
   movimientos: MovimientoInventario[];
   setMovimientos: React.Dispatch<React.SetStateAction<MovimientoInventario[]>>;
+  conductores: Conductor[];
+  devoluciones: DevolucionPedido[];
+  setDevoluciones: React.Dispatch<React.SetStateAction<DevolucionPedido[]>>;
+  quotations: any[];
+  setQuotations: React.Dispatch<React.SetStateAction<any[]>>;
+  logIntegracion?: any[];
+  setLogIntegracion?: React.Dispatch<React.SetStateAction<any[]>>;
+  handleCancelarPedidoDigital?: (logId: string) => void;
+  handleAprobarPedidoManual?: (logId: string, modo: 'parcial' | 'forzar') => void;
+  parametros?: Record<string, any>;
 }
 
 export default function POSView({
@@ -50,25 +60,40 @@ export default function POSView({
   setCartera,
   clientes,
   setClientes,
-  ventas,
+  ventas: _ventas,
   setVentas,
-  movimientos,
-  setMovimientos
+  movimientos: _movimientos,
+  setMovimientos,
+  conductores: _conductores,
+  devoluciones,
+  setDevoluciones,
+  quotations,
+  setQuotations,
+  logIntegracion = [],
+  setLogIntegracion = () => {},
+  handleCancelarPedidoDigital = () => {},
+  handleAprobarPedidoManual = () => {},
+  parametros: _parametros = {}
 }: Omit<POSViewProps, 'setCurrentView'>) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('TODOS');
   const [barcodeInput, setBarcodeInput] = useState('');
+  const [drafts, setDrafts] = useState<any[]>([]);
+  const [activeDraftId, setActiveDraftId] = useState<string | null>(null);
   
+  // B2B Consolidation State
+  const [activeSubView, setActiveSubView] = useState<'venta_pos' | 'consolidacion_b2b' | 'canales_digitales'>('venta_pos');
+  const [selectedB2BQuoteId, setSelectedB2BQuoteId] = useState<string | null>(null);
+  const [selectedDevIds, setSelectedDevIds] = useState<string[]>([]);
+  const [b2bPaymentMethod, setB2bPaymentMethod] = useState<'CREDITO' | 'CONTADO'>('CREDITO');
+
   // Filtrar productos activos
   const activeProducts = products.filter(p => p.activo);
   
   // Categorías calculadas dinámicamente
   const CATEGORIAS = ['TODOS', ...Array.from(new Set(activeProducts.map(p => p.categoria)))];
 
-  const [cart, setCart] = useState<CartItem[]>(() => {
-    const defaultItems = activeProducts.filter(p => p.sku.startsWith('BAT-') || p.sku.startsWith('ENS-')).slice(0, 3);
-    return defaultItems.map(p => ({ product: p, cantidad: 1 }));
-  });
+  const [cart, setCart] = useState<CartItem[]>([]);
   const [cliente, setCliente] = useState<Cliente | null>(null);
   const [descuentoGlobal, setDescuentoGlobal] = useState(0); // Porcentaje
 
@@ -454,6 +479,29 @@ export default function POSView({
       });
       return;
     }
+    
+    if (activeDraftId) {
+      setDrafts(prev => prev.map(d => d.id === activeDraftId ? {
+        ...d,
+        cart: [...cart],
+        cliente,
+        descuentoGlobal,
+        totalFinal,
+        fecha: new Date().toISOString()
+      } : d));
+      setActiveDraftId(null);
+    } else {
+      const newDraft = {
+        id: `BOR-${Date.now()}`,
+        fecha: new Date().toISOString(),
+        cart: [...cart],
+        cliente,
+        descuentoGlobal,
+        totalFinal
+      };
+      setDrafts(prev => [newDraft, ...prev]);
+    }
+    
     publishEvent(
       'SALE_COMPLETED',
       userRole,
@@ -461,11 +509,18 @@ export default function POSView({
       { itemsCount: cart.length, total: totalFinal, draft: true },
       false
     );
+    
+    setCart([]);
+    setCliente(null);
+    setDescuentoGlobal(0);
+    
     Swal.fire({
+      toast: true,
+      position: 'top-end',
       icon: 'success',
       title: 'Borrador Guardado',
-      text: 'El pedido se ha guardado como borrador localmente.',
-      confirmButtonColor: 'var(--primary-color)'
+      showConfirmButton: false,
+      timer: 2000
     });
   };
 
@@ -487,12 +542,50 @@ export default function POSView({
       return;
     }
 
+    // ─ RN-07: Validación restrictiva de Stock en Bodega Principal antes de permitir el cobro ──────────────────
+    let stockSuficiente = true;
+    const itemsFaltantes: string[] = [];
+    cart.forEach(item => {
+      const stockDisponible = getProductStock(item.product.sku, 'Bodega Principal');
+      if (stockDisponible < item.cantidad) {
+        stockSuficiente = false;
+        itemsFaltantes.push(`• ${item.product.nombre} (Solicitado: ${item.cantidad}, Disponible: ${stockDisponible})`);
+      }
+    });
+
+    if (!stockSuficiente) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Venta Bloqueada: Stock Insuficiente',
+        html: `
+          <div style="text-align: left; font-size: 14px;">
+            <p>No se puede liquidar la venta porque el stock en <strong>Bodega Principal</strong> es insuficiente:</p>
+            <ul style="color: #EF4444; font-weight: 600; list-style-type: none; padding-left: 0;">
+              ${itemsFaltantes.map(msg => `<li style="margin-bottom: 6px;">${msg}</li>`).join('')}
+            </ul>
+            <p style="margin-top: 12px; font-size: 13px; color: #64748B;">Ajuste las cantidades en el carrito antes de reintentar.</p>
+          </div>
+        `,
+        confirmButtonColor: 'var(--primary-color)'
+      });
+      return;
+    }
+
     Swal.fire({
       title: 'Procesar Pago de Venta',
       html: `
         <div style="text-align: left; font-size: 14px; color: var(--text-primary);">
           <div style="margin-bottom: 12px; display: flex; justify-content: space-between; font-size: 16px; border-bottom: 2px solid #E2E8F0; padding-bottom: 8px;">
             <strong>Total a Pagar:</strong> <strong style="color: var(--primary-color);">$${totalFinal.toLocaleString('es-CO')}</strong>
+          </div>
+
+          <!-- Opción Facturación Electrónica (Fase 1) -->
+          <div style="margin-bottom: 16px; padding: 12px; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; color: #0F172A;">
+              <input type="checkbox" id="req-fe" style="width: 18px; height: 18px; accent-color: var(--primary-color);" />
+              ¿Generar Factura Electrónica (Siigo)?
+            </label>
+            <p style="margin: 4px 0 0 26px; font-size: 11px; color: #64748B;">Si no se marca, se generará un ticket interno (Contingencia/Fase 1).</p>
           </div>
 
           <!-- Selector de Tipo de Pago -->
@@ -533,10 +626,14 @@ export default function POSView({
             <div style="display: flex; align-items: center; gap: 8px; color: #334155; font-size: 14px; font-weight: 600; margin-bottom: 8px;">
               <span>💳 Compra a Crédito Autorizada</span>
             </div>
-            <p style="color: #64748B; font-size: 13px; margin: 0;">
+            <p style="color: #64748B; font-size: 13px; margin: 0 0 12px 0;">
               El total de la factura por valor de <strong>$${totalFinal.toLocaleString('es-CO')}</strong> se cargará por completo a la cartera del cliente: <br/>
               <strong style="color: #1E293B;">${cliente ? cliente.nombre : ''}</strong> (${cliente ? cliente.identificacion : ''}).
             </p>
+            <div style="margin-bottom: 4px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Fecha Límite de Pago:</label>
+              <input id="pay-credit-date" type="date" class="swal2-input" style="margin: 0; width: 100%; box-sizing: border-box; font-size: 14px; padding: 8px;" />
+            </div>
           </div>
 
           <!-- Totales (sólo para Contado) -->
@@ -686,12 +783,18 @@ export default function POSView({
         const card = parseFloat((document.getElementById('pay-card') as HTMLInputElement).value) || 0;
         const cash = parseFloat((document.getElementById('pay-cash') as HTMLInputElement).value) || 0;
         const credit = parseFloat((document.getElementById('pay-credit') as HTMLInputElement).value) || 0;
+        const creditDate = (document.getElementById('pay-credit-date') as HTMLInputElement)?.value;
+        const requiereFE = (document.getElementById('req-fe') as HTMLInputElement).checked;
 
         const totalPaid = transfer + card + cash + credit;
 
         if (credit > 0) {
           if (!cliente) {
             Swal.showValidationMessage('Debe vincular un Cliente registrado para poder procesar pagos a Crédito.');
+            return false;
+          }
+          if (!creditDate) {
+            Swal.showValidationMessage('Debe seleccionar una Fecha Límite de Pago para la venta a crédito.');
             return false;
           }
           const currentDebt = getClienteDeuda(cliente.id);
@@ -707,11 +810,11 @@ export default function POSView({
           return false;
         }
 
-        return { transfer, card, cash, credit, totalPaid, change: totalPaid - totalFinal };
+        return { transfer, card, cash, credit, creditDate, totalPaid, change: totalPaid - totalFinal, requiereFE };
       }
     }).then((result) => {
       if (result.isConfirmed && result.value) {
-        const { transfer, card, cash, credit, change } = result.value;
+        const { transfer, card, cash, credit, creditDate, change, requiereFE } = result.value;
         const orderNo = 'PED-' + Math.floor(100000 + Math.random() * 900000);
         const vtaId = generateId('vta');
 
@@ -768,13 +871,14 @@ export default function POSView({
               nombre: item.product.nombre,
               cantidad: item.cantidad,
               precioUnitario: unitPrice,
+              descuento: 0,
               subtotal: item.cantidad * unitPrice
             };
           }),
           subtotal: subtotal,
           descuento: totalDescuento,
           total: totalFinal,
-          metodoPago: paymentMethod,
+          metodoPago: (paymentMethod === 'EFECTIVO' || paymentMethod === 'TRANSFERENCIA' || paymentMethod === 'TARJETA') ? 'CONTADO' : paymentMethod as 'CREDITO' | 'CONTADO' | 'MIXTO',
           montoPagadoEfectivo: cash,
           montoPagadoTransferencia: transfer,
           montoPagadoTarjeta: card,
@@ -791,7 +895,7 @@ export default function POSView({
           return {
             id: generateId('mov'),
             timestamp: new Date().toISOString(),
-            tipo: 'SALIDA_VENTA',
+            tipo: 'VENTA',
             sku: item.product.sku,
             nombreProducto: item.product.nombre,
             bodegaOrigen: 'Bodega Principal',
@@ -812,6 +916,7 @@ export default function POSView({
             clienteNombre: cliente.nombre,
             clienteIdentificacion: cliente.identificacion,
             fecha: new Date().toISOString(),
+            fechaVencimiento: creditDate,
             total: totalFinal,
             saldo: credit,
             pagado: totalFinal - credit,
@@ -837,8 +942,8 @@ export default function POSView({
         publishEvent(
           'SALE_COMPLETED',
           userRole,
-          `Venta liquidada para ${cliente ? cliente.nombre : 'Consumidor Final'} por total de $${totalFinal.toLocaleString('es-CO')} (Transf: $${transfer.toLocaleString('es-CO')}, Tarjeta: $${card.toLocaleString('es-CO')}, Efectivo: $${cash.toLocaleString('es-CO')}, Crédito: $${credit.toLocaleString('es-CO')})`,
-          { cliente, total: totalFinal, items: cart.map(i => ({ sku: i.product.sku, cantidad: i.cantidad })), transfer, card, cash, credit, change }
+          `Venta liquidada para ${cliente ? cliente.nombre : 'Consumidor Final'} por total de $${totalFinal.toLocaleString('es-CO')}. FE: ${requiereFE ? 'SÍ' : 'NO'}. (Transf: $${transfer.toLocaleString('es-CO')}, Tarjeta: $${card.toLocaleString('es-CO')}, Efectivo: $${cash.toLocaleString('es-CO')}, Crédito: $${credit.toLocaleString('es-CO')})`,
+          { cliente, total: totalFinal, requiereFE, items: cart.map(i => ({ sku: i.product.sku, cantidad: i.cantidad })), transfer, card, cash, credit, change }
         );
 
         let desgloseHtml = `
@@ -891,6 +996,11 @@ export default function POSView({
           confirmButtonColor: 'var(--primary-color)'
         });
 
+        if (activeDraftId) {
+          setDrafts(prev => prev.filter(x => x.id !== activeDraftId));
+          setActiveDraftId(null);
+        }
+
         setCart([]);
         setCliente(null);
         setDescuentoGlobal(0);
@@ -898,12 +1008,260 @@ export default function POSView({
     });
   };
 
+  const getReturnAmount = (dev: DevolucionPedido) => {
+    return (dev.items || []).reduce((sum, item) => {
+      const qty = item.cantidadRecibida || 0;
+      return sum + qty * (item.precioUnitarioVenta || 0);
+    }, 0);
+  };
+
+  const handleFacturarB2B = async (quoteId: string) => {
+    const quote = quotations?.find(q => q.id === quoteId);
+    if (!quote) return;
+
+    const client = clientes.find(c => c.id === quote.clienteId);
+    if (!client) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de Cliente',
+        text: 'No se pudo encontrar el cliente asociado al pedido.',
+        confirmButtonColor: 'var(--primary-color)'
+      });
+      return;
+    }
+
+    const b2bItems = quote.items || [];
+    const b2bSubtotal = b2bItems.reduce((sum: number, item: any) => {
+      const qty = item.cantidad_real !== undefined ? item.cantidad_real : item.cantidad;
+      const price = item.precioFinal || item.precio || item.precioUnitario || 0;
+      return sum + qty * price;
+    }, 0);
+
+    const appliedDevs = (devoluciones || []).filter(d => selectedDevIds.includes(d.id));
+    const totalReturnsCredit = appliedDevs.reduce((sum, d) => sum + getReturnAmount(d), 0);
+
+    const b2bTotalFinal = Math.max(0, b2bSubtotal - totalReturnsCredit);
+
+    if (b2bPaymentMethod === 'CREDITO') {
+      const currentDebt = getClienteDeuda(client.id);
+      const proposedDebt = currentDebt + b2bTotalFinal;
+      if (proposedDebt > client.cupoCredito) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Cupo de Crédito Excedido',
+          text: `El cliente no tiene suficiente cupo de crédito. Cupo: $${client.cupoCredito.toLocaleString('es-CO')}. Deuda actual: $${currentDebt.toLocaleString('es-CO')}. Deuda propuesta: $${proposedDebt.toLocaleString('es-CO')}.`,
+          confirmButtonColor: 'var(--primary-color)'
+        });
+        return;
+      }
+    }
+
+    const confirmResult = await Swal.fire({
+      title: '¿Generar Factura Electrónica B2B?',
+      html: `
+        <div style="text-align: left; font-size: 14px; color: var(--text-primary);">
+          <p>Se generará la factura electrónica en Siigo para <strong>${client.nombre}</strong>.</p>
+          <div style="margin-top: 12px; padding: 12px; background-color: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px;">
+              <span>Subtotal (Peso Real):</span> <strong>$${b2bSubtotal.toLocaleString('es-CO')}</strong>
+            </div>
+            ${totalReturnsCredit > 0 ? `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: #3B82F6; font-size: 13px;">
+              <span>(-) Crédito por Devolución:</span> <strong>-$${totalReturnsCredit.toLocaleString('es-CO')}</strong>
+            </div>
+            ` : ''}
+            <div style="display: flex; justify-content: space-between; padding-top: 6px; border-top: 1px dashed #CBD5E1; font-size: 16px; font-weight: bold; color: var(--primary-color);">
+              <span>Total a Cobrar:</span> <span>$${b2bTotalFinal.toLocaleString('es-CO')}</span>
+            </div>
+          </div>
+          <p style="margin-top: 12px; font-size: 12px; color: #64748B;">Esta acción descontará el stock real de la bodega principal y registrará la factura en cartera si es a crédito.</p>
+        </div>
+      `,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, Facturar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: 'var(--primary-color)',
+      cancelButtonColor: '#64748B'
+    });
+
+    if (!confirmResult.isConfirmed) return;
+
+    Swal.fire({
+      title: 'Facturando en Siigo...',
+      text: 'Enviando comprobante fiscal y sincronizando inventarios.',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    // Descontar stock real
+    setStock(prev => {
+      const newStock = { ...prev };
+      if (newStock['Bodega Principal']) {
+        newStock['Bodega Principal'] = newStock['Bodega Principal'].map((stockItem: any) => {
+          const orderItem = b2bItems.find((i: any) => i.sku === stockItem.sku);
+          if (orderItem) {
+            const qtyToDeduct = orderItem.cantidad_real !== undefined ? orderItem.cantidad_real : orderItem.cantidad;
+            return { ...stockItem, stock: Math.max(0, stockItem.stock - qtyToDeduct) };
+          }
+          return stockItem;
+        });
+      }
+      return newStock;
+    });
+
+    // Registrar Movimiento de Inventario
+    const newMovements: MovimientoInventario[] = b2bItems.map((item: any) => {
+      const prodStock = stock['Bodega Principal']?.find((s: any) => s.sku === item.sku);
+      const lote = prodStock ? prodStock.lote : 'B2B-WMS';
+      const qty = item.cantidad_real !== undefined ? item.cantidad_real : item.cantidad;
+      return {
+        id: generateId('mov'),
+        timestamp: new Date().toISOString(),
+        tipo: 'SALIDA_VENTA' as any,
+        sku: item.sku,
+        nombreProducto: item.nombre,
+        bodegaOrigen: 'Bodega Principal',
+        cantidad: qty,
+        lote: lote,
+        referenciaId: quoteId,
+        referenciaTipo: 'VENTA',
+        actor: userRole,
+        notas: `Despacho B2B Facturado. Cliente: ${client.nombre}`
+      };
+    });
+    setMovimientos(prev => [...newMovements, ...prev]);
+
+    // Actualizar estado cotización
+    if (setQuotations) {
+      setQuotations(prev => prev.map(q => {
+        if (q.id === quoteId) {
+          return {
+            ...q,
+            estado: 'Facturado',
+            fechaFacturado: new Date().toISOString(),
+            facturaNo: 'FAC-' + Math.floor(100000 + Math.random() * 900000),
+            totalFinalFacturado: b2bTotalFinal
+          };
+        }
+        return q;
+      }));
+    }
+
+    // Actualizar estado devoluciones y emitir Notas de Crédito
+    if (appliedDevs.length > 0) {
+      if (setDevoluciones) {
+        setDevoluciones(prev => prev.map(d => {
+          if (selectedDevIds.includes(d.id)) {
+            return {
+              ...d,
+              estado: 'VALIDADA_FINANZAS',
+              fechaValidacion: new Date().toISOString()
+            };
+          }
+          return d;
+        }));
+      }
+
+      // Emitir Notas de Crédito individuales en Siigo (Simulado con logs de auditoría)
+      appliedDevs.forEach(dev => {
+        const devAmount = getReturnAmount(dev);
+        const ncId = 'NC-' + Math.floor(100000 + Math.random() * 900000);
+        
+        publishEvent(
+          'METADATA_CONFIGURED',
+          userRole,
+          `Nota de Crédito ${ncId} emitida exitosamente en Siigo por valor de $${devAmount.toLocaleString('es-CO')} por devolución en pedido #${dev.pedidoNo} (Cliente: ${client.nombre}).`,
+          { 
+            devolucionId: dev.id, 
+            notaCreditoId: ncId, 
+            monto: devAmount, 
+            clienteId: client.id, 
+            facturaDestino: quoteId 
+          }
+        );
+      });
+    }
+
+
+    // Registrar en Cartera (AR)
+    if (b2bPaymentMethod === 'CREDITO') {
+      const newAR: InvoiceAR = {
+        id: 'FAC-' + Math.floor(100000 + Math.random() * 900000),
+        clienteId: client.id,
+        clienteNombre: client.nombre,
+        clienteIdentificacion: client.identificacion,
+        fecha: new Date().toISOString(),
+        total: b2bTotalFinal,
+        saldo: b2bTotalFinal,
+        pagado: 0,
+        pagos: []
+      };
+      setCartera(prev => [newAR, ...prev]);
+    }
+
+    // Registrar Venta para histórico
+    const newVenta: Venta = {
+      id: generateId('vta'),
+      clienteId: client.id,
+      clienteNombre: client.nombre,
+      fecha: new Date().toISOString(),
+      items: b2bItems.map((item: any) => {
+        const qty = item.cantidad_real !== undefined ? item.cantidad_real : item.cantidad;
+        const price = item.precioFinal || item.precio || item.precioUnitario || 0;
+        return {
+          sku: item.sku,
+          nombre: item.nombre,
+          cantidad: qty,
+          precioUnitario: price,
+          descuento: 0
+        };
+      }),
+      subtotal: b2bSubtotal,
+      total: b2bTotalFinal,
+      metodoPago: b2bPaymentMethod === 'CREDITO' ? 'CREDITO' : 'CONTADO',
+      actor: userRole
+    };
+    setVentas(prev => [newVenta, ...prev]);
+
+    publishEvent(
+      'SALE_COMPLETED',
+      userRole,
+      `Factura B2B generada para ${client.nombre} por total de $${b2bTotalFinal.toLocaleString('es-CO')} (${b2bPaymentMethod}). Devoluciones cruzadas: ${appliedDevs.length}`,
+      { quoteId, client: client.nombre, total: b2bTotalFinal }
+    );
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Factura Electrónica Generada',
+      text: `La factura fue emitida exitosamente en Siigo y el inventario físico ha sido descontado.`,
+      confirmButtonColor: '#10B981'
+    });
+
+    setSelectedB2BQuoteId(null);
+    setSelectedDevIds([]);
+  };
+
   // Filtrado de productos
-  const filteredProducts = activeProducts.filter(p => {
+  let filteredProducts = activeProducts.filter(p => {
     const matchesSearch = p.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || p.sku.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'TODOS' || p.categoria === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  // Productos más vendidos por defecto
+  if (searchTerm === '' && selectedCategory === 'TODOS') {
+    const topKeywords = ['salmon', 'salmón', 'camaron', 'camarón', 'trucha', 'robalo', 'róbalo', 'langostino'];
+    filteredProducts = [...filteredProducts].sort((a, b) => {
+       const aTop = topKeywords.some(k => a.nombre.toLowerCase().includes(k)) ? 1 : 0;
+       const bTop = topKeywords.some(k => b.nombre.toLowerCase().includes(k)) ? 1 : 0;
+       return bTop - aTop;
+    });
+  }
 
   // Cálculos financieros
   const subtotal = cart.reduce((acc, item) => {
@@ -914,9 +1272,133 @@ export default function POSView({
   const totalFinal = subtotal - totalDescuento;
 
   return (
-    <div className="pos-layout animate-fade-in">
-      {/* Catálogo de Productos */}
-      <div className="pos-catalog">
+    <div className="pos-layout animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {/* Selector de Vistas / Pestañas de POS */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '12px 24px',
+        backgroundColor: '#0f172a',
+        borderRadius: '16px',
+        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+        border: '1px solid rgba(255,255,255,0.05)',
+        width: '100%',
+        boxSizing: 'border-box'
+      }}>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button
+            onClick={() => setActiveSubView('venta_pos')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 20px',
+              borderRadius: '10px',
+              border: 'none',
+              backgroundColor: activeSubView === 'venta_pos' ? 'var(--primary-color)' : 'transparent',
+              color: 'white',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: activeSubView === 'venta_pos' ? '0 4px 12px rgba(14, 116, 144, 0.3)' : 'none'
+            }}
+          >
+            <CreditCard size={18} />
+            <span>Venta Rápida (POS)</span>
+          </button>
+          
+          <button
+            onClick={() => setActiveSubView('consolidacion_b2b')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 20px',
+              borderRadius: '10px',
+              border: 'none',
+              backgroundColor: activeSubView === 'consolidacion_b2b' ? '#3B82F6' : 'transparent',
+              color: 'white',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: activeSubView === 'consolidacion_b2b' ? '0 4px 12px rgba(59, 130, 246, 0.3)' : 'none'
+            }}
+          >
+            <Truck size={18} />
+            <span>Consolidación y Facturación B2B</span>
+            {(quotations || []).filter((q: any) => q.estado === 'Listo').length > 0 && (
+              <span style={{
+                backgroundColor: '#EF4444',
+                color: 'white',
+                fontSize: '11px',
+                fontWeight: 'bold',
+                padding: '2px 6px',
+                borderRadius: '9999px',
+                marginLeft: '4px'
+              }}>
+                {(quotations || []).filter((q: any) => q.estado === 'Listo').length}
+              </span>
+            )}
+          </button>
+          
+          <button
+            onClick={() => setActiveSubView('canales_digitales')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 20px',
+              borderRadius: '10px',
+              border: 'none',
+              backgroundColor: activeSubView === 'canales_digitales' ? '#8B5CF6' : 'transparent',
+              color: 'white',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: activeSubView === 'canales_digitales' ? '0 4px 12px rgba(139, 92, 246, 0.3)' : 'none'
+            }}
+          >
+            <RefreshCw size={18} />
+            <span>Monitoreo Canales Digitales</span>
+            {logIntegracion.filter(l => l.estado === 'PENDIENTE').length > 0 && (
+              <span style={{
+                backgroundColor: '#EF4444',
+                color: 'white',
+                fontSize: '11px',
+                fontWeight: 'bold',
+                padding: '2px 6px',
+                borderRadius: '9999px',
+                marginLeft: '4px'
+              }}>
+                {logIntegracion.filter(l => l.estado === 'PENDIENTE').length}
+              </span>
+            )}
+            {logIntegracion.filter(l => l.estado === 'REVISION_MANUAL').length > 0 && (
+              <span style={{
+                backgroundColor: '#F59E0B',
+                color: 'white',
+                fontSize: '11px',
+                fontWeight: 'bold',
+                padding: '2px 6px',
+                borderRadius: '9999px',
+                marginLeft: '4px'
+              }}>
+                {logIntegracion.filter(l => l.estado === 'REVISION_MANUAL').length}
+              </span>
+            )}
+          </button>
+        </div>
+        
+        <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', fontWeight: 500 }}>
+          Rol: <span style={{ color: '#38BDF8', fontWeight: 700, textTransform: 'uppercase' }}>{userRole}</span>
+        </div>
+      </div>
+
+      {activeSubView === 'venta_pos' ? (
+        <div className="pos-layout animate-fade-in" style={{ padding: 0, border: 'none', boxShadow: 'none', background: 'transparent', margin: 0, width: '100%', display: 'grid', gridTemplateColumns: '2fr 1.2fr', gap: '20px' }}>
+          {/* Catálogo de Productos */}
+          <div className="pos-catalog">
         <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
           {/* Búsqueda por Texto */}
           <div className="pos-search-bar" style={{ flex: 1, marginBottom: 0 }}>
@@ -1033,7 +1515,7 @@ export default function POSView({
 
       {/* Carrito de Compras / Factura */}
       <div className="pos-sidebar-cart">
-        <div className="pos-cart-header">
+        <div className="pos-cart-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           {cliente ? (
             <div className="add-client-btn" onClick={handleAgregarCliente}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1048,6 +1530,69 @@ export default function POSView({
               <Plus size={16} />
             </button>
           )}
+
+          <button 
+            onClick={() => {
+              if (drafts.length === 0) {
+                Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: 'No hay borradores', showConfirmButton: false, timer: 1500 });
+                return;
+              }
+              let html = '<div style="display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto;">';
+              drafts.forEach(d => {
+                 const isSelected = activeDraftId === d.id;
+                 html += `<div style="display:flex; align-items:stretch; background-color: white; border: 1px solid ${isSelected ? 'var(--primary-color)' : '#CBD5E1'}; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                    <div id="draft-select-${d.id}" style="flex: 1; padding: 10px; cursor: pointer; text-align: left; background-color: ${isSelected ? 'var(--primary-light)' : 'transparent'};">
+                      <div style="font-weight:bold;color:#0F172A; display:flex; justify-content:space-between;">
+                        <span>${d.cliente ? d.cliente.nombre : 'Consumidor Final'}</span>
+                        ${isSelected ? '<span style="font-size:10px; background:var(--primary-color); color:white; padding:2px 6px; border-radius:4px; font-weight:bold;">ACTIVO</span>' : ''}
+                      </div>
+                      <div style="font-size:11px;color:#64748B;">${new Date(d.fecha).toLocaleTimeString()} - $${d.totalFinal.toLocaleString('es-CO')} (${d.cart.length} ítems)</div>
+                    </div>
+                    <button id="draft-delete-${d.id}" title="Eliminar Borrador" style="width: 44px; display: flex; align-items: center; justify-content: center; background: #FEF2F2; border: none; border-left: 1px solid #FEE2E2; cursor: pointer; color: #EF4444; transition: background 0.2s;">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                    </button>
+                 </div>`;
+              });
+              html += '</div>';
+              
+              Swal.fire({
+                title: 'Facturas en Borrador',
+                html,
+                showConfirmButton: false,
+                showCloseButton: true,
+                didOpen: () => {
+                  drafts.forEach(d => {
+                     const selectBtn = document.getElementById(`draft-select-${d.id}`);
+                     if (selectBtn) {
+                       selectBtn.onclick = () => {
+                         setCart(d.cart);
+                         setCliente(d.cliente);
+                         setDescuentoGlobal(d.descuentoGlobal);
+                         setActiveDraftId(d.id);
+                         Swal.close();
+                       };
+                     }
+                     const deleteBtn = document.getElementById(`draft-delete-${d.id}`);
+                     if (deleteBtn) {
+                       deleteBtn.onclick = () => {
+                         setDrafts(prev => prev.filter(x => x.id !== d.id));
+                         if (activeDraftId === d.id) setActiveDraftId(null);
+                         Swal.close();
+                       };
+                     }
+                  });
+                }
+              });
+            }}
+            style={{ position: 'relative', background: 'none', border: '1px solid #CBD5E1', borderRadius: '6px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', color: '#475569', backgroundColor: '#F8FAFC' }}
+          >
+            Borradores
+            {drafts.length > 0 && (
+              <span style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#EF4444', color: 'white', borderRadius: '50%', width: '16px', height: '16px', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {drafts.length}
+              </span>
+            )}
+          </button>
         </div>
 
         <div className="pos-cart-items-list">
@@ -1160,7 +1705,25 @@ export default function POSView({
                     <button className="qty-btn" onClick={() => handleUpdateQty(item.product.id, -1)}>
                       <Minus size={14} />
                     </button>
-                    <span className="qty-number">{item.cantidad}</span>
+                    <input 
+                      type="number" 
+                      value={item.cantidad} 
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        if (!isNaN(val)) {
+                          setCart(prev => prev.map(i => i.product.id === item.product.id ? { ...i, cantidad: val } : i));
+                        }
+                      }}
+                      onBlur={(e) => {
+                         const val = parseFloat(e.target.value);
+                         if (isNaN(val) || val <= 0) {
+                           handleRemoveItem(item.product.id);
+                         }
+                      }}
+                      style={{ width: '50px', textAlign: 'center', border: '1px solid #CBD5E1', borderRadius: '4px', fontSize: '13px', fontWeight: 'bold' }}
+                      step="0.01"
+                      min="0"
+                    />
                     <button className="qty-btn" onClick={() => handleUpdateQty(item.product.id, 1)}>
                       <Plus size={14} />
                     </button>
@@ -1212,7 +1775,588 @@ export default function POSView({
             </button>
           </div>
         </div>
-      </div>
+        </div>
+        </div>
+      ) : (
+        activeSubView === 'consolidacion_b2b' ? (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px', width: '100%', boxSizing: 'border-box' }} className="animate-fade-in">
+          {/* COLUMNA IZQUIERDA: LISTADO DE PEDIDOS LISTOS */}
+          <div className="hr-table-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', backgroundColor: 'white', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
+            <div>
+              <span style={{ fontSize: '12px', color: '#3B82F6', fontWeight: 600, textTransform: 'uppercase' }}>Consolidación</span>
+              <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', marginTop: '2px' }}>Pedidos Listos</h3>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', maxHeight: '550px' }}>
+              {(quotations || []).filter((q: any) => q.estado === 'Listo').length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '48px 0', color: '#64748B' }}>
+                  <FileText size={40} style={{ margin: '0 auto 12px auto', opacity: 0.5, color: '#3B82F6' }} />
+                  <p style={{ fontSize: '14px', fontWeight: 600 }}>No hay pedidos B2B listos.</p>
+                  <p style={{ fontSize: '12px', color: '#94A3B8', marginTop: '4px' }}>Los pedidos deben completarse en Cuarto Frío.</p>
+                </div>
+              ) : (
+                (quotations || [])
+                  .filter((q: any) => q.estado === 'Listo')
+                  .map((q: any) => {
+                    const isSelected = selectedB2BQuoteId === q.id;
+                    return (
+                      <div
+                        key={q.id}
+                        onClick={() => {
+                          setSelectedB2BQuoteId(q.id);
+                          setSelectedDevIds([]);
+                        }}
+                        style={{
+                          padding: '16px',
+                          borderRadius: '12px',
+                          border: isSelected ? '2px solid #3B82F6' : '1px solid #E2E8F0',
+                          backgroundColor: isSelected ? 'rgba(59, 130, 246, 0.05)' : 'white',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                          <span style={{ fontWeight: 800, fontSize: '14px', color: '#0F172A' }}>
+                            Pedido #{q.id.slice(-6).toUpperCase()}
+                          </span>
+                          <span style={{
+                            fontSize: '11px',
+                            fontWeight: 800,
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            backgroundColor: '#F0FDF4',
+                            color: '#10B981'
+                          }}>
+                            LISTO
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '13px', color: '#475569' }}>
+                          <div><strong>Cliente:</strong> {q.clienteNombre}</div>
+                          <div><strong>Fecha Entrega:</strong> {q.logistica?.fechaEntrega ? new Date(q.logistica.fechaEntrega).toLocaleDateString() : 'No definida'}</div>
+                          <div><strong>Conductor:</strong> {q.logistica?.conductor?.nombre || 'No asignado'}</div>
+                        </div>
+                      </div>
+                    );
+                  })
+              )}
+            </div>
+          </div>
+
+          {/* COLUMNA DERECHA: PANELES DE LIQUIDACION */}
+          <div className="hr-table-card" style={{ padding: '24px', backgroundColor: 'white', borderRadius: '16px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column' }}>
+            {selectedB2BQuoteId ? (
+              (() => {
+                const quote = quotations.find((q: any) => q.id === selectedB2BQuoteId);
+                if (!quote) return null;
+
+                const client = clientes.find(c => c.id === quote.clienteId);
+                const currentDebt = client ? getClienteDeuda(client.id) : 0;
+                const cupoDisponible = client ? Math.max(0, client.cupoCredito - currentDebt) : 0;
+
+                const b2bItems = quote.items || [];
+                const b2bSubtotal = b2bItems.reduce((sum: number, item: any) => {
+                  const qty = item.cantidad_real !== undefined ? item.cantidad_real : item.cantidad;
+                  const price = item.precioFinal || item.precio || item.precioUnitario || 0;
+                  return sum + qty * price;
+                }, 0);
+
+                const clientDevs = (devoluciones || []).filter((d: any) => d.clienteId === quote.clienteId && d.estado === 'RECIBIDA_BODEGA');
+                const selectedReturnsCredit = clientDevs
+                  .filter((d: any) => selectedDevIds.includes(d.id))
+                  .reduce((sum, d) => sum + getReturnAmount(d), 0);
+
+                const b2bTotalFinal = Math.max(0, b2bSubtotal - selectedReturnsCredit);
+
+                return (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <span style={{ fontSize: '12px', color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>Detalles de Liquidación</span>
+                        <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0F172A' }}>Pedido #{quote.id.slice(-6).toUpperCase()}</h3>
+                      </div>
+                      <button 
+                        onClick={() => setSelectedB2BQuoteId(null)}
+                        style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer' }}
+                      >
+                        <X size={20} />
+                      </button>
+                    </div>
+
+                    {/* Items */}
+                    <div>
+                      <h4 style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A', marginBottom: '8px' }}>1. Pesos Reales del Cuarto Frío</h4>
+                      <table className="hr-table">
+                        <thead>
+                          <tr>
+                            <th>Producto</th>
+                            <th style={{ textAlign: 'right' }}>Pedida</th>
+                            <th style={{ textAlign: 'right' }}>Peso Real</th>
+                            <th style={{ textAlign: 'right' }}>Precio Pactado</th>
+                            <th style={{ textAlign: 'right' }}>Subtotal</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {b2bItems.map((item: any) => {
+                            const reqQty = item.cantidad;
+                            const realQty = item.cantidad_real !== undefined ? item.cantidad_real : item.cantidad;
+                            const price = item.precioFinal || item.precio || item.precioUnitario || 0;
+                            return (
+                              <tr key={item.sku}>
+                                <td style={{ fontWeight: 600 }}>{item.nombre}</td>
+                                <td style={{ textAlign: 'right' }}>{reqQty} kg</td>
+                                <td style={{ textAlign: 'right', fontWeight: 700, color: 'var(--primary-color)' }}>{realQty} kg</td>
+                                <td style={{ textAlign: 'right' }}>${price.toLocaleString('es-CO')}</td>
+                                <td style={{ textAlign: 'right', fontWeight: 700 }}>${(realQty * price).toLocaleString('es-CO')}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Devoluciones */}
+                    <div>
+                      <h4 style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A', marginBottom: '8px' }}>2. Saldos a Favor de Devoluciones</h4>
+                      {clientDevs.length === 0 ? (
+                        <div style={{ padding: '12px', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0', fontSize: '13px', color: '#64748B' }}>
+                          ℹ️ No hay devoluciones físicas pendientes para este cliente.
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          {clientDevs.map((d: any) => {
+                            const amt = getReturnAmount(d);
+                            const isChecked = selectedDevIds.includes(d.id);
+                            return (
+                              <div
+                                key={d.id}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  padding: '12px',
+                                  backgroundColor: isChecked ? 'rgba(59, 130, 246, 0.05)' : '#F8FAFC',
+                                  borderRadius: '8px',
+                                  border: isChecked ? '1px solid #3B82F6' : '1px solid #E2E8F0',
+                                  cursor: 'pointer'
+                                }}
+                                onClick={() => {
+                                  setSelectedDevIds(prev => 
+                                    prev.includes(d.id) ? prev.filter(id => id !== d.id) : [...prev, d.id]
+                                  );
+                                }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                  <input
+                                    type="checkbox"
+                                    checked={isChecked}
+                                    readOnly
+                                    style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                                  />
+                                  <div>
+                                    <div style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A' }}>
+                                      Devolución #{d.id.slice(-6).toUpperCase()} ({new Date(d.fechaProgramacion).toLocaleDateString()})
+                                    </div>
+                                    <div style={{ fontSize: '11px', color: '#64748B' }}>
+                                      Conductor: {d.conductorNombre || 'N/A'}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div style={{ textAlign: 'right' }}>
+                                  <strong style={{ fontSize: '14px', color: '#10B981' }}>${amt.toLocaleString('es-CO')}</strong>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Resumen */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', borderTop: '1px solid #E2E8F0', paddingTop: '20px' }}>
+                      <div>
+                        <h4 style={{ fontSize: '13px', fontWeight: 800, color: '#0F172A', marginBottom: '10px' }}>Forma de Pago</h4>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button
+                            onClick={() => setB2bPaymentMethod('CREDITO')}
+                            style={{
+                              flex: 1,
+                              padding: '12px',
+                              borderRadius: '10px',
+                              border: b2bPaymentMethod === 'CREDITO' ? '2px solid #3B82F6' : '1px solid #CBD5E1',
+                              backgroundColor: b2bPaymentMethod === 'CREDITO' ? 'rgba(59, 130, 246, 0.05)' : 'white',
+                              fontWeight: 700,
+                              color: b2bPaymentMethod === 'CREDITO' ? '#3B82F6' : '#475569',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}
+                          >
+                            <span>💳 Crédito B2B</span>
+                            {client && (
+                              <span style={{ fontSize: '10px', fontWeight: 500, color: '#64748B' }}>
+                                Cupo Disp: ${cupoDisponible.toLocaleString('es-CO')}
+                              </span>
+                            )}
+                          </button>
+                          <button
+                            onClick={() => setB2bPaymentMethod('CONTADO')}
+                            style={{
+                              flex: 1,
+                              padding: '12px',
+                              borderRadius: '10px',
+                              border: b2bPaymentMethod === 'CONTADO' ? '2px solid #10B981' : '1px solid #CBD5E1',
+                              backgroundColor: b2bPaymentMethod === 'CONTADO' ? 'rgba(16, 185, 129, 0.05)' : 'white',
+                              fontWeight: 700,
+                              color: b2bPaymentMethod === 'CONTADO' ? '#10B981' : '#475569',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}
+                          >
+                            <span>💵 Pago Contado</span>
+                            <span style={{ fontSize: '10px', fontWeight: 500, color: '#64748B' }}>Inmediato</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div style={{ backgroundColor: '#F8FAFC', padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#475569' }}>
+                          <span>Subtotal Despachado:</span>
+                          <span>${b2bSubtotal.toLocaleString('es-CO')}</span>
+                        </div>
+                        {selectedReturnsCredit > 0 && (
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#ef4444' }}>
+                            <span>(-) Cruce Devolución:</span>
+                            <span>-${selectedReturnsCredit.toLocaleString('es-CO')}</span>
+                          </div>
+                        )}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px dashed #CBD5E1', paddingTop: '8px', fontSize: '16px', fontWeight: 800, color: '#0F172A' }}>
+                          <span>Total Factura:</span>
+                          <span style={{ color: 'var(--primary-color)' }}>${b2bTotalFinal.toLocaleString('es-CO')}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
+                      <button
+                        onClick={() => setSelectedB2BQuoteId(null)}
+                        className="btn-secondary"
+                        style={{ padding: '12px 24px', borderRadius: '12px', fontWeight: 700 }}
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        onClick={() => handleFacturarB2B(quote.id)}
+                        className="btn-primary"
+                        style={{
+                          padding: '12px 24px',
+                          borderRadius: '12px',
+                          fontWeight: 700,
+                          backgroundColor: b2bPaymentMethod === 'CREDITO' ? '#3B82F6' : '#10B981',
+                          color: 'white',
+                          border: 'none',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}
+                      >
+                        <FileText size={18} />
+                        <span>Emitir Factura Electrónica</span>
+                      </button>
+                    </div>
+
+                  </div>
+                );
+              })()
+            ) : (
+              <div style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#64748B', padding: '48px 0', flex: 1 }}>
+                <FileText size={48} style={{ opacity: 0.5, marginBottom: '16px', color: '#94A3B8' }} />
+                <h3 style={{ fontSize: '16px', fontWeight: 700 }}>Seleccione un pedido</h3>
+                <p style={{ fontSize: '13px', marginTop: '4px' }}>El sistema cargará los pesos reales del cuarto frío y permitirá aplicar saldos de devolución.</p>
+              </div>
+            )}
+          </div>
+        </div>
+        ) : (
+        <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>
+          
+          {/* Encabezado y Simulaciones */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            backgroundColor: 'white',
+            padding: '24px',
+            borderRadius: '16px',
+            border: '1px solid #E2E8F0'
+          }}>
+            <div>
+              <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.5px' }}>Cola de Integraciones Digitales</h2>
+              <p style={{ fontSize: '13px', color: '#64748B', marginTop: '4px' }}>
+                Monitoree en tiempo real los payloads entrantes de Rappi y Shopify. El worker procesa la cola de forma asíncrona.
+              </p>
+            </div>
+            
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={() => {
+                  const extId = `SHO-${Math.floor(1000 + Math.random() * 9000)}`;
+                  const mockPayload = {
+                    signature: 'VALID_CRYPTO_SIGNATURE',
+                    clienteId: null,
+                    clienteNombre: 'Consumidor Shopify',
+                    items: [
+                      { sku: 'sku-1', nombre: 'Filete de Salmón Premium', cantidad: 2, precioUnitario: 35000 }
+                    ],
+                    subtotal: 70000,
+                    total: 70000
+                  };
+                  const newLog = {
+                    id: `log-${crypto.randomUUID().slice(0, 8)}`,
+                    id_pedido_externo: extId,
+                    canal: 'Shopify',
+                    fecha_recepcion: new Date().toISOString(),
+                    payload_json: JSON.stringify(mockPayload),
+                    estado: 'PENDIENTE' as const
+                  };
+                  setLogIntegracion((prev: any) => [newLog, ...prev]);
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'Pedido Shopify Encolado',
+                    text: `Pedido ${extId} agregado a la cola de procesamiento.`,
+                    confirmButtonColor: 'var(--primary-color)'
+                  });
+                }}
+                className="btn-primary"
+                style={{ backgroundColor: '#10B981', color: 'white', display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer' }}
+              >
+                <Plus size={16} /> Shopify Ok (RN-03)
+              </button>
+
+              <button
+                onClick={() => {
+                  const extId = `RAP-${Math.floor(1000 + Math.random() * 9000)}`;
+                  const mockPayload = {
+                    signature: 'INVALID_SIGNATURE',
+                    clienteId: null,
+                    clienteNombre: 'Infiltrado Rappi',
+                    items: [
+                      { sku: 'sku-2', nombre: 'Camarón Tigre U15', cantidad: 1, precioUnitario: 42000 }
+                    ],
+                    subtotal: 42000,
+                    total: 42000
+                  };
+                  const newLog = {
+                    id: `log-${crypto.randomUUID().slice(0, 8)}`,
+                    id_pedido_externo: extId,
+                    canal: 'Rappi',
+                    fecha_recepcion: new Date().toISOString(),
+                    payload_json: JSON.stringify(mockPayload),
+                    estado: 'PENDIENTE' as const
+                  };
+                  setLogIntegracion((prev: any) => [newLog, ...prev]);
+                  Swal.fire({
+                    icon: 'warning',
+                    title: 'Pedido Firma Inválida Encolado',
+                    text: `Pedido ${extId} agregado. Debería ser rechazado por seguridad (RN-01).`,
+                    confirmButtonColor: 'var(--primary-color)'
+                  });
+                }}
+                className="btn-secondary"
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
+              >
+                <AlertCircle size={16} /> Firma Inválida (RN-01)
+              </button>
+
+              <button
+                onClick={() => {
+                  const extId = `SHO-${Math.floor(1000 + Math.random() * 9000)}`;
+                  const mockPayload = {
+                    signature: 'VALID_CRYPTO_SIGNATURE',
+                    clienteId: null,
+                    clienteNombre: 'Cliente Sin Stock',
+                    items: [
+                      { sku: 'sku-1', nombre: 'Filete de Salmón Premium', cantidad: 9999, precioUnitario: 35000 }
+                    ],
+                    subtotal: 349965000,
+                    total: 349965000
+                  };
+                  const newLog = {
+                    id: `log-${crypto.randomUUID().slice(0, 8)}`,
+                    id_pedido_externo: extId,
+                    canal: 'Shopify',
+                    fecha_recepcion: new Date().toISOString(),
+                    payload_json: JSON.stringify(mockPayload),
+                    estado: 'PENDIENTE' as const
+                  };
+                  setLogIntegracion((prev: any) => [newLog, ...prev]);
+                  Swal.fire({
+                    icon: 'warning',
+                    title: 'Pedido Agotado Encolado',
+                    text: `Pedido ${extId} solicitando 9999 kg de Salmón. Debería ser retenido para revisión manual (RN-07).`,
+                    confirmButtonColor: 'var(--primary-color)'
+                  });
+                }}
+                className="btn-secondary"
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
+              >
+                <AlertTriangle size={16} /> Stock Out (RN-07)
+              </button>
+            </div>
+          </div>
+
+          {/* Tabla de payloads */}
+          <div className="hr-table-card" style={{ padding: '24px', backgroundColor: 'white', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '16px', color: '#0F172A' }}>Cola de payloads JSON recibidos</h3>
+            
+            <table className="hr-table" style={{ width: '100%' }}>
+              <thead>
+                <tr>
+                  <th style={{ padding: '12px 16px' }}>Recepción</th>
+                  <th style={{ padding: '12px 16px' }}>Canal</th>
+                  <th style={{ padding: '12px 16px' }}>ID Externo</th>
+                  <th style={{ padding: '12px 16px' }}>Estado</th>
+                  <th style={{ padding: '12px 16px' }}>Factura POS</th>
+                  <th style={{ padding: '12px 16px' }}>Detalles / Error</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'center' }}>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {logIntegracion.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} style={{ padding: '32px', textAlign: 'center', color: '#64748B' }}>
+                      No se han recibido eventos de canales digitales. Use los simuladores de arriba.
+                    </td>
+                  </tr>
+                ) : (
+                  logIntegracion.map((log: any) => {
+                    let itemsCount = 0;
+                    let totalVal = 0;
+                    try {
+                      const data = JSON.parse(log.payload_json);
+                      itemsCount = data.items?.length || 0;
+                      totalVal = data.total || 0;
+                    } catch(e) {}
+
+                    return (
+                      <tr key={log.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
+                        <td style={{ padding: '12px 16px', fontSize: '12px', color: '#64748B' }}>
+                          {new Date(log.fecha_recepcion).toLocaleString('es-CO')}
+                        </td>
+                        <td style={{ padding: '12px 16px' }}>
+                          <span style={{
+                            padding: '4px 8px',
+                            borderRadius: '6px',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            backgroundColor: log.canal.toLowerCase() === 'shopify' ? '#EEF2F6' : '#FEF2F2',
+                            color: log.canal.toLowerCase() === 'shopify' ? '#2563EB' : '#DC2626'
+                          }}>
+                            {log.canal.toUpperCase()}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px 16px', fontWeight: 600 }}>{log.id_pedido_externo}</td>
+                        <td style={{ padding: '12px 16px' }}>
+                          <span className={`badge-status ${
+                            log.estado === 'PROCESADO' ? 'activo' :
+                            log.estado === 'PENDIENTE' ? 'despachado' :
+                            log.estado === 'REVISION_MANUAL' ? 'programado' : 'inactivo'
+                          }`} style={{
+                            backgroundColor: log.estado === 'REVISION_MANUAL' ? '#FEF3C7' : undefined,
+                            color: log.estado === 'REVISION_MANUAL' ? '#D97706' : undefined,
+                          }}>
+                            {log.estado}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px 16px', fontWeight: 700 }}>
+                          {log.id_factura_pos ? log.id_factura_pos.toUpperCase() : 'N/A'}
+                        </td>
+                        <td style={{ padding: '12px 16px', fontSize: '13px', maxWidth: '250px', wordBreak: 'break-all' }}>
+                          {log.mensaje_error ? (
+                            <span style={{ color: '#EF4444', fontWeight: 500 }}>{log.mensaje_error}</span>
+                          ) : (
+                            <span style={{ color: '#64748B' }}>
+                              {itemsCount} artículo(s) • Total: ${totalVal.toLocaleString('es-CO')}
+                            </span>
+                          )}
+                        </td>
+                        <td style={{ padding: '12px 16px', display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                          {log.estado === 'REVISION_MANUAL' && (
+                            <>
+                              <button
+                                onClick={() => handleAprobarPedidoManual(log.id, 'parcial')}
+                                className="btn-secondary"
+                                style={{ padding: '6px 10px', fontSize: '12px', borderRadius: '6px', cursor: 'pointer' }}
+                              >
+                                Stock Parcial
+                              </button>
+                              <button
+                                onClick={() => handleAprobarPedidoManual(log.id, 'forzar')}
+                                className="btn-primary"
+                                style={{ padding: '6px 10px', fontSize: '12px', borderRadius: '6px', backgroundColor: '#F59E0B', color: 'white', border: 'none', cursor: 'pointer' }}
+                              >
+                                Forzar Venta
+                              </button>
+                            </>
+                          )}
+                          {log.estado === 'PROCESADO' && (
+                            <button
+                              onClick={() => {
+                                Swal.fire({
+                                  title: '¿Confirmar cancelación?',
+                                  text: `Esta acción emitirá una Nota de Crédito/Devolución y reintegrará el stock al inventario (RN-04).`,
+                                  icon: 'warning',
+                                  showCancelButton: true,
+                                  confirmButtonColor: '#EF4444',
+                                  confirmButtonText: 'Sí, cancelar y reversar stock',
+                                  cancelButtonText: 'No, mantener activo'
+                                }).then((res) => {
+                                  if (res.isConfirmed) {
+                                    handleCancelarPedidoDigital(log.id);
+                                    Swal.fire('Pedido Reversado', 'Se generó la devolución y el stock regresó a bodega.', 'success');
+                                  }
+                                });
+                              }}
+                              className="btn-secondary"
+                              style={{ padding: '6px 10px', fontSize: '12px', borderRadius: '6px', color: '#EF4444', borderColor: '#FCA5A5', cursor: 'pointer' }}
+                            >
+                              Cancelar Pedido
+                            </button>
+                          )}
+                          {log.estado === 'PENDIENTE' && (
+                            <span style={{ fontSize: '12px', color: '#94A3B8', fontStyle: 'italic' }}>
+                              Procesando...
+                            </span>
+                          )}
+                          {log.estado === 'ERROR' && (
+                            <button
+                              onClick={() => {
+                                setLogIntegracion((prev: any) =>
+                                  prev.map((l: any) => l.id === log.id ? { ...l, estado: 'PENDIENTE', mensaje_error: undefined } : l)
+                                );
+                              }}
+                              className="btn-secondary"
+                              style={{ padding: '6px 10px', fontSize: '12px', borderRadius: '6px', cursor: 'pointer' }}
+                            >
+                              Reprocesar
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )
+      )}
     </div>
   );
 }

@@ -8,6 +8,7 @@ import PricingView from './views/PricingView.tsx';
 import ARView, { InvoiceAR } from './views/ARView.tsx';
 import ClientsView from './views/ClientsView.tsx';
 import SuppliersView from './views/SuppliersView.tsx';
+import OrderKanbanView from './views/OrderKanbanView.tsx';
 import * as localDb from './services/localDb.ts';
 
 /** Genera IDs únicos usando crypto.randomUUID() — resistente a colisiones en operaciones rápidas */
@@ -148,6 +149,45 @@ const INITIAL_PROVEEDORES: Proveedor[] = [
   }
 ];
 
+export interface Conductor {
+  id: string;
+  nombre: string;
+  identificacion: string;
+  licencia: string;
+  celular: string;
+  activo: boolean;
+}
+
+export interface DevolucionPedido {
+  id: string;
+  pedidoId: string;
+  pedidoNo: string;
+  clienteId: string;
+  clienteNombre: string;
+  conductorId: string;
+  conductorNombre: string;
+  estado: 'PROGRAMADA' | 'RECIBIDA_BODEGA' | 'VALIDADA_FINANZAS' | 'ANULADA';
+  fechaProgramacion: string;
+  fechaRecibido?: string;
+  recibidoPor?: string;
+  fechaValidacion?: string;
+  items: Array<{
+    sku: string;
+    nombre: string;
+    cantidadSolicitada: number;
+    cantidadRecibida?: number;
+    precioUnitarioVenta: number;
+    estadoCalidad?: 'APROBADO_REINGRESO' | 'DESCARTE_MERMA';
+    estadoFisico?: 'APTO_INVENTARIO' | 'AVERIA_DESCARTE' | 'RECHAZADO';
+    loteInventario?: string;
+  }>;
+}
+
+const INITIAL_CONDUCTORES: Conductor[] = [
+  { id: 'cond-1', nombre: 'José Daniel Ortiz', identificacion: '10203040', licencia: 'C2-10203040', celular: '3129998877', activo: true },
+  { id: 'cond-2', nombre: 'Carlos Mario Giraldo', identificacion: '80907060', licencia: 'C2-80907060', celular: '3157776655', activo: true }
+];
+
 export interface CategoriaConfig {
   id: string;
   tipo: string;
@@ -160,7 +200,7 @@ export interface ProductCatalog {
   sku: string;
   nombre: string;
   categoria: string;
-  unidadMedida: 'kg' | 'und' | 'lb' | 'gr';
+  unidadMedida?: 'kg' | 'und' | 'lb' | 'gr';
   imagen?: string;
   codigo_barras?: string;
   iva?: number;
@@ -539,6 +579,29 @@ export interface Venta {
   metodoPago: 'CONTADO' | 'CREDITO' | 'MIXTO';
   facturaCarteraId?: string;   // Si hay crédito → referencia a InvoiceAR
   actor: string;
+  metadata?: {
+    id_pedido_externo?: string;
+    canal?: string;
+    metodo_pago_codigo?: string;
+  };
+  clienteIdentificacion?: string;
+  descuento?: number;
+  montoPagadoEfectivo?: number;
+  montoPagadoTransferencia?: number;
+  montoPagadoTarjeta?: number;
+  montoPagadoCredito?: number;
+  cambioEntregado?: number;
+}
+
+export interface LogIntegracion {
+  id: string;
+  id_pedido_externo: string;
+  canal: string;
+  fecha_recepcion: string;
+  payload_json: string;
+  estado: 'PENDIENTE' | 'PROCESADO' | 'ERROR' | 'REVISION_MANUAL';
+  id_factura_pos?: string;
+  mensaje_error?: string;
 }
 
 export default function App() {
@@ -700,6 +763,25 @@ export default function App() {
 
   const [ventas, setVentas] = useState<Venta[]>(() => localDb.load('ventas', []));
   useEffect(() => { localDb.save('ventas', ventas); }, [ventas]);
+
+  const [conductores, _setConductores] = useState<Conductor[]>(() => localDb.load('conductores', INITIAL_CONDUCTORES));
+  useEffect(() => { localDb.save('conductores', conductores); }, [conductores]);
+
+  const [devoluciones, setDevoluciones] = useState<DevolucionPedido[]>(() => localDb.load('devoluciones', []));
+  useEffect(() => { localDb.save('devoluciones', devoluciones); }, [devoluciones]);
+
+  const [logIntegracion, setLogIntegracion] = useState<LogIntegracion[]>(() => localDb.load('logIntegracion', []));
+  useEffect(() => { localDb.save('logIntegracion', logIntegracion); }, [logIntegracion]);
+
+  const [parametros, _setParametros] = useState<Record<string, any>>(() => localDb.load('parametros', {
+    metodosPagoExternos: {
+      rappi: 'RAP-001',
+      shopify: 'SHO-001',
+      b2b: 'B2B-001'
+    },
+    cajaAisladaMetodos: ['RAP-001', 'SHO-001', 'B2B-001']
+  }));
+  useEffect(() => { localDb.save('parametros', parametros); }, [parametros]);
   // ──────────────────────────────────────────────────────────────────────────────
 
   // Synchronize stock based on current products catalog
@@ -853,6 +935,296 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', userRole);
   }, [userRole]);
 
+  // ─ REGLAS DE NEGOCIO INTEGRACIÓN: Worker de Canales Digitales y Gestión de Cancelaciones ──────────────────────────────
+  // Worker para Procesamiento Asíncrono de Canales Digitales (RN-03, RN-01, RN-02, RN-05, RN-07)
+  useEffect(() => {
+    const pendingOrder = logIntegracion.find(l => l.estado === 'PENDIENTE');
+    if (!pendingOrder) return;
+
+    const timer = setTimeout(() => {
+      let orderData: any;
+      try {
+        orderData = JSON.parse(pendingOrder.payload_json);
+      } catch (e) {
+        setLogIntegracion(prev =>
+          prev.map(l => l.id === pendingOrder.id ? { ...l, estado: 'ERROR', mensaje_error: 'Payload JSON inválido' } : l)
+        );
+        return;
+      }
+
+      // 1. Verificar firma/autenticación (RN-01)
+      if (!orderData.signature || orderData.signature !== 'VALID_CRYPTO_SIGNATURE') {
+        setLogIntegracion(prev =>
+          prev.map(l => l.id === pendingOrder.id ? { ...l, estado: 'ERROR', mensaje_error: 'Error de Autenticación: Firma criptográfica inválida o ausente' } : l)
+        );
+        publishEvent('METADATA_CONFIGURED', 'System Integrator', `Rechazado pedido digital ${pendingOrder.id_pedido_externo} - Firma inválida`, null, false);
+        return;
+      }
+
+      // 2. Verificar Idempotencia (RN-02)
+      const isDuplicate = ventas.some((v: any) => v.metadata?.id_pedido_externo === pendingOrder.id_pedido_externo);
+      if (isDuplicate) {
+        setLogIntegracion(prev =>
+          prev.map(l => l.id === pendingOrder.id ? { ...l, estado: 'ERROR', mensaje_error: 'Idempotencia: Pedido ya procesado' } : l)
+        );
+        publishEvent('METADATA_CONFIGURED', 'System Integrator', `Rechazado pedido duplicado ${pendingOrder.id_pedido_externo} por idempotencia`, null, false);
+        return;
+      }
+
+      // 3. Validación de Stock Restrictiva (RN-07)
+      let stockSuficiente = true;
+      const stockPrincipal = stock['Bodega Principal'] || [];
+      const itemsFaltantes: string[] = [];
+
+      orderData.items.forEach((item: any) => {
+        const currentStock = stockPrincipal.find((s: any) => s.sku === item.sku)?.stock || 0;
+        if (currentStock < item.cantidad) {
+          stockSuficiente = false;
+          itemsFaltantes.push(`${item.nombre} (Solicitado: ${item.cantidad}, Disponible: ${currentStock})`);
+        }
+      });
+
+      if (!stockSuficiente) {
+        setLogIntegracion(prev =>
+          prev.map(l => l.id === pendingOrder.id ? { ...l, estado: 'REVISION_MANUAL', mensaje_error: `Stock insuficiente: ${itemsFaltantes.join(', ')}` } : l)
+        );
+        publishEvent('METADATA_CONFIGURED', 'System Integrator', `Pedido ${pendingOrder.id_pedido_externo} retenido en REVISIÓN MANUAL por falta de stock`, null, false);
+        return;
+      }
+
+      // 4. Crear venta (RN-05 - Asignación dinámica de método de pago)
+      const canalKey = pendingOrder.canal.toLowerCase();
+      const paymentMethodCode = parametros.metodosPagoExternos[canalKey] || 'DIG-001';
+      const vtaId = generateId('vta');
+
+      // Restar stock
+      setStock(prev => {
+        const newStock = { ...prev };
+        if (newStock['Bodega Principal']) {
+          newStock['Bodega Principal'] = newStock['Bodega Principal'].map((stockItem: any) => {
+            const orderItem = orderData.items.find((i: any) => i.sku === stockItem.sku);
+            if (orderItem) {
+              return { ...stockItem, stock: Math.max(0, stockItem.stock - orderItem.cantidad) };
+            }
+            return stockItem;
+          });
+        }
+        return newStock;
+      });
+
+      const newVenta: Venta = {
+        id: vtaId,
+        clienteId: orderData.clienteId || null,
+        clienteNombre: orderData.clienteNombre || 'Consumidor Digital',
+        fecha: new Date().toISOString(),
+        items: orderData.items.map((item: any) => ({
+          sku: item.sku,
+          nombre: item.nombre,
+          cantidad: item.cantidad,
+          precioUnitario: item.precioUnitario,
+          descuento: 0
+        })),
+        subtotal: orderData.subtotal,
+        total: orderData.total,
+        metodoPago: 'MIXTO', // Indicador para facturación mixta/digital
+        actor: 'Integracion Digital',
+        metadata: {
+          id_pedido_externo: pendingOrder.id_pedido_externo,
+          canal: pendingOrder.canal,
+          metodo_pago_codigo: paymentMethodCode
+        }
+      };
+
+      setVentas(prev => [newVenta, ...prev]);
+
+      // Registrar movimiento de inventario
+      const newMovements: MovimientoInventario[] = orderData.items.map((item: any) => {
+        const prodStock = stockPrincipal.find((s: any) => s.sku === item.sku);
+        const lote = prodStock ? prodStock.lote : 'CANAL-DIGITAL';
+        return {
+          id: generateId('mov'),
+          timestamp: new Date().toISOString(),
+          tipo: 'SALIDA_VENTA' as any,
+          sku: item.sku,
+          nombreProducto: item.nombre,
+          bodegaOrigen: 'Bodega Principal',
+          cantidad: item.cantidad,
+          lote: lote,
+          referenciaId: vtaId,
+          referenciaTipo: 'VENTA',
+          actor: 'Integracion Digital',
+          notas: `Integración Digital (${pendingOrder.canal}) - Pedido ${pendingOrder.id_pedido_externo}`
+        };
+      });
+      setMovimientos(prev => [...newMovements, ...prev]);
+
+      setLogIntegracion(prev =>
+        prev.map(l => l.id === pendingOrder.id ? { ...l, estado: 'PROCESADO', id_factura_pos: vtaId } : l)
+      );
+
+      publishEvent(
+        'SALE_COMPLETED',
+        'Integracion Digital',
+        `Pedido digital ${pendingOrder.id_pedido_externo} de ${pendingOrder.canal} facturado automáticamente por $${orderData.total.toLocaleString('es-CO')}`,
+        { id_pedido_externo: pendingOrder.id_pedido_externo, total: orderData.total }
+      );
+
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [logIntegracion, stock, ventas, parametros]);
+
+  // Handler para cancelaciones automáticas (RN-04)
+  const handleCancelarPedidoDigital = (logId: string) => {
+    const log = logIntegracion.find(l => l.id === logId);
+    if (!log) return;
+
+    let orderData: any;
+    try {
+      orderData = JSON.parse(log.payload_json);
+    } catch (e) {
+      return;
+    }
+
+    if (log.estado === 'PROCESADO' && log.id_factura_pos) {
+      // Reversar stock a Bodega Principal
+      setStock(prev => {
+        const newStock = { ...prev };
+        if (newStock['Bodega Principal']) {
+          newStock['Bodega Principal'] = newStock['Bodega Principal'].map((stockItem: any) => {
+            const orderItem = orderData.items.find((i: any) => i.sku === stockItem.sku);
+            if (orderItem) {
+              return { ...stockItem, stock: stockItem.stock + orderItem.cantidad };
+            }
+            return stockItem;
+          });
+        }
+        return newStock;
+      });
+
+      // Registrar movimiento de inventario de entrada
+      const newMovements: MovimientoInventario[] = orderData.items.map((item: any) => {
+        return {
+          id: generateId('mov'),
+          timestamp: new Date().toISOString(),
+          tipo: 'ENTRADA_COMPRA' as any,
+          sku: item.sku,
+          nombreProducto: item.nombre,
+          bodegaDestino: 'Bodega Principal',
+          cantidad: item.cantidad,
+          lote: 'RETORNO',
+          referenciaId: log.id_factura_pos,
+          referenciaTipo: 'DEVOLUCION',
+          actor: 'Integracion Digital',
+          notas: `Reversión por Cancelación Pedido ${log.id_pedido_externo}`
+        };
+      });
+      setMovimientos(prev => [...newMovements, ...prev]);
+
+      // Generar Devolución (Nota de Crédito)
+      const newDevolucion: DevolucionPedido = {
+        id: generateId('dev'),
+        pedidoId: log.id_factura_pos,
+        pedidoNo: log.id_pedido_externo,
+        clienteId: orderData.clienteId || 'c-anon',
+        clienteNombre: orderData.clienteNombre || 'Consumidor Digital',
+        conductorId: 'cond-none',
+        conductorNombre: 'No Aplica',
+        estado: 'VALIDADA_FINANZAS',
+        fechaProgramacion: new Date().toISOString(),
+        fechaValidacion: new Date().toISOString(),
+        items: orderData.items.map((item: any) => ({
+          sku: item.sku,
+          nombre: item.nombre,
+          cantidadSolicitada: item.cantidad,
+          cantidadRecibida: item.cantidad,
+          precioUnitarioVenta: item.precioUnitario,
+          estadoCalidad: 'APROBADO_REINGRESO',
+          estadoFisico: 'APTO_INVENTARIO',
+          loteInventario: 'RETORNO'
+        }))
+      };
+      setDevoluciones(prev => [newDevolucion, ...prev]);
+
+      publishEvent(
+        'METADATA_CONFIGURED',
+        'Integracion Digital',
+        `Nota de Crédito emitida y stock devuelto por cancelación del pedido ${log.id_pedido_externo}`,
+        { logId, pedidoNo: log.id_pedido_externo }
+      );
+    }
+
+    setLogIntegracion(prev =>
+      prev.map(l => l.id === logId ? { ...l, estado: 'ERROR', mensaje_error: 'Pedido Cancelado por el canal' } : l)
+    );
+  };
+
+  // Handler para liberar pedidos retenidos por falta de stock (Aprobación manual RN-07)
+  const handleAprobarPedidoManual = (logId: string, modo: 'parcial' | 'forzar') => {
+    const log = logIntegracion.find(l => l.id === logId);
+    if (!log) return;
+
+    let orderData: any;
+    try {
+      orderData = JSON.parse(log.payload_json);
+    } catch (e) {
+      return;
+    }
+
+    const stockPrincipal = stock['Bodega Principal'] || [];
+    const updatedItems = orderData.items.map((item: any) => {
+      const currentStock = stockPrincipal.find((s: any) => s.sku === item.sku)?.stock || 0;
+      if (modo === 'parcial' && currentStock < item.cantidad) {
+        return { ...item, cantidad: currentStock }; // ajustar a lo que hay
+      }
+      return item;
+    }).filter((item: any) => item.cantidad > 0);
+
+    if (updatedItems.length === 0) {
+      setLogIntegracion(prev =>
+        prev.map(l => l.id === logId ? { ...l, estado: 'ERROR', mensaje_error: 'Aprobación parcial resultó en 0 items' } : l)
+      );
+      return;
+    }
+
+    const totalCalculado = updatedItems.reduce((sum: number, i: any) => sum + (i.cantidad * i.precioUnitario), 0);
+    const subtotalCalculado = totalCalculado;
+
+    // Actualizar JSON y cambiar estado a PENDIENTE para que el worker lo procese con los nuevos datos
+    const updatedPayload = {
+      ...orderData,
+      items: updatedItems,
+      total: totalCalculado,
+      subtotal: subtotalCalculado,
+      signature: 'VALID_CRYPTO_SIGNATURE'
+    };
+
+    setLogIntegracion(prev =>
+      prev.map(l => l.id === logId ? {
+        ...l,
+        estado: 'PENDIENTE',
+        payload_json: JSON.stringify(updatedPayload),
+        mensaje_error: modo === 'forzar' ? 'Venta forzada sin stock suficiente' : 'Aprobado con stock parcial'
+      } : l)
+    );
+    
+    if (modo === 'forzar') {
+      setStock(prev => {
+        const newStock = { ...prev };
+        if (newStock['Bodega Principal']) {
+          newStock['Bodega Principal'] = newStock['Bodega Principal'].map((stockItem: any) => {
+            const orderItem = updatedItems.find((i: any) => i.sku === stockItem.sku);
+            if (orderItem) {
+              return { ...stockItem, stock: stockItem.stock + orderItem.cantidad };
+            }
+            return stockItem;
+          });
+        }
+        return newStock;
+      });
+    }
+  };
+
   const setProductsShim = () => console.warn('setProducts is deprecated in F3. Use setProductsCatalog and setProductPricings instead.');
 
   const renderView = () => {
@@ -870,6 +1242,9 @@ export default function App() {
             products={products}
             setProducts={setProductsShim as any}
             publishEvent={publishEvent}
+            ventas={ventas}
+            parametros={parametros}
+            devoluciones={devoluciones}
           />
         );
       case 'pos':
@@ -891,6 +1266,16 @@ export default function App() {
             setVentas={setVentas}
             movimientos={movimientos}
             setMovimientos={setMovimientos}
+            conductores={conductores}
+            devoluciones={devoluciones}
+            setDevoluciones={setDevoluciones}
+            quotations={quotations}
+            setQuotations={setQuotations}
+            logIntegracion={logIntegracion}
+            setLogIntegracion={setLogIntegracion}
+            handleCancelarPedidoDigital={handleCancelarPedidoDigital}
+            handleAprobarPedidoManual={handleAprobarPedidoManual}
+            parametros={parametros}
           />
         );
       case 'inventario':
@@ -898,6 +1283,10 @@ export default function App() {
           <InventoryView 
             products={products} 
             setProducts={setProductsShim as any} 
+            productsCatalog={productsCatalog}
+            setProductsCatalog={setProductsCatalog}
+            productPricings={productPricings}
+            setProductPricings={setProductPricings} 
             stock={stock}
             setStock={setStock}
             proveedores={proveedores}
@@ -909,6 +1298,10 @@ export default function App() {
             setOrdenesCompra={setOrdenesCompra}
             categorias={categorias}
             setCategorias={setCategorias}
+            devoluciones={devoluciones}
+            setDevoluciones={setDevoluciones}
+            quotations={quotations}
+            setQuotations={setQuotations}
           />
         );
       case 'precios':
@@ -929,6 +1322,9 @@ export default function App() {
             lastClientPrices={lastClientPrices}
             updateLastClientPrice={updateLastClientPrice}
             clientes={clientes}
+            conductores={conductores}
+            devoluciones={devoluciones}
+            setDevoluciones={setDevoluciones}
           />
         );
       case 'rrhh':
@@ -941,6 +1337,8 @@ export default function App() {
             clientes={clientes}
             publishEvent={publishEvent}
             userRole={userRole}
+            devoluciones={devoluciones}
+            setDevoluciones={setDevoluciones}
           />
         );
       case 'clientes':
@@ -961,6 +1359,15 @@ export default function App() {
             setProveedores={setProveedores}
             ordenesCompra={ordenesCompra}
             movimientos={movimientos}
+            publishEvent={publishEvent}
+            userRole={userRole}
+          />
+        );
+      case 'kanban':
+        return (
+          <OrderKanbanView
+            quotations={quotations}
+            setQuotations={setQuotations}
             publishEvent={publishEvent}
             userRole={userRole}
           />
@@ -988,6 +1395,8 @@ export default function App() {
         return { cat: 'Comercial', sub: 'Directorio de Clientes' };
       case 'compras':
         return { cat: 'Administrativo', sub: 'Compras y Gastos' };
+      case 'kanban':
+        return { cat: 'Logística', sub: 'Despachos / Kanban' };
       default:
         return { cat: 'General', sub: 'ERP' };
     }
@@ -1148,9 +1557,12 @@ export default function App() {
               <span>Informes</span>
             </div>
 
-            <div className={`sidebar-item`} style={{ opacity: 0.5 }}>
-              <Box size={16} />
-              <span>Logistica</span>
+            <div
+              className={`sidebar-item ${currentView === 'kanban' ? 'active' : ''}`}
+              onClick={() => { setCurrentView('kanban'); setSidebarOpen(false); }}
+            >
+              <Truck size={16} />
+              <span>Despachos / Kanban</span>
             </div>
 
             <div className={`sidebar-item`} style={{ opacity: 0.5 }}>

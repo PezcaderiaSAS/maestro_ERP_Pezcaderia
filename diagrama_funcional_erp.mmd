@@ -1,0 +1,43 @@
+flowchart TD
+    subgraph Ventas [Ventas / App]
+        A[Ingresa Datos del Cliente] --> B(Selecciona Productos - Pesos Teóricos)
+        B --> C{Cotización o POS?}
+        C -->|Venta Ruta| D[Genera Pedido Cotización]
+        C -->|Punto de Venta| V[Flujo Directo POS]
+    end
+
+    subgraph Bodega [Bodega - Alistamiento]
+        D --> E[Recibe Alerta de Pedido]
+        E --> F[Alistamiento Físico Cuarto Frío]
+        F --> G{¿Pesos coinciden?}
+        G -->|No| H[Ajusta a Pesos Reales]
+        G -->|Sí| I[Confirma Alistamiento]
+        H --> I
+    end
+
+    subgraph Facturacion [Facturación & Backend]
+        I --> J[Descuenta Inventario en Supabase]
+        J --> K{¿Requiere Factura Electrónica?}
+        K -->|Sí| L[Llamada API Siigo - Genera FE]
+        K -->|No| L2[Factura de Contingencia/Interna]
+        L --> M[n8n: Envía Notificación WhatsApp]
+        L2 --> M
+        V --> J
+    end
+
+    subgraph Logistica [Logística en Ruta]
+        M --> N[Asigna Pedido a Vehículo]
+        N --> O[Conductor en Ruta]
+        O --> P{¿Devolución?}
+        P -->|Sí| Q[Registra Motivo y Cantidad]
+        P -->|No| R[Entrega Exitosa]
+        Q --> S[Recaudo de Dinero Restante]
+        R --> S
+    end
+
+    subgraph Administracion [Administración]
+        S --> T[Legalización de Ruta]
+        T --> U{¿Cuadra Efectivo?}
+        U -->|No| W[Justificación de Faltante]
+        U -->|Sí| X[Cierre de Ruta y Cartera]
+    end
