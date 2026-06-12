@@ -1,13 +1,15 @@
 // src/views/POSView.tsx
 import React, { useState } from 'react';
+import * as localDb from '../services/localDb.ts';
 import { Search, Plus, Minus, X, Check, Barcode, Save, CreditCard, FileText, Truck, RefreshCw, AlertTriangle, AlertCircle } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { Product, DynamicField, Cliente, generateId, Venta, MovimientoInventario, Conductor, DevolucionPedido } from '../App.tsx';
+import { Product, DynamicField, Cliente, generateId, Venta, MovimientoInventario, Conductor, DevolucionPedido, toTitleCase } from '../App.tsx';
 import { InvoiceAR } from './ARView.tsx';
+import OrderKanbanView from './OrderKanbanView.tsx';
 
 interface CartItem {
   product: Product;
-  cantidad: number;
+  cantidad: number | string;
   precioOverride?: number;
 }
 
@@ -73,8 +75,9 @@ export default function POSView({
   setLogIntegracion = () => {},
   handleCancelarPedidoDigital = () => {},
   handleAprobarPedidoManual = () => {},
-  parametros: _parametros = {}
-}: Omit<POSViewProps, 'setCurrentView'>) {
+  parametros: _parametros = {},
+  setCurrentView
+}: POSViewProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('TODOS');
   const [barcodeInput, setBarcodeInput] = useState('');
@@ -82,10 +85,14 @@ export default function POSView({
   const [activeDraftId, setActiveDraftId] = useState<string | null>(null);
   
   // B2B Consolidation State
-  const [activeSubView, setActiveSubView] = useState<'venta_pos' | 'consolidacion_b2b' | 'canales_digitales'>('venta_pos');
+  const [activeSubView, setActiveSubView] = useState<'venta_pos' | 'consolidacion_b2b' | 'canales_digitales' | 'gestion_kanban'>('venta_pos');
   const [selectedB2BQuoteId, setSelectedB2BQuoteId] = useState<string | null>(null);
   const [selectedDevIds, setSelectedDevIds] = useState<string[]>([]);
   const [b2bPaymentMethod, setB2bPaymentMethod] = useState<'CREDITO' | 'CONTADO'>('CREDITO');
+  const [fechaVencimientoB2B, setFechaVencimientoB2B] = useState<string>('');
+  const [observacionesB2B, setObservacionesB2B] = useState<string>('');
+  const [b2bFilter, setB2bFilter] = useState<'Listo' | 'Todos'>('Listo');
+  const [tempRealQuantities, setTempRealQuantities] = useState<Record<string, number | string>>({});
 
   // Filtrar productos activos
   const activeProducts = products.filter(p => p.activo);
@@ -94,7 +101,8 @@ export default function POSView({
   const CATEGORIAS = ['TODOS', ...Array.from(new Set(activeProducts.map(p => p.categoria)))];
 
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [cliente, setCliente] = useState<Cliente | null>(null);
+  const defaultClient = clientes?.find(c => c.nombre.toUpperCase().includes('CONSUMIDOR FINAL')) || null;
+  const [cliente, setCliente] = useState<Cliente | null>(defaultClient);
   const [descuentoGlobal, setDescuentoGlobal] = useState(0); // Porcentaje
 
   const getClienteDeuda = (cId: string) => {
@@ -125,7 +133,7 @@ export default function POSView({
       const exists = prevCart.find(item => item.product.id === product.id);
       if (exists) {
         return prevCart.map(item =>
-          item.product.id === product.id ? { ...item, cantidad: item.cantidad + 1 } : item
+          item.product.id === product.id ? { ...item, cantidad: Number(item.cantidad) + 1 } : item
         );
       }
       return [...prevCart, { product, cantidad: 1 }];
@@ -137,12 +145,12 @@ export default function POSView({
       prevCart
         .map(item => {
           if (item.product.id === productId) {
-            const nuevaCantidad = item.cantidad + delta;
+            const nuevaCantidad = Number(item.cantidad) + delta;
             return { ...item, cantidad: nuevaCantidad };
           }
           return item;
         })
-        .filter(item => item.cantidad > 0)
+        .filter(item => Number(item.cantidad) > 0)
     );
   };
 
@@ -359,14 +367,14 @@ export default function POSView({
 
           const newClient: Cliente = {
             id: `c-${Date.now()}`,
-            nombre: nombre.toUpperCase(),
+            nombre: toTitleCase(nombre),
             identificacion,
             tipoIdentificacion,
             tipoPersona,
-            direccion,
+            direccion: toTitleCase(direccion),
             telefono,
             email,
-            ciudad,
+            ciudad: toTitleCase(ciudad),
             cupoCredito,
             tipoPrecio,
             activo: true
@@ -511,7 +519,7 @@ export default function POSView({
     );
     
     setCart([]);
-    setCliente(null);
+    setCliente(defaultClient);
     setDescuentoGlobal(0);
     
     Swal.fire({
@@ -825,7 +833,7 @@ export default function POSView({
             newStock['Bodega Principal'] = newStock['Bodega Principal'].map((stockItem: any) => {
               const cartItem = cart.find(i => i.product.sku === stockItem.sku);
               if (cartItem) {
-                return { ...stockItem, stock: Math.max(0, stockItem.stock - cartItem.cantidad) };
+                return { ...stockItem, stock: Math.max(0, stockItem.stock - Number(cartItem.cantidad)) };
               }
               return stockItem;
             });
@@ -869,10 +877,10 @@ export default function POSView({
             return {
               sku: item.product.sku,
               nombre: item.product.nombre,
-              cantidad: item.cantidad,
+              cantidad: Number(item.cantidad),
               precioUnitario: unitPrice,
               descuento: 0,
-              subtotal: item.cantidad * unitPrice
+              subtotal: Number(item.cantidad) * unitPrice
             };
           }),
           subtotal: subtotal,
@@ -899,7 +907,7 @@ export default function POSView({
             sku: item.product.sku,
             nombreProducto: item.product.nombre,
             bodegaOrigen: 'Bodega Principal',
-            cantidad: item.cantidad,
+            cantidad: Number(item.cantidad),
             lote: lote,
             referenciaId: vtaId,
             referenciaTipo: 'VENTA',
@@ -1002,7 +1010,7 @@ export default function POSView({
         }
 
         setCart([]);
-        setCliente(null);
+        setCliente(defaultClient);
         setDescuentoGlobal(0);
       }
     });
@@ -1013,6 +1021,100 @@ export default function POSView({
       const qty = item.cantidadRecibida || 0;
       return sum + qty * (item.precioUnitarioVenta || 0);
     }, 0);
+  };
+
+  const handleSaveAlistamiento = (quoteId: string) => {
+    const normalizedRole = (userRole || '').trim().toLowerCase();
+    if (normalizedRole !== 'admin' && normalizedRole !== 'bodega' && normalizedRole !== 'administrativo') {
+      Swal.fire({
+        icon: 'error',
+        title: 'Acceso Denegado',
+        text: 'Solo los roles de Super Administrador, Bodega o Administrativo pueden gestionar el alistamiento de pedidos.',
+        confirmButtonColor: '#EF4444'
+      });
+      return;
+    }
+
+    const quoteIndex = quotations.findIndex((q: any) => q.id === quoteId);
+    if (quoteIndex === -1) return;
+
+    const quote = quotations[quoteIndex];
+    
+    const updatedItems = (quote.items || []).map((item: any) => {
+      const realQty = tempRealQuantities[item.sku] !== undefined ? tempRealQuantities[item.sku] : item.cantidad;
+      return {
+        ...item,
+        cantidad_real: Number(realQty)
+      };
+    });
+
+    const updatedQuotations = [...quotations];
+    updatedQuotations[quoteIndex] = {
+      ...quote,
+      items: updatedItems,
+      estado: 'Listo',
+      fechaActualizacion: new Date().toISOString()
+    };
+
+    setQuotations(updatedQuotations);
+    localDb.save('quotations', updatedQuotations);
+
+    publishEvent(
+      'QUOTE_STATUS_CHANGED',
+      userRole,
+      `Alistamiento completado para el pedido #${quote.id.slice(-6).toUpperCase()}. Estado actualizado a Listo.`,
+      { quoteId, estado: 'Listo', items: updatedItems }
+    );
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Alistamiento Guardado',
+      text: `El pedido #${quote.id.slice(-6).toUpperCase()} ha sido alistado con éxito y está listo para despacho.`,
+      confirmButtonColor: '#10B981'
+    });
+
+    setB2bFilter('Listo');
+  };
+
+  const handlePauseAlistamiento = (quoteId: string) => {
+    const normalizedRole = (userRole || '').trim().toLowerCase();
+    if (normalizedRole !== 'admin' && normalizedRole !== 'bodega' && normalizedRole !== 'administrativo') {
+      Swal.fire({
+        icon: 'error',
+        title: 'Acceso Denegado',
+        text: 'Solo los roles de Super Administrador, Bodega o Administrativo pueden gestionar el alistamiento de pedidos.',
+        confirmButtonColor: '#EF4444'
+      });
+      return;
+    }
+
+    const quoteIndex = quotations.findIndex((q: any) => q.id === quoteId);
+    if (quoteIndex === -1) return;
+
+    const quote = quotations[quoteIndex];
+    const updatedQuotations = [...quotations];
+    updatedQuotations[quoteIndex] = {
+      ...quote,
+      estado: 'Pausado',
+      fechaActualizacion: new Date().toISOString()
+    };
+
+    setQuotations(updatedQuotations);
+    localDb.save('quotations', updatedQuotations);
+
+    publishEvent(
+      'QUOTE_STATUS_CHANGED',
+      userRole,
+      `Alistamiento pausado para el pedido #${quote.id.slice(-6).toUpperCase()}.`,
+      { quoteId, estado: 'Pausado' }
+    );
+
+    Swal.fire({
+      icon: 'warning',
+      title: 'Alistamiento Pausado',
+      text: `El pedido #${quote.id.slice(-6).toUpperCase()} ha sido pausado.`,
+      confirmButtonColor: '#F59E0B'
+    });
   };
 
   const handleFacturarB2B = async (quoteId: string) => {
@@ -1043,6 +1145,25 @@ export default function POSView({
     const b2bTotalFinal = Math.max(0, b2bSubtotal - totalReturnsCredit);
 
     if (b2bPaymentMethod === 'CREDITO') {
+      if (!fechaVencimientoB2B) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Fecha de Vencimiento Requerida',
+          text: 'Debe especificar una fecha de vencimiento para la venta a crédito B2B.',
+          confirmButtonColor: 'var(--primary-color)'
+        });
+        return;
+      }
+      const todayStr = new Date().toISOString().split('T')[0];
+      if (fechaVencimientoB2B < todayStr) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Fecha de Vencimiento Inválida',
+          text: 'La fecha de vencimiento no puede ser anterior a la fecha actual.',
+          confirmButtonColor: 'var(--primary-color)'
+        });
+        return;
+      }
       const currentDebt = getClienteDeuda(client.id);
       const proposedDebt = currentDebt + b2bTotalFinal;
       if (proposedDebt > client.cupoCredito) {
@@ -1196,6 +1317,8 @@ export default function POSView({
         clienteNombre: client.nombre,
         clienteIdentificacion: client.identificacion,
         fecha: new Date().toISOString(),
+        fechaVencimiento: fechaVencimientoB2B,
+        observaciones: observacionesB2B,
         total: b2bTotalFinal,
         saldo: b2bTotalFinal,
         pagado: 0,
@@ -1232,7 +1355,7 @@ export default function POSView({
       'SALE_COMPLETED',
       userRole,
       `Factura B2B generada para ${client.nombre} por total de $${b2bTotalFinal.toLocaleString('es-CO')} (${b2bPaymentMethod}). Devoluciones cruzadas: ${appliedDevs.length}`,
-      { quoteId, client: client.nombre, total: b2bTotalFinal }
+      { quoteId, client: client.nombre, total: b2bTotalFinal, observaciones: observacionesB2B }
     );
 
     Swal.fire({
@@ -1244,6 +1367,8 @@ export default function POSView({
 
     setSelectedB2BQuoteId(null);
     setSelectedDevIds([]);
+    setFechaVencimientoB2B('');
+    setObservacionesB2B('');
   };
 
   // Filtrado de productos
@@ -1266,7 +1391,7 @@ export default function POSView({
   // Cálculos financieros
   const subtotal = cart.reduce((acc, item) => {
     const unitPrice = item.precioOverride !== undefined ? item.precioOverride : getProductPrice(item.product);
-    return acc + unitPrice * item.cantidad;
+    return acc + unitPrice * Number(item.cantidad);
   }, 0);
   const totalDescuento = subtotal * (descuentoGlobal / 100);
   const totalFinal = subtotal - totalDescuento;
@@ -1387,6 +1512,27 @@ export default function POSView({
                 {logIntegracion.filter(l => l.estado === 'REVISION_MANUAL').length}
               </span>
             )}
+          </button>
+          
+          <button
+            onClick={() => setActiveSubView('gestion_kanban')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 20px',
+              borderRadius: '10px',
+              border: 'none',
+              backgroundColor: activeSubView === 'gestion_kanban' ? '#F59E0B' : 'transparent',
+              color: 'white',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: activeSubView === 'gestion_kanban' ? '0 4px 12px rgba(245, 158, 11, 0.3)' : 'none'
+            }}
+          >
+            <span style={{ fontSize: '18px' }}>📋</span>
+            <span>Gestión Kanban</span>
           </button>
         </div>
         
@@ -1522,7 +1668,7 @@ export default function POSView({
                 <Check size={16} />
                 <span style={{ fontSize: '12px' }}>{cliente.nombre.slice(0, 18)} ({cliente.identificacion})</span>
               </div>
-              <X size={14} onClick={(e) => { e.stopPropagation(); setCliente(null); }} />
+              <X size={14} onClick={(e) => { e.stopPropagation(); setCliente(defaultClient); }} />
             </div>
           ) : (
             <button className="add-client-btn" onClick={handleAgregarCliente}>
@@ -1605,7 +1751,7 @@ export default function POSView({
             cart.map(item => {
               const stockPrincipal = getProductStock(item.product.sku, 'Bodega Principal');
               const finalUnitPrice = item.precioOverride !== undefined ? item.precioOverride : getProductPrice(item.product);
-              const isInsufficient = stockPrincipal < item.cantidad;
+              const isInsufficient = stockPrincipal < Number(item.cantidad);
               const clientKey = cliente ? (cliente.identificacion || cliente.nombre).trim().toLowerCase() : '';
               const historicalPrice = (cliente && clientKey) ? lastClientPrices[clientKey]?.[item.product.sku] : undefined;
 
@@ -1615,7 +1761,7 @@ export default function POSView({
                     <span className="cart-item-name" style={{ fontWeight: 700 }}>{item.product.nombre}</span>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
                       <span className="cart-item-price" style={{ color: 'var(--primary-color)', fontWeight: 700 }}>
-                        ${(finalUnitPrice * item.cantidad).toLocaleString('es-CO')}
+                        ${(finalUnitPrice * Number(item.cantidad)).toLocaleString('es-CO')}
                       </span>
                       <span style={{ fontSize: '11px', color: '#64748B' }}>
                         (${finalUnitPrice.toLocaleString('es-CO')} c/u)
@@ -1709,19 +1855,18 @@ export default function POSView({
                       type="number" 
                       value={item.cantidad} 
                       onChange={(e) => {
-                        const val = parseFloat(e.target.value);
-                        if (!isNaN(val)) {
-                          setCart(prev => prev.map(i => i.product.id === item.product.id ? { ...i, cantidad: val } : i));
-                        }
+                        setCart(prev => prev.map(i => i.product.id === item.product.id ? { ...i, cantidad: e.target.value } : i));
                       }}
                       onBlur={(e) => {
                          const val = parseFloat(e.target.value);
                          if (isNaN(val) || val <= 0) {
                            handleRemoveItem(item.product.id);
+                         } else {
+                           setCart(prev => prev.map(i => i.product.id === item.product.id ? { ...i, cantidad: val } : i));
                          }
                       }}
                       style={{ width: '50px', textAlign: 'center', border: '1px solid #CBD5E1', borderRadius: '4px', fontSize: '13px', fontWeight: 'bold' }}
-                      step="0.01"
+                      step="any"
                       min="0"
                     />
                     <button className="qty-btn" onClick={() => handleUpdateQty(item.product.id, 1)}>
@@ -1739,7 +1884,7 @@ export default function POSView({
 
         <div className="pos-cart-footer">
           <div className="summary-row">
-            <span>Subtotal ({cart.reduce((sum, item) => sum + item.cantidad, 0)} ítems)</span>
+            <span>Subtotal ({cart.reduce((sum, item) => sum + Number(item.cantidad), 0)} ítems)</span>
             <span>${subtotal.toLocaleString('es-CO')}</span>
           </div>
           <div className="summary-row">
@@ -1777,75 +1922,145 @@ export default function POSView({
         </div>
         </div>
         </div>
-      ) : (
-        activeSubView === 'consolidacion_b2b' ? (
+      ) : activeSubView === 'consolidacion_b2b' ? (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px', width: '100%', boxSizing: 'border-box' }} className="animate-fade-in">
-          {/* COLUMNA IZQUIERDA: LISTADO DE PEDIDOS LISTOS */}
-          <div className="hr-table-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', backgroundColor: 'white', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
-            <div>
-              <span style={{ fontSize: '12px', color: '#3B82F6', fontWeight: 600, textTransform: 'uppercase' }}>Consolidación</span>
-              <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', marginTop: '2px' }}>Pedidos Listos</h3>
-            </div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', maxHeight: '550px' }}>
-              {(quotations || []).filter((q: any) => q.estado === 'Listo').length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '48px 0', color: '#64748B' }}>
-                  <FileText size={40} style={{ margin: '0 auto 12px auto', opacity: 0.5, color: '#3B82F6' }} />
-                  <p style={{ fontSize: '14px', fontWeight: 600 }}>No hay pedidos B2B listos.</p>
-                  <p style={{ fontSize: '12px', color: '#94A3B8', marginTop: '4px' }}>Los pedidos deben completarse en Cuarto Frío.</p>
-                </div>
-              ) : (
-                (quotations || [])
-                  .filter((q: any) => q.estado === 'Listo')
-                  .map((q: any) => {
-                    const isSelected = selectedB2BQuoteId === q.id;
-                    return (
-                      <div
-                        key={q.id}
-                        onClick={() => {
-                          setSelectedB2BQuoteId(q.id);
-                          setSelectedDevIds([]);
-                        }}
-                        style={{
-                          padding: '16px',
-                          borderRadius: '12px',
-                          border: isSelected ? '2px solid #3B82F6' : '1px solid #E2E8F0',
-                          backgroundColor: isSelected ? 'rgba(59, 130, 246, 0.05)' : 'white',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease'
-                        }}
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                          <span style={{ fontWeight: 800, fontSize: '14px', color: '#0F172A' }}>
-                            Pedido #{q.id.slice(-6).toUpperCase()}
-                          </span>
-                          <span style={{
-                            fontSize: '11px',
-                            fontWeight: 800,
-                            padding: '2px 8px',
-                            borderRadius: '12px',
-                            backgroundColor: '#F0FDF4',
-                            color: '#10B981'
-                          }}>
-                            LISTO
-                          </span>
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '13px', color: '#475569' }}>
-                          <div><strong>Cliente:</strong> {q.clienteNombre}</div>
-                          <div><strong>Fecha Entrega:</strong> {q.logistica?.fechaEntrega ? new Date(q.logistica.fechaEntrega).toLocaleDateString() : 'No definida'}</div>
-                          <div><strong>Conductor:</strong> {q.logistica?.conductor?.nombre || 'No asignado'}</div>
-                        </div>
-                      </div>
-                    );
-                  })
-              )}
-            </div>
-          </div>
+           {/* COLUMNA IZQUIERDA: LISTADO DE PEDIDOS */}
+           <div className="hr-table-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', backgroundColor: 'white', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
+             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+               <div>
+                 <span style={{ fontSize: '12px', color: '#3B82F6', fontWeight: 600, textTransform: 'uppercase' }}>Consolidación</span>
+                 <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', marginTop: '2px' }}>Pedidos B2B</h3>
+               </div>
+               <button
+                 onClick={() => setCurrentView('precios')}
+                 className="btn-primary"
+                 style={{ padding: '8px 12px', borderRadius: '8px', fontSize: '12px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+               >
+                 <Plus size={14} />
+                 <span>Crear Pedido</span>
+               </button>
+             </div>
+
+             {/* Filter Toggle */}
+             <div style={{ display: 'flex', backgroundColor: '#F1F5F9', padding: '4px', borderRadius: '8px', gap: '4px' }}>
+               <button
+                 onClick={() => setB2bFilter('Listo')}
+                 style={{
+                   flex: 1,
+                   padding: '6px',
+                   borderRadius: '6px',
+                   border: 'none',
+                   fontSize: '12px',
+                   fontWeight: 700,
+                   backgroundColor: b2bFilter === 'Listo' ? 'white' : 'transparent',
+                   color: b2bFilter === 'Listo' ? '#0F172A' : '#64748B',
+                   cursor: 'pointer',
+                   boxShadow: b2bFilter === 'Listo' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+                 }}
+               >
+                 Listos ({ (quotations || []).filter((q: any) => q.estado === 'Listo').length })
+               </button>
+               <button
+                 onClick={() => setB2bFilter('Todos')}
+                 style={{
+                   flex: 1,
+                   padding: '6px',
+                   borderRadius: '6px',
+                   border: 'none',
+                   fontSize: '12px',
+                   fontWeight: 700,
+                   backgroundColor: b2bFilter === 'Todos' ? 'white' : 'transparent',
+                   color: b2bFilter === 'Todos' ? '#0F172A' : '#64748B',
+                   cursor: 'pointer',
+                   boxShadow: b2bFilter === 'Todos' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+                 }}
+               >
+                 Todos ({ (quotations || []).filter((q: any) => q.estado !== 'Sold' && q.estado !== 'Facturado' && q.estado !== 'Expired').length })
+               </button>
+             </div>
+             
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', maxHeight: '550px' }}>
+               {(() => {
+                 const filteredList = (quotations || []).filter((q: any) => {
+                   if (b2bFilter === 'Listo') {
+                     return q.estado === 'Listo';
+                   } else {
+                     return q.estado !== 'Sold' && q.estado !== 'Facturado' && q.estado !== 'Expired';
+                   }
+                 });
+
+                 if (filteredList.length === 0) {
+                   return (
+                     <div style={{ textAlign: 'center', padding: '48px 0', color: '#64748B' }}>
+                       <FileText size={40} style={{ margin: '0 auto 12px auto', opacity: 0.5, color: '#3B82F6' }} />
+                       <p style={{ fontSize: '14px', fontWeight: 600 }}>No hay pedidos B2B {b2bFilter === 'Listo' ? 'listos' : 'pendientes'}.</p>
+                       <p style={{ fontSize: '12px', color: '#94A3B8', marginTop: '4px' }}>
+                         {b2bFilter === 'Listo' ? 'Los pedidos deben completarse en Cuarto Frío.' : 'Use la opción "Crear Pedido" para ingresar uno nuevo.'}
+                       </p>
+                     </div>
+                   );
+                 }
+
+                 return filteredList.map((q: any) => {
+                   const isSelected = selectedB2BQuoteId === q.id;
+                   let statusBg = '#F1F5F9';
+                   let statusColor = '#64748B';
+                   if (q.estado === 'Approved') { statusBg = '#D1FAE5'; statusColor = '#10B981'; }
+                   else if (q.estado === 'Listo') { statusBg = '#F0FDF4'; statusColor = '#16A34A'; }
+                   else if (q.estado === 'Pausado') { statusBg = '#FEF3C7'; statusColor = '#D97706'; }
+                   else if (q.estado === 'Sent') { statusBg = 'var(--primary-light)'; statusColor = 'var(--primary-color)'; }
+
+                   return (
+                     <div
+                       key={q.id}
+                       onClick={() => {
+                         setSelectedB2BQuoteId(q.id);
+                         setSelectedDevIds([]);
+                         const initialQtys: Record<string, number | string> = {};
+                         (q.items || []).forEach((item: any) => {
+                           initialQtys[item.sku] = item.cantidad_real !== undefined ? item.cantidad_real : item.cantidad;
+                         });
+                         setTempRealQuantities(initialQtys);
+                       }}
+                       style={{
+                         padding: '16px',
+                         borderRadius: '12px',
+                         border: isSelected ? '2px solid #3B82F6' : '1px solid #E2E8F0',
+                         backgroundColor: isSelected ? 'rgba(59, 130, 246, 0.05)' : 'white',
+                         cursor: 'pointer',
+                         transition: 'all 0.2s ease'
+                       }}
+                     >
+                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                         <span style={{ fontWeight: 800, fontSize: '14px', color: '#0F172A' }}>
+                           Pedido #{q.id.slice(-6).toUpperCase()}
+                         </span>
+                         <span style={{
+                           fontSize: '11px',
+                           fontWeight: 800,
+                           padding: '2px 8px',
+                           borderRadius: '12px',
+                           backgroundColor: statusBg,
+                           color: statusColor
+                         }}>
+                           {q.estado.toUpperCase()}
+                         </span>
+                       </div>
+                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '13px', color: '#475569' }}>
+                         <div><strong>Cliente:</strong> {q.clienteNombre}</div>
+                         <div><strong>Fecha Entrega:</strong> {q.logistica?.fechaEntrega ? new Date(q.logistica.fechaEntrega).toLocaleDateString() : 'No definida'}</div>
+                         <div><strong>Conductor:</strong> {q.logistica?.conductor?.nombre || 'No asignado'}</div>
+                       </div>
+                     </div>
+                   );
+                 });
+               })()}
+             </div>
+           </div>
 
           {/* COLUMNA DERECHA: PANELES DE LIQUIDACION */}
           <div className="hr-table-card" style={{ padding: '24px', backgroundColor: 'white', borderRadius: '16px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column' }}>
-            {selectedB2BQuoteId ? (
-              (() => {
+            {selectedB2BQuoteId ? (() => {
                 const quote = quotations.find((q: any) => q.id === selectedB2BQuoteId);
                 if (!quote) return null;
 
@@ -1884,7 +2099,9 @@ export default function POSView({
 
                     {/* Items */}
                     <div>
-                      <h4 style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A', marginBottom: '8px' }}>1. Pesos Reales del Cuarto Frío</h4>
+                      <h4 style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A', marginBottom: '8px' }}>
+                        {quote.estado === 'Listo' ? '1. Pesos Reales del Cuarto Frío' : 'Ítems del Pedido para Alistamiento'}
+                      </h4>
                       <table className="hr-table">
                         <thead>
                           <tr>
@@ -1898,15 +2115,44 @@ export default function POSView({
                         <tbody>
                           {b2bItems.map((item: any) => {
                             const reqQty = item.cantidad;
-                            const realQty = item.cantidad_real !== undefined ? item.cantidad_real : item.cantidad;
+                            const isEditable = quote.estado !== 'Listo';
+                            const realQty = isEditable 
+                              ? (tempRealQuantities[item.sku] !== undefined ? tempRealQuantities[item.sku] : item.cantidad)
+                              : (item.cantidad_real !== undefined ? item.cantidad_real : item.cantidad);
                             const price = item.precioFinal || item.precio || item.precioUnitario || 0;
                             return (
                               <tr key={item.sku}>
                                 <td style={{ fontWeight: 600 }}>{item.nombre}</td>
                                 <td style={{ textAlign: 'right' }}>{reqQty} kg</td>
-                                <td style={{ textAlign: 'right', fontWeight: 700, color: 'var(--primary-color)' }}>{realQty} kg</td>
+                                <td style={{ textAlign: 'right' }}>
+                                  {isEditable ? (
+                                    <input 
+                                      type="number"
+                                      step="any"
+                                      value={realQty}
+                                      onChange={e => {
+                                        const val = e.target.value;
+                                        setTempRealQuantities(prev => ({
+                                          ...prev,
+                                          [item.sku]: val
+                                        }));
+                                      }}
+                                      style={{
+                                        width: '80px',
+                                        padding: '4px 8px',
+                                        border: '1px solid #CBD5E1',
+                                        borderRadius: '6px',
+                                        textAlign: 'right',
+                                        fontWeight: 700,
+                                        color: 'var(--primary-color)'
+                                      }}
+                                    />
+                                  ) : (
+                                    <span style={{ fontWeight: 700, color: 'var(--primary-color)' }}>{realQty} kg</span>
+                                  )}
+                                </td>
                                 <td style={{ textAlign: 'right' }}>${price.toLocaleString('es-CO')}</td>
-                                <td style={{ textAlign: 'right', fontWeight: 700 }}>${(realQty * price).toLocaleString('es-CO')}</td>
+                                <td style={{ textAlign: 'right', fontWeight: 700 }}>${(Number(realQty) * price).toLocaleString('es-CO')}</td>
                               </tr>
                             );
                           })}
@@ -1914,166 +2160,244 @@ export default function POSView({
                       </table>
                     </div>
 
-                    {/* Devoluciones */}
-                    <div>
-                      <h4 style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A', marginBottom: '8px' }}>2. Saldos a Favor de Devoluciones</h4>
-                      {clientDevs.length === 0 ? (
-                        <div style={{ padding: '12px', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0', fontSize: '13px', color: '#64748B' }}>
-                          ℹ️ No hay devoluciones físicas pendientes para este cliente.
-                        </div>
-                      ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          {clientDevs.map((d: any) => {
-                            const amt = getReturnAmount(d);
-                            const isChecked = selectedDevIds.includes(d.id);
-                            return (
-                              <div
-                                key={d.id}
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'space-between',
-                                  padding: '12px',
-                                  backgroundColor: isChecked ? 'rgba(59, 130, 246, 0.05)' : '#F8FAFC',
-                                  borderRadius: '8px',
-                                  border: isChecked ? '1px solid #3B82F6' : '1px solid #E2E8F0',
-                                  cursor: 'pointer'
-                                }}
-                                onClick={() => {
-                                  setSelectedDevIds(prev => 
-                                    prev.includes(d.id) ? prev.filter(id => id !== d.id) : [...prev, d.id]
-                                  );
-                                }}
-                              >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                  <input
-                                    type="checkbox"
-                                    checked={isChecked}
-                                    readOnly
-                                    style={{ width: '16px', height: '16px', cursor: 'pointer' }}
-                                  />
-                                  <div>
-                                    <div style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A' }}>
-                                      Devolución #{d.id.slice(-6).toUpperCase()} ({new Date(d.fechaProgramacion).toLocaleDateString()})
+                    {quote.estado === 'Listo' ? (
+                      <>
+                        {/* Devoluciones */}
+                        <div>
+                          <h4 style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A', marginBottom: '8px' }}>2. Saldos a Favor de Devoluciones</h4>
+                          {clientDevs.length === 0 ? (
+                            <div style={{ padding: '12px', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0', fontSize: '13px', color: '#64748B' }}>
+                              ℹ️ No hay devoluciones físicas pendientes para este cliente.
+                            </div>
+                          ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                              {clientDevs.map((d: any) => {
+                                const amt = getReturnAmount(d);
+                                const isChecked = selectedDevIds.includes(d.id);
+                                return (
+                                  <div
+                                    key={d.id}
+                                    style={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'space-between',
+                                      padding: '12px',
+                                      backgroundColor: isChecked ? 'rgba(59, 130, 246, 0.05)' : '#F8FAFC',
+                                      borderRadius: '8px',
+                                      border: isChecked ? '1px solid #3B82F6' : '1px solid #E2E8F0',
+                                      cursor: 'pointer'
+                                    }}
+                                    onClick={() => {
+                                      setSelectedDevIds(prev => 
+                                        prev.includes(d.id) ? prev.filter(id => id !== d.id) : [...prev, d.id]
+                                      );
+                                    }}
+                                  >
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        readOnly
+                                        style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                                      />
+                                      <div>
+                                        <div style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A' }}>
+                                          Devolución #{d.id.slice(-6).toUpperCase()} ({new Date(d.fechaProgramacion).toLocaleDateString()})
+                                        </div>
+                                        <div style={{ fontSize: '11px', color: '#64748B' }}>
+                                          Conductor: {d.conductorNombre || 'N/A'}
+                                        </div>
+                                      </div>
                                     </div>
-                                    <div style={{ fontSize: '11px', color: '#64748B' }}>
-                                      Conductor: {d.conductorNombre || 'N/A'}
+                                    <div style={{ textAlign: 'right' }}>
+                                      <strong style={{ fontSize: '14px', color: '#10B981' }}>${amt.toLocaleString('es-CO')}</strong>
                                     </div>
                                   </div>
-                                </div>
-                                <div style={{ textAlign: 'right' }}>
-                                  <strong style={{ fontSize: '14px', color: '#10B981' }}>${amt.toLocaleString('es-CO')}</strong>
-                                </div>
-                              </div>
-                            );
-                          })}
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
 
-                    {/* Resumen */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', borderTop: '1px solid #E2E8F0', paddingTop: '20px' }}>
-                      <div>
-                        <h4 style={{ fontSize: '13px', fontWeight: 800, color: '#0F172A', marginBottom: '10px' }}>Forma de Pago</h4>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                          <button
-                            onClick={() => setB2bPaymentMethod('CREDITO')}
-                            style={{
-                              flex: 1,
-                              padding: '12px',
-                              borderRadius: '10px',
-                              border: b2bPaymentMethod === 'CREDITO' ? '2px solid #3B82F6' : '1px solid #CBD5E1',
-                              backgroundColor: b2bPaymentMethod === 'CREDITO' ? 'rgba(59, 130, 246, 0.05)' : 'white',
-                              fontWeight: 700,
-                              color: b2bPaymentMethod === 'CREDITO' ? '#3B82F6' : '#475569',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              flexDirection: 'column',
-                              alignItems: 'center',
-                              gap: '4px'
-                            }}
-                          >
-                            <span>💳 Crédito B2B</span>
-                            {client && (
-                              <span style={{ fontSize: '10px', fontWeight: 500, color: '#64748B' }}>
-                                Cupo Disp: ${cupoDisponible.toLocaleString('es-CO')}
-                              </span>
-                            )}
-                          </button>
-                          <button
-                            onClick={() => setB2bPaymentMethod('CONTADO')}
-                            style={{
-                              flex: 1,
-                              padding: '12px',
-                              borderRadius: '10px',
-                              border: b2bPaymentMethod === 'CONTADO' ? '2px solid #10B981' : '1px solid #CBD5E1',
-                              backgroundColor: b2bPaymentMethod === 'CONTADO' ? 'rgba(16, 185, 129, 0.05)' : 'white',
-                              fontWeight: 700,
-                              color: b2bPaymentMethod === 'CONTADO' ? '#10B981' : '#475569',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              flexDirection: 'column',
-                              alignItems: 'center',
-                              gap: '4px'
-                            }}
-                          >
-                            <span>💵 Pago Contado</span>
-                            <span style={{ fontSize: '10px', fontWeight: 500, color: '#64748B' }}>Inmediato</span>
-                          </button>
-                        </div>
-                      </div>
-
-                      <div style={{ backgroundColor: '#F8FAFC', padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#475569' }}>
-                          <span>Subtotal Despachado:</span>
-                          <span>${b2bSubtotal.toLocaleString('es-CO')}</span>
-                        </div>
-                        {selectedReturnsCredit > 0 && (
-                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#ef4444' }}>
-                            <span>(-) Cruce Devolución:</span>
-                            <span>-${selectedReturnsCredit.toLocaleString('es-CO')}</span>
+                        {/* Resumen */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', borderTop: '1px solid #E2E8F0', paddingTop: '20px' }}>
+                          <div>
+                            <h4 style={{ fontSize: '13px', fontWeight: 800, color: '#0F172A', marginBottom: '10px' }}>Forma de Pago</h4>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <button
+                                onClick={() => setB2bPaymentMethod('CREDITO')}
+                                style={{
+                                  flex: 1,
+                                  padding: '12px',
+                                  borderRadius: '10px',
+                                  border: b2bPaymentMethod === 'CREDITO' ? '2px solid #3B82F6' : '1px solid #CBD5E1',
+                                  backgroundColor: b2bPaymentMethod === 'CREDITO' ? 'rgba(59, 130, 246, 0.05)' : 'white',
+                                  fontWeight: 700,
+                                  color: b2bPaymentMethod === 'CREDITO' ? '#3B82F6' : '#475569',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  alignItems: 'center',
+                                  gap: '4px'
+                                }}
+                              >
+                                <span>💳 Crédito B2B</span>
+                                {client && (
+                                  <span style={{ fontSize: '10px', fontWeight: 500, color: '#64748B' }}>
+                                    Cupo Disp: ${cupoDisponible.toLocaleString('es-CO')}
+                                  </span>
+                                )}
+                              </button>
+                              <button
+                                onClick={() => setB2bPaymentMethod('CONTADO')}
+                                style={{
+                                  flex: 1,
+                                  padding: '12px',
+                                  borderRadius: '10px',
+                                  border: b2bPaymentMethod === 'CONTADO' ? '2px solid #10B981' : '1px solid #CBD5E1',
+                                  backgroundColor: b2bPaymentMethod === 'CONTADO' ? 'rgba(16, 185, 129, 0.05)' : 'white',
+                                  fontWeight: 700,
+                                  color: b2bPaymentMethod === 'CONTADO' ? '#10B981' : '#475569',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  alignItems: 'center',
+                                  gap: '4px'
+                                }}
+                              >
+                                <span>💵 Pago Contado</span>
+                                <span style={{ fontSize: '10px', fontWeight: 500, color: '#64748B' }}>Inmediato</span>
+                              </button>
+                            </div>
                           </div>
-                        )}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px dashed #CBD5E1', paddingTop: '8px', fontSize: '16px', fontWeight: 800, color: '#0F172A' }}>
-                          <span>Total Factura:</span>
-                          <span style={{ color: 'var(--primary-color)' }}>${b2bTotalFinal.toLocaleString('es-CO')}</span>
-                        </div>
-                      </div>
-                    </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
-                      <button
-                        onClick={() => setSelectedB2BQuoteId(null)}
-                        className="btn-secondary"
-                        style={{ padding: '12px 24px', borderRadius: '12px', fontWeight: 700 }}
-                      >
-                        Cancelar
-                      </button>
-                      <button
-                        onClick={() => handleFacturarB2B(quote.id)}
-                        className="btn-primary"
-                        style={{
-                          padding: '12px 24px',
-                          borderRadius: '12px',
-                          fontWeight: 700,
-                          backgroundColor: b2bPaymentMethod === 'CREDITO' ? '#3B82F6' : '#10B981',
-                          color: 'white',
-                          border: 'none',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px'
-                        }}
-                      >
-                        <FileText size={18} />
-                        <span>Emitir Factura Electrónica</span>
-                      </button>
-                    </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            {b2bPaymentMethod === 'CREDITO' && (
+                              <div>
+                                <label style={{ fontSize: '12px', fontWeight: 600, color: '#475569' }}>Fecha de Vencimiento *</label>
+                                <input 
+                                  type="date" 
+                                  value={fechaVencimientoB2B}
+                                  onChange={e => setFechaVencimientoB2B(e.target.value)}
+                                  className="swal2-input" 
+                                  style={{ margin: '4px 0 0 0', width: '100%', height: '38px', fontSize: '13px', boxSizing: 'border-box' }} 
+                                />
+                              </div>
+                            )}
+
+                            <div>
+                              <label style={{ fontSize: '12px', fontWeight: 600, color: '#475569' }}>Observaciones de Facturación</label>
+                              <textarea 
+                                value={observacionesB2B}
+                                onChange={e => setObservacionesB2B(e.target.value)}
+                                placeholder="Anotaciones para la factura y cartera..."
+                                style={{ margin: '4px 0 0 0', width: '100%', height: '60px', padding: '8px', border: '1px solid #CBD5E1', borderRadius: '6px', fontSize: '13px', resize: 'none', boxSizing: 'border-box' }}
+                              />
+                            </div>
+                            
+                            <div style={{ backgroundColor: '#F8FAFC', padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, justifyContent: 'flex-end' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#475569' }}>
+                                <span>Subtotal Despachado:</span>
+                                <span>${b2bSubtotal.toLocaleString('es-CO')}</span>
+                              </div>
+                              {selectedReturnsCredit > 0 && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#ef4444' }}>
+                                  <span>(-) Cruce Devolución:</span>
+                                  <span>-${selectedReturnsCredit.toLocaleString('es-CO')}</span>
+                                </div>
+                              )}
+                              <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px dashed #CBD5E1', paddingTop: '8px', fontSize: '16px', fontWeight: 800, color: '#0F172A' }}>
+                                <span>Total Factura:</span>
+                                <span style={{ color: 'var(--primary-color)' }}>${b2bTotalFinal.toLocaleString('es-CO')}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
+                          <button
+                            onClick={() => setSelectedB2BQuoteId(null)}
+                            className="btn-secondary"
+                            style={{ padding: '12px 24px', borderRadius: '12px', fontWeight: 700 }}
+                          >
+                            Cancelar
+                          </button>
+                          <button
+                            onClick={() => handleFacturarB2B(quote.id)}
+                            className="btn-primary"
+                            style={{
+                              padding: '12px 24px',
+                              borderRadius: '12px',
+                              fontWeight: 700,
+                              backgroundColor: b2bPaymentMethod === 'CREDITO' ? '#3B82F6' : '#10B981',
+                              color: 'white',
+                              border: 'none',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px'
+                            }}
+                          >
+                            <FileText size={18} />
+                            <span>Emitir Factura Electrónica</span>
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div style={{ padding: '16px', backgroundColor: quote.estado === 'Pausado' ? '#FEF3C7' : '#F0FDF4', borderRadius: '12px', border: quote.estado === 'Pausado' ? '1px solid #F59E0B' : '1px solid #10B981', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: quote.estado === 'Pausado' ? '#D97706' : '#16A34A', fontWeight: 700 }}>
+                            <AlertTriangle size={18} />
+                            <span>Alistamiento en Progreso ({quote.estado})</span>
+                          </div>
+                          <p style={{ fontSize: '13px', color: '#475569', margin: 0 }}>
+                            Por favor ingrese los kilos/cantidades reales preparados en el Cuarto Frío para cada ítem. Al terminar, haga clic en "Completar Alistamiento".
+                          </p>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
+                          <button
+                            onClick={() => setSelectedB2BQuoteId(null)}
+                            className="btn-secondary"
+                            style={{ padding: '12px 24px', borderRadius: '12px', fontWeight: 700 }}
+                          >
+                            Cerrar
+                          </button>
+                          {quote.estado !== 'Pausado' && (
+                            <button
+                              onClick={() => handlePauseAlistamiento(quote.id)}
+                              className="btn-secondary"
+                              style={{ padding: '12px 24px', borderRadius: '12px', fontWeight: 700, borderColor: '#F59E0B', color: '#D97706', cursor: 'pointer' }}
+                            >
+                              Pausar Alistamiento
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleSaveAlistamiento(quote.id)}
+                            className="btn-primary"
+                            style={{
+                              padding: '12px 24px',
+                              borderRadius: '12px',
+                              fontWeight: 700,
+                              backgroundColor: '#10B981',
+                              color: 'white',
+                              border: 'none',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px'
+                            }}
+                          >
+                            <Check size={18} />
+                            <span>Completar Alistamiento</span>
+                          </button>
+                        </div>
+                      </>
+                    )}
 
                   </div>
                 );
-              })()
-            ) : (
+              })() : (
               <div style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#64748B', padding: '48px 0', flex: 1 }}>
                 <FileText size={48} style={{ opacity: 0.5, marginBottom: '16px', color: '#94A3B8' }} />
                 <h3 style={{ fontSize: '16px', fontWeight: 700 }}>Seleccione un pedido</h3>
@@ -2082,6 +2406,23 @@ export default function POSView({
             )}
           </div>
         </div>
+        ) : activeSubView === 'gestion_kanban' ? (
+          <OrderKanbanView
+            quotations={quotations}
+            setQuotations={setQuotations}
+            publishEvent={publishEvent}
+            userRole={userRole}
+            onEditOrder={(quote) => {
+              setSelectedB2BQuoteId(quote.id);
+              setSelectedDevIds([]);
+              const initialQtys: Record<string, number | string> = {};
+              (quote.items || []).forEach((item: any) => {
+                initialQtys[item.sku] = item.cantidad_real !== undefined ? item.cantidad_real : item.cantidad;
+              });
+              setTempRealQuantities(initialQtys);
+              setActiveSubView('consolidacion_b2b');
+            }}
+          />
         ) : (
         <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>
           
@@ -2355,7 +2696,6 @@ export default function POSView({
             </table>
           </div>
         </div>
-      )
       )}
     </div>
   );

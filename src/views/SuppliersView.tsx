@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Proveedor, OrdenCompra, MovimientoInventario, generateId } from '../App.tsx';
-import { Truck, Search, Save, Edit2, Phone, Mail, ShoppingCart, Box, PlusCircle } from 'lucide-react';
+import { Proveedor, OrdenCompra, MovimientoInventario, Gasto, generateId, toTitleCase } from '../App.tsx';
+import { Truck, Search, Save, ShoppingCart, Box, PlusCircle } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 interface SuppliersViewProps {
@@ -8,6 +8,8 @@ interface SuppliersViewProps {
   setProveedores: React.Dispatch<React.SetStateAction<Proveedor[]>>;
   ordenesCompra: OrdenCompra[];
   movimientos: MovimientoInventario[];
+  gastos?: Gasto[];
+  setGastos?: React.Dispatch<React.SetStateAction<Gasto[]>>;
   publishEvent: (tipo: any, actor: string, desc: string, meta?: any) => void;
   userRole: string;
 }
@@ -17,9 +19,9 @@ export default function SuppliersView({
   setProveedores,
   ordenesCompra,
   movimientos,
-  publishEvent,
-  userRole
+  gastos = []
 }: SuppliersViewProps) {
+  const [activeTab, setActiveTab] = useState<'PROVEEDORES' | 'GASTOS'>('PROVEEDORES');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'TODOS' | 'ACTIVOS' | 'INACTIVOS'>('TODOS');
   const [selectedProveedorId, setSelectedProveedorId] = useState<string | null>(null);
@@ -46,14 +48,14 @@ export default function SuppliersView({
     if (selectedProveedorId && proveedores.some(p => p.id === selectedProveedorId)) {
       setProveedores(prev => prev.map(p => p.id === selectedProveedorId ? {
         ...p,
-        nombre: proveedorForm.nombre.toUpperCase(),
+        nombre: toTitleCase(proveedorForm.nombre),
         nit: proveedorForm.nit,
         tipoIdentificacion: proveedorForm.tipoIdentificacion,
-        direccion: proveedorForm.direccion,
+        direccion: toTitleCase(proveedorForm.direccion),
         telefono: proveedorForm.telefono,
         email: proveedorForm.email,
-        ciudad: proveedorForm.ciudad,
-        contactoCompras: proveedorForm.contactoCompras,
+        ciudad: toTitleCase(proveedorForm.ciudad),
+        contactoCompras: toTitleCase(proveedorForm.contactoCompras),
         plazoPagoDias: proveedorForm.plazoPagoDias
       } : p));
       Swal.fire({ icon: 'success', title: 'Proveedor actualizado', text: 'Datos actualizados con éxito.', timer: 1500, showConfirmButton: false });
@@ -64,14 +66,14 @@ export default function SuppliersView({
       }
       const nuevo: Proveedor = {
         id: generateId('prov'),
-        nombre: proveedorForm.nombre.toUpperCase(),
+        nombre: toTitleCase(proveedorForm.nombre),
         nit: proveedorForm.nit,
         tipoIdentificacion: proveedorForm.tipoIdentificacion,
-        direccion: proveedorForm.direccion,
+        direccion: toTitleCase(proveedorForm.direccion),
         telefono: proveedorForm.telefono,
         email: proveedorForm.email,
-        ciudad: proveedorForm.ciudad,
-        contactoCompras: proveedorForm.contactoCompras,
+        ciudad: toTitleCase(proveedorForm.ciudad),
+        contactoCompras: toTitleCase(proveedorForm.contactoCompras),
         plazoPagoDias: proveedorForm.plazoPagoDias,
         activo: true
       };
@@ -117,14 +119,14 @@ export default function SuppliersView({
   });
 
   const selectedProveedorObj = proveedores.find(p => p.id === selectedProveedorId);
-  const selectedProveedorOrdenes = ordenesCompra.filter(oc => oc.proveedorId === selectedProveedorId).sort((a, b) => new Date(b.fechaEmision).getTime() - new Date(a.fechaEmision).getTime());
+  const selectedProveedorOrdenes = ordenesCompra.filter(oc => oc.proveedorId === selectedProveedorId).sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
   
   // Buscar movimientos de entrada que estén asociados a este proveedor 
   // (Asumiendo que el campo 'responsable' o 'observacion' guarda el nombre o ID del proveedor en entradas por compras)
   const selectedProveedorMovimientos = movimientos.filter(m => 
-    m.tipo === 'ENTRADA' && 
-    (m.observaciones?.includes(selectedProveedorObj?.nombre || '') || m.responsable === selectedProveedorObj?.nombre)
-  ).sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+    m.tipo === 'ENTRADA_COMPRA' && 
+    (m.notas?.includes(selectedProveedorObj?.nombre || '') || m.actor === selectedProveedorObj?.nombre)
+  ).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
   return (
     <div className="animate-fade-in" style={{ padding: '24px', height: '100%', overflowY: 'auto' }}>
@@ -134,13 +136,30 @@ export default function SuppliersView({
           <h2 className="view-title">Directorio de Proveedores</h2>
           <span style={{ fontSize: '14px', color: '#64748B' }}>Gestione el perfil, compras e historial de órdenes de sus proveedores.</span>
         </div>
-        <button className="btn-primary" onClick={startNewProveedor} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
-          <PlusCircle size={18} />
-          Nuevo Proveedor
-        </button>
+        <div style={{ display: 'flex', gap: '16px' }}>
+          <button 
+            onClick={() => setActiveTab('PROVEEDORES')}
+            style={{ padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 600, backgroundColor: activeTab === 'PROVEEDORES' ? '#0F172A' : '#E2E8F0', color: activeTab === 'PROVEEDORES' ? 'white' : '#64748B' }}
+          >
+            Directorio Proveedores
+          </button>
+          <button 
+            onClick={() => setActiveTab('GASTOS')}
+            style={{ padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 600, backgroundColor: activeTab === 'GASTOS' ? '#0F172A' : '#E2E8F0', color: activeTab === 'GASTOS' ? 'white' : '#64748B' }}
+          >
+            Flujo de Caja (Gastos)
+          </button>
+        </div>
+        {activeTab === 'PROVEEDORES' && (
+          <button className="btn-primary" onClick={startNewProveedor} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
+            <PlusCircle size={18} />
+            Nuevo Proveedor
+          </button>
+        )}
       </div>
 
-      <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
+      {activeTab === 'PROVEEDORES' ? (
+        <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
         
         {/* COLUMNA IZQUIERDA: LISTA DE PROVEEDORES */}
         <div style={{ flex: '0 0 350px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -221,103 +240,62 @@ export default function SuppliersView({
               )}
             </div>
 
-            <form onSubmit={handleSaveProveedor} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label">Tipo Identificación *</label>
-                  <select
-                    className="form-control"
-                    value={proveedorForm.tipoIdentificacion}
-                    onChange={e => setProveedorForm({ ...proveedorForm, tipoIdentificacion: e.target.value as any })}
-                  >
-                    <option value="NIT">NIT</option>
-                    <option value="CC">Cédula</option>
-                  </select>
-                </div>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label">NIT / Número *</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Ej: 901234567-8"
-                    value={proveedorForm.nit}
-                    onChange={e => setProveedorForm({ ...proveedorForm, nit: e.target.value })}
-                  />
+            <form onSubmit={handleSaveProveedor} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ padding: '16px', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', color: '#0F172A', borderBottom: '1px solid #CBD5E1', paddingBottom: '8px' }}>Información Básica</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label">Nombre o Razón Social *</label>
+                    <input type="text" className="form-control" placeholder="Ej: Distribuidora del Mar" value={proveedorForm.nombre} onChange={e => setProveedorForm({ ...proveedorForm, nombre: e.target.value })} />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label">Tipo Identificación *</label>
+                    <select className="form-control" value={proveedorForm.tipoIdentificacion} onChange={e => setProveedorForm({ ...proveedorForm, tipoIdentificacion: e.target.value as any })}>
+                      <option value="NIT">NIT</option>
+                      <option value="CC">Cédula</option>
+                    </select>
+                  </div>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label">NIT / Número *</label>
+                    <input type="text" className="form-control" placeholder="Ej: 901234567-8" value={proveedorForm.nit} onChange={e => setProveedorForm({ ...proveedorForm, nit: e.target.value })} />
+                  </div>
                 </div>
               </div>
 
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Nombre o Razón Social *</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Ej: Distribuidora del Mar"
-                  value={proveedorForm.nombre}
-                  onChange={e => setProveedorForm({ ...proveedorForm, nombre: e.target.value })}
-                />
-              </div>
-
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Dirección</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={proveedorForm.direccion}
-                  onChange={e => setProveedorForm({ ...proveedorForm, direccion: e.target.value })}
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label">Celular / Teléfono</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={proveedorForm.telefono}
-                    onChange={e => setProveedorForm({ ...proveedorForm, telefono: e.target.value })}
-                  />
-                </div>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label">Ciudad</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={proveedorForm.ciudad}
-                    onChange={e => setProveedorForm({ ...proveedorForm, ciudad: e.target.value })}
-                  />
+              <div style={{ padding: '16px', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', color: '#0F172A', borderBottom: '1px solid #CBD5E1', paddingBottom: '8px' }}>Contacto y Ubicación</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label">Celular / Teléfono</label>
+                    <input type="text" className="form-control" value={proveedorForm.telefono} onChange={e => setProveedorForm({ ...proveedorForm, telefono: e.target.value })} />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label">Correo Electrónico</label>
+                    <input type="email" className="form-control" placeholder="proveedor@empresa.com" value={proveedorForm.email} onChange={e => setProveedorForm({ ...proveedorForm, email: e.target.value })} />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label">Dirección</label>
+                    <input type="text" className="form-control" value={proveedorForm.direccion} onChange={e => setProveedorForm({ ...proveedorForm, direccion: e.target.value })} />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label">Ciudad</label>
+                    <input type="text" className="form-control" value={proveedorForm.ciudad} onChange={e => setProveedorForm({ ...proveedorForm, ciudad: e.target.value })} />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label">Contacto Comercial (Persona)</label>
+                    <input type="text" className="form-control" value={proveedorForm.contactoCompras} onChange={e => setProveedorForm({ ...proveedorForm, contactoCompras: e.target.value })} />
+                  </div>
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label">Correo Electrónico</label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    placeholder="proveedor@empresa.com"
-                    value={proveedorForm.email}
-                    onChange={e => setProveedorForm({ ...proveedorForm, email: e.target.value })}
-                  />
+              <div style={{ padding: '16px', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', color: '#0F172A', borderBottom: '1px solid #CBD5E1', paddingBottom: '8px' }}>Condiciones Comerciales</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label">Plazo de Pago (Días)</label>
+                    <input type="number" className="form-control" value={proveedorForm.plazoPagoDias || ''} onChange={e => setProveedorForm({ ...proveedorForm, plazoPagoDias: parseInt(e.target.value) || 0 })} />
+                  </div>
                 </div>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label">Plazo de Pago (Días)</label>
-                  <input
-                    type="number"
-                    className="form-control"
-                    value={proveedorForm.plazoPagoDias || ''}
-                    onChange={e => setProveedorForm({ ...proveedorForm, plazoPagoDias: parseInt(e.target.value) || 0 })}
-                  />
-                </div>
-              </div>
-
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Contacto Comercial (Persona)</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={proveedorForm.contactoCompras}
-                  onChange={e => setProveedorForm({ ...proveedorForm, contactoCompras: e.target.value })}
-                />
               </div>
 
               <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
@@ -345,18 +323,18 @@ export default function SuppliersView({
                       <div key={oc.id} style={{ padding: '12px', border: '1px solid #E2E8F0', borderRadius: '6px', backgroundColor: '#F8FAFC' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                           <span style={{ fontWeight: 700, fontSize: '13px' }}>{oc.id}</span>
-                          <span style={{ fontSize: '12px', color: '#64748B' }}>{new Date(oc.fechaEmision).toLocaleDateString()}</span>
+                          <span style={{ fontSize: '12px', color: '#64748B' }}>{new Date(oc.fecha).toLocaleDateString()}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <span style={{ fontSize: '12px', fontWeight: 600, color: '#0F172A' }}>{oc.items.length} productos</span>
-                          <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--primary-color)' }}>${oc.total.toLocaleString()}</span>
+                          <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--primary-color)' }}>${oc.totalCompra.toLocaleString()}</span>
                         </div>
                         <div style={{ marginTop: '8px', display: 'flex', gap: '6px' }}>
                           <span style={{ 
                             fontSize: '10px', 
                             padding: '2px 6px', 
-                            backgroundColor: oc.estado === 'COMPLETADA' ? '#D1FAE5' : (oc.estado === 'BORRADOR' ? '#E2E8F0' : '#FEF3C7'), 
-                            color: oc.estado === 'COMPLETADA' ? '#065F46' : (oc.estado === 'BORRADOR' ? '#475569' : '#92400E'),
+                            backgroundColor: oc.estado === 'RECIBIDA' ? '#D1FAE5' : '#E2E8F0', 
+                            color: oc.estado === 'RECIBIDA' ? '#065F46' : '#475569',
                             borderRadius: '4px', 
                             fontWeight: 600 
                           }}>
@@ -381,15 +359,15 @@ export default function SuppliersView({
                     {selectedProveedorMovimientos.map(m => (
                       <div key={m.id} style={{ padding: '12px', border: '1px solid #E2E8F0', borderRadius: '6px', backgroundColor: '#F0FDF4' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                          <span style={{ fontWeight: 700, fontSize: '13px' }}>{m.productoId}</span>
-                          <span style={{ fontSize: '12px', color: '#64748B' }}>{new Date(m.fecha).toLocaleDateString()}</span>
+                          <span style={{ fontWeight: 700, fontSize: '13px' }}>{m.sku}</span>
+                          <span style={{ fontSize: '12px', color: '#64748B' }}>{new Date(m.timestamp).toLocaleDateString()}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: '12px', color: '#64748B' }}>Bodega: {m.bodega}</span>
+                          <span style={{ fontSize: '12px', color: '#64748B' }}>Bodega: {m.bodegaDestino}</span>
                           <span style={{ fontSize: '14px', fontWeight: 800, color: '#10B981' }}>+{m.cantidad}</span>
                         </div>
                         <div style={{ fontSize: '11px', color: '#64748B', marginTop: '4px', fontStyle: 'italic' }}>
-                          {m.observaciones}
+                          {m.notas}
                         </div>
                       </div>
                     ))}
@@ -401,8 +379,48 @@ export default function SuppliersView({
           )}
 
         </div>
-
       </div>
+      ) : (
+        <div className="hr-table-card" style={{ padding: '24px' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '16px', color: '#0F172A' }}>Libro de Gastos / Salidas de Caja</h3>
+          
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <thead>
+              <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '2px solid #E2E8F0' }}>
+                <th style={{ padding: '12px', color: '#475569', fontSize: '13px' }}>Fecha</th>
+                <th style={{ padding: '12px', color: '#475569', fontSize: '13px' }}>ID Ref</th>
+                <th style={{ padding: '12px', color: '#475569', fontSize: '13px' }}>Categoría</th>
+                <th style={{ padding: '12px', color: '#475569', fontSize: '13px' }}>Concepto</th>
+                <th style={{ padding: '12px', color: '#475569', fontSize: '13px', textAlign: 'right' }}>Monto ($)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {gastos.length === 0 ? (
+                <tr>
+                  <td colSpan={5} style={{ padding: '24px', textAlign: 'center', color: '#64748B' }}>No hay gastos registrados.</td>
+                </tr>
+              ) : (
+                gastos.map(gasto => (
+                  <tr key={gasto.id} style={{ borderBottom: '1px solid #E2E8F0' }}>
+                    <td style={{ padding: '12px', fontSize: '13px' }}>{new Date(gasto.fecha).toLocaleDateString()}</td>
+                    <td style={{ padding: '12px', fontSize: '13px', fontFamily: 'monospace', color: '#64748B' }}>{gasto.id.split('-')[1].toUpperCase()}</td>
+                    <td style={{ padding: '12px', fontSize: '13px' }}>
+                      <span style={{ backgroundColor: gasto.categoria === 'NÓMINA' ? '#DBEAFE' : '#F1F5F9', color: gasto.categoria === 'NÓMINA' ? '#1E40AF' : '#475569', padding: '4px 8px', borderRadius: '4px', fontWeight: 600 }}>
+                        {gasto.categoria}
+                      </span>
+                    </td>
+                    <td style={{ padding: '12px', fontSize: '13px', color: '#0F172A', fontWeight: 500 }}>{gasto.concepto}</td>
+                    <td style={{ padding: '12px', fontSize: '14px', color: '#EF4444', fontWeight: 800, textAlign: 'right' }}>
+                      - ${Math.round(gasto.monto).toLocaleString('es-CO')}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
     </div>
   );
 }

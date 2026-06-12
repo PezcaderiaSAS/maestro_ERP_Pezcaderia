@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { RefreshCw, Package, ArrowRight, ShieldAlert, CheckCircle, Truck, PlusCircle, Save, Edit2, Search, X } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { Product, ProductCatalog, ProductPricing, Proveedor, MovimientoInventario, OrdenCompra, generateId, CategoriaConfig, DevolucionPedido } from '../App.tsx';
+import { Product, ProductCatalog, ProductPricing, Proveedor, MovimientoInventario, OrdenCompra, generateId, CategoriaConfig, DevolucionPedido, toTitleCase } from '../App.tsx';
 
 interface StockItem {
   sku: string;
@@ -43,10 +43,7 @@ interface InventoryViewProps {
 
 export default function InventoryView({
   products,
-  setProducts,
-  productsCatalog,
   setProductsCatalog,
-  productPricings,
   setProductPricings,
   stock,
   setStock,
@@ -90,11 +87,11 @@ export default function InventoryView({
 
   // --- ESTADO: ALISTAMIENTO CUARTO FRÍO B2B ---
   const [selectedQuoteId, setSelectedQuoteId] = useState<string | null>(null);
-  const [preparedWeights, setPreparedWeights] = useState<Record<string, number>>({});
+  const [preparedWeights, setPreparedWeights] = useState<Record<string, number | string>>({});
 
   // --- ESTADO: RECEPCIÓN DE DEVOLUCIONES B2B ---
   const [selectedDevId, setSelectedDevId] = useState<string | null>(null);
-  const [receivedDevItems, setReceivedDevItems] = useState<Record<string, { cantidadRecibida: number; destino: 'APROBADO_REINGRESO' | 'DESCARTE_MERMA' }>>({});
+  const [receivedDevItems, setReceivedDevItems] = useState<Record<string, { cantidadRecibida: number | string; destino: 'APROBADO_REINGRESO' | 'DESCARTE_MERMA' }>>({});
 
   // Helper to calculate stock in a specific bodega for a given SKU
   const getStockInBodega = (sku: string, bodegaName: string) => {
@@ -163,7 +160,7 @@ export default function InventoryView({
       setProductsCatalog(prev => prev.map(p => p.id === editingProductId ? {
         ...p,
         sku: productForm.sku.toUpperCase().trim(),
-        nombre: productForm.nombre.toUpperCase().trim(),
+        nombre: toTitleCase(productForm.nombre.trim()),
         categoria: categoryText.toUpperCase().trim(),
         unidadMedida: productForm.unidadMedida,
         imagen: productForm.imagen || '',
@@ -216,7 +213,7 @@ export default function InventoryView({
       const newCatalogItem: ProductCatalog = {
         id: newProdId,
         sku: productForm.sku.toUpperCase().trim(),
-        nombre: productForm.nombre.toUpperCase().trim(),
+        nombre: toTitleCase(productForm.nombre.trim()),
         categoria: categoryText.toUpperCase().trim(),
         unidadMedida: productForm.unidadMedida,
         imagen: productForm.imagen || '',
@@ -447,7 +444,7 @@ export default function InventoryView({
       const publicUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=400&height=400&nologo=true&seed=${seed}`;
       
       // URL de fetch: usa el proxy local de Vite en desarrollo para evitar CORS/bloqueos
-      const fetchUrl = import.meta.env.DEV
+      const fetchUrl = (import.meta as any).env?.DEV
         ? `/api/pollinations/prompt/${encodedPrompt}?width=400&height=400&nologo=true&seed=${seed}`
         : publicUrl;
 
@@ -616,7 +613,7 @@ export default function InventoryView({
   }, [proveedores]);
 
   // State de Traslados
-  const [traslado, setTraslado] = useState({
+  const [traslado, setTraslado] = useState<{ origen: string; destino: string; sku: string; cantidad: number | string }>({
     origen: 'Bodega Principal',
     destino: 'Bodega Secundaria',
     sku: 'PES-ENT-001',
@@ -625,9 +622,9 @@ export default function InventoryView({
 
   // State de Producción
   const [prodMateriaPrima, setProdMateriaPrima] = useState('PES-ENT-001');
-  const [prodMateriaCant, setProdMateriaCant] = useState(100); // 100 kg
+  const [prodMateriaCant, setProdMateriaCant] = useState<number | string>(100); // 100 kg
   const [prodTerminado, setProdTerminado] = useState('FIL-LIM-002');
-  const [prodTerminadoCant, setProdTerminadoCant] = useState(60); // 60 kg (Merma 40%)
+  const [prodTerminadoCant, setProdTerminadoCant] = useState<number | string>(60); // 60 kg (Merma 40%)
   const [mermaPct, setMermaPct] = useState(0);
 
   // Asegurar que los selectores de producción tengan valores iniciales válidos si cambia el catálogo
@@ -643,8 +640,10 @@ export default function InventoryView({
   }, [products]);
 
   useEffect(() => {
-    if (prodMateriaCant > 0) {
-      const merma = ((prodMateriaCant - prodTerminadoCant) / prodMateriaCant) * 100;
+    const mpCant = Number(prodMateriaCant) || 0;
+    const ptCant = Number(prodTerminadoCant) || 0;
+    if (mpCant > 0) {
+      const merma = ((mpCant - ptCant) / mpCant) * 100;
       setMermaPct(parseFloat(merma.toFixed(1)));
     } else {
       setMermaPct(0);
@@ -767,8 +766,15 @@ export default function InventoryView({
       return;
     }
 
+    const tCant = Number(traslado.cantidad) || 0;
+    
+    if (tCant <= 0) {
+      Swal.fire({ icon: 'warning', title: 'Cantidad Inválida', text: 'Ingrese una cantidad mayor a cero para trasladar.' });
+      return;
+    }
+
     const itemOrigen = stock[traslado.origen]?.find(i => i.sku === traslado.sku);
-    if (!itemOrigen || itemOrigen.stock < traslado.cantidad) {
+    if (!itemOrigen || itemOrigen.stock < tCant) {
       Swal.fire({ icon: 'error', title: 'Stock Insuficiente', text: 'La bodega de origen no dispone de existencias del lote.' });
       return;
     }
@@ -778,18 +784,18 @@ export default function InventoryView({
       const newStock = { ...prev };
       // Restar
       newStock[traslado.origen] = newStock[traslado.origen].map(i =>
-        i.sku === traslado.sku ? { ...i, stock: i.stock - traslado.cantidad } : i
+        i.sku === traslado.sku ? { ...i, stock: i.stock - tCant } : i
       );
       // Sumar
       const itemDestino = newStock[traslado.destino]?.find(i => i.sku === traslado.sku);
       if (itemDestino) {
         newStock[traslado.destino] = newStock[traslado.destino].map(i =>
-          i.sku === traslado.sku ? { ...i, stock: i.stock + traslado.cantidad } : i
+          i.sku === traslado.sku ? { ...i, stock: i.stock + tCant } : i
         );
       } else {
         newStock[traslado.destino] = [
           ...(newStock[traslado.destino] || []),
-          { sku: traslado.sku, nombre: itemOrigen.nombre, stock: traslado.cantidad, lote: itemOrigen.lote }
+          { sku: traslado.sku, nombre: itemOrigen.nombre, stock: tCant, lote: itemOrigen.lote }
         ];
       }
       return newStock;
@@ -805,7 +811,7 @@ export default function InventoryView({
       nombreProducto: itemOrigen.nombre,
       bodegaOrigen: traslado.origen,
       bodegaDestino: traslado.destino,
-      cantidad: traslado.cantidad,
+      cantidad: tCant,
       lote: itemOrigen.lote,
       referenciaId: refId,
       referenciaTipo: 'TRASLADO',
@@ -820,7 +826,7 @@ export default function InventoryView({
       nombreProducto: itemOrigen.nombre,
       bodegaOrigen: traslado.origen,
       bodegaDestino: traslado.destino,
-      cantidad: traslado.cantidad,
+      cantidad: tCant,
       lote: itemOrigen.lote,
       referenciaId: refId,
       referenciaTipo: 'TRASLADO',
@@ -841,8 +847,16 @@ export default function InventoryView({
   const handleProcesarProduccion = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const mpCant = Number(prodMateriaCant) || 0;
+    const ptCant = Number(prodTerminadoCant) || 0;
+
+    if (mpCant <= 0 || ptCant <= 0) {
+      Swal.fire({ icon: 'warning', title: 'Cantidades Inválidas', text: 'Ingrese valores mayores a cero.' });
+      return;
+    }
+
     const itemMP = stock['Bodega Principal']?.find(i => i.sku === prodMateriaPrima);
-    if (!itemMP || itemMP.stock < prodMateriaCant) {
+    if (!itemMP || itemMP.stock < mpCant) {
       Swal.fire({ icon: 'error', title: 'Falta Materia Prima', text: 'No hay suficiente pescado entero disponible en Bodega Principal.' });
       return;
     }
@@ -888,11 +902,11 @@ export default function InventoryView({
       const newStock = { ...prev };
       // Restar materia prima
       newStock['Bodega Principal'] = newStock['Bodega Principal'].map(i =>
-        i.sku === prodMateriaPrima ? { ...i, stock: i.stock - prodMateriaCant } : i
+        i.sku === prodMateriaPrima ? { ...i, stock: i.stock - mpCant } : i
       );
       // Sumar producto terminado
       newStock['Bodega Principal'] = newStock['Bodega Principal'].map(i =>
-        i.sku === prodTerminado ? { ...i, stock: i.stock + prodTerminadoCant } : i
+        i.sku === prodTerminado ? { ...i, stock: i.stock + ptCant } : i
       );
       return newStock;
     });
@@ -916,7 +930,7 @@ export default function InventoryView({
       sku: prodMateriaPrima,
       nombreProducto: nameMP,
       bodegaOrigen: 'Bodega Principal',
-      cantidad: prodMateriaCant,
+      cantidad: mpCant,
       lote: loteMP,
       referenciaId: prodRefId,
       referenciaTipo: 'PRODUCCION',
@@ -931,7 +945,7 @@ export default function InventoryView({
       sku: prodTerminado,
       nombreProducto: namePT,
       bodegaDestino: 'Bodega Principal',
-      cantidad: prodTerminadoCant,
+      cantidad: ptCant,
       lote: lotePT,
       referenciaId: prodRefId,
       referenciaTipo: 'PRODUCCION',
@@ -944,7 +958,7 @@ export default function InventoryView({
     Swal.fire({
       icon: 'success',
       title: 'Orden de Producción Procesada',
-      text: `Se transformaron ${prodMateriaCant}kg de ${nameMP} en ${prodTerminadoCant}kg de ${namePT} con una merma del ${mermaPct}%.`,
+      text: `Se transformaron ${mpCant}kg de ${nameMP} en ${ptCant}kg de ${namePT} con una merma del ${mermaPct}%.`,
       confirmButtonColor: 'var(--primary-color)'
     });
   };
@@ -955,7 +969,10 @@ export default function InventoryView({
     if (!quote) return;
 
     const items = quote.items || [];
-    const missing = items.some((item: any) => preparedWeights[item.sku] === undefined || preparedWeights[item.sku] < 0);
+    const missing = items.some((item: any) => {
+      const pWeight = Number(preparedWeights[item.sku]);
+      return isNaN(pWeight) || preparedWeights[item.sku] === '' || pWeight < 0;
+    });
     if (missing) {
       Swal.fire({
         icon: 'warning',
@@ -969,9 +986,9 @@ export default function InventoryView({
     let hasDeviationAlert = false;
     let maxDeviationInfo = '';
     const updatedItems = items.map((item: any) => {
-      const pWeight = preparedWeights[item.sku];
-      const reqWeight = item.cantidad;
-      const deviation = Math.abs(pWeight - reqWeight) / reqWeight;
+      const pWeight = Number(preparedWeights[item.sku]) || 0;
+      const reqWeight = Number(item.cantidad) || 0;
+      const deviation = reqWeight > 0 ? Math.abs(pWeight - reqWeight) / reqWeight : 0;
       if (deviation > 0.05) {
         hasDeviationAlert = true;
         maxDeviationInfo = `${item.nombre} (Diferencia: ${(deviation * 100).toFixed(1)}%)`;
@@ -1031,7 +1048,8 @@ export default function InventoryView({
     const items = dev.items || [];
     const missing = items.some((item: any) => {
       const details = receivedDevItems[item.sku];
-      return !details || details.cantidadRecibida === undefined || details.cantidadRecibida < 0;
+      const recQty = Number(details?.cantidadRecibida);
+      return !details || details.cantidadRecibida === '' || isNaN(recQty) || recQty < 0;
     });
 
     if (missing) {
@@ -1046,10 +1064,11 @@ export default function InventoryView({
 
     const updatedItems = items.map((item: any) => {
       const details = receivedDevItems[item.sku];
+      const recQty = Number(details?.cantidadRecibida) || 0;
       return {
         ...item,
-        cantidadRecibida: details.cantidadRecibida,
-        estadoCalidad: details.destino
+        cantidadRecibida: recQty,
+        estadoCalidad: details?.destino
       };
     });
 
@@ -1386,9 +1405,10 @@ export default function InventoryView({
                       <label className="form-label">Cantidad</label>
                       <input
                         type="number"
+                        step="any"
                         className="form-control"
                         value={traslado.cantidad}
-                        onChange={e => setTraslado({ ...traslado, cantidad: parseInt(e.target.value) || 0 })}
+                        onChange={e => setTraslado({ ...traslado, cantidad: e.target.value })}
                       />
                     </div>
                   </div>
@@ -1435,9 +1455,10 @@ export default function InventoryView({
                         <label className="form-label">Cantidad (kg)</label>
                         <input
                           type="number"
+                          step="any"
                           className="form-control"
                           value={prodMateriaCant}
-                          onChange={e => setProdMateriaCant(parseInt(e.target.value) || 0)}
+                          onChange={e => setProdMateriaCant(e.target.value)}
                         />
                       </div>
                     </div>
@@ -1458,9 +1479,10 @@ export default function InventoryView({
                         <label className="form-label">Rendimiento (kg)</label>
                         <input
                           type="number"
+                          step="any"
                           className="form-control"
                           value={prodTerminadoCant}
-                          onChange={e => setProdTerminadoCant(parseInt(e.target.value) || 0)}
+                          onChange={e => setProdTerminadoCant(e.target.value)}
                         />
                       </div>
                     </div>
@@ -1752,7 +1774,8 @@ export default function InventoryView({
                             {(quote.items || []).map((item: any) => {
                               const reqQty = item.cantidad;
                               const prepQty = preparedWeights[item.sku];
-                              const dev = prepQty !== undefined ? ((prepQty - reqQty) / reqQty) * 100 : null;
+                              const parsedPrepQty = Number(prepQty);
+                              const dev = (prepQty !== undefined && prepQty !== '') ? ((parsedPrepQty - reqQty) / reqQty) * 100 : null;
                               const isOutOfRange = dev !== null && Math.abs(dev) > 5;
                               
                               return (
@@ -1763,15 +1786,14 @@ export default function InventoryView({
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '130px' }}>
                                       <input
                                         type="number"
-                                        step="0.01"
+                                        step="any"
                                         className="form-control"
                                         style={{ textAlign: 'right', fontWeight: 700 }}
                                         value={prepQty === undefined ? '' : prepQty}
                                         onChange={e => {
-                                          const val = parseFloat(e.target.value);
                                           setPreparedWeights(prev => ({
                                             ...prev,
-                                            [item.sku]: isNaN(val) ? 0 : val
+                                            [item.sku]: e.target.value
                                           }));
                                         }}
                                         placeholder="0.00"
@@ -1897,7 +1919,7 @@ export default function InventoryView({
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '13px', color: '#475569' }}>
                           <div><strong>Cliente:</strong> {d.clienteNombre}</div>
                           <div><strong>Asociado a:</strong> {d.pedidoId ? `Pedido #${d.pedidoId.slice(-6).toUpperCase()}` : 'Alistamiento manual'}</div>
-                          <div><strong>Recogida:</strong> {d.fechaProgramada ? new Date(d.fechaProgramada).toLocaleDateString() : 'N/A'}</div>
+                          <div><strong>Recogida:</strong> {d.fechaProgramacion ? new Date(d.fechaProgramacion).toLocaleDateString() : 'N/A'}</div>
                         </div>
                       </div>
                     );
@@ -1930,11 +1952,11 @@ export default function InventoryView({
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px', fontSize: '13px', color: '#475569', backgroundColor: '#F8FAFC', padding: '16px', borderRadius: '12px' }}>
                         <div>
                           <div><strong>Cliente:</strong> {dev.clienteNombre}</div>
-                          <div><strong>Dirección de Recogida:</strong> {dev.direccionRecogida || 'N/A'}</div>
+                          <div><strong>Dirección de Recogida:</strong> N/A</div>
                         </div>
                         <div>
                           <div><strong>Pedido Original:</strong> {dev.pedidoId ? `#${dev.pedidoId.slice(-6).toUpperCase()}` : 'N/A'}</div>
-                          <div><strong>Motivo General:</strong> {dev.motivo || 'N/A'}</div>
+                          <div><strong>Motivo General:</strong> N/A</div>
                         </div>
                       </div>
                     </div>
@@ -1963,17 +1985,16 @@ export default function InventoryView({
                                   <td style={{ display: 'flex', justifyContent: 'center' }}>
                                     <input
                                       type="number"
-                                      step="0.01"
+                                      step="any"
                                       className="form-control"
                                       style={{ textAlign: 'right', fontWeight: 700, width: '100px' }}
                                       value={details.cantidadRecibida}
                                       onChange={e => {
-                                        const val = parseFloat(e.target.value);
                                         setReceivedDevItems(prev => ({
                                           ...prev,
                                           [item.sku]: {
                                             ...prev[item.sku],
-                                            cantidadRecibida: isNaN(val) ? 0 : val
+                                            cantidadRecibida: e.target.value
                                           }
                                         }));
                                       }}
@@ -2196,235 +2217,118 @@ export default function InventoryView({
                 {/* PANEL DERECHO: FORMULARIO EXTENSO */}
                 <div className="hr-table-card" style={{ padding: '24px' }}>
                   <form onSubmit={handleSaveProduct} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    
-                    <h3 style={{ fontSize: '16px', fontWeight: 800, borderBottom: '1px solid #E2E8F0', paddingBottom: '8px', color: '#0F172A' }}>
-                      DATOS BÁSICOS Y CLASIFICACIÓN
-                    </h3>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '16px' }}>
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label">SKU (Código Único) *</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Ej: FIL-ROB-004"
-                          value={productForm.sku}
-                          onChange={e => setProductForm({ ...productForm, sku: e.target.value })}
-                          disabled={editingProductId !== null}
-                        />
+                    <div style={{ padding: '16px', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                      <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', color: '#0F172A', borderBottom: '1px solid #CBD5E1', paddingBottom: '8px' }}>Datos Básicos y Clasificación</h4>
+                      
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px' }}>
+                        <div className="form-group" style={{ marginBottom: 0 }}>
+                          <label className="form-label">SKU (Código Único) *</label>
+                          <input type="text" className="form-control" placeholder="Ej: FIL-ROB-004" value={productForm.sku} onChange={e => setProductForm({ ...productForm, sku: e.target.value })} disabled={editingProductId !== null} />
+                        </div>
+                        <div className="form-group" style={{ marginBottom: 0 }}>
+                          <label className="form-label">Nombre del Producto *</label>
+                          <input type="text" className="form-control" placeholder="Ej: FILETE DE RÓBALO LIMPIO" value={productForm.nombre} onChange={e => setProductForm({ ...productForm, nombre: e.target.value })} />
+                        </div>
                       </div>
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label">Nombre del Producto *</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Ej: FILETE DE RÓBALO LIMPIO"
-                          value={productForm.nombre}
-                          onChange={e => setProductForm({ ...productForm, nombre: e.target.value })}
-                        />
+
+                      {/* SELECTORES DE CATEGORÍA ANIDADOS */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px', marginBottom: '12px' }}>
+                        {/* TIPO */}
+                        <div className="form-group" style={{ marginBottom: 0 }}>
+                          <label className="form-label">Tipo de Categoría *</label>
+                          <select className="form-control" value={productForm.tipoCategoria} onChange={e => { const val = e.target.value; setProductForm(prev => ({ ...prev, tipoCategoria: val, lineaCategoria: '', claseCategoria: '' })); setCustomTipo(''); setCustomLinea(''); setCustomClase(''); }}>
+                            <option value="">-- Seleccione Tipo --</option>
+                            {uniqueTipos.map(t => <option key={t} value={t}>{t}</option>)}
+                            <option value="NEW_TIPO" style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>[+ Crear nuevo Tipo]</option>
+                          </select>
+                          {productForm.tipoCategoria === 'NEW_TIPO' && <input type="text" className="form-control" style={{ marginTop: '8px', borderColor: 'var(--primary-color)' }} placeholder="Escriba el nuevo Tipo..." value={customTipo} onChange={e => setCustomTipo(e.target.value)} />}
+                        </div>
+
+                        {/* LÍNEA */}
+                        <div className="form-group" style={{ marginBottom: 0 }}>
+                          <label className="form-label">Línea de Categoría</label>
+                          <select className="form-control" value={productForm.lineaCategoria} onChange={e => { const val = e.target.value; setProductForm(prev => ({ ...prev, lineaCategoria: val, claseCategoria: '' })); setCustomLinea(''); setCustomClase(''); }} disabled={!productForm.tipoCategoria}>
+                            <option value="">-- Seleccione Línea --</option>
+                            {uniqueLineas.map(l => <option key={l} value={l}>{l}</option>)}
+                            <option value="NEW_LINEA" style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>[+ Crear nueva Línea]</option>
+                          </select>
+                          {productForm.lineaCategoria === 'NEW_LINEA' && <input type="text" className="form-control" style={{ marginTop: '8px', borderColor: 'var(--primary-color)' }} placeholder="Escriba la nueva Línea..." value={customLinea} onChange={e => setCustomLinea(e.target.value)} />}
+                        </div>
+
+                        {/* CLASE */}
+                        <div className="form-group" style={{ marginBottom: 0 }}>
+                          <label className="form-label">Clase de Categoría</label>
+                          <select className="form-control" value={productForm.claseCategoria} onChange={e => { const val = e.target.value; setProductForm(prev => ({ ...prev, claseCategoria: val })); setCustomClase(''); }} disabled={!productForm.lineaCategoria}>
+                            <option value="">-- Seleccione Clase --</option>
+                            {uniqueClases.map(c => <option key={c} value={c}>{c}</option>)}
+                            <option value="NEW_CLASE" style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>[+ Crear nueva Clase]</option>
+                          </select>
+                          {productForm.claseCategoria === 'NEW_CLASE' && <input type="text" className="form-control" style={{ marginTop: '8px', borderColor: 'var(--primary-color)' }} placeholder="Escriba la nueva Clase..." value={customClase} onChange={e => setCustomClase(e.target.value)} />}
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
+                        <div className="form-group" style={{ marginBottom: 0 }}>
+                          <label className="form-label">Código de Barras</label>
+                          <input type="text" className="form-control" placeholder="Ej: 770123456789" value={productForm.codigo_barras} onChange={e => setProductForm({ ...productForm, codigo_barras: e.target.value })} />
+                        </div>
+                        <div className="form-group" style={{ marginBottom: 0 }}>
+                          <label className="form-label">Unidad de Medida *</label>
+                          <select className="form-control" value={productForm.unidadMedida} onChange={e => setProductForm({ ...productForm, unidadMedida: e.target.value as any })}>
+                            <option value="kg">Kilos (kg)</option>
+                            <option value="und">Unidades (und)</option>
+                            <option value="lb">Libras (lb)</option>
+                            <option value="gr">Gramos (gr)</option>
+                          </select>
+                        </div>
+                        <div className="form-group" style={{ marginBottom: 0 }}>
+                          <label className="form-label">Imagen (URL)</label>
+                          <input type="text" className="form-control" placeholder="https://ejemplo.com/foto.jpg" value={productForm.imagen} onChange={e => setProductForm({ ...productForm, imagen: e.target.value })} />
+                        </div>
                       </div>
                     </div>
 
-                    {/* SELECTORES DE CATEGORÍA ANIDADOS */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-                      {/* TIPO */}
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label">Tipo de Categoría *</label>
-                        <select
-                          className="form-control"
-                          value={productForm.tipoCategoria}
-                          onChange={e => {
-                            const val = e.target.value;
-                            setProductForm(prev => ({ ...prev, tipoCategoria: val, lineaCategoria: '', claseCategoria: '' }));
-                            setCustomTipo('');
-                            setCustomLinea('');
-                            setCustomClase('');
-                          }}
-                        >
-                          <option value="">-- Seleccione Tipo --</option>
-                          {uniqueTipos.map(t => <option key={t} value={t}>{t}</option>)}
-                          <option value="NEW_TIPO" style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>[+ Crear nuevo Tipo]</option>
-                        </select>
-                        {productForm.tipoCategoria === 'NEW_TIPO' && (
-                          <input
-                            type="text"
-                            className="form-control"
-                            style={{ marginTop: '8px', borderColor: 'var(--primary-color)' }}
-                            placeholder="Escriba el nuevo Tipo..."
-                            value={customTipo}
-                            onChange={e => setCustomTipo(e.target.value)}
-                          />
-                        )}
-                      </div>
-
-                      {/* LÍNEA */}
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label">Línea de Categoría</label>
-                        <select
-                          className="form-control"
-                          value={productForm.lineaCategoria}
-                          onChange={e => {
-                            const val = e.target.value;
-                            setProductForm(prev => ({ ...prev, lineaCategoria: val, claseCategoria: '' }));
-                            setCustomLinea('');
-                            setCustomClase('');
-                          }}
-                          disabled={!productForm.tipoCategoria}
-                        >
-                          <option value="">-- Seleccione Línea --</option>
-                          {uniqueLineas.map(l => <option key={l} value={l}>{l}</option>)}
-                          <option value="NEW_LINEA" style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>[+ Crear nueva Línea]</option>
-                        </select>
-                        {productForm.lineaCategoria === 'NEW_LINEA' && (
-                          <input
-                            type="text"
-                            className="form-control"
-                            style={{ marginTop: '8px', borderColor: 'var(--primary-color)' }}
-                            placeholder="Escriba la nueva Línea..."
-                            value={customLinea}
-                            onChange={e => setCustomLinea(e.target.value)}
-                          />
-                        )}
-                      </div>
-
-                      {/* CLASE */}
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label">Clase de Categoría</label>
-                        <select
-                          className="form-control"
-                          value={productForm.claseCategoria}
-                          onChange={e => {
-                            const val = e.target.value;
-                            setProductForm(prev => ({ ...prev, claseCategoria: val }));
-                            setCustomClase('');
-                          }}
-                          disabled={!productForm.lineaCategoria}
-                        >
-                          <option value="">-- Seleccione Clase --</option>
-                          {uniqueClases.map(c => <option key={c} value={c}>{c}</option>)}
-                          <option value="NEW_CLASE" style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>[+ Crear nueva Clase]</option>
-                        </select>
-                        {productForm.claseCategoria === 'NEW_CLASE' && (
-                          <input
-                            type="text"
-                            className="form-control"
-                            style={{ marginTop: '8px', borderColor: 'var(--primary-color)' }}
-                            placeholder="Escriba la nueva Clase..."
-                            value={customClase}
-                            onChange={e => setCustomClase(e.target.value)}
-                          />
-                        )}
+                    <div style={{ padding: '16px', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                      <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', color: '#0F172A', borderBottom: '1px solid #CBD5E1', paddingBottom: '8px' }}>Política Comercial, Impuestos y Costos</h4>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
+                        <div className="form-group" style={{ marginBottom: 0 }}>
+                          <label className="form-label">Costo Base ($ COP)</label>
+                          <input type="number" className="form-control" value={productForm.precio_compra || ''} onChange={e => setProductForm({ ...productForm, precio_compra: parseInt(e.target.value) || 0 })} />
+                        </div>
+                        <div className="form-group" style={{ marginBottom: 0 }}>
+                          <label className="form-label">Buffer de Seguridad (%)</label>
+                          <input type="number" className="form-control" value={productForm.buffer_seguridad} onChange={e => setProductForm({ ...productForm, buffer_seguridad: parseInt(e.target.value) || 0 })} />
+                        </div>
+                        <div className="form-group" style={{ marginBottom: 0 }}>
+                          <label className="form-label">IVA (Tarifa)</label>
+                          <select className="form-control" value={productForm.iva} onChange={e => setProductForm({ ...productForm, iva: parseInt(e.target.value) || 0 })}>
+                            <option value="0">Exento (0%)</option>
+                            <option value="5">Excluido/Bajo (5%)</option>
+                            <option value="19">General (19%)</option>
+                          </select>
+                        </div>
+                        <div className="form-group" style={{ marginBottom: 0 }}>
+                          <label className="form-label">IVA Incluido</label>
+                          <select className="form-control" value={productForm.ivaIncluido ? 'si' : 'no'} onChange={e => setProductForm({ ...productForm, ivaIncluido: e.target.value === 'si' })}>
+                            <option value="si">Sí, IVA Incluido</option>
+                            <option value="no">No, IVA Excluido</option>
+                          </select>
+                        </div>
                       </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr', gap: '16px' }}>
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label">Código de Barras</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Ej: 770123456789"
-                          value={productForm.codigo_barras}
-                          onChange={e => setProductForm({ ...productForm, codigo_barras: e.target.value })}
-                        />
+                    <div style={{ padding: '16px', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                      <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', color: '#0F172A', borderBottom: '1px solid #CBD5E1', paddingBottom: '8px' }}>Parámetros del Sistema</h4>
+                      <div style={{ display: 'flex', gap: '32px', margin: '4px 0' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}>
+                          <input type="checkbox" style={{ width: '18px', height: '18px', accentColor: 'var(--primary-color)' }} checked={productForm.control_inventario} onChange={e => setProductForm({ ...productForm, control_inventario: e.target.checked })} />
+                          Controlar Inventario (WMS / Kardex)
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}>
+                          <input type="checkbox" style={{ width: '18px', height: '18px', accentColor: 'var(--primary-color)' }} checked={productForm.produccion} onChange={e => setProductForm({ ...productForm, produccion: e.target.checked })} />
+                          Es transformable en Planta (Producción)
+                        </label>
                       </div>
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label">Unidad de Medida *</label>
-                        <select
-                          className="form-control"
-                          value={productForm.unidadMedida}
-                          onChange={e => setProductForm({ ...productForm, unidadMedida: e.target.value as any })}
-                        >
-                          <option value="kg">Kilos (kg)</option>
-                          <option value="und">Unidades (und)</option>
-                          <option value="lb">Libras (lb)</option>
-                          <option value="gr">Gramos (gr)</option>
-                        </select>
-                      </div>
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label">Imagen (URL)</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="https://ejemplo.com/foto.jpg"
-                          value={productForm.imagen}
-                          onChange={e => setProductForm({ ...productForm, imagen: e.target.value })}
-                        />
-                      </div>
-                    </div>
-
-                    <h3 style={{ fontSize: '16px', fontWeight: 800, borderBottom: '1px solid #E2E8F0', paddingBottom: '8px', color: '#0F172A', marginTop: '12px' }}>
-                      POLÍTICA COMERCIAL, IMPUESTOS Y COSTOS
-                    </h3>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '12px' }}>
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label">Costo Base ($ COP)</label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          value={productForm.precio_compra || ''}
-                          onChange={e => setProductForm({ ...productForm, precio_compra: parseInt(e.target.value) || 0 })}
-                        />
-                      </div>
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label">Buffer de Seguridad (%)</label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          value={productForm.buffer_seguridad}
-                          onChange={e => setProductForm({ ...productForm, buffer_seguridad: parseInt(e.target.value) || 0 })}
-                        />
-                      </div>
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label">IVA (Tarifa)</label>
-                        <select
-                          className="form-control"
-                          value={productForm.iva}
-                          onChange={e => setProductForm({ ...productForm, iva: parseInt(e.target.value) || 0 })}
-                        >
-                          <option value="0">Exento (0%)</option>
-                          <option value="5">Excluido/Bajo (5%)</option>
-                          <option value="19">General (19%)</option>
-                        </select>
-                      </div>
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label">IVA Incluido</label>
-                        <select
-                          className="form-control"
-                          value={productForm.ivaIncluido ? 'si' : 'no'}
-                          onChange={e => setProductForm({ ...productForm, ivaIncluido: e.target.value === 'si' })}
-                        >
-                          <option value="si">Sí, IVA Incluido</option>
-                          <option value="no">No, IVA Excluido</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <h3 style={{ fontSize: '16px', fontWeight: 800, borderBottom: '1px solid #E2E8F0', paddingBottom: '8px', color: '#0F172A', marginTop: '12px' }}>
-                      PARÁMETROS DEL SISTEMA
-                    </h3>
-
-                    <div style={{ display: 'flex', gap: '32px', margin: '4px 0' }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}>
-                        <input
-                          type="checkbox"
-                          style={{ width: '18px', height: '18px', accentColor: 'var(--primary-color)' }}
-                          checked={productForm.control_inventario}
-                          onChange={e => setProductForm({ ...productForm, control_inventario: e.target.checked })}
-                        />
-                        Controlar Inventario (WMS / Kardex)
-                      </label>
-
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}>
-                        <input
-                          type="checkbox"
-                          style={{ width: '18px', height: '18px', accentColor: 'var(--primary-color)' }}
-                          checked={productForm.produccion}
-                          onChange={e => setProductForm({ ...productForm, produccion: e.target.checked })}
-                        />
-                        Es transformable en Planta (Producción)
-                      </label>
                     </div>
 
                     {/* Previsualización de Precios Sugeridos */}

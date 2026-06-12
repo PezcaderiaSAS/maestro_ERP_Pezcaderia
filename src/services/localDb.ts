@@ -22,7 +22,9 @@ export const DB_KEYS = {
   devoluciones: 'pezcaderia_devoluciones',
   conductores: 'pezcaderia_conductores',
   logIntegracion: 'pezcaderia_log_integracion',
-  parametros: 'pezcaderia_parametros'
+  parametros: 'pezcaderia_parametros',
+  nominas: 'pezcaderia_nominas',
+  gastos: 'pezcaderia_gastos'
 } as const;
 
 export type DbKey = keyof typeof DB_KEYS;

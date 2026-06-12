@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Menu, LayoutDashboard, ShoppingBag, Box, Users, DollarSign, HelpCircle, Home, ShoppingCart, LogOut, FileText, PlusCircle, Wallet, Database, Truck, RefreshCw } from 'lucide-react';
 import DashboardView from './views/DashboardView.tsx';
 import POSView from './views/POSView.tsx';
@@ -9,11 +9,24 @@ import ARView, { InvoiceAR } from './views/ARView.tsx';
 import ClientsView from './views/ClientsView.tsx';
 import SuppliersView from './views/SuppliersView.tsx';
 import OrderKanbanView from './views/OrderKanbanView.tsx';
+import PayrollView from './views/PayrollView.tsx';
 import * as localDb from './services/localDb.ts';
 
 /** Genera IDs únicos usando crypto.randomUUID() — resistente a colisiones en operaciones rápidas */
 export const generateId = (prefix: string): string =>
   `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
+
+export const toTitleCase = (str: string): string => {
+  if (!str) return '';
+  return str.toLowerCase().split(' ').map(word => {
+    // Excepciones para preposiciones y artículos
+    const smallWords = ['de', 'del', 'la', 'las', 'el', 'los', 'y', 'en', 'a', 'por', 'para'];
+    if (smallWords.includes(word) && str.toLowerCase().indexOf(word) !== 0) {
+      return word;
+    }
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  }).join(' ');
+};
 
 export interface Cliente {
   id: string;
@@ -148,6 +161,84 @@ const INITIAL_PROVEEDORES: Proveedor[] = [
     activo: true
   }
 ];
+
+export interface Empleado {
+  id: string;
+  nombre: string;
+  identificacion: string;
+  rolAcceso: 'ADMINISTRADOR' | 'VENDEDOR' | 'BODEGUERO' | 'REPARTIDOR' | 'GERENTE';
+  cargo: string;
+  salarioBase: number;
+  fechaIngreso: string;
+  tipoContrato: 'INDEFINIDO' | 'FIJO' | 'PRESTACION_SERVICIOS' | 'APRENDIZAJE';
+  estado: 'ACTIVO' | 'INACTIVO' | 'VACACIONES' | 'INCAPACIDAD';
+  prestamosActivos: number;
+  auxilioTransporte: number;
+  telefono: string;
+  email: string;
+  riesgoARL: 'I' | 'II' | 'III' | 'IV' | 'V';
+  aplicaExoneracion: boolean; // Ley 1607 (SENA, ICBF, Salud empleador)
+}
+
+/** Registro de nómina procesada y/o pagada */
+export interface NominaRegistro {
+  id: string;
+  empleadoId: string;
+  empleadoNombre: string;
+  fechaEmision: string;
+  periodoInicio: string;
+  periodoFin: string;
+  diasTrabajados: number;
+  tipoLiquidacion?: 'REGULAR' | 'VACACIONES' | 'LIQUIDACION_FINAL';
+  
+  // Devengos
+  salarioBaseProporcional: number;
+  auxilioTransporte: number;
+  horasExtrasDevengado: number;
+  bonificaciones: number;
+  viaticos: number;
+  totalDevengado: number;
+
+  // Deducciones Empleado
+  saludDeduccion: number;
+  pensionDeduccion: number;
+  prestamosDeduccion: number;
+  otrasDeducciones: number;
+  totalDeducido: number;
+
+  // Neto
+  netoAPagar: number;
+  estadoPago: 'PENDIENTE' | 'PAGADO';
+  gastoIdGenerado?: string; // ID del registro en Gastos
+
+  // ----- Provisiones y Aportes del Empleador -----
+  baseCotizacionIBC: number;
+  
+  // Provisiones (Costos Empresa)
+  provisionCesantias: number;
+  provisionInteresesCesantias: number;
+  provisionPrima: number;
+  provisionVacaciones: number;
+  
+  // Seguridad Social y Parafiscales (Empresa)
+  aportePensionEmpresa: number;
+  aporteSaludEmpresa: number; // 0 si está exonerado
+  aporteARL: number;
+  aporteCCF: number; // Caja de Compensación (4%)
+  aporteSENAICBF: number; // 0 si está exonerado, sino 5%
+  
+  costoTotalEmpresa: number; // Devengado + Provisiones + SS Empresa
+}
+
+export interface Gasto {
+  id: string;
+  fecha: string;
+  categoria: 'NÓMINA' | 'INVENTARIO' | 'SERVICIOS_PUBLICOS' | 'IMPUESTOS' | 'MANTENIMIENTO' | 'OTROS';
+  concepto: string;
+  monto: number;
+  referenciaId?: string;
+  metodoPago: string;
+}
 
 export interface Conductor {
   id: string;
@@ -655,17 +746,19 @@ export default function App() {
   }, [productPricings]);
 
   // DERIVACIÓN DINÁMICA de products para retrocompatibilidad
-  const products: Product[] = productsCatalog.map(cat => {
-    const pricings = productPricings.filter(pr => pr.productoId === cat.id);
-    let currentPricing = pricings[0];
-    if (pricings.length > 1) {
-      currentPricing = pricings.reduce((latest, current) => 
-        new Date(current.vigenciaDesde) > new Date(latest.vigenciaDesde) ? current : latest
-      );
-    }
-    const fallbackPricing = { precio_compra: 0, buffer_seguridad: 0, precio_venta_pos: 0, precio_venta_restaurante: 0, precio_venta_mayorista: 0 };
-    return { ...cat, ...(currentPricing || fallbackPricing) } as Product;
-  });
+  const products: Product[] = useMemo(() => {
+    return productsCatalog.map(cat => {
+      const pricings = productPricings.filter(pr => pr.productoId === cat.id);
+      let currentPricing = pricings[0];
+      if (pricings.length > 1) {
+        currentPricing = pricings.reduce((latest, current) => 
+          new Date(current.vigenciaDesde) > new Date(latest.vigenciaDesde) ? current : latest
+        );
+      }
+      const fallbackPricing = { precio_compra: 0, buffer_seguridad: 0, precio_venta_pos: 0, precio_venta_restaurante: 0, precio_venta_mayorista: 0 };
+      return { ...cat, ...(currentPricing || fallbackPricing) } as Product;
+    });
+  }, [productsCatalog, productPricings]);
 
   useEffect(() => {
     if (initialRole) {
@@ -758,6 +851,40 @@ export default function App() {
   const [movimientos, setMovimientos] = useState<MovimientoInventario[]>(() => localDb.load('movimientos', []));
   useEffect(() => { localDb.save('movimientos', movimientos); }, [movimientos]);
 
+  // Normalización del separador decimal para el teclado numérico
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement;
+      if (activeEl instanceof HTMLInputElement || activeEl instanceof HTMLTextAreaElement) {
+        
+        const isNumpadDecimal = e.code === 'NumpadDecimal';
+        const isStandardDot = e.key === '.';
+        const isStandardComma = e.key === ',';
+        
+        // Determinar el separador decimal esperado por el sistema local (usualmente ',' en ES, '.' en EN)
+        const localDecimalSeparator = (1.1).toLocaleString().substring(1, 2);
+        
+        // Queremos interceptar si presionan NumpadDecimal o si presionan un separador que NO coincide con su región
+        const pressedWrongSeparator = (isStandardDot && localDecimalSeparator === ',') || (isStandardComma && localDecimalSeparator === '.');
+        
+        if (isNumpadDecimal || pressedWrongSeparator) {
+          e.preventDefault();
+          
+          // En inputs type="number", los navegadores (Chrome/Edge) suelen esperar el separador regional
+          // para la visualización, aunque internamente el .value sea con punto.
+          // Usamos execCommand para simular la escritura nativa, lo que inserta en la posición correcta
+          // del cursor y dispara los eventos nativos (y sintéticos de React) automáticamente.
+          document.execCommand('insertText', false, localDecimalSeparator);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   const [ordenesCompra, setOrdenesCompra] = useState<OrdenCompra[]>(() => localDb.load('ordenesCompra', []));
   useEffect(() => { localDb.save('ordenesCompra', ordenesCompra); }, [ordenesCompra]);
 
@@ -782,6 +909,86 @@ export default function App() {
     cajaAisladaMetodos: ['RAP-001', 'SHO-001', 'B2B-001']
   }));
   useEffect(() => { localDb.save('parametros', parametros); }, [parametros]);
+
+  const [empleados, setEmpleados] = useState<Empleado[]>(() => localDb.load('empleados', []));
+  useEffect(() => { localDb.save('empleados', empleados); }, [empleados]);
+
+  const [nominas, setNominas] = useState<NominaRegistro[]>(() => localDb.load('nominas', []));
+  useEffect(() => { localDb.save('nominas', nominas); }, [nominas]);
+
+  const [gastos, setGastos] = useState<Gasto[]>(() => localDb.load('gastos', []));
+  useEffect(() => { localDb.save('gastos', gastos); }, [gastos]);
+  // ──────────────────────────────────────────────────────────────────────────────
+  // MIGRATE TO TITLE CASE (One-Time / Idempotent Cleanup)
+  useEffect(() => {
+    let migrated = false;
+
+    // Migrate Clientes
+    const migratedClientes = clientes.map(c => {
+      const newNombre = toTitleCase(c.nombre);
+      const newCiudad = toTitleCase(c.ciudad);
+      const newDireccion = toTitleCase(c.direccion);
+      const newContacto = toTitleCase(c.encargadoCompras || '');
+      if (c.nombre !== newNombre || c.ciudad !== newCiudad || c.direccion !== newDireccion || c.encargadoCompras !== newContacto) {
+        migrated = true;
+        return { ...c, nombre: newNombre, ciudad: newCiudad, direccion: newDireccion, encargadoCompras: newContacto };
+      }
+      return c;
+    });
+
+    // Migrate Proveedores
+    const migratedProveedores = proveedores.map(p => {
+      const newNombre = toTitleCase(p.nombre);
+      const newCiudad = toTitleCase(p.ciudad);
+      const newDireccion = toTitleCase(p.direccion);
+      const newContacto = toTitleCase(p.contactoCompras || '');
+      if (p.nombre !== newNombre || p.ciudad !== newCiudad || p.direccion !== newDireccion || p.contactoCompras !== newContacto) {
+        migrated = true;
+        return { ...p, nombre: newNombre, ciudad: newCiudad, direccion: newDireccion, contactoCompras: newContacto };
+      }
+      return p;
+    });
+
+    // Migrate Products
+    const migratedProducts = productsCatalog.map(p => {
+      const newNombre = toTitleCase(p.nombre);
+      if (p.nombre !== newNombre) {
+        migrated = true;
+        return { ...p, nombre: newNombre };
+      }
+      return p;
+    });
+
+    // Migrate Empleados (legacy `salario` to `salarioBase`, and ensure default fields)
+    const migratedEmpleados = empleados.map(e => {
+      let changed = false;
+      const legacyEmp = e as any;
+      if (legacyEmp.salario !== undefined && e.salarioBase === undefined) {
+        e.salarioBase = legacyEmp.salario;
+        changed = true;
+      }
+      if (e.salarioBase === undefined) { e.salarioBase = 1300000; changed = true; }
+      if (e.prestamosActivos === undefined) { e.prestamosActivos = 0; changed = true; }
+      if (e.auxilioTransporte === undefined) { e.auxilioTransporte = 162000; changed = true; }
+      if (e.telefono === undefined) { e.telefono = ''; changed = true; }
+      if (e.email === undefined) { e.email = ''; changed = true; }
+      if (e.rolAcceso === undefined) { e.rolAcceso = (legacyEmp.rolERP || 'VENDEDOR') as any; changed = true; }
+      if (e.tipoContrato === undefined) { e.tipoContrato = 'INDEFINIDO'; changed = true; }
+      if (e.riesgoARL === undefined) { e.riesgoARL = 'I'; changed = true; }
+      if (e.aplicaExoneracion === undefined) { e.aplicaExoneracion = true; changed = true; }
+
+      if (changed) migrated = true;
+      return e;
+    });
+
+    if (migrated) {
+      console.log('Migración de datos ejecutada.');
+      setClientes(migratedClientes);
+      setProveedores(migratedProveedores);
+      setProductsCatalog(migratedProducts);
+      setEmpleados(migratedEmpleados);
+    }
+  }, []); // Run once on mount
   // ──────────────────────────────────────────────────────────────────────────────
 
   // Synchronize stock based on current products catalog
@@ -1254,6 +1461,7 @@ export default function App() {
             dynamicFields={dynamicFields}
             publishEvent={publishEvent}
             userRole={userRole}
+            setCurrentView={setCurrentView}
             stock={stock}
             setStock={setStock}
             lastClientPrices={lastClientPrices}
@@ -1328,7 +1536,9 @@ export default function App() {
           />
         );
       case 'rrhh':
-        return <HRView />;
+        return <HRView empleados={empleados} setEmpleados={setEmpleados} nominas={nominas} setView={setCurrentView} />;
+      case 'nomina':
+        return <PayrollView empleados={empleados} nominas={nominas} setNominas={setNominas} gastos={gastos} setGastos={setGastos} />;
       case 'cartera':
         return (
           <ARView 
@@ -1359,6 +1569,8 @@ export default function App() {
             setProveedores={setProveedores}
             ordenesCompra={ordenesCompra}
             movimientos={movimientos}
+            gastos={gastos}
+            setGastos={setGastos}
             publishEvent={publishEvent}
             userRole={userRole}
           />
@@ -1370,6 +1582,13 @@ export default function App() {
             setQuotations={setQuotations}
             publishEvent={publishEvent}
             userRole={userRole}
+            onEditOrder={(quote) => {
+              setCurrentView('pos');
+              setTimeout(() => {
+                const btn = document.getElementById(`quote-btn-${quote.id}`);
+                if (btn) btn.click();
+              }, 500);
+            }}
           />
         );
       default:
@@ -1553,8 +1772,16 @@ export default function App() {
               className={`sidebar-item ${currentView === 'rrhh' ? 'active' : ''}`}
               onClick={() => { setCurrentView('rrhh'); setSidebarOpen(false); }}
             >
-              <LayoutDashboard size={16} />
-              <span>Informes</span>
+              <Users size={16} />
+              <span>Personal (RRHH)</span>
+            </div>
+
+            <div
+              className={`sidebar-item ${currentView === 'nomina' ? 'active' : ''}`}
+              onClick={() => { setCurrentView('nomina'); setSidebarOpen(false); }}
+            >
+              <FileText size={16} />
+              <span>Nómina</span>
             </div>
 
             <div

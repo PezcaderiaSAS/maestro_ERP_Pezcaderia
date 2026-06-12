@@ -7,22 +7,26 @@ interface OrderKanbanViewProps {
   setQuotations: React.Dispatch<React.SetStateAction<any[]>>;
   publishEvent: (tipo: any, actor: string, descripcion: string, metadata?: any) => void;
   userRole: string;
+  onEditOrder: (quote: any) => void;
 }
 
-type ColumnId = 'por-revisar' | 'en-proceso' | 'listo' | 'completados';
+type ColumnId = 'por-revisar' | 'en-proceso' | 'listo' | 'en-entrega' | 'entregado' | 'finalizado';
 
 export default function OrderKanbanView({
   quotations,
   setQuotations,
   publishEvent,
-  userRole
+  userRole,
+  onEditOrder
 }: OrderKanbanViewProps) {
 
   const columns: { id: ColumnId; title: string; states: string[]; color: string; icon: React.ReactNode }[] = [
     { id: 'por-revisar', title: 'Por Revisar', states: ['Creado', 'Sent'], color: '#F1F5F9', icon: <PackageSearch size={20} color="#64748B" /> },
     { id: 'en-proceso', title: 'En Proceso', states: ['Approved', 'Pausado'], color: '#E0F2FE', icon: <Clock size={20} color="#0284C7" /> },
     { id: 'listo', title: 'Listos para Despacho', states: ['Listo'], color: '#FEF3C7', icon: <Package size={20} color="#D97706" /> },
-    { id: 'completados', title: 'Completados', states: ['Sold'], color: '#DCFCE7', icon: <CheckCircle size={20} color="#059669" /> },
+    { id: 'en-entrega', title: 'En Entrega', states: ['En Entrega'], color: '#EDE9FE', icon: <Truck size={20} color="#8B5CF6" /> },
+    { id: 'entregado', title: 'Entregado', states: ['Entregado'], color: '#DCFCE7', icon: <CheckCircle size={20} color="#059669" /> },
+    { id: 'finalizado', title: 'Finalizado', states: ['Sold', 'Finalizado'], color: '#F3F4F6', icon: <CheckCircle size={20} color="#9CA3AF" /> },
   ];
 
   const handleDragStart = (e: React.DragEvent, quoteId: string) => {
@@ -43,11 +47,13 @@ export default function OrderKanbanView({
     if (targetColumnId === 'por-revisar') nuevoEstado = 'Creado';
     if (targetColumnId === 'en-proceso') nuevoEstado = 'Approved';
     if (targetColumnId === 'listo') nuevoEstado = 'Listo';
-    if (targetColumnId === 'completados') nuevoEstado = 'Sold';
+    if (targetColumnId === 'en-entrega') nuevoEstado = 'En Entrega';
+    if (targetColumnId === 'entregado') nuevoEstado = 'Entregado';
+    if (targetColumnId === 'finalizado') nuevoEstado = 'Finalizado';
 
     // Validación de permisos
-    if (targetColumnId === 'en-proceso' || targetColumnId === 'listo') {
-      if (userRole !== 'admin' && userRole !== 'administrativo' && userRole !== 'vendedor' && userRole !== 'Jefe de Bodega') {
+    if (['en-proceso', 'listo', 'en-entrega'].includes(targetColumnId)) {
+      if (!['admin', 'administrativo', 'vendedor', 'Jefe de Bodega'].includes(userRole)) {
         Swal.fire({
           icon: 'error',
           title: 'Acceso Denegado',
@@ -58,12 +64,12 @@ export default function OrderKanbanView({
       }
     }
 
-    if (targetColumnId === 'completados') {
-      if (userRole !== 'admin' && userRole !== 'administrativo' && userRole !== 'vendedor') {
+    if (['entregado', 'finalizado'].includes(targetColumnId)) {
+      if (!['admin', 'administrativo', 'vendedor'].includes(userRole)) {
         Swal.fire({
           icon: 'error',
           title: 'Acceso Denegado',
-          text: 'No tienes permisos para facturar/completar pedidos.',
+          text: 'No tienes permisos para marcar pedidos como entregados/finalizados.',
           confirmButtonColor: 'var(--primary-color)'
         });
         return;
@@ -73,14 +79,14 @@ export default function OrderKanbanView({
     const currentQuote = quotations.find(q => q.id === quoteId);
     if (!currentQuote || currentQuote.estado === nuevoEstado) return;
 
-    // Confirmar si pasa a completado
-    if (targetColumnId === 'completados') {
+    // Confirmar si pasa a finalizado
+    if (targetColumnId === 'finalizado') {
       Swal.fire({
-        title: '¿Completar Pedido?',
-        text: 'Esto marcará el pedido como facturado/entregado de forma definitiva.',
+        title: '¿Finalizar Pedido?',
+        text: 'Esto marcará el pedido como completado definitivamente.',
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: 'Sí, Completar',
+        confirmButtonText: 'Sí, Finalizar',
         cancelButtonText: 'Cancelar',
         confirmButtonColor: '#10B981'
       }).then((result) => {
@@ -94,7 +100,7 @@ export default function OrderKanbanView({
   };
 
   const updateQuoteState = (quoteId: string, nuevoEstado: string) => {
-    setQuotations(prev => prev.map(q => q.id === quoteId ? { ...q, estado: nuevoEstado } : q));
+    setQuotations(prev => prev.map(q => q.id === quoteId ? { ...q, estado: nuevoEstado, fechaActualizacionKanban: new Date().toISOString() } : q));
     
     publishEvent(
       'QUOTE_STATUS_CHANGED',
@@ -116,7 +122,36 @@ export default function OrderKanbanView({
 
       <div style={{ display: 'flex', gap: '20px', flex: 1, overflowX: 'auto', paddingBottom: '16px' }}>
         {columns.map(column => {
-          const columnQuotes = quotations.filter(q => column.states.includes(q.estado));
+          // Lógica de limpieza para finalizados (6:00 am del día actual)
+          const now = new Date();
+          const cutoffTime = new Date(now);
+          cutoffTime.setHours(6, 0, 0, 0);
+          if (now.getHours() < 6) {
+            cutoffTime.setDate(cutoffTime.getDate() - 1);
+          }
+
+          const columnQuotes = quotations.filter(q => {
+            if (!column.states.includes(q.estado)) return false;
+            
+            // Si es un estado finalizado, ocultarlo si fue modificado antes del cutoff
+            if (['Sold', 'Finalizado'].includes(q.estado)) {
+              const updateTimeStr = q.fechaActualizacionKanban || q.fecha;
+              // Si no podemos parsear la fecha, asumimos que es vieja
+              if (!updateTimeStr) return false;
+              
+              const updateTime = new Date(updateTimeStr);
+              // Validar si la fecha es inválida (por formato DD/MM/YYYY)
+              if (isNaN(updateTime.getTime())) {
+                // Intento simple de parsear DD/MM/YYYY o usar fecha actual como fallback
+                // En un caso real, esto dependerá del formato guardado en q.fecha
+                return true; 
+              }
+              if (updateTime < cutoffTime) {
+                return false; // Se oculta porque ya pasó de las 6am del nuevo día
+              }
+            }
+            return true;
+          });
 
           return (
             <div
@@ -154,13 +189,14 @@ export default function OrderKanbanView({
                       key={quote.id}
                       draggable
                       onDragStart={(e) => handleDragStart(e, quote.id)}
+                      onClick={() => onEditOrder(quote)}
                       style={{
                         backgroundColor: 'white',
                         padding: '16px',
                         borderRadius: '8px',
                         boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
                         border: '1px solid #E2E8F0',
-                        cursor: 'grab',
+                        cursor: 'pointer',
                         display: 'flex',
                         flexDirection: 'column',
                         gap: '8px',

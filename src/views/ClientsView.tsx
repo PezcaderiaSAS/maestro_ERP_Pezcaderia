@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Cliente, Venta, InvoiceAR, generateId } from '../App.tsx';
-import { Users, Search, Save, Edit2, Phone, Mail, FileText, Wallet, PlusCircle } from 'lucide-react';
+import { Cliente, Venta, generateId, toTitleCase } from '../App.tsx';
+import { InvoiceAR } from './ARView.tsx';
+import { Users, Search, Save, FileText, Wallet, PlusCircle } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 interface ClientsViewProps {
@@ -54,16 +55,16 @@ export default function ClientsView({
     if (selectedClientId && clientes.some(c => c.id === selectedClientId)) {
       setClientes(prev => prev.map(c => c.id === selectedClientId ? {
         ...c,
-        nombre: clienteForm.nombre.toUpperCase(),
+        nombre: toTitleCase(clienteForm.nombre),
         identificacion: clienteForm.identificacion,
         tipoIdentificacion: clienteForm.tipoIdentificacion,
         tipoPersona: clienteForm.tipoPersona,
-        direccion: clienteForm.direccion,
+        direccion: toTitleCase(clienteForm.direccion),
         telefono: clienteForm.telefono,
         email: clienteForm.email,
-        ciudad: clienteForm.ciudad,
+        ciudad: toTitleCase(clienteForm.ciudad),
         tipoPrecio: clienteForm.tipoPrecio,
-        encargadoCompras: clienteForm.encargadoCompras,
+        encargadoCompras: toTitleCase(clienteForm.encargadoCompras),
         cupoCredito: clienteForm.cupoCredito
       } : c));
       Swal.fire({ icon: 'success', title: 'Cliente actualizado', text: 'Los datos del cliente han sido guardados.', timer: 1500, showConfirmButton: false });
@@ -74,16 +75,16 @@ export default function ClientsView({
       }
       const nuevo: Cliente = {
         id: generateId('c'),
-        nombre: clienteForm.nombre.toUpperCase(),
+        nombre: toTitleCase(clienteForm.nombre),
         identificacion: clienteForm.identificacion,
         tipoIdentificacion: clienteForm.tipoIdentificacion,
         tipoPersona: clienteForm.tipoPersona,
-        direccion: clienteForm.direccion,
+        direccion: toTitleCase(clienteForm.direccion),
         telefono: clienteForm.telefono,
         email: clienteForm.email,
-        ciudad: clienteForm.ciudad,
+        ciudad: toTitleCase(clienteForm.ciudad),
         tipoPrecio: clienteForm.tipoPrecio,
-        encargadoCompras: clienteForm.encargadoCompras,
+        encargadoCompras: toTitleCase(clienteForm.encargadoCompras),
         cupoCredito: clienteForm.cupoCredito,
         activo: true
       };
@@ -237,15 +238,18 @@ export default function ClientsView({
               )}
             </div>
 
-            <form onSubmit={handleSaveCliente} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <form onSubmit={handleSaveCliente} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              
+              <div style={{ padding: '16px', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', color: '#0F172A', borderBottom: '1px solid #CBD5E1', paddingBottom: '8px' }}>Información Básica</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label">Nombre o Razón Social *</label>
+                    <input type="text" className="form-control" placeholder="Ej: Restaurante del Mar" value={clienteForm.nombre} onChange={e => setClienteForm({ ...clienteForm, nombre: e.target.value })} />
+                  </div>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label className="form-label">Tipo Identificación *</label>
-                    <select
-                      className="form-control"
-                      value={clienteForm.tipoIdentificacion}
-                      onChange={e => setClienteForm({ ...clienteForm, tipoIdentificacion: e.target.value as any })}
-                    >
+                    <select className="form-control" value={clienteForm.tipoIdentificacion} onChange={e => setClienteForm({ ...clienteForm, tipoIdentificacion: e.target.value as any })}>
                       <option value="NIT">NIT</option>
                       <option value="CC">Cédula</option>
                       <option value="CE">Cédula Extranjería</option>
@@ -253,35 +257,43 @@ export default function ClientsView({
                   </div>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label className="form-label">Número Identificación *</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Ej: 900123456-1"
-                      value={clienteForm.identificacion}
-                      onChange={e => setClienteForm({ ...clienteForm, identificacion: e.target.value })}
-                    />
+                    <input type="text" className="form-control" placeholder="Ej: 900123456-1" value={clienteForm.identificacion} onChange={e => setClienteForm({ ...clienteForm, identificacion: e.target.value })} />
                   </div>
                 </div>
+              </div>
 
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label">Nombre o Razón Social *</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Ej: Restaurante del Mar"
-                    value={clienteForm.nombre}
-                    onChange={e => setClienteForm({ ...clienteForm, nombre: e.target.value })}
-                  />
+              <div style={{ padding: '16px', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', color: '#0F172A', borderBottom: '1px solid #CBD5E1', paddingBottom: '8px' }}>Contacto y Ubicación</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label">Celular / Teléfono</label>
+                    <input type="text" className="form-control" value={clienteForm.telefono} onChange={e => setClienteForm({ ...clienteForm, telefono: e.target.value })} />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label">Correo Electrónico</label>
+                    <input type="email" className="form-control" placeholder="compras@cliente.com" value={clienteForm.email} onChange={e => setClienteForm({ ...clienteForm, email: e.target.value })} />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label">Dirección</label>
+                    <input type="text" className="form-control" value={clienteForm.direccion} onChange={e => setClienteForm({ ...clienteForm, direccion: e.target.value })} />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label">Ciudad</label>
+                    <input type="text" className="form-control" value={clienteForm.ciudad} onChange={e => setClienteForm({ ...clienteForm, ciudad: e.target.value })} />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label">Encargado de Compras</label>
+                    <input type="text" className="form-control" placeholder="Nombre del contacto" value={clienteForm.encargadoCompras} onChange={e => setClienteForm({ ...clienteForm, encargadoCompras: e.target.value })} />
+                  </div>
                 </div>
+              </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: 0 }}>
+              <div style={{ padding: '16px', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', color: '#0F172A', borderBottom: '1px solid #CBD5E1', paddingBottom: '8px' }}>Crédito y Facturación</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label className="form-label">Tipo Precio POS *</label>
-                    <select
-                      className="form-control"
-                      value={clienteForm.tipoPrecio}
-                      onChange={e => setClienteForm({ ...clienteForm, tipoPrecio: e.target.value as any })}
-                    >
+                    <select className="form-control" value={clienteForm.tipoPrecio} onChange={e => setClienteForm({ ...clienteForm, tipoPrecio: e.target.value as any })}>
                       <option value="POS">POS (Público)</option>
                       <option value="RESTAURANTE">Restaurante</option>
                       <option value="MAYORISTA">Mayorista</option>
@@ -289,64 +301,17 @@ export default function ClientsView({
                   </div>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label className="form-label">Cupo Crédito ($) *</label>
-                    <input
-                      type="number"
-                      className="form-control"
-                      placeholder="0"
-                      value={clienteForm.cupoCredito || ''}
-                      onChange={e => setClienteForm({ ...clienteForm, cupoCredito: parseInt(e.target.value) || 0 })}
-                    />
+                    <input type="number" className="form-control" placeholder="0" value={clienteForm.cupoCredito || ''} onChange={e => setClienteForm({ ...clienteForm, cupoCredito: parseInt(e.target.value) || 0 })} />
                   </div>
                 </div>
+              </div>
 
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label">Dirección</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={clienteForm.direccion}
-                    onChange={e => setClienteForm({ ...clienteForm, direccion: e.target.value })}
-                  />
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                  <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label className="form-label">Celular / Teléfono</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={clienteForm.telefono}
-                      onChange={e => setClienteForm({ ...clienteForm, telefono: e.target.value })}
-                    />
-                  </div>
-                  <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label className="form-label">Ciudad</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={clienteForm.ciudad}
-                      onChange={e => setClienteForm({ ...clienteForm, ciudad: e.target.value })}
-                    />
-                  </div>
-                </div>
-
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label">Correo Electrónico</label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    placeholder="compras@cliente.com"
-                    value={clienteForm.email}
-                    onChange={e => setClienteForm({ ...clienteForm, email: e.target.value })}
-                  />
-                </div>
-
-                <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
-                  <button type="submit" className="btn-primary" style={{ border: 'none', flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '12px', backgroundColor: 'var(--primary-color)', color: 'white', borderRadius: '6px', cursor: 'pointer' }}>
-                    <Save size={16} />
-                    <span>{selectedClientId ? 'Guardar Cambios' : 'Registrar Cliente'}</span>
-                  </button>
-                </div>
+              <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                <button type="submit" className="btn-primary" style={{ border: 'none', flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '12px', backgroundColor: 'var(--primary-color)', color: 'white', borderRadius: '6px', cursor: 'pointer' }}>
+                  <Save size={16} />
+                  <span>{selectedClientId ? 'Guardar Cambios' : 'Registrar Cliente'}</span>
+                </button>
+              </div>
             </form>
           </div>
 

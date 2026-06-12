@@ -105,9 +105,9 @@ export default function PricingView({
   const [editingItemIndex, setEditingItemIndex] = useState<number | null>(null);
   const [currentProductLine, setCurrentProductLine] = useState<{
     product: Product | null;
-    cantidad: number;
-    descuento: number;
-    precioOverride: number;
+    cantidad: number | string;
+    descuento: number | string;
+    precioOverride: number | string;
     detalle: string;
     listo: boolean;
     esDevolucion: boolean;
@@ -124,6 +124,7 @@ export default function PricingView({
   });
   const [quoteDiscountGlobal, setQuoteDiscountGlobal] = useState(0); // Porcentaje
   const [quoteSearchTerm, setQuoteSearchTerm] = useState('');
+  const [editingQuoteId, setEditingQuoteId] = useState<string | null>(null);
 
   // --- ESTADO: LOGÍSTICA DE ENTREGA B2B ---
   const [logisticaTipo, setLogisticaTipo] = useState<'EN_RUTA' | 'INMEDIATA' | 'RECOGEN'>('EN_RUTA');
@@ -141,7 +142,7 @@ export default function PricingView({
   const [devItems, setDevItems] = useState<{ sku: string; nombre: string; cantidad: number; precio: number; motivo: string }[]>([]);
   
   const [devSelProductSku, setDevSelProductSku] = useState('');
-  const [devSelProductCant, setDevSelProductCant] = useState(1);
+  const [devSelProductCant, setDevSelProductCant] = useState<number | string>(1);
   const [devSelProductMotivo, setDevSelProductMotivo] = useState('MAL_ESTADO');
 
   // Obtener categorías únicas
@@ -348,7 +349,8 @@ export default function PricingView({
     
     // Estado automático por rol
     let estadoCalculado = 'Creado';
-    if (userRole === 'Administrador' || userRole === 'Jefe de Bodega') {
+    const normalizedRole = (userRole || '').trim().toLowerCase();
+    if (normalizedRole === 'admin' || normalizedRole === 'bodega') {
         estadoCalculado = 'Listo';
     } else {
         estadoCalculado = 'Creado';
@@ -356,52 +358,103 @@ export default function PricingView({
 
     const origenFinal = origenPedido === 'OTRO' ? nuevoOrigen : origenPedido;
 
-    const newQuote = {
-      id: generateId('q'),
-      no: randomNo,
-      clienteId: clienteRegistrado?.id || null,  // FK formal (DEF-02 corregido)
-      clientName,
-      clientIdent,
-      clientType,
-      origenPedido: origenFinal,
-      facturaElectronica,
-      formaPago,
-      items: quoteItems.map(i => ({
-        sku: i.product.sku,
-        nombre: i.product.nombre,
-        cantidad: i.cantidad,
-        precio: getQuoteItemUnitPrice(i),
-        descuento: i.descuento,
-        detalle: i.detalle,
-        listo: i.listo,
-        esDevolucion: i.esDevolucion,
-        devolucionId: i.devolucionId
-      })),
-      subtotal: quoteSubtotal,
-      descuentos: quoteLineDiscountsTotal + quoteGlobalDiscountValue,
-      total: Math.round(quoteTotalFinal),
-      estado: estadoCalculado,
-      observaciones: observacionesPedido,
-      fecha: new Date().toLocaleDateString('es-CO'),
-      vencimiento: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('es-CO'),
-      logistica: {
-        tipoEntrega: logisticaTipo,
-        direccionEntrega: logisticaTipo === 'RECOGEN' ? 'Retira en Punto de Venta' : logisticaDireccion,
-        fechaEntrega: logisticaFecha,
-        jornada: logisticaJornada,
-        conductorId: logisticaConductorId,
-        conductorNombre: conductores.find(c => c.id === logisticaConductorId)?.nombre || ''
-      }
-    };
+    if (editingQuoteId) {
+      setQuotations(prev => prev.map(q => {
+        if (q.id === editingQuoteId) {
+          publishEvent(
+            'QUOTE_STATUS_CHANGED',
+            userRole,
+            `Pedido ${q.no} editado y actualizado por ${userRole}`,
+            { quoteId: q.id, total: Math.round(quoteTotalFinal) }
+          );
+          return {
+            ...q,
+            clienteId: clienteRegistrado?.id || null,
+            clientName,
+            clientIdent,
+            clientType,
+            origenPedido: origenFinal,
+            facturaElectronica,
+            formaPago,
+            descuentoGlobal: quoteDiscountGlobal,
+            items: quoteItems.map(i => ({
+              sku: i.product.sku,
+              nombre: i.product.nombre,
+              cantidad: i.cantidad,
+              precio: getQuoteItemUnitPrice(i),
+              descuento: i.descuento,
+              detalle: i.detalle || '',
+              listo: i.listo || false,
+              esDevolucion: i.esDevolucion || false,
+              devolucionId: i.devolucionId || '',
+              cantidad_real: (q.items.find((x: any) => x.sku === i.product.sku) as any)?.cantidad_real
+            })),
+            subtotal: quoteSubtotal,
+            descuentos: quoteLineDiscountsTotal + quoteGlobalDiscountValue,
+            total: Math.round(quoteTotalFinal),
+            observaciones: observacionesPedido,
+            logistica: {
+              tipoEntrega: logisticaTipo,
+              direccionEntrega: logisticaTipo === 'RECOGEN' ? 'Retira en Punto de Venta' : logisticaDireccion,
+              fechaEntrega: logisticaFecha,
+              jornada: logisticaJornada,
+              conductorId: logisticaConductorId,
+              conductorNombre: conductores.find(c => c.id === logisticaConductorId)?.nombre || ''
+            }
+          };
+        }
+        return q;
+      }));
+      setEditingQuoteId(null);
+    } else {
+      const newQuote = {
+        id: generateId('q'),
+        no: randomNo,
+        clienteId: clienteRegistrado?.id || null,  // FK formal (DEF-02 corregido)
+        clientName,
+        clientIdent,
+        clientType,
+        origenPedido: origenFinal,
+        facturaElectronica,
+        formaPago,
+        descuentoGlobal: quoteDiscountGlobal,
+        items: quoteItems.map(i => ({
+          sku: i.product.sku,
+          nombre: i.product.nombre,
+          cantidad: i.cantidad,
+          precio: getQuoteItemUnitPrice(i),
+          descuento: i.descuento,
+          detalle: i.detalle || '',
+          listo: i.listo || false,
+          esDevolucion: i.esDevolucion || false,
+          devolucionId: i.devolucionId || ''
+        })),
+        subtotal: quoteSubtotal,
+        descuentos: quoteLineDiscountsTotal + quoteGlobalDiscountValue,
+        total: Math.round(quoteTotalFinal),
+        estado: estadoCalculado,
+        observaciones: observacionesPedido,
+        fecha: new Date().toLocaleDateString('es-CO'),
+        vencimiento: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('es-CO'),
+        logistica: {
+          tipoEntrega: logisticaTipo,
+          direccionEntrega: logisticaTipo === 'RECOGEN' ? 'Retira en Punto de Venta' : logisticaDireccion,
+          fechaEntrega: logisticaFecha,
+          jornada: logisticaJornada,
+          conductorId: logisticaConductorId,
+          conductorNombre: conductores.find(c => c.id === logisticaConductorId)?.nombre || ''
+        }
+      };
 
-    setQuotations(prev => [newQuote, ...prev]);
+      setQuotations(prev => [newQuote, ...prev]);
 
-    publishEvent(
-      'QUOTE_STATUS_CHANGED',
-      userRole,
-      `Nuevo pedido ${randomNo} creado en estado ${estadoCalculado} para ${clientName}`,
-      { quoteId: newQuote.id, total: newQuote.total }
-    );
+      publishEvent(
+        'QUOTE_STATUS_CHANGED',
+        userRole,
+        `Nuevo pedido ${randomNo} creado en estado ${estadoCalculado} para ${clientName}`,
+        { quoteId: newQuote.id, total: newQuote.total }
+      );
+    }
 
     // Reset form wizard
     setWizardStep(1);
@@ -423,19 +476,120 @@ export default function PricingView({
 
     Swal.fire({
       icon: 'success',
-      title: 'Pedido Creado',
-      text: `Pedido ${randomNo} registrado como ${estadoCalculado}.`,
+      title: editingQuoteId ? 'Pedido Actualizado' : 'Pedido Creado',
+      text: editingQuoteId ? 'Los cambios han sido guardados.' : `Pedido ${randomNo} registrado como ${estadoCalculado}.`,
       confirmButtonColor: 'var(--primary-color)'
     });
   };
 
+  const handleEditQuote = (quote: any) => {
+    if (quote.estado === 'Sold' || quote.estado === 'Facturado') {
+      Swal.fire({
+        icon: 'error',
+        title: 'Acceso Denegado',
+        text: 'No se puede editar un pedido que ya ha sido facturado o vendido.',
+        confirmButtonColor: 'var(--primary-color)'
+      });
+      return;
+    }
+
+    setEditingQuoteId(quote.id);
+    
+    // Load quote info into cotizador state
+    setClientName(quote.clientName || '');
+    setClientIdent(quote.clientIdent || '');
+    setClientType(quote.clientType || 'POS');
+    setOrigenPedido(quote.origenPedido || 'WHATSAPP');
+    setFacturaElectronica(quote.facturaElectronica || false);
+    setFormaPago(quote.formaPago || 'CREDITO');
+    setQuoteDiscountGlobal(quote.descuentoGlobal || 0);
+
+    // Logistics
+    setLogisticaTipo(quote.logistica?.tipoEntrega || 'EN_RUTA');
+    setLogisticaDireccion(quote.logistica?.direccionEntrega || '');
+    setLogisticaFecha(quote.logistica?.fechaEntrega || new Date().toISOString().split('T')[0]);
+    setLogisticaJornada(quote.logistica?.jornada || 'MANANA');
+    setLogisticaConductorId(quote.logistica?.conductorId || '');
+    setObservacionesPedido(quote.observaciones || '');
+
+    // Map items back to catalog/products
+    const loadedItems = (quote.items || []).map((item: any) => {
+      const prod = products.find(p => p.sku === item.sku);
+      return {
+        product: prod || {
+          id: item.sku,
+          sku: item.sku,
+          nombre: item.nombre,
+          precio_base: item.precio,
+          precio_venta_pos: item.precio,
+          precio_venta_restaurante: item.precio,
+          precio_venta_mayorista: item.precio,
+          categoria: 'Otros',
+          activo: true,
+          buffer_seguridad: 0,
+          imagen: ''
+        },
+        cantidad: item.cantidad,
+        descuento: item.descuento || 0,
+        precioOverride: item.precio,
+        detalle: item.detalle || '',
+        listo: item.listo || false,
+        esDevolucion: item.esDevolucion || false,
+        devolucionId: item.devolucionId || ''
+      };
+    });
+
+    setQuoteItems(loadedItems);
+    setWizardStep(1); // Go to step 1
+    setQuoteSubTab('create'); // Switch to wizard sub-tab
+  };
+
   const handleTransitionQuote = (quoteId: string, nuevoEstado: 'Sent' | 'Approved' | 'Pausado' | 'Listo' | 'Sold' | 'Expired') => {
+    const role = (userRole || '').trim().toLowerCase();
+
+    // Validar permisos por estado destino
     if (nuevoEstado === 'Approved') {
-      if (userRole !== 'admin' && userRole !== 'administrativo' && userRole !== 'vendedor') {
+      if (role !== 'admin' && role !== 'administrativo' && role !== 'vendedor') {
         Swal.fire({
           icon: 'error',
           title: 'Acceso Denegado',
-          text: 'Solo roles de Super Administrador, Administrativo o Vendedor pueden aprobar cotizaciones.',
+          text: 'Solo los roles de Super Administrador, Administrativo o Vendedor pueden aprobar pedidos.',
+          confirmButtonColor: 'var(--primary-color)'
+        });
+        return;
+      }
+    }
+
+    if (nuevoEstado === 'Sold') {
+      if (role !== 'admin' && role !== 'administrativo' && role !== 'vendedor') {
+        Swal.fire({
+          icon: 'error',
+          title: 'Acceso Denegado',
+          text: 'Solo los roles de Super Administrador, Administrativo o Vendedor pueden facturar y completar ventas.',
+          confirmButtonColor: 'var(--primary-color)'
+        });
+        return;
+      }
+    }
+
+    if (nuevoEstado === 'Listo' || nuevoEstado === 'Pausado') {
+      if (role !== 'admin' && role !== 'bodega' && role !== 'administrativo') {
+        Swal.fire({
+          icon: 'error',
+          title: 'Acceso Denegado',
+          text: 'Solo los roles de Super Administrador, Bodega o Administrativo pueden gestionar el alistamiento de pedidos.',
+          confirmButtonColor: 'var(--primary-color)'
+        });
+        return;
+      }
+    }
+
+    if (nuevoEstado === 'Sent' || nuevoEstado === 'Expired') {
+      if (role !== 'admin' && role !== 'vendedor' && role !== 'administrativo') {
+        Swal.fire({
+          icon: 'error',
+          title: 'Acceso Denegado',
+          text: 'Solo los roles de Super Administrador, Vendedor o Administrativo pueden modificar la vigencia y envío del pedido.',
           confirmButtonColor: 'var(--primary-color)'
         });
         return;
@@ -920,7 +1074,7 @@ export default function PricingView({
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'white', padding: '16px 24px', borderRadius: '12px', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
                 <h3 style={{ fontSize: '18px', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <ShoppingCart size={20} color="var(--primary-color)" />
-                  Nuevo Pedido B2B
+                  {editingQuoteId ? `Editar Pedido B2B (${editingQuoteId.slice(-6).toUpperCase()})` : 'Nuevo Pedido B2B'}
                 </h3>
                 
                 <div style={{ display: 'flex', gap: '12px' }}>
@@ -949,6 +1103,47 @@ export default function PricingView({
                   </button>
                 </div>
               </div>
+
+              {editingQuoteId && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#FEF3C7', border: '1px solid #F59E0B', padding: '12px 16px', borderRadius: '10px', marginTop: '-12px' }}>
+                  <span style={{ fontSize: '13px', fontWeight: 700, color: '#D97706' }}>
+                    ⚠️ EDITANDO PEDIDO #{editingQuoteId.slice(-6).toUpperCase()} - Modifique los datos y haga clic en 'Guardar Pedido' al finalizar.
+                  </span>
+                  <button
+                    onClick={() => {
+                      setWizardStep(1);
+                      setClientName('');
+                      setClientIdent('');
+                      setOrigenPedido('WHATSAPP');
+                      setNuevoOrigen('');
+                      setFacturaElectronica(false);
+                      setFormaPago('CREDITO');
+                      setQuoteItems([]);
+                      setQuoteDiscountGlobal(0);
+                      setLogisticaTipo('EN_RUTA');
+                      setLogisticaDireccion('');
+                      setLogisticaFecha(new Date().toISOString().split('T')[0]);
+                      setLogisticaJornada('MANANA');
+                      setLogisticaConductorId('');
+                      setObservacionesPedido('');
+                      setEditingQuoteId(null);
+                      setQuoteSubTab('history');
+                    }}
+                    style={{
+                      padding: '6px 12px',
+                      backgroundColor: '#D97706',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Cancelar Edición
+                  </button>
+                </div>
+              )}
 
               <div className="hr-table-card" style={{ padding: '24px', minHeight: '400px' }}>
                 
@@ -1461,19 +1656,20 @@ export default function PricingView({
                               <input
                                 type="number"
                                 min="0.1"
-                                step="0.1"
+                                step="any"
                                 className="form-control"
                                 value={currentProductLine.cantidad}
-                                onChange={e => setCurrentProductLine(prev => ({ ...prev, cantidad: parseFloat(e.target.value) || 1 }))}
+                                onChange={e => setCurrentProductLine(prev => ({ ...prev, cantidad: e.target.value }))}
                               />
                             </div>
                             <div className="form-group" style={{ marginBottom: 0 }}>
                               <label className="form-label">Precio Venta (Unit)</label>
                               <input
                                 type="number"
+                                step="any"
                                 className="form-control"
                                 value={currentProductLine.precioOverride}
-                                onChange={e => setCurrentProductLine(prev => ({ ...prev, precioOverride: parseInt(e.target.value) || 0 }))}
+                                onChange={e => setCurrentProductLine(prev => ({ ...prev, precioOverride: e.target.value }))}
                               />
                             </div>
                           </div>
@@ -1499,9 +1695,10 @@ export default function PricingView({
                                 type="number"
                                 min="0"
                                 max="100"
+                                step="any"
                                 className="form-control"
                                 value={currentProductLine.descuento}
-                                onChange={e => setCurrentProductLine(prev => ({ ...prev, descuento: parseInt(e.target.value) || 0 }))}
+                                onChange={e => setCurrentProductLine(prev => ({ ...prev, descuento: e.target.value }))}
                               />
                             </div>
                             
@@ -1549,7 +1746,7 @@ export default function PricingView({
                           <div style={{ marginTop: 'auto', padding: '16px', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '18px', fontWeight: 800, color: 'var(--primary-color)' }}>
                               <span>Total Línea:</span>
-                              <span>${Math.round(currentProductLine.cantidad * currentProductLine.precioOverride * (1 - currentProductLine.descuento / 100)).toLocaleString('es-CO')}</span>
+                              <span>${Math.round(Number(currentProductLine.cantidad || 0) * Number(currentProductLine.precioOverride || 0) * (1 - Number(currentProductLine.descuento || 0) / 100)).toLocaleString('es-CO')}</span>
                             </div>
                           </div>
                         </>
@@ -1574,9 +1771,9 @@ export default function PricingView({
                             const newItems = [...prev];
                             const itemToSave = {
                               product: currentProductLine.product!,
-                              cantidad: currentProductLine.cantidad,
-                              descuento: currentProductLine.descuento,
-                              precioOverride: currentProductLine.precioOverride,
+                              cantidad: Number(currentProductLine.cantidad) || 0,
+                              descuento: Number(currentProductLine.descuento) || 0,
+                              precioOverride: Number(currentProductLine.precioOverride) || 0,
                               detalle: currentProductLine.detalle,
                               listo: currentProductLine.listo,
                               esDevolucion: currentProductLine.esDevolucion,
@@ -1634,7 +1831,9 @@ export default function PricingView({
                         let statusBg = '#F1F5F9';
                         if (q.estado === 'Sent') { statusColor = 'var(--primary-color)'; statusBg = 'var(--primary-light)'; }
                         else if (q.estado === 'Approved') { statusColor = '#10B981'; statusBg = '#D1FAE5'; }
-                        else if (q.estado === 'Sold') { statusColor = '#0EA5E9'; statusBg = '#E0F2FE'; }
+                        else if (q.estado === 'Pausado') { statusColor = '#F59E0B'; statusBg = '#FEF3C7'; }
+                        else if (q.estado === 'Listo') { statusColor = '#8B5CF6'; statusBg = '#EDE9FE'; }
+                        else if (q.estado === 'Sold' || q.estado === 'Facturado') { statusColor = '#0EA5E9'; statusBg = '#E0F2FE'; }
                         else if (q.estado === 'Expired') { statusColor = '#EF4444'; statusBg = '#FEE2E2'; }
 
                         return (
@@ -1671,6 +1870,35 @@ export default function PricingView({
                                   Ver PDF
                                 </button>
 
+                                {q.estado !== 'Sold' && q.estado !== 'Facturado' && (
+                                  <button
+                                    className="btn-secondary"
+                                    style={{ padding: '6px 10px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px', borderColor: '#F59E0B', color: '#D97706' }}
+                                    onClick={() => handleEditQuote(q)}
+                                  >
+                                    Editar
+                                  </button>
+                                )}
+
+                                {q.estado === 'Creado' && (
+                                  <>
+                                    <button
+                                      className="btn-primary"
+                                      style={{ padding: '6px 10px', fontSize: '11px', border: 'none', backgroundColor: 'var(--primary-color)', color: 'white' }}
+                                      onClick={() => handleTransitionQuote(q.id, 'Sent')}
+                                    >
+                                      Enviar Cliente
+                                    </button>
+                                    <button
+                                      className="btn-primary"
+                                      style={{ padding: '6px 10px', fontSize: '11px', border: 'none', backgroundColor: '#10B981', color: 'white' }}
+                                      onClick={() => handleTransitionQuote(q.id, 'Approved')}
+                                    >
+                                      Aprobar
+                                    </button>
+                                  </>
+                                )}
+
                                 {q.estado === 'Draft' && (
                                   <button
                                     className="btn-primary"
@@ -1701,6 +1929,44 @@ export default function PricingView({
                                 )}
 
                                 {q.estado === 'Approved' && (
+                                  <>
+                                    <button
+                                      className="btn-primary"
+                                      style={{ padding: '6px 10px', fontSize: '11px', border: 'none', backgroundColor: '#F59E0B', color: 'white' }}
+                                      onClick={() => handleTransitionQuote(q.id, 'Pausado')}
+                                    >
+                                      Pausar
+                                    </button>
+                                    <button
+                                      className="btn-primary"
+                                      style={{ padding: '6px 10px', fontSize: '11px', border: 'none', backgroundColor: '#8B5CF6', color: 'white' }}
+                                      onClick={() => handleTransitionQuote(q.id, 'Listo')}
+                                    >
+                                      Listo Despacho
+                                    </button>
+                                  </>
+                                )}
+
+                                {q.estado === 'Pausado' && (
+                                  <>
+                                    <button
+                                      className="btn-primary"
+                                      style={{ padding: '6px 10px', fontSize: '11px', border: 'none', backgroundColor: '#8B5CF6', color: 'white' }}
+                                      onClick={() => handleTransitionQuote(q.id, 'Listo')}
+                                    >
+                                      Aprobar Alistamiento (Listo)
+                                    </button>
+                                    <button
+                                      className="btn-secondary"
+                                      style={{ padding: '6px 10px', fontSize: '11px', color: '#3B82F6', borderColor: '#3B82F6' }}
+                                      onClick={() => handleTransitionQuote(q.id, 'Approved')}
+                                    >
+                                      Re-Aprobar
+                                    </button>
+                                  </>
+                                )}
+
+                                {q.estado === 'Listo' && (
                                   <button
                                     className="btn-primary"
                                     style={{ padding: '6px 10px', fontSize: '11px', border: 'none', backgroundColor: '#0EA5E9', color: 'white' }}
@@ -1825,10 +2091,11 @@ export default function PricingView({
                           <div className="form-group" style={{ marginBottom: 0, flex: 1 }}>
                             <input
                               type="number"
+                              step="any"
                               className="form-control"
                               placeholder="Cant (kg)"
                               value={devSelProductCant}
-                              onChange={e => setDevSelProductCant(parseFloat(e.target.value) || 1)}
+                              onChange={e => setDevSelProductCant(e.target.value)}
                             />
                           </div>
                           <div className="form-group" style={{ marginBottom: 0, flex: 1.5 }}>
@@ -1866,7 +2133,7 @@ export default function PricingView({
                               setDevItems(prev => [...prev, {
                                 sku: prod.sku,
                                 nombre: prod.nombre,
-                                cantidad: devSelProductCant,
+                                cantidad: Number(devSelProductCant) || 0,
                                 precio: price,
                                 motivo: devSelProductMotivo
                               }]);

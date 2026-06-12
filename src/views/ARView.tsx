@@ -18,6 +18,7 @@ export interface InvoiceAR {
   clienteIdentificacion: string;  // ⚠️ Legado — usar sólo como fallback
   fecha: string;
   fechaVencimiento?: string;
+  observaciones?: string;
   total: number;
   saldo: number;
   pagado: number;
@@ -715,6 +716,18 @@ export default function ARView({
                     <span style={{ color: '#64748B' }}>Fecha de Emisión:</span>
                     <span style={{ color: '#1E293B' }}>{new Date(selectedInvoice.fecha).toLocaleString('es-CO')}</span>
                   </div>
+                  {selectedInvoice.fechaVencimiento && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                      <span style={{ color: '#64748B' }}>Vencimiento:</span>
+                      <span style={{ color: '#EF4444', fontWeight: 600 }}>{new Date(selectedInvoice.fechaVencimiento).toLocaleDateString('es-CO')}</span>
+                    </div>
+                  )}
+                  {selectedInvoice.observaciones && (
+                    <div style={{ display: 'flex', flexDirection: 'column', fontSize: '12px', marginTop: '4px' }}>
+                      <span style={{ color: '#64748B' }}>Observaciones:</span>
+                      <span style={{ color: '#1E293B', fontStyle: 'italic', backgroundColor: '#F1F5F9', padding: '6px', borderRadius: '4px', marginTop: '2px' }}>{selectedInvoice.observaciones}</span>
+                    </div>
+                  )}
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
