@@ -17,9 +17,7 @@ export default function ClientsView({
   clientes,
   setClientes,
   ventas,
-  cartera,
-  publishEvent,
-  userRole
+  cartera
 }: ClientsViewProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'TODOS' | 'ACTIVOS' | 'INACTIVOS'>('TODOS');

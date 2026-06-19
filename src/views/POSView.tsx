@@ -6,6 +6,11 @@ import Swal from 'sweetalert2';
 import { Product, DynamicField, Cliente, generateId, Venta, MovimientoInventario, Conductor, DevolucionPedido, toTitleCase } from '../App.tsx';
 import { InvoiceAR } from './ARView.tsx';
 import OrderKanbanView from './OrderKanbanView.tsx';
+import { usePOSCart } from '../hooks/usePOSCart.ts';
+import { DiscountPanel } from './pos/components/DiscountPanel.tsx';
+import { PaymentPanel } from './pos/components/PaymentPanel.tsx';
+import { BalanzaButton } from './pos/components/BalanzaButton.tsx';
+import { TicketBuilder } from './pos/components/TicketBuilder.tsx';
 
 interface CartItem {
   product: Product;
@@ -83,6 +88,7 @@ export default function POSView({
   const [barcodeInput, setBarcodeInput] = useState('');
   const [drafts, setDrafts] = useState<any[]>([]);
   const [activeDraftId, setActiveDraftId] = useState<string | null>(null);
+  const [ultimoTicket, setUltimoTicket] = useState<{ venta: any; cliente: any } | null>(null);
   
   // B2B Consolidation State
   const [activeSubView, setActiveSubView] = useState<'venta_pos' | 'consolidacion_b2b' | 'canales_digitales' | 'gestion_kanban'>('venta_pos');
@@ -100,10 +106,43 @@ export default function POSView({
   // Categorías calculadas dinámicamente
   const CATEGORIAS = ['TODOS', ...Array.from(new Set(activeProducts.map(p => p.categoria)))];
 
-  const [cart, setCart] = useState<CartItem[]>([]);
   const defaultClient = clientes?.find(c => c.nombre.toUpperCase().includes('CONSUMIDOR FINAL')) || null;
-  const [cliente, setCliente] = useState<Cliente | null>(defaultClient);
-  const [descuentoGlobal, setDescuentoGlobal] = useState(0); // Porcentaje
+  
+  const {
+    lineas: cartLineas,
+    cliente,
+    descuentoGlobalPct: descuentoGlobal,
+    descuentoGlobalValor,
+    totales,
+    agregarProducto,
+    actualizarCantidad,
+    actualizarDescuentoLinea,
+    removerProducto,
+    setCliente,
+    setDescuentoGlobalPct: setDescuentoGlobal,
+    limpiarCarrito,
+    setLineas: setCartLineas
+  } = usePOSCart(defaultClient as any);
+
+  // Mapeo de compatibilidad para el carrito legado
+  const cart = cartLineas.map(linea => {
+    const product = activeProducts.find(p => p.id === linea.productoId) || {
+      id: linea.productoId,
+      sku: linea.sku,
+      nombre: linea.nombre,
+      precio_venta_pos: linea.precioLista,
+      precio_venta_restaurante: linea.precioLista,
+      precio_venta_mayorista: linea.precioLista,
+      unidadMedida: linea.unidad,
+      activo: true,
+      categoria: 'Otros'
+    } as any;
+    return {
+      product,
+      cantidad: linea.cantidad,
+      precioOverride: linea.precioFinal !== linea.precioLista ? linea.precioFinal : undefined
+    };
+  });
 
   const getClienteDeuda = (cId: string) => {
     return cartera
@@ -113,7 +152,6 @@ export default function POSView({
 
   const getProductPrice = (product: Product) => {
     if (cliente) {
-      // CLAVE: usa identificacion (NIT/CC) — campo inmutable, no el nombre
       const clientKey = (cliente.identificacion || '').trim().toLowerCase();
       if (lastClientPrices[clientKey] && lastClientPrices[clientKey][product.sku] !== undefined) {
         return lastClientPrices[clientKey][product.sku];
@@ -129,33 +167,18 @@ export default function POSView({
   };
 
   const handleAddProduct = (product: Product) => {
-    setCart(prevCart => {
-      const exists = prevCart.find(item => item.product.id === product.id);
-      if (exists) {
-        return prevCart.map(item =>
-          item.product.id === product.id ? { ...item, cantidad: Number(item.cantidad) + 1 } : item
-        );
-      }
-      return [...prevCart, { product, cantidad: 1 }];
-    });
+    agregarProducto(product as any, 1);
   };
 
   const handleUpdateQty = (productId: string, delta: number) => {
-    setCart(prevCart =>
-      prevCart
-        .map(item => {
-          if (item.product.id === productId) {
-            const nuevaCantidad = Number(item.cantidad) + delta;
-            return { ...item, cantidad: nuevaCantidad };
-          }
-          return item;
-        })
-        .filter(item => Number(item.cantidad) > 0)
-    );
+    const item = cartLineas.find(l => l.productoId === productId);
+    if (item) {
+      actualizarCantidad(productId, item.cantidad + delta);
+    }
   };
 
   const handleRemoveItem = (productId: string) => {
-    setCart(prevCart => prevCart.filter(item => item.product.id !== productId));
+    removerProducto(productId);
   };
 
   const handleAgregarCliente = async () => {
@@ -518,7 +541,7 @@ export default function POSView({
       false
     );
     
-    setCart([]);
+    limpiarCarrito();
     setCliente(defaultClient);
     setDescuentoGlobal(0);
     
@@ -895,6 +918,22 @@ export default function POSView({
           actor: userRole
         };
         setVentas(prev => [newVenta, ...prev]);
+        setUltimoTicket({
+          venta: {
+            id: newVenta.id,
+            fecha: newVenta.fecha,
+            items: cartLineas,
+            subtotal: newVenta.subtotal,
+            descuento: newVenta.descuento,
+            total: newVenta.total,
+            metodoPago: newVenta.metodoPago,
+            montoPagadoEfectivo: newVenta.montoPagadoEfectivo,
+            cambioEntregado: newVenta.cambioEntregado,
+            montoPagadoCredito: newVenta.montoPagadoCredito,
+            actor: newVenta.actor
+          },
+          cliente: cliente ? { nombre: cliente.nombre, identificacion: cliente.identificacion } : null
+        });
 
         // F2: Registrar Movimiento de Inventario de tipo SALIDA_VENTA para cada item
         const newMovements: MovimientoInventario[] = cart.map(item => {
@@ -1009,7 +1048,7 @@ export default function POSView({
           setActiveDraftId(null);
         }
 
-        setCart([]);
+        limpiarCarrito();
         setCliente(defaultClient);
         setDescuentoGlobal(0);
       }
@@ -1661,7 +1700,36 @@ export default function POSView({
 
       {/* Carrito de Compras / Factura */}
       <div className="pos-sidebar-cart">
-        <div className="pos-cart-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        {ultimoTicket ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px', height: '100%', overflowY: 'auto' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: 0, textAlign: 'center' }}>Venta Realizada con Éxito</h3>
+            <TicketBuilder
+              venta={ultimoTicket.venta}
+              cliente={ultimoTicket.cliente}
+            />
+            <button
+              className="btn-primary"
+              onClick={() => setUltimoTicket(null)}
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: '10px',
+                fontWeight: 700,
+                backgroundColor: 'var(--primary-color)',
+                color: 'white',
+                border: 'none',
+                cursor: 'pointer',
+                textAlign: 'center',
+                boxShadow: '0 4px 12px rgba(14, 116, 144, 0.2)',
+                marginTop: '8px'
+              }}
+            >
+              Nueva Venta
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="pos-cart-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           {cliente ? (
             <div className="add-client-btn" onClick={handleAgregarCliente}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1711,11 +1779,28 @@ export default function POSView({
                      const selectBtn = document.getElementById(`draft-select-${d.id}`);
                      if (selectBtn) {
                        selectBtn.onclick = () => {
-                         setCart(d.cart);
-                         setCliente(d.cliente);
-                         setDescuentoGlobal(d.descuentoGlobal);
-                         setActiveDraftId(d.id);
-                         Swal.close();
+                          const mappedCart = d.cart.map((item: any) => {
+                            if (item.productoId) return item;
+                            const prod = item.product;
+                            const precio = item.precioOverride !== undefined ? item.precioOverride : getProductPrice(prod);
+                            return {
+                              productoId: prod.id,
+                              sku: prod.sku,
+                              nombre: prod.nombre,
+                              cantidad: Number(item.cantidad),
+                              unidad: prod.unidadMedida || 'KG',
+                              precioLista: getProductPrice(prod),
+                              descuentoPct: item.precioOverride !== undefined ? Math.round(((getProductPrice(prod) - item.precioOverride) / getProductPrice(prod)) * 100) : 0,
+                              precioFinal: precio,
+                              totalLinea: Number(item.cantidad) * precio,
+                              esPesoManual: false
+                            };
+                          });
+                          setCartLineas(mappedCart);
+                          setCliente(d.cliente);
+                          setDescuentoGlobal(d.descuentoGlobal);
+                          setActiveDraftId(d.id);
+                          Swal.close();
                        };
                      }
                      const deleteBtn = document.getElementById(`draft-delete-${d.id}`);
@@ -1829,7 +1914,7 @@ export default function POSView({
                         {item.precioOverride !== undefined && (
                           <button
                             onClick={() => {
-                              setCart(prev => prev.map(i => i.product.id === item.product.id ? { ...i, precioOverride: undefined } : i));
+                              actualizarDescuentoLinea(item.product.id, 0);
                             }}
                             style={{
                               fontSize: '10px',
@@ -1847,7 +1932,11 @@ export default function POSView({
                       </div>
                     )}
                   </div>
-                  <div className="cart-item-controls" style={{ alignSelf: 'center' }}>
+                  <div className="cart-item-controls" style={{ alignSelf: 'center', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <BalanzaButton
+                      unidadMedida={item.product.unidadMedida}
+                      onWeightRead={(peso) => actualizarCantidad(item.product.id, peso)}
+                    />
                     <button className="qty-btn" onClick={() => handleUpdateQty(item.product.id, -1)}>
                       <Minus size={14} />
                     </button>
@@ -1855,14 +1944,17 @@ export default function POSView({
                       type="number" 
                       value={item.cantidad} 
                       onChange={(e) => {
-                        setCart(prev => prev.map(i => i.product.id === item.product.id ? { ...i, cantidad: e.target.value } : i));
+                        const val = parseFloat(e.target.value);
+                        if (!isNaN(val) && val >= 0) {
+                          actualizarCantidad(item.product.id, val);
+                        }
                       }}
                       onBlur={(e) => {
                          const val = parseFloat(e.target.value);
                          if (isNaN(val) || val <= 0) {
                            handleRemoveItem(item.product.id);
                          } else {
-                           setCart(prev => prev.map(i => i.product.id === item.product.id ? { ...i, cantidad: val } : i));
+                           actualizarCantidad(item.product.id, val);
                          }
                       }}
                       style={{ width: '50px', textAlign: 'center', border: '1px solid #CBD5E1', borderRadius: '4px', fontSize: '13px', fontWeight: 'bold' }}
@@ -1883,45 +1975,24 @@ export default function POSView({
         </div>
 
         <div className="pos-cart-footer">
-          <div className="summary-row">
-            <span>Subtotal ({cart.reduce((sum, item) => sum + Number(item.cantidad), 0)} ítems)</span>
-            <span>${subtotal.toLocaleString('es-CO')}</span>
-          </div>
-          <div className="summary-row">
-            <span>Impuestos (0%)</span>
-            <span>$0</span>
-          </div>
-          <div className="summary-row" style={{ cursor: 'pointer' }} onClick={handleDescuentoGlobal}>
-            <span style={{ color: 'var(--primary-color)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              Descuento {descuentoGlobal > 0 && `(${descuentoGlobal}%)`} <Plus size={12} />
-            </span>
-            <span style={{ color: descuentoGlobal > 0 ? 'var(--primary-color)' : 'inherit' }}>
-              -${totalDescuento.toLocaleString('es-CO')}
-            </span>
-          </div>
+          <DiscountPanel
+            subtotal={subtotal}
+            totalItems={cartLineas.reduce((sum, item) => sum + Number(item.cantidad), 0)}
+            descuentoPct={descuentoGlobal}
+            descuentoValor={descuentoGlobalValor}
+            onDescuentoClick={handleDescuentoGlobal}
+          />
           
-          {/* Dual Action Buttons */}
-          <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-            <button 
-              className="btn-secondary" 
-              style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px 8px' }}
-              onClick={handleGuardarBorrador}
-            >
-              <Save size={16} />
-              <span>Guardar</span>
-            </button>
-            <button 
-              className="btn-primary" 
-              style={{ flex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px 8px', backgroundColor: 'var(--primary-color)' }}
-              onClick={handlePagar}
-            >
-              <CreditCard size={16} />
-              <span>Cobrar: ${totalFinal.toLocaleString('es-CO')}</span>
-            </button>
-          </div>
+          <PaymentPanel
+            totalFinal={totalFinal}
+            onPagar={handlePagar}
+            onGuardarBorrador={handleGuardarBorrador}
+            isDisabled={cartLineas.length === 0}
+          />
         </div>
-        </div>
-        </div>
+        </>
+        )}
+      </div>
       ) : activeSubView === 'consolidacion_b2b' ? (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px', width: '100%', boxSizing: 'border-box' }} className="animate-fade-in">
            {/* COLUMNA IZQUIERDA: LISTADO DE PEDIDOS */}

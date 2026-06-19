@@ -9,6 +9,7 @@ interface PayrollViewProps {
   setNominas: React.Dispatch<React.SetStateAction<NominaRegistro[]>>;
   gastos: Gasto[];
   setGastos: React.Dispatch<React.SetStateAction<Gasto[]>>;
+  setView?: (view: string) => void;
 }
 
 const calcDiasComerciales = (inicio: string, fin: string) => {
@@ -34,7 +35,7 @@ const calcDiasComerciales = (inicio: string, fin: string) => {
   return (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1) + 1;
 };
 
-export default function PayrollView({ empleados, nominas, setNominas, setGastos }: PayrollViewProps) {
+export default function PayrollView({ empleados, nominas, setNominas, setGastos, setView }: PayrollViewProps) {
   const [wizardType, setWizardType] = useState<'REGULAR' | 'VACACIONES' | 'LIQUIDACION_FINAL' | null>(null);
   const [selectedEmpleadoId, setSelectedEmpleadoId] = useState<string>('');
 
@@ -266,9 +267,33 @@ export default function PayrollView({ empleados, nominas, setNominas, setGastos 
   return (
     <div className="hr-layout animate-fade-in" style={{ padding: '24px' }}>
       <div className="hr-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <div>
-          <span style={{ fontSize: '14px', color: '#64748B', fontWeight: 500 }}>Motor Contable</span>
-          <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px', letterSpacing: '-0.5px' }}>Liquidación de Nómina & Prestaciones</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {setView && (
+            <button 
+              onClick={() => setView('rrhh')}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#64748B',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '8px',
+                borderRadius: '50%',
+                backgroundColor: '#F1F5F9',
+                transition: 'all 0.2s',
+                outline: 'none'
+              }}
+              title="Volver a Personal"
+            >
+              <ArrowLeft size={20} />
+            </button>
+          )}
+          <div>
+            <span style={{ fontSize: '14px', color: '#64748B', fontWeight: 500 }}>Motor Contable</span>
+            <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px', letterSpacing: '-0.5px' }}>Liquidación de Nómina & Prestaciones</h2>
+          </div>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <button 

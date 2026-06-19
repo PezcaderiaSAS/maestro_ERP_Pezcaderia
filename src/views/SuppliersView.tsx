@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Proveedor, OrdenCompra, MovimientoInventario, Gasto, generateId, toTitleCase } from '../App.tsx';
-import { Truck, Search, Save, ShoppingCart, Box, PlusCircle } from 'lucide-react';
+import { Truck, Search, Save, ShoppingCart, Box, PlusCircle, ArrowLeft } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 interface SuppliersViewProps {
@@ -224,10 +224,35 @@ export default function SuppliersView({
           
           <div className="hr-table-card" style={{ padding: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Truck size={20} color="var(--primary-color)" /> 
-                {selectedProveedorId ? 'Perfil del Proveedor' : 'Registrar Nuevo Proveedor'}
-              </h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {selectedProveedorId && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedProveedorId(null)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#64748B',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '6px',
+                      borderRadius: '50%',
+                      backgroundColor: '#F1F5F9',
+                      transition: 'all 0.2s',
+                      marginRight: '4px'
+                    }}
+                    title="Volver al Listado / Limpiar Selección"
+                  >
+                    <ArrowLeft size={16} />
+                  </button>
+                )}
+                <h3 style={{ fontSize: '18px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Truck size={20} color="var(--primary-color)" /> 
+                  {selectedProveedorId ? 'Perfil del Proveedor' : 'Registrar Nuevo Proveedor'}
+                </h3>
+              </div>
               {selectedProveedorId && selectedProveedorObj && (
                 <button
                   type="button"

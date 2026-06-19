@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Menu, LayoutDashboard, ShoppingBag, Box, Users, DollarSign, HelpCircle, Home, ShoppingCart, LogOut, FileText, PlusCircle, Wallet, Database, Truck, RefreshCw } from 'lucide-react';
+import { Menu, LayoutDashboard, ShoppingBag, Box, Users, DollarSign, HelpCircle, Home, ShoppingCart, LogOut, FileText, PlusCircle, Wallet, Database, Truck, RefreshCw, PieChart } from 'lucide-react';
 import DashboardView from './views/DashboardView.tsx';
 import POSView from './views/POSView.tsx';
 import InventoryView from './views/InventoryView.tsx';
@@ -10,6 +10,7 @@ import ClientsView from './views/ClientsView.tsx';
 import SuppliersView from './views/SuppliersView.tsx';
 import OrderKanbanView from './views/OrderKanbanView.tsx';
 import PayrollView from './views/PayrollView.tsx';
+import CRMView from './views/CRMView.tsx';
 import * as localDb from './services/localDb.ts';
 
 /** Genera IDs únicos usando crypto.randomUUID() — resistente a colisiones en operaciones rápidas */
@@ -644,6 +645,12 @@ export interface OrdenCompra {
   estado: 'RECIBIDA';
   items: ItemOrdenCompra[];
   totalCompra: number;
+  subtotal?: number;
+  iva?: number;
+  valorIva?: number;
+  fletes?: number;
+  formaPago?: 'CONTADO' | 'CREDITO';
+  saldo?: number; // Saldo pendiente para Cartera de Proveedores (AP)
   bodegaDestino: string;
   actor: string;
   notas?: string;
@@ -1538,7 +1545,7 @@ export default function App() {
       case 'rrhh':
         return <HRView empleados={empleados} setEmpleados={setEmpleados} nominas={nominas} setView={setCurrentView} />;
       case 'nomina':
-        return <PayrollView empleados={empleados} nominas={nominas} setNominas={setNominas} gastos={gastos} setGastos={setGastos} />;
+        return <PayrollView empleados={empleados} nominas={nominas} setNominas={setNominas} gastos={gastos} setGastos={setGastos} setView={setCurrentView} />;
       case 'cartera':
         return (
           <ARView 
@@ -1549,6 +1556,12 @@ export default function App() {
             userRole={userRole}
             devoluciones={devoluciones}
             setDevoluciones={setDevoluciones}
+            proveedores={proveedores}
+            ordenesCompra={ordenesCompra}
+            setOrdenesCompra={setOrdenesCompra}
+            gastos={gastos}
+            setGastos={setGastos}
+            ventas={ventas}
           />
         );
       case 'clientes':
@@ -1591,6 +1604,8 @@ export default function App() {
             }}
           />
         );
+      case 'crm':
+        return <CRMView currentActor={userRole} />;
       default:
         return <DashboardView setView={setCurrentView} />;
     }
@@ -1616,6 +1631,8 @@ export default function App() {
         return { cat: 'Administrativo', sub: 'Compras y Gastos' };
       case 'kanban':
         return { cat: 'Logística', sub: 'Despachos / Kanban' };
+      case 'crm':
+        return { cat: 'Comercial', sub: 'CRM (Twenty)' };
       default:
         return { cat: 'General', sub: 'ERP' };
     }
@@ -1717,6 +1734,14 @@ export default function App() {
             >
               <Users size={16} />
               <span>Clientes</span>
+            </div>
+
+            <div
+              className={`sidebar-item ${currentView === 'crm' ? 'active' : ''}`}
+              onClick={() => { setCurrentView('crm'); setSidebarOpen(false); }}
+            >
+              <PieChart size={16} />
+              <span>CRM (Twenty)</span>
             </div>
 
             <div className={`sidebar-item`} style={{ opacity: 0.5 }}>

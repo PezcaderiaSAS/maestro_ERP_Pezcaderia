@@ -3,6 +3,15 @@ import React, { useState, useEffect } from 'react';
 import { RefreshCw, Package, ArrowRight, ShieldAlert, CheckCircle, Truck, PlusCircle, Save, Edit2, Search, X } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { Product, ProductCatalog, ProductPricing, Proveedor, MovimientoInventario, OrdenCompra, generateId, CategoriaConfig, DevolucionPedido, toTitleCase } from '../App.tsx';
+import { ProductTable } from './inventory/components/ProductTable.tsx';
+import { ProductForm } from './inventory/components/ProductForm.tsx';
+import { CategoryManager } from './inventory/components/CategoryManager.tsx';
+import { PurchaseOrderForm } from './inventory/components/PurchaseOrderForm.tsx';
+import { TransferForm } from './inventory/components/TransferForm.tsx';
+import { ProductionForm } from './inventory/components/ProductionForm.tsx';
+import { ColdRoomPreparation } from './inventory/components/ColdRoomPreparation.tsx';
+import { ReturnsReceiver } from './inventory/components/ReturnsReceiver.tsx';
+import { PurchasesReport } from './inventory/components/PurchasesReport.tsx';
 
 interface StockItem {
   sku: string;
@@ -584,19 +593,17 @@ export default function InventoryView({
     }).then(result => {
       if (result.isConfirmed) {
         setCategorias(prev => prev.filter(c => c.id !== id));
-        Swal.fire({ icon: 'success', title: 'Eliminada', text: 'La categoría ha sido eliminada.', timer: 1500, showConfirmButton: false });
-      }
-    });
-  };
-
-  // State de Entrada de Compra (Replenishment)
+        Swal.fire({ icon: 'success', title: 'Eliminada', text: 'La categoría ha sido eliminada.',  // State de Entrada de Compra (Replenishment)
   const [compra, setCompra] = useState({
     proveedorId: '',
     sku: '',
     cantidad: 10,
     costoUnitario: 0,
     lote: '',
-    bodega: 'Bodega Principal'
+    bodega: 'Bodega Principal',
+    formaPago: 'CONTADO' as 'CONTADO' | 'CREDITO',
+    fletes: 0,
+    iva: 19
   });
 
   useEffect(() => {
@@ -649,6 +656,7 @@ export default function InventoryView({
       setMermaPct(0);
     }
   }, [prodMateriaCant, prodTerminadoCant]);
+
   const handleProcesarCompra = (e: React.FormEvent) => {
     e.preventDefault();
     if (!compra.proveedorId || !compra.sku || compra.cantidad <= 0) {
@@ -695,7 +703,10 @@ export default function InventoryView({
 
     // F2: Crear y registrar Orden de Compra
     const ocId = generateId('oc');
-    const totalOC = compra.cantidad * (compra.costoUnitario || selectedProduct.precio_compra || 0);
+    const subtotal = compra.cantidad * (compra.costoUnitario || selectedProduct.precio_compra || 0);
+    const valorIva = Math.round(subtotal * (compra.iva / 100));
+    const totalOC = subtotal + valorIva + (compra.fletes || 0);
+
     const newOC: OrdenCompra = {
       id: ocId,
       proveedorId: selectedProveedor.id,
@@ -712,9 +723,15 @@ export default function InventoryView({
         }
       ],
       totalCompra: totalOC,
+      subtotal: subtotal,
+      iva: compra.iva,
+      valorIva: valorIva,
+      fletes: compra.fletes || 0,
+      formaPago: compra.formaPago || 'CONTADO',
+      saldo: (compra.formaPago || 'CONTADO') === 'CREDITO' ? totalOC : 0,
       bodegaDestino: compra.bodega,
       actor: userRole,
-      notas: `Lote recibido: ${loteFinal}`
+      notas: `Lote recibido: ${loteFinal}. Forma de Pago: ${compra.formaPago || 'CONTADO'}. Flete: $${compra.fletes || 0}. IVA: ${compra.iva}%`
     };
     setOrdenesCompra(prev => [newOC, ...prev]);
 
@@ -755,7 +772,10 @@ export default function InventoryView({
       ...prev,
       cantidad: 10,
       costoUnitario: 0,
-      lote: ''
+      lote: '',
+      fletes: 0,
+      iva: 19,
+      formaPago: 'CONTADO'
     }));
   };
 
@@ -1239,6 +1259,15 @@ export default function InventoryView({
             </span>
           )}
         </button>
+
+        {(userRole === 'admin' || userRole === 'administrativo') && (
+          <button 
+            onClick={() => setViewMode('reportes_compra')}
+            style={{ background: 'none', border: 'none', fontSize: '15px', fontWeight: viewMode === 'reportes_compra' ? 800 : 500, color: viewMode === 'reportes_compra' ? 'var(--primary-color)' : '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+          >
+            📊 Reporte de Compras
+          </button>
+        )}
       </div>
 
       {viewMode === 'operaciones' && (
@@ -1288,137 +1317,20 @@ export default function InventoryView({
                 </table>
               </div>
 
-              {/* Entrada de Compra (Replenishment) */}
-              <div className="hr-table-card" style={{ padding: '24px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Truck size={18} color="#00B171" /> Entrada de Mercadería (Proveedores)
-                </h3>
-                <form onSubmit={handleProcesarCompra} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label className="form-label">Proveedor Origen</label>
-                      <select
-                        className="form-control"
-                        value={compra.proveedorId}
-                        onChange={e => setCompra({ ...compra, proveedorId: e.target.value })}
-                        style={{ border: '2px solid var(--primary-light)' }}
-                      >
-                        <option value="">-- Seleccionar Proveedor --</option>
-                        {proveedores.filter(p => p.activo).map(p => (
-                          <option key={p.id} value={p.id}>{p.nombre} ({p.nit})</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label className="form-label">Bodega Destino</label>
-                      <select className="form-control" value={compra.bodega} onChange={e => setCompra({ ...compra, bodega: e.target.value })}>
-                        <option value="Bodega Principal">Bodega Principal</option>
-                        <option value="Bodega Secundaria">Bodega Secundaria</option>
-                      </select>
-                    </div>
-                  </div>
+              <PurchaseOrderForm 
+                compra={compra} 
+                setCompra={setCompra} 
+                proveedores={proveedores} 
+                activeProducts={activeProducts} 
+                handleProcesarCompra={handleProcesarCompra} 
+              />
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px' }}>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label className="form-label">Producto a Recibir</label>
-                      <select className="form-control" value={compra.sku} onChange={e => setCompra({ ...compra, sku: e.target.value })}>
-                        {activeProducts.map(p => (
-                          <option key={p.sku} value={p.sku}>{p.nombre} ({p.sku})</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label className="form-label">Cantidad</label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={compra.cantidad}
-                        onChange={e => setCompra({ ...compra, cantidad: parseInt(e.target.value) || 0 })}
-                      />
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label className="form-label">Lote (Auto-generado si vacío)</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Ej. LT-2506"
-                        value={compra.lote}
-                        onChange={e => setCompra({ ...compra, lote: e.target.value })}
-                      />
-                    </div>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label className="form-label">Costo por Unidad ($ COP)</label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        placeholder="Ej. 12000"
-                        value={compra.costoUnitario || ''}
-                        onChange={e => setCompra({ ...compra, costoUnitario: parseInt(e.target.value) || 0 })}
-                      />
-                    </div>
-                  </div>
-
-                  <button type="submit" className="hr-btn-new" style={{ border: 'none', justifyContent: 'center', marginTop: '8px', backgroundColor: 'var(--primary-color)' }}>
-                    <span>Registrar Entrada de Compra</span>
-                    <PlusCircle size={16} />
-                  </button>
-                </form>
-              </div>
-
-              {/* Sección de Traslados */}
-              <div className="hr-table-card" style={{ padding: '24px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <RefreshCw size={18} color="#00B171" /> Traslado entre Bodegas
-                </h3>
-                <form onSubmit={handleTraslado} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label className="form-label">Origen</label>
-                      <select className="form-control" value={traslado.origen} onChange={e => setTraslado({ ...traslado, origen: e.target.value })}>
-                        <option value="Bodega Principal">Bodega Principal</option>
-                        <option value="Bodega Secundaria">Bodega Secundaria</option>
-                      </select>
-                    </div>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label className="form-label">Destino</label>
-                      <select className="form-control" value={traslado.destino} onChange={e => setTraslado({ ...traslado, destino: e.target.value })}>
-                        <option value="Bodega Principal">Bodega Principal</option>
-                        <option value="Bodega Secundaria">Bodega Secundaria</option>
-                        <option value="Bodega Averías">Bodega Averías</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px' }}>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label className="form-label">Producto a Trasladar</label>
-                      <select className="form-control" value={traslado.sku} onChange={e => setTraslado({ ...traslado, sku: e.target.value })}>
-                        {activeProducts.map(p => (
-                          <option key={p.sku} value={p.sku}>{p.nombre}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label className="form-label">Cantidad</label>
-                      <input
-                        type="number"
-                        step="any"
-                        className="form-control"
-                        value={traslado.cantidad}
-                        onChange={e => setTraslado({ ...traslado, cantidad: e.target.value })}
-                      />
-                    </div>
-                  </div>
-
-                  <button type="submit" className="hr-btn-new" style={{ border: 'none', justifyContent: 'center', marginTop: '8px' }}>
-                    <span>Confirmar Traslado</span>
-                    <ArrowRight size={16} />
-                  </button>
-                </form>
-              </div>
+              <TransferForm 
+                traslado={traslado} 
+                setTraslado={setTraslado} 
+                activeProducts={activeProducts} 
+                handleTraslado={handleTraslado} 
+              />
             </div>
 
             {/* Columna Derecha: Control de Producción */}
@@ -1428,97 +1340,19 @@ export default function InventoryView({
                 <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px', letterSpacing: '-0.5px' }}>Transformación de Planta</h2>
               </div>
 
-              <div className="hr-table-card" style={{ padding: '24px', flex: 1 }}>
-                <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Package size={18} color="#00B171" /> Procesar Orden de Producción
-                </h3>
-
-                <form onSubmit={handleProcesarProduccion} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  
-                  <div style={{ border: '1px solid #E2E8F0', padding: '16px', borderRadius: '12px' }}>
-                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#64748B', marginBottom: '12px' }}>MATERIA PRIMA (ENTRADA)</h4>
-                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px' }}>
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label">Insumo</label>
-                        <select className="form-control" value={prodMateriaPrima} onChange={e => setProdMateriaPrima(e.target.value)}>
-                          {activeProducts.filter(p => p.categoria === 'MATERIA PRIMA').map(p => (
-                            <option key={p.sku} value={p.sku}>{p.nombre}</option>
-                          ))}
-                          {activeProducts.filter(p => p.categoria === 'MATERIA PRIMA').length === 0 && 
-                            activeProducts.map(p => (
-                              <option key={p.sku} value={p.sku}>{p.nombre}</option>
-                            ))
-                          }
-                        </select>
-                      </div>
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label">Cantidad (kg)</label>
-                        <input
-                          type="number"
-                          step="any"
-                          className="form-control"
-                          value={prodMateriaCant}
-                          onChange={e => setProdMateriaCant(e.target.value)}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ border: '1px solid #E2E8F0', padding: '16px', borderRadius: '12px' }}>
-                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#64748B', marginBottom: '12px' }}>PRODUCTO FINAL (SALIDA)</h4>
-                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px' }}>
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label">Destino</label>
-                        <select className="form-control" value={prodTerminado} onChange={e => setProdTerminado(e.target.value)}>
-                          {activeProducts.filter(p => p.categoria !== 'MATERIA PRIMA').map(p => (
-                            <option key={p.sku} value={p.sku}>{p.nombre}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label">Rendimiento (kg)</label>
-                        <input
-                          type="number"
-                          step="any"
-                          className="form-control"
-                          value={prodTerminadoCant}
-                          onChange={e => setProdTerminadoCant(e.target.value)}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Cálculo de Merma y Alertas en Vivo */}
-                  <div style={{
-                    display: 'flex', flexDirection: 'column', gap: '12px',
-                    backgroundColor: mermaPct > 35 ? 'rgba(239, 68, 68, 0.08)' : 'rgba(16, 185, 129, 0.08)',
-                    border: `1px solid ${mermaPct > 35 ? '#FCA5A5' : '#6EE7B7'}`,
-                    padding: '16px', borderRadius: '12px'
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '14px', fontWeight: 600, color: '#334155' }}>Porcentaje de Merma Resultante:</span>
-                      <span style={{ fontSize: '18px', fontWeight: 800, color: mermaPct > 35 ? '#EF4444' : '#10B981' }}>{mermaPct}%</span>
-                    </div>
-                    {mermaPct > 35 ? (
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', color: '#B91C1C', fontSize: '12px', lineHeight: 1.4 }}>
-                        <ShieldAlert size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
-                        <span>
-                          La merma excede la tolerancia permitida (35%). Se solicitará <strong>PIN de autorización</strong> y justificación al momento de procesar.
-                        </span>
-                      </div>
-                    ) : (
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', color: '#047857', fontSize: '12px', lineHeight: 1.4 }}>
-                        <CheckCircle size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
-                        <span>La merma está dentro del rango operativo normal.</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <button type="submit" className="hr-btn-new" style={{ border: 'none', justifyContent: 'center', marginTop: '12px' }}>
-                    Procesar Producción
-                  </button>
-                </form>
-              </div>
+              <ProductionForm 
+                prodMateriaPrima={prodMateriaPrima} 
+                setProdMateriaPrima={setProdMateriaPrima} 
+                prodMateriaCant={prodMateriaCant} 
+                setProdMateriaCant={setProdMateriaCant} 
+                prodTerminado={prodTerminado} 
+                setProdTerminado={setProdTerminado} 
+                prodTerminadoCant={prodTerminadoCant} 
+                setProdTerminadoCant={setProdTerminadoCant} 
+                mermaPct={mermaPct} 
+                activeProducts={activeProducts} 
+                handleProcesarProduccion={handleProcesarProduccion} 
+              />
             </div>
           </div> {/* Fin del Grid de Operaciones */}
 
@@ -1655,1130 +1489,98 @@ export default function InventoryView({
       )}
 
       {viewMode === 'cuarto_frio' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px', minHeight: '500px' }}>
-          {/* COLUMNA IZQUIERDA: LISTADO DE PEDIDOS PENDIENTES */}
-          <div className="hr-table-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div>
-              <span style={{ fontSize: '13px', color: '#64748B', fontWeight: 600, textTransform: 'uppercase' }}>WMS - Bodega</span>
-              <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', marginTop: '2px' }}>Pedidos por Preparar</h3>
-            </div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', maxHeight: '600px' }}>
-              {quotations.filter(q => q.estado === 'Approved' || q.estado === 'Pausado').length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '32px 0', color: '#64748B' }}>
-                  <Package size={32} style={{ margin: '0 auto 12px auto', opacity: 0.5 }} />
-                  <p style={{ fontSize: '14px', fontWeight: 600 }}>No hay pedidos B2B pendientes de alistamiento.</p>
-                </div>
-              ) : (
-                quotations
-                  .filter(q => q.estado === 'Approved' || q.estado === 'Pausado')
-                  .map(q => {
-                    const isSelected = selectedQuoteId === q.id;
-                    return (
-                      <div
-                        key={q.id}
-                        onClick={() => {
-                          setSelectedQuoteId(q.id);
-                          const initialWeights: Record<string, number> = {};
-                          (q.items || []).forEach((item: any) => {
-                            if (item.cantidad_real) {
-                              initialWeights[item.sku] = item.cantidad_real;
-                            }
-                          });
-                          setPreparedWeights(initialWeights);
-                        }}
-                        style={{
-                          padding: '16px',
-                          borderRadius: '12px',
-                          border: isSelected ? '2px solid var(--primary-color)' : '1px solid #E2E8F0',
-                          backgroundColor: isSelected ? 'rgba(14, 116, 144, 0.05)' : 'white',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                          position: 'relative'
-                        }}
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                          <span style={{ fontWeight: 800, fontSize: '14px', color: '#0F172A' }}>
-                            Cotización #{q.id.slice(-6).toUpperCase()}
-                          </span>
-                          <span style={{
-                            fontSize: '11px',
-                            fontWeight: 800,
-                            padding: '2px 8px',
-                            borderRadius: '12px',
-                            backgroundColor: q.estado === 'Pausado' ? '#FEF2F2' : '#F0FDF4',
-                            color: q.estado === 'Pausado' ? '#EF4444' : '#10B981'
-                          }}>
-                            {q.estado === 'Pausado' ? 'PAUSADO (Discrepancia)' : 'APROBADO'}
-                          </span>
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '13px', color: '#475569' }}>
-                          <div><strong>Cliente:</strong> {q.clienteNombre || 'Cliente B2B'}</div>
-                          <div><strong>Fecha Límite:</strong> {q.logistica?.fechaEntrega ? new Date(q.logistica.fechaEntrega).toLocaleDateString() : 'No definida'}</div>
-                          <div><strong>Conductor:</strong> {q.logistica?.conductor?.nombre || 'No asignado'}</div>
-                        </div>
-                      </div>
-                    );
-                  })
-              )}
-            </div>
-          </div>
-
-          {/* COLUMNA DERECHA: ÁREA DE TRABAJO Y PESAJE */}
-          <div className="hr-table-card" style={{ padding: '24px' }}>
-            {selectedQuoteId ? (
-              (() => {
-                const quote = quotations.find(q => q.id === selectedQuoteId);
-                if (!quote) return null;
-                return (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    <div style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '16px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div>
-                          <span style={{ fontSize: '12px', color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>Báscula y Alistamiento</span>
-                          <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0F172A' }}>Alistamiento de Pedido #{quote.id.slice(-6).toUpperCase()}</h3>
-                        </div>
-                        <button 
-                          onClick={() => setSelectedQuoteId(null)}
-                          style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer' }}
-                        >
-                          <X size={20} />
-                        </button>
-                      </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px', fontSize: '13px', color: '#475569', backgroundColor: '#F8FAFC', padding: '16px', borderRadius: '12px' }}>
-                        <div>
-                          <div><strong>Cliente:</strong> {quote.clienteNombre}</div>
-                          <div><strong>Dirección:</strong> {quote.logistica?.direccion || 'N/A'}</div>
-                        </div>
-                        <div>
-                          <div><strong>Conductor Asignado:</strong> {quote.logistica?.conductor?.nombre || 'No asignado'}</div>
-                          <div><strong>Ruta / Jornada:</strong> {quote.logistica?.ruta ? `${quote.logistica.ruta} / ${quote.logistica.jornada || 'N/A'}` : 'N/A'}</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h4 style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A', marginBottom: '12px' }}>Productos a Pesar y Preparar (Tolerancia: 5%)</h4>
-                      <div style={{ overflowX: 'auto' }}>
-                        <table className="hr-table">
-                          <thead>
-                            <tr>
-                              <th>Producto</th>
-                              <th style={{ textAlign: 'right' }}>Cant. Solicitada</th>
-                              <th style={{ width: '180px', textAlign: 'center' }}>Peso Real Báscula</th>
-                              <th style={{ textAlign: 'right' }}>Desviación %</th>
-                              <th>Estado</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {(quote.items || []).map((item: any) => {
-                              const reqQty = item.cantidad;
-                              const prepQty = preparedWeights[item.sku];
-                              const parsedPrepQty = Number(prepQty);
-                              const dev = (prepQty !== undefined && prepQty !== '') ? ((parsedPrepQty - reqQty) / reqQty) * 100 : null;
-                              const isOutOfRange = dev !== null && Math.abs(dev) > 5;
-                              
-                              return (
-                                <tr key={item.sku}>
-                                  <td style={{ fontWeight: 600 }}>{item.nombre}</td>
-                                  <td style={{ textAlign: 'right', fontWeight: 700 }}>{reqQty} kg</td>
-                                  <td style={{ display: 'flex', justifyContent: 'center' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '130px' }}>
-                                      <input
-                                        type="number"
-                                        step="any"
-                                        className="form-control"
-                                        style={{ textAlign: 'right', fontWeight: 700 }}
-                                        value={prepQty === undefined ? '' : prepQty}
-                                        onChange={e => {
-                                          setPreparedWeights(prev => ({
-                                            ...prev,
-                                            [item.sku]: e.target.value
-                                          }));
-                                        }}
-                                        placeholder="0.00"
-                                      />
-                                      <span style={{ fontSize: '13px', fontWeight: 600, color: '#64748B' }}>kg</span>
-                                    </div>
-                                  </td>
-                                  <td style={{ textAlign: 'right', fontWeight: 700, color: isOutOfRange ? '#EF4444' : '#10B981' }}>
-                                    {dev !== null ? `${dev > 0 ? '+' : ''}${dev.toFixed(1)}%` : '-'}
-                                  </td>
-                                  <td>
-                                    {dev !== null ? (
-                                      isOutOfRange ? (
-                                        <span style={{ fontSize: '11px', fontWeight: 800, color: '#EF4444', backgroundColor: '#FEF2F2', padding: '2px 8px', borderRadius: '4px' }}>
-                                          ⚠️ AJUSTE REQUERIDO
-                                        </span>
-                                      ) : (
-                                        <span style={{ fontSize: '11px', fontWeight: 800, color: '#10B981', backgroundColor: '#F0FDF4', padding: '2px 8px', borderRadius: '4px' }}>
-                                          ✓ OK
-                                        </span>
-                                      )
-                                    ) : (
-                                      <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748B' }}>Pendiente</span>
-                                    )}
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                      <button 
-                        onClick={() => setSelectedQuoteId(null)}
-                        className="btn-secondary"
-                        style={{ padding: '12px 24px', borderRadius: '12px', fontWeight: 700 }}
-                      >
-                        Cancelar
-                      </button>
-                      <button 
-                        onClick={() => handleFinalizarAlistamiento(quote.id)}
-                        className="btn-primary"
-                        style={{ padding: '12px 24px', borderRadius: '12px', fontWeight: 700, backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', cursor: 'pointer' }}
-                      >
-                        Finalizar Alistamiento
-                      </button>
-                    </div>
-
-                  </div>
-                );
-              })()
-            ) : (
-              <div style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#64748B', padding: '48px 0' }}>
-                <Package size={48} style={{ opacity: 0.5, marginBottom: '16px' }} />
-                <h3 style={{ fontSize: '16px', fontWeight: 700 }}>Seleccione un pedido para iniciar el pesaje</h3>
-                <p style={{ fontSize: '13px', marginTop: '4px' }}>El sistema validará automáticamente la tolerancia del 5%.</p>
-              </div>
-            )}
-          </div>
-        </div>
+        <ColdRoomPreparation 
+          quotations={quotations}
+          selectedQuoteId={selectedQuoteId}
+          setSelectedQuoteId={setSelectedQuoteId}
+          preparedWeights={preparedWeights}
+          setPreparedWeights={setPreparedWeights}
+          handleFinalizarAlistamiento={handleFinalizarAlistamiento}
+        />
       )}
 
       {viewMode === 'recepcion_devoluciones' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px', minHeight: '500px' }}>
-          {/* COLUMNA IZQUIERDA: LISTADO DE DEVOLUCIONES PROGRAMADAS */}
-          <div className="hr-table-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div>
-              <span style={{ fontSize: '13px', color: '#3B82F6', fontWeight: 600, textTransform: 'uppercase' }}>Logística Inversa</span>
-              <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', marginTop: '2px' }}>Devoluciones por Recibir</h3>
-            </div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', maxHeight: '600px' }}>
-              {devoluciones.filter(d => d.estado === 'PROGRAMADA').length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '32px 0', color: '#64748B' }}>
-                  <RefreshCw size={32} style={{ margin: '0 auto 12px auto', opacity: 0.5 }} />
-                  <p style={{ fontSize: '14px', fontWeight: 600 }}>No hay devoluciones programadas pendientes.</p>
-                </div>
-              ) : (
-                devoluciones
-                  .filter(d => d.estado === 'PROGRAMADA')
-                  .map(d => {
-                    const isSelected = selectedDevId === d.id;
-                    return (
-                      <div
-                        key={d.id}
-                        onClick={() => {
-                          setSelectedDevId(d.id);
-                          const initialItems: Record<string, { cantidadRecibida: number; destino: 'APROBADO_REINGRESO' | 'DESCARTE_MERMA' }> = {};
-                          (d.items || []).forEach((item: any) => {
-                            initialItems[item.sku] = {
-                              cantidadRecibida: item.cantidad || 0,
-                              destino: 'APROBADO_REINGRESO'
-                            };
-                          });
-                          setReceivedDevItems(initialItems);
-                        }}
-                        style={{
-                          padding: '16px',
-                          borderRadius: '12px',
-                          border: isSelected ? '2px solid #3B82F6' : '1px solid #E2E8F0',
-                          backgroundColor: isSelected ? 'rgba(59, 130, 246, 0.05)' : 'white',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease'
-                        }}
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                          <span style={{ fontWeight: 800, fontSize: '14px', color: '#0F172A' }}>
-                            Devolución #{d.id.slice(-6).toUpperCase()}
-                          </span>
-                          <span style={{
-                            fontSize: '11px',
-                            fontWeight: 800,
-                            padding: '2px 8px',
-                            borderRadius: '12px',
-                            backgroundColor: '#EFF6FF',
-                            color: '#3B82F6'
-                          }}>
-                            {d.estado}
-                          </span>
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '13px', color: '#475569' }}>
-                          <div><strong>Cliente:</strong> {d.clienteNombre}</div>
-                          <div><strong>Asociado a:</strong> {d.pedidoId ? `Pedido #${d.pedidoId.slice(-6).toUpperCase()}` : 'Alistamiento manual'}</div>
-                          <div><strong>Recogida:</strong> {d.fechaProgramacion ? new Date(d.fechaProgramacion).toLocaleDateString() : 'N/A'}</div>
-                        </div>
-                      </div>
-                    );
-                  })
-              )}
-            </div>
-          </div>
-
-          {/* COLUMNA DERECHA: VALIDACIÓN DE ITEMS DE DEVOLUCIÓN */}
-          <div className="hr-table-card" style={{ padding: '24px' }}>
-            {selectedDevId ? (
-              (() => {
-                const dev = devoluciones.find(d => d.id === selectedDevId);
-                if (!dev) return null;
-                return (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    <div style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '16px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div>
-                          <span style={{ fontSize: '12px', color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>Recepción Física de Devolución</span>
-                          <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0F172A' }}>Recepción de Devolución #{dev.id.slice(-6).toUpperCase()}</h3>
-                        </div>
-                        <button 
-                          onClick={() => setSelectedDevId(null)}
-                          style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer' }}
-                        >
-                          <X size={20} />
-                        </button>
-                      </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px', fontSize: '13px', color: '#475569', backgroundColor: '#F8FAFC', padding: '16px', borderRadius: '12px' }}>
-                        <div>
-                          <div><strong>Cliente:</strong> {dev.clienteNombre}</div>
-                          <div><strong>Dirección de Recogida:</strong> N/A</div>
-                        </div>
-                        <div>
-                          <div><strong>Pedido Original:</strong> {dev.pedidoId ? `#${dev.pedidoId.slice(-6).toUpperCase()}` : 'N/A'}</div>
-                          <div><strong>Motivo General:</strong> N/A</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h4 style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A', marginBottom: '12px' }}>Productos Recibidos</h4>
-                      <div style={{ overflowX: 'auto' }}>
-                        <table className="hr-table">
-                          <thead>
-                            <tr>
-                              <th>Producto</th>
-                              <th style={{ textAlign: 'right' }}>Cant. Programada</th>
-                              <th style={{ width: '150px', textAlign: 'center' }}>Cant. Recibida</th>
-                              <th style={{ width: '220px' }}>Calidad y Destino</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {(dev.items || []).map((item: any) => {
-                              const plannedQty = item.cantidad;
-                              const details = receivedDevItems[item.sku] || { cantidadRecibida: plannedQty, destino: 'APROBADO_REINGRESO' };
-                              
-                              return (
-                                <tr key={item.sku}>
-                                  <td style={{ fontWeight: 600 }}>{item.nombre}</td>
-                                  <td style={{ textAlign: 'right', fontWeight: 700 }}>{plannedQty} kg/un</td>
-                                  <td style={{ display: 'flex', justifyContent: 'center' }}>
-                                    <input
-                                      type="number"
-                                      step="any"
-                                      className="form-control"
-                                      style={{ textAlign: 'right', fontWeight: 700, width: '100px' }}
-                                      value={details.cantidadRecibida}
-                                      onChange={e => {
-                                        setReceivedDevItems(prev => ({
-                                          ...prev,
-                                          [item.sku]: {
-                                            ...prev[item.sku],
-                                            cantidadRecibida: e.target.value
-                                          }
-                                        }));
-                                      }}
-                                    />
-                                  </td>
-                                  <td>
-                                    <select
-                                      className="form-control"
-                                      style={{ fontWeight: 600 }}
-                                      value={details.destino}
-                                      onChange={e => {
-                                        setReceivedDevItems(prev => ({
-                                          ...prev,
-                                          [item.sku]: {
-                                            ...prev[item.sku],
-                                            destino: e.target.value as any
-                                          }
-                                        }));
-                                      }}
-                                    >
-                                      <option value="APROBADO_REINGRESO">Aprobado: Reingresar Stock</option>
-                                      <option value="DESCARTE_MERMA">Descarte: Desperdicio/Merma</option>
-                                    </select>
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                      <button 
-                        onClick={() => setSelectedDevId(null)}
-                        className="btn-secondary"
-                        style={{ padding: '12px 24px', borderRadius: '12px', fontWeight: 700 }}
-                      >
-                        Cancelar
-                      </button>
-                      <button 
-                        onClick={() => handleProcesarRecepcionDevolucion(dev.id)}
-                        className="btn-primary"
-                        style={{ padding: '12px 24px', borderRadius: '12px', fontWeight: 700, backgroundColor: '#3B82F6', color: 'white', border: 'none', cursor: 'pointer' }}
-                      >
-                        Registrar Recepción Física
-                      </button>
-                    </div>
-
-                  </div>
-                );
-              })()
-            ) : (
-              <div style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#64748B', padding: '48px 0' }}>
-                <RefreshCw size={48} style={{ opacity: 0.5, marginBottom: '16px' }} />
-                <h3 style={{ fontSize: '16px', fontWeight: 700 }}>Seleccione una devolución para registrar la entrada física</h3>
-                <p style={{ fontSize: '13px', marginTop: '4px' }}>El sistema actualizará el stock en Bodega Principal para los ítems aptos.</p>
-              </div>
-            )}
-          </div>
-        </div>
+        <ReturnsReceiver 
+          devoluciones={devoluciones}
+          selectedDevId={selectedDevId}
+          setSelectedDevId={setSelectedDevId}
+          receivedDevItems={receivedDevItems}
+          setReceivedDevItems={setReceivedDevItems}
+          handleProcesarRecepcionDevolucion={handleProcesarRecepcionDevolucion}
+        />
       )}
 
       {viewMode === 'catalogo' && (
         <div>
           {/* SI SE ESTÁ EDITANDO O CREANDO */}
           {(editingProductId || isCreating) ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              
-              {/* Encabezado del Formulario */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <span style={{ fontSize: '14px', color: '#64748B', fontWeight: 500 }}>Ficha de Producto</span>
-                  <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px', letterSpacing: '-0.5px' }}>
-                    {editingProductId ? `Editar: ${productForm.nombre}` : 'Registrar Nuevo Producto'}
-                  </h2>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditingProductId(null);
-                    setIsCreating(false);
-                    setProductForm({ 
-                      sku: '', nombre: '', categoria: '', unidadMedida: 'kg', precio_compra: 0, buffer_seguridad: 5, 
-                      codigo_barras: '', iva: 0, ivaIncluido: true, control_inventario: true, produccion: false, 
-                      tipoCategoria: '', lineaCategoria: '', claseCategoria: '', imagen: '' 
-                    });
-                    setCustomTipo('');
-                    setCustomLinea('');
-                    setCustomClase('');
-                  }}
-                  className="btn-secondary"
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', borderRadius: '12px', border: '1px solid #CBD5E1', cursor: 'pointer' }}
-                >
-                  Volver al Catálogo
-                </button>
-              </div>
-
-              {/* Split Layout */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr', gap: '24px' }}>
-                
-                {/* PANEL IZQUIERDO: IMAGEN, SKU, INDICADORES */}
-                <div className="hr-table-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px', height: 'fit-content' }}>
-                  <div style={{ width: '100%', aspectRatio: '1.2', borderRadius: '12px', overflow: 'hidden', backgroundColor: '#F1F5F9', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-                    {productForm.imagen ? (
-                      <img 
-                        src={productForm.imagen} 
-                        alt={productForm.nombre} 
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: isGeneratingImage ? 0.3 : 1 }} 
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534080391025-09795d197a5b?w=400';
-                        }}
-                      />
-                    ) : (
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#94A3B8', opacity: isGeneratingImage ? 0.3 : 1 }}>
-                        <Package size={64} strokeWidth={1} />
-                        <span style={{ fontSize: '13px', fontWeight: 500 }}>Sin Imagen de Producto</span>
-                      </div>
-                    )}
-
-                    {isGeneratingImage && (
-                      <div style={{
-                        position: 'absolute',
-                        top: 0, left: 0, right: 0, bottom: 0,
-                        backgroundColor: 'rgba(255, 255, 255, 0.7)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '12px',
-                        zIndex: 10
-                      }}>
-                        <RefreshCw className="animate-spin" size={32} color="var(--primary-color)" />
-                        <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary-color)' }}>Generando con IA...</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleGenerateAIImage}
-                    disabled={isGeneratingImage}
-                    className="btn-secondary"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px',
-                      padding: '10px 16px',
-                      borderRadius: '10px',
-                      fontWeight: 700,
-                      backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                      color: '#2563EB',
-                      border: '1px solid rgba(59, 130, 246, 0.2)',
-                      cursor: isGeneratingImage ? 'not-allowed' : 'pointer',
-                      transition: 'all 0.2s'
-                    }}
-                  >
-                    <RefreshCw size={16} className={isGeneratingImage ? "animate-spin" : ""} />
-                    <span>✨ Generar con IA</span>
-                  </button>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <span style={{ fontSize: '12px', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Código SKU</span>
-                    <span className="badge-vigente" style={{ alignSelf: 'flex-start', fontFamily: 'monospace', fontSize: '14px', backgroundColor: 'var(--primary-light)', color: 'var(--primary-color)', borderColor: 'transparent', padding: '4px 12px' }}>
-                      {productForm.sku || 'NUEVO-PRODUCTO'}
-                    </span>
-                  </div>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid #E2E8F0', paddingTop: '16px' }}>
-                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#475569' }}>INDICADORES DE CONTROL</h4>
-                    
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '4px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '13px', color: '#64748B' }}>Control de Stock:</span>
-                        <span style={{
-                          padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 700,
-                          backgroundColor: productForm.control_inventario ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                          color: productForm.control_inventario ? '#10B981' : '#EF4444'
-                        }}>
-                          {productForm.control_inventario ? 'SÍ' : 'NO'}
-                        </span>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '13px', color: '#64748B' }}>Transformable en Planta:</span>
-                        <span style={{
-                          padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 700,
-                          backgroundColor: productForm.produccion ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                          color: productForm.produccion ? '#10B981' : '#EF4444'
-                        }}>
-                          {productForm.produccion ? 'SÍ' : 'NO'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {editingProductId && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid #E2E8F0', paddingTop: '16px' }}>
-                      <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#475569' }}>RESUMEN DE STOCK</h4>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
-                        {Object.keys(stock).map(bodegaName => {
-                          const qty = getStockInBodega(productForm.sku, bodegaName);
-                          return (
-                            <div key={bodegaName} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-                              <span style={{ color: '#64748B' }}>{bodegaName}:</span>
-                              <span style={{ fontWeight: 600 }}>{qty} {productForm.unidadMedida}</span>
-                            </div>
-                          );
-                        })}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px dashed #E2E8F0', paddingTop: '8px', marginTop: '4px', fontSize: '14px', fontWeight: 700 }}>
-                          <span>Stock Total:</span>
-                          <span style={{ color: 'var(--primary-color)' }}>{getTotalStock(productForm.sku)} {productForm.unidadMedida}</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                </div>
-
-                {/* PANEL DERECHO: FORMULARIO EXTENSO */}
-                <div className="hr-table-card" style={{ padding: '24px' }}>
-                  <form onSubmit={handleSaveProduct} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    <div style={{ padding: '16px', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
-                      <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', color: '#0F172A', borderBottom: '1px solid #CBD5E1', paddingBottom: '8px' }}>Datos Básicos y Clasificación</h4>
-                      
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px' }}>
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label className="form-label">SKU (Código Único) *</label>
-                          <input type="text" className="form-control" placeholder="Ej: FIL-ROB-004" value={productForm.sku} onChange={e => setProductForm({ ...productForm, sku: e.target.value })} disabled={editingProductId !== null} />
-                        </div>
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label className="form-label">Nombre del Producto *</label>
-                          <input type="text" className="form-control" placeholder="Ej: FILETE DE RÓBALO LIMPIO" value={productForm.nombre} onChange={e => setProductForm({ ...productForm, nombre: e.target.value })} />
-                        </div>
-                      </div>
-
-                      {/* SELECTORES DE CATEGORÍA ANIDADOS */}
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px', marginBottom: '12px' }}>
-                        {/* TIPO */}
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label className="form-label">Tipo de Categoría *</label>
-                          <select className="form-control" value={productForm.tipoCategoria} onChange={e => { const val = e.target.value; setProductForm(prev => ({ ...prev, tipoCategoria: val, lineaCategoria: '', claseCategoria: '' })); setCustomTipo(''); setCustomLinea(''); setCustomClase(''); }}>
-                            <option value="">-- Seleccione Tipo --</option>
-                            {uniqueTipos.map(t => <option key={t} value={t}>{t}</option>)}
-                            <option value="NEW_TIPO" style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>[+ Crear nuevo Tipo]</option>
-                          </select>
-                          {productForm.tipoCategoria === 'NEW_TIPO' && <input type="text" className="form-control" style={{ marginTop: '8px', borderColor: 'var(--primary-color)' }} placeholder="Escriba el nuevo Tipo..." value={customTipo} onChange={e => setCustomTipo(e.target.value)} />}
-                        </div>
-
-                        {/* LÍNEA */}
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label className="form-label">Línea de Categoría</label>
-                          <select className="form-control" value={productForm.lineaCategoria} onChange={e => { const val = e.target.value; setProductForm(prev => ({ ...prev, lineaCategoria: val, claseCategoria: '' })); setCustomLinea(''); setCustomClase(''); }} disabled={!productForm.tipoCategoria}>
-                            <option value="">-- Seleccione Línea --</option>
-                            {uniqueLineas.map(l => <option key={l} value={l}>{l}</option>)}
-                            <option value="NEW_LINEA" style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>[+ Crear nueva Línea]</option>
-                          </select>
-                          {productForm.lineaCategoria === 'NEW_LINEA' && <input type="text" className="form-control" style={{ marginTop: '8px', borderColor: 'var(--primary-color)' }} placeholder="Escriba la nueva Línea..." value={customLinea} onChange={e => setCustomLinea(e.target.value)} />}
-                        </div>
-
-                        {/* CLASE */}
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label className="form-label">Clase de Categoría</label>
-                          <select className="form-control" value={productForm.claseCategoria} onChange={e => { const val = e.target.value; setProductForm(prev => ({ ...prev, claseCategoria: val })); setCustomClase(''); }} disabled={!productForm.lineaCategoria}>
-                            <option value="">-- Seleccione Clase --</option>
-                            {uniqueClases.map(c => <option key={c} value={c}>{c}</option>)}
-                            <option value="NEW_CLASE" style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>[+ Crear nueva Clase]</option>
-                          </select>
-                          {productForm.claseCategoria === 'NEW_CLASE' && <input type="text" className="form-control" style={{ marginTop: '8px', borderColor: 'var(--primary-color)' }} placeholder="Escriba la nueva Clase..." value={customClase} onChange={e => setCustomClase(e.target.value)} />}
-                        </div>
-                      </div>
-
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label className="form-label">Código de Barras</label>
-                          <input type="text" className="form-control" placeholder="Ej: 770123456789" value={productForm.codigo_barras} onChange={e => setProductForm({ ...productForm, codigo_barras: e.target.value })} />
-                        </div>
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label className="form-label">Unidad de Medida *</label>
-                          <select className="form-control" value={productForm.unidadMedida} onChange={e => setProductForm({ ...productForm, unidadMedida: e.target.value as any })}>
-                            <option value="kg">Kilos (kg)</option>
-                            <option value="und">Unidades (und)</option>
-                            <option value="lb">Libras (lb)</option>
-                            <option value="gr">Gramos (gr)</option>
-                          </select>
-                        </div>
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label className="form-label">Imagen (URL)</label>
-                          <input type="text" className="form-control" placeholder="https://ejemplo.com/foto.jpg" value={productForm.imagen} onChange={e => setProductForm({ ...productForm, imagen: e.target.value })} />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div style={{ padding: '16px', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
-                      <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', color: '#0F172A', borderBottom: '1px solid #CBD5E1', paddingBottom: '8px' }}>Política Comercial, Impuestos y Costos</h4>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label className="form-label">Costo Base ($ COP)</label>
-                          <input type="number" className="form-control" value={productForm.precio_compra || ''} onChange={e => setProductForm({ ...productForm, precio_compra: parseInt(e.target.value) || 0 })} />
-                        </div>
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label className="form-label">Buffer de Seguridad (%)</label>
-                          <input type="number" className="form-control" value={productForm.buffer_seguridad} onChange={e => setProductForm({ ...productForm, buffer_seguridad: parseInt(e.target.value) || 0 })} />
-                        </div>
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label className="form-label">IVA (Tarifa)</label>
-                          <select className="form-control" value={productForm.iva} onChange={e => setProductForm({ ...productForm, iva: parseInt(e.target.value) || 0 })}>
-                            <option value="0">Exento (0%)</option>
-                            <option value="5">Excluido/Bajo (5%)</option>
-                            <option value="19">General (19%)</option>
-                          </select>
-                        </div>
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label className="form-label">IVA Incluido</label>
-                          <select className="form-control" value={productForm.ivaIncluido ? 'si' : 'no'} onChange={e => setProductForm({ ...productForm, ivaIncluido: e.target.value === 'si' })}>
-                            <option value="si">Sí, IVA Incluido</option>
-                            <option value="no">No, IVA Excluido</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div style={{ padding: '16px', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
-                      <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', color: '#0F172A', borderBottom: '1px solid #CBD5E1', paddingBottom: '8px' }}>Parámetros del Sistema</h4>
-                      <div style={{ display: 'flex', gap: '32px', margin: '4px 0' }}>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}>
-                          <input type="checkbox" style={{ width: '18px', height: '18px', accentColor: 'var(--primary-color)' }} checked={productForm.control_inventario} onChange={e => setProductForm({ ...productForm, control_inventario: e.target.checked })} />
-                          Controlar Inventario (WMS / Kardex)
-                        </label>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}>
-                          <input type="checkbox" style={{ width: '18px', height: '18px', accentColor: 'var(--primary-color)' }} checked={productForm.produccion} onChange={e => setProductForm({ ...productForm, produccion: e.target.checked })} />
-                          Es transformable en Planta (Producción)
-                        </label>
-                      </div>
-                    </div>
-
-                    {/* Previsualización de Precios Sugeridos */}
-                    <div style={{ backgroundColor: '#F8FAFC', padding: '16px', borderRadius: '12px', border: '1px dashed #CBD5E1', display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
-                      <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>
-                        Simulación de Precios de Venta Sugeridos (Márgenes estándar)
-                      </span>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginTop: '4px' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', fontSize: '13px' }}>
-                          <span style={{ color: '#64748B' }}>Precio POS (+40% + Buffer):</span>
-                          <strong style={{ fontSize: '15px', color: '#0F172A' }}>
-                            ${Math.round(productForm.precio_compra * (1 + (productForm.buffer_seguridad / 100) + 0.40)).toLocaleString('es-CO')}
-                          </strong>
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', fontSize: '13px' }}>
-                          <span style={{ color: '#64748B' }}>Precio Restaurante (+30% + Buffer):</span>
-                          <strong style={{ fontSize: '15px', color: '#0F172A' }}>
-                            ${Math.round(productForm.precio_compra * (1 + (productForm.buffer_seguridad / 100) + 0.30)).toLocaleString('es-CO')}
-                          </strong>
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', fontSize: '13px' }}>
-                          <span style={{ color: '#64748B' }}>Precio Mayorista (+15% + Buffer):</span>
-                          <strong style={{ fontSize: '15px', color: '#0F172A' }}>
-                            ${Math.round(productForm.precio_compra * (1 + (productForm.buffer_seguridad / 100) + 0.15)).toLocaleString('es-CO')}
-                          </strong>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-                      <button 
-                        type="submit" 
-                        className="btn-primary" 
-                        style={{ border: 'none', flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '12px', backgroundColor: 'var(--primary-color)', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}
-                      >
-                        <Save size={18} />
-                        <span>{editingProductId ? 'Guardar Cambios' : 'Registrar Producto'}</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditingProductId(null);
-                          setIsCreating(false);
-                          setProductForm({ 
-                            sku: '', nombre: '', categoria: '', unidadMedida: 'kg', precio_compra: 0, buffer_seguridad: 5, 
-                            codigo_barras: '', iva: 0, ivaIncluido: true, control_inventario: true, produccion: false, 
-                            tipoCategoria: '', lineaCategoria: '', claseCategoria: '', imagen: '' 
-                          });
-                          setCustomTipo('');
-                          setCustomLinea('');
-                          setCustomClase('');
-                        }}
-                        className="btn-secondary"
-                        style={{ flex: 0.5, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '12px', borderRadius: '12px', fontWeight: 600, border: '1px solid #CBD5E1', cursor: 'pointer' }}
-                      >
-                        Cancelar
-                      </button>
-                    </div>
-
-                  </form>
-                </div>
-
-              </div>
-
-              {/* CARD INFERIOR: HISTORIAL DE INVENTARIO (KARDEX) */}
-              {editingProductId && (
-                <div className="hr-table-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <div>
-                    <span style={{ fontSize: '12px', color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>Libro Auxiliar</span>
-                    <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', marginTop: '2px' }}>Historial de Movimientos de Inventario (Kardex)</h3>
-                  </div>
-
-                  {movimientos.filter(m => m.sku === productForm.sku).length === 0 ? (
-                    <p style={{ color: '#64748B', fontSize: '14px', textAlign: 'center', padding: '24px 0' }}>
-                      No se registran movimientos históricos para este SKU.
-                    </p>
-                  ) : (
-                    <div style={{ overflowX: 'auto' }}>
-                      <table className="hr-table">
-                        <thead>
-                          <tr>
-                            <th>Fecha</th>
-                            <th>Tipo de Movimiento</th>
-                            <th>Bodega Origen</th>
-                            <th>Bodega Destino</th>
-                            <th>Cantidad</th>
-                            <th>Lote</th>
-                            <th>Referencia</th>
-                            <th>Operador</th>
-                            <th>Notas</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {movimientos.filter(m => m.sku === productForm.sku).map(m => (
-                            <tr key={m.id}>
-                              <td style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>{new Date(m.timestamp).toLocaleString()}</td>
-                              <td>
-                                <span style={{
-                                  padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 700,
-                                  backgroundColor: m.tipo.startsWith('ENTRADA') || m.tipo.includes('SALIDA_PRODUCCION') || m.tipo.includes('ENTRADA_TRASLADO') || m.tipo === 'PRODUCCION_SALIDA' || m.tipo === 'TRASLADO_ENTRADA' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                                  color: m.tipo.startsWith('ENTRADA') || m.tipo.includes('SALIDA_PRODUCCION') || m.tipo.includes('ENTRADA_TRASLADO') || m.tipo === 'PRODUCCION_SALIDA' || m.tipo === 'TRASLADO_ENTRADA' ? '#10B981' : '#EF4444'
-                                }}>
-                                  {m.tipo}
-                                </span>
-                              </td>
-                              <td>{m.bodegaOrigen || '-'}</td>
-                              <td>{m.bodegaDestino || '-'}</td>
-                              <td style={{ fontWeight: 700 }}>{m.cantidad}</td>
-                              <td style={{ fontFamily: 'monospace', fontWeight: 700, color: '#3B82F6' }}>{m.lote || '-'}</td>
-                              <td style={{ fontSize: '11px' }}>{m.referenciaTipo ? `${m.referenciaTipo}: ${m.referenciaId}` : '-'}</td>
-                              <td>{m.actor}</td>
-                              <td style={{ fontSize: '12px', color: '#64748B', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={m.notas}>
-                                {m.notas}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-              )}
-
-            </div>
+            <ProductForm 
+              productForm={productForm}
+              setProductForm={setProductForm}
+              editingProductId={editingProductId}
+              setEditingProductId={setEditingProductId}
+              isCreating={isCreating}
+              setIsCreating={setIsCreating}
+              handleSaveProduct={handleSaveProduct}
+              isGeneratingImage={isGeneratingImage}
+              handleGenerateAIImage={handleGenerateAIImage}
+              uniqueTipos={uniqueTipos}
+              uniqueLineas={uniqueLineas}
+              uniqueClases={uniqueClases}
+              customTipo={customTipo}
+              setCustomTipo={setCustomTipo}
+              customLinea={customLinea}
+              setCustomLinea={setCustomLinea}
+              customClase={customClase}
+              setCustomClase={setCustomClase}
+              stock={stock}
+              getTotalStock={getTotalStock}
+              getStockInBodega={getStockInBodega}
+            />
           ) : (
-            
-            /* TABLA PRINCIPAL DE CATÁLOGO */
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <span style={{ fontSize: '14px', color: '#64748B', fontWeight: 500 }}>Filtros y Búsqueda</span>
-                  <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px', letterSpacing: '-0.5px' }}>Catálogo General de Productos</h2>
-                </div>
-                <button
-                  onClick={() => setIsCreating(true)}
-                  className="btn-primary"
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', borderRadius: '12px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', fontWeight: 700, cursor: 'pointer' }}
-                >
-                  <PlusCircle size={18} />
-                  <span>Registrar Producto</span>
-                </button>
-              </div>
-
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                <div className="pos-search-bar" style={{ marginBottom: 0, flex: 1 }}>
-                  <Search size={18} color="#64748B" />
-                  <input
-                    type="text"
-                    className="pos-search-input"
-                    placeholder="Buscar producto por nombre, SKU o código de barras..."
-                    value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
-                  />
-                </div>
-
-                <select
-                  className="form-control"
-                  style={{ width: '180px', height: '48px', borderRadius: '12px' }}
-                  value={statusFilter}
-                  onChange={e => setStatusFilter(e.target.value as any)}
-                >
-                  <option value="TODOS">Todos los Estados</option>
-                  <option value="ACTIVOS">Solo Activos</option>
-                  <option value="INACTIVOS">Solo Inactivos</option>
-                </select>
-              </div>
-
-              <div className="hr-table-card">
-                <table className="hr-table">
-                  <thead>
-                    <tr>
-                      <th style={{ width: '60px' }}>Imagen</th>
-                      <th>SKU</th>
-                      <th>Producto</th>
-                      <th>Categoría</th>
-                      <th style={{ textAlign: 'right' }}>Costo Base</th>
-                      
-                      {/* Columnas dinámicas de bodegas */}
-                      {Object.keys(stock).map(bodegaName => (
-                        <th key={bodegaName} style={{ textAlign: 'right' }}>{bodegaName}</th>
-                      ))}
-                      
-                      <th style={{ textAlign: 'right', backgroundColor: 'rgba(16, 185, 129, 0.05)' }}>Stock Total</th>
-                      <th>Estado</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {products.filter(p => {
-                      const matchSearch = p.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                                          p.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                          (p.codigo_barras && p.codigo_barras.includes(searchTerm));
-                      const matchStatus = statusFilter === 'TODOS' ? true : statusFilter === 'ACTIVOS' ? p.activo : !p.activo;
-                      return matchSearch && matchStatus;
-                    }).map(p => (
-                      <tr 
-                        key={p.sku} 
-                        style={{ opacity: p.activo ? 1 : 0.6, cursor: 'pointer' }}
-                        onClick={() => handleEditProduct(p)}
-                      >
-                        <td onClick={e => e.stopPropagation()}>
-                          <div style={{ width: '40px', height: '40px', borderRadius: '6px', overflow: 'hidden', backgroundColor: '#F1F5F9', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {p.imagen ? (
-                              <img src={p.imagen} alt={p.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            ) : (
-                              <Package size={20} color="#94A3B8" />
-                            )}
-                          </div>
-                        </td>
-                        <td style={{ fontWeight: 700, color: '#64748B', fontFamily: 'monospace' }}>{p.sku}</td>
-                        <td style={{ fontWeight: 600 }}>{p.nombre}</td>
-                        <td>
-                          <span style={{ fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '12px', backgroundColor: '#F1F5F9', color: '#475569' }}>
-                            {p.categoria}
-                          </span>
-                        </td>
-                        <td style={{ textAlign: 'right', fontWeight: 600 }}>
-                          ${(p.precio_compra || 0).toLocaleString('es-CO')}
-                        </td>
-
-                        {/* Stock por bodegas */}
-                        {Object.keys(stock).map(bodegaName => {
-                          const qty = getStockInBodega(p.sku, bodegaName);
-                          return (
-                            <td key={bodegaName} style={{ textAlign: 'right', color: qty > 0 ? '#0F172A' : '#94A3B8' }}>
-                              {qty} {p.unidadMedida}
-                            </td>
-                          );
-                        })}
-
-                        <td style={{ textAlign: 'right', fontWeight: 700, backgroundColor: 'rgba(16, 185, 129, 0.02)', color: 'var(--primary-color)' }}>
-                          {getTotalStock(p.sku)} {p.unidadMedida}
-                        </td>
-
-                        <td onClick={e => e.stopPropagation()}>
-                          <span
-                            onClick={() => handleToggleProduct(p.sku)}
-                            className={`badge-status ${p.activo ? 'activo' : 'inactivo'}`}
-                            style={{ cursor: 'pointer' }}
-                          >
-                            {p.activo ? 'Activo' : 'Inactivo'}
-                          </span>
-                        </td>
-                        <td onClick={e => e.stopPropagation()}>
-                          <button 
-                            onClick={() => handleEditProduct(p)} 
-                            style={{ background: 'none', border: 'none', color: 'var(--primary-color)', cursor: 'pointer' }}
-                          >
-                            <Edit2 size={16} />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-            </div>
+            <ProductTable 
+              products={products}
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              statusFilter={statusFilter}
+              setStatusFilter={setStatusFilter}
+              stock={stock}
+              getTotalStock={getTotalStock}
+              getStockInBodega={getStockInBodega}
+              handleEditProduct={handleEditProduct}
+              handleToggleProduct={handleToggleProduct}
+              setIsCreating={setIsCreating}
+              setProductForm={setProductForm}
+              setCustomTipo={setCustomTipo}
+              setCustomLinea={setCustomLinea}
+              setCustomClase={setCustomClase}
+            />
           )}
         </div>
       )}
 
       {viewMode === 'categorias' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr', gap: '24px' }}>
-          
-          {/* COLUMNA IZQUIERDA: FORMULARIO CREAR/EDITAR */}
-          <div className="hr-table-card" style={{ padding: '24px', height: 'fit-content' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '20px', color: '#0F172A', borderBottom: '1px solid #E2E8F0', paddingBottom: '8px' }}>
-              {editingCategoryId ? 'Editar Categoría' : 'Crear Nueva Categoría'}
-            </h3>
-            
-            <form onSubmit={handleSaveCategory} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Tipo (Grupo Principal) *</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Ej: Producto, Materia Prima, Insumo"
-                  value={categoryForm.tipo}
-                  onChange={e => setCategoryForm({ ...categoryForm, tipo: e.target.value })}
-                  list="existing-types"
-                />
-                <datalist id="existing-types">
-                  {Array.from(new Set(categorias.map(c => c.tipo))).map(t => <option key={t} value={t} />)}
-                </datalist>
-              </div>
+        <CategoryManager 
+          categorias={categorias}
+          categoryForm={categoryForm}
+          setCategoryForm={setCategoryForm}
+          editingCategoryId={editingCategoryId}
+          setEditingCategoryId={setEditingCategoryId}
+          categorySearch={categorySearch}
+          setCategorySearch={setCategorySearch}
+          handleSaveCategory={handleSaveCategory}
+          handleDeleteCategory={handleDeleteCategory}
+        />
+      )}
 
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Línea *</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Ej: Pescados, Mariscos, Abarrotes"
-                  value={categoryForm.linea}
-                  onChange={e => setCategoryForm({ ...categoryForm, linea: e.target.value })}
-                />
-              </div>
-
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Clase (Detalle / Especie) *</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Ej: Filetes, Enteros, Camarón Tigre"
-                  value={categoryForm.clase}
-                  onChange={e => setCategoryForm({ ...categoryForm, clase: e.target.value })}
-                />
-              </div>
-
-              <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
-                <button 
-                  type="submit" 
-                  className="btn-primary" 
-                  style={{ border: 'none', flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '12px', backgroundColor: 'var(--primary-color)', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}
-                >
-                  <Save size={16} />
-                  <span>{editingCategoryId ? 'Actualizar Categoría' : 'Crear Categoría'}</span>
-                </button>
-                {editingCategoryId && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditingCategoryId(null);
-                      setCategoryForm({ tipo: '', linea: '', clase: '' });
-                    }}
-                    className="btn-secondary"
-                    style={{ flex: 0.5, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '12px', borderRadius: '12px', fontWeight: 600, border: '1px solid #CBD5E1', cursor: 'pointer' }}
-                  >
-                    Cancelar
-                  </button>
-                )}
-              </div>
-            </form>
-          </div>
-
-          {/* COLUMNA DERECHA: LISTADO Y JERARQUÍA */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            
-            {/* Buscador */}
-            <div className="pos-search-bar" style={{ marginBottom: 0 }}>
-              <Search size={18} color="#64748B" />
-              <input
-                type="text"
-                className="pos-search-input"
-                placeholder="Buscar categorías por tipo, línea o clase..."
-                value={categorySearch}
-                onChange={e => setCategorySearch(e.target.value)}
-              />
-            </div>
-
-            {/* Tabla de Configuración de Categorías */}
-            <div className="hr-table-card" style={{ padding: '24px' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: 800, marginBottom: '16px', color: '#0F172A' }}>Registros de Configuración de Categoría (3NF)</h3>
-              <div style={{ overflowX: 'auto' }}>
-                <table className="hr-table">
-                  <thead>
-                    <tr>
-                      <th>Tipo (Nivel 1)</th>
-                      <th>Línea (Nivel 2)</th>
-                      <th>Clase (Nivel 3)</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {categorias.filter(c => {
-                      const search = categorySearch.toLowerCase();
-                      return c.tipo.toLowerCase().includes(search) || 
-                             c.linea.toLowerCase().includes(search) || 
-                             c.clase.toLowerCase().includes(search);
-                    }).map(c => (
-                      <tr key={c.id}>
-                        <td style={{ fontWeight: 700 }}>{c.tipo}</td>
-                        <td style={{ fontWeight: 600, color: '#475569' }}>{c.linea}</td>
-                        <td style={{ color: '#0F172A' }}>{c.clase}</td>
-                        <td>
-                          <div style={{ display: 'flex', gap: '12px' }}>
-                            <button
-                              onClick={() => {
-                                setEditingCategoryId(c.id);
-                                setCategoryForm({ tipo: c.tipo, linea: c.linea, clase: c.clase });
-                              }}
-                              style={{ background: 'none', border: 'none', color: 'var(--primary-color)', cursor: 'pointer' }}
-                              title="Editar"
-                            >
-                              <Edit2 size={16} />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteCategory(c.id)}
-                              style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer' }}
-                              title="Eliminar"
-                            >
-                              <X size={16} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                    {categorias.length === 0 && (
-                      <tr>
-                        <td colSpan={4} style={{ textAlign: 'center', color: '#64748B', padding: '16px' }}>
-                          No hay categorías configuradas.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Árbol Jerárquico Visual */}
-            <div className="hr-table-card" style={{ padding: '24px' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: 800, marginBottom: '16px', color: '#0F172A' }}>Jerarquía Visual de Clasificación</h3>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {Array.from(new Set(categorias.map(c => c.tipo))).map(tipoName => {
-                  const lineasForTipo = Array.from(new Set(categorias.filter(c => c.tipo === tipoName).map(c => c.linea)));
-                  return (
-                    <div key={tipoName} style={{ border: '1px solid #E2E8F0', borderRadius: '8px', padding: '16px', backgroundColor: '#F8FAFC' }}>
-                      <div style={{ fontWeight: 800, fontSize: '14px', color: 'var(--primary-color)', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--primary-color)' }}></span>
-                        {tipoName}
-                      </div>
-                      
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '12px', paddingLeft: '14px', borderLeft: '1px dashed #CBD5E1' }}>
-                        {lineasForTipo.map(lineaName => {
-                          const clasesForLinea = categorias.filter(c => c.tipo === tipoName && c.linea === lineaName).map(c => c.clase);
-                          return (
-                            <div key={lineaName}>
-                              <div style={{ fontWeight: 700, fontSize: '13px', color: '#475569' }}>└─ {lineaName}</div>
-                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px', paddingLeft: '24px' }}>
-                                {clasesForLinea.map(claseName => (
-                                  <span key={claseName} style={{ fontSize: '11px', fontWeight: 600, padding: '3px 8px', borderRadius: '12px', backgroundColor: 'white', border: '1px solid #E2E8F0', color: '#0F172A' }}>
-                                    {claseName}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-          </div>
-
-        </div>
+      {viewMode === 'reportes_compra' && (
+        <PurchasesReport 
+          ordenesCompra={ordenesCompra}
+          proveedores={proveedores}
+          productsCatalog={productsCatalog}
+          categorias={categorias}
+          userRole={userRole}
+        />
       )}
 
     </div>

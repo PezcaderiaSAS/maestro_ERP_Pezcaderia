@@ -41,7 +41,6 @@ export default function PricingView({
   setQuotations,
   publishEvent,
   userRole,
-  stock,
   setStock,
   updateLastClientPrice,
   clientes,
