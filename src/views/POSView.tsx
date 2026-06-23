@@ -11,6 +11,7 @@ import { DiscountPanel } from './pos/components/DiscountPanel.tsx';
 import { PaymentPanel } from './pos/components/PaymentPanel.tsx';
 import { BalanzaButton } from './pos/components/BalanzaButton.tsx';
 import { TicketBuilder } from './pos/components/TicketBuilder.tsx';
+import { cashService } from '../services/cashService.ts';
 
 interface CartItem {
   product: Product;
@@ -563,6 +564,21 @@ export default function POSView({
   };
 
   const handlePagar = () => {
+    // RN-57: Validacion estricta de Turno de Caja Abierto
+    const turnosAbiertos = cashService.getTurnos().filter(t => t.cajeroId === userRole && t.estado === 'ABIERTO');
+    
+    if (turnosAbiertos.length === 0) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Operación Bloqueada',
+        text: 'Debe abrir un Turno de Caja antes de poder registrar pagos o facturar.',
+        confirmButtonColor: 'var(--primary-color)'
+      }).then(() => {
+        setCurrentView('caja');
+      });
+      return;
+    }
+
     if (cart.length === 0) {
       Swal.fire({
         icon: 'warning',
@@ -608,6 +624,17 @@ export default function POSView({
         <div style="text-align: left; font-size: 14px; color: var(--text-primary);">
           <div style="margin-bottom: 12px; display: flex; justify-content: space-between; font-size: 16px; border-bottom: 2px solid #E2E8F0; padding-bottom: 8px;">
             <strong>Total a Pagar:</strong> <strong style="color: var(--primary-color);">$${totalFinal.toLocaleString('es-CO')}</strong>
+          </div>
+
+          <!-- Selección de Caja Destino -->
+          <div style="margin-bottom: 16px; padding: 12px; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #0F172A;">Caja Destino (Ingreso):</label>
+            <select id="pay-caja-destino" class="swal2-select" style="margin: 0; width: 100%; height: 38px; padding: 4px; font-size: 13px;">
+              ${turnosAbiertos.map(t => {
+                const cajaInfo = cashService.getCajas().find(c => c.id === t.cajaId);
+                return `<option value="${t.id}">${cajaInfo?.nombre || 'Caja Desconocida'} (Turno Actual)</option>`;
+              }).join('')}
+            </select>
           </div>
 
           <!-- Opción Facturación Electrónica (Fase 1) -->
@@ -816,6 +843,12 @@ export default function POSView({
         const credit = parseFloat((document.getElementById('pay-credit') as HTMLInputElement).value) || 0;
         const creditDate = (document.getElementById('pay-credit-date') as HTMLInputElement)?.value;
         const requiereFE = (document.getElementById('req-fe') as HTMLInputElement).checked;
+        const turnoSeleccionadoId = (document.getElementById('pay-caja-destino') as HTMLSelectElement).value;
+
+        if (!turnoSeleccionadoId) {
+          Swal.showValidationMessage('Debe seleccionar una Caja Destino (Turno Activo) para registrar el movimiento.');
+          return false;
+        }
 
         const totalPaid = transfer + card + cash + credit;
 
@@ -841,11 +874,11 @@ export default function POSView({
           return false;
         }
 
-        return { transfer, card, cash, credit, creditDate, totalPaid, change: totalPaid - totalFinal, requiereFE };
+        return { transfer, card, cash, credit, creditDate, totalPaid, change: totalPaid - totalFinal, requiereFE, turnoSeleccionadoId };
       }
     }).then((result) => {
       if (result.isConfirmed && result.value) {
-        const { transfer, card, cash, credit, creditDate, change, requiereFE } = result.value;
+        const { transfer, card, cash, credit, creditDate, change, requiereFE, turnoSeleccionadoId } = result.value;
         const orderNo = 'PED-' + Math.floor(100000 + Math.random() * 900000);
         const vtaId = generateId('vta');
 
@@ -986,10 +1019,53 @@ export default function POSView({
           setCartera(prev => [newAR, ...prev]);
         }
 
+        // RN-57 / Flujo Cajas: Registrar ingresos en el turno activo seleccionado
+        const turnoDestino = cashService.getTurnos().find(t => t.id === turnoSeleccionadoId);
+        if (turnoDestino) {
+          const efectivoReal = Math.max(0, cash - change);
+          
+          if (efectivoReal > 0) {
+            cashService.registrarMovimiento(
+              turnoDestino.id,
+              turnoDestino.cajaId,
+              'INGRESO_VENTA',
+              'EFECTIVO',
+              efectivoReal,
+              `Cobro POS (Venta: ${orderNo})`,
+              vtaId,
+              userRole
+            );
+          }
+          if (card > 0) {
+            cashService.registrarMovimiento(
+              turnoDestino.id,
+              turnoDestino.cajaId,
+              'INGRESO_VENTA',
+              'DATAFONO',
+              card,
+              `Cobro POS (Venta: ${orderNo})`,
+              vtaId,
+              userRole
+            );
+          }
+          if (transfer > 0) {
+            cashService.registrarMovimiento(
+              turnoDestino.id,
+              turnoDestino.cajaId,
+              'INGRESO_VENTA',
+              'TRANSFERENCIA',
+              transfer,
+              `Cobro POS (Venta: ${orderNo})`,
+              vtaId,
+              userRole
+            );
+          }
+        }
+
         publishEvent(
           'SALE_COMPLETED',
           userRole,
-          `Venta liquidada para ${cliente ? cliente.nombre : 'Consumidor Final'} por total de $${totalFinal.toLocaleString('es-CO')}. FE: ${requiereFE ? 'SÍ' : 'NO'}. (Transf: $${transfer.toLocaleString('es-CO')}, Tarjeta: $${card.toLocaleString('es-CO')}, Efectivo: $${cash.toLocaleString('es-CO')}, Crédito: $${credit.toLocaleString('es-CO')})`,
+          `Venta liquidada para ${cliente ? cliente.nombre : 'Consumidor Final'} por total de $${totalFinal.toLocaleString('es-CO')}. FE: ${requiereFE ? 'SI' : 'NO'}. (Transf: $${transfer.toLocaleString('es-CO')}, Tarjeta: $${card.toLocaleString('es-CO')}, Efectivo: $${cash.toLocaleString('es-CO')}, Credito: $${credit.toLocaleString('es-CO')})`,
           { cliente, total: totalFinal, requiereFE, items: cart.map(i => ({ sku: i.product.sku, cantidad: i.cantidad })), transfer, card, cash, credit, change }
         );
 
@@ -1570,7 +1646,7 @@ export default function POSView({
               boxShadow: activeSubView === 'gestion_kanban' ? '0 4px 12px rgba(245, 158, 11, 0.3)' : 'none'
             }}
           >
-            <span style={{ fontSize: '18px' }}>📋</span>
+            <span style={{ fontSize: '18px' }}>KB</span>
             <span>Gestión Kanban</span>
           </button>
         </div>
@@ -1992,6 +2068,7 @@ export default function POSView({
         </div>
         </>
         )}
+      </div>
       </div>
       ) : activeSubView === 'consolidacion_b2b' ? (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px', width: '100%', boxSizing: 'border-box' }} className="animate-fade-in">

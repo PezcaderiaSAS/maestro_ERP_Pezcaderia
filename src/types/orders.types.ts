@@ -1,4 +1,13 @@
-export type EstadoPedido = 'CREADO' | 'ALISTADO' | 'FACTURADO' | 'EN_RUTA' | 'ENTREGADO' | 'ANULADO';
+export type EstadoPedido = 
+  | 'CREADO' 
+  | 'LISTO' 
+  | 'EN_DESPACHO' 
+  | 'ENTREGADO' 
+  | 'FACTURADO' 
+  | 'PAGADO' 
+  | 'PAUSADO' 
+  | 'PAUSADO_POR_CREDITO' 
+  | 'ANULADO';
 
 export interface LineaPedido {
   productoId: string;
@@ -29,4 +38,6 @@ export interface Pedido {
   totalFinal: number;
   idempotencyKey: string;
   rutaId: string | null;
+  facturacionElectronica: boolean;
+  idSiigo: string | null;
 }

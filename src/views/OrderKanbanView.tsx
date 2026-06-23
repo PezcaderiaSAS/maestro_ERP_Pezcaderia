@@ -1,6 +1,9 @@
 import React from 'react';
 import { Truck, CheckCircle, PackageSearch, Package, Clock, AlertCircle, FileText } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { b2bService } from '../services/b2bService';
+import { cashService } from '../services/cashService';
+import { EstadoPedido } from '../types/orders.types';
 
 interface OrderKanbanViewProps {
   quotations: any[];
@@ -10,7 +13,7 @@ interface OrderKanbanViewProps {
   onEditOrder: (quote: any) => void;
 }
 
-type ColumnId = 'por-revisar' | 'en-proceso' | 'listo' | 'en-entrega' | 'entregado' | 'finalizado';
+type ColumnId = 'pausados' | 'creados' | 'listos' | 'en_despacho' | 'entregados' | 'facturados' | 'pagados';
 
 export default function OrderKanbanView({
   quotations,
@@ -21,12 +24,13 @@ export default function OrderKanbanView({
 }: OrderKanbanViewProps) {
 
   const columns: { id: ColumnId; title: string; states: string[]; color: string; icon: React.ReactNode }[] = [
-    { id: 'por-revisar', title: 'Por Revisar', states: ['Creado', 'Sent'], color: '#F1F5F9', icon: <PackageSearch size={20} color="#64748B" /> },
-    { id: 'en-proceso', title: 'En Proceso', states: ['Approved', 'Pausado'], color: '#E0F2FE', icon: <Clock size={20} color="#0284C7" /> },
-    { id: 'listo', title: 'Listos para Despacho', states: ['Listo'], color: '#FEF3C7', icon: <Package size={20} color="#D97706" /> },
-    { id: 'en-entrega', title: 'En Entrega', states: ['En Entrega'], color: '#EDE9FE', icon: <Truck size={20} color="#8B5CF6" /> },
-    { id: 'entregado', title: 'Entregado', states: ['Entregado'], color: '#DCFCE7', icon: <CheckCircle size={20} color="#059669" /> },
-    { id: 'finalizado', title: 'Finalizado', states: ['Sold', 'Finalizado'], color: '#F3F4F6', icon: <CheckCircle size={20} color="#9CA3AF" /> },
+    { id: 'pausados', title: 'Pausados', states: ['PAUSADO', 'PAUSADO_POR_CREDITO'], color: '#FEE2E2', icon: <AlertCircle size={20} color="#EF4444" /> },
+    { id: 'creados', title: 'Por Alistar', states: ['CREADO'], color: '#F1F5F9', icon: <PackageSearch size={20} color="#64748B" /> },
+    { id: 'listos', title: 'Listos para Despacho', states: ['LISTO'], color: '#FEF3C7', icon: <Package size={20} color="#D97706" /> },
+    { id: 'en_despacho', title: 'En Despacho', states: ['EN_DESPACHO'], color: '#EDE9FE', icon: <Truck size={20} color="#8B5CF6" /> },
+    { id: 'entregados', title: 'Entregados', states: ['ENTREGADO'], color: '#DCFCE7', icon: <CheckCircle size={20} color="#059669" /> },
+    { id: 'facturados', title: 'Facturados', states: ['FACTURADO'], color: '#E0F2FE', icon: <FileText size={20} color="#0284C7" /> },
+    { id: 'pagados', title: 'Pagados / Finalizados', states: ['PAGADO', 'ANULADO'], color: '#F3F4F6', icon: <CheckCircle size={20} color="#9CA3AF" /> },
   ];
 
   const handleDragStart = (e: React.DragEvent, quoteId: string) => {
@@ -42,36 +46,35 @@ export default function OrderKanbanView({
     const quoteId = e.dataTransfer.getData('quoteId');
     if (!quoteId) return;
 
-    // Obtener el estado destino basado en la columna
-    let nuevoEstado = '';
-    if (targetColumnId === 'por-revisar') nuevoEstado = 'Creado';
-    if (targetColumnId === 'en-proceso') nuevoEstado = 'Approved';
-    if (targetColumnId === 'listo') nuevoEstado = 'Listo';
-    if (targetColumnId === 'en-entrega') nuevoEstado = 'En Entrega';
-    if (targetColumnId === 'entregado') nuevoEstado = 'Entregado';
-    if (targetColumnId === 'finalizado') nuevoEstado = 'Finalizado';
+    if (targetColumnId === 'pausados') {
+      Swal.fire({
+        icon: 'error',
+        title: 'Acción no permitida',
+        text: 'Los pedidos solo entran en pausa automáticamente por reglas de negocio.',
+        confirmButtonColor: 'var(--primary-color)'
+      });
+      return;
+    }
+
+    let nuevoEstado: EstadoPedido = 'CREADO';
+    if (targetColumnId === 'creados') nuevoEstado = 'CREADO';
+    if (targetColumnId === 'listos') nuevoEstado = 'LISTO';
+    if (targetColumnId === 'en_despacho') nuevoEstado = 'EN_DESPACHO';
+    if (targetColumnId === 'entregados') nuevoEstado = 'ENTREGADO';
+    if (targetColumnId === 'facturados') nuevoEstado = 'FACTURADO';
+    if (targetColumnId === 'pagados') nuevoEstado = 'PAGADO';
 
     // Validación de permisos
-    if (['en-proceso', 'listo', 'en-entrega'].includes(targetColumnId)) {
+    if (['listos', 'en_despacho'].includes(targetColumnId)) {
       if (!['admin', 'administrativo', 'vendedor', 'Jefe de Bodega'].includes(userRole)) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Acceso Denegado',
-          text: 'No tienes permisos para avanzar pedidos a este estado.',
-          confirmButtonColor: 'var(--primary-color)'
-        });
+        Swal.fire({ icon: 'error', title: 'Acceso Denegado', text: 'No tienes permisos para avanzar pedidos a este estado.', confirmButtonColor: 'var(--primary-color)' });
         return;
       }
     }
 
-    if (['entregado', 'finalizado'].includes(targetColumnId)) {
-      if (!['admin', 'administrativo', 'vendedor'].includes(userRole)) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Acceso Denegado',
-          text: 'No tienes permisos para marcar pedidos como entregados/finalizados.',
-          confirmButtonColor: 'var(--primary-color)'
-        });
+    if (['entregados', 'facturados', 'pagados'].includes(targetColumnId)) {
+      if (!['admin', 'administrativo'].includes(userRole)) {
+        Swal.fire({ icon: 'error', title: 'Acceso Denegado', text: 'No tienes permisos para facturar o liquidar pedidos.', confirmButtonColor: 'var(--primary-color)' });
         return;
       }
     }
@@ -79,35 +82,141 @@ export default function OrderKanbanView({
     const currentQuote = quotations.find(q => q.id === quoteId);
     if (!currentQuote || currentQuote.estado === nuevoEstado) return;
 
-    // Confirmar si pasa a finalizado
-    if (targetColumnId === 'finalizado') {
+    // Lógica especial para cuando el pedido se mueve a 'PAGADO' (RN-58 y RN-57)
+    if (nuevoEstado === 'PAGADO') {
+      const turnosAbiertos = cashService.getTurnos().filter(t => t.estado === 'ABIERTO');
+      
+      if (turnosAbiertos.length === 0) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Operación Bloqueada',
+          text: 'Debe haber al menos un Turno de Caja abierto para poder registrar el pago de un pedido B2B.',
+          confirmButtonColor: 'var(--primary-color)'
+        });
+        return;
+      }
+
+      const totalPedido = currentQuote.totalFinal || currentQuote.total || 0;
+
       Swal.fire({
-        title: '¿Finalizar Pedido?',
-        text: 'Esto marcará el pedido como completado definitivamente.',
-        icon: 'warning',
+        title: 'Registrar Pago B2B',
+        html: `
+          <div style="text-align: left; font-size: 14px; color: var(--text-primary);">
+            <div style="margin-bottom: 12px; display: flex; justify-content: space-between; font-size: 16px; border-bottom: 2px solid #E2E8F0; padding-bottom: 8px;">
+              <strong>Total a Pagar:</strong> <strong style="color: var(--primary-color);">$ ${totalPedido.toLocaleString('es-CO')}</strong>
+            </div>
+
+            <!-- Selección de Caja Destino -->
+            <div style="margin-bottom: 16px; padding: 12px; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #0F172A;">Caja Destino (Ingreso):</label>
+              <select id="pay-b2b-caja" class="swal2-select" style="margin: 0; width: 100%; height: 38px; padding: 4px; font-size: 13px;">
+                ${turnosAbiertos.map(t => {
+                  const cajaInfo = cashService.getCajas().find(c => c.id === t.cajaId);
+                  const isMiTurno = t.cajeroId === userRole ? ' (Mi Turno)' : '';
+                  const isSelected = t.cajeroId === userRole ? 'selected' : '';
+                  return `<option value="${t.id}" ${isSelected}>${cajaInfo?.nombre || 'Caja Desconocida'} - ${t.cajeroId}${isMiTurno}</option>`;
+                }).join('')}
+              </select>
+            </div>
+
+            <p style="margin-bottom: 12px; font-weight: 600;">Desglose de Pago:</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label>Efectivo:</label>
+                <input type="number" id="pay-b2b-cash" class="swal2-input" value="${totalPedido}" style="width: 150px; margin: 0; height: 36px; font-size: 14px;" />
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label>Datáfono (Tarjeta):</label>
+                <input type="number" id="pay-b2b-card" class="swal2-input" value="0" style="width: 150px; margin: 0; height: 36px; font-size: 14px;" />
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label>Transferencia:</label>
+                <input type="number" id="pay-b2b-transfer" class="swal2-input" value="0" style="width: 150px; margin: 0; height: 36px; font-size: 14px;" />
+              </div>
+            </div>
+          </div>
+        `,
         showCancelButton: true,
-        confirmButtonText: 'Sí, Finalizar',
+        confirmButtonText: 'Registrar Pago',
         cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#10B981'
+        confirmButtonColor: 'var(--primary-color)',
+        preConfirm: () => {
+          const cash = parseFloat((document.getElementById('pay-b2b-cash') as HTMLInputElement).value) || 0;
+          const card = parseFloat((document.getElementById('pay-b2b-card') as HTMLInputElement).value) || 0;
+          const transfer = parseFloat((document.getElementById('pay-b2b-transfer') as HTMLInputElement).value) || 0;
+          const turnoId = (document.getElementById('pay-b2b-caja') as HTMLSelectElement).value;
+
+          const totalIngresado = cash + card + transfer;
+
+          if (totalIngresado < totalPedido) {
+            Swal.showValidationMessage(`El pago desglosado ($${totalIngresado.toLocaleString('es-CO')}) no cubre el total del pedido ($${totalPedido.toLocaleString('es-CO')}). Faltan $${(totalPedido - totalIngresado).toLocaleString('es-CO')}`);
+            return false;
+          }
+
+          if (!turnoId) {
+            Swal.showValidationMessage('Debe seleccionar una Caja Destino.');
+            return false;
+          }
+
+          return { cash, card, transfer, turnoId, change: totalIngresado - totalPedido };
+        }
       }).then((result) => {
-        if (result.isConfirmed) {
-          updateQuoteState(quoteId, nuevoEstado);
+        if (result.isConfirmed && result.value) {
+          const { cash, card, transfer, turnoId, change } = result.value;
+          
+          try {
+            const resultado = b2bService.cambiarEstadoPedido(quoteId, nuevoEstado);
+            if (resultado.error) {
+              Swal.fire({ icon: 'error', title: 'Error de transición', text: resultado.error, confirmButtonColor: 'var(--primary-color)' });
+              return;
+            }
+
+            const turnoDestino = cashService.getTurnos().find(t => t.id === turnoId);
+            if (turnoDestino) {
+              const orderNoStr = currentQuote.numeroPedido || currentQuote.no || currentQuote.id;
+              const refId = currentQuote.id;
+              
+              const efectivoReal = Math.max(0, cash - change);
+              if (efectivoReal > 0) {
+                cashService.registrarMovimiento(turnoDestino.id, turnoDestino.cajaId, 'INGRESO_VENTA', 'EFECTIVO', efectivoReal, `Pago B2B (Pedido: ${orderNoStr})`, refId, userRole);
+              }
+              if (card > 0) {
+                cashService.registrarMovimiento(turnoDestino.id, turnoDestino.cajaId, 'INGRESO_VENTA', 'DATAFONO', card, `Pago B2B (Pedido: ${orderNoStr})`, refId, userRole);
+              }
+              if (transfer > 0) {
+                cashService.registrarMovimiento(turnoDestino.id, turnoDestino.cajaId, 'INGRESO_VENTA', 'TRANSFERENCIA', transfer, `Pago B2B (Pedido: ${orderNoStr})`, refId, userRole);
+              }
+            }
+
+            setQuotations(prev => prev.map(q => q.id === quoteId ? { ...q, estado: nuevoEstado, fechaActualizacionKanban: new Date().toISOString() } : q));
+            publishEvent('QUOTE_STATUS_CHANGED', userRole, `Pedido pagado y registrado en Caja`, { quoteId, nuevoEstado });
+            
+            Swal.fire({ icon: 'success', title: 'Pago Registrado', text: 'El pedido ha sido marcado como pagado y el ingreso se registró en la caja.', confirmButtonColor: 'var(--primary-color)' });
+
+          } catch (e: any) {
+            Swal.fire({ icon: 'error', title: 'Error interno', text: e.message, confirmButtonColor: 'var(--primary-color)' });
+          }
         }
       });
-    } else {
-      updateQuoteState(quoteId, nuevoEstado);
+      
+      return; // Detenemos la ejecución síncrona aquí porque dependemos de la promesa del Swal
     }
-  };
 
-  const updateQuoteState = (quoteId: string, nuevoEstado: string) => {
-    setQuotations(prev => prev.map(q => q.id === quoteId ? { ...q, estado: nuevoEstado, fechaActualizacionKanban: new Date().toISOString() } : q));
-    
-    publishEvent(
-      'QUOTE_STATUS_CHANGED',
-      userRole,
-      `Pedido actualizado a estado ${nuevoEstado}`,
-      { quoteId, nuevoEstado }
-    );
+    // Aquí usamos b2bService en lugar de setQuotations crudo para validar reglas (para otros estados)
+    try {
+      const resultado = b2bService.cambiarEstadoPedido(quoteId, nuevoEstado);
+      if (resultado.error) {
+        Swal.fire({ icon: 'error', title: 'Error de transición', text: resultado.error, confirmButtonColor: 'var(--primary-color)' });
+        return;
+      }
+
+      setQuotations(prev => prev.map(q => q.id === quoteId ? { ...q, estado: nuevoEstado, fechaActualizacionKanban: new Date().toISOString() } : q));
+      
+      publishEvent('QUOTE_STATUS_CHANGED', userRole, `Pedido actualizado a estado ${nuevoEstado}`, { quoteId, nuevoEstado });
+    } catch (e: any) {
+      Swal.fire({ icon: 'error', title: 'Error interno', text: e.message, confirmButtonColor: 'var(--primary-color)' });
+    }
   };
 
   return (
@@ -115,40 +224,27 @@ export default function OrderKanbanView({
       
       <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#1E293B', margin: 0 }}>Kanban de Pedidos</h2>
-          <p style={{ color: '#64748B', margin: '4px 0 0 0', fontSize: '14px' }}>Arrastra y suelta los pedidos para actualizar su estado logístico.</p>
+          <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#1E293B', margin: 0 }}>Kanban B2B</h2>
+          <p style={{ color: '#64748B', margin: '4px 0 0 0', fontSize: '14px' }}>Flujo logístico: Creado → Listo → En Despacho → Entregado → Facturado → Pagado.</p>
         </div>
       </div>
 
       <div style={{ display: 'flex', gap: '20px', flex: 1, overflowX: 'auto', paddingBottom: '16px' }}>
         {columns.map(column => {
-          // Lógica de limpieza para finalizados (6:00 am del día actual)
           const now = new Date();
           const cutoffTime = new Date(now);
           cutoffTime.setHours(6, 0, 0, 0);
-          if (now.getHours() < 6) {
-            cutoffTime.setDate(cutoffTime.getDate() - 1);
-          }
+          if (now.getHours() < 6) cutoffTime.setDate(cutoffTime.getDate() - 1);
 
           const columnQuotes = quotations.filter(q => {
             if (!column.states.includes(q.estado)) return false;
             
-            // Si es un estado finalizado, ocultarlo si fue modificado antes del cutoff
-            if (['Sold', 'Finalizado'].includes(q.estado)) {
+            if (['PAGADO', 'ANULADO'].includes(q.estado)) {
               const updateTimeStr = q.fechaActualizacionKanban || q.fecha;
-              // Si no podemos parsear la fecha, asumimos que es vieja
               if (!updateTimeStr) return false;
-              
               const updateTime = new Date(updateTimeStr);
-              // Validar si la fecha es inválida (por formato DD/MM/YYYY)
-              if (isNaN(updateTime.getTime())) {
-                // Intento simple de parsear DD/MM/YYYY o usar fecha actual como fallback
-                // En un caso real, esto dependerá del formato guardado en q.fecha
-                return true; 
-              }
-              if (updateTime < cutoffTime) {
-                return false; // Se oculta porque ya pasó de las 6am del nuevo día
-              }
+              if (isNaN(updateTime.getTime())) return true; 
+              if (updateTime < cutoffTime) return false;
             }
             return true;
           });
@@ -213,31 +309,31 @@ export default function OrderKanbanView({
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div>
-                          <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary-color)' }}>{quote.no}</div>
-                          <div style={{ fontSize: '14px', fontWeight: 700, color: '#1E293B', marginTop: '2px' }}>{quote.clientName}</div>
+                          <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary-color)' }}>{quote.numeroPedido || quote.no}</div>
+                          <div style={{ fontSize: '14px', fontWeight: 700, color: '#1E293B', marginTop: '2px' }}>{quote.clientName || 'Cliente No Identificado'}</div>
                         </div>
-                        {quote.estado === 'Pausado' && (
+                        {quote.estado === 'PAUSADO' && (
                           <span style={{ backgroundColor: '#FEE2E2', color: '#EF4444', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <AlertCircle size={10} /> Pausado
+                            <AlertCircle size={10} /> Peso &gt; 5%
                           </span>
                         )}
-                        {quote.estado === 'Approved' && (
-                          <span style={{ backgroundColor: '#E0E7FF', color: '#4338CA', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
-                            Aprobado
+                        {quote.estado === 'PAUSADO_POR_CREDITO' && (
+                          <span style={{ backgroundColor: '#FEE2E2', color: '#EF4444', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <AlertCircle size={10} /> Cupo Lleno
                           </span>
                         )}
                       </div>
 
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#64748B' }}>
                         <FileText size={14} />
-                        <span>{quote.items?.length || 0} ítems</span>
+                        <span>{quote.lineas?.length || quote.items?.length || 0} ítems</span>
                       </div>
 
-                      {quote.logistica && quote.logistica.tipoEntrega !== 'RECOGEN' && (
+                      {quote.tipoEntrega === 'EN_RUTA' && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#64748B' }}>
                           <Truck size={14} />
                           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {quote.logistica.direccionEntrega || 'Sin dirección'}
+                            En Ruta Asignada
                           </span>
                         </div>
                       )}
@@ -245,7 +341,7 @@ export default function OrderKanbanView({
                       <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: '8px', marginTop: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ fontSize: '11px', color: '#94A3B8' }}>{quote.fecha}</div>
                         <div style={{ fontWeight: 800, color: '#1E293B', fontSize: '14px' }}>
-                          ${quote.total?.toLocaleString('es-CO') || 0}
+                          ${(quote.totalFinal || quote.total || 0).toLocaleString('es-CO')}
                         </div>
                       </div>
                     </div>

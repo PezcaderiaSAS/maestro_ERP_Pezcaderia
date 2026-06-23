@@ -1,4 +1,5 @@
 // src/types/pos.types.ts
+import { ResultadoOperacion } from './common.types';
 
 export interface LineaVenta {
   productoId: string;
@@ -34,9 +35,4 @@ export interface ConfiguracionPOS {
   cajaActivaId: string;
   puertoBalanza: string | null;
   puertoImpresora: string | null;
-}
-
-export interface ResultadoOperacion<T> {
-  data: T | null;
-  error: string | null;
 }

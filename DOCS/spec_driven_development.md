@@ -107,11 +107,20 @@ DOCS/
 ├── business_rules.md              ← Tablas de la Verdad
 ├── SPECS/
 │   ├── SPEC_TEMPLATE.md           ← Plantilla para nuevos SPECs
-│   ├── SPEC_POS.md                ← SPEC del módulo POS ✅
-│   ├── SPEC_INVENTORY.md          ← SPEC del módulo Inventario ✅
-│   ├── SPEC_ORDERS.md             ← SPEC del módulo Pedidos/Logística ✅
-│   ├── SPEC_TESTING.md            ← Guía de Vitest para el proyecto ✅
-│   └── [SPEC_MODULO].md           ← Futuros SPECs
+│   ├── SPEC_POS.md                ← Módulo 1: POS ✅
+│   ├── SPEC_B2B.md                ← Módulo 2: Ventas B2B (Por crear)
+│   ├── SPEC_INVENTORY.md          ← Módulo 3: Inventario y WMS ✅
+│   ├── SPEC_PURCHASES.md          ← Módulo 4: Compras (Por crear)
+│   ├── SPEC_EXPENSES.md           ← Módulo 5: Gastos (Por crear)
+│   ├── SPEC_PRODUCTION.md         ← Módulo 6: Producción (Por crear)
+│   ├── SPEC_BILLING.md            ← Módulo 7: Facturación / Historial (Por crear)
+│   ├── SPEC_RRHH_NOMINA.md        ← Módulo 8: RRHH y Nómina ✅
+│   ├── SPEC_LOGISTICS.md          ← Módulo 9: Logística (Por crear)
+│   ├── SPEC_REPORTS.md            ← Módulo 10: Informes (Por crear)
+│   ├── SPEC_CASHFLOW.md           ← Módulo 11: Cajas y Flujo de Caja (Por crear)
+│   ├── SPEC_CLIENTS.md            ← Módulo 12: Clientes y Cartera (Por crear)
+│   ├── SPEC_CRM.md                ← Módulo 13: CRM (Por crear)
+│   └── SPEC_TESTING.md            ← Guía de Vitest para el proyecto ✅
 └── SKILLS/
     ├── skill_crear_spec.md        ← Cómo redactar un SPEC
     ├── skill_crear_servicio.md    ← Cómo crear un servicio de datos

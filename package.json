@@ -20,8 +20,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "sweetalert2": "^11.10.6",
-    "jspdf": "^2.5.1",
-    "@types/jspdf": "^2.5.0"
+    "jspdf": "^2.5.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",

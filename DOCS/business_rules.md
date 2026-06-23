@@ -1,7 +1,9 @@
 # Business Rules: Tablas de la Verdad — MaestroPescadería ERP
 
-**Versión:** 2.0 | **Fecha:** 2026-06-19 | **Estado:** APROBADO
+**Versión:** 2.1 | **Fecha:** 2026-06-22 | **Estado:** APROBADO
 
+> **REGLA PRIMORDIAL - IDIOMA OFICIAL**: Todos los textos de la interfaz de usuario, etiquetas, alertas, mensajes de validación, comentarios de código y documentación deben estar estrictamente en idioma español.
+> 
 > **INSTRUCCIÓN PARA LA IA**: Antes de implementar cualquier lógica que afecte inventario, facturación, pedidos, caja, nómina o producción, DEBES consultar este documento y referenciar la regla aplicable con un comentario `// RN-XX`.
 
 ---
@@ -53,6 +55,21 @@ ENTONCES:
   - La entidad se actualiza a activo = false (Soft Delete).
   - No se elimina físicamente del almacenamiento.
   - Se mantiene disponible para históricos de reportes y transacciones pasadas.
+```
+
+### RN-59 — Ciclo de vida y protección de bodegas (WMS)
+```
+DADO el intento de edición, desactivación o eliminación de una bodega
+CUANDO la bodega es "Bodega Principal" o "Bodega Averías" (bodegas esenciales)
+ENTONCES:
+  - El sistema BLOQUEA la operación de edición de nombre, desactivación o eliminación.
+  - Se retorna error: "La bodega '{Nombre}' es esencial para el sistema y no puede ser modificada, desactivada ni eliminada."
+
+DADO el intento de desactivación o eliminación de una bodega personalizada
+CUANDO existen productos en el catálogo con stock > 0 en dicha bodega
+ENTONCES:
+  - La operación es BLOQUEADA.
+  - Se retorna error: "No se puede eliminar o desactivar la bodega '{Nombre}' porque contiene productos con stock activo."
 ```
 
 ---
@@ -120,20 +137,24 @@ DADO un pedido comercial
 CUANDO se intenta modificar su estado
 ENTONCES:
   - Solo son válidas las transiciones estrictamente secuenciales:
-    CREADO → ALISTADO → FACTURADO → EN_RUTA → ENTREGADO
-  - El estado ANULADO es un estado terminal que solo puede alcanzarse desde CREADO o ALISTADO.
-  - Intentar retroceder un estado (ej. de FACTURADO a ALISTADO) es BLOQUEADO de manera absoluta.
+    CREADO → LISTO → EN_DESPACHO → ENTREGADO → FACTURADO → PAGADO
+  - El estado ANULADO es un estado terminal que solo puede alcanzarse desde CREADO o LISTO.
+  - Intentar retroceder un estado (ej. de FACTURADO a ENTREGADO) es BLOQUEADO de manera absoluta.
   - Si un pedido B2B falla la tolerancia de peso (RN-18) o excede el cupo de crédito (RN-20), se bifurca a estados de pausa específicos ('PAUSADO', 'PAUSADO_POR_CREDITO').
 ```
 
-### RN-05 — Facturación basada en alistamiento
+### RN-05 — Facturación basada en alistamiento y entrega
 ```
-DADO un pedido en tránsito hacia facturación
-CUANDO se genera la factura correspondiente
+DADO un pedido en tránsito hacia facturación (validación administrativa)
+CUANDO se genera la factura/tiquete correspondiente para pasar a FACTURADO
 ENTONCES:
-  - Si el pedido.estado !== 'ALISTADO': la operación es BLOQUEADA.
-  - Mensaje: "El pedido debe estar en estado ALISTADO para poder facturar".
-  - La factura se liquida utilizando los pesos REALES medidos en el Cuarto Frío durante el alistamiento, y no los estimados del pedido original.
+  - Si el pedido.estado !== 'ENTREGADO': la operación es BLOQUEADA.
+  - Mensaje: "El pedido debe estar en estado ENTREGADO para poder ser facturado administrativamente".
+  - La factura se liquida utilizando los pesos REALES medidos en el Cuarto Frío durante el alistamiento (guardados en el estado LISTO), y no los estimados del pedido original.
+  - La facturación electrónica con Siigo se ejecuta de manera condicional:
+    - Si el cliente tiene activa la opción de "Facturación Electrónica Automática", el sistema genera la factura con Siigo inmediatamente al pasar a FACTURADO.
+    - Si requiere facturación electrónica manual, se habilita un botón "Emitir Factura Electrónica" para que el usuario la envíe cuando lo desee.
+    - En caso contrario, se genera un tiquete de venta interno.
 ```
 
 ### RN-18 — Umbral de tolerancia de peso en alistamiento B2B
@@ -144,14 +165,14 @@ ENTONCES:
   diferencia_pct = |(peso_real - peso_estimado) / peso_estimado| * 100
   
   SI diferencia_pct > 5%:
-    - El pedido cambia automáticamente al estado "PAUSADO" (bloqueando su paso a ALISTADO).
-    - Se requiere la aprobación explícita de un Administrador o Supervisor de Ventas (mediante ingreso de PIN o credenciales) para renegociar el precio/cantidad y desbloquear el pedido hacia ALISTADO.
+    - El pedido cambia automáticamente al estado "PAUSADO" (bloqueando su paso a LISTO).
+    - Se requiere la aprobación explícita de un Administrador o Supervisor de Ventas (mediante ingreso de PIN o credenciales) para renegociar el precio/cantidad y desbloquear el pedido hacia LISTO.
 ```
 
 ### RN-20 — Cupo de crédito B2B
 ```
 DADO una facturación a crédito de un cliente B2B
-CUANDO se intenta emitir la factura electrónica
+CUANDO se intenta emitir la factura para pasar a FACTURADO
 ENTONCES:
   deuda_propuesta = saldo_cartera_actual_del_cliente + total_factura_neto
   
@@ -227,7 +248,7 @@ ENTONCES:
 DADO un intento de registrar una devolución (RN-11) o generar una Nota de Crédito
 CUANDO se evalúa la factura y pedido de origen
 ENTONCES:
-  - El pedido origen DEBE estar estrictamente en estado FACTURADO o ENTREGADO.
+  - El pedido origen DEBE estar estrictamente en estado FACTURADO, ENTREGADO o PAGADO.
   - Se prohíbe completamente generar notas de crédito o devoluciones sobre borradores, cotizaciones o pedidos anulados.
 ```
 
@@ -327,9 +348,9 @@ CUANDO el sistema procesa el pedido en MaestroPescadería
 ENTONCES:
   - CASO A: Si el pedido ya está en estado FACTURADO o superior:
     - Se genera automáticamente una Nota de Crédito por el total (RN-11) y se reversa el stock a la Bodega origen.
-  - CASO B: Si el pedido está en estado CREADO o ALISTADO:
+  - CASO B: Si el pedido está en estado CREADO o LISTO:
     - Se cambia directamente el estado a ANULADO.
-    - Si ya estaba en estado ALISTADO, se liberan y retornan las cantidades al stock disponible.
+    - Si ya estaba en estado LISTO, se liberan y retornan las cantidades al stock disponible.
 ```
 
 ### RN-25 — Aislamiento contable de caja física
@@ -469,6 +490,121 @@ ENTONCES:
 
 ---
 
+## Módulo 12: Reglas de Módulos Específicos Adicionales
+
+### RN-47 — Visualización de Stock Multibodega en POS
+```
+DADO el Punto de Venta (POS)
+CUANDO un cajero busca o visualiza un producto para la venta rápida
+ENTONCES:
+  - El sistema debe renderizar en tiempo real el stock disponible de dicho producto en cada una de las bodegas activas de la organización (ej. Bodega Principal, Bodega Punto de Venta, etc.).
+  - El cajero solo puede facturar descargando stock de la bodega asociada físicamente a su caja/punto de venta (cumpliendo RN-01).
+```
+
+### RN-48 — Selección de Bodegas y Categorías en Inventario
+```
+DADO el panel de control de Inventario
+CUANDO el Jefe de Bodega o Administrador filtra o gestiona existencias
+ENTONCES:
+  - Se debe permitir filtrar el catálogo por bodega específica o ver el inventario consolidado total.
+  - Se debe poder categorizar los productos bajo la estructura jerárquica de 3 niveles (Tipo > Línea > Clase) para clasificar y reportar.
+```
+
+### RN-49 — Configuración de Precios y Comisiones por Categoría
+```
+DADO el configurador de Precios y Comisiones
+CUANDO se establece una lista de precios para una Categoría/Línea
+ENTONCES:
+  - Los productos heredarán automáticamente los márgenes o reglas de precios de su categoría padre, a menos que se defina un precio específico por SKU.
+  - Las comisiones de los vendedores comerciales se liquidan en porcentaje basado en la Categoría/Línea de los productos efectivamente vendidos y recaudados.
+```
+
+### RN-50 — Registro de Compras e Integración de Costos
+```
+DADO el ingreso de una Orden de Compra (módulo Compras)
+CUANDO el pedido cambia a estado 'RECIBIDO'
+ENTONCES:
+  - En una transacción atómica:
+    - Se incrementa el inventario del producto ingresado (cajas/peso real) en la bodega de destino seleccionada.
+    - Se actualiza el costo promedio ponderado del producto (Costo_Promedio_Ponderado) en base al precio de compra + flete prorrateado.
+    - Se asocia el lote de compra y su fecha de vencimiento (para el cumplimiento de FEFO según RN-03).
+```
+
+### RN-51 — Registro y Clasificación Contable de Gastos
+```
+DADO el registro de un egreso o gasto de operación
+CUANDO el usuario ingresa el soporte físico
+ENTONCES:
+  - El gasto debe clasificarse obligatoriamente en una de las categorías contables predefinidas (Gastos Fijos, Gastos Variables, Impuestos y Tasas).
+  - Si el egreso se paga en efectivo de caja, se debe registrar una salida atómica en la caja activa del turno del POS, reduciendo su saldo teórico.
+```
+
+### RN-52 — Producción Basada en Recetas (Crafting Workflow)
+```
+DADO el módulo de Producción
+CUANDO se programa la transformación (crafting) de un producto terminado (PT)
+ENTONCES:
+  - El sistema consume automáticamente las materias primas (MP) requeridas según la receta asociada al PT (soporta consumo recursivo de sub-recetas o insumos intermedios).
+  - Se valida el cumplimiento de RN-01 para cada ingrediente de la receta antes de iniciar el proceso.
+  - Se aplica el principio de conservación de masa de producción (RN-08) y validación de mermas (RN-09).
+```
+
+### RN-53 — Historial de Documentos de Venta
+```
+DADO el módulo de Facturación / Historial
+CUANDO se consulta un documento histórico (Cotización, Remisión, Factura, Nota de Crédito)
+ENTONCES:
+  - El sistema debe mostrar el detalle completo de los ítems con sus respectivos lotes de despacho.
+  - Se debe exponer el historial de cambios de estado del documento y los datos de la persona que autorizó/creó cada estado.
+```
+
+### RN-54 — Novedades y Deducciones de Nómina (Colombia)
+```
+DADO el módulo de Recursos Humanos / Nómina
+CUANDO se realiza la liquidación del periodo (mensual o quincenal)
+ENTONCES:
+  - El sistema debe restar automáticamente las novedades del empleado en dicho periodo (inasistencias, licencias no remuneradas, suspensiones, aportes obligatorios de salud y pensión del 4%).
+  - Se deben liquidar y sumar las horas extras y recargos con sus respectivos recargos legales colombianos (diurna, nocturna, dominical).
+```
+
+### RN-55 — Planilla de Ruta y Control de Recaudos (Logística)
+```
+DADO el módulo de Logística
+CUANDO un despachador asigna pedidos a un transportador
+ENTONCES:
+  - Se genera una "Planilla de Ruta" con el listado de pedidos ordenados por prioridad de entrega.
+  - Al retornar de la ruta, el transportador debe entregar el valor exacto de los recaudos de contado y cheques recibidos, los cuales se validan en el cuadre de caja (RN-10).
+```
+
+### RN-56 — Consolidación de Reportes y Tableros Analíticos
+```
+DADO el módulo de Informes
+CUANDO un usuario ADMIN o ADMINISTRATIVO consulta los tableros de control
+ENTONCES:
+  - Los reportes de ventas, costos, producción y nómina deben consolidarse extrayendo datos históricos reales.
+  - Se debe garantizar la confidencialidad de la información crítica (ej. salarios de empleados, costos de compras) bloqueando el acceso a roles no autorizados (RN-14).
+```
+
+### RN-57 — Arqueo de Caja y Flujo de Caja General
+```
+DADO el módulo de Caja y Flujo de Caja
+CUANDO se realiza un cierre o traslado de fondos
+ENTONCES:
+  - Las transacciones de flujo de caja (ingresos, egresos, traslados) deben consolidarse diariamente.
+  - El saldo total de la Caja General debe conciliarse con los saldos de los arqueos de turnos de las cajas del POS (RN-44) y los movimientos bancarios.
+```
+
+### RN-58 — Gestión y Segmentación de Clientes
+```
+DADO el módulo de Clientes
+CUANDO se registra o modifica la ficha de un cliente
+ENTONCES:
+  - Se debe clasificar el tipo de cliente (POS o B2B).
+  - Para clientes B2B, es obligatorio definir el cupo de crédito (RN-20), las condiciones de pago (días de vencimiento), el vendedor asignado y si tiene activa la Facturación Electrónica Automática.
+```
+
+---
+
 ## Índice Rápido de Reglas
 
 | Código | Módulo | Descripción Corta |
@@ -477,12 +613,13 @@ ENTONCES:
 | RN-02 | Inventario y WMS | Traslado atómico entre bodegas |
 | RN-03 | Inventario y WMS | Lotes FEFO (más próximo a vencer primero) |
 | RN-30 | Inventario y WMS | Soft deletes de entidades maestras para no-admins |
+| RN-59 | Inventario y WMS | Ciclo de vida y protección de bodegas (WMS) |
 | RN-12 | POS y Caja | Gaveta solo abre con pago en efectivo o PIN de supervisor |
 | RN-13 | POS y Caja | Lectura de balanza por puerto serial con fallback manual |
 | RN-43 | POS y Caja | Redondeo de efectivo al múltiplo de $100 COP más cercano por encima |
 | RN-44 | POS y Caja | Apertura de caja obligatoria para vender y arqueo con diferencias |
 | RN-04 | B2B y Comercial | Flujo unidireccional estricto de estados de pedido |
-| RN-05 | B2B y Comercial | Facturación obligatoria basada en alistamiento real |
+| RN-05 | B2B y Comercial | Facturación obligatoria basada en alistamiento real y entrega |
 | RN-18 | B2B y Comercial | Margen de peso > 5% en Cuarto Frío pausa pedido y requiere PIN |
 | RN-20 | B2B y Comercial | Bloqueo por cupo de crédito B2B excedido |
 | RN-45 | B2B y Comercial | Bloqueo de venta por debajo del costo real (adquisición + flete) |
@@ -490,7 +627,7 @@ ENTONCES:
 | RN-16 | Devoluciones | Clasificación física de mercancía (Bodega Principal / Averías) |
 | RN-17 | Devoluciones | Exposición de saldo a favor automático e inmediato en cartera |
 | RN-19 | Devoluciones | Cruce contable de saldo a favor contra nuevas facturas |
-| RN-46 | Devoluciones | Restricción de devoluciones a pedidos FACTURADO/ENTREGADO |
+| RN-46 | Devoluciones | Restricción de devoluciones a pedidos FACTURADO/ENTREGADO/PAGADO |
 | RN-08 | Producción | Conservación de masa estricta en transformaciones (PT <= MP) |
 | RN-09 | Producción | Merma > 35% requiere PIN de supervisor + justificación escrita |
 | RN-10 | Logística | Cierre de ruta con cuadre de caja obligatorio y novedades |
@@ -508,3 +645,15 @@ ENTONCES:
 | RN-06 | Facturación | Cálculo de descuentos por línea y global |
 | RN-07 | Facturación | Idempotencia en creación de pedidos comerciales |
 | RN-42 | Facturación | Aplicación de descuentos antes del cálculo de impuestos (IVA) |
+| RN-47 | POS y Caja | Visualización de Stock Multibodega en POS |
+| RN-48 | Inventario y WMS | Selección de Bodegas y Categorías en Inventario |
+| RN-49 | Facturación y Precios | Configuración de Precios y Comisiones por Categoría |
+| RN-50 | Compras | Registro de Compras e Integración de Costos |
+| RN-51 | Gastos | Registro y Clasificación Contable de Gastos |
+| RN-52 | Producción | Producción Basada en Recetas (Crafting Workflow) |
+| RN-53 | Facturación y Precios | Historial de Documentos de Venta |
+| RN-54 | Nómina y RRHH | Novedades y Deducciones de Nómina (Colombia) |
+| RN-55 | Logística | Planilla de Ruta y Control de Recaudos (Logística) |
+| RN-56 | Reportes | Consolidación de Reportes y Tableros Analíticos |
+| RN-57 | Caja y Flujo de Caja | Arqueo de Caja y Flujo de Caja General |
+| RN-58 | Clientes | Gestión y Segmentación de Clientes |

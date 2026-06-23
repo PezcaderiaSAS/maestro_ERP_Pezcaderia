@@ -5,7 +5,8 @@ export function TransferForm({
   traslado,
   setTraslado,
   activeProducts,
-  handleTraslado
+  handleTraslado,
+  bodegas = []
 }: any) {
   return (
     <div className="hr-table-card" style={{ padding: '24px' }}>
@@ -17,16 +18,17 @@ export function TransferForm({
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Origen</label>
             <select className="form-control" value={traslado.origen} onChange={e => setTraslado({ ...traslado, origen: e.target.value })}>
-              <option value="Bodega Principal">Bodega Principal</option>
-              <option value="Bodega Secundaria">Bodega Secundaria</option>
+              {bodegas.filter((b: any) => b.activa).map((b: any) => (
+                <option key={b.id} value={b.nombre}>{b.nombre}</option>
+              ))}
             </select>
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Destino</label>
             <select className="form-control" value={traslado.destino} onChange={e => setTraslado({ ...traslado, destino: e.target.value })}>
-              <option value="Bodega Principal">Bodega Principal</option>
-              <option value="Bodega Secundaria">Bodega Secundaria</option>
-              <option value="Bodega Averías">Bodega Averías</option>
+              {bodegas.filter((b: any) => b.activa).map((b: any) => (
+                <option key={b.id} value={b.nombre}>{b.nombre}</option>
+              ))}
             </select>
           </div>
         </div>

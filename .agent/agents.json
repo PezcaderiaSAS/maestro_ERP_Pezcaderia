@@ -1,0 +1,8 @@
+{
+    "allowedModels": [
+        "mcp-deepseek-r1",
+        "mcp-kimi-code",
+        "mcp-qwen-coder"
+    ],
+    "defaultModel": "mcp-deepseek-r1"
+}

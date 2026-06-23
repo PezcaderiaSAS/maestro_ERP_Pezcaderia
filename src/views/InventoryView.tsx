@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { RefreshCw, Package, ArrowRight, ShieldAlert, CheckCircle, Truck, PlusCircle, Save, Edit2, Search, X } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { Product, ProductCatalog, ProductPricing, Proveedor, MovimientoInventario, OrdenCompra, generateId, CategoriaConfig, DevolucionPedido, toTitleCase } from '../App.tsx';
+import { Bodega } from '../services/warehouseService.ts';
 import { ProductTable } from './inventory/components/ProductTable.tsx';
 import { ProductForm } from './inventory/components/ProductForm.tsx';
 import { CategoryManager } from './inventory/components/CategoryManager.tsx';
@@ -48,6 +49,8 @@ interface InventoryViewProps {
   setQuotations: React.Dispatch<React.SetStateAction<any[]>>;
   devoluciones?: DevolucionPedido[];
   setDevoluciones?: React.Dispatch<React.SetStateAction<DevolucionPedido[]>>;
+  bodegas: Bodega[];
+  setBodegas: React.Dispatch<React.SetStateAction<Bodega[]>>;
 }
 
 export default function InventoryView({
@@ -68,11 +71,13 @@ export default function InventoryView({
   quotations,
   setQuotations,
   devoluciones = [],
-  setDevoluciones
+  setDevoluciones,
+  bodegas,
+  setBodegas
 }: InventoryViewProps) {
   const [activeBodega, setActiveBodega] = useState('Bodega Principal');
   const [historyTab, setHistoryTab] = useState<'movimientos' | 'compras'>('movimientos');
-  const [viewMode, setViewMode] = useState<'operaciones' | 'catalogo' | 'categorias' | 'cuarto_frio' | 'recepcion_devoluciones'>('operaciones');
+  const [viewMode, setViewMode] = useState<'operaciones' | 'catalogo' | 'categorias' | 'cuarto_frio' | 'recepcion_devoluciones' | 'configuracion_bodegas' | 'reportes_compra'>('operaciones');
 
   // State de Catalogo de Productos
   const [searchTerm, setSearchTerm] = useState('');
@@ -593,7 +598,12 @@ export default function InventoryView({
     }).then(result => {
       if (result.isConfirmed) {
         setCategorias(prev => prev.filter(c => c.id !== id));
-        Swal.fire({ icon: 'success', title: 'Eliminada', text: 'La categoría ha sido eliminada.',  // State de Entrada de Compra (Replenishment)
+        Swal.fire({ icon: 'success', title: 'Eliminada', text: 'La categoría ha sido eliminada.', timer: 1500, showConfirmButton: false });
+      }
+    });
+  };
+
+  // State de Entrada de Compra (Replenishment)
   const [compra, setCompra] = useState({
     proveedorId: '',
     sku: '',

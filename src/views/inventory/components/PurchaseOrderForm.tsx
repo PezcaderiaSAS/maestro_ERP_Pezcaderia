@@ -6,7 +6,8 @@ export function PurchaseOrderForm({
   setCompra,
   proveedores,
   activeProducts,
-  handleProcesarCompra
+  handleProcesarCompra,
+  bodegas = []
 }: any) {
   return (
     <div className="hr-table-card" style={{ padding: '24px' }}>
@@ -32,8 +33,9 @@ export function PurchaseOrderForm({
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Bodega Destino</label>
             <select className="form-control" value={compra.bodega} onChange={e => setCompra({ ...compra, bodega: e.target.value })}>
-              <option value="Bodega Principal">Bodega Principal</option>
-              <option value="Bodega Secundaria">Bodega Secundaria</option>
+              {bodegas.filter((b: any) => b.activa).map((b: any) => (
+                <option key={b.id} value={b.nombre}>{b.nombre}</option>
+              ))}
             </select>
           </div>
         </div>

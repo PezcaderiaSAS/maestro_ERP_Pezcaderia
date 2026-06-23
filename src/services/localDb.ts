@@ -24,7 +24,16 @@ export const DB_KEYS = {
   logIntegracion: 'pezcaderia_log_integracion',
   parametros: 'pezcaderia_parametros',
   nominas: 'pezcaderia_nominas',
-  gastos: 'pezcaderia_gastos'
+  gastos: 'pezcaderia_gastos',
+  cajas: 'pezcaderia_cajas',
+  movimientosCaja: 'pezcaderia_movimientos_caja',
+  turnosCaja: 'pezcaderia_turnos_caja',
+  trasladosDinero: 'pezcaderia_traslados_dinero',
+  recetas: 'pezcaderia_recetas',
+  logsSiigo: 'pezcaderia_logs_siigo',
+  rutas: 'pezcaderia_rutas',
+  categoriasGastos: 'pezcaderia_categorias_gastos',
+  bodegas: 'pezcaderia_bodegas'
 } as const;
 
 export type DbKey = keyof typeof DB_KEYS;

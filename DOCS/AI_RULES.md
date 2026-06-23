@@ -3,8 +3,9 @@
 
 ---
 
-## 1. Identidad del Proyecto
+## 1. Identidad y Reglas Primordiales del Proyecto
 
+- **Idioma Oficial**: **REGLA PRIMORDIAL: Todos los textos de la interfaz de usuario, etiquetas, alertas, mensajes de validación, comentarios de código y documentación deben estar estrictamente en idioma español.**
 - **Nombre**: MaestroPescadería ERP
 - **Stack**: React 18 + TypeScript 5 + Vite 5 + Supabase (pendiente migración)
 - **Persistencia actual**: `localStorage` via `src/services/localDb.ts`
@@ -104,16 +105,21 @@ export function obtenerProductos(): { data: Producto[]; error: string | null } {
 
 ## 8. Contexto de Módulos Activos
 
-| Módulo | Archivo actual | SPEC | Estado |
+| Módulo | Archivo/Ruta actual | SPEC | Estado |
 |---|---|---|---|
-| POS | `POSView.tsx` (132 KB) | `SPEC_POS.md` | Refactoring pendiente |
-| Inventario | `InventoryView.tsx` (142 KB) | `SPEC_INVENTORY.md` | Refactoring pendiente |
-| Pedidos/Logística | `OrderKanbanView.tsx` + `ARView.tsx` | `SPEC_ORDERS.md` | Refactoring pendiente |
-| Precios | `PricingView.tsx` (138 KB) | Pendiente SPEC | Refactoring pendiente |
-| Clientes | `ClientsView.tsx` | Pendiente SPEC | Estable |
-| RRHH | `HRView.tsx` + `PayrollView.tsx` | Pendiente SPEC | Estable |
-| CRM | `CRMView.tsx` | Pendiente SPEC | Integrado (Twenty) |
-| Proveedores | `SuppliersView.tsx` | Pendiente SPEC | Estable |
+| Módulo 1: POS (Punto de Venta) | `src/views/POSView.tsx` | `SPEC_POS.md` | Refactoring pendiente |
+| Módulo 2: Ventas B2B | `src/views/OrderKanbanView.tsx` | `SPEC_B2B.md` (Por crear) | Refactoring pendiente |
+| Módulo 3: Inventario y WMS | `src/views/InventoryView.tsx` | `SPEC_INVENTORY.md` | Refactoring pendiente |
+| Módulo 4: Compras | `src/views/PurchasesView.tsx` | `SPEC_PURCHASES.md` (Por crear) | Por implementar |
+| Módulo 5: Gastos | `src/views/ExpensesView.tsx` | `SPEC_EXPENSES.md` (Por crear) | Por implementar |
+| Módulo 6: Producción | `src/views/ProductionView.tsx` | `SPEC_PRODUCTION.md` (Por crear) | Por implementar |
+| Módulo 7: Facturación / Historial | `src/views/InvoicesView.tsx` | `SPEC_BILLING.md` (Por crear) | Por implementar |
+| Módulo 8: RRHH y Nómina | `src/views/PayrollView.tsx` | `SPEC_RRHH_NOMINA.md` | Refactoring pendiente |
+| Módulo 9: Logística | `src/views/LogisticsView.tsx` | `SPEC_LOGISTICS.md` (Por crear) | Por implementar |
+| Módulo 10: Informes (Reportes) | `src/views/ReportsView.tsx` | `SPEC_REPORTS.md` (Por crear) | Por implementar |
+| Módulo 11: Cajas y Flujo de Caja | `src/views/CashFlowView.tsx` | `SPEC_CASHFLOW.md` (Por crear) | Por implementar |
+| Módulo 12: Clientes y Cartera | `src/views/ClientsView.tsx` | `SPEC_CLIENTS.md` (Por crear) | Estable |
+| Módulo 13: CRM | `src/views/CRMView.tsx` | `SPEC_CRM.md` (Por crear) | Integrado (Twenty) |
 
 ---
 

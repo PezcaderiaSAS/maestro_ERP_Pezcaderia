@@ -11,7 +11,9 @@ import SuppliersView from './views/SuppliersView.tsx';
 import OrderKanbanView from './views/OrderKanbanView.tsx';
 import PayrollView from './views/PayrollView.tsx';
 import CRMView from './views/CRMView.tsx';
+import CashFlowView from './views/cash/CashFlowView.tsx';
 import * as localDb from './services/localDb.ts';
+import { obtenerBodegas, Bodega } from './services/warehouseService.ts';
 
 /** Genera IDs únicos usando crypto.randomUUID() — resistente a colisiones en operaciones rápidas */
 export const generateId = (prefix: string): string =>
@@ -793,6 +795,7 @@ export default function App() {
 
   const [quotations, setQuotations] = useState<any[]>(() => localDb.load('quotations', []));
   const [stock, setStock] = useState<Record<string, any[]>>(() => localDb.load('stock', {}));
+  const [bodegas, setBodegas] = useState<Bodega[]>(() => obtenerBodegas().data);
   const [lastClientPrices, setLastClientPrices] = useState<Record<string, Record<string, number>>>(() => localDb.load('lastClientPrices', {}));
 
   const [categorias, setCategorias] = useState<CategoriaConfig[]>(() => localDb.load('categorias', [
@@ -851,6 +854,7 @@ export default function App() {
   useEffect(() => { localDb.save('dynamicFields', dynamicFields); }, [dynamicFields]);
   useEffect(() => { localDb.save('quotations', quotations); }, [quotations]);
   useEffect(() => { localDb.save('stock', stock); }, [stock]);
+  useEffect(() => { localDb.save('bodegas', bodegas); }, [bodegas]);
   useEffect(() => { localDb.save('lastClientPrices', lastClientPrices); }, [lastClientPrices]);
   useEffect(() => { localDb.save('cartera', cartera); }, [cartera]);
 
@@ -998,13 +1002,13 @@ export default function App() {
   }, []); // Run once on mount
   // ──────────────────────────────────────────────────────────────────────────────
 
-  // Synchronize stock based on current products catalog
+  // Synchronize stock based on current products catalog and active bodegas
   useEffect(() => {
     setStock(prev => {
       const newStock = { ...prev };
-      const bodegas = ['Bodega Principal', 'Bodega Secundaria', 'Bodega Averías'];
+      const activeBodegas = bodegas.filter(b => b.activa).map(b => b.nombre);
       
-      bodegas.forEach(bodega => {
+      activeBodegas.forEach(bodega => {
         if (!newStock[bodega]) {
           newStock[bodega] = [];
         }
@@ -1018,7 +1022,7 @@ export default function App() {
               if (p.sku === 'PES-ENT-001') qty = 500;
               else if (p.sku === 'FIL-LIM-002') qty = 120;
               else if (p.sku === 'CAM-TIG-003') qty = 85;
-            } else if (bodega === 'Bodega Secundaria') {
+            } else if (bodega === 'Bodega de Tránsito' || bodega === 'Bodega Secundaria') {
               if (p.sku === 'PES-ENT-001') qty = 200;
               else if (p.sku === 'FIL-LIM-002') qty = 45;
             } else if (bodega === 'Bodega Averías') {
@@ -1046,7 +1050,7 @@ export default function App() {
 
       return newStock;
     });
-  }, [products]);
+  }, [products, bodegas]);
 
   /**
    * Registra el último precio acordado por cliente y SKU.
@@ -1517,6 +1521,8 @@ export default function App() {
             setDevoluciones={setDevoluciones}
             quotations={quotations}
             setQuotations={setQuotations}
+            bodegas={bodegas}
+            setBodegas={setBodegas}
           />
         );
       case 'precios':
@@ -1606,6 +1612,8 @@ export default function App() {
         );
       case 'crm':
         return <CRMView currentActor={userRole} />;
+      case 'caja':
+        return <CashFlowView userRole={userRole} usuarioId={userRole} />;
       default:
         return <DashboardView setView={setCurrentView} />;
     }
@@ -1633,6 +1641,8 @@ export default function App() {
         return { cat: 'Logística', sub: 'Despachos / Kanban' };
       case 'crm':
         return { cat: 'Comercial', sub: 'CRM (Twenty)' };
+      case 'caja':
+        return { cat: 'Comercial', sub: 'Gestión de Cajas' };
       default:
         return { cat: 'General', sub: 'ERP' };
     }
@@ -1783,7 +1793,10 @@ export default function App() {
               <span>Ajuste</span>
             </div>
 
-            <div className={`sidebar-item`} style={{ opacity: 0.5 }}>
+            <div
+              className={`sidebar-item ${currentView === 'caja' ? 'active' : ''}`}
+              onClick={() => { setCurrentView('caja'); setSidebarOpen(false); }}
+            >
               <Database size={16} />
               <span>Caja</span>
             </div>
