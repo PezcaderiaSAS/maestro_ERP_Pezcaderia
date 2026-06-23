@@ -1,0 +1,180 @@
+{
+  "communities": {
+    "0": [
+      "app_root",
+      "business_rules_inventory",
+      "delta_spec_warehouse",
+      "inventory_view",
+      "localdb_service",
+      "system_design_arch",
+      "warehouse_config_manager"
+    ],
+    "1": [
+      "scripts_optimize",
+      "scripts_optimize_args",
+      "scripts_optimize_https",
+      "scripts_optimize_libraries",
+      "scripts_optimize_printoptimizedprompt",
+      "scripts_optimize_req"
+    ],
+    "2": [
+      "context7_api",
+      "pezcaderia_delivery_sync_validar_firma_rappi",
+      "pezcaderia_web_serial_leer_peso_balanza"
+    ],
+    "3": [
+      "pezcaderia_payroll_colombia_calc_dias_comerciales",
+      "rn_26_dias_comerciales",
+      "spec_payroll_nomina_registro"
+    ],
+    "4": [
+      "rn_01_stock_no_negativo",
+      "spec_pos_venta_pos"
+    ],
+    "5": [
+      "spec_b2b_pedido",
+      "spec_inventory_producto"
+    ],
+    "6": [
+      "ai_rules_identity"
+    ],
+    "7": [
+      "business_rules_b2b"
+    ],
+    "8": [
+      "business_rules_pos"
+    ],
+    "9": [
+      "pezcaderia_testing_vitest_setup"
+    ],
+    "10": [
+      "spec_cashflow_turno_caja"
+    ]
+  },
+  "cohesion": {
+    "0": 0.2857142857142857,
+    "1": 0.3333333333333333,
+    "2": 0.6666666666666666,
+    "3": 0.6666666666666666,
+    "4": 1.0,
+    "5": 1.0,
+    "6": 1.0,
+    "7": 1.0,
+    "8": 1.0,
+    "9": 1.0,
+    "10": 1.0
+  },
+  "gods": [
+    {
+      "id": "localdb_service",
+      "label": "Local Database Service",
+      "degree": 3
+    },
+    {
+      "id": "business_rules_inventory",
+      "label": "Inventory & WMS Rules",
+      "degree": 2
+    },
+    {
+      "id": "delta_spec_warehouse",
+      "label": "Dynamic Warehouse Configuration Spec",
+      "degree": 2
+    },
+    {
+      "id": "warehouse_config_manager",
+      "label": "Warehouse Config Manager",
+      "degree": 2
+    },
+    {
+      "id": "pezcaderia_payroll_colombia_calc_dias_comerciales",
+      "label": "calcDiasComerciales",
+      "degree": 2
+    },
+    {
+      "id": "scripts_optimize_https",
+      "label": "https",
+      "degree": 1
+    },
+    {
+      "id": "scripts_optimize_libraries",
+      "label": "LIBRARIES",
+      "degree": 1
+    },
+    {
+      "id": "scripts_optimize_args",
+      "label": "args",
+      "degree": 1
+    },
+    {
+      "id": "scripts_optimize_req",
+      "label": "req",
+      "degree": 1
+    },
+    {
+      "id": "system_design_arch",
+      "label": "System Architecture Overview",
+      "degree": 1
+    }
+  ],
+  "surprises": [
+    {
+      "source": "Warehouse Config Manager",
+      "target": "Inventory & WMS Rules",
+      "source_files": [
+        "src/views/inventory/components/WarehouseConfigManager.tsx",
+        "business_rules.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "conceptually_related_to",
+      "why": "crosses file types (doc \u2194 code); connects across different repos/directories"
+    },
+    {
+      "source": "Dynamic Warehouse Configuration Spec",
+      "target": "Local Database Service",
+      "source_files": [
+        "delta-spec.md",
+        "src/services/localDb.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "crosses file types (doc \u2194 code); connects across different repos/directories"
+    },
+    {
+      "source": "System Architecture Overview",
+      "target": "Local Database Service",
+      "source_files": [
+        "system_design.md",
+        "src/services/localDb.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "crosses file types (doc \u2194 code); connects across different repos/directories"
+    },
+    {
+      "source": "NominaRegistro Type",
+      "target": "calcDiasComerciales",
+      "source_files": [
+        "SPECS/SPEC_RRHH_NOMINA.md",
+        "SKILLS/pezcaderia-payroll-colombia/SKILL.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories"
+    },
+    {
+      "source": "Dynamic Warehouse Configuration Spec",
+      "target": "Inventory & WMS Rules",
+      "source_files": [
+        "delta-spec.md",
+        "business_rules.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories"
+    }
+  ],
+  "tokens": {
+    "input": 91317,
+    "output": 2772
+  }
+}

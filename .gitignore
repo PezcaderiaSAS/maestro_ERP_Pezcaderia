@@ -36,3 +36,6 @@ dist-ssr/
 .env.test.local
 .env.production.local
 .env.local
+
+# API keys and info
+gemini_api_info.txt

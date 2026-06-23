@@ -1,0 +1,1 @@
+{"nodes": [], "edges": [], "hyperedges": [{"id": "sdd_methodology", "label": "Spec Driven Development Pattern", "nodes": ["ai_rules_identity", "system_design_arch", "business_rules_inventory"], "relation": "form", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "spec_driven_development.md"}]}

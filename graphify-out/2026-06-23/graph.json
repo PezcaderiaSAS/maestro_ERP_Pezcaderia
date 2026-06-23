@@ -11,7 +11,7 @@
       "_origin": "ast",
       "community": 18,
       "norm_label": "optimize.js",
-      "community_name": "Optimizador de Prompts",
+      "community_name": "Community 18",
       "id": "scripts_optimize"
     },
     {
@@ -22,7 +22,7 @@
       "_origin": "ast",
       "community": 18,
       "norm_label": "https",
-      "community_name": "Optimizador de Prompts",
+      "community_name": "Community 18",
       "id": "scripts_optimize_https"
     },
     {
@@ -33,7 +33,7 @@
       "_origin": "ast",
       "community": 18,
       "norm_label": "libraries",
-      "community_name": "Optimizador de Prompts",
+      "community_name": "Community 18",
       "id": "scripts_optimize_libraries"
     },
     {
@@ -44,7 +44,7 @@
       "_origin": "ast",
       "community": 18,
       "norm_label": "args",
-      "community_name": "Optimizador de Prompts",
+      "community_name": "Community 18",
       "id": "scripts_optimize_args"
     },
     {
@@ -55,7 +55,7 @@
       "_origin": "ast",
       "community": 18,
       "norm_label": "req",
-      "community_name": "Optimizador de Prompts",
+      "community_name": "Community 18",
       "id": "scripts_optimize_req"
     },
     {
@@ -66,7 +66,7 @@
       "_origin": "ast",
       "community": 18,
       "norm_label": "printoptimizedprompt()",
-      "community_name": "Optimizador de Prompts",
+      "community_name": "Community 18",
       "id": "scripts_optimize_printoptimizedprompt"
     },
     {
@@ -77,7 +77,7 @@
       "_origin": "ast",
       "community": 9,
       "norm_label": "01_schema_inicial.sql",
-      "community_name": "Base de Datos Inicial",
+      "community_name": "Community 9",
       "id": "database_01_schema_inicial"
     },
     {
@@ -88,7 +88,7 @@
       "_origin": "ast",
       "community": 9,
       "norm_label": "terceros",
-      "community_name": "Base de Datos Inicial",
+      "community_name": "Community 9",
       "id": "database_01_schema_inicial_terceros"
     },
     {
@@ -99,7 +99,7 @@
       "_origin": "ast",
       "community": 9,
       "norm_label": "usuarios",
-      "community_name": "Base de Datos Inicial",
+      "community_name": "Community 9",
       "id": "database_01_schema_inicial_usuarios"
     },
     {
@@ -110,7 +110,7 @@
       "_origin": "ast",
       "community": 9,
       "norm_label": "clientes",
-      "community_name": "Base de Datos Inicial",
+      "community_name": "Community 9",
       "id": "database_01_schema_inicial_clientes"
     },
     {
@@ -121,7 +121,7 @@
       "_origin": "ast",
       "community": 9,
       "norm_label": "proveedores",
-      "community_name": "Base de Datos Inicial",
+      "community_name": "Community 9",
       "id": "database_01_schema_inicial_proveedores"
     },
     {
@@ -132,7 +132,7 @@
       "_origin": "ast",
       "community": 9,
       "norm_label": "conductores",
-      "community_name": "Base de Datos Inicial",
+      "community_name": "Community 9",
       "id": "database_01_schema_inicial_conductores"
     },
     {
@@ -143,7 +143,7 @@
       "_origin": "ast",
       "community": 9,
       "norm_label": "productos",
-      "community_name": "Base de Datos Inicial",
+      "community_name": "Community 9",
       "id": "database_01_schema_inicial_productos"
     },
     {
@@ -154,7 +154,7 @@
       "_origin": "ast",
       "community": 9,
       "norm_label": "bodegas",
-      "community_name": "Base de Datos Inicial",
+      "community_name": "Community 9",
       "id": "database_01_schema_inicial_bodegas"
     },
     {
@@ -165,7 +165,7 @@
       "_origin": "ast",
       "community": 9,
       "norm_label": "stock_bodegas",
-      "community_name": "Base de Datos Inicial",
+      "community_name": "Community 9",
       "id": "database_01_schema_inicial_stock_bodegas"
     },
     {
@@ -176,7 +176,7 @@
       "_origin": "ast",
       "community": 9,
       "norm_label": "configuracion_sistema",
-      "community_name": "Base de Datos Inicial",
+      "community_name": "Community 9",
       "id": "database_01_schema_inicial_configuracion_sistema"
     },
     {
@@ -187,7 +187,7 @@
       "_origin": "ast",
       "community": 16,
       "norm_label": "02_sistema_inventario_y_produccion.sql",
-      "community_name": "Inventario y Producción",
+      "community_name": "Community 16",
       "id": "database_02_sistema_inventario_y_produccion"
     },
     {
@@ -198,7 +198,7 @@
       "_origin": "ast",
       "community": 16,
       "norm_label": "lotes_inventario",
-      "community_name": "Inventario y Producción",
+      "community_name": "Community 16",
       "id": "database_02_sistema_inventario_y_produccion_lotes_inventario"
     },
     {
@@ -209,7 +209,7 @@
       "_origin": "ast",
       "community": 16,
       "norm_label": "ordenes_produccion",
-      "community_name": "Inventario y Producción",
+      "community_name": "Community 16",
       "id": "database_02_sistema_inventario_y_produccion_ordenes_produccion"
     },
     {
@@ -220,7 +220,7 @@
       "_origin": "ast",
       "community": 16,
       "norm_label": "actualizar_stock_bodegas_por_lote()",
-      "community_name": "Inventario y Producción",
+      "community_name": "Community 16",
       "id": "database_02_sistema_inventario_y_produccion_actualizar_stock_bodegas_por_lote"
     },
     {
@@ -231,7 +231,7 @@
       "_origin": "ast",
       "community": 16,
       "norm_label": "trg_actualizar_stock_lote",
-      "community_name": "Inventario y Producción",
+      "community_name": "Community 16",
       "id": "database_02_sistema_inventario_y_produccion_trg_actualizar_stock_lote"
     },
     {
@@ -242,7 +242,7 @@
       "_origin": "ast",
       "community": 10,
       "norm_label": "03_ventas_y_facturacion.sql",
-      "community_name": "Ventas y Facturación",
+      "community_name": "Community 10",
       "id": "database_03_ventas_y_facturacion"
     },
     {
@@ -253,7 +253,7 @@
       "_origin": "ast",
       "community": 10,
       "norm_label": "pedidos",
-      "community_name": "Ventas y Facturación",
+      "community_name": "Community 10",
       "id": "database_03_ventas_y_facturacion_pedidos"
     },
     {
@@ -264,7 +264,7 @@
       "_origin": "ast",
       "community": 10,
       "norm_label": "detalle_pedidos",
-      "community_name": "Ventas y Facturación",
+      "community_name": "Community 10",
       "id": "database_03_ventas_y_facturacion_detalle_pedidos"
     },
     {
@@ -275,7 +275,7 @@
       "_origin": "ast",
       "community": 10,
       "norm_label": "set_numero_pedido()",
-      "community_name": "Ventas y Facturación",
+      "community_name": "Community 10",
       "id": "database_03_ventas_y_facturacion_set_numero_pedido"
     },
     {
@@ -286,7 +286,7 @@
       "_origin": "ast",
       "community": 10,
       "norm_label": "trg_set_numero_pedido",
-      "community_name": "Ventas y Facturación",
+      "community_name": "Community 10",
       "id": "database_03_ventas_y_facturacion_trg_set_numero_pedido"
     },
     {
@@ -297,7 +297,7 @@
       "_origin": "ast",
       "community": 10,
       "norm_label": "calcular_valores_linea_pedido()",
-      "community_name": "Ventas y Facturación",
+      "community_name": "Community 10",
       "id": "database_03_ventas_y_facturacion_calcular_valores_linea_pedido"
     },
     {
@@ -308,7 +308,7 @@
       "_origin": "ast",
       "community": 10,
       "norm_label": "trg_calcular_valores_linea",
-      "community_name": "Ventas y Facturación",
+      "community_name": "Community 10",
       "id": "database_03_ventas_y_facturacion_trg_calcular_valores_linea"
     },
     {
@@ -319,7 +319,7 @@
       "_origin": "ast",
       "community": 10,
       "norm_label": "recalcular_cabecera_pedido()",
-      "community_name": "Ventas y Facturación",
+      "community_name": "Community 10",
       "id": "database_03_ventas_y_facturacion_recalcular_cabecera_pedido"
     },
     {
@@ -330,7 +330,7 @@
       "_origin": "ast",
       "community": 10,
       "norm_label": "trg_recalcular_cabecera",
-      "community_name": "Ventas y Facturación",
+      "community_name": "Community 10",
       "id": "database_03_ventas_y_facturacion_trg_recalcular_cabecera"
     },
     {
@@ -341,7 +341,7 @@
       "_origin": "ast",
       "community": 10,
       "norm_label": "recalcular_pedido_por_descuento_global()",
-      "community_name": "Ventas y Facturación",
+      "community_name": "Community 10",
       "id": "database_03_ventas_y_facturacion_recalcular_pedido_por_descuento_global"
     },
     {
@@ -352,7 +352,7 @@
       "_origin": "ast",
       "community": 10,
       "norm_label": "trg_recalcular_pedido_global",
-      "community_name": "Ventas y Facturación",
+      "community_name": "Community 10",
       "id": "database_03_ventas_y_facturacion_trg_recalcular_pedido_global"
     },
     {
@@ -363,7 +363,7 @@
       "_origin": "ast",
       "community": 14,
       "norm_label": "04_caja_y_finanzas.sql",
-      "community_name": "Caja y Finanzas",
+      "community_name": "Community 14",
       "id": "database_04_caja_y_finanzas"
     },
     {
@@ -374,7 +374,7 @@
       "_origin": "ast",
       "community": 14,
       "norm_label": "cajas",
-      "community_name": "Caja y Finanzas",
+      "community_name": "Community 14",
       "id": "database_04_caja_y_finanzas_cajas"
     },
     {
@@ -385,7 +385,7 @@
       "_origin": "ast",
       "community": 14,
       "norm_label": "transacciones_caja",
-      "community_name": "Caja y Finanzas",
+      "community_name": "Community 14",
       "id": "database_04_caja_y_finanzas_transacciones_caja"
     },
     {
@@ -396,7 +396,7 @@
       "_origin": "ast",
       "community": 14,
       "norm_label": "rutas",
-      "community_name": "Caja y Finanzas",
+      "community_name": "Community 14",
       "id": "database_04_caja_y_finanzas_rutas"
     },
     {
@@ -407,7 +407,7 @@
       "_origin": "ast",
       "community": 14,
       "norm_label": "set_numero_ruta()",
-      "community_name": "Caja y Finanzas",
+      "community_name": "Community 14",
       "id": "database_04_caja_y_finanzas_set_numero_ruta"
     },
     {
@@ -418,7 +418,7 @@
       "_origin": "ast",
       "community": 14,
       "norm_label": "trg_set_numero_ruta",
-      "community_name": "Caja y Finanzas",
+      "community_name": "Community 14",
       "id": "database_04_caja_y_finanzas_trg_set_numero_ruta"
     },
     {
@@ -429,7 +429,7 @@
       "_origin": "ast",
       "community": 14,
       "norm_label": "gastos_ruta",
-      "community_name": "Caja y Finanzas",
+      "community_name": "Community 14",
       "id": "database_04_caja_y_finanzas_gastos_ruta"
     },
     {
@@ -440,7 +440,7 @@
       "_origin": "ast",
       "community": 5,
       "norm_label": "05_politicas_rls_y_seguridad.sql",
-      "community_name": "Políticas y Seguridad",
+      "community_name": "Community 5",
       "id": "database_05_politicas_rls_y_seguridad"
     },
     {
@@ -451,7 +451,7 @@
       "_origin": "ast",
       "community": 5,
       "norm_label": "terceros",
-      "community_name": "Políticas y Seguridad",
+      "community_name": "Community 5",
       "id": "database_05_politicas_rls_y_seguridad_terceros"
     },
     {
@@ -462,7 +462,7 @@
       "_origin": "ast",
       "community": 5,
       "norm_label": "usuarios",
-      "community_name": "Políticas y Seguridad",
+      "community_name": "Community 5",
       "id": "database_05_politicas_rls_y_seguridad_usuarios"
     },
     {
@@ -473,7 +473,7 @@
       "_origin": "ast",
       "community": 5,
       "norm_label": "clientes",
-      "community_name": "Políticas y Seguridad",
+      "community_name": "Community 5",
       "id": "database_05_politicas_rls_y_seguridad_clientes"
     },
     {
@@ -484,7 +484,7 @@
       "_origin": "ast",
       "community": 5,
       "norm_label": "proveedores",
-      "community_name": "Políticas y Seguridad",
+      "community_name": "Community 5",
       "id": "database_05_politicas_rls_y_seguridad_proveedores"
     },
     {
@@ -495,7 +495,7 @@
       "_origin": "ast",
       "community": 5,
       "norm_label": "conductores",
-      "community_name": "Políticas y Seguridad",
+      "community_name": "Community 5",
       "id": "database_05_politicas_rls_y_seguridad_conductores"
     },
     {
@@ -506,7 +506,7 @@
       "_origin": "ast",
       "community": 5,
       "norm_label": "productos",
-      "community_name": "Políticas y Seguridad",
+      "community_name": "Community 5",
       "id": "database_05_politicas_rls_y_seguridad_productos"
     },
     {
@@ -517,7 +517,7 @@
       "_origin": "ast",
       "community": 5,
       "norm_label": "bodegas",
-      "community_name": "Políticas y Seguridad",
+      "community_name": "Community 5",
       "id": "database_05_politicas_rls_y_seguridad_bodegas"
     },
     {
@@ -528,7 +528,7 @@
       "_origin": "ast",
       "community": 5,
       "norm_label": "stock_bodegas",
-      "community_name": "Políticas y Seguridad",
+      "community_name": "Community 5",
       "id": "database_05_politicas_rls_y_seguridad_stock_bodegas"
     },
     {
@@ -539,7 +539,7 @@
       "_origin": "ast",
       "community": 5,
       "norm_label": "lotes_inventario",
-      "community_name": "Políticas y Seguridad",
+      "community_name": "Community 5",
       "id": "database_05_politicas_rls_y_seguridad_lotes_inventario"
     },
     {
@@ -550,7 +550,7 @@
       "_origin": "ast",
       "community": 5,
       "norm_label": "ordenes_produccion",
-      "community_name": "Políticas y Seguridad",
+      "community_name": "Community 5",
       "id": "database_05_politicas_rls_y_seguridad_ordenes_produccion"
     },
     {
@@ -561,7 +561,7 @@
       "_origin": "ast",
       "community": 5,
       "norm_label": "pedidos",
-      "community_name": "Políticas y Seguridad",
+      "community_name": "Community 5",
       "id": "database_05_politicas_rls_y_seguridad_pedidos"
     },
     {
@@ -572,7 +572,7 @@
       "_origin": "ast",
       "community": 5,
       "norm_label": "detalle_pedidos",
-      "community_name": "Políticas y Seguridad",
+      "community_name": "Community 5",
       "id": "database_05_politicas_rls_y_seguridad_detalle_pedidos"
     },
     {
@@ -583,7 +583,7 @@
       "_origin": "ast",
       "community": 5,
       "norm_label": "cajas",
-      "community_name": "Políticas y Seguridad",
+      "community_name": "Community 5",
       "id": "database_05_politicas_rls_y_seguridad_cajas"
     },
     {
@@ -594,7 +594,7 @@
       "_origin": "ast",
       "community": 5,
       "norm_label": "transacciones_caja",
-      "community_name": "Políticas y Seguridad",
+      "community_name": "Community 5",
       "id": "database_05_politicas_rls_y_seguridad_transacciones_caja"
     },
     {
@@ -605,7 +605,7 @@
       "_origin": "ast",
       "community": 5,
       "norm_label": "rutas",
-      "community_name": "Políticas y Seguridad",
+      "community_name": "Community 5",
       "id": "database_05_politicas_rls_y_seguridad_rutas"
     },
     {
@@ -616,7 +616,7 @@
       "_origin": "ast",
       "community": 5,
       "norm_label": "gastos_ruta",
-      "community_name": "Políticas y Seguridad",
+      "community_name": "Community 5",
       "id": "database_05_politicas_rls_y_seguridad_gastos_ruta"
     },
     {
@@ -627,7 +627,7 @@
       "_origin": "ast",
       "community": 5,
       "norm_label": "configuracion_sistema",
-      "community_name": "Políticas y Seguridad",
+      "community_name": "Community 5",
       "id": "database_05_politicas_rls_y_seguridad_configuracion_sistema"
     },
     {
@@ -638,7 +638,7 @@
       "_origin": "ast",
       "community": 5,
       "norm_label": "get_current_user_role()",
-      "community_name": "Políticas y Seguridad",
+      "community_name": "Community 5",
       "id": "database_05_politicas_rls_y_seguridad_get_current_user_role"
     },
     {
@@ -649,7 +649,7 @@
       "_origin": "ast",
       "community": 19,
       "norm_label": "06_recursos_humanos.sql",
-      "community_name": "Recursos Humanos",
+      "community_name": "Community 19",
       "id": "database_06_recursos_humanos"
     },
     {
@@ -660,7 +660,7 @@
       "_origin": "ast",
       "community": 19,
       "norm_label": "empleados",
-      "community_name": "Recursos Humanos",
+      "community_name": "Community 19",
       "id": "database_06_recursos_humanos_empleados"
     },
     {
@@ -671,7 +671,7 @@
       "_origin": "ast",
       "community": 19,
       "norm_label": "desactivar_acceso_usuario_por_desvinculacion()",
-      "community_name": "Recursos Humanos",
+      "community_name": "Community 19",
       "id": "database_06_recursos_humanos_desactivar_acceso_usuario_por_desvinculacion"
     },
     {
@@ -682,7 +682,7 @@
       "_origin": "ast",
       "community": 19,
       "norm_label": "trg_desactivar_acceso_empleado",
-      "community_name": "Recursos Humanos",
+      "community_name": "Community 19",
       "id": "database_06_recursos_humanos_trg_desactivar_acceso_empleado"
     },
     {
@@ -693,7 +693,7 @@
       "_origin": "ast",
       "community": 17,
       "norm_label": "07_logistica_y_devoluciones.sql",
-      "community_name": "Logística y Devoluciones",
+      "community_name": "Community 17",
       "id": "database_07_logistica_y_devoluciones"
     },
     {
@@ -704,7 +704,7 @@
       "_origin": "ast",
       "community": 17,
       "norm_label": "detalle_pedidos",
-      "community_name": "Logística y Devoluciones",
+      "community_name": "Community 17",
       "id": "database_07_logistica_y_devoluciones_detalle_pedidos"
     },
     {
@@ -715,7 +715,7 @@
       "_origin": "ast",
       "community": 17,
       "norm_label": "logistica_despacho",
-      "community_name": "Logística y Devoluciones",
+      "community_name": "Community 17",
       "id": "database_07_logistica_y_devoluciones_logistica_despacho"
     },
     {
@@ -726,7 +726,7 @@
       "_origin": "ast",
       "community": 17,
       "norm_label": "devoluciones_pedidos",
-      "community_name": "Logística y Devoluciones",
+      "community_name": "Community 17",
       "id": "database_07_logistica_y_devoluciones_devoluciones_pedidos"
     },
     {
@@ -737,7 +737,7 @@
       "_origin": "ast",
       "community": 17,
       "norm_label": "detalle_devoluciones",
-      "community_name": "Logística y Devoluciones",
+      "community_name": "Community 17",
       "id": "database_07_logistica_y_devoluciones_detalle_devoluciones"
     },
     {
@@ -748,7 +748,7 @@
       "_origin": "ast",
       "community": 17,
       "norm_label": "calcular_valores_linea_pedido()",
-      "community_name": "Logística y Devoluciones",
+      "community_name": "Community 17",
       "id": "database_07_logistica_y_devoluciones_calcular_valores_linea_pedido"
     },
     {
@@ -759,7 +759,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "package.json",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package"
     },
     {
@@ -770,7 +770,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "name",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_name"
     },
     {
@@ -781,7 +781,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "private",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_private"
     },
     {
@@ -792,7 +792,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "version",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_version"
     },
     {
@@ -803,7 +803,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "type",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_type"
     },
     {
@@ -814,7 +814,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "scripts",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_scripts"
     },
     {
@@ -825,7 +825,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "dev",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_scripts_dev"
     },
     {
@@ -836,7 +836,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "build",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_scripts_build"
     },
     {
@@ -847,7 +847,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "lint",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_scripts_lint"
     },
     {
@@ -858,7 +858,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "preview",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_scripts_preview"
     },
     {
@@ -869,7 +869,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "test",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_scripts_test"
     },
     {
@@ -880,7 +880,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "test:ui",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_scripts_test_ui"
     },
     {
@@ -891,7 +891,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "test:run",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_scripts_test_run"
     },
     {
@@ -902,7 +902,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "test:coverage",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_scripts_test_coverage"
     },
     {
@@ -913,7 +913,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "dependencies",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_dependencies"
     },
     {
@@ -924,7 +924,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "@supabase/supabase-js",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_dependencies_supabase_supabase_js"
     },
     {
@@ -935,7 +935,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "axios",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_dependencies_axios"
     },
     {
@@ -946,7 +946,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "lucide-react",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_dependencies_lucide_react"
     },
     {
@@ -957,7 +957,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "react",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_dependencies_react"
     },
     {
@@ -968,7 +968,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "react-dom",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_dependencies_react_dom"
     },
     {
@@ -979,7 +979,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "sweetalert2",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_dependencies_sweetalert2"
     },
     {
@@ -990,7 +990,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "jspdf",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_dependencies_jspdf"
     },
     {
@@ -1001,7 +1001,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "devdependencies",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_devdependencies"
     },
     {
@@ -1012,7 +1012,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "@testing-library/jest-dom",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_devdependencies_testing_library_jest_dom"
     },
     {
@@ -1023,7 +1023,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "@testing-library/react",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_devdependencies_testing_library_react"
     },
     {
@@ -1034,7 +1034,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "@types/react",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_devdependencies_types_react"
     },
     {
@@ -1045,7 +1045,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "@types/react-dom",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_devdependencies_types_react_dom"
     },
     {
@@ -1056,7 +1056,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "@typescript-eslint/eslint-plugin",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_devdependencies_typescript_eslint_eslint_plugin"
     },
     {
@@ -1067,7 +1067,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "@typescript-eslint/parser",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_devdependencies_typescript_eslint_parser"
     },
     {
@@ -1078,7 +1078,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "@vitejs/plugin-react",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_devdependencies_vitejs_plugin_react"
     },
     {
@@ -1089,7 +1089,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "@vitest/ui",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_devdependencies_vitest_ui"
     },
     {
@@ -1100,7 +1100,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "jsdom",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_devdependencies_jsdom"
     },
     {
@@ -1111,7 +1111,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "typescript",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_devdependencies_typescript"
     },
     {
@@ -1122,7 +1122,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "vite",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_devdependencies_vite"
     },
     {
@@ -1133,7 +1133,7 @@
       "_origin": "ast",
       "community": 2,
       "norm_label": "vitest",
-      "community_name": "Configuración de Paquetes",
+      "community_name": "Community 2",
       "id": "package_devdependencies_vitest"
     },
     {
@@ -1144,7 +1144,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "refactor.js",
-      "community_name": "Utilidades de Refactor",
+      "community_name": "Community 6",
       "id": "refactor"
     },
     {
@@ -1155,7 +1155,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "fs",
-      "community_name": "Utilidades de Refactor",
+      "community_name": "Community 6",
       "id": "refactor_fs"
     },
     {
@@ -1166,7 +1166,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "path",
-      "community_name": "Utilidades de Refactor",
+      "community_name": "Community 6",
       "id": "refactor_path"
     },
     {
@@ -1177,7 +1177,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "filepath",
-      "community_name": "Utilidades de Refactor",
+      "community_name": "Community 6",
       "id": "refactor_filepath"
     },
     {
@@ -1188,7 +1188,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "content",
-      "community_name": "Utilidades de Refactor",
+      "community_name": "Community 6",
       "id": "refactor_content"
     },
     {
@@ -1199,7 +1199,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "postart",
-      "community_name": "Utilidades de Refactor",
+      "community_name": "Community 6",
       "id": "refactor_postart"
     },
     {
@@ -1210,7 +1210,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "poend",
-      "community_name": "Utilidades de Refactor",
+      "community_name": "Community 6",
       "id": "refactor_poend"
     },
     {
@@ -1221,7 +1221,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "trstart",
-      "community_name": "Utilidades de Refactor",
+      "community_name": "Community 6",
       "id": "refactor_trstart"
     },
     {
@@ -1232,7 +1232,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "trend",
-      "community_name": "Utilidades de Refactor",
+      "community_name": "Community 6",
       "id": "refactor_trend"
     },
     {
@@ -1243,7 +1243,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "prstart",
-      "community_name": "Utilidades de Refactor",
+      "community_name": "Community 6",
       "id": "refactor_prstart"
     },
     {
@@ -1254,7 +1254,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "prend",
-      "community_name": "Utilidades de Refactor",
+      "community_name": "Community 6",
       "id": "refactor_prend"
     },
     {
@@ -1265,7 +1265,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "crstart",
-      "community_name": "Utilidades de Refactor",
+      "community_name": "Community 6",
       "id": "refactor_crstart"
     },
     {
@@ -1276,7 +1276,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "crend",
-      "community_name": "Utilidades de Refactor",
+      "community_name": "Community 6",
       "id": "refactor_crend"
     },
     {
@@ -1287,7 +1287,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "rrstart",
-      "community_name": "Utilidades de Refactor",
+      "community_name": "Community 6",
       "id": "refactor_rrstart"
     },
     {
@@ -1298,7 +1298,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "rrend",
-      "community_name": "Utilidades de Refactor",
+      "community_name": "Community 6",
       "id": "refactor_rrend"
     },
     {
@@ -1309,7 +1309,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "catstart",
-      "community_name": "Utilidades de Refactor",
+      "community_name": "Community 6",
       "id": "refactor_catstart"
     },
     {
@@ -1320,7 +1320,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "catend",
-      "community_name": "Utilidades de Refactor",
+      "community_name": "Community 6",
       "id": "refactor_catend"
     },
     {
@@ -1331,7 +1331,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "catestart",
-      "community_name": "Utilidades de Refactor",
+      "community_name": "Community 6",
       "id": "refactor_catestart"
     },
     {
@@ -1342,7 +1342,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "cateend",
-      "community_name": "Utilidades de Refactor",
+      "community_name": "Community 6",
       "id": "refactor_cateend"
     },
     {
@@ -1353,7 +1353,7 @@
       "_origin": "ast",
       "community": 8,
       "norm_label": "migrate_sheets_data.ts",
-      "community_name": "Migración de Datos",
+      "community_name": "Community 8",
       "id": "scripts_migrate_sheets_data"
     },
     {
@@ -1364,7 +1364,7 @@
       "_origin": "ast",
       "community": 8,
       "norm_label": "supabase",
-      "community_name": "Migración de Datos",
+      "community_name": "Community 8",
       "id": "scripts_migrate_sheets_data_supabase"
     },
     {
@@ -1375,7 +1375,7 @@
       "_origin": "ast",
       "community": 8,
       "norm_label": "clienterow",
-      "community_name": "Migración de Datos",
+      "community_name": "Community 8",
       "id": "scripts_migrate_sheets_data_clienterow"
     },
     {
@@ -1386,7 +1386,7 @@
       "_origin": "ast",
       "community": 8,
       "norm_label": "productorow",
-      "community_name": "Migración de Datos",
+      "community_name": "Community 8",
       "id": "scripts_migrate_sheets_data_productorow"
     },
     {
@@ -1397,7 +1397,7 @@
       "_origin": "ast",
       "community": 8,
       "norm_label": "normalizaridentificacion()",
-      "community_name": "Migración de Datos",
+      "community_name": "Community 8",
       "id": "scripts_migrate_sheets_data_normalizaridentificacion"
     },
     {
@@ -1408,7 +1408,7 @@
       "_origin": "ast",
       "community": 8,
       "norm_label": "parsecsv()",
-      "community_name": "Migración de Datos",
+      "community_name": "Community 8",
       "id": "scripts_migrate_sheets_data_parsecsv"
     },
     {
@@ -1419,7 +1419,7 @@
       "_origin": "ast",
       "community": 8,
       "norm_label": "migrarclientes()",
-      "community_name": "Migración de Datos",
+      "community_name": "Community 8",
       "id": "scripts_migrate_sheets_data_migrarclientes"
     },
     {
@@ -1430,7 +1430,7 @@
       "_origin": "ast",
       "community": 8,
       "norm_label": "migrarproductos()",
-      "community_name": "Migración de Datos",
+      "community_name": "Community 8",
       "id": "scripts_migrate_sheets_data_migrarproductos"
     },
     {
@@ -1441,7 +1441,7 @@
       "_origin": "ast",
       "community": 8,
       "norm_label": "ejecutarmigracion()",
-      "community_name": "Migración de Datos",
+      "community_name": "Community 8",
       "id": "scripts_migrate_sheets_data_ejecutarmigracion"
     },
     {
@@ -1452,7 +1452,7 @@
       "_origin": "ast",
       "community": 20,
       "norm_label": "test_pollinations_api.js",
-      "community_name": "Pruebas de API",
+      "community_name": "Community 20",
       "id": "scripts_test_pollinations_api"
     },
     {
@@ -1463,7 +1463,7 @@
       "_origin": "ast",
       "community": 20,
       "norm_label": "testprompt",
-      "community_name": "Pruebas de API",
+      "community_name": "Community 20",
       "id": "scripts_test_pollinations_api_testprompt"
     },
     {
@@ -1474,7 +1474,7 @@
       "_origin": "ast",
       "community": 20,
       "norm_label": "req",
-      "community_name": "Pruebas de API",
+      "community_name": "Community 20",
       "id": "scripts_test_pollinations_api_req"
     },
     {
@@ -1485,7 +1485,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "app.tsx",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app"
     },
     {
@@ -1496,7 +1496,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": "generateid()",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "src_app_generateid"
     },
     {
@@ -1507,7 +1507,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "totitlecase()",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_totitlecase"
     },
     {
@@ -1518,7 +1518,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "cliente",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_cliente"
     },
     {
@@ -1529,7 +1529,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "proveedor",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_proveedor"
     },
     {
@@ -1540,7 +1540,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "initial_clients",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_initial_clients"
     },
     {
@@ -1551,7 +1551,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "initial_proveedores",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_initial_proveedores"
     },
     {
@@ -1562,7 +1562,7 @@
       "_origin": "ast",
       "community": 7,
       "norm_label": "empleado",
-      "community_name": "Nómina y RRHH",
+      "community_name": "Community 7",
       "id": "src_app_empleado"
     },
     {
@@ -1573,7 +1573,7 @@
       "_origin": "ast",
       "community": 7,
       "norm_label": "nominaregistro",
-      "community_name": "Nómina y RRHH",
+      "community_name": "Community 7",
       "id": "src_app_nominaregistro"
     },
     {
@@ -1584,7 +1584,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "gasto",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_gasto"
     },
     {
@@ -1595,7 +1595,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "conductor",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_conductor"
     },
     {
@@ -1606,7 +1606,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "devolucionpedido",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_devolucionpedido"
     },
     {
@@ -1617,7 +1617,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "initial_conductores",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_initial_conductores"
     },
     {
@@ -1628,7 +1628,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "categoriaconfig",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_categoriaconfig"
     },
     {
@@ -1639,7 +1639,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "productcatalog",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_productcatalog"
     },
     {
@@ -1650,7 +1650,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "productpricing",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_productpricing"
     },
     {
@@ -1661,7 +1661,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "product",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_product"
     },
     {
@@ -1672,7 +1672,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "migrateproductstocatalogandpricing()",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_migrateproductstocatalogandpricing"
     },
     {
@@ -1683,7 +1683,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "initial_products",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_initial_products"
     },
     {
@@ -1694,7 +1694,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "domainevent",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_domainevent"
     },
     {
@@ -1705,7 +1705,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "syncjob",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_syncjob"
     },
     {
@@ -1716,7 +1716,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "dynamicfield",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_dynamicfield"
     },
     {
@@ -1727,7 +1727,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "movimientoinventario",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_movimientoinventario"
     },
     {
@@ -1738,7 +1738,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "itemordencompra",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_itemordencompra"
     },
     {
@@ -1749,7 +1749,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "ordencompra",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_ordencompra"
     },
     {
@@ -1760,7 +1760,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "itemventa",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_itemventa"
     },
     {
@@ -1771,7 +1771,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "venta",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_venta"
     },
     {
@@ -1782,7 +1782,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "logintegracion",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_logintegracion"
     },
     {
@@ -1793,7 +1793,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "app()",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_app_app"
     },
     {
@@ -1804,7 +1804,7 @@
       "_origin": "ast",
       "community": 15,
       "norm_label": "usebalanza.ts",
-      "community_name": "Integración de Balanza",
+      "community_name": "Community 15",
       "id": "hooks_usebalanza"
     },
     {
@@ -1815,7 +1815,7 @@
       "_origin": "ast",
       "community": 15,
       "norm_label": "usebalanza()",
-      "community_name": "Integración de Balanza",
+      "community_name": "Community 15",
       "id": "hooks_usebalanza_usebalanza"
     },
     {
@@ -1826,7 +1826,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "useposcart.ts",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "hooks_useposcart"
     },
     {
@@ -1837,7 +1837,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "clientepos",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "hooks_useposcart_clientepos"
     },
     {
@@ -1848,7 +1848,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "useposcart()",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "hooks_useposcart_useposcart"
     },
     {
@@ -1859,7 +1859,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "useposprinter.ts",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "hooks_useposprinter"
     },
     {
@@ -1870,7 +1870,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "clienteprinter",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "hooks_useposprinter_clienteprinter"
     },
     {
@@ -1881,7 +1881,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "useposprinter()",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "hooks_useposprinter_useposprinter"
     },
     {
@@ -1892,7 +1892,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "main.tsx",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "src_main"
     },
     {
@@ -1903,7 +1903,7 @@
       "_origin": "ast",
       "community": 12,
       "norm_label": "b2bservice.ts",
-      "community_name": "Pedidos B2B",
+      "community_name": "Community 12",
       "id": "services_b2bservice"
     },
     {
@@ -1914,7 +1914,7 @@
       "_origin": "ast",
       "community": 12,
       "norm_label": "b2bservice",
-      "community_name": "Pedidos B2B",
+      "community_name": "Community 12",
       "id": "services_b2bservice_b2bservice"
     },
     {
@@ -1925,7 +1925,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": "cashservice.ts",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "services_cashservice"
     },
     {
@@ -1936,7 +1936,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": "cashservice",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "services_cashservice_cashservice"
     },
     {
@@ -1947,7 +1947,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": ".getcajas()",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "services_cashservice_cashservice_getcajas"
     },
     {
@@ -1958,7 +1958,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": ".getcajasporbodega()",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "services_cashservice_cashservice_getcajasporbodega"
     },
     {
@@ -1969,7 +1969,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": ".guardarcaja()",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "services_cashservice_cashservice_guardarcaja"
     },
     {
@@ -1980,7 +1980,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": ".getturnos()",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "services_cashservice_cashservice_getturnos"
     },
     {
@@ -1991,7 +1991,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": ".getturnoactivo()",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "services_cashservice_cashservice_getturnoactivo"
     },
     {
@@ -2002,7 +2002,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": ".abrirturno()",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "services_cashservice_cashservice_abrirturno"
     },
     {
@@ -2013,7 +2013,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": ".cerrarturno()",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "services_cashservice_cashservice_cerrarturno"
     },
     {
@@ -2024,7 +2024,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": ".getmovimientos()",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "services_cashservice_cashservice_getmovimientos"
     },
     {
@@ -2035,7 +2035,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": ".registrarmovimiento()",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "services_cashservice_cashservice_registrarmovimiento"
     },
     {
@@ -2046,7 +2046,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": ".gettraslados()",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "services_cashservice_cashservice_gettraslados"
     },
     {
@@ -2057,7 +2057,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": ".trasladardinero()",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "services_cashservice_cashservice_trasladardinero"
     },
     {
@@ -2068,7 +2068,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "inventoryservice.ts",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "services_inventoryservice"
     },
     {
@@ -2079,7 +2079,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "stockitem",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "services_inventoryservice_stockitem"
     },
     {
@@ -2090,7 +2090,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "movimientoinventario",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "services_inventoryservice_movimientoinventario"
     },
     {
@@ -2101,7 +2101,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "validarstock()",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "services_inventoryservice_validarstock"
     },
     {
@@ -2112,7 +2112,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "registrarentrada()",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "services_inventoryservice_registrarentrada"
     },
     {
@@ -2123,7 +2123,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "registrarsalida()",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "services_inventoryservice_registrarsalida"
     },
     {
@@ -2134,7 +2134,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "registrartraslado()",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "services_inventoryservice_registrartraslado"
     },
     {
@@ -2145,7 +2145,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "procesarproduccion()",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "services_inventoryservice_procesarproduccion"
     },
     {
@@ -2156,7 +2156,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "localdb.ts",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "services_localdb"
     },
     {
@@ -2167,7 +2167,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "db_keys",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "services_localdb_db_keys"
     },
     {
@@ -2178,7 +2178,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "dbkey",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "services_localdb_dbkey"
     },
     {
@@ -2189,7 +2189,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "load()",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "services_localdb_load"
     },
     {
@@ -2200,7 +2200,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "save()",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "services_localdb_save"
     },
     {
@@ -2211,7 +2211,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "remove()",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "services_localdb_remove"
     },
     {
@@ -2222,7 +2222,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "removeraw()",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "services_localdb_removeraw"
     },
     {
@@ -2233,7 +2233,7 @@
       "_origin": "ast",
       "community": 7,
       "norm_label": "payrollservice.ts",
-      "community_name": "Nómina y RRHH",
+      "community_name": "Community 7",
       "id": "services_payrollservice"
     },
     {
@@ -2244,7 +2244,7 @@
       "_origin": "ast",
       "community": 7,
       "norm_label": "wizardtype",
-      "community_name": "Nómina y RRHH",
+      "community_name": "Community 7",
       "id": "services_payrollservice_wizardtype"
     },
     {
@@ -2255,7 +2255,7 @@
       "_origin": "ast",
       "community": 7,
       "norm_label": "calcdiascomerciales()",
-      "community_name": "Nómina y RRHH",
+      "community_name": "Community 7",
       "id": "services_payrollservice_calcdiascomerciales"
     },
     {
@@ -2266,7 +2266,7 @@
       "_origin": "ast",
       "community": 7,
       "norm_label": "calcularnomina()",
-      "community_name": "Nómina y RRHH",
+      "community_name": "Community 7",
       "id": "services_payrollservice_calcularnomina"
     },
     {
@@ -2277,7 +2277,7 @@
       "_origin": "ast",
       "community": 7,
       "norm_label": "guardarnomina()",
-      "community_name": "Nómina y RRHH",
+      "community_name": "Community 7",
       "id": "services_payrollservice_guardarnomina"
     },
     {
@@ -2288,7 +2288,7 @@
       "_origin": "ast",
       "community": 7,
       "norm_label": "generarpdfnomina()",
-      "community_name": "Nómina y RRHH",
+      "community_name": "Community 7",
       "id": "services_payrollservice_generarpdfnomina"
     },
     {
@@ -2299,7 +2299,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "posservice.ts",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "services_posservice"
     },
     {
@@ -2310,7 +2310,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "calculartotallinea()",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "services_posservice_calculartotallinea"
     },
     {
@@ -2321,7 +2321,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "calculartotalespedido()",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "services_posservice_calculartotalespedido"
     },
     {
@@ -2332,7 +2332,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "registrarventa()",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "services_posservice_registrarventa"
     },
     {
@@ -2343,7 +2343,7 @@
       "_origin": "ast",
       "community": 11,
       "norm_label": "twentyclient.ts",
-      "community_name": "Integración CRM",
+      "community_name": "Community 11",
       "id": "services_twentyclient"
     },
     {
@@ -2354,7 +2354,7 @@
       "_origin": "ast",
       "community": 11,
       "norm_label": "settwentyapikey()",
-      "community_name": "Integración CRM",
+      "community_name": "Community 11",
       "id": "services_twentyclient_settwentyapikey"
     },
     {
@@ -2365,7 +2365,7 @@
       "_origin": "ast",
       "community": 11,
       "norm_label": "hastwentyapikey()",
-      "community_name": "Integración CRM",
+      "community_name": "Community 11",
       "id": "services_twentyclient_hastwentyapikey"
     },
     {
@@ -2376,7 +2376,7 @@
       "_origin": "ast",
       "community": 11,
       "norm_label": "fetchtwenty()",
-      "community_name": "Integración CRM",
+      "community_name": "Community 11",
       "id": "services_twentyclient_fetchtwenty"
     },
     {
@@ -2387,7 +2387,7 @@
       "_origin": "ast",
       "community": 11,
       "norm_label": "twentycontacts",
-      "community_name": "Integración CRM",
+      "community_name": "Community 11",
       "id": "services_twentyclient_twentycontacts"
     },
     {
@@ -2398,7 +2398,7 @@
       "_origin": "ast",
       "community": 11,
       "norm_label": "twentycompanies",
-      "community_name": "Integración CRM",
+      "community_name": "Community 11",
       "id": "services_twentyclient_twentycompanies"
     },
     {
@@ -2409,7 +2409,7 @@
       "_origin": "ast",
       "community": 11,
       "norm_label": "twentyopportunities",
-      "community_name": "Integración CRM",
+      "community_name": "Community 11",
       "id": "services_twentyclient_twentyopportunities"
     },
     {
@@ -2420,7 +2420,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "inventory.test.ts",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "tests_inventory_test"
     },
     {
@@ -2431,7 +2431,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "pos.test.ts",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "tests_pos_test"
     },
     {
@@ -2442,7 +2442,7 @@
       "_origin": "ast",
       "community": 24,
       "norm_label": "purchasesreport.test.ts",
-      "community_name": "Pruebas de Compras",
+      "community_name": "Community 24",
       "id": "src_tests_purchasesreport_test_ts_tests_purchasesreport_test"
     },
     {
@@ -2453,7 +2453,7 @@
       "_origin": "ast",
       "community": 13,
       "norm_label": "purchasesreport.test.tsx",
-      "community_name": "Reporte de Compras",
+      "community_name": "Community 13",
       "id": "src_tests_purchasesreport_test_tsx_tests_purchasesreport_test"
     },
     {
@@ -2464,7 +2464,7 @@
       "_origin": "ast",
       "community": 13,
       "norm_label": "mock_proveedores",
-      "community_name": "Reporte de Compras",
+      "community_name": "Community 13",
       "id": "tests_purchasesreport_test_mock_proveedores"
     },
     {
@@ -2475,7 +2475,7 @@
       "_origin": "ast",
       "community": 13,
       "norm_label": "mock_products",
-      "community_name": "Reporte de Compras",
+      "community_name": "Community 13",
       "id": "tests_purchasesreport_test_mock_products"
     },
     {
@@ -2486,7 +2486,7 @@
       "_origin": "ast",
       "community": 13,
       "norm_label": "mock_categorias",
-      "community_name": "Reporte de Compras",
+      "community_name": "Community 13",
       "id": "tests_purchasesreport_test_mock_categorias"
     },
     {
@@ -2497,7 +2497,7 @@
       "_origin": "ast",
       "community": 13,
       "norm_label": "mock_ordenes",
-      "community_name": "Reporte de Compras",
+      "community_name": "Community 13",
       "id": "tests_purchasesreport_test_mock_ordenes"
     },
     {
@@ -2508,7 +2508,7 @@
       "_origin": "ast",
       "community": 25,
       "norm_label": "sanity.test.ts",
-      "community_name": "Pruebas de Sanidad",
+      "community_name": "Community 25",
       "id": "tests_sanity_test"
     },
     {
@@ -2519,7 +2519,7 @@
       "_origin": "ast",
       "community": 21,
       "norm_label": "setup.ts",
-      "community_name": "Configuración de Pruebas",
+      "community_name": "Community 21",
       "id": "tests_setup"
     },
     {
@@ -2530,7 +2530,7 @@
       "_origin": "ast",
       "community": 21,
       "norm_label": "localstoragemock",
-      "community_name": "Configuración de Pruebas",
+      "community_name": "Community 21",
       "id": "tests_setup_localstoragemock"
     },
     {
@@ -2541,7 +2541,7 @@
       "_origin": "ast",
       "community": 21,
       "norm_label": "sessionstoragemock",
-      "community_name": "Configuración de Pruebas",
+      "community_name": "Community 21",
       "id": "tests_setup_sessionstoragemock"
     },
     {
@@ -2552,7 +2552,7 @@
       "_origin": "ast",
       "community": 15,
       "norm_label": "usebalanza.test.ts",
-      "community_name": "Integración de Balanza",
+      "community_name": "Community 15",
       "id": "tests_usebalanza_test"
     },
     {
@@ -2563,7 +2563,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "useposcart.test.ts",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "tests_useposcart_test"
     },
     {
@@ -2574,7 +2574,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "useposprinter.test.ts",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "tests_useposprinter_test"
     },
     {
@@ -2585,7 +2585,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "testfactories.ts",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "utils_testfactories"
     },
     {
@@ -2596,7 +2596,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "crearproducto()",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "utils_testfactories_crearproducto"
     },
     {
@@ -2607,7 +2607,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "crearlineaventa()",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "utils_testfactories_crearlineaventa"
     },
     {
@@ -2618,7 +2618,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "crearventapos()",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "utils_testfactories_crearventapos"
     },
     {
@@ -2629,7 +2629,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "crearpedido()",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "utils_testfactories_crearpedido"
     },
     {
@@ -2640,7 +2640,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": "cash.types.ts",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "types_cash_types"
     },
     {
@@ -2651,7 +2651,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": "estadoturno",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "types_cash_types_estadoturno"
     },
     {
@@ -2662,7 +2662,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": "tipomovimientocaja",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "types_cash_types_tipomovimientocaja"
     },
     {
@@ -2673,7 +2673,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": "metodopago",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "types_cash_types_metodopago"
     },
     {
@@ -2684,7 +2684,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": "caja",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "types_cash_types_caja"
     },
     {
@@ -2695,7 +2695,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": "turnocaja",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "types_cash_types_turnocaja"
     },
     {
@@ -2706,7 +2706,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": "movimientocaja",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "types_cash_types_movimientocaja"
     },
     {
@@ -2717,7 +2717,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": "trasladodinero",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "types_cash_types_trasladodinero"
     },
     {
@@ -2728,7 +2728,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": "common.types.ts",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "types_common_types"
     },
     {
@@ -2739,7 +2739,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": "resultadooperacion",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "types_common_types_resultadooperacion"
     },
     {
@@ -2750,7 +2750,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": "auditable",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "types_common_types_auditable"
     },
     {
@@ -2761,7 +2761,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "inventory.types.ts",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "types_inventory_types"
     },
     {
@@ -2772,7 +2772,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "producto",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "types_inventory_types_producto"
     },
     {
@@ -2783,7 +2783,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "categoria",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "types_inventory_types_categoria"
     },
     {
@@ -2794,7 +2794,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "stockbodega",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "types_inventory_types_stockbodega"
     },
     {
@@ -2805,7 +2805,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "bodega",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "types_inventory_types_bodega"
     },
     {
@@ -2816,7 +2816,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "ordencompra",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "types_inventory_types_ordencompra"
     },
     {
@@ -2827,7 +2827,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "lineacompra",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "types_inventory_types_lineacompra"
     },
     {
@@ -2838,7 +2838,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "lineatraslado",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "types_inventory_types_lineatraslado"
     },
     {
@@ -2849,7 +2849,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "resultadooperacion",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "types_inventory_types_resultadooperacion"
     },
     {
@@ -2860,7 +2860,7 @@
       "_origin": "ast",
       "community": 12,
       "norm_label": "orders.types.ts",
-      "community_name": "Pedidos B2B",
+      "community_name": "Community 12",
       "id": "types_orders_types"
     },
     {
@@ -2871,7 +2871,7 @@
       "_origin": "ast",
       "community": 12,
       "norm_label": "estadopedido",
-      "community_name": "Pedidos B2B",
+      "community_name": "Community 12",
       "id": "types_orders_types_estadopedido"
     },
     {
@@ -2882,7 +2882,7 @@
       "_origin": "ast",
       "community": 12,
       "norm_label": "lineapedido",
-      "community_name": "Pedidos B2B",
+      "community_name": "Community 12",
       "id": "types_orders_types_lineapedido"
     },
     {
@@ -2893,7 +2893,7 @@
       "_origin": "ast",
       "community": 12,
       "norm_label": "pedido",
-      "community_name": "Pedidos B2B",
+      "community_name": "Community 12",
       "id": "types_orders_types_pedido"
     },
     {
@@ -2904,7 +2904,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "pos.types.ts",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "types_pos_types"
     },
     {
@@ -2915,7 +2915,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "lineaventa",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "types_pos_types_lineaventa"
     },
     {
@@ -2926,7 +2926,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "ventapos",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "types_pos_types_ventapos"
     },
     {
@@ -2937,7 +2937,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "configuracionpos",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "types_pos_types_configuracionpos"
     },
     {
@@ -2948,7 +2948,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "arview.tsx",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "views_arview"
     },
     {
@@ -2959,7 +2959,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "paymentar",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "views_arview_paymentar"
     },
     {
@@ -2970,7 +2970,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "invoicear",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "views_arview_invoicear"
     },
     {
@@ -2981,7 +2981,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "arviewprops",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "views_arview_arviewprops"
     },
     {
@@ -2992,7 +2992,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "arview()",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "views_arview_arview"
     },
     {
@@ -3003,7 +3003,7 @@
       "_origin": "ast",
       "community": 11,
       "norm_label": "crmview.tsx",
-      "community_name": "Integración CRM",
+      "community_name": "Community 11",
       "id": "views_crmview"
     },
     {
@@ -3014,7 +3014,7 @@
       "_origin": "ast",
       "community": 11,
       "norm_label": "crmviewprops",
-      "community_name": "Integración CRM",
+      "community_name": "Community 11",
       "id": "views_crmview_crmviewprops"
     },
     {
@@ -3025,7 +3025,7 @@
       "_origin": "ast",
       "community": 11,
       "norm_label": "tabtype",
-      "community_name": "Integración CRM",
+      "community_name": "Community 11",
       "id": "views_crmview_tabtype"
     },
     {
@@ -3036,7 +3036,7 @@
       "_origin": "ast",
       "community": 11,
       "norm_label": "crmview()",
-      "community_name": "Integración CRM",
+      "community_name": "Community 11",
       "id": "views_crmview_crmview"
     },
     {
@@ -3047,7 +3047,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "clientsview.tsx",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "views_clientsview"
     },
     {
@@ -3058,7 +3058,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "clientsviewprops",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "views_clientsview_clientsviewprops"
     },
     {
@@ -3069,7 +3069,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "clientsview()",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "views_clientsview_clientsview"
     },
     {
@@ -3080,7 +3080,7 @@
       "_origin": "ast",
       "community": 7,
       "norm_label": "dashboardview.tsx",
-      "community_name": "Nómina y RRHH",
+      "community_name": "Community 7",
       "id": "views_dashboardview"
     },
     {
@@ -3091,7 +3091,7 @@
       "_origin": "ast",
       "community": 7,
       "norm_label": "metriccardprops",
-      "community_name": "Nómina y RRHH",
+      "community_name": "Community 7",
       "id": "views_dashboardview_metriccardprops"
     },
     {
@@ -3102,7 +3102,7 @@
       "_origin": "ast",
       "community": 7,
       "norm_label": "metriccard()",
-      "community_name": "Nómina y RRHH",
+      "community_name": "Community 7",
       "id": "views_dashboardview_metriccard"
     },
     {
@@ -3113,7 +3113,7 @@
       "_origin": "ast",
       "community": 7,
       "norm_label": "dashboardview()",
-      "community_name": "Nómina y RRHH",
+      "community_name": "Community 7",
       "id": "views_dashboardview_dashboardview"
     },
     {
@@ -3124,7 +3124,7 @@
       "_origin": "ast",
       "community": 7,
       "norm_label": "hrview.tsx",
-      "community_name": "Nómina y RRHH",
+      "community_name": "Community 7",
       "id": "views_hrview"
     },
     {
@@ -3135,7 +3135,7 @@
       "_origin": "ast",
       "community": 7,
       "norm_label": "hrviewprops",
-      "community_name": "Nómina y RRHH",
+      "community_name": "Community 7",
       "id": "views_hrview_hrviewprops"
     },
     {
@@ -3146,7 +3146,7 @@
       "_origin": "ast",
       "community": 7,
       "norm_label": "hrview()",
-      "community_name": "Nómina y RRHH",
+      "community_name": "Community 7",
       "id": "views_hrview_hrview"
     },
     {
@@ -3157,7 +3157,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "inventoryview.tsx",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "views_inventoryview"
     },
     {
@@ -3168,7 +3168,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "stockitem",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "views_inventoryview_stockitem"
     },
     {
@@ -3179,7 +3179,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "inventoryviewprops",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "views_inventoryview_inventoryviewprops"
     },
     {
@@ -3190,7 +3190,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "inventoryview()",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "views_inventoryview_inventoryview"
     },
     {
@@ -3201,7 +3201,7 @@
       "_origin": "ast",
       "community": 12,
       "norm_label": "orderkanbanview.tsx",
-      "community_name": "Pedidos B2B",
+      "community_name": "Community 12",
       "id": "views_orderkanbanview"
     },
     {
@@ -3212,7 +3212,7 @@
       "_origin": "ast",
       "community": 12,
       "norm_label": "orderkanbanviewprops",
-      "community_name": "Pedidos B2B",
+      "community_name": "Community 12",
       "id": "views_orderkanbanview_orderkanbanviewprops"
     },
     {
@@ -3223,7 +3223,7 @@
       "_origin": "ast",
       "community": 12,
       "norm_label": "columnid",
-      "community_name": "Pedidos B2B",
+      "community_name": "Community 12",
       "id": "views_orderkanbanview_columnid"
     },
     {
@@ -3234,7 +3234,7 @@
       "_origin": "ast",
       "community": 12,
       "norm_label": "orderkanbanview()",
-      "community_name": "Pedidos B2B",
+      "community_name": "Community 12",
       "id": "views_orderkanbanview_orderkanbanview"
     },
     {
@@ -3245,7 +3245,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "posview.tsx",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "views_posview"
     },
     {
@@ -3256,7 +3256,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "cartitem",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "views_posview_cartitem"
     },
     {
@@ -3267,7 +3267,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "posviewprops",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "views_posview_posviewprops"
     },
     {
@@ -3278,7 +3278,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "posview()",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "views_posview_posview"
     },
     {
@@ -3289,7 +3289,7 @@
       "_origin": "ast",
       "community": 7,
       "norm_label": "payrollview.tsx",
-      "community_name": "Nómina y RRHH",
+      "community_name": "Community 7",
       "id": "views_payrollview"
     },
     {
@@ -3300,7 +3300,7 @@
       "_origin": "ast",
       "community": 7,
       "norm_label": "payrollviewprops",
-      "community_name": "Nómina y RRHH",
+      "community_name": "Community 7",
       "id": "views_payrollview_payrollviewprops"
     },
     {
@@ -3311,7 +3311,7 @@
       "_origin": "ast",
       "community": 7,
       "norm_label": "calcdiascomerciales()",
-      "community_name": "Nómina y RRHH",
+      "community_name": "Community 7",
       "id": "views_payrollview_calcdiascomerciales"
     },
     {
@@ -3322,7 +3322,7 @@
       "_origin": "ast",
       "community": 7,
       "norm_label": "payrollview()",
-      "community_name": "Nómina y RRHH",
+      "community_name": "Community 7",
       "id": "views_payrollview_payrollview"
     },
     {
@@ -3333,7 +3333,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "pricingview.tsx",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "views_pricingview"
     },
     {
@@ -3344,7 +3344,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "pricingviewprops",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "views_pricingview_pricingviewprops"
     },
     {
@@ -3355,7 +3355,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "pricingview()",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "views_pricingview_pricingview"
     },
     {
@@ -3366,7 +3366,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "suppliersview.tsx",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "views_suppliersview"
     },
     {
@@ -3377,7 +3377,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "suppliersviewprops",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "views_suppliersview_suppliersviewprops"
     },
     {
@@ -3388,7 +3388,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "suppliersview()",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "views_suppliersview_suppliersview"
     },
     {
@@ -3399,7 +3399,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": "cashflowview.tsx",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "cash_cashflowview"
     },
     {
@@ -3410,7 +3410,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": "cashflowviewprops",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "cash_cashflowview_cashflowviewprops"
     },
     {
@@ -3421,7 +3421,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": "cashflowview()",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "cash_cashflowview_cashflowview"
     },
     {
@@ -3432,7 +3432,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": "cierrecajamodal.tsx",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "components_cierrecajamodal"
     },
     {
@@ -3443,7 +3443,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": "cierrecajamodalprops",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "components_cierrecajamodal_cierrecajamodalprops"
     },
     {
@@ -3454,7 +3454,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": "cierrecajamodal()",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "components_cierrecajamodal_cierrecajamodal"
     },
     {
@@ -3465,7 +3465,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": "trasladodineromodal.tsx",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "components_trasladodineromodal"
     },
     {
@@ -3476,7 +3476,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": "trasladodineromodalprops",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "components_trasladodineromodal_trasladodineromodalprops"
     },
     {
@@ -3487,7 +3487,7 @@
       "_origin": "ast",
       "community": 3,
       "norm_label": "trasladodineromodal()",
-      "community_name": "Servicio de Caja",
+      "community_name": "Community 3",
       "id": "components_trasladodineromodal_trasladodineromodal"
     },
     {
@@ -3498,7 +3498,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "categorymanager.tsx",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "components_categorymanager"
     },
     {
@@ -3509,7 +3509,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "categorymanager()",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "components_categorymanager_categorymanager"
     },
     {
@@ -3520,7 +3520,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "coldroompreparation.tsx",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "components_coldroompreparation"
     },
     {
@@ -3531,7 +3531,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "coldroompreparation()",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "components_coldroompreparation_coldroompreparation"
     },
     {
@@ -3542,7 +3542,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "productform.tsx",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "components_productform"
     },
     {
@@ -3553,7 +3553,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "productform()",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "components_productform_productform"
     },
     {
@@ -3564,7 +3564,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "producttable.tsx",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "components_producttable"
     },
     {
@@ -3575,7 +3575,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "producttable()",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "components_producttable_producttable"
     },
     {
@@ -3586,7 +3586,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "productionform.tsx",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "components_productionform"
     },
     {
@@ -3597,7 +3597,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "productionform()",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "components_productionform_productionform"
     },
     {
@@ -3608,7 +3608,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "purchaseorderform.tsx",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "components_purchaseorderform"
     },
     {
@@ -3619,7 +3619,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "purchaseorderform()",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "components_purchaseorderform_purchaseorderform"
     },
     {
@@ -3630,7 +3630,7 @@
       "_origin": "ast",
       "community": 13,
       "norm_label": "purchasesreport.tsx",
-      "community_name": "Reporte de Compras",
+      "community_name": "Community 13",
       "id": "components_purchasesreport"
     },
     {
@@ -3641,7 +3641,7 @@
       "_origin": "ast",
       "community": 13,
       "norm_label": "purchasesreportprops",
-      "community_name": "Reporte de Compras",
+      "community_name": "Community 13",
       "id": "components_purchasesreport_purchasesreportprops"
     },
     {
@@ -3652,7 +3652,7 @@
       "_origin": "ast",
       "community": 13,
       "norm_label": "purchasesreport()",
-      "community_name": "Reporte de Compras",
+      "community_name": "Community 13",
       "id": "components_purchasesreport_purchasesreport"
     },
     {
@@ -3663,7 +3663,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "returnsreceiver.tsx",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "components_returnsreceiver"
     },
     {
@@ -3674,7 +3674,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "returnsreceiver()",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "components_returnsreceiver_returnsreceiver"
     },
     {
@@ -3685,7 +3685,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "transferform.tsx",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "components_transferform"
     },
     {
@@ -3696,7 +3696,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "transferform()",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "components_transferform_transferform"
     },
     {
@@ -3707,7 +3707,7 @@
       "_origin": "ast",
       "community": 23,
       "norm_label": "useinventory.ts",
-      "community_name": "Hook de Inventario",
+      "community_name": "Community 23",
       "id": "hooks_useinventory"
     },
     {
@@ -3718,7 +3718,7 @@
       "_origin": "ast",
       "community": 23,
       "norm_label": "useinventory()",
-      "community_name": "Hook de Inventario",
+      "community_name": "Community 23",
       "id": "hooks_useinventory_useinventory"
     },
     {
@@ -3729,7 +3729,7 @@
       "_origin": "ast",
       "community": 15,
       "norm_label": "balanzabutton.tsx",
-      "community_name": "Integración de Balanza",
+      "community_name": "Community 15",
       "id": "components_balanzabutton"
     },
     {
@@ -3740,7 +3740,7 @@
       "_origin": "ast",
       "community": 15,
       "norm_label": "balanzabuttonprops",
-      "community_name": "Integración de Balanza",
+      "community_name": "Community 15",
       "id": "components_balanzabutton_balanzabuttonprops"
     },
     {
@@ -3751,7 +3751,7 @@
       "_origin": "ast",
       "community": 15,
       "norm_label": "balanzabutton()",
-      "community_name": "Integración de Balanza",
+      "community_name": "Community 15",
       "id": "components_balanzabutton_balanzabutton"
     },
     {
@@ -3762,7 +3762,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "discountpanel.tsx",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "components_discountpanel"
     },
     {
@@ -3773,7 +3773,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "discountpanelprops",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "components_discountpanel_discountpanelprops"
     },
     {
@@ -3784,7 +3784,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "discountpanel()",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "components_discountpanel_discountpanel"
     },
     {
@@ -3795,7 +3795,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "paymentpanel.tsx",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "components_paymentpanel"
     },
     {
@@ -3806,7 +3806,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "paymentpanelprops",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "components_paymentpanel_paymentpanelprops"
     },
     {
@@ -3817,7 +3817,7 @@
       "_origin": "ast",
       "community": 0,
       "norm_label": "paymentpanel()",
-      "community_name": "Aplicación Principal",
+      "community_name": "Community 0",
       "id": "components_paymentpanel_paymentpanel"
     },
     {
@@ -3828,7 +3828,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "ticketbuilder.tsx",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "components_ticketbuilder"
     },
     {
@@ -3839,7 +3839,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "ticketbuilderprops",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "components_ticketbuilder_ticketbuilderprops"
     },
     {
@@ -3850,7 +3850,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "ticketbuilder()",
-      "community_name": "Servicios Core",
+      "community_name": "Community 1",
       "id": "components_ticketbuilder_ticketbuilder"
     },
     {
@@ -3861,7 +3861,7 @@
       "_origin": "ast",
       "community": 4,
       "norm_label": "tsconfig.json",
-      "community_name": "Configuración TypeScript",
+      "community_name": "Community 4",
       "id": "tsconfig"
     },
     {
@@ -3872,7 +3872,7 @@
       "_origin": "ast",
       "community": 4,
       "norm_label": "compileroptions",
-      "community_name": "Configuración TypeScript",
+      "community_name": "Community 4",
       "id": "tsconfig_compileroptions"
     },
     {
@@ -3883,7 +3883,7 @@
       "_origin": "ast",
       "community": 4,
       "norm_label": "target",
-      "community_name": "Configuración TypeScript",
+      "community_name": "Community 4",
       "id": "tsconfig_compileroptions_target"
     },
     {
@@ -3894,7 +3894,7 @@
       "_origin": "ast",
       "community": 4,
       "norm_label": "usedefineforclassfields",
-      "community_name": "Configuración TypeScript",
+      "community_name": "Community 4",
       "id": "tsconfig_compileroptions_usedefineforclassfields"
     },
     {
@@ -3905,7 +3905,7 @@
       "_origin": "ast",
       "community": 4,
       "norm_label": "lib",
-      "community_name": "Configuración TypeScript",
+      "community_name": "Community 4",
       "id": "tsconfig_compileroptions_lib"
     },
     {
@@ -3916,7 +3916,7 @@
       "_origin": "ast",
       "community": 4,
       "norm_label": "module",
-      "community_name": "Configuración TypeScript",
+      "community_name": "Community 4",
       "id": "tsconfig_compileroptions_module"
     },
     {
@@ -3927,7 +3927,7 @@
       "_origin": "ast",
       "community": 4,
       "norm_label": "skiplibcheck",
-      "community_name": "Configuración TypeScript",
+      "community_name": "Community 4",
       "id": "tsconfig_compileroptions_skiplibcheck"
     },
     {
@@ -3938,7 +3938,7 @@
       "_origin": "ast",
       "community": 4,
       "norm_label": "moduleresolution",
-      "community_name": "Configuración TypeScript",
+      "community_name": "Community 4",
       "id": "tsconfig_compileroptions_moduleresolution"
     },
     {
@@ -3949,7 +3949,7 @@
       "_origin": "ast",
       "community": 4,
       "norm_label": "allowimportingtsextensions",
-      "community_name": "Configuración TypeScript",
+      "community_name": "Community 4",
       "id": "tsconfig_compileroptions_allowimportingtsextensions"
     },
     {
@@ -3960,7 +3960,7 @@
       "_origin": "ast",
       "community": 4,
       "norm_label": "resolvejsonmodule",
-      "community_name": "Configuración TypeScript",
+      "community_name": "Community 4",
       "id": "tsconfig_compileroptions_resolvejsonmodule"
     },
     {
@@ -3971,7 +3971,7 @@
       "_origin": "ast",
       "community": 4,
       "norm_label": "isolatedmodules",
-      "community_name": "Configuración TypeScript",
+      "community_name": "Community 4",
       "id": "tsconfig_compileroptions_isolatedmodules"
     },
     {
@@ -3982,7 +3982,7 @@
       "_origin": "ast",
       "community": 4,
       "norm_label": "noemit",
-      "community_name": "Configuración TypeScript",
+      "community_name": "Community 4",
       "id": "tsconfig_compileroptions_noemit"
     },
     {
@@ -3993,7 +3993,7 @@
       "_origin": "ast",
       "community": 4,
       "norm_label": "jsx",
-      "community_name": "Configuración TypeScript",
+      "community_name": "Community 4",
       "id": "tsconfig_compileroptions_jsx"
     },
     {
@@ -4004,7 +4004,7 @@
       "_origin": "ast",
       "community": 4,
       "norm_label": "jsximportsource",
-      "community_name": "Configuración TypeScript",
+      "community_name": "Community 4",
       "id": "tsconfig_compileroptions_jsximportsource"
     },
     {
@@ -4015,7 +4015,7 @@
       "_origin": "ast",
       "community": 4,
       "norm_label": "allowsyntheticdefaultimports",
-      "community_name": "Configuración TypeScript",
+      "community_name": "Community 4",
       "id": "tsconfig_compileroptions_allowsyntheticdefaultimports"
     },
     {
@@ -4026,7 +4026,7 @@
       "_origin": "ast",
       "community": 4,
       "norm_label": "esmoduleinterop",
-      "community_name": "Configuración TypeScript",
+      "community_name": "Community 4",
       "id": "tsconfig_compileroptions_esmoduleinterop"
     },
     {
@@ -4037,7 +4037,7 @@
       "_origin": "ast",
       "community": 4,
       "norm_label": "strict",
-      "community_name": "Configuración TypeScript",
+      "community_name": "Community 4",
       "id": "tsconfig_compileroptions_strict"
     },
     {
@@ -4048,7 +4048,7 @@
       "_origin": "ast",
       "community": 4,
       "norm_label": "nounusedlocals",
-      "community_name": "Configuración TypeScript",
+      "community_name": "Community 4",
       "id": "tsconfig_compileroptions_nounusedlocals"
     },
     {
@@ -4059,7 +4059,7 @@
       "_origin": "ast",
       "community": 4,
       "norm_label": "nounusedparameters",
-      "community_name": "Configuración TypeScript",
+      "community_name": "Community 4",
       "id": "tsconfig_compileroptions_nounusedparameters"
     },
     {
@@ -4070,7 +4070,7 @@
       "_origin": "ast",
       "community": 4,
       "norm_label": "noimplicitreturns",
-      "community_name": "Configuración TypeScript",
+      "community_name": "Community 4",
       "id": "tsconfig_compileroptions_noimplicitreturns"
     },
     {
@@ -4081,7 +4081,7 @@
       "_origin": "ast",
       "community": 4,
       "norm_label": "nofallthroughcasesinswitch",
-      "community_name": "Configuración TypeScript",
+      "community_name": "Community 4",
       "id": "tsconfig_compileroptions_nofallthroughcasesinswitch"
     },
     {
@@ -4092,7 +4092,7 @@
       "_origin": "ast",
       "community": 4,
       "norm_label": "include",
-      "community_name": "Configuración TypeScript",
+      "community_name": "Community 4",
       "id": "tsconfig_include"
     },
     {
@@ -4103,16 +4103,16 @@
       "_origin": "ast",
       "community": 26,
       "norm_label": "vite.config.ts",
-      "community_name": "Configuración Vite",
+      "community_name": "Community 26",
       "id": "vite_config"
     },
     {
-      "label": "La Pezcadería ERP",
+      "label": "La Pezcader\u00eda ERP",
       "file_type": "document",
       "source_file": "README.md",
       "community": 8,
       "norm_label": "la pezcaderia erp",
-      "community_name": "Migración de Datos",
+      "community_name": "Community 8",
       "id": "readme_erp"
     },
     {
@@ -4121,7 +4121,7 @@
       "source_file": "README.md",
       "community": 8,
       "norm_label": "punto de venta (pos) inteligente",
-      "community_name": "Migración de Datos",
+      "community_name": "Community 8",
       "id": "readme_pos"
     },
     {
@@ -4130,7 +4130,7 @@
       "source_file": "README.md",
       "community": 8,
       "norm_label": "pricingview workflow",
-      "community_name": "Migración de Datos",
+      "community_name": "Community 8",
       "id": "readme_pricingview"
     },
     {
@@ -4139,7 +4139,7 @@
       "source_file": "docker-compose.yml",
       "community": 9,
       "norm_label": "docker compose configuration",
-      "community_name": "Base de Datos Inicial",
+      "community_name": "Community 9",
       "id": "docker_compose"
     },
     {
@@ -4148,7 +4148,7 @@
       "source_file": "src/views/POSView.tsx",
       "community": 8,
       "norm_label": "posview component",
-      "community_name": "Migración de Datos",
+      "community_name": "Community 8",
       "id": "posview_tsx"
     },
     {
@@ -4157,7 +4157,7 @@
       "source_file": "src/services/localDb.ts",
       "community": 8,
       "norm_label": "localdb service",
-      "community_name": "Migración de Datos",
+      "community_name": "Community 8",
       "id": "localdb_ts"
     },
     {
@@ -4166,7 +4166,7 @@
       "source_file": "DOCS/business_rules.md",
       "community": 22,
       "norm_label": "business rules (tablas de la verdad)",
-      "community_name": "Reglas de Negocio",
+      "community_name": "Community 22",
       "id": "business_rules"
     },
     {
@@ -4175,7 +4175,7 @@
       "source_file": "DOCS/system_design.md",
       "community": 8,
       "norm_label": "system design architecture",
-      "community_name": "Migración de Datos",
+      "community_name": "Community 8",
       "id": "system_design"
     },
     {
@@ -4184,7 +4184,7 @@
       "source_file": "DOCS/business_rules.md",
       "community": 22,
       "norm_label": "rn-01: stock nunca negativo",
-      "community_name": "Reglas de Negocio",
+      "community_name": "Community 22",
       "id": "rn_01_stock"
     },
     {
@@ -4193,7 +4193,7 @@
       "source_file": "DOCS/business_rules.md",
       "community": 16,
       "norm_label": "rn-09: tolerancia de merma",
-      "community_name": "Inventario y Producción",
+      "community_name": "Community 16",
       "id": "rn_09_merma"
     },
     {
@@ -4202,7 +4202,7 @@
       "source_file": "DOCS/business_rules.md",
       "community": 19,
       "norm_label": "rn-15: egreso de empleado desactiva acceso",
-      "community_name": "Recursos Humanos",
+      "community_name": "Community 19",
       "id": "rn_15_hr_access"
     }
   ],

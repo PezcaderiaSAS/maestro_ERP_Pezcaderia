@@ -1,0 +1,298 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "label": "migrate_sheets_data.ts",
+      "file_type": "code",
+      "source_file": "migrate_sheets_data.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 1,
+      "norm_label": "migrate_sheets_data.ts",
+      "community_name": "Community 1",
+      "id": "migrate_sheets_data"
+    },
+    {
+      "label": "supabase",
+      "file_type": "code",
+      "source_file": "migrate_sheets_data.ts",
+      "source_location": "L13",
+      "_origin": "ast",
+      "community": 1,
+      "norm_label": "supabase",
+      "community_name": "Community 1",
+      "id": "migrate_sheets_data_supabase"
+    },
+    {
+      "label": "ClienteRow",
+      "file_type": "code",
+      "source_file": "migrate_sheets_data.ts",
+      "source_location": "L15",
+      "_origin": "ast",
+      "community": 1,
+      "norm_label": "clienterow",
+      "community_name": "Community 1",
+      "id": "migrate_sheets_data_clienterow"
+    },
+    {
+      "label": "ProductoRow",
+      "file_type": "code",
+      "source_file": "migrate_sheets_data.ts",
+      "source_location": "L28",
+      "_origin": "ast",
+      "community": 1,
+      "norm_label": "productorow",
+      "community_name": "Community 1",
+      "id": "migrate_sheets_data_productorow"
+    },
+    {
+      "label": "normalizarIdentificacion()",
+      "file_type": "code",
+      "source_file": "migrate_sheets_data.ts",
+      "source_location": "L39",
+      "_origin": "ast",
+      "community": 0,
+      "norm_label": "normalizaridentificacion()",
+      "community_name": "Community 0",
+      "id": "migrate_sheets_data_normalizaridentificacion"
+    },
+    {
+      "label": "parseCSV()",
+      "file_type": "code",
+      "source_file": "migrate_sheets_data.ts",
+      "source_location": "L44",
+      "_origin": "ast",
+      "community": 0,
+      "norm_label": "parsecsv()",
+      "community_name": "Community 0",
+      "id": "migrate_sheets_data_parsecsv"
+    },
+    {
+      "label": "migrarClientes()",
+      "file_type": "code",
+      "source_file": "migrate_sheets_data.ts",
+      "source_location": "L67",
+      "_origin": "ast",
+      "community": 0,
+      "norm_label": "migrarclientes()",
+      "community_name": "Community 0",
+      "id": "migrate_sheets_data_migrarclientes"
+    },
+    {
+      "label": "migrarProductos()",
+      "file_type": "code",
+      "source_file": "migrate_sheets_data.ts",
+      "source_location": "L200",
+      "_origin": "ast",
+      "community": 0,
+      "norm_label": "migrarproductos()",
+      "community_name": "Community 0",
+      "id": "migrate_sheets_data_migrarproductos"
+    },
+    {
+      "label": "ejecutarMigracion()",
+      "file_type": "code",
+      "source_file": "migrate_sheets_data.ts",
+      "source_location": "L294",
+      "_origin": "ast",
+      "community": 0,
+      "norm_label": "ejecutarmigracion()",
+      "community_name": "Community 0",
+      "id": "migrate_sheets_data_ejecutarmigracion"
+    },
+    {
+      "label": "test_pollinations_api.js",
+      "file_type": "code",
+      "source_file": "test_pollinations_api.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "test_pollinations_api.js",
+      "community_name": "Community 2",
+      "id": "test_pollinations_api"
+    },
+    {
+      "label": "testPrompt",
+      "file_type": "code",
+      "source_file": "test_pollinations_api.js",
+      "source_location": "L6",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "testprompt",
+      "community_name": "Community 2",
+      "id": "test_pollinations_api_testprompt"
+    },
+    {
+      "label": "req",
+      "file_type": "code",
+      "source_file": "test_pollinations_api.js",
+      "source_location": "L11",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "req",
+      "community_name": "Community 2",
+      "id": "test_pollinations_api_req"
+    }
+  ],
+  "links": [
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "migrate_sheets_data.ts",
+      "source_location": "L15",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "migrate_sheets_data",
+      "target": "migrate_sheets_data_clienterow"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "migrate_sheets_data.ts",
+      "source_location": "L294",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "migrate_sheets_data",
+      "target": "migrate_sheets_data_ejecutarmigracion"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "migrate_sheets_data.ts",
+      "source_location": "L67",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "migrate_sheets_data",
+      "target": "migrate_sheets_data_migrarclientes"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "migrate_sheets_data.ts",
+      "source_location": "L200",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "migrate_sheets_data",
+      "target": "migrate_sheets_data_migrarproductos"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "migrate_sheets_data.ts",
+      "source_location": "L39",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "migrate_sheets_data",
+      "target": "migrate_sheets_data_normalizaridentificacion"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "migrate_sheets_data.ts",
+      "source_location": "L44",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "migrate_sheets_data",
+      "target": "migrate_sheets_data_parsecsv"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "migrate_sheets_data.ts",
+      "source_location": "L28",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "migrate_sheets_data",
+      "target": "migrate_sheets_data_productorow"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "migrate_sheets_data.ts",
+      "source_location": "L13",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "migrate_sheets_data",
+      "target": "migrate_sheets_data_supabase"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "migrate_sheets_data.ts",
+      "source_location": "L108",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "migrate_sheets_data_migrarclientes",
+      "target": "migrate_sheets_data_normalizaridentificacion"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "migrate_sheets_data.ts",
+      "source_location": "L74",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "migrate_sheets_data_migrarclientes",
+      "target": "migrate_sheets_data_parsecsv"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "migrate_sheets_data.ts",
+      "source_location": "L205",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "migrate_sheets_data_migrarproductos",
+      "target": "migrate_sheets_data_parsecsv"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "migrate_sheets_data.ts",
+      "source_location": "L299",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "migrate_sheets_data_ejecutarmigracion",
+      "target": "migrate_sheets_data_migrarclientes"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "migrate_sheets_data.ts",
+      "source_location": "L300",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "migrate_sheets_data_ejecutarmigracion",
+      "target": "migrate_sheets_data_migrarproductos"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test_pollinations_api.js",
+      "source_location": "L11",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "test_pollinations_api",
+      "target": "test_pollinations_api_req"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test_pollinations_api.js",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "test_pollinations_api",
+      "target": "test_pollinations_api_testprompt"
+    }
+  ],
+  "hyperedges": [],
+  "built_at_commit": "72e849ba124154720057bd965d3f3132263c59ec"
+}

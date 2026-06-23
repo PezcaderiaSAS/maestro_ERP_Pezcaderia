@@ -1,0 +1,84 @@
+{
+  "communities": {
+    "0": [
+      "migrate_sheets_data_ejecutarmigracion",
+      "migrate_sheets_data_migrarclientes",
+      "migrate_sheets_data_migrarproductos",
+      "migrate_sheets_data_normalizaridentificacion",
+      "migrate_sheets_data_parsecsv"
+    ],
+    "1": [
+      "migrate_sheets_data",
+      "migrate_sheets_data_clienterow",
+      "migrate_sheets_data_productorow",
+      "migrate_sheets_data_supabase"
+    ],
+    "2": [
+      "test_pollinations_api",
+      "test_pollinations_api_req",
+      "test_pollinations_api_testprompt"
+    ]
+  },
+  "cohesion": {
+    "0": 0.5,
+    "1": 0.5,
+    "2": 0.6666666666666666
+  },
+  "gods": [
+    {
+      "id": "migrate_sheets_data_migrarclientes",
+      "label": "migrarClientes()",
+      "degree": 4
+    },
+    {
+      "id": "migrate_sheets_data_parsecsv",
+      "label": "parseCSV()",
+      "degree": 3
+    },
+    {
+      "id": "migrate_sheets_data_migrarproductos",
+      "label": "migrarProductos()",
+      "degree": 3
+    },
+    {
+      "id": "migrate_sheets_data_ejecutarmigracion",
+      "label": "ejecutarMigracion()",
+      "degree": 3
+    },
+    {
+      "id": "migrate_sheets_data_normalizaridentificacion",
+      "label": "normalizarIdentificacion()",
+      "degree": 2
+    },
+    {
+      "id": "migrate_sheets_data_supabase",
+      "label": "supabase",
+      "degree": 1
+    },
+    {
+      "id": "migrate_sheets_data_clienterow",
+      "label": "ClienteRow",
+      "degree": 1
+    },
+    {
+      "id": "migrate_sheets_data_productorow",
+      "label": "ProductoRow",
+      "degree": 1
+    },
+    {
+      "id": "test_pollinations_api_testprompt",
+      "label": "testPrompt",
+      "degree": 1
+    },
+    {
+      "id": "test_pollinations_api_req",
+      "label": "req",
+      "degree": 1
+    }
+  ],
+  "surprises": [],
+  "tokens": {
+    "input": 0,
+    "output": 0
+  }
+}
