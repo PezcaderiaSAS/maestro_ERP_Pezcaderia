@@ -60,9 +60,9 @@
     "semantic_hash": "2620f65b9af5bc706f0bcab47f7539a8"
   },
   "src/App.tsx": {
-    "mtime": 1781967879.8359482,
-    "ast_hash": "d7077446e962d620c9b6fcd6670143ea",
-    "semantic_hash": "d7077446e962d620c9b6fcd6670143ea"
+    "mtime": 1782140317.0421605,
+    "ast_hash": "2ec3c8fec803aaec13865458ff01a162",
+    "semantic_hash": ""
   },
   "src/hooks/useBalanza.ts": {
     "mtime": 1781877647.3069007,
@@ -100,9 +100,9 @@
     "semantic_hash": "15d58e184428196341336cb41b43624a"
   },
   "src/services/localDb.ts": {
-    "mtime": 1781962054.4166627,
-    "ast_hash": "5607950c0be9b711ec9143f63da0dd37",
-    "semantic_hash": "5607950c0be9b711ec9143f63da0dd37"
+    "mtime": 1782137741.0945022,
+    "ast_hash": "95376c21cfeee96287828b87e28c22f5",
+    "semantic_hash": ""
   },
   "src/services/payrollService.ts": {
     "mtime": 1781890857.277994,
@@ -220,9 +220,9 @@
     "semantic_hash": "57bf61c56ee781ef547f1cc3db2d3a79"
   },
   "src/views/InventoryView.tsx": {
-    "mtime": 1781963745.7736862,
-    "ast_hash": "2a727bebbc93477df42bb8aca2bb6ad2",
-    "semantic_hash": "2a727bebbc93477df42bb8aca2bb6ad2"
+    "mtime": 1782140345.5613954,
+    "ast_hash": "f7efe0556b11c6356987e21729980c77",
+    "semantic_hash": ""
   },
   "src/views/OrderKanbanView.tsx": {
     "mtime": 1781963501.2984781,
@@ -290,9 +290,9 @@
     "semantic_hash": "e6f93912b46ed4a2fbad36a5b05ead0e"
   },
   "src/views/inventory/components/PurchaseOrderForm.tsx": {
-    "mtime": 1781885197.519804,
-    "ast_hash": "367fc7b82587e3f8ba1970d756f071c3",
-    "semantic_hash": "367fc7b82587e3f8ba1970d756f071c3"
+    "mtime": 1782140353.2039423,
+    "ast_hash": "d3ecd862ec48505862a4fff9d493aeba",
+    "semantic_hash": ""
   },
   "src/views/inventory/components/PurchasesReport.tsx": {
     "mtime": 1781885336.3573124,
@@ -305,9 +305,9 @@
     "semantic_hash": "aa7da22082cdd9a7d4aa9c3aac042422"
   },
   "src/views/inventory/components/TransferForm.tsx": {
-    "mtime": 1781881804.9420822,
-    "ast_hash": "14323ea09734a41933b8b27e35980758",
-    "semantic_hash": "14323ea09734a41933b8b27e35980758"
+    "mtime": 1782140380.102459,
+    "ast_hash": "478e0f0398d808ee128d6e40d33806e1",
+    "semantic_hash": ""
   },
   "src/views/inventory/hooks/useInventory.ts": {
     "mtime": 1781885356.2893434,
@@ -343,5 +343,355 @@
     "mtime": 1781875056.8680835,
     "ast_hash": "307d55546161f792321d65f1ee773dc1",
     "semantic_hash": "307d55546161f792321d65f1ee773dc1"
+  },
+  ".agent/agents.json": {
+    "mtime": 1782143220.5063667,
+    "ast_hash": "0afd4b062b7f7298c9c32d44e4d9e309",
+    "semantic_hash": ""
+  },
+  "apply_communities.py": {
+    "mtime": 1782228699.340906,
+    "ast_hash": "3c127989a348d9725dcb1d39d1f509a4",
+    "semantic_hash": ""
+  },
+  "communities_extracted.json": {
+    "mtime": 1782228660.260502,
+    "ast_hash": "c69ed53f94a01acb10463324785b836c",
+    "semantic_hash": ""
+  },
+  "extract_communities.py": {
+    "mtime": 1782228628.9013107,
+    "ast_hash": "1d15a1b68c8fab7512343fbb1fee9011",
+    "semantic_hash": ""
+  },
+  "graphify_run.ps1": {
+    "mtime": 1782226639.4289937,
+    "ast_hash": "cd620393c10efe320b5be2ad24d854b9",
+    "semantic_hash": ""
+  },
+  "rename_clusters.ps1": {
+    "mtime": 1782227305.3634562,
+    "ast_hash": "825332cf3e29efa388b03f33ea0bea58",
+    "semantic_hash": ""
+  },
+  "rename_clusters_gemini.ps1": {
+    "mtime": 1782227452.9280255,
+    "ast_hash": "ff3147cb5df1c8db414885e8a0e4bcf1",
+    "semantic_hash": ""
+  },
+  "rename_communities.py": {
+    "mtime": 1782228576.23782,
+    "ast_hash": "a2e1891ea743a21b0d0b93b3fe77de6a",
+    "semantic_hash": ""
+  },
+  "src/services/warehouseService.ts": {
+    "mtime": 1782137751.9640298,
+    "ast_hash": "4ba5ba7a221aa0e43d608a89d071ce70",
+    "semantic_hash": ""
+  },
+  "src/views/inventory/components/WarehouseConfigManager.tsx": {
+    "mtime": 1782140521.2828324,
+    "ast_hash": "0459b2e8f7a81c5c249c2b56f8ed71ac",
+    "semantic_hash": ""
+  },
+  ".agent/rules/constitution.md": {
+    "mtime": 1782229187.6102655,
+    "ast_hash": "3dd400b37988d29f114b580123f54bf8",
+    "semantic_hash": ""
+  },
+  ".agent/rules/graphify.md": {
+    "mtime": 1782131458.994915,
+    "ast_hash": "9a4dc15a30e372a06b3720a9e892cfab",
+    "semantic_hash": ""
+  },
+  ".agent/workflows/graphify.md": {
+    "mtime": 1782131459.000518,
+    "ast_hash": "713ac584c14a6920dc0602b637713bc4",
+    "semantic_hash": ""
+  },
+  ".agents/skills/loyalty-logic-base/SKILL.md": {
+    "mtime": 1781969778.97514,
+    "ast_hash": "946d67b168585836113caab62aa6f4d4",
+    "semantic_hash": ""
+  },
+  ".agents/skills/odoo18-architecture/SKILL.md": {
+    "mtime": 1782136361.9348972,
+    "ast_hash": "0f93f20631cd565570c83cd0fb7e7bfe",
+    "semantic_hash": ""
+  },
+  ".agents/skills/pezcaderia-context7/SKILL.md": {
+    "mtime": 1782130969.3522563,
+    "ast_hash": "057b33fdb310e7e9a325be2f0330b99b",
+    "semantic_hash": ""
+  },
+  "DOCS/AI_RULES.md": {
+    "mtime": 1782137556.6279886,
+    "ast_hash": "4d9089139c8e748ac3b41c8da18faf70",
+    "semantic_hash": ""
+  },
+  "DOCS/SKILLS/pezcaderia-best-practices/SKILL.md": {
+    "mtime": 1773498230.332492,
+    "ast_hash": "8e8c4172ec89851a0981c977aa84bdf6",
+    "semantic_hash": ""
+  },
+  "DOCS/SKILLS/pezcaderia-context7/SKILL.md": {
+    "mtime": 1781959923.3390765,
+    "ast_hash": "ba744f19e81c0504400029d25fb516f3",
+    "semantic_hash": ""
+  },
+  "DOCS/SKILLS/pezcaderia-data-architecture/SKILL.md": {
+    "mtime": 1781960393.7003148,
+    "ast_hash": "60cad758064c1a830a112cee0706fd0f",
+    "semantic_hash": ""
+  },
+  "DOCS/SKILLS/pezcaderia-delivery-sync/SKILL.md": {
+    "mtime": 1781874844.6955004,
+    "ast_hash": "a1d0cca4e5f93f23c4617a91111d9712",
+    "semantic_hash": ""
+  },
+  "DOCS/SKILLS/pezcaderia-devils-advocate/SKILL.md": {
+    "mtime": 1773500515.4670906,
+    "ast_hash": "b32981fbddbdac81f8104af15b331c91",
+    "semantic_hash": ""
+  },
+  "DOCS/SKILLS/pezcaderia-payroll-colombia/SKILL.md": {
+    "mtime": 1781874598.737811,
+    "ast_hash": "e5caaeb56f7d4a7f8afd80e2e685b8e3",
+    "semantic_hash": ""
+  },
+  "DOCS/SKILLS/pezcaderia-premium-ui/SKILL.md": {
+    "mtime": 1773497951.7181091,
+    "ast_hash": "e1d9468898f02dbdaaa1ebf1d347bd6d",
+    "semantic_hash": ""
+  },
+  "DOCS/SKILLS/pezcaderia-prompt-optimizer/SKILL.md": {
+    "mtime": 1781885692.2526772,
+    "ast_hash": "2984677aa5ce350a59fca206d82b3a17",
+    "semantic_hash": ""
+  },
+  "DOCS/SKILLS/pezcaderia-reports-pdf/SKILL.md": {
+    "mtime": 1773497961.3674579,
+    "ast_hash": "a4a7fd8c937c8e6156fe59873881ef67",
+    "semantic_hash": ""
+  },
+  "DOCS/SKILLS/pezcaderia-supabase-postgres/SKILL.md": {
+    "mtime": 1781874294.0303504,
+    "ast_hash": "c8e98c03e3e81b1c1c94e461ad9ac940",
+    "semantic_hash": ""
+  },
+  "DOCS/SKILLS/pezcaderia-testing-vitest/SKILL.md": {
+    "mtime": 1781874285.5695088,
+    "ast_hash": "a74905e03891be43e615a23509fbcb78",
+    "semantic_hash": ""
+  },
+  "DOCS/SKILLS/pezcaderia-web-serial/SKILL.md": {
+    "mtime": 1781874279.6475623,
+    "ast_hash": "0ed376e2bd3876fac1c8fe5b9e380fac",
+    "semantic_hash": ""
+  },
+  "DOCS/SKILLS/prompt-engineering-best-practices/SKILL.md": {
+    "mtime": 1774443515.3328927,
+    "ast_hash": "40ce9cf5245106f0a3ebd5002590f2bd",
+    "semantic_hash": ""
+  },
+  "DOCS/SKILLS/skill_crear_componente.md": {
+    "mtime": 1781872068.2402232,
+    "ast_hash": "f7e2796bf5d656ac23694a768c88cdc7",
+    "semantic_hash": ""
+  },
+  "DOCS/SKILLS/skill_crear_servicio.md": {
+    "mtime": 1781872065.2743058,
+    "ast_hash": "e1f5e0c06deeed3854edcc8ed1da34cb",
+    "semantic_hash": ""
+  },
+  "DOCS/SKILLS/skill_crear_spec.md": {
+    "mtime": 1781871913.28592,
+    "ast_hash": "c751e3f0e155b810b4e37170db5dcecc",
+    "semantic_hash": ""
+  },
+  "DOCS/SPECS/SPEC_B2B.md": {
+    "mtime": 1781961402.9527664,
+    "ast_hash": "344e58b57b343239e504b54f2f03d435",
+    "semantic_hash": ""
+  },
+  "DOCS/SPECS/SPEC_CASHFLOW.md": {
+    "mtime": 1781962496.1284251,
+    "ast_hash": "21881bcf0bb3296352aa309fe974b954",
+    "semantic_hash": ""
+  },
+  "DOCS/SPECS/SPEC_DEVOLUCIONES_FINANZAS.md": {
+    "mtime": 1781872560.2306683,
+    "ast_hash": "3b2809d5fb7b5dbb1f38588097635313",
+    "semantic_hash": ""
+  },
+  "DOCS/SPECS/SPEC_INVENTORY.md": {
+    "mtime": 1781871761.3295548,
+    "ast_hash": "07fb6ca0810c6e4849c1ac74acf7c4c8",
+    "semantic_hash": ""
+  },
+  "DOCS/SPECS/SPEC_ORDERS.md": {
+    "mtime": 1781871815.647206,
+    "ast_hash": "680694e7c66eab9b6aecbda12f545e33",
+    "semantic_hash": ""
+  },
+  "DOCS/SPECS/SPEC_PAYROLL.md": {
+    "mtime": 1781890609.8064215,
+    "ast_hash": "8203054f7896655c257f11d3d4817117",
+    "semantic_hash": ""
+  },
+  "DOCS/SPECS/SPEC_POS.md": {
+    "mtime": 1781871722.3029888,
+    "ast_hash": "f1e3bf5985ae06943e33ca8a3158aa71",
+    "semantic_hash": ""
+  },
+  "DOCS/SPECS/SPEC_PRICING.md": {
+    "mtime": 1781872603.536988,
+    "ast_hash": "f3b5a714f8a9263b03640e0f4f62860c",
+    "semantic_hash": ""
+  },
+  "DOCS/SPECS/SPEC_RAPPI_INTEGRATION.md": {
+    "mtime": 1781872549.523826,
+    "ast_hash": "1c00553aeb86c2e2666d4c9a2891b70e",
+    "semantic_hash": ""
+  },
+  "DOCS/SPECS/SPEC_RRHH_NOMINA.md": {
+    "mtime": 1781872537.442379,
+    "ast_hash": "cab1dc9dfbab37d1c3bd812ed7dae901",
+    "semantic_hash": ""
+  },
+  "DOCS/SPECS/SPEC_TEMPLATE.md": {
+    "mtime": 1781871594.2113383,
+    "ast_hash": "37f5131e3cb30b2e38a62569c15096ed",
+    "semantic_hash": ""
+  },
+  "DOCS/SPECS/SPEC_TESTING.md": {
+    "mtime": 1781871859.2091286,
+    "ast_hash": "d63402d42bf7d3fa4efe73a4560a5a6c",
+    "semantic_hash": ""
+  },
+  "DOCS/business_rules.md": {
+    "mtime": 1782137678.9390416,
+    "ast_hash": "07a88927a68288efef8ad092c37ab1c6",
+    "semantic_hash": ""
+  },
+  "DOCS/delta-spec.md": {
+    "mtime": 1782136377.8891406,
+    "ast_hash": "10033d8ee91635b36bcd19efdbe5908e",
+    "semantic_hash": ""
+  },
+  "DOCS/legacy/DOCUMENTACION.md": {
+    "mtime": 1780501700.6459343,
+    "ast_hash": "6996d60a3b5f31d3288722c4b4287a4e",
+    "semantic_hash": ""
+  },
+  "DOCS/legacy/DOCUMENTACION_DEVOLUCIONES_FINANZAS.md": {
+    "mtime": 1781109713.6463962,
+    "ast_hash": "0909ae073754ec2100e8169cc4dfe1c8",
+    "semantic_hash": ""
+  },
+  "DOCS/legacy/DOCUMENTACION_ERP_WMS_PEZCADERIA.md": {
+    "mtime": 1781192752.325022,
+    "ast_hash": "72b2552960940c5d99b61f904be8ab5f",
+    "semantic_hash": ""
+  },
+  "DOCS/legacy/DOCUMENTACION_FASE_5.md": {
+    "mtime": 1780504687.5137756,
+    "ast_hash": "9dab61fb8b1ffa34c5efe01c2b75c7fe",
+    "semantic_hash": ""
+  },
+  "DOCS/legacy/DOCUMENTACION_INTEGRACION_RAPPI.md": {
+    "mtime": 1781186980.936916,
+    "ast_hash": "e47f7ca15eff42f85acef276c5dadf06",
+    "semantic_hash": ""
+  },
+  "DOCS/legacy/DOCUMENTACION_PRODUCTOS.md": {
+    "mtime": 1781106548.7578564,
+    "ast_hash": "3315140b06f3cd7ba8cf03792d4f4e3c",
+    "semantic_hash": ""
+  },
+  "DOCS/legacy/DOCUMENTACION_RRHH_NOMINA.md": {
+    "mtime": 1781285317.090066,
+    "ast_hash": "046c80b1a3e279a4cd0a281ddf2544b5",
+    "semantic_hash": ""
+  },
+  "DOCS/legacy/flujos_funcionales_pezca_erp.md": {
+    "mtime": 1779815091.5413632,
+    "ast_hash": "13244a6393c28719ecb13d59d7a2050c",
+    "semantic_hash": ""
+  },
+  "DOCS/legacy/plan_arquitectura_unificada_pezca.md": {
+    "mtime": 1779815076.9469512,
+    "ast_hash": "40a70955017130d163ee93f124f7f987",
+    "semantic_hash": ""
+  },
+  "DOCS/legacy/reporte_evaluacion_completo.md": {
+    "mtime": 1779810932.7540042,
+    "ast_hash": "030e3721b0dceaee0de7aafd32867dae",
+    "semantic_hash": ""
+  },
+  "DOCS/plan.md": {
+    "mtime": 1782136396.8033671,
+    "ast_hash": "0253062f3c288034926df73c375a731e",
+    "semantic_hash": ""
+  },
+  "DOCS/spec_driven_development.md": {
+    "mtime": 1781959677.9529843,
+    "ast_hash": "af649fbf0ac0ef98463c99c565e12006",
+    "semantic_hash": ""
+  },
+  "DOCS/system_design.md": {
+    "mtime": 1781965391.529466,
+    "ast_hash": "66ec485f888188fcd031ab72981e11f5",
+    "semantic_hash": ""
+  },
+  "DOCS/tasks.md": {
+    "mtime": 1782136448.2292101,
+    "ast_hash": "8b4976a182d76a1f07198963d407755a",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1779973454.1768074,
+    "ast_hash": "daf8c0695f082de83fcd6a25401ecfa8",
+    "semantic_hash": ""
+  },
+  "docker-compose.yml": {
+    "mtime": 1781717415.7959633,
+    "ast_hash": "02854deda0a476d587dba8d033958bdc",
+    "semantic_hash": ""
+  },
+  "implementation_plan.md": {
+    "mtime": 1779815217.160211,
+    "ast_hash": "401f0ef513e52fe6fa24badd0ae7e729",
+    "semantic_hash": ""
+  },
+  "index.html": {
+    "mtime": 1779816959.2694697,
+    "ast_hash": "b110b8960c4ea07e7356b8b688a68ff6",
+    "semantic_hash": ""
+  },
+  "pnpm-workspace.yaml": {
+    "mtime": 1781963383.3424222,
+    "ast_hash": "bb5dac189876f70740e8a6fc4297ebaf",
+    "semantic_hash": ""
+  },
+  "task.md": {
+    "mtime": 1779815194.868586,
+    "ast_hash": "8236f89314feb9e65093ee7b1bb7ea04",
+    "semantic_hash": ""
+  },
+  "test_plan.md": {
+    "mtime": 1780587725.0034463,
+    "ast_hash": "10b5ec055eb0d785f39be78fcbf6dc4a",
+    "semantic_hash": ""
+  },
+  "walkthrough.md": {
+    "mtime": 1779972167.8483968,
+    "ast_hash": "39fca317df9f23ca735d41e2fbc83c87",
+    "semantic_hash": ""
+  },
+  "Ejemplos/PruebaAnalistaT\u00e9cnicoFuncional_Yurgen_Moreno.docx.pdf": {
+    "mtime": 1781186530.757561,
+    "ast_hash": "48a105ca9a7e582c9c37d94abf42ca6a",
+    "semantic_hash": ""
   }
 }

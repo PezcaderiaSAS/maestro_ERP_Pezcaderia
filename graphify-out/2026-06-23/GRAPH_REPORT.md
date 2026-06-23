@@ -1,15 +1,16 @@
-# Graph Report - .  (2026-06-23)
+# Graph Report - MaestroPescaderia  (2026-06-23)
 
 ## Corpus Check
-- cluster-only mode — file stats not available
+- 135 files · ~123,169 words
+- Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 384 nodes · 670 edges · 27 communities (24 shown, 3 thin omitted)
+- 396 nodes · 675 edges · 34 communities (29 shown, 5 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 2 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `72e849ba`
+- Built from commit: `f9144c73`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -37,6 +38,7 @@
 - [[_COMMUNITY_Community 20|Community 20]]
 - [[_COMMUNITY_Community 21|Community 21]]
 - [[_COMMUNITY_Community 22|Community 22]]
+- [[_COMMUNITY_Community 27|Community 27]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `compilerOptions` - 20 edges
@@ -55,12 +57,12 @@
   src/views/POSView.tsx → README.md
 - `System Design Architecture` --references--> `localDb Service`  [EXTRACTED]
   DOCS/system_design.md → src/services/localDb.ts
-- `PayrollViewProps` --references--> `Gasto`  [EXTRACTED]
-  src/views/PayrollView.tsx → src/App.tsx
-- `CartItem` --references--> `Product`  [EXTRACTED]
-  src/views/POSView.tsx → src/App.tsx
-- `CierreCajaModalProps` --references--> `TurnoCaja`  [EXTRACTED]
-  src/views/cash/components/CierreCajaModal.tsx → src/types/cash.types.ts
+- `SuppliersViewProps` --references--> `Gasto`  [EXTRACTED]
+  src/views/SuppliersView.tsx → src/App.tsx
+- `InventoryViewProps` --references--> `DevolucionPedido`  [EXTRACTED]
+  src/views/InventoryView.tsx → src/App.tsx
+- `InventoryViewProps` --references--> `ProductCatalog`  [EXTRACTED]
+  src/views/InventoryView.tsx → src/App.tsx
 
 ## Import Cycles
 - 3-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/services/cashService.ts -> src/App.tsx`
@@ -70,11 +72,11 @@
 - 4-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/views/cash/components/TrasladoDineroModal.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 4-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/views/OrderKanbanView.tsx -> src/services/cashService.ts -> src/App.tsx`
 
-## Communities (27 total, 3 thin omitted)
+## Communities (34 total, 5 thin omitted)
 
 ### Community 0 - "Community 0"
-Cohesion: 0.06
-Nodes (46): CategoryManager(), ColdRoomPreparation(), DiscountPanel(), DiscountPanelProps, PaymentPanel(), PaymentPanelProps, ProductForm(), ProductionForm() (+38 more)
+Cohesion: 0.09
+Nodes (32): BalanzaButton(), BalanzaButtonProps, DiscountPanel(), DiscountPanelProps, PaymentPanel(), PaymentPanelProps, useBalanza(), App() (+24 more)
 
 ### Community 1 - "Community 1"
 Cohesion: 0.10
@@ -101,8 +103,8 @@ Cohesion: 0.11
 Nodes (18): cateEnd, catEnd, cateStart, catStart, content, crEnd, crStart, filePath (+10 more)
 
 ### Community 7 - "Community 7"
-Cohesion: 0.14
-Nodes (8): WizardType, Empleado, NominaRegistro, MetricCardProps, HRViewProps, calcDiasComerciales(), PayrollView(), PayrollViewProps
+Cohesion: 0.20
+Nodes (8): WizardType, Empleado, Gasto, NominaRegistro, HRViewProps, calcDiasComerciales(), PayrollView(), PayrollViewProps
 
 ### Community 8 - "Community 8"
 Cohesion: 0.18
@@ -125,16 +127,12 @@ Cohesion: 0.33
 Nodes (6): b2bService, EstadoPedido, LineaPedido, Pedido, ColumnId, OrderKanbanViewProps
 
 ### Community 13 - "Community 13"
-Cohesion: 0.29
-Nodes (6): PurchasesReport(), PurchasesReportProps, MOCK_CATEGORIAS, MOCK_ORDENES, MOCK_PRODUCTS, MOCK_PROVEEDORES
+Cohesion: 0.09
+Nodes (22): CategoryManager(), ColdRoomPreparation(), ProductForm(), ProductionForm(), ProductTable(), PurchaseOrderForm(), PurchasesReport(), PurchasesReportProps (+14 more)
 
 ### Community 14 - "Community 14"
 Cohesion: 0.43
 Nodes (6): cajas, gastos_ruta, rutas, set_numero_ruta(), transacciones_caja, trg_set_numero_ruta
-
-### Community 15 - "Community 15"
-Cohesion: 0.53
-Nodes (3): BalanzaButton(), BalanzaButtonProps, useBalanza()
 
 ### Community 16 - "Community 16"
 Cohesion: 0.40
@@ -153,24 +151,24 @@ Cohesion: 0.50
 Nodes (4): desactivar_acceso_usuario_por_desvinculacion(), empleados, trg_desactivar_acceso_empleado, RN-15: Egreso de empleado desactiva acceso
 
 ## Knowledge Gaps
-- **143 isolated node(s):** `https`, `LIBRARIES`, `args`, `req`, `configuracion_sistema` (+138 more)
+- **144 isolated node(s):** `Reglas de Arquitectura y Ahorro de Tokens`, `https`, `LIBRARIES`, `args`, `req` (+139 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **3 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `generateId()` connect `Community 3` to `Community 0`, `Community 7`?**
-  _High betweenness centrality (0.020) - this node is a cross-community bridge._
+- **Why does `generateId()` connect `Community 3` to `Community 0`, `Community 13`, `Community 7`?**
+  _High betweenness centrality (0.018) - this node is a cross-community bridge._
 - **Why does `CashService` connect `Community 3` to `Community 0`, `Community 12`?**
-  _High betweenness centrality (0.017) - this node is a cross-community bridge._
-- **Why does `PurchasesReport()` connect `Community 13` to `Community 0`?**
-  _High betweenness centrality (0.007) - this node is a cross-community bridge._
-- **What connects `https`, `LIBRARIES`, `args` to the rest of the system?**
-  _146 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+- **What connects `Reglas de Arquitectura y Ahorro de Tokens`, `https`, `LIBRARIES` to the rest of the system?**
+  _147 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.062111801242236024 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.08603145235892692 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
   _Cohesion score 0.09803921568627451 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
   _Cohesion score 0.05714285714285714 - nodes in this community are weakly interconnected._
+- **Should `Community 4` be split into smaller, more focused modules?**
+  _Cohesion score 0.09090909090909091 - nodes in this community are weakly interconnected._
