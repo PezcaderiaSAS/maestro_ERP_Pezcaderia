@@ -70,9 +70,9 @@
     "semantic_hash": "09f8c6ddec1da8d397155bcff2ff5179"
   },
   "src/hooks/usePOSCart.ts": {
-    "mtime": 1781877190.782818,
-    "ast_hash": "f19d5af3ba97bc1515d94ab19f2fe6a3",
-    "semantic_hash": "f19d5af3ba97bc1515d94ab19f2fe6a3"
+    "mtime": 1782309867.1082108,
+    "ast_hash": "d912d63cd9cfeb4303f1e7ab96679859",
+    "semantic_hash": ""
   },
   "src/hooks/usePOSPrinter.ts": {
     "mtime": 1782237736.477582,
@@ -90,8 +90,8 @@
     "semantic_hash": ""
   },
   "src/services/cashService.ts": {
-    "mtime": 1782236225.804231,
-    "ast_hash": "1db493e3c97a8b15e728f7140daf3d4a",
+    "mtime": 1782319543.6373787,
+    "ast_hash": "db0de6110bba4393ed7c2c9f3b0b1de9",
     "semantic_hash": ""
   },
   "src/services/inventoryService.ts": {
@@ -170,9 +170,9 @@
     "semantic_hash": ""
   },
   "src/types/cash.types.ts": {
-    "mtime": 1781962423.9098625,
-    "ast_hash": "078441da61f8447afe6424c5f4727cbb",
-    "semantic_hash": "078441da61f8447afe6424c5f4727cbb"
+    "mtime": 1782317932.124987,
+    "ast_hash": "d3c5d12d4f2f7338573893f4785063cd",
+    "semantic_hash": ""
   },
   "src/types/common.types.ts": {
     "mtime": 1782236154.7088737,
@@ -230,8 +230,8 @@
     "semantic_hash": ""
   },
   "src/views/POSView.tsx": {
-    "mtime": 1782237761.52282,
-    "ast_hash": "f18a656adce03556b287024ddb20d7ea",
+    "mtime": 1782318775.5456722,
+    "ast_hash": "ba2067538d2d590405312eb73ee94a2e",
     "semantic_hash": ""
   },
   "src/views/PayrollView.tsx": {
@@ -250,8 +250,8 @@
     "semantic_hash": "b3a0896e66ed61cb58202693ccfe6243"
   },
   "src/views/cash/CashFlowView.tsx": {
-    "mtime": 1782236261.4964542,
-    "ast_hash": "1221f45eb5e719a8f5e07ce438c01db1",
+    "mtime": 1782318007.7434103,
+    "ast_hash": "1a122e91c5c0786a244d6f71bf791b71",
     "semantic_hash": ""
   },
   "src/views/cash/components/CierreCajaModal.tsx": {
@@ -325,9 +325,9 @@
     "semantic_hash": "2f40c05e6baf7567c9b1a83fc3486561"
   },
   "src/views/pos/components/PaymentPanel.tsx": {
-    "mtime": 1781877589.5122025,
-    "ast_hash": "e8430becfa3cbdacdfbc66c5cbd2b35e",
-    "semantic_hash": "e8430becfa3cbdacdfbc66c5cbd2b35e"
+    "mtime": 1782312351.6412556,
+    "ast_hash": "4f2efcaf6275446ded1c4231a25539d5",
+    "semantic_hash": ""
   },
   "src/views/pos/components/TicketBuilder.tsx": {
     "mtime": 1781878278.270061,
@@ -715,8 +715,8 @@
     "semantic_hash": ""
   },
   "src/store/useWarehouseStore.ts": {
-    "mtime": 1782236817.3973289,
-    "ast_hash": "38c7b6375096e652da4a43b03f78fd49",
+    "mtime": 1782315464.4107616,
+    "ast_hash": "ed97e26512d293c24fd74b54a6ec8e61",
     "semantic_hash": ""
   },
   "src/views/inventory/AlistamientoBodegaView.tsx": {
@@ -752,6 +752,31 @@
   "DOCS/manual_categoria_abc.md": {
     "mtime": 1782233730.1058078,
     "ast_hash": "4fb34242aab68fced75237ddbe777374",
+    "semantic_hash": ""
+  },
+  "src/views/cash/components/ArqueoCajaModal.tsx": {
+    "mtime": 1782317996.895685,
+    "ast_hash": "eb1188b88115ec10d0d8500970334449",
+    "semantic_hash": ""
+  },
+  "src/views/pos/components/AperturaCajaModal.tsx": {
+    "mtime": 1782319553.1608934,
+    "ast_hash": "bd1dd77d95ac3577960c04733fea43f8",
+    "semantic_hash": ""
+  },
+  "src/views/pos/components/CartPanel.tsx": {
+    "mtime": 1782318621.1697414,
+    "ast_hash": "b6554a2e2fdf85eb4c49f8800820ea9d",
+    "semantic_hash": ""
+  },
+  "src/views/pos/components/LineaVentaRow.tsx": {
+    "mtime": 1782307918.0712128,
+    "ast_hash": "1ff4964d8e0af1dbdd3ac3eb92febb2d",
+    "semantic_hash": ""
+  },
+  "src/views/pos/components/ProductSearchPanel.tsx": {
+    "mtime": 1782309675.9650123,
+    "ast_hash": "02f39cb5bb17a6197378b48603d65a95",
     "semantic_hash": ""
   }
 }

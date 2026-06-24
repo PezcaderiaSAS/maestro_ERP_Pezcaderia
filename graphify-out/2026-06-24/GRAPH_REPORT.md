@@ -1,16 +1,16 @@
-# Graph Report - MaestroPescaderia  (2026-06-23)
+# Graph Report - MaestroPescaderia  (2026-06-24)
 
 ## Corpus Check
-- 135 files · ~123,199 words
+- 147 files · ~126,879 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 396 nodes · 675 edges · 34 communities (29 shown, 5 thin omitted)
-- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 2 edges (avg confidence: 0.85)
+- 439 nodes · 755 edges · 39 communities (31 shown, 8 thin omitted)
+- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 1 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `521d31a6`
+- Built from commit: `5f3c7180`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -39,30 +39,34 @@
 - [[_COMMUNITY_Community 21|Community 21]]
 - [[_COMMUNITY_Community 22|Community 22]]
 - [[_COMMUNITY_Community 27|Community 27]]
+- [[_COMMUNITY_Community 34|Community 34]]
+- [[_COMMUNITY_Community 35|Community 35]]
+- [[_COMMUNITY_Community 36|Community 36]]
+- [[_COMMUNITY_Community 38|Community 38]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `compilerOptions` - 20 edges
 2. `CashService` - 17 edges
 3. `generateId()` - 12 edges
 4. `TurnoCaja` - 12 edges
-5. `load()` - 11 edges
-6. `save()` - 10 edges
-7. `scripts` - 9 edges
-8. `Cliente` - 9 edges
-9. `DevolucionPedido` - 9 edges
-10. `Product` - 9 edges
+5. `ResultadoOperacion` - 11 edges
+6. `load()` - 11 edges
+7. `save()` - 10 edges
+8. `scripts` - 9 edges
+9. `Cliente` - 9 edges
+10. `DevolucionPedido` - 9 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `POSView Component` --implements--> `Punto de Venta (POS) Inteligente`  [EXTRACTED]
-  src/views/POSView.tsx → README.md
 - `System Design Architecture` --references--> `localDb Service`  [EXTRACTED]
   DOCS/system_design.md → src/services/localDb.ts
 - `SuppliersViewProps` --references--> `Gasto`  [EXTRACTED]
   src/views/SuppliersView.tsx → src/App.tsx
-- `InventoryViewProps` --references--> `DevolucionPedido`  [EXTRACTED]
-  src/views/InventoryView.tsx → src/App.tsx
-- `InventoryViewProps` --references--> `ProductCatalog`  [EXTRACTED]
-  src/views/InventoryView.tsx → src/App.tsx
+- `OrderState` --references--> `Pedido`  [EXTRACTED]
+  src/store/useOrderStore.ts → src/types/orders.types.ts
+- `FulfillmentChecklistProps` --references--> `Pedido`  [EXTRACTED]
+  src/views/inventory/components/FulfillmentChecklist.tsx → src/types/orders.types.ts
+- `CierreCajaModalProps` --references--> `TurnoCaja`  [EXTRACTED]
+  src/views/cash/components/CierreCajaModal.tsx → src/types/cash.types.ts
 
 ## Import Cycles
 - 3-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/services/cashService.ts -> src/App.tsx`
@@ -72,19 +76,19 @@
 - 4-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/views/cash/components/TrasladoDineroModal.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 4-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/views/OrderKanbanView.tsx -> src/services/cashService.ts -> src/App.tsx`
 
-## Communities (34 total, 5 thin omitted)
+## Communities (39 total, 8 thin omitted)
 
 ### Community 0 - "Community 0"
-Cohesion: 0.09
-Nodes (32): BalanzaButton(), BalanzaButtonProps, DiscountPanel(), DiscountPanelProps, PaymentPanel(), PaymentPanelProps, useBalanza(), App() (+24 more)
+Cohesion: 0.06
+Nodes (38): FulfillmentChecklist(), FulfillmentChecklistProps, WeighingModal(), WeighingModalProps, AlistamientoBodegaView(), b2bService, App(), DomainEvent (+30 more)
 
 ### Community 1 - "Community 1"
 Cohesion: 0.10
-Nodes (35): TicketBuilder(), TicketBuilderProps, ClientePOS, usePOSCart(), ClientePrinter, usePOSPrinter(), MovimientoInventario, procesarProduccion() (+27 more)
+Nodes (34): TicketBuilder(), TicketBuilderProps, ClientePOS, usePOSCart(), ClientePrinter, usePOSPrinter(), MovimientoInventario, procesarProduccion() (+26 more)
 
 ### Community 2 - "Community 2"
 Cohesion: 0.06
-Nodes (34): dependencies, axios, jspdf, lucide-react, react, react-dom, @supabase/supabase-js, sweetalert2 (+26 more)
+Nodes (35): dependencies, axios, jspdf, lucide-react, react, react-dom, @supabase/supabase-js, sweetalert2 (+27 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.17
@@ -107,12 +111,12 @@ Cohesion: 0.20
 Nodes (8): WizardType, Empleado, Gasto, NominaRegistro, HRViewProps, calcDiasComerciales(), PayrollView(), PayrollViewProps
 
 ### Community 8 - "Community 8"
-Cohesion: 0.18
-Nodes (14): localDb Service, POSView Component, La Pezcadería ERP, Punto de Venta (POS) Inteligente, PricingView Workflow, ClienteRow, ejecutarMigracion(), migrarClientes() (+6 more)
+Cohesion: 0.13
+Nodes (21): bodegas, clientes, conductores, configuracion_sistema, productos, proveedores, stock_bodegas, terceros (+13 more)
 
 ### Community 9 - "Community 9"
-Cohesion: 0.31
-Nodes (10): bodegas, clientes, conductores, configuracion_sistema, productos, proveedores, stock_bodegas, terceros (+2 more)
+Cohesion: 0.29
+Nodes (6): PurchasesReport(), PurchasesReportProps, MOCK_CATEGORIAS, MOCK_ORDENES, MOCK_PRODUCTS, MOCK_PROVEEDORES
 
 ### Community 10 - "Community 10"
 Cohesion: 0.31
@@ -123,16 +127,20 @@ Cohesion: 0.25
 Nodes (6): hasTwentyApiKey(), twentyCompanies, twentyContacts, twentyOpportunities, CRMViewProps, TabType
 
 ### Community 12 - "Community 12"
-Cohesion: 0.33
-Nodes (6): b2bService, EstadoPedido, LineaPedido, Pedido, ColumnId, OrderKanbanViewProps
+Cohesion: 0.25
+Nodes (7): 🐟 Categoría A: Máxima Prioridad (Alta Rotación / Alto Valor), 🦐 Categoría B: Prioridad Media (Rotación Media), 🦑 Categoría C: Baja Prioridad (Baja Rotación), Categorías, Cómo aplicar la Clasificación ABC en el ERP MaestroPescadería, Impacto en el Alistamiento de Bodega (Fulfillment), Manual de Clasificación ABC para Inventario
 
 ### Community 13 - "Community 13"
-Cohesion: 0.09
-Nodes (22): CategoryManager(), ColdRoomPreparation(), ProductForm(), ProductionForm(), ProductTable(), PurchaseOrderForm(), PurchasesReport(), PurchasesReportProps (+14 more)
+Cohesion: 0.08
+Nodes (34): CategoryManager(), ColdRoomPreparation(), DiscountPanel(), DiscountPanelProps, PaymentPanel(), PaymentPanelProps, ProductForm(), ProductionForm() (+26 more)
 
 ### Community 14 - "Community 14"
 Cohesion: 0.43
 Nodes (6): cajas, gastos_ruta, rutas, set_numero_ruta(), transacciones_caja, trg_set_numero_ruta
+
+### Community 15 - "Community 15"
+Cohesion: 0.53
+Nodes (3): BalanzaButton(), BalanzaButtonProps, useBalanza()
 
 ### Community 16 - "Community 16"
 Cohesion: 0.40
@@ -151,24 +159,24 @@ Cohesion: 0.50
 Nodes (4): desactivar_acceso_usuario_por_desvinculacion(), empleados, trg_desactivar_acceso_empleado, RN-15: Egreso de empleado desactiva acceso
 
 ## Knowledge Gaps
-- **144 isolated node(s):** `Reglas de Arquitectura y Ahorro de Tokens`, `https`, `LIBRARIES`, `args`, `req` (+139 more)
+- **164 isolated node(s):** `Contexto de Negocio: B2B y Ventas Externas`, `Contexto de Lógica: Inventario y Cuarto Frío`, `Máquina de Estados: Flujo Central de Pedidos (POS B2B)`, `🐟 Categoría A: Máxima Prioridad (Alta Rotación / Alto Valor)`, `🦐 Categoría B: Prioridad Media (Rotación Media)` (+159 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `generateId()` connect `Community 3` to `Community 0`, `Community 13`, `Community 7`?**
-  _High betweenness centrality (0.018) - this node is a cross-community bridge._
-- **Why does `CashService` connect `Community 3` to `Community 0`, `Community 12`?**
   _High betweenness centrality (0.016) - this node is a cross-community bridge._
-- **What connects `Reglas de Arquitectura y Ahorro de Tokens`, `https`, `LIBRARIES` to the rest of the system?**
-  _147 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Why does `CashService` connect `Community 3` to `Community 0`, `Community 13`?**
+  _High betweenness centrality (0.013) - this node is a cross-community bridge._
+- **Why does `ResultadoOperacion` connect `Community 3` to `Community 0`, `Community 1`?**
+  _High betweenness centrality (0.007) - this node is a cross-community bridge._
+- **What connects `Contexto de Negocio: B2B y Ventas Externas`, `Contexto de Lógica: Inventario y Cuarto Frío`, `Máquina de Estados: Flujo Central de Pedidos (POS B2B)` to the rest of the system?**
+  _167 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.08603145235892692 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06493506493506493 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.09803921568627451 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.09877551020408164 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
-  _Cohesion score 0.05714285714285714 - nodes in this community are weakly interconnected._
-- **Should `Community 4` be split into smaller, more focused modules?**
-  _Cohesion score 0.09090909090909091 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05555555555555555 - nodes in this community are weakly interconnected._

@@ -1,16 +1,16 @@
 # Graph Report - MaestroPescaderia  (2026-06-24)
 
 ## Corpus Check
-- 147 files · ~126,879 words
+- 152 files · ~129,554 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 439 nodes · 755 edges · 39 communities (31 shown, 8 thin omitted)
+- 457 nodes · 813 edges · 39 communities (31 shown, 8 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 1 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `5f3c7180`
+- Built from commit: `9b04dd64`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -45,10 +45,10 @@
 - [[_COMMUNITY_Community 38|Community 38]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `compilerOptions` - 20 edges
-2. `CashService` - 17 edges
-3. `generateId()` - 12 edges
-4. `TurnoCaja` - 12 edges
+1. `CashService` - 21 edges
+2. `compilerOptions` - 20 edges
+3. `TurnoCaja` - 14 edges
+4. `generateId()` - 12 edges
 5. `ResultadoOperacion` - 11 edges
 6. `load()` - 11 edges
 7. `save()` - 10 edges
@@ -59,40 +59,43 @@
 ## Surprising Connections (you probably didn't know these)
 - `System Design Architecture` --references--> `localDb Service`  [EXTRACTED]
   DOCS/system_design.md → src/services/localDb.ts
-- `SuppliersViewProps` --references--> `Gasto`  [EXTRACTED]
-  src/views/SuppliersView.tsx → src/App.tsx
-- `OrderState` --references--> `Pedido`  [EXTRACTED]
-  src/store/useOrderStore.ts → src/types/orders.types.ts
-- `FulfillmentChecklistProps` --references--> `Pedido`  [EXTRACTED]
-  src/views/inventory/components/FulfillmentChecklist.tsx → src/types/orders.types.ts
-- `CierreCajaModalProps` --references--> `TurnoCaja`  [EXTRACTED]
-  src/views/cash/components/CierreCajaModal.tsx → src/types/cash.types.ts
+- `CartPanelProps` --references--> `ClientePOS`  [EXTRACTED]
+  src/views/pos/components/CartPanel.tsx → src/hooks/usePOSCart.ts
+- `PaymentPanelProps` --references--> `ClientePOS`  [EXTRACTED]
+  src/views/pos/components/PaymentPanel.tsx → src/hooks/usePOSCart.ts
+- `App()` --calls--> `useWarehouseStore`  [EXTRACTED]
+  src/App.tsx → src/store/useWarehouseStore.ts
+- `ArqueoCajaModalProps` --references--> `TurnoCaja`  [EXTRACTED]
+  src/views/cash/components/ArqueoCajaModal.tsx → src/types/cash.types.ts
 
 ## Import Cycles
+- 3-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 3-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 3-file cycle: `src/App.tsx -> src/views/OrderKanbanView.tsx -> src/services/cashService.ts -> src/App.tsx`
-- 3-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/services/cashService.ts -> src/App.tsx`
+- 4-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/views/pos/components/AperturaCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
+- 4-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/views/cash/components/ArqueoCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
+- 4-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/views/OrderKanbanView.tsx -> src/services/cashService.ts -> src/App.tsx`
+- 4-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/views/cash/components/ArqueoCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 4-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/views/cash/components/CierreCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 4-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/views/cash/components/TrasladoDineroModal.tsx -> src/services/cashService.ts -> src/App.tsx`
-- 4-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/views/OrderKanbanView.tsx -> src/services/cashService.ts -> src/App.tsx`
 
 ## Communities (39 total, 8 thin omitted)
 
 ### Community 0 - "Community 0"
-Cohesion: 0.06
-Nodes (38): FulfillmentChecklist(), FulfillmentChecklistProps, WeighingModal(), WeighingModalProps, AlistamientoBodegaView(), b2bService, App(), DomainEvent (+30 more)
+Cohesion: 0.09
+Nodes (29): FulfillmentChecklist(), FulfillmentChecklistProps, WeighingModal(), WeighingModalProps, AlistamientoBodegaView(), b2bService, App(), Cliente (+21 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.10
-Nodes (34): TicketBuilder(), TicketBuilderProps, ClientePOS, usePOSCart(), ClientePrinter, usePOSPrinter(), MovimientoInventario, procesarProduccion() (+26 more)
+Cohesion: 0.21
+Nodes (17): MovimientoInventario, procesarProduccion(), registrarEntrada(), registrarSalida(), registrarTraslado(), StockItem, validarStock(), DB_KEYS (+9 more)
 
 ### Community 2 - "Community 2"
 Cohesion: 0.06
 Nodes (35): dependencies, axios, jspdf, lucide-react, react, react-dom, @supabase/supabase-js, sweetalert2 (+27 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.17
-Nodes (15): CashFlowViewProps, CierreCajaModal(), CierreCajaModalProps, TrasladoDineroModalProps, CashService, generateId(), Caja, EstadoTurno (+7 more)
+Cohesion: 0.14
+Nodes (19): CashFlowViewProps, AperturaCajaModalProps, ArqueoCajaModal(), ArqueoCajaModalProps, CierreCajaModal(), CierreCajaModalProps, TrasladoDineroModalProps, CashService (+11 more)
 
 ### Community 4 - "Community 4"
 Cohesion: 0.09
@@ -131,16 +134,16 @@ Cohesion: 0.25
 Nodes (7): 🐟 Categoría A: Máxima Prioridad (Alta Rotación / Alto Valor), 🦐 Categoría B: Prioridad Media (Rotación Media), 🦑 Categoría C: Baja Prioridad (Baja Rotación), Categorías, Cómo aplicar la Clasificación ABC en el ERP MaestroPescadería, Impacto en el Alistamiento de Bodega (Fulfillment), Manual de Clasificación ABC para Inventario
 
 ### Community 13 - "Community 13"
-Cohesion: 0.08
-Nodes (34): CategoryManager(), ColdRoomPreparation(), DiscountPanel(), DiscountPanelProps, PaymentPanel(), PaymentPanelProps, ProductForm(), ProductionForm() (+26 more)
+Cohesion: 0.05
+Nodes (46): CategoryManager(), ColdRoomPreparation(), ProductForm(), ProductionForm(), ProductTable(), PurchaseOrderForm(), ReturnsReceiver(), TransferForm() (+38 more)
 
 ### Community 14 - "Community 14"
 Cohesion: 0.43
 Nodes (6): cajas, gastos_ruta, rutas, set_numero_ruta(), transacciones_caja, trg_set_numero_ruta
 
 ### Community 15 - "Community 15"
-Cohesion: 0.53
-Nodes (3): BalanzaButton(), BalanzaButtonProps, useBalanza()
+Cohesion: 0.11
+Nodes (24): AperturaCajaModal(), BalanzaButton(), BalanzaButtonProps, CartPanel(), CartPanelProps, DiscountPanel(), DiscountPanelProps, LineaVentaRow() (+16 more)
 
 ### Community 16 - "Community 16"
 Cohesion: 0.40
@@ -159,24 +162,24 @@ Cohesion: 0.50
 Nodes (4): desactivar_acceso_usuario_por_desvinculacion(), empleados, trg_desactivar_acceso_empleado, RN-15: Egreso de empleado desactiva acceso
 
 ## Knowledge Gaps
-- **164 isolated node(s):** `Contexto de Negocio: B2B y Ventas Externas`, `Contexto de Lógica: Inventario y Cuarto Frío`, `Máquina de Estados: Flujo Central de Pedidos (POS B2B)`, `🐟 Categoría A: Máxima Prioridad (Alta Rotación / Alto Valor)`, `🦐 Categoría B: Prioridad Media (Rotación Media)` (+159 more)
+- **166 isolated node(s):** `Bodega`, `WarehouseState`, `EstadoTurno`, `CashFlowViewProps`, `AperturaCajaModalProps` (+161 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `generateId()` connect `Community 3` to `Community 0`, `Community 13`, `Community 7`?**
-  _High betweenness centrality (0.016) - this node is a cross-community bridge._
-- **Why does `CashService` connect `Community 3` to `Community 0`, `Community 13`?**
-  _High betweenness centrality (0.013) - this node is a cross-community bridge._
-- **Why does `ResultadoOperacion` connect `Community 3` to `Community 0`, `Community 1`?**
+- **Why does `CashService` connect `Community 3` to `Community 0`, `Community 15`?**
+  _High betweenness centrality (0.019) - this node is a cross-community bridge._
+- **Why does `generateId()` connect `Community 3` to `Community 15`, `Community 13`, `Community 7`?**
+  _High betweenness centrality (0.017) - this node is a cross-community bridge._
+- **Why does `ResultadoOperacion` connect `Community 3` to `Community 0`, `Community 1`, `Community 15`?**
   _High betweenness centrality (0.007) - this node is a cross-community bridge._
-- **What connects `Contexto de Negocio: B2B y Ventas Externas`, `Contexto de Lógica: Inventario y Cuarto Frío`, `Máquina de Estados: Flujo Central de Pedidos (POS B2B)` to the rest of the system?**
-  _167 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **What connects `Bodega`, `WarehouseState`, `EstadoTurno` to the rest of the system?**
+  _169 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.06493506493506493 - nodes in this community are weakly interconnected._
-- **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.09877551020408164 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.09102564102564102 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
   _Cohesion score 0.05555555555555555 - nodes in this community are weakly interconnected._
+- **Should `Community 3` be split into smaller, more focused modules?**
+  _Cohesion score 0.13704994192799072 - nodes in this community are weakly interconnected._
