@@ -1,7 +1,7 @@
 // src/views/POSView.tsx
 import React, { useState } from 'react';
 import * as localDb from '../services/localDb.ts';
-import { Search, Plus, Minus, X, Check, Barcode, Save, CreditCard, FileText, Truck, RefreshCw, AlertTriangle, AlertCircle } from 'lucide-react';
+import { Search, Plus, Minus, X, Check, Barcode, CreditCard, FileText, Truck, RefreshCw, AlertTriangle, AlertCircle } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { Product, DynamicField, Cliente, generateId, Venta, MovimientoInventario, Conductor, DevolucionPedido, toTitleCase } from '../App.tsx';
 import { InvoiceAR } from './ARView.tsx';
@@ -13,11 +13,6 @@ import { BalanzaButton } from './pos/components/BalanzaButton.tsx';
 import { TicketBuilder } from './pos/components/TicketBuilder.tsx';
 import { cashService } from '../services/cashService.ts';
 
-interface CartItem {
-  product: Product;
-  cantidad: number | string;
-  precioOverride?: number;
-}
 
 interface POSViewProps {
   products: Product[];
@@ -32,22 +27,22 @@ interface POSViewProps {
   userRole: string;
   setCurrentView: (view: string) => void;
   stock: Record<string, any[]>;
-  setStock: React.Dispatch<React.SetStateAction<Record<string, any[]>>>;
+  setStock: (val: any) => void;
   lastClientPrices: Record<string, Record<string, number>>;
   updateLastClientPrice: (clientKey: string, sku: string, price: number) => void;
   cartera: any[];
-  setCartera: React.Dispatch<React.SetStateAction<any[]>>;
+  setCartera: (val: any) => void;
   clientes: Cliente[];
-  setClientes: React.Dispatch<React.SetStateAction<Cliente[]>>;
+  setClientes: (val: any) => void;
   ventas: Venta[];
-  setVentas: React.Dispatch<React.SetStateAction<Venta[]>>;
+  setVentas: (val: any) => void;
   movimientos: MovimientoInventario[];
-  setMovimientos: React.Dispatch<React.SetStateAction<MovimientoInventario[]>>;
+  setMovimientos: (val: any) => void;
   conductores: Conductor[];
   devoluciones: DevolucionPedido[];
-  setDevoluciones: React.Dispatch<React.SetStateAction<DevolucionPedido[]>>;
+  setDevoluciones: (val: any) => void;
   quotations: any[];
-  setQuotations: React.Dispatch<React.SetStateAction<any[]>>;
+  setQuotations: (val: any) => void;
   logIntegracion?: any[];
   setLogIntegracion?: React.Dispatch<React.SetStateAction<any[]>>;
   handleCancelarPedidoDigital?: (logId: string) => void;
@@ -114,7 +109,6 @@ export default function POSView({
     cliente,
     descuentoGlobalPct: descuentoGlobal,
     descuentoGlobalValor,
-    totales,
     agregarProducto,
     actualizarCantidad,
     actualizarDescuentoLinea,
@@ -411,7 +405,7 @@ export default function POSView({
 
     if (selectedCliente) {
       if (selectedCliente.action === 'create') {
-        setClientes(prev => [...prev, selectedCliente.client]);
+        setClientes((prev: Cliente[]) => [...prev, selectedCliente.client]);
         setCliente(selectedCliente.client);
         Swal.fire({
           icon: 'success',
@@ -883,7 +877,7 @@ export default function POSView({
         const vtaId = generateId('vta');
 
         // Decrease stock in Bodega Principal
-        setStock(prev => {
+        setStock((prev: any) => {
           const newStock = { ...prev };
           if (newStock['Bodega Principal']) {
             newStock['Bodega Principal'] = newStock['Bodega Principal'].map((stockItem: any) => {
@@ -950,7 +944,7 @@ export default function POSView({
           cambioEntregado: change,
           actor: userRole
         };
-        setVentas(prev => [newVenta, ...prev]);
+        setVentas((prev: Venta[]) => [newVenta, ...prev]);
         setUltimoTicket({
           venta: {
             id: newVenta.id,
@@ -987,7 +981,7 @@ export default function POSView({
             notas: `Venta POS a ${cliente ? cliente.nombre : 'Consumidor Final'}`
           };
         });
-        setMovimientos(prev => [...newMovements, ...prev]);
+        setMovimientos((prev: MovimientoInventario[]) => [...newMovements, ...prev]);
 
         if (credit > 0 && cliente) {
           const newAR: InvoiceAR = {
@@ -1016,7 +1010,7 @@ export default function POSView({
             }
           }
 
-          setCartera(prev => [newAR, ...prev]);
+          setCartera((prev: InvoiceAR[]) => [newAR, ...prev]);
         }
 
         // RN-57 / Flujo Cajas: Registrar ingresos en el turno activo seleccionado
@@ -1335,7 +1329,7 @@ export default function POSView({
     await new Promise(resolve => setTimeout(resolve, 1500));
 
     // Descontar stock real
-    setStock(prev => {
+    setStock((prev: any) => {
       const newStock = { ...prev };
       if (newStock['Bodega Principal']) {
         newStock['Bodega Principal'] = newStock['Bodega Principal'].map((stockItem: any) => {
@@ -1370,11 +1364,11 @@ export default function POSView({
         notas: `Despacho B2B Facturado. Cliente: ${client.nombre}`
       };
     });
-    setMovimientos(prev => [...newMovements, ...prev]);
+    setMovimientos((prev: MovimientoInventario[]) => [...newMovements, ...prev]);
 
     // Actualizar estado cotización
     if (setQuotations) {
-      setQuotations(prev => prev.map(q => {
+      setQuotations((prev: any[]) => prev.map(q => {
         if (q.id === quoteId) {
           return {
             ...q,
@@ -1391,7 +1385,7 @@ export default function POSView({
     // Actualizar estado devoluciones y emitir Notas de Crédito
     if (appliedDevs.length > 0) {
       if (setDevoluciones) {
-        setDevoluciones(prev => prev.map(d => {
+        setDevoluciones((prev: any[]) => prev.map(d => {
           if (selectedDevIds.includes(d.id)) {
             return {
               ...d,
@@ -1439,7 +1433,7 @@ export default function POSView({
         pagado: 0,
         pagos: []
       };
-      setCartera(prev => [newAR, ...prev]);
+      setCartera((prev: InvoiceAR[]) => [newAR, ...prev]);
     }
 
     // Registrar Venta para histórico
@@ -1464,7 +1458,7 @@ export default function POSView({
       metodoPago: b2bPaymentMethod === 'CREDITO' ? 'CREDITO' : 'CONTADO',
       actor: userRole
     };
-    setVentas(prev => [newVenta, ...prev]);
+    setVentas((prev: Venta[]) => [newVenta, ...prev]);
 
     publishEvent(
       'SALE_COMPLETED',
@@ -1958,7 +1952,7 @@ export default function POSView({
                         ) : (
                           <button
                             onClick={() => {
-                              setCart(prev => prev.map(i => i.product.id === item.product.id ? { ...i, precioOverride: historicalPrice } : i));
+                              setCartLineas(prev => prev.map(l => l.productoId === item.product.id ? { ...l, precioFinal: historicalPrice } : l));
                               Swal.fire({
                                 toast: true,
                                 position: 'top-end',

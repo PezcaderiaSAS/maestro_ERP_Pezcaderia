@@ -1,7 +1,6 @@
 // src/hooks/usePOSPrinter.ts
 
 import { useState } from 'react';
-import type { VentaPOS, LineaVenta } from '../types/pos.types';
 
 export interface ClientePrinter {
   nombre: string;
@@ -15,7 +14,7 @@ export function usePOSPrinter() {
   /**
    * Da formato a una cadena de texto a un ancho fijo de 40 columnas para impresoras térmicas
    */
-  const formatearTextoTicket = (venta: VentaPOS, cliente: ClientePrinter | null): string => {
+  const formatearTextoTicket = (venta: any, cliente: ClientePrinter | null): string => {
     const width = 40;
     const center = (text: string) => {
       const pad = Math.max(0, Math.floor((width - text.length) / 2));
@@ -61,7 +60,7 @@ export function usePOSPrinter() {
     ticket += lineDash() + '\n';
 
     // Items
-    venta.items.forEach((item: LineaVenta) => {
+    venta.items?.forEach((item: any) => {
       // Cortar nombre largo
       const truncatedName = item.nombre.substring(0, 25);
       ticket += truncatedName + '\n';
@@ -106,7 +105,7 @@ export function usePOSPrinter() {
   /**
    * Simula o realiza la impresión del ticket en consola o mediante el driver del navegador
    */
-  const imprimirTicket = async (venta: VentaPOS, cliente: ClientePrinter | null): Promise<boolean> => {
+  const imprimirTicket = async (venta: any, cliente: ClientePrinter | null): Promise<boolean> => {
     setPrinting(true);
     setError(null);
 

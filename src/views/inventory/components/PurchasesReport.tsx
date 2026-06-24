@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Calendar, Filter, Download, ChevronDown, ChevronUp, Lock, FileText, IndianRupee, DollarSign, BarChart2 } from 'lucide-react';
+import { Calendar, Filter, Download, ChevronDown, ChevronUp, Lock, FileText, BarChart2 } from 'lucide-react';
 
 interface PurchasesReportProps {
   ordenesCompra: any[];
@@ -13,7 +13,6 @@ export function PurchasesReport({
   ordenesCompra = [],
   proveedores = [],
   productsCatalog = [],
-  categorias = [],
   userRole
 }: PurchasesReportProps) {
   // 1. Verificación de Rol Administrativo (Solo 'admin' y 'administrativo' tienen acceso)
@@ -153,7 +152,7 @@ export function PurchasesReport({
         const skuData = provData.items[item.sku];
         skuData.cantidad += item.cantidad;
         skuData.totalPesos += item.cantidad * item.precioUnitario;
-        skuData.cantidadOrders = (skuData.cantidadOrders || 0) + 1;
+        skuData.cantidadOrdenes = (skuData.cantidadOrdenes || 0) + 1;
         
         // Sumar peso acumulado del proveedor
         provData.totalKg += item.cantidad;
@@ -192,7 +191,6 @@ export function PurchasesReport({
     let subtotal = 0;
     let iva = 0;
     let fletes = 0;
-    let ordenes = 0;
     const ocIdsSet = new Set();
 
     ordenesCompra.forEach(oc => {
@@ -266,7 +264,7 @@ export function PurchasesReport({
           `"${item.categoria}"`,
           item.cantidad,
           Math.round(item.totalPesos),
-          item.cantidadOrders || 1,
+          item.cantidadOrdenes || 1,
           `"${fechaInicio} a ${fechaFin}"`
         ];
         csvRows.push(row.join(';'));

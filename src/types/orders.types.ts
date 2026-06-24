@@ -1,5 +1,6 @@
 export type EstadoPedido = 
   | 'CREADO' 
+  | 'EN_ALISTAMIENTO'
   | 'LISTO' 
   | 'EN_DESPACHO' 
   | 'ENTREGADO' 
@@ -13,6 +14,9 @@ export interface LineaPedido {
   productoId: string;
   cantidadSolicitada: number;
   cantidadAlistada: number;
+  pesoEstimado?: number;     // Para productos por KG
+  pesoReal?: number;         // Peso real pesado en la báscula durante alistamiento
+  loteSeleccionado?: string; // Lote asignado para trazabilidad (FIFO)
   precioPactado: number;
   totalLinea: number;
 }

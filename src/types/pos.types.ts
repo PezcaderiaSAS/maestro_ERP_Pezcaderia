@@ -1,5 +1,4 @@
 // src/types/pos.types.ts
-import { ResultadoOperacion } from './common.types';
 
 export interface LineaVenta {
   productoId: string;

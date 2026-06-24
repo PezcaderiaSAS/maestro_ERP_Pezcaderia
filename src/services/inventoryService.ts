@@ -2,7 +2,7 @@
 
 import { load, save } from './localDb';
 import type { Producto } from '../types/inventory.types';
-import type { ResultadoOperacion } from '../types/pos.types'; // Reusando tipo genérico
+import type { ResultadoOperacion } from '../types/common.types'; // Reusando tipo genérico
 
 export interface StockItem {
   bodegaId: string;

@@ -1,5 +1,5 @@
 import { load, save } from './localDb';
-import { Pedido, EstadoPedido, LineaPedido } from '../types/orders.types';
+import { Pedido, EstadoPedido } from '../types/orders.types';
 import { ResultadoOperacion } from '../types/common.types';
 
 const DB_KEY = 'quotations'; // Usando quotations para mantener compatibilidad con localDb

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Wallet, ArrowRightLeft, Upload, Download, Power, AlertTriangle } from 'lucide-react';
 import { cashService } from '../../services/cashService';
 import { Caja, TurnoCaja, MovimientoCaja } from '../../types/cash.types';
@@ -80,11 +80,11 @@ export default function CashFlowView({ userRole, usuarioId }: CashFlowViewProps)
     }).then((result) => {
       if (result.isConfirmed) {
         const res = cashService.abrirTurno(cajaSeleccionada, usuarioId, result.value);
-        if (res.exito) {
-          Swal.fire('Éxito', res.mensaje, 'success');
+        if (!res.error) {
+          Swal.fire('Éxito', 'Turno abierto correctamente', 'success');
           loadData();
         } else {
-          Swal.fire('Error', res.mensaje, 'error');
+          Swal.fire('Error', res.error, 'error');
         }
       }
     });
@@ -133,11 +133,11 @@ export default function CashFlowView({ userRole, usuarioId }: CashFlowViewProps)
           null,
           usuarioId
         );
-        if (res.exito) {
-          Swal.fire('Éxito', res.mensaje, 'success');
+        if (!res.error) {
+          Swal.fire('Éxito', 'Movimiento registrado con éxito', 'success');
           loadData();
         } else {
-          Swal.fire('Error', res.mensaje, 'error');
+          Swal.fire('Error', res.error, 'error');
         }
       }
     });
@@ -296,12 +296,15 @@ export default function CashFlowView({ userRole, usuarioId }: CashFlowViewProps)
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                      {movimientos.sort((a, b) => new Date(b.creadoEn).getTime() - new Date(a.creadoEn).getTime()).map(mov => {
+                      {movimientos.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(mov => {
                         const esIngreso = mov.tipo.startsWith('INGRESO');
                         return (
                           <tr key={mov.id} className="hover:bg-gray-50">
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {new Date(mov.creadoEn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              <div className="flex flex-col">
+                                <span>{new Date(mov.createdAt).toLocaleDateString()}</span>
+                                {new Date(mov.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${esIngreso ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>

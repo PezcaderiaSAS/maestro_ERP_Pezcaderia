@@ -1,6 +1,6 @@
 // src/views/InventoryView.tsx
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, Package, ArrowRight, ShieldAlert, CheckCircle, Truck, PlusCircle, Save, Edit2, Search, X } from 'lucide-react';
+
 import Swal from 'sweetalert2';
 import { Product, ProductCatalog, ProductPricing, Proveedor, MovimientoInventario, OrdenCompra, generateId, CategoriaConfig, DevolucionPedido, toTitleCase } from '../App.tsx';
 import { Bodega } from '../services/warehouseService.ts';
@@ -55,6 +55,7 @@ interface InventoryViewProps {
 
 export default function InventoryView({
   products,
+  productsCatalog,
   setProductsCatalog,
   setProductPricings,
   stock,
@@ -71,9 +72,7 @@ export default function InventoryView({
   quotations,
   setQuotations,
   devoluciones = [],
-  setDevoluciones,
-  bodegas,
-  setBodegas
+  setDevoluciones
 }: InventoryViewProps) {
   const [activeBodega, setActiveBodega] = useState('Bodega Principal');
   const [historyTab, setHistoryTab] = useState<'movimientos' | 'compras'>('movimientos');

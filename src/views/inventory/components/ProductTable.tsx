@@ -1,4 +1,3 @@
-import React from 'react';
 import { Package, Search, PlusCircle, Edit3, ShieldAlert } from 'lucide-react';
 
 export function ProductTable({
@@ -14,14 +13,8 @@ export function ProductTable({
   setCustomTipo,
   setCustomLinea,
   setCustomClase,
-  productsCatalog,
-  setProductsCatalog
+  productsCatalog
 }: any) {
-  const getStockInBodega = (sku: string, bodega: string) => {
-    const list = stock[bodega] || [];
-    return list.find((i: any) => i.sku === sku)?.stock || 0;
-  };
-
   const getTotalStock = (sku: string) => {
     let total = 0;
     Object.values(stock).forEach((bodegaList: any) => {
@@ -29,16 +22,6 @@ export function ProductTable({
       if (item) total += item.stock;
     });
     return total;
-  };
-
-  const handleToggleProductStatus = (sku: string) => {
-    const p = products.find((prod: any) => prod.sku === sku);
-    if (!p) return;
-    const isNowActive = !p.activo;
-    
-    // Aquí debería llamar a setProducts o similar para actualizar el estado,
-    // asumiendo que el padre pasa un método. Pero por simplicidad en esta refactorización, 
-    // delegaremos o emitiremos un evento.
   };
 
   const filteredProducts = products.filter((p: any) => {
@@ -142,7 +125,7 @@ export function ProductTable({
                         {totalStock} {p.unidadMedida || 'kg'}
                       </span>
                       {isLowStock && p.control_inventario && (
-                        <ShieldAlert size={14} color="#EF4444" title="Stock bajo buffer de seguridad" />
+                        <span title="Stock bajo buffer de seguridad"><ShieldAlert size={14} color="#EF4444" /></span>
                       )}
                     </div>
                   </td>

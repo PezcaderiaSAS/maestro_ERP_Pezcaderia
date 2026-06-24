@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Package, ShieldAlert, CheckCircle } from 'lucide-react';
 
 export function ProductionForm({

@@ -13,6 +13,7 @@ export interface Producto {
   codigoBarras: string | null;
   imagenUrl: string | null;
   bufferSeguridad: number;               // Nivel mínimo para alerta de stock
+  categoriaABC?: 'A' | 'B' | 'C';        // Clasificación Pareto (80/20) para el inventario
   activo: boolean;
 }
 

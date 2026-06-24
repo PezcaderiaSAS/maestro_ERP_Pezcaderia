@@ -71,5 +71,7 @@ export const crearPedido = (overrides: Partial<Pedido> = {}): Pedido => ({
   totalFinal: 0,
   idempotencyKey: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'mock-uuid-pedido',
   rutaId: null,
+  facturacionElectronica: false,
+  idSiigo: null,
   ...overrides,
 });

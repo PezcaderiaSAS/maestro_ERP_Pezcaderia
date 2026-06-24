@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { TurnoCaja } from '../../../types/cash.types';
 import { cashService } from '../../../services/cashService';
 import Swal from 'sweetalert2';
@@ -38,11 +38,11 @@ export default function CierreCajaModal({ turnoActivo, usuarioId, onClose, onSuc
     }).then((result) => {
       if (result.isConfirmed) {
         const resultado = cashService.cerrarTurno(turnoActivo.id, Number(saldoFisico), justificacion, usuarioId);
-        if (resultado.exito) {
-          Swal.fire('¡Caja Cerrada!', resultado.mensaje, 'success');
+        if (!resultado.error) {
+          Swal.fire('¡Caja Cerrada!', 'El turno se ha cerrado correctamente', 'success');
           onSuccess();
         } else {
-          Swal.fire('Error', resultado.mensaje, 'error');
+          Swal.fire('Error', resultado.error, 'error');
         }
       }
     });

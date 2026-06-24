@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Menu, LayoutDashboard, ShoppingBag, Box, Users, DollarSign, HelpCircle, Home, ShoppingCart, LogOut, FileText, PlusCircle, Wallet, Database, Truck, RefreshCw, PieChart } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Menu, LayoutDashboard, ShoppingBag, Box, Users, DollarSign, HelpCircle, Home, ShoppingCart, LogOut, FileText, PlusCircle, Wallet, Database, Truck, RefreshCw, PieChart, PackageCheck } from 'lucide-react';
 import DashboardView from './views/DashboardView.tsx';
 import POSView from './views/POSView.tsx';
 import InventoryView from './views/InventoryView.tsx';
@@ -12,8 +12,14 @@ import OrderKanbanView from './views/OrderKanbanView.tsx';
 import PayrollView from './views/PayrollView.tsx';
 import CRMView from './views/CRMView.tsx';
 import CashFlowView from './views/cash/CashFlowView.tsx';
+import { AlistamientoBodegaView } from './views/inventory/AlistamientoBodegaView.tsx';
 import * as localDb from './services/localDb.ts';
-import { obtenerBodegas, Bodega } from './services/warehouseService.ts';
+// Stores de Zustand
+import { useInventoryStore } from './store/useInventoryStore.ts';
+import { useWarehouseStore } from './store/useWarehouseStore.ts';
+import { useOrderStore } from './store/useOrderStore.ts';
+import { useClientStore } from './store/useClientStore.ts';
+import { useSupplierStore } from './store/useSupplierStore.ts';
 
 /** Genera IDs únicos usando crypto.randomUUID() — resistente a colisiones en operaciones rápidas */
 export const generateId = (prefix: string): string =>
@@ -713,61 +719,36 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // States F3: Catalog and Pricing
-  const [productsCatalog, setProductsCatalog] = useState<ProductCatalog[]>(() => {
+  const { productsCatalog, setProductsCatalog, productPricings, setProductPricings, products, loadInventory } = useInventoryStore();
+
+  useEffect(() => {
     const savedCat = localDb.load('productsCatalog', null as ProductCatalog[] | null);
-    if (savedCat) return savedCat;
-    
-    // Migración o inicialización
-    const oldSaved = localStorage.getItem('pezcaderia_products');
-    let sourceProducts = INITIAL_PRODUCTS;
-    if (oldSaved) {
-      try { sourceProducts = JSON.parse(oldSaved); } catch (e) {}
-    } else {
-      sourceProducts = INITIAL_PRODUCTS.map(p => {
-        let grp = 'General';
-        if (p.categoria === 'MATERIA PRIMA') grp = 'Materia Prima';
-        else if (p.categoria === 'PESCADOS') grp = 'Pescado Blanco';
-        else if (p.categoria === 'MARISCOS') grp = 'Camarones';
-        else if (p.categoria === 'BATIDOS') grp = 'Batidos Saludables';
-        else if (p.categoria === 'BEBIDAS') grp = 'Jugos Naturales';
-        else if (p.categoria === 'ENSALADAS') grp = 'Ensaladas Frescas';
-        else if (p.categoria === 'ENTRADAS') grp = 'Entradas';
-        return { ...p, metadata: p.metadata || { categoria_descriptiva: grp } };
-      });
-    }
-    
-    const { catalog, pricings } = migrateProductsToCatalogAndPricing(sourceProducts, initialRole);
-    localDb.save('productPricings', pricings);
-    localDb.removeRaw('pezcaderia_products'); // Limpiar viejo estado
-    return catalog;
-  });
-
-  const [productPricings, setProductPricings] = useState<ProductPricing[]>(() => {
-    return localDb.load('productPricings', []);
-  });
-
-  useEffect(() => {
-    localDb.save('productsCatalog', productsCatalog);
-  }, [productsCatalog]);
-
-  useEffect(() => {
-    localDb.save('productPricings', productPricings);
-  }, [productPricings]);
-
-  // DERIVACIÓN DINÁMICA de products para retrocompatibilidad
-  const products: Product[] = useMemo(() => {
-    return productsCatalog.map(cat => {
-      const pricings = productPricings.filter(pr => pr.productoId === cat.id);
-      let currentPricing = pricings[0];
-      if (pricings.length > 1) {
-        currentPricing = pricings.reduce((latest, current) => 
-          new Date(current.vigenciaDesde) > new Date(latest.vigenciaDesde) ? current : latest
-        );
+    if (!savedCat || savedCat.length === 0) {
+      // Migración o inicialización
+      const oldSaved = localStorage.getItem('pezcaderia_products');
+      let sourceProducts = INITIAL_PRODUCTS;
+      if (oldSaved) {
+        try { sourceProducts = JSON.parse(oldSaved); } catch (e) {}
+      } else {
+        sourceProducts = INITIAL_PRODUCTS.map(p => {
+          let grp = 'General';
+          if (p.categoria === 'MATERIA PRIMA') grp = 'Materia Prima';
+          else if (p.categoria === 'PESCADOS') grp = 'Pescado Blanco';
+          else if (p.categoria === 'MARISCOS') grp = 'Camarones';
+          else if (p.categoria === 'BATIDOS') grp = 'Batidos Saludables';
+          else if (p.categoria === 'BEBIDAS') grp = 'Jugos Naturales';
+          else if (p.categoria === 'ENSALADAS') grp = 'Ensaladas Frescas';
+          else if (p.categoria === 'ENTRADAS') grp = 'Entradas';
+          return { ...p, metadata: p.metadata || { categoria_descriptiva: grp } };
+        });
       }
-      const fallbackPricing = { precio_compra: 0, buffer_seguridad: 0, precio_venta_pos: 0, precio_venta_restaurante: 0, precio_venta_mayorista: 0 };
-      return { ...cat, ...(currentPricing || fallbackPricing) } as Product;
-    });
-  }, [productsCatalog, productPricings]);
+      
+      const { catalog, pricings } = migrateProductsToCatalogAndPricing(sourceProducts, initialRole);
+      setProductsCatalog(catalog);
+      setProductPricings(pricings);
+      localDb.removeRaw('pezcaderia_products'); // Limpiar viejo estado
+    }
+  }, [initialRole, setProductsCatalog, setProductPricings]);
 
   useEffect(() => {
     if (initialRole) {
@@ -793,9 +774,20 @@ export default function App() {
     }
   ]));
 
-  const [quotations, setQuotations] = useState<any[]>(() => localDb.load('quotations', []));
+  const { ventas, setVentas, quotations, setQuotations, loadOrders } = useOrderStore();
+  const { bodegas, setBodegas, loadBodegas } = useWarehouseStore();
+  const { clientes, setClientes, loadClientes } = useClientStore();
+  const { proveedores, setProveedores, loadProveedores } = useSupplierStore();
+  
+  useEffect(() => {
+    loadOrders();
+    loadBodegas();
+    loadInventory();
+    loadClientes(INITIAL_CLIENTS);
+    loadProveedores(INITIAL_PROVEEDORES);
+  }, [loadOrders, loadBodegas, loadInventory, loadClientes, loadProveedores]);
+
   const [stock, setStock] = useState<Record<string, any[]>>(() => localDb.load('stock', {}));
-  const [bodegas, setBodegas] = useState<Bodega[]>(() => obtenerBodegas().data);
   const [lastClientPrices, setLastClientPrices] = useState<Record<string, Record<string, number>>>(() => localDb.load('lastClientPrices', {}));
 
   const [categorias, setCategorias] = useState<CategoriaConfig[]>(() => localDb.load('categorias', [
@@ -844,17 +836,10 @@ export default function App() {
     ];
   });
 
-  const [clientes, setClientes] = useState<Cliente[]>(() => localDb.load('clientes', INITIAL_CLIENTS));
-  const [proveedores, setProveedores] = useState<Proveedor[]>(() => localDb.load('proveedores', INITIAL_PROVEEDORES));
-
-  useEffect(() => { localDb.save('clientes', clientes); }, [clientes]);
-  useEffect(() => { localDb.save('proveedores', proveedores); }, [proveedores]);
   useEffect(() => { localDb.save('events', events); }, [events]);
   useEffect(() => { localDb.save('syncQueue', syncQueue); }, [syncQueue]);
   useEffect(() => { localDb.save('dynamicFields', dynamicFields); }, [dynamicFields]);
-  useEffect(() => { localDb.save('quotations', quotations); }, [quotations]);
   useEffect(() => { localDb.save('stock', stock); }, [stock]);
-  useEffect(() => { localDb.save('bodegas', bodegas); }, [bodegas]);
   useEffect(() => { localDb.save('lastClientPrices', lastClientPrices); }, [lastClientPrices]);
   useEffect(() => { localDb.save('cartera', cartera); }, [cartera]);
 
@@ -898,9 +883,6 @@ export default function App() {
 
   const [ordenesCompra, setOrdenesCompra] = useState<OrdenCompra[]>(() => localDb.load('ordenesCompra', []));
   useEffect(() => { localDb.save('ordenesCompra', ordenesCompra); }, [ordenesCompra]);
-
-  const [ventas, setVentas] = useState<Venta[]>(() => localDb.load('ventas', []));
-  useEffect(() => { localDb.save('ventas', ventas); }, [ventas]);
 
   const [conductores, _setConductores] = useState<Conductor[]>(() => localDb.load('conductores', INITIAL_CONDUCTORES));
   useEffect(() => { localDb.save('conductores', conductores); }, [conductores]);
@@ -961,7 +943,7 @@ export default function App() {
     });
 
     // Migrate Products
-    const migratedProducts = productsCatalog.map(p => {
+    const migratedProducts = productsCatalog.map((p: any) => {
       const newNombre = toTitleCase(p.nombre);
       if (p.nombre !== newNombre) {
         migrated = true;
@@ -971,7 +953,7 @@ export default function App() {
     });
 
     // Migrate Empleados (legacy `salario` to `salarioBase`, and ensure default fields)
-    const migratedEmpleados = empleados.map(e => {
+    const migratedEmpleados = empleados.map((e: any) => {
       let changed = false;
       const legacyEmp = e as any;
       if (legacyEmp.salario !== undefined && e.salarioBase === undefined) {
@@ -1004,18 +986,18 @@ export default function App() {
 
   // Synchronize stock based on current products catalog and active bodegas
   useEffect(() => {
-    setStock(prev => {
+    setStock((prev: Record<string, any[]>) => {
       const newStock = { ...prev };
       const activeBodegas = bodegas.filter(b => b.activa).map(b => b.nombre);
       
-      activeBodegas.forEach(bodega => {
+      activeBodegas.forEach((bodega: string) => {
         if (!newStock[bodega]) {
           newStock[bodega] = [];
         }
         
         // Agregar productos faltantes
         const currentSkus = new Set(newStock[bodega].map((item: any) => item.sku));
-        products.forEach(p => {
+        products.forEach((p: any) => {
           if (!currentSkus.has(p.sku)) {
             let qty = 0;
             if (bodega === 'Bodega Principal') {
@@ -1040,12 +1022,12 @@ export default function App() {
 
         // Actualizar nombres y filtrar productos obsoletos
         newStock[bodega] = newStock[bodega].map((item: any) => {
-          const matched = products.find(p => p.sku === item.sku);
+          const matched = products.find((p: any) => p.sku === item.sku);
           if (matched) {
             return { ...item, nombre: matched.nombre };
           }
           return item;
-        }).filter((item: any) => products.some(p => p.sku === item.sku));
+        }).filter((item: any) => products.some((p: any) => p.sku === item.sku));
       });
 
       return newStock;
@@ -1058,7 +1040,7 @@ export default function App() {
    * Antes usaba el nombre, lo que provocaba pérdida del historial al editar el nombre.
    */
   const updateLastClientPrice = (identificacion: string, sku: string, price: number) => {
-    setLastClientPrices(prev => {
+    setLastClientPrices((prev: Record<string, Record<string, number>>) => {
       const key = identificacion.trim().toLowerCase();
       const updated = {
         ...prev,
@@ -1088,7 +1070,7 @@ export default function App() {
       descripcion,
       metadata
     };
-    setEvents(prev => [newEvent, ...prev]);
+    setEvents((prev: DomainEvent[]) => [newEvent, ...prev]);
 
     if (enqueueSync) {
       const newSyncJob: SyncJob = {
@@ -1099,7 +1081,7 @@ export default function App() {
         intentos: 0,
         timestamp: new Date().toISOString()
       };
-      setSyncQueue(prev => [newSyncJob, ...prev]);
+      setSyncQueue((prev: SyncJob[]) => [newSyncJob, ...prev]);
     }
   };
 
@@ -1114,8 +1096,8 @@ export default function App() {
     const timer = setTimeout(() => {
       const isSuccess = Math.random() < 0.8; // 80% success rate
       
-      setSyncQueue(prev =>
-        prev.map(j => {
+      setSyncQueue((prev: SyncJob[]) =>
+        prev.map((j: SyncJob) => {
           if (j.id === jobToProcess.id) {
             return {
               ...j,
@@ -1164,16 +1146,16 @@ export default function App() {
       try {
         orderData = JSON.parse(pendingOrder.payload_json);
       } catch (e) {
-        setLogIntegracion(prev =>
-          prev.map(l => l.id === pendingOrder.id ? { ...l, estado: 'ERROR', mensaje_error: 'Payload JSON inválido' } : l)
+        setLogIntegracion((prev: LogIntegracion[]) =>
+          prev.map((l: LogIntegracion) => l.id === pendingOrder.id ? { ...l, estado: 'ERROR', mensaje_error: 'Payload JSON inválido' } : l)
         );
         return;
       }
 
       // 1. Verificar firma/autenticación (RN-01)
       if (!orderData.signature || orderData.signature !== 'VALID_CRYPTO_SIGNATURE') {
-        setLogIntegracion(prev =>
-          prev.map(l => l.id === pendingOrder.id ? { ...l, estado: 'ERROR', mensaje_error: 'Error de Autenticación: Firma criptográfica inválida o ausente' } : l)
+        setLogIntegracion((prev: LogIntegracion[]) =>
+          prev.map((l: LogIntegracion) => l.id === pendingOrder.id ? { ...l, estado: 'ERROR', mensaje_error: 'Error de Autenticación: Firma criptográfica inválida o ausente' } : l)
         );
         publishEvent('METADATA_CONFIGURED', 'System Integrator', `Rechazado pedido digital ${pendingOrder.id_pedido_externo} - Firma inválida`, null, false);
         return;
@@ -1182,8 +1164,8 @@ export default function App() {
       // 2. Verificar Idempotencia (RN-02)
       const isDuplicate = ventas.some((v: any) => v.metadata?.id_pedido_externo === pendingOrder.id_pedido_externo);
       if (isDuplicate) {
-        setLogIntegracion(prev =>
-          prev.map(l => l.id === pendingOrder.id ? { ...l, estado: 'ERROR', mensaje_error: 'Idempotencia: Pedido ya procesado' } : l)
+        setLogIntegracion((prev: LogIntegracion[]) =>
+          prev.map((l: LogIntegracion) => l.id === pendingOrder.id ? { ...l, estado: 'ERROR', mensaje_error: 'Idempotencia: Pedido ya procesado' } : l)
         );
         publishEvent('METADATA_CONFIGURED', 'System Integrator', `Rechazado pedido duplicado ${pendingOrder.id_pedido_externo} por idempotencia`, null, false);
         return;
@@ -1203,8 +1185,8 @@ export default function App() {
       });
 
       if (!stockSuficiente) {
-        setLogIntegracion(prev =>
-          prev.map(l => l.id === pendingOrder.id ? { ...l, estado: 'REVISION_MANUAL', mensaje_error: `Stock insuficiente: ${itemsFaltantes.join(', ')}` } : l)
+        setLogIntegracion((prev: LogIntegracion[]) =>
+          prev.map((l: LogIntegracion) => l.id === pendingOrder.id ? { ...l, estado: 'REVISION_MANUAL', mensaje_error: `Stock insuficiente: ${itemsFaltantes.join(', ')}` } : l)
         );
         publishEvent('METADATA_CONFIGURED', 'System Integrator', `Pedido ${pendingOrder.id_pedido_externo} retenido en REVISIÓN MANUAL por falta de stock`, null, false);
         return;
@@ -1216,7 +1198,7 @@ export default function App() {
       const vtaId = generateId('vta');
 
       // Restar stock
-      setStock(prev => {
+      setStock((prev: Record<string, any[]>) => {
         const newStock = { ...prev };
         if (newStock['Bodega Principal']) {
           newStock['Bodega Principal'] = newStock['Bodega Principal'].map((stockItem: any) => {
@@ -1253,7 +1235,7 @@ export default function App() {
         }
       };
 
-      setVentas(prev => [newVenta, ...prev]);
+      setVentas((prev: any[]) => [newVenta, ...prev]);
 
       // Registrar movimiento de inventario
       const newMovements: MovimientoInventario[] = orderData.items.map((item: any) => {
@@ -1274,10 +1256,10 @@ export default function App() {
           notas: `Integración Digital (${pendingOrder.canal}) - Pedido ${pendingOrder.id_pedido_externo}`
         };
       });
-      setMovimientos(prev => [...newMovements, ...prev]);
+      setMovimientos((prev: MovimientoInventario[]) => [...newMovements, ...prev]);
 
-      setLogIntegracion(prev =>
-        prev.map(l => l.id === pendingOrder.id ? { ...l, estado: 'PROCESADO', id_factura_pos: vtaId } : l)
+      setLogIntegracion((prev: LogIntegracion[]) =>
+        prev.map((l: LogIntegracion) => l.id === pendingOrder.id ? { ...l, estado: 'PROCESADO', id_factura_pos: vtaId } : l)
       );
 
       publishEvent(
@@ -1306,7 +1288,7 @@ export default function App() {
 
     if (log.estado === 'PROCESADO' && log.id_factura_pos) {
       // Reversar stock a Bodega Principal
-      setStock(prev => {
+      setStock((prev: Record<string, any[]>) => {
         const newStock = { ...prev };
         if (newStock['Bodega Principal']) {
           newStock['Bodega Principal'] = newStock['Bodega Principal'].map((stockItem: any) => {
@@ -1337,7 +1319,7 @@ export default function App() {
           notas: `Reversión por Cancelación Pedido ${log.id_pedido_externo}`
         };
       });
-      setMovimientos(prev => [...newMovements, ...prev]);
+      setMovimientos((prev: MovimientoInventario[]) => [...newMovements, ...prev]);
 
       // Generar Devolución (Nota de Crédito)
       const newDevolucion: DevolucionPedido = {
@@ -1362,7 +1344,7 @@ export default function App() {
           loteInventario: 'RETORNO'
         }))
       };
-      setDevoluciones(prev => [newDevolucion, ...prev]);
+      setDevoluciones((prev: DevolucionPedido[]) => [newDevolucion, ...prev]);
 
       publishEvent(
         'METADATA_CONFIGURED',
@@ -1372,8 +1354,8 @@ export default function App() {
       );
     }
 
-    setLogIntegracion(prev =>
-      prev.map(l => l.id === logId ? { ...l, estado: 'ERROR', mensaje_error: 'Pedido Cancelado por el canal' } : l)
+    setLogIntegracion((prev: LogIntegracion[]) =>
+      prev.map((l: LogIntegracion) => l.id === logId ? { ...l, estado: 'ERROR', mensaje_error: 'Pedido Cancelado por el canal' } : l)
     );
   };
 
@@ -1399,8 +1381,8 @@ export default function App() {
     }).filter((item: any) => item.cantidad > 0);
 
     if (updatedItems.length === 0) {
-      setLogIntegracion(prev =>
-        prev.map(l => l.id === logId ? { ...l, estado: 'ERROR', mensaje_error: 'Aprobación parcial resultó en 0 items' } : l)
+      setLogIntegracion((prev: LogIntegracion[]) =>
+        prev.map((l: LogIntegracion) => l.id === logId ? { ...l, estado: 'ERROR', mensaje_error: 'Aprobación parcial resultó en 0 items' } : l)
       );
       return;
     }
@@ -1417,8 +1399,8 @@ export default function App() {
       signature: 'VALID_CRYPTO_SIGNATURE'
     };
 
-    setLogIntegracion(prev =>
-      prev.map(l => l.id === logId ? {
+    setLogIntegracion((prev: LogIntegracion[]) =>
+      prev.map((l: LogIntegracion) => l.id === logId ? {
         ...l,
         estado: 'PENDIENTE',
         payload_json: JSON.stringify(updatedPayload),
@@ -1427,7 +1409,7 @@ export default function App() {
     );
     
     if (modo === 'forzar') {
-      setStock(prev => {
+      setStock((prev: Record<string, any[]>) => {
         const newStock = { ...prev };
         if (newStock['Bodega Principal']) {
           newStock['Bodega Principal'] = newStock['Bodega Principal'].map((stockItem: any) => {
@@ -1525,6 +1507,8 @@ export default function App() {
             setBodegas={setBodegas}
           />
         );
+      case 'alistamiento':
+        return <AlistamientoBodegaView />;
       case 'precios':
         return (
           <PricingView 
@@ -1562,12 +1546,6 @@ export default function App() {
             userRole={userRole}
             devoluciones={devoluciones}
             setDevoluciones={setDevoluciones}
-            proveedores={proveedores}
-            ordenesCompra={ordenesCompra}
-            setOrdenesCompra={setOrdenesCompra}
-            gastos={gastos}
-            setGastos={setGastos}
-            ventas={ventas}
           />
         );
       case 'clientes':
@@ -1627,6 +1605,8 @@ export default function App() {
         return { cat: 'Comercial', sub: 'Punto de Venta (POS)' };
       case 'inventario':
         return { cat: 'Inventario y Planta', sub: 'Bodegas y Producción' };
+      case 'alistamiento':
+        return { cat: 'Inventario y Planta', sub: 'Alistamiento de Bodega' };
       case 'precios':
         return { cat: 'Comercial', sub: 'Precios y Cotizaciones' };
       case 'rrhh':
@@ -1781,6 +1761,14 @@ export default function App() {
             >
               <Box size={16} />
               <span>Inventario</span>
+            </div>
+
+            <div
+              className={`sidebar-item ${currentView === 'alistamiento' ? 'active' : ''}`}
+              onClick={() => { setCurrentView('alistamiento'); setSidebarOpen(false); }}
+            >
+              <PackageCheck size={16} />
+              <span>Alistamiento Bodega</span>
             </div>
 
             <div className={`sidebar-item`} style={{ opacity: 0.5 }}>

@@ -189,7 +189,7 @@ export default function CRMView({ currentActor }: CRMViewProps) {
                     <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'right' }}>Acciones</th>
                   </tr>
                 </thead>
-                <tbody style={{ divideY: '1px solid #f1f5f9' }}>
+                <tbody style={{}}>
                   {companies.map((c) => (
                     <tr 
                       key={c.id} 
@@ -249,7 +249,7 @@ export default function CRMView({ currentActor }: CRMViewProps) {
                     <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'right' }}>Acciones</th>
                   </tr>
                 </thead>
-                <tbody style={{ divideY: '1px solid #f1f5f9' }}>
+                <tbody style={{}}>
                   {contacts.map((c) => (
                     <tr 
                       key={c.id} 

@@ -36,9 +36,9 @@ class CashService {
       }
       
       localDb.save('cajas', cajas);
-      return { exito: true, mensaje: 'Caja guardada con éxito', datos: caja };
+      return { data: caja, error: null };
     } catch (error: any) {
-      return { exito: false, mensaje: error.message || 'Error al guardar la caja' };
+      return { data: null, error: error.message || 'Error al guardar la caja' };
     }
   }
 
@@ -60,7 +60,7 @@ class CashService {
       // Verificar si la caja ya tiene un turno abierto
       const turnoActivo = this.getTurnoActivo(cajaId);
       if (turnoActivo) {
-        return { exito: false, mensaje: 'La caja ya tiene un turno abierto' };
+        return { data: null, error: 'La caja ya tiene un turno abierto' };
       }
 
       const nuevoTurno: TurnoCaja = {
@@ -78,18 +78,18 @@ class CashService {
         diferenciaEfectivo: null,
         estado: 'ABIERTO',
         justificacion: null,
-        creadoEn: new Date().toISOString(),
-        actualizadoEn: new Date().toISOString(),
-        creadoPor: cajeroId
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: cajeroId
       };
 
       const turnos = this.getTurnos();
       turnos.push(nuevoTurno);
       localDb.save('turnosCaja', turnos);
 
-      return { exito: true, mensaje: 'Turno de caja abierto correctamente', datos: nuevoTurno };
+      return { data: nuevoTurno, error: null };
     } catch (error: any) {
-      return { exito: false, mensaje: error.message || 'Error al abrir el turno' };
+      return { data: null, error: error.message || 'Error al abrir el turno' };
     }
   }
 
@@ -99,19 +99,19 @@ class CashService {
       const index = turnos.findIndex(t => t.id === turnoId);
       
       if (index === -1) {
-        return { exito: false, mensaje: 'Turno no encontrado' };
+        return { data: null, error: 'Turno no encontrado' };
       }
 
       const turno = turnos[index];
       
       if (turno.estado !== 'ABIERTO') {
-        return { exito: false, mensaje: 'El turno ya se encuentra cerrado o auditado' };
+        return { data: null, error: 'El turno ya se encuentra cerrado o auditado' };
       }
 
       const diferencia = saldoFisicoEfectivo - turno.totalEfectivo;
 
       if (diferencia !== 0 && (!justificacion || justificacion.trim() === '')) {
-        return { exito: false, mensaje: 'Debe justificar la diferencia detectada en el cuadre de caja' };
+        return { data: null, error: 'Debe justificar la diferencia detectada en el cuadre de caja' };
       }
 
       turno.saldoFisicoEfectivo = saldoFisicoEfectivo;
@@ -119,8 +119,8 @@ class CashService {
       turno.fechaCierre = new Date().toISOString();
       turno.estado = 'CERRADO';
       turno.justificacion = justificacion;
-      turno.actualizadoEn = new Date().toISOString();
-      turno.actualizadoPor = usuarioId;
+      turno.updatedAt = new Date().toISOString();
+      turno.updatedBy = usuarioId;
 
       turnos[index] = turno;
       localDb.save('turnosCaja', turnos);
@@ -140,9 +140,9 @@ class CashService {
         );
       }
 
-      return { exito: true, mensaje: 'Turno cerrado con éxito', datos: turno };
+      return { data: turno, error: null };
     } catch (error: any) {
-      return { exito: false, mensaje: error.message || 'Error al cerrar el turno' };
+      return { data: null, error: error.message || 'Error al cerrar el turno' };
     }
   }
 
@@ -170,21 +170,21 @@ class CashService {
   ): ResultadoOperacion<MovimientoCaja> {
     try {
       if (monto <= 0) {
-        return { exito: false, mensaje: 'El monto debe ser mayor a cero' };
+        return { data: null, error: 'El monto debe ser mayor a cero' };
       }
 
       const turnos = this.getTurnos();
       const turnoIndex = turnos.findIndex(t => t.id === turnoId);
 
       if (turnoIndex === -1) {
-        return { exito: false, mensaje: 'Turno no encontrado' };
+        return { data: null, error: 'Turno no encontrado' };
       }
 
       const turno = turnos[turnoIndex];
       
       // Permitir ajustes de cierre incluso si está cerrado
       if (turno.estado !== 'ABIERTO' && tipo !== 'AJUSTE_FALTANTE' && tipo !== 'AJUSTE_SOBRANTE') {
-        return { exito: false, mensaje: 'No se pueden registrar movimientos en un turno cerrado' };
+        return { data: null, error: 'No se pueden registrar movimientos en un turno cerrado' };
       }
 
       const nuevoMovimiento: MovimientoCaja = {
@@ -196,9 +196,9 @@ class CashService {
         monto,
         concepto,
         referenciaId,
-        creadoEn: new Date().toISOString(),
-        actualizadoEn: new Date().toISOString(),
-        creadoPor: usuarioId
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: usuarioId
       };
 
       // Guardar movimiento
@@ -221,9 +221,9 @@ class CashService {
         localDb.save('turnosCaja', turnos);
       }
 
-      return { exito: true, mensaje: 'Movimiento registrado con éxito', datos: nuevoMovimiento };
+      return { data: nuevoMovimiento, error: null };
     } catch (error: any) {
-      return { exito: false, mensaje: error.message || 'Error al registrar el movimiento' };
+      return { data: null, error: error.message || 'Error al registrar el movimiento' };
     }
   }
 
@@ -249,7 +249,7 @@ class CashService {
       const turnoOrigen = turnos.find(t => t.id === turnoOrigenId);
       
       if (!turnoOrigen || turnoOrigen.estado !== 'ABIERTO') {
-        return { exito: false, mensaje: 'El turno de origen no es válido o no está abierto' };
+        return { data: null, error: 'El turno de origen no es válido o no está abierto' };
       }
 
       // Validar fondos suficientes según el medio de pago
@@ -259,13 +259,13 @@ class CashService {
         turnoOrigen.totalTransferencias;
 
       if (saldoDisponible < monto) {
-        return { exito: false, mensaje: `Fondos insuficientes en la caja de origen para realizar el traslado en ${metodoPago}` };
+        return { data: null, error: `Fondos insuficientes en la caja de origen para realizar el traslado en ${metodoPago}` };
       }
 
       // 2. Validar turno destino
       const turnoDestino = this.getTurnoActivo(cajaDestinoId);
       if (!turnoDestino) {
-        return { exito: false, mensaje: 'La caja destino no tiene un turno abierto para recibir el traslado' };
+        return { data: null, error: 'La caja destino no tiene un turno abierto para recibir el traslado' };
       }
 
       // 3. Crear registro del traslado
@@ -277,9 +277,9 @@ class CashService {
         monto,
         concepto,
         estado: 'COMPLETADO',
-        creadoEn: new Date().toISOString(),
-        actualizadoEn: new Date().toISOString(),
-        creadoPor: usuarioId
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: usuarioId
       };
 
       const traslados = this.getTraslados();
@@ -311,9 +311,9 @@ class CashService {
         usuarioId
       );
 
-      return { exito: true, mensaje: 'Traslado completado con éxito', datos: nuevoTraslado };
+      return { data: nuevoTraslado, error: null };
     } catch (error: any) {
-      return { exito: false, mensaje: error.message || 'Error al procesar el traslado' };
+      return { data: null, error: error.message || 'Error al procesar el traslado' };
     }
   }
 }

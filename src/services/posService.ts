@@ -2,7 +2,8 @@
 
 import { load, save } from './localDb';
 import { validarStock, registrarSalida } from './inventoryService';
-import type { VentaPOS, LineaVenta, ResultadoOperacion } from '../types/pos.types';
+import type { VentaPOS, LineaVenta } from '../types/pos.types';
+import type { ResultadoOperacion } from '../types/common.types';
 
 /**
  * Calcula los totales de una línea de venta.

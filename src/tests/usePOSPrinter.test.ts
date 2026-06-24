@@ -1,10 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { usePOSPrinter } from '../hooks/usePOSPrinter';
-import type { VentaPOS } from '../types/pos.types';
 
 describe('usePOSPrinter Hook', () => {
-  const mockVenta: VentaPOS = {
+  const mockVenta: any = {
     id: 'vta-1',
     fecha: '2026-06-19T14:00:00.000Z',
     items: [

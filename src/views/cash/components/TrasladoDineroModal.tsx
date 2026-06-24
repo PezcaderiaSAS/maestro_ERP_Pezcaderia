@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { TurnoCaja, Caja } from '../../../types/cash.types';
+import { useState } from 'react';
+import { TurnoCaja } from '../../../types/cash.types';
 import { cashService } from '../../../services/cashService';
 import Swal from 'sweetalert2';
 
@@ -60,11 +60,11 @@ export default function TrasladoDineroModal({ turnoOrigen, usuarioId, onClose, o
           usuarioId
         );
         
-        if (resultado.exito) {
-          Swal.fire('¡Traslado Exitoso!', resultado.mensaje, 'success');
+        if (!resultado.error) {
+          Swal.fire('¡Traslado Exitoso!', 'El traslado se realizó correctamente', 'success');
           onSuccess();
         } else {
-          Swal.fire('Error', resultado.mensaje, 'error');
+          Swal.fire('Error', resultado.error, 'error');
         }
       }
     });

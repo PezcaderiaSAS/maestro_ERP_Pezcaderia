@@ -1,5 +1,5 @@
 import React from 'react';
-import { Truck, CheckCircle, PackageSearch, Package, Clock, AlertCircle, FileText } from 'lucide-react';
+import { Truck, CheckCircle, PackageSearch, Package, AlertCircle, FileText } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { b2bService } from '../services/b2bService';
 import { cashService } from '../services/cashService';

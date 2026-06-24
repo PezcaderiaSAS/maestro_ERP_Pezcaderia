@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Warehouse, PlusCircle, Edit2, Trash2, ShieldAlert, CheckCircle, X } from 'lucide-react';
+import { Warehouse, PlusCircle, Edit2, Trash2, ShieldAlert } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { Bodega, guardarBodega, eliminarBodega, desactivarBodega } from '../../../services/warehouseService';
 
