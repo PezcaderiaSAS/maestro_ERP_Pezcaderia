@@ -8,12 +8,65 @@ import {
 } from '../types/cash.types';
 import { ResultadoOperacion } from '../types/common.types';
 import * as localDb from './localDb';
-import { generateId } from '../App';
+import { useWarehouseStore } from '../store/useWarehouseStore';
+
+// Función generadora de IDs local para evitar dependencia circular con App.tsx
+const generateId = (prefix: string) => {
+  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 5)}`;
+};
 
 class CashService {
   // ==========================================
   // GESTIÓN DE CAJAS
   // ==========================================
+
+  constructor() {
+    this.seedCajasParaBodegas();
+  }
+
+  public seedCajasParaBodegas(): void {
+    let bodegas = useWarehouseStore.getState().bodegas;
+    if (bodegas.length === 0) {
+      bodegas = localDb.load<any[]>('bodegas', [
+        { id: '1', nombre: 'Bodega Principal', activa: true },
+        { id: '2', nombre: 'Bodega Averías', activa: true }
+      ]);
+    }
+    const cajas = localDb.load<Caja[]>('cajas', []);
+    let modified = false;
+
+    bodegas.forEach(bodega => {
+      // 1. Asegurar "Caja Menor" para cada bodega
+      const tieneCajaMenor = cajas.some(c => c.bodegaId === bodega.nombre && c.nombre.includes('Caja Menor'));
+      if (!tieneCajaMenor) {
+        cajas.push({
+          id: generateId('caja'),
+          bodegaId: bodega.nombre,
+          nombre: `Caja Menor - ${bodega.nombre}`,
+          activa: true
+        });
+        modified = true;
+      }
+
+      // 2. Asegurar "Caja Mayor" SOLO para la Bodega Principal
+      if (bodega.id === '1' || bodega.nombre === 'Bodega Principal') {
+        const tieneCajaMayor = cajas.some(c => c.bodegaId === bodega.nombre && c.nombre.includes('Caja Mayor'));
+        if (!tieneCajaMayor) {
+          cajas.push({
+            id: generateId('caja'),
+            bodegaId: bodega.nombre,
+            nombre: `Caja Mayor - ${bodega.nombre}`,
+            activa: true
+          });
+          modified = true;
+        }
+      }
+    });
+
+    if (modified) {
+      localDb.save('cajas', cajas);
+    }
+  }
 
   public getCajas(): Caja[] {
     return localDb.load<Caja[]>('cajas', []);
@@ -87,13 +140,31 @@ class CashService {
       turnos.push(nuevoTurno);
       localDb.save('turnosCaja', turnos);
 
+      if (baseInicial > 0) {
+        this.registrarMovimiento(
+          nuevoTurno.id,
+          cajaId,
+          'INGRESO_BASE_INICIAL',
+          'EFECTIVO',
+          baseInicial,
+          'Apertura de caja - Base Inicial',
+          null,
+          cajeroId
+        );
+      }
+
       return { data: nuevoTurno, error: null };
     } catch (error: any) {
       return { data: null, error: error.message || 'Error al abrir el turno' };
     }
   }
 
-  public cerrarTurno(turnoId: string, saldoFisicoEfectivo: number, justificacion: string | null, usuarioId: string): ResultadoOperacion<TurnoCaja> {
+  public cerrarTurno(
+    turnoId: string, 
+    recaudoFisico: { efectivo: number; datafono: number; transferencia: number }, 
+    justificacion: string | null, 
+    usuarioId: string
+  ): ResultadoOperacion<TurnoCaja> {
     try {
       const turnos = this.getTurnos();
       const index = turnos.findIndex(t => t.id === turnoId);
@@ -108,14 +179,22 @@ class CashService {
         return { data: null, error: 'El turno ya se encuentra cerrado o auditado' };
       }
 
-      const diferencia = saldoFisicoEfectivo - turno.totalEfectivo;
+      const diferenciaEfectivo = recaudoFisico.efectivo - turno.totalEfectivo;
+      const diferenciaDatafono = recaudoFisico.datafono - turno.totalDatafono;
+      const diferenciaTransferencia = recaudoFisico.transferencia - turno.totalTransferencias;
+      const diferenciaTotal = diferenciaEfectivo + diferenciaDatafono + diferenciaTransferencia;
 
-      if (diferencia !== 0 && (!justificacion || justificacion.trim() === '')) {
+      if (diferenciaTotal !== 0 && (!justificacion || justificacion.trim() === '')) {
         return { data: null, error: 'Debe justificar la diferencia detectada en el cuadre de caja' };
       }
 
-      turno.saldoFisicoEfectivo = saldoFisicoEfectivo;
-      turno.diferenciaEfectivo = diferencia;
+      turno.saldoFisicoEfectivo = recaudoFisico.efectivo;
+      turno.diferenciaEfectivo = diferenciaEfectivo;
+      turno.saldoFisicoDatafono = recaudoFisico.datafono;
+      turno.diferenciaDatafono = diferenciaDatafono;
+      turno.saldoFisicoTransferencias = recaudoFisico.transferencia;
+      turno.diferenciaTransferencias = diferenciaTransferencia;
+
       turno.fechaCierre = new Date().toISOString();
       turno.estado = 'CERRADO';
       turno.justificacion = justificacion;
@@ -125,20 +204,26 @@ class CashService {
       turnos[index] = turno;
       localDb.save('turnosCaja', turnos);
 
-      // Registrar movimiento de ajuste automático si hay diferencia
-      if (diferencia !== 0) {
-        const tipoAjuste: TipoMovimientoCaja = diferencia > 0 ? 'AJUSTE_SOBRANTE' : 'AJUSTE_FALTANTE';
-        this.registrarMovimiento(
-          turno.id, 
-          turno.cajaId, 
-          tipoAjuste, 
-          'EFECTIVO',
-          Math.abs(diferencia), 
-          `Ajuste automático de cierre: ${justificacion}`, 
-          null, 
-          usuarioId
-        );
-      }
+      // Registrar movimiento de ajuste automático si hay diferencias
+      const registrarAjuste = (diferencia: number, metodoPago: MetodoPago) => {
+        if (diferencia !== 0) {
+          const tipoAjuste: TipoMovimientoCaja = diferencia > 0 ? 'AJUSTE_SOBRANTE' : 'AJUSTE_FALTANTE';
+          this.registrarMovimiento(
+            turno.id, 
+            turno.cajaId, 
+            tipoAjuste, 
+            metodoPago,
+            Math.abs(diferencia), 
+            `Ajuste automático de cierre: ${justificacion}`, 
+            null, 
+            usuarioId
+          );
+        }
+      };
+
+      registrarAjuste(diferenciaEfectivo, 'EFECTIVO');
+      registrarAjuste(diferenciaDatafono, 'DATAFONO');
+      registrarAjuste(diferenciaTransferencia, 'TRANSFERENCIA');
 
       return { data: turno, error: null };
     } catch (error: any) {
@@ -208,7 +293,7 @@ class CashService {
 
       // Actualizar saldos del turno (Ajustes de cierre no afectan el saldo teórico total, pero sí ajustan diferencias)
       if (tipo !== 'AJUSTE_FALTANTE' && tipo !== 'AJUSTE_SOBRANTE') {
-        const esIngreso = ['INGRESO_VENTA', 'INGRESO_ABONO', 'INGRESO_TRASLADO'].includes(tipo);
+        const esIngreso = ['INGRESO_VENTA', 'INGRESO_ABONO', 'INGRESO_TRASLADO', 'INGRESO_BASE_INICIAL'].includes(tipo);
         const modificador = esIngreso ? 1 : -1;
         const montoModificado = monto * modificador;
 

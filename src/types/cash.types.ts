@@ -6,6 +6,7 @@ export type TipoMovimientoCaja =
   | 'INGRESO_VENTA' 
   | 'INGRESO_ABONO' 
   | 'INGRESO_TRASLADO' 
+  | 'INGRESO_BASE_INICIAL'
   | 'EGRESO_GASTO' 
   | 'EGRESO_TRASLADO' 
   | 'AJUSTE_SOBRANTE' 
@@ -35,6 +36,10 @@ export interface TurnoCaja extends Auditable {
   
   saldoFisicoEfectivo: number | null;
   diferenciaEfectivo: number | null;
+  saldoFisicoDatafono?: number | null;
+  diferenciaDatafono?: number | null;
+  saldoFisicoTransferencias?: number | null;
+  diferenciaTransferencias?: number | null;
   
   estado: EstadoTurno;
   justificacion: string | null;

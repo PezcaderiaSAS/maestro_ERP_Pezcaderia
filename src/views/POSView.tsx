@@ -1,19 +1,19 @@
 // src/views/POSView.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as localDb from '../services/localDb.ts';
-import { Search, Plus, Minus, X, Check, Barcode, CreditCard, FileText, Truck, RefreshCw, AlertTriangle, AlertCircle } from 'lucide-react';
+import { Plus, X, Check, CreditCard, FileText, Truck, RefreshCw, AlertTriangle, AlertCircle } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { Product, DynamicField, Cliente, generateId, Venta, MovimientoInventario, Conductor, DevolucionPedido, toTitleCase } from '../App.tsx';
 import { InvoiceAR } from './ARView.tsx';
 import OrderKanbanView from './OrderKanbanView.tsx';
 import { usePOSCart } from '../hooks/usePOSCart.ts';
-import { DiscountPanel } from './pos/components/DiscountPanel.tsx';
-import { PaymentPanel } from './pos/components/PaymentPanel.tsx';
-import { BalanzaButton } from './pos/components/BalanzaButton.tsx';
 import { TicketBuilder } from './pos/components/TicketBuilder.tsx';
+import { CartPanel } from './pos/components/CartPanel.tsx';
+import { ProductSearchPanel } from './pos/components/ProductSearchPanel.tsx';
+import { AperturaCajaModal } from './pos/components/AperturaCajaModal.tsx';
+import ArqueoCajaModal from './cash/components/ArqueoCajaModal.tsx';
 import { cashService } from '../services/cashService.ts';
-
-
+import { useWarehouseStore } from '../store/useWarehouseStore.ts';
 interface POSViewProps {
   products: Product[];
   dynamicFields: DynamicField[];
@@ -79,9 +79,6 @@ export default function POSView({
   parametros: _parametros = {},
   setCurrentView
 }: POSViewProps) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('TODOS');
-  const [barcodeInput, setBarcodeInput] = useState('');
   const [drafts, setDrafts] = useState<any[]>([]);
   const [activeDraftId, setActiveDraftId] = useState<string | null>(null);
   const [ultimoTicket, setUltimoTicket] = useState<{ venta: any; cliente: any } | null>(null);
@@ -96,11 +93,19 @@ export default function POSView({
   const [b2bFilter, setB2bFilter] = useState<'Listo' | 'Todos'>('Listo');
   const [tempRealQuantities, setTempRealQuantities] = useState<Record<string, number | string>>({});
 
+  // Turno Management State
+  const [isTurnoAbierto, setIsTurnoAbierto] = useState<boolean>(false);
+  const [showAperturaModal, setShowAperturaModal] = useState<boolean>(false);
+  const [showArqueoModal, setShowArqueoModal] = useState<boolean>(false);
+
+  useEffect(() => {
+    const turnos = cashService.getTurnos();
+    setIsTurnoAbierto(turnos.some(t => t.cajeroId === userRole && t.estado === 'ABIERTO'));
+  }, [userRole, showAperturaModal]);
+
   // Filtrar productos activos
   const activeProducts = products.filter(p => p.activo);
-  
-  // Categorías calculadas dinámicamente
-  const CATEGORIAS = ['TODOS', ...Array.from(new Set(activeProducts.map(p => p.categoria)))];
+
 
   const defaultClient = clientes?.find(c => c.nombre.toUpperCase().includes('CONSUMIDOR FINAL')) || null;
   
@@ -109,6 +114,7 @@ export default function POSView({
     cliente,
     descuentoGlobalPct: descuentoGlobal,
     descuentoGlobalValor,
+    totales: cartTotales,
     agregarProducto,
     actualizarCantidad,
     actualizarDescuentoLinea,
@@ -118,6 +124,18 @@ export default function POSView({
     limpiarCarrito,
     setLineas: setCartLineas
   } = usePOSCart(defaultClient as any);
+
+  useEffect(() => {
+    if (!cliente && defaultClient) {
+      setCliente(defaultClient as any);
+    }
+  }, [cliente, defaultClient, setCliente]);
+
+
+  const subtotal = cartTotales.subtotal;
+  const totalDescuento = cartTotales.descuento;
+  const totalFinal = cartTotales.totalFinal;
+
 
   // Mapeo de compatibilidad para el carrito legado
   const cart = cartLineas.map(linea => {
@@ -163,17 +181,6 @@ export default function POSView({
 
   const handleAddProduct = (product: Product) => {
     agregarProducto(product as any, 1);
-  };
-
-  const handleUpdateQty = (productId: string, delta: number) => {
-    const item = cartLineas.find(l => l.productoId === productId);
-    if (item) {
-      actualizarCantidad(productId, item.cantidad + delta);
-    }
-  };
-
-  const handleRemoveItem = (productId: string) => {
-    removerProducto(productId);
   };
 
   const handleAgregarCliente = async () => {
@@ -453,48 +460,6 @@ export default function POSView({
     }
   };
 
-  const handleBarcodeSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!barcodeInput) return;
-    const prod = activeProducts.find(p => p.sku.toLowerCase() === barcodeInput.toLowerCase());
-    if (prod) {
-      handleAddProduct(prod);
-      setBarcodeInput('');
-      Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'success',
-        title: `Agregado: ${prod.nombre}`,
-        showConfirmButton: false,
-        timer: 1200
-      });
-    } else {
-      Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'error',
-        title: 'Código de barras no válido',
-        showConfirmButton: false,
-        timer: 1500
-      });
-    }
-  };
-
-  const simulateBarcodeScan = () => {
-    const randomProduct = activeProducts[Math.floor(Math.random() * activeProducts.length)];
-    if (randomProduct) {
-      handleAddProduct(randomProduct);
-      Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'success',
-        title: `Escaneado: ${randomProduct.nombre}`,
-        showConfirmButton: false,
-        timer: 1500
-      });
-    }
-  };
-
   const handleGuardarBorrador = () => {
     if (cart.length === 0) {
       Swal.fire({
@@ -557,7 +522,7 @@ export default function POSView({
     return matched ? matched.stock : 0;
   };
 
-  const handlePagar = () => {
+  const handlePagar = async (metodo: 'EFECTIVO' | 'TRANSFERENCIA' | 'CREDITO'): Promise<Venta | void> => {
     // RN-57: Validacion estricta de Turno de Caja Abierto
     const turnosAbiertos = cashService.getTurnos().filter(t => t.cajeroId === userRole && t.estado === 'ABIERTO');
     
@@ -573,556 +538,180 @@ export default function POSView({
       return;
     }
 
-    if (cart.length === 0) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Carrito vacío',
-        text: 'Agrega productos al pedido antes de proceder al cobro.',
+    // RN-07 y RN-01 se validan en PaymentPanel, pero si llegamos aquí, el carrito tiene items.
+    let transfer = 0;
+    let card = 0;
+    let cash = 0;
+    let credit = 0;
+    let creditDate = '';
+    const turnoSeleccionadoId = turnosAbiertos[0].id; // Asignamos el primer turno abierto por defecto
+    const requiereFE = false; // Por defecto Fase 1
+
+    if (metodo === 'EFECTIVO') {
+      cash = totalFinal;
+    } else if (metodo === 'TRANSFERENCIA') {
+      transfer = totalFinal;
+    } else if (metodo === 'CREDITO') {
+      credit = totalFinal;
+      const { value: date } = await Swal.fire({
+        title: 'Venta a Crédito',
+        input: 'date',
+        inputLabel: 'Fecha Límite de Pago',
+        showCancelButton: true,
+        confirmButtonText: 'Confirmar',
+        cancelButtonText: 'Cancelar',
         confirmButtonColor: 'var(--primary-color)'
       });
-      return;
+
+      if (!date) return; // Cancelado por el usuario
+      creditDate = date;
+
+      const currentDebt = getClienteDeuda(cliente!.id);
+      const proposedDebt = currentDebt + credit;
+      if (proposedDebt > cliente!.cupoCredito) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Límite Excedido',
+          text: `Cupo disponible: $${Math.max(0, cliente!.cupoCredito - currentDebt).toLocaleString('es-CO')}`
+        });
+        return;
+      }
     }
 
-    // ─ RN-07: Validación restrictiva de Stock en Bodega Principal antes de permitir el cobro ──────────────────
-    let stockSuficiente = true;
-    const itemsFaltantes: string[] = [];
-    cart.forEach(item => {
-      const stockDisponible = getProductStock(item.product.sku, 'Bodega Principal');
-      if (stockDisponible < item.cantidad) {
-        stockSuficiente = false;
-        itemsFaltantes.push(`• ${item.product.nombre} (Solicitado: ${item.cantidad}, Disponible: ${stockDisponible})`);
+    const orderNo = 'PED-' + Math.floor(100000 + Math.random() * 900000);
+    const vtaId = generateId('vta');
+
+    // RN-01: Disminuir stock en Bodega Principal
+    setStock((prev: any) => {
+      const newStock = { ...prev };
+      if (newStock['Bodega Principal']) {
+        newStock['Bodega Principal'] = newStock['Bodega Principal'].map((stockItem: any) => {
+          const cartItem = cart.find(i => i.product.sku === stockItem.sku);
+          if (cartItem) {
+            return { ...stockItem, stock: Math.max(0, stockItem.stock - Number(cartItem.cantidad)) };
+          }
+          return stockItem;
+        });
       }
+      return newStock;
     });
 
-    if (!stockSuficiente) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Venta Bloqueada: Stock Insuficiente',
-        html: `
-          <div style="text-align: left; font-size: 14px;">
-            <p>No se puede liquidar la venta porque el stock en <strong>Bodega Principal</strong> es insuficiente:</p>
-            <ul style="color: #EF4444; font-weight: 600; list-style-type: none; padding-left: 0;">
-              ${itemsFaltantes.map(msg => `<li style="margin-bottom: 6px;">${msg}</li>`).join('')}
-            </ul>
-            <p style="margin-top: 12px; font-size: 13px; color: #64748B;">Ajuste las cantidades en el carrito antes de reintentar.</p>
-          </div>
-        `,
-        confirmButtonColor: 'var(--primary-color)'
+    // Actualizar precios del cliente
+    if (cliente) {
+      cart.forEach(item => {
+        const finalUnitPrice = item.precioOverride !== undefined ? item.precioOverride : getProductPrice(item.product);
+        updateLastClientPrice(cliente.identificacion, item.product.sku, finalUnitPrice);
       });
-      return;
     }
+
+    const newVenta: Venta = {
+      id: vtaId,
+      clienteId: cliente ? cliente.id : null,
+      clienteNombre: cliente ? cliente.nombre : 'Consumidor Final',
+      clienteIdentificacion: cliente ? cliente.identificacion : '',
+      fecha: new Date().toISOString(),
+      items: cart.map(item => {
+        const unitPrice = item.precioOverride !== undefined ? item.precioOverride : getProductPrice(item.product);
+        return {
+          sku: item.product.sku,
+          nombre: item.product.nombre,
+          cantidad: Number(item.cantidad),
+          precioUnitario: unitPrice,
+          descuento: 0,
+          subtotal: Number(item.cantidad) * unitPrice
+        };
+      }),
+      subtotal: subtotal,
+      descuento: totalDescuento,
+      total: totalFinal,
+      metodoPago: metodo === 'EFECTIVO' || metodo === 'TRANSFERENCIA' ? 'CONTADO' : 'CREDITO',
+      montoPagadoEfectivo: cash,
+      montoPagadoTransferencia: transfer,
+      montoPagadoTarjeta: card,
+      montoPagadoCredito: credit,
+      cambioEntregado: 0,
+      actor: userRole
+    };
+
+    setVentas((prev: Venta[]) => [newVenta, ...prev]);
+    setUltimoTicket({
+      venta: { ...newVenta, items: cartLineas },
+      cliente: cliente ? { nombre: cliente.nombre, identificacion: cliente.identificacion } : null
+    });
+
+    const newMovements: MovimientoInventario[] = cart.map(item => {
+      const prodStock = stock['Bodega Principal']?.find((s: any) => s.sku === item.product.sku);
+      const lote = prodStock ? prodStock.lote : 'VENTA';
+      return {
+        id: generateId('mov'),
+        timestamp: new Date().toISOString(),
+        tipo: 'VENTA',
+        sku: item.product.sku,
+        nombreProducto: item.product.nombre,
+        bodegaOrigen: 'Bodega Principal',
+        cantidad: Number(item.cantidad),
+        lote: lote,
+        referenciaId: vtaId,
+        referenciaTipo: 'VENTA',
+        actor: userRole,
+        notas: `Venta POS a ${cliente ? cliente.nombre : 'Consumidor Final'}`
+      };
+    });
+    setMovimientos((prev: MovimientoInventario[]) => [...newMovements, ...prev]);
+
+    if (credit > 0 && cliente) {
+      const newAR: InvoiceAR = {
+        id: orderNo,
+        clienteId: cliente.id,
+        clienteNombre: cliente.nombre,
+        clienteIdentificacion: cliente.identificacion,
+        fecha: new Date().toISOString(),
+        fechaVencimiento: creditDate,
+        total: totalFinal,
+        saldo: credit,
+        pagado: 0,
+        pagos: []
+      };
+      setCartera((prev: InvoiceAR[]) => [newAR, ...prev]);
+    }
+
+    const turnoDestino = cashService.getTurnos().find(t => t.id === turnoSeleccionadoId);
+    if (turnoDestino) {
+      if (cash > 0) {
+        cashService.registrarMovimiento(
+          turnoDestino.id, turnoDestino.cajaId, 'INGRESO_VENTA', 'EFECTIVO', cash, `Cobro POS (Venta: ${orderNo})`, vtaId, userRole
+        );
+      }
+      if (transfer > 0) {
+        cashService.registrarMovimiento(
+          turnoDestino.id, turnoDestino.cajaId, 'INGRESO_VENTA', 'TRANSFERENCIA', transfer, `Cobro POS (Venta: ${orderNo})`, vtaId, userRole
+        );
+      }
+    }
+
+    publishEvent(
+      'SALE_COMPLETED',
+      userRole,
+      `Venta liquidada para ${cliente ? cliente.nombre : 'Consumidor Final'} por $${totalFinal.toLocaleString('es-CO')}. (${metodo})`,
+      { cliente, total: totalFinal, requiereFE, items: cart.map(i => ({ sku: i.product.sku, cantidad: i.cantidad })) }
+    );
 
     Swal.fire({
-      title: 'Procesar Pago de Venta',
-      html: `
-        <div style="text-align: left; font-size: 14px; color: var(--text-primary);">
-          <div style="margin-bottom: 12px; display: flex; justify-content: space-between; font-size: 16px; border-bottom: 2px solid #E2E8F0; padding-bottom: 8px;">
-            <strong>Total a Pagar:</strong> <strong style="color: var(--primary-color);">$${totalFinal.toLocaleString('es-CO')}</strong>
-          </div>
-
-          <!-- Selección de Caja Destino -->
-          <div style="margin-bottom: 16px; padding: 12px; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px;">
-            <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #0F172A;">Caja Destino (Ingreso):</label>
-            <select id="pay-caja-destino" class="swal2-select" style="margin: 0; width: 100%; height: 38px; padding: 4px; font-size: 13px;">
-              ${turnosAbiertos.map(t => {
-                const cajaInfo = cashService.getCajas().find(c => c.id === t.cajaId);
-                return `<option value="${t.id}">${cajaInfo?.nombre || 'Caja Desconocida'} (Turno Actual)</option>`;
-              }).join('')}
-            </select>
-          </div>
-
-          <!-- Opción Facturación Electrónica (Fase 1) -->
-          <div style="margin-bottom: 16px; padding: 12px; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px;">
-            <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; color: #0F172A;">
-              <input type="checkbox" id="req-fe" style="width: 18px; height: 18px; accent-color: var(--primary-color);" />
-              ¿Generar Factura Electrónica (Siigo)?
-            </label>
-            <p style="margin: 4px 0 0 26px; font-size: 11px; color: #64748B;">Si no se marca, se generará un ticket interno (Contingencia/Fase 1).</p>
-          </div>
-
-          <!-- Selector de Tipo de Pago -->
-          <div style="margin-bottom: 16px; display: flex; gap: 8px; justify-content: center;">
-            <button id="btn-sale-contado" type="button" style="flex: 1; padding: 10px; border: 2px solid var(--primary-color); background-color: var(--primary-light); color: var(--primary-color); font-weight: 700; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s;">
-              💰 Contado
-            </button>
-            <button id="btn-sale-credito" type="button" style="flex: 1; padding: 10px; border: 2px solid #E2E8F0; background-color: #F8FAFC; color: var(--text-secondary); font-weight: 700; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; ${!cliente ? 'opacity: 0.5; cursor: not-allowed;' : ''}">
-              💳 Crédito
-            </button>
-          </div>
-
-          <!-- Alerta de Cliente Requerido para Crédito -->
-          <div id="credit-client-warning" style="display: none; padding: 8px 12px; background-color: #FFF5F5; border: 1px solid #FEB2B2; color: #C53030; border-radius: var(--radius-sm); font-size: 12px; margin-bottom: 12px; text-align: center; font-weight: 600;">
-            ⚠️ Debe vincular un Cliente en el POS para poder vender a Crédito.
-          </div>
-
-          <!-- Sección Contado -->
-          <div id="section-contado">
-            <div style="margin-bottom: 10px;">
-              <label style="display: block; font-weight: 600; margin-bottom: 4px;">Transferencia Bancaria ($):</label>
-              <input id="pay-transfer" type="number" class="swal2-input" style="margin: 0; width: 100%; box-sizing: border-box;" placeholder="Valor en transferencia..." value="0" />
-            </div>
-
-            <div style="margin-bottom: 10px;">
-              <label style="display: block; font-weight: 600; margin-bottom: 4px;">Datáfono (Tarjeta Crédito/Débito) ($):</label>
-              <input id="pay-card" type="number" class="swal2-input" style="margin: 0; width: 100%; box-sizing: border-box;" placeholder="Valor con tarjeta..." value="0" />
-            </div>
-
-            <div style="margin-bottom: 10px;">
-              <label style="display: block; font-weight: 600; margin-bottom: 4px;">Efectivo Recibido ($):</label>
-              <input id="pay-cash" type="number" class="swal2-input" style="margin: 0; width: 100%; box-sizing: border-box;" placeholder="Monto entregado en efectivo..." value="0" />
-            </div>
-          </div>
-
-          <!-- Sección Crédito -->
-          <div id="section-credito" style="display: none; padding: 16px; background-color: #EEF2F6; border-radius: 8px; border: 1px solid #CBD5E1; margin-bottom: 12px;">
-            <div style="display: flex; align-items: center; gap: 8px; color: #334155; font-size: 14px; font-weight: 600; margin-bottom: 8px;">
-              <span>💳 Compra a Crédito Autorizada</span>
-            </div>
-            <p style="color: #64748B; font-size: 13px; margin: 0 0 12px 0;">
-              El total de la factura por valor de <strong>$${totalFinal.toLocaleString('es-CO')}</strong> se cargará por completo a la cartera del cliente: <br/>
-              <strong style="color: #1E293B;">${cliente ? cliente.nombre : ''}</strong> (${cliente ? cliente.identificacion : ''}).
-            </p>
-            <div style="margin-bottom: 4px;">
-              <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Fecha Límite de Pago:</label>
-              <input id="pay-credit-date" type="date" class="swal2-input" style="margin: 0; width: 100%; box-sizing: border-box; font-size: 14px; padding: 8px;" />
-            </div>
-          </div>
-
-          <!-- Totales (sólo para Contado) -->
-          <div id="section-totals" style="margin-top: 16px; padding: 12px; background-color: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-              <span>Total Recibido:</span>
-              <strong id="pay-total-paid" style="color: #1E293B;">$0</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between;">
-              <span id="pay-change-label" style="font-weight: 600;">Faltante:</span>
-              <strong id="pay-change" style="color: #EF4444;">$${totalFinal.toLocaleString('es-CO')}</strong>
-            </div>
-          </div>
-
-          <!-- Entrada Crédito Oculta/Interna -->
-          <input id="pay-credit" type="hidden" value="0" />
-        </div>
-      `,
-      focusConfirm: false,
-      showCancelButton: true,
-      confirmButtonText: 'Liquidar y Facturar',
-      cancelButtonText: 'Cancelar',
+      icon: 'success',
+      title: 'Venta Procesada',
+      text: `Total: $${totalFinal.toLocaleString('es-CO')} (${metodo})`,
       confirmButtonColor: 'var(--primary-color)',
-      didOpen: () => {
-        const btnContado = document.getElementById('btn-sale-contado') as HTMLButtonElement;
-        const btnCredito = document.getElementById('btn-sale-credito') as HTMLButtonElement;
-        const sectionContado = document.getElementById('section-contado') as HTMLDivElement;
-        const sectionCredito = document.getElementById('section-credito') as HTMLDivElement;
-        const sectionTotals = document.getElementById('section-totals') as HTMLDivElement;
-        const creditClientWarning = document.getElementById('credit-client-warning') as HTMLDivElement;
-
-        const inputTransfer = document.getElementById('pay-transfer') as HTMLInputElement;
-        const inputCard = document.getElementById('pay-card') as HTMLInputElement;
-        const inputCash = document.getElementById('pay-cash') as HTMLInputElement;
-        const inputCredit = document.getElementById('pay-credit') as HTMLInputElement;
-
-        let activeMode: 'contado' | 'credito' = 'contado';
-
-        const setMode = (mode: 'contado' | 'credito') => {
-          activeMode = mode;
-          if (mode === 'contado') {
-            // Activar botón Contado
-            btnContado.style.borderColor = 'var(--primary-color)';
-            btnContado.style.backgroundColor = 'var(--primary-light)';
-            btnContado.style.color = 'var(--primary-color)';
-
-            // Desactivar botón Crédito
-            btnCredito.style.borderColor = '#E2E8F0';
-            btnCredito.style.backgroundColor = '#F8FAFC';
-            btnCredito.style.color = 'var(--text-secondary)';
-
-            // Alternar secciones
-            sectionContado.style.display = 'block';
-            sectionCredito.style.display = 'none';
-            sectionTotals.style.display = 'block';
-            creditClientWarning.style.display = 'none';
-
-            inputCredit.value = '0';
-          } else {
-            if (!cliente) {
-              creditClientWarning.style.display = 'block';
-              return;
-            }
-
-            // Activar botón Crédito
-            btnCredito.style.borderColor = 'var(--primary-color)';
-            btnCredito.style.backgroundColor = 'var(--primary-light)';
-            btnCredito.style.color = 'var(--primary-color)';
-
-            // Desactivar botón Contado
-            btnContado.style.borderColor = '#E2E8F0';
-            btnContado.style.backgroundColor = '#F8FAFC';
-            btnContado.style.color = 'var(--text-secondary)';
-
-            // Alternar secciones
-            sectionContado.style.display = 'none';
-            sectionCredito.style.display = 'block';
-            sectionTotals.style.display = 'none';
-            creditClientWarning.style.display = 'none';
-
-            // Todo a crédito
-            inputCredit.value = totalFinal.toString();
-            inputTransfer.value = '0';
-            inputCard.value = '0';
-            inputCash.value = '0';
-          }
-          updateCalculations();
-        };
-
-        btnContado.addEventListener('click', () => setMode('contado'));
-        btnCredito.addEventListener('click', () => {
-          if (!cliente) {
-            creditClientWarning.style.display = 'block';
-            setTimeout(() => {
-              if (creditClientWarning) creditClientWarning.style.display = 'none';
-            }, 3000);
-          } else {
-            setMode('credito');
-          }
-        });
-
-        const updateCalculations = () => {
-          if (activeMode === 'credito') {
-            return;
-          }
-          const total = totalFinal;
-          const transfer = parseFloat(inputTransfer.value) || 0;
-          const card = parseFloat(inputCard.value) || 0;
-          const cash = parseFloat(inputCash.value) || 0;
-
-          const totalPaid = transfer + card + cash;
-          const diff = totalPaid - total;
-
-          const totalPaidEl = document.getElementById('pay-total-paid');
-          const changeEl = document.getElementById('pay-change');
-          const changeLabelEl = document.getElementById('pay-change-label');
-
-          if (totalPaidEl) totalPaidEl.innerText = '$' + totalPaid.toLocaleString('es-CO');
-
-          if (changeEl && changeLabelEl) {
-            if (diff >= 0) {
-              changeLabelEl.innerText = 'Cambio a Devolver:';
-              changeEl.innerText = '$' + diff.toLocaleString('es-CO');
-              changeEl.style.color = '#10B981';
-            } else {
-              changeLabelEl.innerText = 'Faltante:';
-              changeEl.innerText = '$' + Math.abs(diff).toLocaleString('es-CO');
-              changeEl.style.color = '#EF4444';
-            }
-          }
-        };
-
-        [inputTransfer, inputCard, inputCash].forEach(input => {
-          input.addEventListener('input', updateCalculations);
-          input.addEventListener('focus', () => {
-            if (input.value === '0') input.value = '';
-          });
-          input.addEventListener('blur', () => {
-            if (input.value === '') input.value = '0';
-          });
-        });
-
-        updateCalculations();
-      },
-      preConfirm: () => {
-        const transfer = parseFloat((document.getElementById('pay-transfer') as HTMLInputElement).value) || 0;
-        const card = parseFloat((document.getElementById('pay-card') as HTMLInputElement).value) || 0;
-        const cash = parseFloat((document.getElementById('pay-cash') as HTMLInputElement).value) || 0;
-        const credit = parseFloat((document.getElementById('pay-credit') as HTMLInputElement).value) || 0;
-        const creditDate = (document.getElementById('pay-credit-date') as HTMLInputElement)?.value;
-        const requiereFE = (document.getElementById('req-fe') as HTMLInputElement).checked;
-        const turnoSeleccionadoId = (document.getElementById('pay-caja-destino') as HTMLSelectElement).value;
-
-        if (!turnoSeleccionadoId) {
-          Swal.showValidationMessage('Debe seleccionar una Caja Destino (Turno Activo) para registrar el movimiento.');
-          return false;
-        }
-
-        const totalPaid = transfer + card + cash + credit;
-
-        if (credit > 0) {
-          if (!cliente) {
-            Swal.showValidationMessage('Debe vincular un Cliente registrado para poder procesar pagos a Crédito.');
-            return false;
-          }
-          if (!creditDate) {
-            Swal.showValidationMessage('Debe seleccionar una Fecha Límite de Pago para la venta a crédito.');
-            return false;
-          }
-          const currentDebt = getClienteDeuda(cliente.id);
-          const proposedDebt = currentDebt + credit;
-          if (proposedDebt > cliente.cupoCredito) {
-            Swal.showValidationMessage(`Límite de crédito excedido. Cupo total: $${cliente.cupoCredito.toLocaleString('es-CO')}. Deuda actual: $${currentDebt.toLocaleString('es-CO')}. Deuda propuesta: $${proposedDebt.toLocaleString('es-CO')}. Cupo disponible: $${Math.max(0, cliente.cupoCredito - currentDebt).toLocaleString('es-CO')}`);
-            return false;
-          }
-        }
-
-        if (totalPaid < totalFinal) {
-          Swal.showValidationMessage(`El pago total ($${totalPaid.toLocaleString('es-CO')}) es menor al valor de la venta ($${totalFinal.toLocaleString('es-CO')}). Faltan $${(totalFinal - totalPaid).toLocaleString('es-CO')}`);
-          return false;
-        }
-
-        return { transfer, card, cash, credit, creditDate, totalPaid, change: totalPaid - totalFinal, requiereFE, turnoSeleccionadoId };
-      }
-    }).then((result) => {
-      if (result.isConfirmed && result.value) {
-        const { transfer, card, cash, credit, creditDate, change, requiereFE, turnoSeleccionadoId } = result.value;
-        const orderNo = 'PED-' + Math.floor(100000 + Math.random() * 900000);
-        const vtaId = generateId('vta');
-
-        // Decrease stock in Bodega Principal
-        setStock((prev: any) => {
-          const newStock = { ...prev };
-          if (newStock['Bodega Principal']) {
-            newStock['Bodega Principal'] = newStock['Bodega Principal'].map((stockItem: any) => {
-              const cartItem = cart.find(i => i.product.sku === stockItem.sku);
-              if (cartItem) {
-                return { ...stockItem, stock: Math.max(0, stockItem.stock - Number(cartItem.cantidad)) };
-              }
-              return stockItem;
-            });
-          }
-          return newStock;
-        });
-
-        // Registrar últimos precios por cliente usando identificacion como clave
-        if (cliente) {
-          cart.forEach(item => {
-            const finalUnitPrice = item.precioOverride !== undefined ? item.precioOverride : getProductPrice(item.product);
-            updateLastClientPrice(cliente.identificacion, item.product.sku, finalUnitPrice);
-          });
-        }
-
-        // F2: Crear y registrar entidad Venta
-        let paymentMethod: 'EFECTIVO' | 'TRANSFERENCIA' | 'TARJETA' | 'CREDITO' | 'MIXTO' = 'EFECTIVO';
-        if (credit > 0) {
-          paymentMethod = (cash > 0 || transfer > 0 || card > 0) ? 'MIXTO' : 'CREDITO';
-        } else {
-          const activeMethods = [cash > 0, transfer > 0, card > 0].filter(Boolean).length;
-          if (activeMethods > 1) {
-            paymentMethod = 'MIXTO';
-          } else if (transfer > 0) {
-            paymentMethod = 'TRANSFERENCIA';
-          } else if (card > 0) {
-            paymentMethod = 'TARJETA';
-          } else {
-            paymentMethod = 'EFECTIVO';
-          }
-        }
-
-        const newVenta: Venta = {
-          id: vtaId,
-          clienteId: cliente ? cliente.id : null,
-          clienteNombre: cliente ? cliente.nombre : 'Consumidor Final',
-          clienteIdentificacion: cliente ? cliente.identificacion : '',
-          fecha: new Date().toISOString(),
-          items: cart.map(item => {
-            const unitPrice = item.precioOverride !== undefined ? item.precioOverride : getProductPrice(item.product);
-            return {
-              sku: item.product.sku,
-              nombre: item.product.nombre,
-              cantidad: Number(item.cantidad),
-              precioUnitario: unitPrice,
-              descuento: 0,
-              subtotal: Number(item.cantidad) * unitPrice
-            };
-          }),
-          subtotal: subtotal,
-          descuento: totalDescuento,
-          total: totalFinal,
-          metodoPago: (paymentMethod === 'EFECTIVO' || paymentMethod === 'TRANSFERENCIA' || paymentMethod === 'TARJETA') ? 'CONTADO' : paymentMethod as 'CREDITO' | 'CONTADO' | 'MIXTO',
-          montoPagadoEfectivo: cash,
-          montoPagadoTransferencia: transfer,
-          montoPagadoTarjeta: card,
-          montoPagadoCredito: credit,
-          cambioEntregado: change,
-          actor: userRole
-        };
-        setVentas((prev: Venta[]) => [newVenta, ...prev]);
-        setUltimoTicket({
-          venta: {
-            id: newVenta.id,
-            fecha: newVenta.fecha,
-            items: cartLineas,
-            subtotal: newVenta.subtotal,
-            descuento: newVenta.descuento,
-            total: newVenta.total,
-            metodoPago: newVenta.metodoPago,
-            montoPagadoEfectivo: newVenta.montoPagadoEfectivo,
-            cambioEntregado: newVenta.cambioEntregado,
-            montoPagadoCredito: newVenta.montoPagadoCredito,
-            actor: newVenta.actor
-          },
-          cliente: cliente ? { nombre: cliente.nombre, identificacion: cliente.identificacion } : null
-        });
-
-        // F2: Registrar Movimiento de Inventario de tipo SALIDA_VENTA para cada item
-        const newMovements: MovimientoInventario[] = cart.map(item => {
-          const prodStock = stock['Bodega Principal']?.find((s: any) => s.sku === item.product.sku);
-          const lote = prodStock ? prodStock.lote : 'VENTA';
-          return {
-            id: generateId('mov'),
-            timestamp: new Date().toISOString(),
-            tipo: 'VENTA',
-            sku: item.product.sku,
-            nombreProducto: item.product.nombre,
-            bodegaOrigen: 'Bodega Principal',
-            cantidad: Number(item.cantidad),
-            lote: lote,
-            referenciaId: vtaId,
-            referenciaTipo: 'VENTA',
-            actor: userRole,
-            notas: `Venta POS a ${cliente ? cliente.nombre : 'Consumidor Final'}`
-          };
-        });
-        setMovimientos((prev: MovimientoInventario[]) => [...newMovements, ...prev]);
-
-        if (credit > 0 && cliente) {
-          const newAR: InvoiceAR = {
-            id: orderNo,
-            clienteId: cliente.id,
-            clienteNombre: cliente.nombre,
-            clienteIdentificacion: cliente.identificacion,
-            fecha: new Date().toISOString(),
-            fechaVencimiento: creditDate,
-            total: totalFinal,
-            saldo: credit,
-            pagado: totalFinal - credit,
-            pagos: []
-          };
-          
-          if (transfer > 0) {
-            newAR.pagos.push({ id: generateId('pgo-t'), fecha: new Date().toISOString(), monto: transfer, metodo: 'Transferencia' });
-          }
-          if (card > 0) {
-            newAR.pagos.push({ id: generateId('pgo-c'), fecha: new Date().toISOString(), monto: card, metodo: 'Datáfono' });
-          }
-          if (cash > 0) {
-            const efectivoAbonado = Math.max(0, cash - change);
-            if (efectivoAbonado > 0) {
-              newAR.pagos.push({ id: generateId('pgo-cs'), fecha: new Date().toISOString(), monto: efectivoAbonado, metodo: 'Efectivo' });
-            }
-          }
-
-          setCartera((prev: InvoiceAR[]) => [newAR, ...prev]);
-        }
-
-        // RN-57 / Flujo Cajas: Registrar ingresos en el turno activo seleccionado
-        const turnoDestino = cashService.getTurnos().find(t => t.id === turnoSeleccionadoId);
-        if (turnoDestino) {
-          const efectivoReal = Math.max(0, cash - change);
-          
-          if (efectivoReal > 0) {
-            cashService.registrarMovimiento(
-              turnoDestino.id,
-              turnoDestino.cajaId,
-              'INGRESO_VENTA',
-              'EFECTIVO',
-              efectivoReal,
-              `Cobro POS (Venta: ${orderNo})`,
-              vtaId,
-              userRole
-            );
-          }
-          if (card > 0) {
-            cashService.registrarMovimiento(
-              turnoDestino.id,
-              turnoDestino.cajaId,
-              'INGRESO_VENTA',
-              'DATAFONO',
-              card,
-              `Cobro POS (Venta: ${orderNo})`,
-              vtaId,
-              userRole
-            );
-          }
-          if (transfer > 0) {
-            cashService.registrarMovimiento(
-              turnoDestino.id,
-              turnoDestino.cajaId,
-              'INGRESO_VENTA',
-              'TRANSFERENCIA',
-              transfer,
-              `Cobro POS (Venta: ${orderNo})`,
-              vtaId,
-              userRole
-            );
-          }
-        }
-
-        publishEvent(
-          'SALE_COMPLETED',
-          userRole,
-          `Venta liquidada para ${cliente ? cliente.nombre : 'Consumidor Final'} por total de $${totalFinal.toLocaleString('es-CO')}. FE: ${requiereFE ? 'SI' : 'NO'}. (Transf: $${transfer.toLocaleString('es-CO')}, Tarjeta: $${card.toLocaleString('es-CO')}, Efectivo: $${cash.toLocaleString('es-CO')}, Credito: $${credit.toLocaleString('es-CO')})`,
-          { cliente, total: totalFinal, requiereFE, items: cart.map(i => ({ sku: i.product.sku, cantidad: i.cantidad })), transfer, card, cash, credit, change }
-        );
-
-        let desgloseHtml = `
-          <div style="text-align: left; font-size: 14px; color: var(--text-primary); margin-top: 10px;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-              <strong>Total Factura:</strong> <span>$${totalFinal.toLocaleString('es-CO')}</span>
-            </div>
-        `;
-
-        if (transfer > 0) {
-          desgloseHtml += `
-            <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #475569;">
-              <span>• Transferencia:</span> <span>$${transfer.toLocaleString('es-CO')}</span>
-            </div>
-          `;
-        }
-        if (card > 0) {
-          desgloseHtml += `
-            <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #475569;">
-              <span>• Tarjeta (Datáfono):</span> <span>$${card.toLocaleString('es-CO')}</span>
-            </div>
-          `;
-        }
-        if (cash > 0) {
-          desgloseHtml += `
-            <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #475569;">
-              <span>• Efectivo Recibido:</span> <span>$${cash.toLocaleString('es-CO')}</span>
-            </div>
-          `;
-        }
-        if (credit > 0) {
-          desgloseHtml += `
-            <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #EF4444; font-weight: 600;">
-              <span>• Crédito Otorgado:</span> <span>$${credit.toLocaleString('es-CO')}</span>
-            </div>
-          `;
-        }
-
-        desgloseHtml += `
-            <div style="display: flex; justify-content: space-between; margin-top: 12px; padding-top: 8px; border-top: 1px solid #E2E8F0; font-size: 16px; font-weight: 800; color: #10B981;">
-              <span>Cambio a Devolver:</span> <span>$${change.toLocaleString('es-CO')}</span>
-            </div>
-          </div>
-        `;
-
-        Swal.fire({
-          icon: 'success',
-          title: 'Venta Realizada con Éxito',
-          html: desgloseHtml,
-          confirmButtonColor: 'var(--primary-color)'
-        });
-
-        if (activeDraftId) {
-          setDrafts(prev => prev.filter(x => x.id !== activeDraftId));
-          setActiveDraftId(null);
-        }
-
-        limpiarCarrito();
-        setCliente(defaultClient);
-        setDescuentoGlobal(0);
-      }
+      timer: 1500,
+      showConfirmButton: false
     });
+
+    if (activeDraftId) {
+      setDrafts(prev => prev.filter(x => x.id !== activeDraftId));
+      setActiveDraftId(null);
+    }
+
+    // PaymentPanel handled ticket printing and cart clearing
+    return newVenta;
   };
 
   const getReturnAmount = (dev: DevolucionPedido) => {
@@ -1480,31 +1069,7 @@ export default function POSView({
     setObservacionesB2B('');
   };
 
-  // Filtrado de productos
-  let filteredProducts = activeProducts.filter(p => {
-    const matchesSearch = p.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || p.sku.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'TODOS' || p.categoria === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
-
-  // Productos más vendidos por defecto
-  if (searchTerm === '' && selectedCategory === 'TODOS') {
-    const topKeywords = ['salmon', 'salmón', 'camaron', 'camarón', 'trucha', 'robalo', 'róbalo', 'langostino'];
-    filteredProducts = [...filteredProducts].sort((a, b) => {
-       const aTop = topKeywords.some(k => a.nombre.toLowerCase().includes(k)) ? 1 : 0;
-       const bTop = topKeywords.some(k => b.nombre.toLowerCase().includes(k)) ? 1 : 0;
-       return bTop - aTop;
-    });
-  }
-
-  // Cálculos financieros
-  const subtotal = cart.reduce((acc, item) => {
-    const unitPrice = item.precioOverride !== undefined ? item.precioOverride : getProductPrice(item.product);
-    return acc + unitPrice * Number(item.cantidad);
-  }, 0);
-  const totalDescuento = subtotal * (descuentoGlobal / 100);
-  const totalFinal = subtotal - totalDescuento;
-
+  // Cálculos financieros delegados al hook usePOSCart
   return (
     <div className="pos-layout animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Selector de Vistas / Pestañas de POS */}
@@ -1653,129 +1218,23 @@ export default function POSView({
       {activeSubView === 'venta_pos' ? (
         <div className="pos-layout animate-fade-in" style={{ padding: 0, border: 'none', boxShadow: 'none', background: 'transparent', margin: 0, width: '100%', display: 'grid', gridTemplateColumns: '2fr 1.2fr', gap: '20px' }}>
           {/* Catálogo de Productos */}
-          <div className="pos-catalog">
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-          {/* Búsqueda por Texto */}
-          <div className="pos-search-bar" style={{ flex: 1, marginBottom: 0 }}>
-            <Search size={18} color="#64748B" />
-            <input
-              type="text"
-              className="pos-search-input"
-              placeholder="Buscar por nombre o SKU..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+        <ProductSearchPanel 
+          activeProducts={activeProducts} 
+          dynamicFields={dynamicFields} 
+          cliente={cliente} 
+          getProductPrice={getProductPrice} 
+          getProductStock={getProductStock} 
+          onAddProduct={handleAddProduct} 
+        />
 
-          {/* Búsqueda por Código de Barras */}
-          <form onSubmit={handleBarcodeSubmit} style={{ display: 'flex', gap: '8px' }}>
-            <div className="pos-search-bar" style={{ width: '220px', marginBottom: 0 }}>
-              <Barcode size={18} color="#64748B" />
-              <input
-                type="text"
-                className="pos-search-input"
-                placeholder="Código de Barras..."
-                value={barcodeInput}
-                onChange={(e) => setBarcodeInput(e.target.value)}
-              />
-            </div>
-            <button
-              type="button"
-              className="btn-secondary"
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
-              onClick={simulateBarcodeScan}
-            >
-              <Barcode size={16} />
-              Simular Scan
-            </button>
-          </form>
-        </div>
-
-        <div className="pos-categories">
-          {CATEGORIAS.map(cat => (
-            <button
-              key={cat}
-              className={`pos-category-tab ${selectedCategory === cat ? 'active' : ''}`}
-              onClick={() => setSelectedCategory(cat)}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-
-        <div className="pos-products-grid">
-          {filteredProducts.map(prod => {
-            const stockPrincipal = getProductStock(prod.sku, 'Bodega Principal');
-            const stockSecundaria = getProductStock(prod.sku, 'Bodega Secundaria');
-            const stockAverias = getProductStock(prod.sku, 'Bodega Averías');
-            return (
-              <div key={prod.id} className="product-card" onClick={() => handleAddProduct(prod)}>
-                <div className="product-image-container">
-                  <img
-                    src={prod.imagen || 'https://images.unsplash.com/photo-1534482421-64566f976cfa?w=300&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'}
-                    alt={prod.nombre}
-                    className="product-image"
-                  />
-                </div>
-                <div className="product-info-panel">
-                  <span className="product-card-name">{prod.nombre}</span>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '4px' }}>
-                    <span className="product-card-price-tag">${getProductPrice(prod).toLocaleString('es-CO')}</span>
-                    {cliente && (cliente.tipoPrecio === 'RESTAURANTE' || cliente.tipoPrecio === 'MAYORISTA') && (
-                      <span style={{ fontSize: '9px', backgroundColor: 'var(--primary-light)', color: 'var(--primary-color)', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
-                        {cliente.tipoPrecio}
-                      </span>
-                    )}
-                  </div>
-                  {dynamicFields.map(field => {
-                    const val = prod.metadata?.[field.key] || field.defaultValue;
-                    return (
-                      <div key={field.key} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--text-secondary)', width: '100%', marginTop: '2px' }}>
-                        <span style={{ fontWeight: 600 }}>{field.label}:</span>
-                        <span style={{ backgroundColor: 'var(--primary-light)', color: 'var(--primary-color)', padding: '1px 6px', borderRadius: '3px', fontWeight: 'bold' }}>{val}</span>
-                      </div>
-                    );
-                  })}
-                  
-                  {/* Stock por Bodega */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', width: '100%', marginTop: '6px', borderTop: '1px dashed #E2E8F0', paddingTop: '6px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px' }}>
-                      <span style={{ color: '#64748B', fontWeight: 500 }}>Bod. Principal:</span>
-                      <span style={{
-                        fontWeight: 700,
-                        color: stockPrincipal === 0 ? '#EF4444' : stockPrincipal <= prod.buffer_seguridad ? '#F59E0B' : '#10B981'
-                      }}>
-                        {stockPrincipal} uds
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px' }}>
-                      <span style={{ color: '#64748B', fontWeight: 500 }}>Bod. Secundaria:</span>
-                      <span style={{ color: '#475569', fontWeight: 600 }}>
-                        {stockSecundaria} uds
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px' }}>
-                      <span style={{ color: '#64748B', fontWeight: 500 }}>Bod. Averías:</span>
-                      <span style={{ color: '#E11D48', fontWeight: 600 }}>
-                        {stockAverias} uds
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Carrito de Compras / Factura */}
+      {/* Carrito de Compras / Factura — delegado a CartPanel */}
       <div className="pos-sidebar-cart">
         {ultimoTicket ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px', height: '100%', overflowY: 'auto' }}>
             <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: 0, textAlign: 'center' }}>Venta Realizada con Éxito</h3>
             <TicketBuilder
-              venta={ultimoTicket.venta}
-              cliente={ultimoTicket.cliente}
+              venta={ultimoTicket!.venta}
+              cliente={ultimoTicket!.cliente}
             />
             <button
               className="btn-primary"
@@ -1798,273 +1257,40 @@ export default function POSView({
             </button>
           </div>
         ) : (
-          <>
-            <div className="pos-cart-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          {cliente ? (
-            <div className="add-client-btn" onClick={handleAgregarCliente}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Check size={16} />
-                <span style={{ fontSize: '12px' }}>{cliente.nombre.slice(0, 18)} ({cliente.identificacion})</span>
-              </div>
-              <X size={14} onClick={(e) => { e.stopPropagation(); setCliente(defaultClient); }} />
-            </div>
-          ) : (
-            <button className="add-client-btn" onClick={handleAgregarCliente}>
-              <span>Agregar Cliente</span>
-              <Plus size={16} />
-            </button>
-          )}
-
-          <button 
-            onClick={() => {
-              if (drafts.length === 0) {
-                Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: 'No hay borradores', showConfirmButton: false, timer: 1500 });
-                return;
-              }
-              let html = '<div style="display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto;">';
-              drafts.forEach(d => {
-                 const isSelected = activeDraftId === d.id;
-                 html += `<div style="display:flex; align-items:stretch; background-color: white; border: 1px solid ${isSelected ? 'var(--primary-color)' : '#CBD5E1'}; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-                    <div id="draft-select-${d.id}" style="flex: 1; padding: 10px; cursor: pointer; text-align: left; background-color: ${isSelected ? 'var(--primary-light)' : 'transparent'};">
-                      <div style="font-weight:bold;color:#0F172A; display:flex; justify-content:space-between;">
-                        <span>${d.cliente ? d.cliente.nombre : 'Consumidor Final'}</span>
-                        ${isSelected ? '<span style="font-size:10px; background:var(--primary-color); color:white; padding:2px 6px; border-radius:4px; font-weight:bold;">ACTIVO</span>' : ''}
-                      </div>
-                      <div style="font-size:11px;color:#64748B;">${new Date(d.fecha).toLocaleTimeString()} - $${d.totalFinal.toLocaleString('es-CO')} (${d.cart.length} ítems)</div>
-                    </div>
-                    <button id="draft-delete-${d.id}" title="Eliminar Borrador" style="width: 44px; display: flex; align-items: center; justify-content: center; background: #FEF2F2; border: none; border-left: 1px solid #FEE2E2; cursor: pointer; color: #EF4444; transition: background 0.2s;">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
-                    </button>
-                 </div>`;
-              });
-              html += '</div>';
-              
-              Swal.fire({
-                title: 'Facturas en Borrador',
-                html,
-                showConfirmButton: false,
-                showCloseButton: true,
-                didOpen: () => {
-                  drafts.forEach(d => {
-                     const selectBtn = document.getElementById(`draft-select-${d.id}`);
-                     if (selectBtn) {
-                       selectBtn.onclick = () => {
-                          const mappedCart = d.cart.map((item: any) => {
-                            if (item.productoId) return item;
-                            const prod = item.product;
-                            const precio = item.precioOverride !== undefined ? item.precioOverride : getProductPrice(prod);
-                            return {
-                              productoId: prod.id,
-                              sku: prod.sku,
-                              nombre: prod.nombre,
-                              cantidad: Number(item.cantidad),
-                              unidad: prod.unidadMedida || 'KG',
-                              precioLista: getProductPrice(prod),
-                              descuentoPct: item.precioOverride !== undefined ? Math.round(((getProductPrice(prod) - item.precioOverride) / getProductPrice(prod)) * 100) : 0,
-                              precioFinal: precio,
-                              totalLinea: Number(item.cantidad) * precio,
-                              esPesoManual: false
-                            };
-                          });
-                          setCartLineas(mappedCart);
-                          setCliente(d.cliente);
-                          setDescuentoGlobal(d.descuentoGlobal);
-                          setActiveDraftId(d.id);
-                          Swal.close();
-                       };
-                     }
-                     const deleteBtn = document.getElementById(`draft-delete-${d.id}`);
-                     if (deleteBtn) {
-                       deleteBtn.onclick = () => {
-                         setDrafts(prev => prev.filter(x => x.id !== d.id));
-                         if (activeDraftId === d.id) setActiveDraftId(null);
-                         Swal.close();
-                       };
-                     }
-                  });
-                }
-              });
-            }}
-            style={{ position: 'relative', background: 'none', border: '1px solid #CBD5E1', borderRadius: '6px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', color: '#475569', backgroundColor: '#F8FAFC' }}
-          >
-            Borradores
-            {drafts.length > 0 && (
-              <span style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#EF4444', color: 'white', borderRadius: '50%', width: '16px', height: '16px', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {drafts.length}
-              </span>
-            )}
-          </button>
-        </div>
-
-        <div className="pos-cart-items-list">
-          {cart.length === 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#64748B', gap: '8px' }}>
-              <span style={{ fontSize: '32px' }}>🛒</span>
-              <span style={{ fontSize: '13px', fontWeight: 500 }}>El carrito está vacío</span>
-            </div>
-          ) : (
-            cart.map(item => {
-              const stockPrincipal = getProductStock(item.product.sku, 'Bodega Principal');
-              const finalUnitPrice = item.precioOverride !== undefined ? item.precioOverride : getProductPrice(item.product);
-              const isInsufficient = stockPrincipal < Number(item.cantidad);
-              const clientKey = cliente ? (cliente.identificacion || cliente.nombre).trim().toLowerCase() : '';
-              const historicalPrice = (cliente && clientKey) ? lastClientPrices[clientKey]?.[item.product.sku] : undefined;
-
-              return (
-                <div key={item.product.id} className="cart-item-row" style={{ height: 'auto', minHeight: '64px', padding: '10px 12px' }}>
-                  <div className="cart-item-left" style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1 }}>
-                    <span className="cart-item-name" style={{ fontWeight: 700 }}>{item.product.nombre}</span>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
-                      <span className="cart-item-price" style={{ color: 'var(--primary-color)', fontWeight: 700 }}>
-                        ${(finalUnitPrice * Number(item.cantidad)).toLocaleString('es-CO')}
-                      </span>
-                      <span style={{ fontSize: '11px', color: '#64748B' }}>
-                        (${finalUnitPrice.toLocaleString('es-CO')} c/u)
-                      </span>
-                      <span style={{
-                        fontSize: '10px',
-                        padding: '2px 6px',
-                        borderRadius: '4px',
-                        backgroundColor: isInsufficient ? '#FEE2E2' : '#F1F5F9',
-                        color: isInsufficient ? '#EF4444' : '#64748B',
-                        fontWeight: 600
-                      }}>
-                        Stock: {stockPrincipal} {isInsufficient && '⚠️ Insuficiente'}
-                      </span>
-                    </div>
-
-                    {historicalPrice !== undefined && (
-                      <div style={{ marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        {historicalPrice === finalUnitPrice ? (
-                          <span style={{
-                            fontSize: '10px',
-                            padding: '2px 6px',
-                            borderRadius: '4px',
-                            backgroundColor: '#D1FAE5',
-                            color: '#065F46',
-                            fontWeight: 'bold',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '2px'
-                          }}>
-                            ✓ Tarifa histórica aplicada
-                          </span>
-                        ) : (
-                          <button
-                            onClick={() => {
-                              setCartLineas(prev => prev.map(l => l.productoId === item.product.id ? { ...l, precioFinal: historicalPrice } : l));
-                              Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'success',
-                                title: `Tarifa histórica aplicada: $${historicalPrice.toLocaleString('es-CO')}`,
-                                showConfirmButton: false,
-                                timer: 1500
-                              });
-                            }}
-                            className="btn-warning"
-                            style={{
-                              fontSize: '10px',
-                              padding: '2px 6px',
-                              borderRadius: '4px',
-                              border: '1px solid #F59E0B',
-                              backgroundColor: '#FEF3C7',
-                              color: '#D97706',
-                              fontWeight: 'bold',
-                              cursor: 'pointer',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '2px'
-                            }}
-                          >
-                            💡 Último precio: ${historicalPrice.toLocaleString('es-CO')} (Aplicar)
-                          </button>
-                        )}
-                        
-                        {item.precioOverride !== undefined && (
-                          <button
-                            onClick={() => {
-                              actualizarDescuentoLinea(item.product.id, 0);
-                            }}
-                            style={{
-                              fontSize: '10px',
-                              padding: '2px 4px',
-                              background: 'none',
-                              border: 'none',
-                              color: '#EF4444',
-                              textDecoration: 'underline',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            Restablecer
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  <div className="cart-item-controls" style={{ alignSelf: 'center', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <BalanzaButton
-                      unidadMedida={item.product.unidadMedida}
-                      onWeightRead={(peso) => actualizarCantidad(item.product.id, peso)}
-                    />
-                    <button className="qty-btn" onClick={() => handleUpdateQty(item.product.id, -1)}>
-                      <Minus size={14} />
-                    </button>
-                    <input 
-                      type="number" 
-                      value={item.cantidad} 
-                      onChange={(e) => {
-                        const val = parseFloat(e.target.value);
-                        if (!isNaN(val) && val >= 0) {
-                          actualizarCantidad(item.product.id, val);
-                        }
-                      }}
-                      onBlur={(e) => {
-                         const val = parseFloat(e.target.value);
-                         if (isNaN(val) || val <= 0) {
-                           handleRemoveItem(item.product.id);
-                         } else {
-                           actualizarCantidad(item.product.id, val);
-                         }
-                      }}
-                      style={{ width: '50px', textAlign: 'center', border: '1px solid #CBD5E1', borderRadius: '4px', fontSize: '13px', fontWeight: 'bold' }}
-                      step="any"
-                      min="0"
-                    />
-                    <button className="qty-btn" onClick={() => handleUpdateQty(item.product.id, 1)}>
-                      <Plus size={14} />
-                    </button>
-                    <button className="delete-cart-item-btn" onClick={() => handleRemoveItem(item.product.id)}>
-                      <X size={14} />
-                    </button>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-
-        <div className="pos-cart-footer">
-          <DiscountPanel
-            subtotal={subtotal}
-            totalItems={cartLineas.reduce((sum, item) => sum + Number(item.cantidad), 0)}
-            descuentoPct={descuentoGlobal}
-            descuentoValor={descuentoGlobalValor}
+          <CartPanel
+            lineas={cartLineas}
+            cliente={cliente}
+            descuentoGlobalPct={descuentoGlobal}
+            descuentoGlobalValor={descuentoGlobalValor}
+            totales={{ subtotal, descuento: totalDescuento, totalFinal }}
+            drafts={drafts}
+            activeDraftId={activeDraftId}
+            stock={stock}
+            bodegaActiva="Bodega Principal"
+            lastClientPrices={lastClientPrices}
+            onUpdateCantidad={actualizarCantidad}
+            onUpdateDescuentoLinea={actualizarDescuentoLinea}
+            onRemoveLinea={removerProducto}
+            onWeightRead={(pid, peso) => actualizarCantidad(pid, peso)}
+            onLimpiarCarrito={limpiarCarrito}
+            onSetLineas={setCartLineas}
+            onSelectCliente={handleAgregarCliente}
+            onClearCliente={() => setCliente(defaultClient)}
             onDescuentoClick={handleDescuentoGlobal}
-          />
-          
-          <PaymentPanel
-            totalFinal={totalFinal}
             onPagar={handlePagar}
             onGuardarBorrador={handleGuardarBorrador}
-            isDisabled={cartLineas.length === 0}
+            onSetActiveDraftId={setActiveDraftId}
+            onSetDrafts={setDrafts}
+            onSetDescuentoGlobal={setDescuentoGlobal}
+            isTurnoAbierto={isTurnoAbierto}
+            onAbrirTurnoClick={() => setShowAperturaModal(true)}
+            onCerrarTurnoClick={() => setShowArqueoModal(true)}
           />
-        </div>
-        </>
         )}
       </div>
       </div>
       ) : activeSubView === 'consolidacion_b2b' ? (
+
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px', width: '100%', boxSizing: 'border-box' }} className="animate-fade-in">
            {/* COLUMNA IZQUIERDA: LISTADO DE PEDIDOS */}
            <div className="hr-table-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', backgroundColor: 'white', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
@@ -2207,8 +1433,8 @@ export default function POSView({
                 if (!quote) return null;
 
                 const client = clientes.find(c => c.id === quote.clienteId);
-                const currentDebt = client ? getClienteDeuda(client.id) : 0;
-                const cupoDisponible = client ? Math.max(0, client.cupoCredito - currentDebt) : 0;
+                const currentDebt = client ? getClienteDeuda(client!.id) : 0;
+                const cupoDisponible = client ? Math.max(0, client!.cupoCredito - currentDebt) : 0;
 
                 const b2bItems = quote.items || [];
                 const b2bSubtotal = b2bItems.reduce((sum: number, item: any) => {
@@ -2838,6 +2064,30 @@ export default function POSView({
             </table>
           </div>
         </div>
+      )}
+
+      {/* Modal de Apertura de Caja */}
+      {showAperturaModal && (
+        <AperturaCajaModal
+          userRole={userRole}
+          bodegaActiva={useWarehouseStore.getState().getPrimaryBodega()?.nombre || 'Bodega Principal'}
+          onSuccess={() => setShowAperturaModal(false)}
+          onCancel={() => setCurrentView('dashboard')}
+        />
+      )}
+
+      {/* Modal de Arqueo de Caja */}
+      {showArqueoModal && (
+        <ArqueoCajaModal
+          turnoActivo={cashService.getTurnos().find(t => t.cajeroId === userRole && t.estado === 'ABIERTO')!}
+          usuarioId={userRole}
+          onSuccess={() => {
+            setShowArqueoModal(false);
+            setIsTurnoAbierto(false);
+            setCurrentView('dashboard');
+          }}
+          onClose={() => setShowArqueoModal(false)}
+        />
       )}
     </div>
   );

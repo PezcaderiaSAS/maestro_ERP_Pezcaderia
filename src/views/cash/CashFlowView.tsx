@@ -3,7 +3,7 @@ import { Wallet, ArrowRightLeft, Upload, Download, Power, AlertTriangle } from '
 import { cashService } from '../../services/cashService';
 import { Caja, TurnoCaja, MovimientoCaja } from '../../types/cash.types';
 import Swal from 'sweetalert2';
-import CierreCajaModal from './components/CierreCajaModal';
+import ArqueoCajaModal from './components/ArqueoCajaModal';
 import TrasladoDineroModal from './components/TrasladoDineroModal';
 // Import dependencies para selector de bodega (mockeado o tomado del store real si existe)
 // Asumimos que userRole y activeBodega son pasados como props o sacados de un contexto.
@@ -335,7 +335,7 @@ export default function CashFlowView({ userRole, usuarioId }: CashFlowViewProps)
 
       {/* Render Modales */}
       {showCierreModal && turnoActivo && (
-        <CierreCajaModal 
+        <ArqueoCajaModal 
           turnoActivo={turnoActivo}
           usuarioId={usuarioId}
           onClose={() => setShowCierreModal(false)}

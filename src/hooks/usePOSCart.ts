@@ -32,12 +32,12 @@ export function usePOSCart(initialCliente: ClientePOS | null = null) {
 
   const agregarProducto = (producto: Producto, cantidad: number = 1, esPesoManual: boolean = false) => {
     // Resolver precio de venta según el tipo de cliente
-    let precioLista = producto.precioVentaPOS;
+    let precioLista = (producto as any).precio_venta_pos || producto.precioVentaPOS || 0;
     if (cliente) {
       if (cliente.tipoPrecio === 'RESTAURANTE') {
-        precioLista = producto.precioVentaRestaurante;
+        precioLista = (producto as any).precio_venta_restaurante || producto.precioVentaRestaurante || 0;
       } else if (cliente.tipoPrecio === 'MAYORISTA') {
-        precioLista = producto.precioVentaMayorista;
+        precioLista = (producto as any).precio_venta_mayorista || producto.precioVentaMayorista || 0;
       }
     }
 

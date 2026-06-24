@@ -34,6 +34,10 @@ export const useWarehouseStore = create<WarehouseState>()((set, get) => ({
   addBodega: (bodega) => set((state) => {
     const newBodegas = [...state.bodegas, bodega];
     localDb.save('bodegas', newBodegas);
+    // Disparar siembra de cajas para que la nueva bodega tenga su Caja Menor de inmediato
+    import('../services/cashService').then(({ cashService }) => {
+      cashService.seedCajasParaBodegas();
+    });
     return { bodegas: newBodegas };
   }),
 
