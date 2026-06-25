@@ -1,16 +1,16 @@
-# Graph Report - MaestroPescaderia  (2026-06-25)
+# Graph Report - MaestroPescaderia  (2026-06-24)
 
 ## Corpus Check
-- 153 files · ~130,772 words
+- 152 files · ~129,554 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 463 nodes · 830 edges · 39 communities (31 shown, 8 thin omitted)
+- 457 nodes · 813 edges · 39 communities (31 shown, 8 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 1 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6b215538`
+- Built from commit: `9b04dd64`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -59,14 +59,14 @@
 ## Surprising Connections (you probably didn't know these)
 - `System Design Architecture` --references--> `localDb Service`  [EXTRACTED]
   DOCS/system_design.md → src/services/localDb.ts
-- `Props` --references--> `DetalleArqueo`  [EXTRACTED]
-  src/views/cash/components/CalculadorDenominaciones.tsx → src/types/cash.types.ts
+- `CartPanelProps` --references--> `ClientePOS`  [EXTRACTED]
+  src/views/pos/components/CartPanel.tsx → src/hooks/usePOSCart.ts
+- `PaymentPanelProps` --references--> `ClientePOS`  [EXTRACTED]
+  src/views/pos/components/PaymentPanel.tsx → src/hooks/usePOSCart.ts
+- `App()` --calls--> `useWarehouseStore`  [EXTRACTED]
+  src/App.tsx → src/store/useWarehouseStore.ts
 - `ArqueoCajaModalProps` --references--> `TurnoCaja`  [EXTRACTED]
   src/views/cash/components/ArqueoCajaModal.tsx → src/types/cash.types.ts
-- `CierreCajaModalProps` --references--> `TurnoCaja`  [EXTRACTED]
-  src/views/cash/components/CierreCajaModal.tsx → src/types/cash.types.ts
-- `TrasladoDineroModalProps` --references--> `TurnoCaja`  [EXTRACTED]
-  src/views/cash/components/TrasladoDineroModal.tsx → src/types/cash.types.ts
 
 ## Import Cycles
 - 3-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/services/cashService.ts -> src/App.tsx`
@@ -75,8 +75,8 @@
 - 4-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/views/pos/components/AperturaCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 4-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/views/cash/components/ArqueoCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 4-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/views/OrderKanbanView.tsx -> src/services/cashService.ts -> src/App.tsx`
-- 4-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/views/cash/components/CierreCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 4-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/views/cash/components/ArqueoCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
+- 4-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/views/cash/components/CierreCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 4-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/views/cash/components/TrasladoDineroModal.tsx -> src/services/cashService.ts -> src/App.tsx`
 
 ## Communities (39 total, 8 thin omitted)
@@ -94,8 +94,8 @@ Cohesion: 0.06
 Nodes (35): dependencies, axios, jspdf, lucide-react, react, react-dom, @supabase/supabase-js, sweetalert2 (+27 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.12
-Nodes (24): CashFlowViewProps, AperturaCajaModalProps, ArqueoCajaModal(), ArqueoCajaModalProps, CalculadorDenominaciones(), DENOMINACIONES_BILLETES, DENOMINACIONES_MONEDAS, Props (+16 more)
+Cohesion: 0.14
+Nodes (19): CashFlowViewProps, AperturaCajaModalProps, ArqueoCajaModal(), ArqueoCajaModalProps, CierreCajaModal(), CierreCajaModalProps, TrasladoDineroModalProps, CashService (+11 more)
 
 ### Community 4 - "Community 4"
 Cohesion: 0.09
@@ -134,16 +134,16 @@ Cohesion: 0.25
 Nodes (7): 🐟 Categoría A: Máxima Prioridad (Alta Rotación / Alto Valor), 🦐 Categoría B: Prioridad Media (Rotación Media), 🦑 Categoría C: Baja Prioridad (Baja Rotación), Categorías, Cómo aplicar la Clasificación ABC en el ERP MaestroPescadería, Impacto en el Alistamiento de Bodega (Fulfillment), Manual de Clasificación ABC para Inventario
 
 ### Community 13 - "Community 13"
-Cohesion: 0.06
-Nodes (43): CategoryManager(), ColdRoomPreparation(), ProductForm(), ProductionForm(), ProductTable(), PurchaseOrderForm(), ReturnsReceiver(), TransferForm() (+35 more)
+Cohesion: 0.05
+Nodes (46): CategoryManager(), ColdRoomPreparation(), ProductForm(), ProductionForm(), ProductTable(), PurchaseOrderForm(), ReturnsReceiver(), TransferForm() (+38 more)
 
 ### Community 14 - "Community 14"
 Cohesion: 0.43
 Nodes (6): cajas, gastos_ruta, rutas, set_numero_ruta(), transacciones_caja, trg_set_numero_ruta
 
 ### Community 15 - "Community 15"
-Cohesion: 0.09
-Nodes (27): AperturaCajaModal(), BalanzaButton(), BalanzaButtonProps, CartPanel(), CartPanelProps, DiscountPanel(), DiscountPanelProps, LineaVentaRow() (+19 more)
+Cohesion: 0.11
+Nodes (24): AperturaCajaModal(), BalanzaButton(), BalanzaButtonProps, CartPanel(), CartPanelProps, DiscountPanel(), DiscountPanelProps, LineaVentaRow() (+16 more)
 
 ### Community 16 - "Community 16"
 Cohesion: 0.40
@@ -162,7 +162,7 @@ Cohesion: 0.50
 Nodes (4): desactivar_acceso_usuario_por_desvinculacion(), empleados, trg_desactivar_acceso_empleado, RN-15: Egreso de empleado desactiva acceso
 
 ## Knowledge Gaps
-- **168 isolated node(s):** `EstadoTurno`, `DENOMINACIONES_BILLETES`, `DENOMINACIONES_MONEDAS`, `AperturaCajaModalProps`, `Bodega` (+163 more)
+- **166 isolated node(s):** `Bodega`, `WarehouseState`, `EstadoTurno`, `CashFlowViewProps`, `AperturaCajaModalProps` (+161 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -175,11 +175,11 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.017) - this node is a cross-community bridge._
 - **Why does `ResultadoOperacion` connect `Community 3` to `Community 0`, `Community 1`, `Community 15`?**
   _High betweenness centrality (0.007) - this node is a cross-community bridge._
-- **What connects `EstadoTurno`, `DENOMINACIONES_BILLETES`, `DENOMINACIONES_MONEDAS` to the rest of the system?**
-  _171 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **What connects `Bodega`, `WarehouseState`, `EstadoTurno` to the rest of the system?**
+  _169 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.08780487804878048 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.09102564102564102 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
   _Cohesion score 0.05555555555555555 - nodes in this community are weakly interconnected._
 - **Should `Community 3` be split into smaller, more focused modules?**
-  _Cohesion score 0.1196808510638298 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.13704994192799072 - nodes in this community are weakly interconnected._

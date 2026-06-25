@@ -75,8 +75,8 @@
     "semantic_hash": ""
   },
   "src/hooks/usePOSPrinter.ts": {
-    "mtime": 1782396432.908185,
-    "ast_hash": "fffdd867c49eb9d046201613761d995c",
+    "mtime": 1782237736.477582,
+    "ast_hash": "221f5f5ed594af0dce8990bbc280fe66",
     "semantic_hash": ""
   },
   "src/main.tsx": {
@@ -90,8 +90,8 @@
     "semantic_hash": ""
   },
   "src/services/cashService.ts": {
-    "mtime": 1782394769.389251,
-    "ast_hash": "dae6d4bd4c4a66cf0c52c40ba640f672",
+    "mtime": 1782319543.6373787,
+    "ast_hash": "db0de6110bba4393ed7c2c9f3b0b1de9",
     "semantic_hash": ""
   },
   "src/services/inventoryService.ts": {
@@ -170,8 +170,8 @@
     "semantic_hash": ""
   },
   "src/types/cash.types.ts": {
-    "mtime": 1782394714.9139924,
-    "ast_hash": "fdf923bd3af688e0092ead4faabd77b9",
+    "mtime": 1782317932.124987,
+    "ast_hash": "d3c5d12d4f2f7338573893f4785063cd",
     "semantic_hash": ""
   },
   "src/types/common.types.ts": {
@@ -255,8 +255,8 @@
     "semantic_hash": ""
   },
   "src/views/cash/components/CierreCajaModal.tsx": {
-    "mtime": 1782396648.175891,
-    "ast_hash": "c3ee4e3dfb1731211d248ec778f77452",
+    "mtime": 1782236028.0359244,
+    "ast_hash": "399dd3b82a5ef421296bb6e10d9e4472",
     "semantic_hash": ""
   },
   "src/views/cash/components/TrasladoDineroModal.tsx": {
@@ -760,8 +760,8 @@
     "semantic_hash": ""
   },
   "src/views/pos/components/AperturaCajaModal.tsx": {
-    "mtime": 1782395172.123864,
-    "ast_hash": "2b10d8434356d77a6cf324bfdedcf528",
+    "mtime": 1782319553.1608934,
+    "ast_hash": "bd1dd77d95ac3577960c04733fea43f8",
     "semantic_hash": ""
   },
   "src/views/pos/components/CartPanel.tsx": {
@@ -777,11 +777,6 @@
   "src/views/pos/components/ProductSearchPanel.tsx": {
     "mtime": 1782309675.9650123,
     "ast_hash": "02f39cb5bb17a6197378b48603d65a95",
-    "semantic_hash": ""
-  },
-  "src/views/cash/components/CalculadorDenominaciones.tsx": {
-    "mtime": 1782395032.3909588,
-    "ast_hash": "d55832e3ad8a67dfadbc879cbe27eea1",
     "semantic_hash": ""
   }
 }
