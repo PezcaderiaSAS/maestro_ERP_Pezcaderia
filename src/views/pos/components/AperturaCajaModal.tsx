@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { cashService } from '../../../services/cashService.ts';
 import { Wallet, ChevronRight, ChevronLeft, Check, AlertCircle } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { Caja } from '../../../types/cash.types.ts';
-
+import { Caja, DetalleArqueo } from '../../../types/cash.types.ts';
+import { CalculadorDenominaciones } from '../../cash/components/CalculadorDenominaciones.tsx';
 interface AperturaCajaModalProps {
   userRole: string;
   bodegaActiva: string;
@@ -18,9 +18,25 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
   onCancel
 }) => {
   const [step, setStep] = useState<number>(1);
-  const [baseInicial, setBaseInicial] = useState<number | ''>('');
+  const [denominacionesApertura, setDenominacionesApertura] = useState<DetalleArqueo>({
+    billetes100k: 0, billetes50k: 0, billetes20k: 0, billetes10k: 0, billetes5k: 0, billetes2k: 0,
+    monedas1k: 0, monedas500: 0, monedas200: 0, monedas100: 0, monedas50: 0
+  });
   const [cajaSeleccionada, setCajaSeleccionada] = useState<string>('');
   const [cajasDisponibles, setCajasDisponibles] = useState<Caja[]>([]);
+
+  const baseInicial = 
+    denominacionesApertura.billetes100k * 100000 +
+    denominacionesApertura.billetes50k * 50000 +
+    denominacionesApertura.billetes20k * 20000 +
+    denominacionesApertura.billetes10k * 10000 +
+    denominacionesApertura.billetes5k * 5000 +
+    denominacionesApertura.billetes2k * 2000 +
+    denominacionesApertura.monedas1k * 1000 +
+    denominacionesApertura.monedas500 * 500 +
+    denominacionesApertura.monedas200 * 200 +
+    denominacionesApertura.monedas100 * 100 +
+    denominacionesApertura.monedas50 * 50;
 
   useEffect(() => {
     // Forzar inicialización/siembra
@@ -46,13 +62,13 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
       Swal.fire({ icon: 'warning', title: 'Seleccione una caja' });
       return;
     }
-    if (baseInicial === '' || baseInicial < 0 || Number.isNaN(Number(baseInicial))) {
-      Swal.fire({ icon: 'warning', title: 'Base inválida', text: 'Por favor, ingrese un monto válido.' });
+    if (baseInicial < 0 || Number.isNaN(baseInicial)) {
+      Swal.fire({ icon: 'warning', title: 'Base inválida', text: 'El cálculo de la base inicial es inválido.' });
       return;
     }
 
     try {
-      const result = cashService.abrirTurno(cajaSeleccionada, userRole, Number(baseInicial));
+      const result = cashService.abrirTurno(cajaSeleccionada, userRole, baseInicial, denominacionesApertura);
       
       if (result.error) {
         Swal.fire({
@@ -82,10 +98,20 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
 
   const cajaNombre = cajasDisponibles.find(c => c.id === cajaSeleccionada)?.nombre || '';
 
+  const handleCancel = () => {
+    setStep(1);
+    setDenominacionesApertura({
+      billetes100k: 0, billetes50k: 0, billetes20k: 0, billetes10k: 0, billetes5k: 0, billetes2k: 0,
+      monedas1k: 0, monedas500: 0, monedas200: 0, monedas100: 0, monedas50: 0
+    });
+    setCajaSeleccionada('');
+    if (onCancel) onCancel();
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95">
-        <div className="flex flex-col items-center justify-center p-8 border-b border-slate-100 bg-slate-50 relative">
+      <div className={`bg-white rounded-3xl shadow-2xl w-full ${step === 2 ? 'max-w-4xl' : 'max-w-lg'} max-h-[95vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 transition-all duration-300`}>
+        <div className="flex flex-col items-center justify-center p-8 border-b border-slate-100 bg-slate-50 relative shrink-0">
           <div className="bg-blue-50 text-blue-600 rounded-full p-4 mb-4">
             <Wallet size={40} />
           </div>
@@ -111,7 +137,7 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
           </div>
         </div>
 
-        <div className="p-8">
+        <div className="p-8 overflow-y-auto">
           {step === 1 && (
             <div className="flex flex-col gap-6 animate-in slide-in-from-right-4">
               <div className="flex flex-col gap-2">
@@ -146,12 +172,7 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
                 </button>
                 <button 
                   type="button"
-                  onClick={() => {
-                    setStep(1);
-                    setBaseInicial('');
-                    setCajaSeleccionada('');
-                    if (onCancel) onCancel();
-                  }}
+                  onClick={handleCancel}
                   className="w-full h-12 text-slate-500 hover:bg-slate-100 hover:text-slate-700 font-semibold rounded-xl transition-all"
                 >
                   Volver al Inicio
@@ -162,27 +183,22 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
 
           {step === 2 && (
             <div className="flex flex-col gap-6 animate-in slide-in-from-right-4">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">Saldo Base Inicial</label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-3xl font-bold text-slate-400">$</span>
-                  <input 
-                    type="number" 
-                    min="0"
-                    step="1000"
-                    value={baseInicial}
-                    onKeyDown={(e) => {
-                      if (['e', 'E', '+', '-'].includes(e.key)) {
-                        e.preventDefault();
-                      }
-                    }}
-                    onChange={(e) => setBaseInicial(e.target.value === '' ? '' : Number(e.target.value))}
-                    className="w-full h-20 pl-12 pr-4 rounded-2xl border-2 border-slate-200 focus:border-blue-500 outline-none transition-all text-4xl font-extrabold text-slate-800 bg-slate-50 focus:bg-white"
-                    placeholder="0"
+              <div className="flex flex-col gap-4">
+                <div className="flex justify-between items-end">
+                  <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">Detalle de Base Inicial</label>
+                  <div className="text-right">
+                    <span className="text-xs text-slate-500 uppercase font-semibold">Total Calculado</span>
+                    <div className="text-2xl font-extrabold text-blue-600">${baseInicial.toLocaleString()}</div>
+                  </div>
+                </div>
+                <div className="px-1 pb-2">
+                  <CalculadorDenominaciones 
+                    valores={denominacionesApertura} 
+                    onChange={(key, valor) => setDenominacionesApertura(prev => ({ ...prev, [key]: valor }))} 
                   />
                 </div>
               </div>
-              <div className="pt-4 flex gap-3">
+              <div className="pt-2 flex gap-3">
                 <button 
                   type="button"
                   onClick={() => setStep(1)}
@@ -194,7 +210,6 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
                 <button 
                   type="button"
                   onClick={() => setStep(3)}
-                  disabled={baseInicial === '' || baseInicial < 0 || Number.isNaN(Number(baseInicial))}
                   className="w-2/3 h-14 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-lg rounded-xl shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-1"
                 >
                   Siguiente
@@ -242,12 +257,7 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
                 </div>
                 <button 
                   type="button"
-                  onClick={() => {
-                    setStep(1);
-                    setBaseInicial('');
-                    setCajaSeleccionada('');
-                    if (onCancel) onCancel();
-                  }}
+                  onClick={handleCancel}
                   className="w-full h-10 mt-2 text-slate-500 hover:text-slate-700 font-medium transition-colors"
                 >
                   Cancelar Operación

@@ -21,6 +21,20 @@ export interface Caja {
   activa: boolean;
 }
 
+export interface DetalleArqueo {
+  billetes100k: number;
+  billetes50k: number;
+  billetes20k: number;
+  billetes10k: number;
+  billetes5k: number;
+  billetes2k: number;
+  monedas1k: number;
+  monedas500: number;
+  monedas200: number;
+  monedas100: number;
+  monedas50: number;
+}
+
 export interface TurnoCaja extends Auditable {
   id: string;
   cajaId: string;
@@ -43,6 +57,9 @@ export interface TurnoCaja extends Auditable {
   
   estado: EstadoTurno;
   justificacion: string | null;
+  
+  detalleArqueoApertura?: DetalleArqueo;
+  detalleArqueoCierre?: DetalleArqueo;
 }
 
 export interface MovimientoCaja extends Auditable {

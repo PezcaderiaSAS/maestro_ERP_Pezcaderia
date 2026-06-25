@@ -4,7 +4,8 @@ import {
   MovimientoCaja, 
   TrasladoDinero, 
   TipoMovimientoCaja,
-  MetodoPago
+  MetodoPago,
+  DetalleArqueo
 } from '../types/cash.types';
 import { ResultadoOperacion } from '../types/common.types';
 import * as localDb from './localDb';
@@ -108,7 +109,7 @@ class CashService {
     return turnos.find(t => t.cajaId === cajaId && t.estado === 'ABIERTO') || null;
   }
 
-  public abrirTurno(cajaId: string, cajeroId: string, baseInicial: number): ResultadoOperacion<TurnoCaja> {
+  public abrirTurno(cajaId: string, cajeroId: string, baseInicial: number, detalleApertura?: DetalleArqueo): ResultadoOperacion<TurnoCaja> {
     try {
       // Verificar si la caja ya tiene un turno abierto
       const turnoActivo = this.getTurnoActivo(cajaId);
@@ -123,6 +124,7 @@ class CashService {
         fechaApertura: new Date().toISOString(),
         fechaCierre: null,
         baseInicial,
+        detalleArqueoApertura: detalleApertura,
         saldoTeoricoGlobal: baseInicial,
         totalEfectivo: baseInicial,
         totalDatafono: 0,
@@ -161,7 +163,7 @@ class CashService {
 
   public cerrarTurno(
     turnoId: string, 
-    recaudoFisico: { efectivo: number; datafono: number; transferencia: number }, 
+    recaudoFisico: { efectivo: number; datafono: number; transferencia: number; detalleEfectivo?: DetalleArqueo }, 
     justificacion: string | null, 
     usuarioId: string
   ): ResultadoOperacion<TurnoCaja> {
@@ -194,6 +196,10 @@ class CashService {
       turno.diferenciaDatafono = diferenciaDatafono;
       turno.saldoFisicoTransferencias = recaudoFisico.transferencia;
       turno.diferenciaTransferencias = diferenciaTransferencia;
+      
+      if (recaudoFisico.detalleEfectivo) {
+        turno.detalleArqueoCierre = recaudoFisico.detalleEfectivo;
+      }
 
       turno.fechaCierre = new Date().toISOString();
       turno.estado = 'CERRADO';

@@ -62,12 +62,16 @@ export function usePOSPrinter() {
     // Items
     venta.items?.forEach((item: any) => {
       // Cortar nombre largo
-      const truncatedName = item.nombre.substring(0, 25);
+      const truncatedName = (item.nombre || 'Item').substring(0, 25);
       ticket += truncatedName + '\n';
       
-      const priceStr = `$${item.precioFinal.toLocaleString('es-CO')}`;
-      const qtyStr = `${item.cantidad} ${item.unidad}`;
-      const rightStr = `$${item.totalLinea.toLocaleString('es-CO')}`;
+      const precio = item.precioFinal ?? item.precioUnitario ?? 0;
+      const total = item.totalLinea ?? item.subtotal ?? 0;
+      const unidad = item.unidad ?? 'unid';
+      
+      const priceStr = `$${precio.toLocaleString('es-CO')}`;
+      const qtyStr = `${item.cantidad || 1} ${unidad}`;
+      const rightStr = `$${total.toLocaleString('es-CO')}`;
       
       ticket += justify(`  ${qtyStr} x ${priceStr}`, rightStr) + '\n';
     });
