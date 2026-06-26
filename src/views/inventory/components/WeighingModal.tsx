@@ -32,11 +32,11 @@ export const WeighingModal: React.FC<WeighingModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
-        <div className="fixed inset-0 transition-opacity bg-slate-900/75" onClick={onClose} />
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-center items-center p-4 overflow-y-auto">
+      <div className="flex items-center justify-center min-h-screen text-center w-full">
+        <div className="fixed inset-0 transition-opacity" onClick={onClose} />
 
-        <div className="relative inline-block w-full max-w-md p-6 overflow-hidden text-left align-middle transition-all transform bg-slate-800 shadow-xl rounded-2xl border border-slate-700">
+        <div className="relative inline-block w-full max-w-md p-6 overflow-hidden text-left align-middle transition-all transform bg-slate-800 shadow-2xl rounded-2xl border border-slate-700">
           <div className="flex items-center justify-between mb-5">
             <h3 className="text-xl font-bold text-white flex items-center gap-2">
               <Scale className="w-6 h-6 text-blue-400" />

@@ -19,6 +19,12 @@
   --dark-color: #1F2937;
 }
 
+/* Animaciones globales de modales */
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
 /* Super ADMINISTRADOR */
 :root, [data-theme="admin"] {
   --color-1: #140f07;

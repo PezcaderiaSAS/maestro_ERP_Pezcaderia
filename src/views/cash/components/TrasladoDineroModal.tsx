@@ -71,8 +71,8 @@ export default function TrasladoDineroModal({ turnoOrigen, usuarioId, onClose, o
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-center items-center p-4">
+      <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl transition-all flex flex-col max-h-[90vh] overflow-hidden">
         <h2 className="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Traslado de Dinero</h2>
         
         <div className="mb-4 bg-blue-50 p-3 rounded border border-blue-100">
