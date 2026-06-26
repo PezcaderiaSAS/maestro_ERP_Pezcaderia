@@ -255,13 +255,13 @@
     "semantic_hash": ""
   },
   "src/views/cash/components/CierreCajaModal.tsx": {
-    "mtime": 1782410935.3920498,
-    "ast_hash": "9619ebfac3c0972b3a37687923d687b1",
+    "mtime": 1782396648.175891,
+    "ast_hash": "c3ee4e3dfb1731211d248ec778f77452",
     "semantic_hash": ""
   },
   "src/views/cash/components/TrasladoDineroModal.tsx": {
-    "mtime": 1782397767.8623242,
-    "ast_hash": "ce1725e1542cc1064bb1b474412e9673",
+    "mtime": 1782236048.6840563,
+    "ast_hash": "86f5843803228b82372a16edff05b9c1",
     "semantic_hash": ""
   },
   "src/views/inventory/components/CategoryManager.tsx": {
@@ -730,8 +730,8 @@
     "semantic_hash": ""
   },
   "src/views/inventory/components/WeighingModal.tsx": {
-    "mtime": 1782397781.6842465,
-    "ast_hash": "fd41d424383ece67930ee4eeca0262a3",
+    "mtime": 1782233802.74933,
+    "ast_hash": "f057e19c1b5f30a3007fa5f556408aca",
     "semantic_hash": ""
   },
   ".specify/extensions/erp/commands/speckit.erp.B2B.md": {
@@ -755,13 +755,13 @@
     "semantic_hash": ""
   },
   "src/views/cash/components/ArqueoCajaModal.tsx": {
-    "mtime": 1782411554.3879106,
-    "ast_hash": "38a69de3fbd5087558613e2166caf63e",
+    "mtime": 1782317996.895685,
+    "ast_hash": "eb1188b88115ec10d0d8500970334449",
     "semantic_hash": ""
   },
   "src/views/pos/components/AperturaCajaModal.tsx": {
-    "mtime": 1782410802.4550204,
-    "ast_hash": "ae8a68c65e7df59e2630e272e2569d57",
+    "mtime": 1782395172.123864,
+    "ast_hash": "2b10d8434356d77a6cf324bfdedcf528",
     "semantic_hash": ""
   },
   "src/views/pos/components/CartPanel.tsx": {
@@ -780,8 +780,8 @@
     "semantic_hash": ""
   },
   "src/views/cash/components/CalculadorDenominaciones.tsx": {
-    "mtime": 1782410345.4105597,
-    "ast_hash": "434e4a283721d89c391c7834564d92fe",
+    "mtime": 1782395032.3909588,
+    "ast_hash": "d55832e3ad8a67dfadbc879cbe27eea1",
     "semantic_hash": ""
   }
 }

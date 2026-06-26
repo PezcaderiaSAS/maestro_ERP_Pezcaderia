@@ -1,16 +1,16 @@
-# Graph Report - MaestroPescaderia  (2026-06-26)
+# Graph Report - MaestroPescaderia  (2026-06-25)
 
 ## Corpus Check
-- 153 files · ~131,172 words
+- 153 files · ~130,772 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 464 nodes · 831 edges · 39 communities (31 shown, 8 thin omitted)
+- 463 nodes · 830 edges · 39 communities (31 shown, 8 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 1 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `5bc6297b`
+- Built from commit: `6b215538`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -59,10 +59,10 @@
 ## Surprising Connections (you probably didn't know these)
 - `System Design Architecture` --references--> `localDb Service`  [EXTRACTED]
   DOCS/system_design.md → src/services/localDb.ts
-- `ArqueoCajaModalProps` --references--> `TurnoCaja`  [EXTRACTED]
-  src/views/cash/components/ArqueoCajaModal.tsx → src/types/cash.types.ts
 - `Props` --references--> `DetalleArqueo`  [EXTRACTED]
   src/views/cash/components/CalculadorDenominaciones.tsx → src/types/cash.types.ts
+- `ArqueoCajaModalProps` --references--> `TurnoCaja`  [EXTRACTED]
+  src/views/cash/components/ArqueoCajaModal.tsx → src/types/cash.types.ts
 - `CierreCajaModalProps` --references--> `TurnoCaja`  [EXTRACTED]
   src/views/cash/components/CierreCajaModal.tsx → src/types/cash.types.ts
 - `TrasladoDineroModalProps` --references--> `TurnoCaja`  [EXTRACTED]
@@ -72,11 +72,11 @@
 - 3-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 3-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 3-file cycle: `src/App.tsx -> src/views/OrderKanbanView.tsx -> src/services/cashService.ts -> src/App.tsx`
-- 4-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/views/cash/components/ArqueoCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 4-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/views/pos/components/AperturaCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
+- 4-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/views/cash/components/ArqueoCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 4-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/views/OrderKanbanView.tsx -> src/services/cashService.ts -> src/App.tsx`
-- 4-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/views/cash/components/ArqueoCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 4-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/views/cash/components/CierreCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
+- 4-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/views/cash/components/ArqueoCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 4-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/views/cash/components/TrasladoDineroModal.tsx -> src/services/cashService.ts -> src/App.tsx`
 
 ## Communities (39 total, 8 thin omitted)
@@ -111,7 +111,7 @@ Nodes (18): cateEnd, catEnd, cateStart, catStart, content, crEnd, crStart, fileP
 
 ### Community 7 - "Community 7"
 Cohesion: 0.20
-Nodes (7): WizardType, Empleado, NominaRegistro, HRViewProps, calcDiasComerciales(), PayrollView(), PayrollViewProps
+Nodes (8): WizardType, Empleado, Gasto, NominaRegistro, HRViewProps, calcDiasComerciales(), PayrollView(), PayrollViewProps
 
 ### Community 8 - "Community 8"
 Cohesion: 0.13
@@ -135,7 +135,7 @@ Nodes (7): 🐟 Categoría A: Máxima Prioridad (Alta Rotación / Alto Valor), �
 
 ### Community 13 - "Community 13"
 Cohesion: 0.06
-Nodes (44): CategoryManager(), ColdRoomPreparation(), ProductForm(), ProductionForm(), ProductTable(), PurchaseOrderForm(), ReturnsReceiver(), TransferForm() (+36 more)
+Nodes (43): CategoryManager(), ColdRoomPreparation(), ProductForm(), ProductionForm(), ProductTable(), PurchaseOrderForm(), ReturnsReceiver(), TransferForm() (+35 more)
 
 ### Community 14 - "Community 14"
 Cohesion: 0.43
@@ -162,7 +162,7 @@ Cohesion: 0.50
 Nodes (4): desactivar_acceso_usuario_por_desvinculacion(), empleados, trg_desactivar_acceso_empleado, RN-15: Egreso de empleado desactiva acceso
 
 ## Knowledge Gaps
-- **168 isolated node(s):** `DENOMINACIONES_BILLETES`, `DENOMINACIONES_MONEDAS`, `AperturaCajaModalProps`, `EstadoTurno`, `Bodega` (+163 more)
+- **168 isolated node(s):** `EstadoTurno`, `DENOMINACIONES_BILLETES`, `DENOMINACIONES_MONEDAS`, `AperturaCajaModalProps`, `Bodega` (+163 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -175,11 +175,11 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.017) - this node is a cross-community bridge._
 - **Why does `ResultadoOperacion` connect `Community 3` to `Community 0`, `Community 1`, `Community 15`?**
   _High betweenness centrality (0.007) - this node is a cross-community bridge._
-- **What connects `DENOMINACIONES_BILLETES`, `DENOMINACIONES_MONEDAS`, `AperturaCajaModalProps` to the rest of the system?**
+- **What connects `EstadoTurno`, `DENOMINACIONES_BILLETES`, `DENOMINACIONES_MONEDAS` to the rest of the system?**
   _171 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
   _Cohesion score 0.08780487804878048 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
   _Cohesion score 0.05555555555555555 - nodes in this community are weakly interconnected._
 - **Should `Community 3` be split into smaller, more focused modules?**
-  _Cohesion score 0.11564625850340136 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.1196808510638298 - nodes in this community are weakly interconnected._

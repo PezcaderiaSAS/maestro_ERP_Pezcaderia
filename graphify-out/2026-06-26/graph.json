@@ -4,34 +4,284 @@
   "graph": {},
   "nodes": [
     {
-      "label": "ArqueoCajaModal.tsx",
+      "label": "usePOSPrinter.ts",
       "file_type": "code",
-      "source_file": "src/views/cash/components/ArqueoCajaModal.tsx",
+      "source_file": "src/hooks/usePOSPrinter.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "components_arqueocajamodal",
-      "community": 3,
-      "norm_label": "arqueocajamodal.tsx"
+      "id": "hooks_useposprinter",
+      "community": 15,
+      "norm_label": "useposprinter.ts"
     },
     {
-      "label": "ArqueoCajaModalProps",
+      "label": "ClientePrinter",
       "file_type": "code",
-      "source_file": "src/views/cash/components/ArqueoCajaModal.tsx",
-      "source_location": "L9",
+      "source_file": "src/hooks/usePOSPrinter.ts",
+      "source_location": "L5",
       "_origin": "ast",
-      "id": "components_arqueocajamodal_arqueocajamodalprops",
-      "community": 3,
-      "norm_label": "arqueocajamodalprops"
+      "id": "hooks_useposprinter_clienteprinter",
+      "community": 15,
+      "norm_label": "clienteprinter"
     },
     {
-      "label": "ArqueoCajaModal()",
+      "label": "usePOSPrinter()",
       "file_type": "code",
-      "source_file": "src/views/cash/components/ArqueoCajaModal.tsx",
-      "source_location": "L16",
+      "source_file": "src/hooks/usePOSPrinter.ts",
+      "source_location": "L10",
       "_origin": "ast",
-      "id": "components_arqueocajamodal_arqueocajamodal",
+      "id": "hooks_useposprinter_useposprinter",
+      "community": 15,
+      "norm_label": "useposprinter()"
+    },
+    {
+      "label": "cashService.ts",
+      "file_type": "code",
+      "source_file": "src/services/cashService.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "services_cashservice",
       "community": 3,
-      "norm_label": "arqueocajamodal()"
+      "norm_label": "cashservice.ts"
+    },
+    {
+      "label": "generateId()",
+      "file_type": "code",
+      "source_file": "src/services/cashService.ts",
+      "source_location": "L15",
+      "_origin": "ast",
+      "id": "services_cashservice_generateid",
+      "community": 3,
+      "norm_label": "generateid()"
+    },
+    {
+      "label": "CashService",
+      "file_type": "code",
+      "source_file": "src/services/cashService.ts",
+      "source_location": "L19",
+      "_origin": "ast",
+      "id": "services_cashservice_cashservice",
+      "community": 3,
+      "norm_label": "cashservice"
+    },
+    {
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "src/services/cashService.ts",
+      "source_location": "L24",
+      "_origin": "ast",
+      "id": "services_cashservice_cashservice_constructor",
+      "community": 3,
+      "norm_label": ".constructor()"
+    },
+    {
+      "label": ".seedCajasParaBodegas()",
+      "file_type": "code",
+      "source_file": "src/services/cashService.ts",
+      "source_location": "L28",
+      "_origin": "ast",
+      "id": "services_cashservice_cashservice_seedcajasparabodegas",
+      "community": 3,
+      "norm_label": ".seedcajasparabodegas()"
+    },
+    {
+      "label": ".getCajas()",
+      "file_type": "code",
+      "source_file": "src/services/cashService.ts",
+      "source_location": "L72",
+      "_origin": "ast",
+      "id": "services_cashservice_cashservice_getcajas",
+      "community": 3,
+      "norm_label": ".getcajas()"
+    },
+    {
+      "label": ".getCajasPorBodega()",
+      "file_type": "code",
+      "source_file": "src/services/cashService.ts",
+      "source_location": "L76",
+      "_origin": "ast",
+      "id": "services_cashservice_cashservice_getcajasporbodega",
+      "community": 3,
+      "norm_label": ".getcajasporbodega()"
+    },
+    {
+      "label": ".guardarCaja()",
+      "file_type": "code",
+      "source_file": "src/services/cashService.ts",
+      "source_location": "L81",
+      "_origin": "ast",
+      "id": "services_cashservice_cashservice_guardarcaja",
+      "community": 3,
+      "norm_label": ".guardarcaja()"
+    },
+    {
+      "label": ".getTurnos()",
+      "file_type": "code",
+      "source_file": "src/services/cashService.ts",
+      "source_location": "L103",
+      "_origin": "ast",
+      "id": "services_cashservice_cashservice_getturnos",
+      "community": 3,
+      "norm_label": ".getturnos()"
+    },
+    {
+      "label": ".getTurnoActivo()",
+      "file_type": "code",
+      "source_file": "src/services/cashService.ts",
+      "source_location": "L107",
+      "_origin": "ast",
+      "id": "services_cashservice_cashservice_getturnoactivo",
+      "community": 3,
+      "norm_label": ".getturnoactivo()"
+    },
+    {
+      "label": ".abrirTurno()",
+      "file_type": "code",
+      "source_file": "src/services/cashService.ts",
+      "source_location": "L112",
+      "_origin": "ast",
+      "id": "services_cashservice_cashservice_abrirturno",
+      "community": 3,
+      "norm_label": ".abrirturno()"
+    },
+    {
+      "label": ".cerrarTurno()",
+      "file_type": "code",
+      "source_file": "src/services/cashService.ts",
+      "source_location": "L164",
+      "_origin": "ast",
+      "id": "services_cashservice_cashservice_cerrarturno",
+      "community": 3,
+      "norm_label": ".cerrarturno()"
+    },
+    {
+      "label": ".getMovimientos()",
+      "file_type": "code",
+      "source_file": "src/services/cashService.ts",
+      "source_location": "L244",
+      "_origin": "ast",
+      "id": "services_cashservice_cashservice_getmovimientos",
+      "community": 3,
+      "norm_label": ".getmovimientos()"
+    },
+    {
+      "label": ".registrarMovimiento()",
+      "file_type": "code",
+      "source_file": "src/services/cashService.ts",
+      "source_location": "L252",
+      "_origin": "ast",
+      "id": "services_cashservice_cashservice_registrarmovimiento",
+      "community": 3,
+      "norm_label": ".registrarmovimiento()"
+    },
+    {
+      "label": ".getTraslados()",
+      "file_type": "code",
+      "source_file": "src/services/cashService.ts",
+      "source_location": "L325",
+      "_origin": "ast",
+      "id": "services_cashservice_cashservice_gettraslados",
+      "community": 3,
+      "norm_label": ".gettraslados()"
+    },
+    {
+      "label": ".trasladarDinero()",
+      "file_type": "code",
+      "source_file": "src/services/cashService.ts",
+      "source_location": "L329",
+      "_origin": "ast",
+      "id": "services_cashservice_cashservice_trasladardinero",
+      "community": 3,
+      "norm_label": ".trasladardinero()"
+    },
+    {
+      "label": "cash.types.ts",
+      "file_type": "code",
+      "source_file": "src/types/cash.types.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "types_cash_types",
+      "community": 3,
+      "norm_label": "cash.types.ts"
+    },
+    {
+      "label": "EstadoTurno",
+      "file_type": "code",
+      "source_file": "src/types/cash.types.ts",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "types_cash_types_estadoturno",
+      "community": 3,
+      "norm_label": "estadoturno"
+    },
+    {
+      "label": "TipoMovimientoCaja",
+      "file_type": "code",
+      "source_file": "src/types/cash.types.ts",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "types_cash_types_tipomovimientocaja",
+      "community": 3,
+      "norm_label": "tipomovimientocaja"
+    },
+    {
+      "label": "MetodoPago",
+      "file_type": "code",
+      "source_file": "src/types/cash.types.ts",
+      "source_location": "L15",
+      "_origin": "ast",
+      "id": "types_cash_types_metodopago",
+      "community": 3,
+      "norm_label": "metodopago"
+    },
+    {
+      "label": "Caja",
+      "file_type": "code",
+      "source_file": "src/types/cash.types.ts",
+      "source_location": "L17",
+      "_origin": "ast",
+      "id": "types_cash_types_caja",
+      "community": 3,
+      "norm_label": "caja"
+    },
+    {
+      "label": "DetalleArqueo",
+      "file_type": "code",
+      "source_file": "src/types/cash.types.ts",
+      "source_location": "L24",
+      "_origin": "ast",
+      "id": "types_cash_types_detallearqueo",
+      "community": 3,
+      "norm_label": "detallearqueo"
+    },
+    {
+      "label": "TurnoCaja",
+      "file_type": "code",
+      "source_file": "src/types/cash.types.ts",
+      "source_location": "L38",
+      "_origin": "ast",
+      "id": "types_cash_types_turnocaja",
+      "community": 3,
+      "norm_label": "turnocaja"
+    },
+    {
+      "label": "MovimientoCaja",
+      "file_type": "code",
+      "source_file": "src/types/cash.types.ts",
+      "source_location": "L65",
+      "_origin": "ast",
+      "id": "types_cash_types_movimientocaja",
+      "community": 3,
+      "norm_label": "movimientocaja"
+    },
+    {
+      "label": "TrasladoDinero",
+      "file_type": "code",
+      "source_file": "src/types/cash.types.ts",
+      "source_location": "L76",
+      "_origin": "ast",
+      "id": "types_cash_types_trasladodinero",
+      "community": 3,
+      "norm_label": "trasladodinero"
     },
     {
       "label": "CalculadorDenominaciones.tsx",
@@ -74,20 +324,10 @@
       "norm_label": "denominaciones_monedas"
     },
     {
-      "label": "getThemeColors()",
-      "file_type": "code",
-      "source_file": "src/views/cash/components/CalculadorDenominaciones.tsx",
-      "source_location": "L27",
-      "_origin": "ast",
-      "id": "components_calculadordenominaciones_getthemecolors",
-      "community": 3,
-      "norm_label": "getthemecolors()"
-    },
-    {
       "label": "CalculadorDenominaciones()",
       "file_type": "code",
       "source_file": "src/views/cash/components/CalculadorDenominaciones.tsx",
-      "source_location": "L39",
+      "source_location": "L27",
       "_origin": "ast",
       "id": "components_calculadordenominaciones_calculadordenominaciones",
       "community": 3,
@@ -107,7 +347,7 @@
       "label": "CierreCajaModalProps",
       "file_type": "code",
       "source_file": "src/views/cash/components/CierreCajaModal.tsx",
-      "source_location": "L9",
+      "source_location": "L8",
       "_origin": "ast",
       "id": "components_cierrecajamodal_cierrecajamodalprops",
       "community": 3,
@@ -117,71 +357,11 @@
       "label": "CierreCajaModal()",
       "file_type": "code",
       "source_file": "src/views/cash/components/CierreCajaModal.tsx",
-      "source_location": "L16",
+      "source_location": "L15",
       "_origin": "ast",
       "id": "components_cierrecajamodal_cierrecajamodal",
       "community": 3,
       "norm_label": "cierrecajamodal()"
-    },
-    {
-      "label": "TrasladoDineroModal.tsx",
-      "file_type": "code",
-      "source_file": "src/views/cash/components/TrasladoDineroModal.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "components_trasladodineromodal",
-      "community": 3,
-      "norm_label": "trasladodineromodal.tsx"
-    },
-    {
-      "label": "TrasladoDineroModalProps",
-      "file_type": "code",
-      "source_file": "src/views/cash/components/TrasladoDineroModal.tsx",
-      "source_location": "L6",
-      "_origin": "ast",
-      "id": "components_trasladodineromodal_trasladodineromodalprops",
-      "community": 3,
-      "norm_label": "trasladodineromodalprops"
-    },
-    {
-      "label": "TrasladoDineroModal()",
-      "file_type": "code",
-      "source_file": "src/views/cash/components/TrasladoDineroModal.tsx",
-      "source_location": "L13",
-      "_origin": "ast",
-      "id": "components_trasladodineromodal_trasladodineromodal",
-      "community": 3,
-      "norm_label": "trasladodineromodal()"
-    },
-    {
-      "label": "WeighingModal.tsx",
-      "file_type": "code",
-      "source_file": "src/views/inventory/components/WeighingModal.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "components_weighingmodal",
-      "community": 0,
-      "norm_label": "weighingmodal.tsx"
-    },
-    {
-      "label": "WeighingModalProps",
-      "file_type": "code",
-      "source_file": "src/views/inventory/components/WeighingModal.tsx",
-      "source_location": "L6",
-      "_origin": "ast",
-      "id": "components_weighingmodal_weighingmodalprops",
-      "community": 0,
-      "norm_label": "weighingmodalprops"
-    },
-    {
-      "label": "WeighingModal()",
-      "file_type": "code",
-      "source_file": "src/views/inventory/components/WeighingModal.tsx",
-      "source_location": "L14",
-      "_origin": "ast",
-      "id": "components_weighingmodal_weighingmodal",
-      "community": 0,
-      "norm_label": "weighingmodal()"
     },
     {
       "label": "AperturaCajaModal.tsx",
@@ -197,7 +377,7 @@
       "label": "AperturaCajaModalProps",
       "file_type": "code",
       "source_file": "src/views/pos/components/AperturaCajaModal.tsx",
-      "source_location": "L9",
+      "source_location": "L7",
       "_origin": "ast",
       "id": "components_aperturacajamodal_aperturacajamodalprops",
       "community": 3,
@@ -207,291 +387,11 @@
       "label": "AperturaCajaModal()",
       "file_type": "code",
       "source_file": "src/views/pos/components/AperturaCajaModal.tsx",
-      "source_location": "L16",
+      "source_location": "L14",
       "_origin": "ast",
       "id": "components_aperturacajamodal_aperturacajamodal",
       "community": 15,
       "norm_label": "aperturacajamodal()"
-    },
-    {
-      "label": "usePOSPrinter.ts",
-      "file_type": "code",
-      "source_file": "src/hooks/usePOSPrinter.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "community": 15,
-      "norm_label": "useposprinter.ts",
-      "id": "hooks_useposprinter"
-    },
-    {
-      "label": "ClientePrinter",
-      "file_type": "code",
-      "source_file": "src/hooks/usePOSPrinter.ts",
-      "source_location": "L5",
-      "_origin": "ast",
-      "community": 15,
-      "norm_label": "clienteprinter",
-      "id": "hooks_useposprinter_clienteprinter"
-    },
-    {
-      "label": "usePOSPrinter()",
-      "file_type": "code",
-      "source_file": "src/hooks/usePOSPrinter.ts",
-      "source_location": "L10",
-      "_origin": "ast",
-      "community": 15,
-      "norm_label": "useposprinter()",
-      "id": "hooks_useposprinter_useposprinter"
-    },
-    {
-      "label": "cashService.ts",
-      "file_type": "code",
-      "source_file": "src/services/cashService.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": "cashservice.ts",
-      "id": "services_cashservice"
-    },
-    {
-      "label": "generateId()",
-      "file_type": "code",
-      "source_file": "src/services/cashService.ts",
-      "source_location": "L15",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": "generateid()",
-      "id": "services_cashservice_generateid"
-    },
-    {
-      "label": "CashService",
-      "file_type": "code",
-      "source_file": "src/services/cashService.ts",
-      "source_location": "L19",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": "cashservice",
-      "id": "services_cashservice_cashservice"
-    },
-    {
-      "label": ".constructor()",
-      "file_type": "code",
-      "source_file": "src/services/cashService.ts",
-      "source_location": "L24",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": ".constructor()",
-      "id": "services_cashservice_cashservice_constructor"
-    },
-    {
-      "label": ".seedCajasParaBodegas()",
-      "file_type": "code",
-      "source_file": "src/services/cashService.ts",
-      "source_location": "L28",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": ".seedcajasparabodegas()",
-      "id": "services_cashservice_cashservice_seedcajasparabodegas"
-    },
-    {
-      "label": ".getCajas()",
-      "file_type": "code",
-      "source_file": "src/services/cashService.ts",
-      "source_location": "L72",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": ".getcajas()",
-      "id": "services_cashservice_cashservice_getcajas"
-    },
-    {
-      "label": ".getCajasPorBodega()",
-      "file_type": "code",
-      "source_file": "src/services/cashService.ts",
-      "source_location": "L76",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": ".getcajasporbodega()",
-      "id": "services_cashservice_cashservice_getcajasporbodega"
-    },
-    {
-      "label": ".guardarCaja()",
-      "file_type": "code",
-      "source_file": "src/services/cashService.ts",
-      "source_location": "L81",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": ".guardarcaja()",
-      "id": "services_cashservice_cashservice_guardarcaja"
-    },
-    {
-      "label": ".getTurnos()",
-      "file_type": "code",
-      "source_file": "src/services/cashService.ts",
-      "source_location": "L103",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": ".getturnos()",
-      "id": "services_cashservice_cashservice_getturnos"
-    },
-    {
-      "label": ".getTurnoActivo()",
-      "file_type": "code",
-      "source_file": "src/services/cashService.ts",
-      "source_location": "L107",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": ".getturnoactivo()",
-      "id": "services_cashservice_cashservice_getturnoactivo"
-    },
-    {
-      "label": ".abrirTurno()",
-      "file_type": "code",
-      "source_file": "src/services/cashService.ts",
-      "source_location": "L112",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": ".abrirturno()",
-      "id": "services_cashservice_cashservice_abrirturno"
-    },
-    {
-      "label": ".cerrarTurno()",
-      "file_type": "code",
-      "source_file": "src/services/cashService.ts",
-      "source_location": "L164",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": ".cerrarturno()",
-      "id": "services_cashservice_cashservice_cerrarturno"
-    },
-    {
-      "label": ".getMovimientos()",
-      "file_type": "code",
-      "source_file": "src/services/cashService.ts",
-      "source_location": "L244",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": ".getmovimientos()",
-      "id": "services_cashservice_cashservice_getmovimientos"
-    },
-    {
-      "label": ".registrarMovimiento()",
-      "file_type": "code",
-      "source_file": "src/services/cashService.ts",
-      "source_location": "L252",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": ".registrarmovimiento()",
-      "id": "services_cashservice_cashservice_registrarmovimiento"
-    },
-    {
-      "label": ".getTraslados()",
-      "file_type": "code",
-      "source_file": "src/services/cashService.ts",
-      "source_location": "L325",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": ".gettraslados()",
-      "id": "services_cashservice_cashservice_gettraslados"
-    },
-    {
-      "label": ".trasladarDinero()",
-      "file_type": "code",
-      "source_file": "src/services/cashService.ts",
-      "source_location": "L329",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": ".trasladardinero()",
-      "id": "services_cashservice_cashservice_trasladardinero"
-    },
-    {
-      "label": "cash.types.ts",
-      "file_type": "code",
-      "source_file": "src/types/cash.types.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": "cash.types.ts",
-      "id": "types_cash_types"
-    },
-    {
-      "label": "EstadoTurno",
-      "file_type": "code",
-      "source_file": "src/types/cash.types.ts",
-      "source_location": "L3",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": "estadoturno",
-      "id": "types_cash_types_estadoturno"
-    },
-    {
-      "label": "TipoMovimientoCaja",
-      "file_type": "code",
-      "source_file": "src/types/cash.types.ts",
-      "source_location": "L5",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": "tipomovimientocaja",
-      "id": "types_cash_types_tipomovimientocaja"
-    },
-    {
-      "label": "MetodoPago",
-      "file_type": "code",
-      "source_file": "src/types/cash.types.ts",
-      "source_location": "L15",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": "metodopago",
-      "id": "types_cash_types_metodopago"
-    },
-    {
-      "label": "Caja",
-      "file_type": "code",
-      "source_file": "src/types/cash.types.ts",
-      "source_location": "L17",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": "caja",
-      "id": "types_cash_types_caja"
-    },
-    {
-      "label": "DetalleArqueo",
-      "file_type": "code",
-      "source_file": "src/types/cash.types.ts",
-      "source_location": "L24",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": "detallearqueo",
-      "id": "types_cash_types_detallearqueo"
-    },
-    {
-      "label": "TurnoCaja",
-      "file_type": "code",
-      "source_file": "src/types/cash.types.ts",
-      "source_location": "L38",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": "turnocaja",
-      "id": "types_cash_types_turnocaja"
-    },
-    {
-      "label": "MovimientoCaja",
-      "file_type": "code",
-      "source_file": "src/types/cash.types.ts",
-      "source_location": "L65",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": "movimientocaja",
-      "id": "types_cash_types_movimientocaja"
-    },
-    {
-      "label": "TrasladoDinero",
-      "file_type": "code",
-      "source_file": "src/types/cash.types.ts",
-      "source_location": "L76",
-      "_origin": "ast",
-      "community": 3,
-      "norm_label": "trasladodinero",
-      "id": "types_cash_types_trasladodinero"
     },
     {
       "label": "usePOSCart.ts",
@@ -622,6 +522,36 @@
       "community": 3,
       "norm_label": "cashflowview()",
       "id": "cash_cashflowview_cashflowview"
+    },
+    {
+      "label": "ArqueoCajaModal.tsx",
+      "file_type": "code",
+      "source_file": "src/views/cash/components/ArqueoCajaModal.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 3,
+      "norm_label": "arqueocajamodal.tsx",
+      "id": "components_arqueocajamodal"
+    },
+    {
+      "label": "ArqueoCajaModalProps",
+      "file_type": "code",
+      "source_file": "src/views/cash/components/ArqueoCajaModal.tsx",
+      "source_location": "L8",
+      "_origin": "ast",
+      "community": 3,
+      "norm_label": "arqueocajamodalprops",
+      "id": "components_arqueocajamodal_arqueocajamodalprops"
+    },
+    {
+      "label": "ArqueoCajaModal()",
+      "file_type": "code",
+      "source_file": "src/views/cash/components/ArqueoCajaModal.tsx",
+      "source_location": "L15",
+      "_origin": "ast",
+      "community": 3,
+      "norm_label": "arqueocajamodal()",
+      "id": "components_arqueocajamodal_arqueocajamodal"
     },
     {
       "label": "CartPanel.tsx",
@@ -1339,7 +1269,7 @@
       "source_file": "src/App.tsx",
       "source_location": "L242",
       "_origin": "ast",
-      "community": 13,
+      "community": 7,
       "norm_label": "gasto",
       "id": "src_app_gasto"
     },
@@ -2214,6 +2144,36 @@
       "id": "views_orderkanbanview_orderkanbanview"
     },
     {
+      "label": "TrasladoDineroModal.tsx",
+      "file_type": "code",
+      "source_file": "src/views/cash/components/TrasladoDineroModal.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 3,
+      "norm_label": "trasladodineromodal.tsx",
+      "id": "components_trasladodineromodal"
+    },
+    {
+      "label": "TrasladoDineroModalProps",
+      "file_type": "code",
+      "source_file": "src/views/cash/components/TrasladoDineroModal.tsx",
+      "source_location": "L6",
+      "_origin": "ast",
+      "community": 3,
+      "norm_label": "trasladodineromodalprops",
+      "id": "components_trasladodineromodal_trasladodineromodalprops"
+    },
+    {
+      "label": "TrasladoDineroModal()",
+      "file_type": "code",
+      "source_file": "src/views/cash/components/TrasladoDineroModal.tsx",
+      "source_location": "L13",
+      "_origin": "ast",
+      "community": 3,
+      "norm_label": "trasladodineromodal()",
+      "id": "components_trasladodineromodal_trasladodineromodal"
+    },
+    {
       "label": "AlistamientoBodegaView.tsx",
       "file_type": "code",
       "source_file": "src/views/inventory/AlistamientoBodegaView.tsx",
@@ -2412,6 +2372,36 @@
       "community": 37,
       "norm_label": "warehouseconfigmanager()",
       "id": "components_warehouseconfigmanager_warehouseconfigmanager"
+    },
+    {
+      "label": "WeighingModal.tsx",
+      "file_type": "code",
+      "source_file": "src/views/inventory/components/WeighingModal.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 0,
+      "norm_label": "weighingmodal.tsx",
+      "id": "components_weighingmodal"
+    },
+    {
+      "label": "WeighingModalProps",
+      "file_type": "code",
+      "source_file": "src/views/inventory/components/WeighingModal.tsx",
+      "source_location": "L6",
+      "_origin": "ast",
+      "community": 0,
+      "norm_label": "weighingmodalprops",
+      "id": "components_weighingmodal_weighingmodalprops"
+    },
+    {
+      "label": "WeighingModal()",
+      "file_type": "code",
+      "source_file": "src/views/inventory/components/WeighingModal.tsx",
+      "source_location": "L14",
+      "_origin": "ast",
+      "community": 0,
+      "norm_label": "weighingmodal()",
+      "id": "components_weighingmodal_weighingmodal"
     },
     {
       "label": "useInventory.ts",
@@ -4838,673 +4828,6 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/CashFlowView.tsx",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "cash_cashflowview",
-      "target": "components_arqueocajamodal"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/ArqueoCajaModal.tsx",
-      "source_location": "L15",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_arqueocajamodal",
-      "target": "components_arqueocajamodal_arqueocajamodal"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/ArqueoCajaModal.tsx",
-      "source_location": "L8",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_arqueocajamodal",
-      "target": "components_arqueocajamodal_arqueocajamodalprops"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/ArqueoCajaModal.tsx",
-      "source_location": "L3",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_arqueocajamodal",
-      "target": "services_cashservice"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/ArqueoCajaModal.tsx",
-      "source_location": "L3",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_arqueocajamodal",
-      "target": "services_cashservice_cashservice"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/ArqueoCajaModal.tsx",
-      "source_location": "L4",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_arqueocajamodal",
-      "target": "store_useinventorystore_useinventorystore"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/ArqueoCajaModal.tsx",
-      "source_location": "L2",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_arqueocajamodal",
-      "target": "types_cash_types"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/ArqueoCajaModal.tsx",
-      "source_location": "L2",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_arqueocajamodal",
-      "target": "types_cash_types_turnocaja"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/POSView.tsx",
-      "source_location": "L14",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "views_posview",
-      "target": "components_arqueocajamodal"
-    },
-    {
-      "relation": "references",
-      "context": "field",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/ArqueoCajaModal.tsx",
-      "source_location": "L9",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_arqueocajamodal_arqueocajamodalprops",
-      "target": "types_cash_types_turnocaja"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/CashFlowView.tsx",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "cash_cashflowview",
-      "target": "components_arqueocajamodal_arqueocajamodal"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/POSView.tsx",
-      "source_location": "L14",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "views_posview",
-      "target": "components_arqueocajamodal_arqueocajamodal"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/pos/components/AperturaCajaModal.tsx",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_aperturacajamodal",
-      "target": "components_calculadordenominaciones"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/CalculadorDenominaciones.tsx",
-      "source_location": "L27",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_calculadordenominaciones",
-      "target": "components_calculadordenominaciones_calculadordenominaciones"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/CalculadorDenominaciones.tsx",
-      "source_location": "L10",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_calculadordenominaciones",
-      "target": "components_calculadordenominaciones_denominaciones_billetes"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/CalculadorDenominaciones.tsx",
-      "source_location": "L19",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_calculadordenominaciones",
-      "target": "components_calculadordenominaciones_denominaciones_monedas"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/CalculadorDenominaciones.tsx",
-      "source_location": "L27",
-      "weight": 1.0,
-      "source": "components_calculadordenominaciones",
-      "target": "components_calculadordenominaciones_getthemecolors",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/CalculadorDenominaciones.tsx",
-      "source_location": "L4",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_calculadordenominaciones",
-      "target": "components_calculadordenominaciones_props"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/CalculadorDenominaciones.tsx",
-      "source_location": "L2",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_calculadordenominaciones",
-      "target": "types_cash_types"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/CalculadorDenominaciones.tsx",
-      "source_location": "L2",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_calculadordenominaciones",
-      "target": "types_cash_types_detallearqueo"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/CierreCajaModal.tsx",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_cierrecajamodal",
-      "target": "components_calculadordenominaciones"
-    },
-    {
-      "relation": "references",
-      "context": "field",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/CalculadorDenominaciones.tsx",
-      "source_location": "L5",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_calculadordenominaciones_props",
-      "target": "types_cash_types_detallearqueo"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/pos/components/AperturaCajaModal.tsx",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_aperturacajamodal",
-      "target": "components_calculadordenominaciones_calculadordenominaciones"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/CierreCajaModal.tsx",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_cierrecajamodal",
-      "target": "components_calculadordenominaciones_calculadordenominaciones"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/CashFlowView.tsx",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "cash_cashflowview",
-      "target": "components_cierrecajamodal"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/CierreCajaModal.tsx",
-      "source_location": "L13",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_cierrecajamodal",
-      "target": "components_cierrecajamodal_cierrecajamodal"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/CierreCajaModal.tsx",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_cierrecajamodal",
-      "target": "components_cierrecajamodal_cierrecajamodalprops"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/CierreCajaModal.tsx",
-      "source_location": "L3",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_cierrecajamodal",
-      "target": "services_cashservice"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/CierreCajaModal.tsx",
-      "source_location": "L3",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_cierrecajamodal",
-      "target": "services_cashservice_cashservice"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/CierreCajaModal.tsx",
-      "source_location": "L2",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_cierrecajamodal",
-      "target": "types_cash_types"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/CierreCajaModal.tsx",
-      "source_location": "L2",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_cierrecajamodal",
-      "target": "types_cash_types_detallearqueo"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/CierreCajaModal.tsx",
-      "source_location": "L2",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_cierrecajamodal",
-      "target": "types_cash_types_turnocaja"
-    },
-    {
-      "relation": "references",
-      "context": "field",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/CierreCajaModal.tsx",
-      "source_location": "L7",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_cierrecajamodal_cierrecajamodalprops",
-      "target": "types_cash_types_turnocaja"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/CashFlowView.tsx",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "cash_cashflowview",
-      "target": "components_cierrecajamodal_cierrecajamodal"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/CashFlowView.tsx",
-      "source_location": "L7",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "cash_cashflowview",
-      "target": "components_trasladodineromodal"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/TrasladoDineroModal.tsx",
-      "source_location": "L13",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_trasladodineromodal",
-      "target": "components_trasladodineromodal_trasladodineromodal"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/TrasladoDineroModal.tsx",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_trasladodineromodal",
-      "target": "components_trasladodineromodal_trasladodineromodalprops"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/TrasladoDineroModal.tsx",
-      "source_location": "L3",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_trasladodineromodal",
-      "target": "services_cashservice"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/TrasladoDineroModal.tsx",
-      "source_location": "L3",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_trasladodineromodal",
-      "target": "services_cashservice_cashservice"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/TrasladoDineroModal.tsx",
-      "source_location": "L2",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_trasladodineromodal",
-      "target": "types_cash_types"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/TrasladoDineroModal.tsx",
-      "source_location": "L2",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_trasladodineromodal",
-      "target": "types_cash_types_caja"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/TrasladoDineroModal.tsx",
-      "source_location": "L2",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_trasladodineromodal",
-      "target": "types_cash_types_turnocaja"
-    },
-    {
-      "relation": "references",
-      "context": "field",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/cash/components/TrasladoDineroModal.tsx",
-      "source_location": "L7",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_trasladodineromodal_trasladodineromodalprops",
-      "target": "types_cash_types_turnocaja"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/inventory/components/FulfillmentChecklist.tsx",
-      "source_location": "L5",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_fulfillmentchecklist",
-      "target": "components_weighingmodal"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/inventory/components/WeighingModal.tsx",
-      "source_location": "L14",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_weighingmodal",
-      "target": "components_weighingmodal_weighingmodal"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/inventory/components/WeighingModal.tsx",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_weighingmodal",
-      "target": "components_weighingmodal_weighingmodalprops"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/inventory/components/WeighingModal.tsx",
-      "source_location": "L4",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_weighingmodal",
-      "target": "types_inventory_types"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/inventory/components/WeighingModal.tsx",
-      "source_location": "L4",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_weighingmodal",
-      "target": "types_inventory_types_producto"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/inventory/components/WeighingModal.tsx",
-      "source_location": "L3",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_weighingmodal",
-      "target": "types_orders_types"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/inventory/components/WeighingModal.tsx",
-      "source_location": "L3",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_weighingmodal",
-      "target": "types_orders_types_lineapedido"
-    },
-    {
-      "relation": "references",
-      "context": "field",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/inventory/components/WeighingModal.tsx",
-      "source_location": "L10",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_weighingmodal_weighingmodalprops",
-      "target": "types_inventory_types_producto"
-    },
-    {
-      "relation": "references",
-      "context": "field",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/inventory/components/WeighingModal.tsx",
-      "source_location": "L9",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_weighingmodal_weighingmodalprops",
-      "target": "types_orders_types_lineapedido"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/inventory/components/FulfillmentChecklist.tsx",
-      "source_location": "L5",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_fulfillmentchecklist",
-      "target": "components_weighingmodal_weighingmodal"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/pos/components/AperturaCajaModal.tsx",
-      "source_location": "L14",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_aperturacajamodal",
-      "target": "components_aperturacajamodal_aperturacajamodal"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/pos/components/AperturaCajaModal.tsx",
-      "source_location": "L7",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_aperturacajamodal",
-      "target": "components_aperturacajamodal_aperturacajamodalprops"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/pos/components/AperturaCajaModal.tsx",
-      "source_location": "L2",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_aperturacajamodal",
-      "target": "services_cashservice"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/pos/components/AperturaCajaModal.tsx",
-      "source_location": "L2",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_aperturacajamodal",
-      "target": "services_cashservice_cashservice"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/pos/components/AperturaCajaModal.tsx",
-      "source_location": "L5",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_aperturacajamodal",
-      "target": "types_cash_types"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/pos/components/AperturaCajaModal.tsx",
-      "source_location": "L5",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_aperturacajamodal",
-      "target": "types_cash_types_caja"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/pos/components/AperturaCajaModal.tsx",
-      "source_location": "L5",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_aperturacajamodal",
-      "target": "types_cash_types_detallearqueo"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/POSView.tsx",
-      "source_location": "L13",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "views_posview",
-      "target": "components_aperturacajamodal"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/POSView.tsx",
-      "source_location": "L13",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "views_posview",
-      "target": "components_aperturacajamodal_aperturacajamodal"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/views/pos/components/TicketBuilder.tsx",
       "source_location": "L5",
       "weight": 1.0,
@@ -5654,6 +4977,50 @@
       "target": "services_cashservice"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/pos/components/AperturaCajaModal.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_aperturacajamodal",
+      "target": "services_cashservice"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/ArqueoCajaModal.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_arqueocajamodal",
+      "target": "services_cashservice"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/CierreCajaModal.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_cierrecajamodal",
+      "target": "services_cashservice"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/TrasladoDineroModal.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_trasladodineromodal",
+      "target": "services_cashservice"
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/services/cashService.ts",
@@ -5757,9 +5124,9 @@
       "source_file": "src/services/cashService.ts",
       "source_location": "L1",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "services_cashservice",
-      "target": "types_cash_types_detallearqueo"
+      "target": "types_cash_types_detallearqueo",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -5902,6 +5269,50 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "cash_cashflowview",
+      "target": "services_cashservice_cashservice"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/pos/components/AperturaCajaModal.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_aperturacajamodal",
+      "target": "services_cashservice_cashservice"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/ArqueoCajaModal.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_arqueocajamodal",
+      "target": "services_cashservice_cashservice"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/CierreCajaModal.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_cierrecajamodal",
+      "target": "services_cashservice_cashservice"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/TrasladoDineroModal.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_trasladodineromodal",
       "target": "services_cashservice_cashservice"
     },
     {
@@ -6261,9 +5672,9 @@
       "source_file": "src/services/cashService.ts",
       "source_location": "L112",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "services_cashservice_cashservice_abrirturno",
-      "target": "types_cash_types_detallearqueo"
+      "target": "types_cash_types_detallearqueo",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -6305,9 +5716,9 @@
       "source_file": "src/services/cashService.ts",
       "source_location": "L164",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "services_cashservice_cashservice_cerrarturno",
-      "target": "types_cash_types_detallearqueo"
+      "target": "types_cash_types_detallearqueo",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -6486,6 +5897,61 @@
       "target": "types_cash_types"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/pos/components/AperturaCajaModal.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_aperturacajamodal",
+      "target": "types_cash_types"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/ArqueoCajaModal.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_arqueocajamodal",
+      "target": "types_cash_types"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/CalculadorDenominaciones.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "components_calculadordenominaciones",
+      "target": "types_cash_types",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/CierreCajaModal.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_cierrecajamodal",
+      "target": "types_cash_types"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/TrasladoDineroModal.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_trasladodineromodal",
+      "target": "types_cash_types"
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/cash.types.ts",
@@ -6501,9 +5967,9 @@
       "source_file": "src/types/cash.types.ts",
       "source_location": "L24",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "types_cash_types",
-      "target": "types_cash_types_detallearqueo"
+      "target": "types_cash_types_detallearqueo",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6602,11 +6068,143 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/views/pos/components/AperturaCajaModal.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_aperturacajamodal",
+      "target": "types_cash_types_caja"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/TrasladoDineroModal.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_trasladodineromodal",
+      "target": "types_cash_types_caja"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/pos/components/AperturaCajaModal.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "components_aperturacajamodal",
+      "target": "types_cash_types_detallearqueo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/CalculadorDenominaciones.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "components_calculadordenominaciones",
+      "target": "types_cash_types_detallearqueo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "field",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/CalculadorDenominaciones.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "components_calculadordenominaciones_props",
+      "target": "types_cash_types_detallearqueo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/CierreCajaModal.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "components_cierrecajamodal",
+      "target": "types_cash_types_detallearqueo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/views/cash/CashFlowView.tsx",
       "source_location": "L4",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "cash_cashflowview",
+      "target": "types_cash_types_turnocaja"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/ArqueoCajaModal.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_arqueocajamodal",
+      "target": "types_cash_types_turnocaja"
+    },
+    {
+      "relation": "references",
+      "context": "field",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/ArqueoCajaModal.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_arqueocajamodal_arqueocajamodalprops",
+      "target": "types_cash_types_turnocaja"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/CierreCajaModal.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_cierrecajamodal",
+      "target": "types_cash_types_turnocaja"
+    },
+    {
+      "relation": "references",
+      "context": "field",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/CierreCajaModal.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_cierrecajamodal_cierrecajamodalprops",
+      "target": "types_cash_types_turnocaja"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/TrasladoDineroModal.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_trasladodineromodal",
+      "target": "types_cash_types_turnocaja"
+    },
+    {
+      "relation": "references",
+      "context": "field",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/TrasladoDineroModal.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_trasladodineromodal_trasladodineromodalprops",
       "target": "types_cash_types_turnocaja"
     },
     {
@@ -6652,6 +6250,174 @@
       "confidence_score": 1.0,
       "source": "types_cash_types_trasladodinero",
       "target": "types_common_types_auditable"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/pos/components/AperturaCajaModal.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "components_aperturacajamodal",
+      "target": "components_calculadordenominaciones",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/CalculadorDenominaciones.tsx",
+      "source_location": "L27",
+      "weight": 1.0,
+      "source": "components_calculadordenominaciones",
+      "target": "components_calculadordenominaciones_calculadordenominaciones",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/CalculadorDenominaciones.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "components_calculadordenominaciones",
+      "target": "components_calculadordenominaciones_denominaciones_billetes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/CalculadorDenominaciones.tsx",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "components_calculadordenominaciones",
+      "target": "components_calculadordenominaciones_denominaciones_monedas",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/CalculadorDenominaciones.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "components_calculadordenominaciones",
+      "target": "components_calculadordenominaciones_props",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/CierreCajaModal.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "components_cierrecajamodal",
+      "target": "components_calculadordenominaciones",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/pos/components/AperturaCajaModal.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "components_aperturacajamodal",
+      "target": "components_calculadordenominaciones_calculadordenominaciones",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/CierreCajaModal.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "components_cierrecajamodal",
+      "target": "components_calculadordenominaciones_calculadordenominaciones",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/CashFlowView.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "cash_cashflowview",
+      "target": "components_cierrecajamodal"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/CierreCajaModal.tsx",
+      "source_location": "L13",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_cierrecajamodal",
+      "target": "components_cierrecajamodal_cierrecajamodal"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/CierreCajaModal.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_cierrecajamodal",
+      "target": "components_cierrecajamodal_cierrecajamodalprops"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/CashFlowView.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "cash_cashflowview",
+      "target": "components_cierrecajamodal_cierrecajamodal"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/pos/components/AperturaCajaModal.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_aperturacajamodal",
+      "target": "components_aperturacajamodal_aperturacajamodal"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/pos/components/AperturaCajaModal.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_aperturacajamodal",
+      "target": "components_aperturacajamodal_aperturacajamodalprops"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/POSView.tsx",
+      "source_location": "L13",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "views_posview",
+      "target": "components_aperturacajamodal"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/POSView.tsx",
+      "source_location": "L13",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "views_posview",
+      "target": "components_aperturacajamodal_aperturacajamodal"
     },
     {
       "relation": "imports_from",
@@ -6977,6 +6743,28 @@
       "confidence_score": 1.0,
       "source": "src_app",
       "target": "views_posview"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/POSView.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "views_posview",
+      "target": "components_arqueocajamodal"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/POSView.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "views_posview",
+      "target": "components_arqueocajamodal_arqueocajamodal"
     },
     {
       "relation": "imports_from",
@@ -7374,12 +7162,76 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/CashFlowView.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "cash_cashflowview",
+      "target": "components_arqueocajamodal"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/CashFlowView.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "cash_cashflowview",
+      "target": "components_arqueocajamodal_arqueocajamodal"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/CashFlowView.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "cash_cashflowview",
+      "target": "components_trasladodineromodal"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/App.tsx",
       "source_location": "L14",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "src_app",
       "target": "cash_cashflowview"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/ArqueoCajaModal.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_arqueocajamodal",
+      "target": "components_arqueocajamodal_arqueocajamodal"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/ArqueoCajaModal.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_arqueocajamodal",
+      "target": "components_arqueocajamodal_arqueocajamodalprops"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/ArqueoCajaModal.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_arqueocajamodal",
+      "target": "store_useinventorystore_useinventorystore"
     },
     {
       "relation": "contains",
@@ -10649,6 +10501,17 @@
       "target": "types_common_types_resultadooperacion"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/inventory/components/WeighingModal.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_weighingmodal",
+      "target": "types_inventory_types"
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/inventory.types.ts",
@@ -10729,6 +10592,28 @@
       "target": "types_inventory_types_stockbodega"
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/inventory/components/WeighingModal.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_weighingmodal",
+      "target": "types_inventory_types_producto"
+    },
+    {
+      "relation": "references",
+      "context": "field",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/inventory/components/WeighingModal.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_weighingmodal_weighingmodalprops",
+      "target": "types_inventory_types_producto"
+    },
+    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -10737,6 +10622,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "components_fulfillmentchecklist",
+      "target": "types_orders_types"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/inventory/components/WeighingModal.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_weighingmodal",
       "target": "types_orders_types"
     },
     {
@@ -10811,6 +10707,28 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "components_fulfillmentchecklist",
+      "target": "types_orders_types_lineapedido"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/inventory/components/WeighingModal.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_weighingmodal",
+      "target": "types_orders_types_lineapedido"
+    },
+    {
+      "relation": "references",
+      "context": "field",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/inventory/components/WeighingModal.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_weighingmodal_weighingmodalprops",
       "target": "types_orders_types_lineapedido"
     },
     {
@@ -11253,6 +11171,26 @@
       "target": "views_orderkanbanview_orderkanbanviewprops"
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/TrasladoDineroModal.tsx",
+      "source_location": "L13",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_trasladodineromodal",
+      "target": "components_trasladodineromodal_trasladodineromodal"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/cash/components/TrasladoDineroModal.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_trasladodineromodal",
+      "target": "components_trasladodineromodal_trasladodineromodalprops"
+    },
+    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -11303,6 +11241,28 @@
       "confidence_score": 1.0,
       "source": "components_fulfillmentchecklist",
       "target": "components_fulfillmentchecklist_fulfillmentchecklistprops"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/inventory/components/FulfillmentChecklist.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_fulfillmentchecklist",
+      "target": "components_weighingmodal"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/inventory/components/FulfillmentChecklist.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_fulfillmentchecklist",
+      "target": "components_weighingmodal_weighingmodal"
     },
     {
       "relation": "contains",
@@ -11405,6 +11365,26 @@
       "confidence_score": 1.0,
       "source": "components_warehouseconfigmanager",
       "target": "components_warehouseconfigmanager_warehouseconfigmanager"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/inventory/components/WeighingModal.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_weighingmodal",
+      "target": "components_weighingmodal_weighingmodal"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/views/inventory/components/WeighingModal.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_weighingmodal",
+      "target": "components_weighingmodal_weighingmodalprops"
     },
     {
       "relation": "contains",
@@ -13570,5 +13550,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "5bc6297b01f110cced73b9872e53e477e689f8a5"
+  "built_at_commit": "6b215538d6f1860d9d1b6e473850dec94ce5759e"
 }
