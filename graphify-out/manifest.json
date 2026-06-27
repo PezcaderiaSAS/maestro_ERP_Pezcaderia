@@ -40,8 +40,8 @@
     "semantic_hash": "881a6a54ae59b9340a9dd15bb10328c1"
   },
   "package.json": {
-    "mtime": 1782563529.3845935,
-    "ast_hash": "461b40a4734344f68fefc4fac44072ca",
+    "mtime": 1782569161.187014,
+    "ast_hash": "04b16425de61ce879311380bafc2c417",
     "semantic_hash": ""
   },
   "refactor.js": {
@@ -60,8 +60,8 @@
     "semantic_hash": "2620f65b9af5bc706f0bcab47f7539a8"
   },
   "src/App.tsx": {
-    "mtime": 1782234263.2471628,
-    "ast_hash": "fcba7add5a3507a66b84f951a12f3bc6",
+    "mtime": 1782567838.7298844,
+    "ast_hash": "5ba61355159923f978a92bd1aa5f0010",
     "semantic_hash": ""
   },
   "src/hooks/useBalanza.ts": {
@@ -250,18 +250,18 @@
     "semantic_hash": "b3a0896e66ed61cb58202693ccfe6243"
   },
   "src/views/cash/CashFlowView.tsx": {
-    "mtime": 1782318007.7434103,
-    "ast_hash": "1a122e91c5c0786a244d6f71bf791b71",
+    "mtime": 1782567920.723595,
+    "ast_hash": "a2217c3762116d3a7ad1ed9cdc522f5c",
     "semantic_hash": ""
   },
   "src/views/cash/components/CierreCajaModal.tsx": {
-    "mtime": 1782410935.3920498,
-    "ast_hash": "9619ebfac3c0972b3a37687923d687b1",
+    "mtime": 1782567089.007272,
+    "ast_hash": "44567c0396ccb5621a0d273db3cbc975",
     "semantic_hash": ""
   },
   "src/views/cash/components/TrasladoDineroModal.tsx": {
-    "mtime": 1782397767.8623242,
-    "ast_hash": "ce1725e1542cc1064bb1b474412e9673",
+    "mtime": 1782567935.538638,
+    "ast_hash": "bf9adff320cffd2f687c0a64a0f6c53e",
     "semantic_hash": ""
   },
   "src/views/inventory/components/CategoryManager.tsx": {
@@ -340,9 +340,9 @@
     "semantic_hash": "4358d78da9ae30e776fe1c9d4ce5c139"
   },
   "vite.config.ts": {
-    "mtime": 1781875056.8680835,
-    "ast_hash": "307d55546161f792321d65f1ee773dc1",
-    "semantic_hash": "307d55546161f792321d65f1ee773dc1"
+    "mtime": 1782569403.4987235,
+    "ast_hash": "b465fc815a4e0240e7a36eb9313778c2",
+    "semantic_hash": ""
   },
   ".agent/agents.json": {
     "mtime": 1782143220.5063667,
@@ -670,8 +670,8 @@
     "semantic_hash": ""
   },
   "pnpm-workspace.yaml": {
-    "mtime": 1781963383.3424222,
-    "ast_hash": "bb5dac189876f70740e8a6fc4297ebaf",
+    "mtime": 1782566460.7954998,
+    "ast_hash": "1763a6872695d04751ed12e0cc3e3669",
     "semantic_hash": ""
   },
   "task.md": {
@@ -755,13 +755,13 @@
     "semantic_hash": ""
   },
   "src/views/cash/components/ArqueoCajaModal.tsx": {
-    "mtime": 1782411554.3879106,
-    "ast_hash": "38a69de3fbd5087558613e2166caf63e",
+    "mtime": 1782567103.1526875,
+    "ast_hash": "b9f000e2f4b9ca31cb3b4d46c0845087",
     "semantic_hash": ""
   },
   "src/views/pos/components/AperturaCajaModal.tsx": {
-    "mtime": 1782410802.4550204,
-    "ast_hash": "ae8a68c65e7df59e2630e272e2569d57",
+    "mtime": 1782567074.4350243,
+    "ast_hash": "825a73cc8123da9a7b065c0cc52305dc",
     "semantic_hash": ""
   },
   "src/views/pos/components/CartPanel.tsx": {
@@ -1997,6 +1997,101 @@
   "CLAUDE.md": {
     "mtime": 1782563955.8593366,
     "ast_hash": "fc935a13d3882d052b6678c31a2b2698",
+    "semantic_hash": ""
+  },
+  "playwright.config.ts": {
+    "mtime": 1782566195.2249854,
+    "ast_hash": "af51dd4dde5a088abbac3b9e3ef7ae69",
+    "semantic_hash": ""
+  },
+  "src/dev/DevTestDashboard.tsx": {
+    "mtime": 1782566817.1380084,
+    "ast_hash": "dd1d7b0fe4a4e9e7ccd392d95a8cc4ca",
+    "semantic_hash": ""
+  },
+  "src/dev/seeds/seedB2B.ts": {
+    "mtime": 1782566394.2658336,
+    "ast_hash": "aeb060fb9a1bc4615aeb759fa9b08be9",
+    "semantic_hash": ""
+  },
+  "src/dev/seeds/seedCash.ts": {
+    "mtime": 1782569022.3749952,
+    "ast_hash": "8db34a804677ef4f92c4d20f3cc20ce4",
+    "semantic_hash": ""
+  },
+  "src/dev/seeds/seedInventory.ts": {
+    "mtime": 1782566590.037244,
+    "ast_hash": "033d841e65cfaf6686198a50e825b48b",
+    "semantic_hash": ""
+  },
+  "src/dev/seeds/seedPOS.ts": {
+    "mtime": 1782566258.6398602,
+    "ast_hash": "3fb480dcd334b6dd17136b718b247bb4",
+    "semantic_hash": ""
+  },
+  "test-results/.last-run.json": {
+    "mtime": 1782569503.681584,
+    "ast_hash": "25a141f7993e3ca9207c7fa88e7cb0ff",
+    "semantic_hash": ""
+  },
+  "tests/e2e/cash.spec.ts": {
+    "mtime": 1782567993.8416755,
+    "ast_hash": "42d6f7257115c78380e3f5490e8b2816",
+    "semantic_hash": ""
+  },
+  "tests/e2e/pos.spec.ts": {
+    "mtime": 1782569020.3599913,
+    "ast_hash": "86644105d94346d65aee8d80fd853123",
+    "semantic_hash": ""
+  },
+  "playwright-report/data/228a476e649a9fdef57311d4453095206a64ef74.md": {
+    "mtime": 1782569503.6531346,
+    "ast_hash": "049041d1a3e966e1e2683df4a8f11fff",
+    "semantic_hash": ""
+  },
+  "playwright-report/data/a4a04f0a87f0031459be1eb212b6aec5691b7874.md": {
+    "mtime": 1782569503.6481314,
+    "ast_hash": "b8807fa9c4ec59687af294b9c8047254",
+    "semantic_hash": ""
+  },
+  "playwright-report/data/d56a89b2282b3927dba3787cf68c300d960a9e35.md": {
+    "mtime": 1782569503.6511352,
+    "ast_hash": "1daa79767a48f7097b206141eef5053b",
+    "semantic_hash": ""
+  },
+  "playwright-report/data/dfa515d2a323ba814095331a87cfbeebd9082049.md": {
+    "mtime": 1782569503.6491315,
+    "ast_hash": "64b30cace58bbbce19b97dae7cbebea2",
+    "semantic_hash": ""
+  },
+  "playwright-report/index.html": {
+    "mtime": 1782569503.6805825,
+    "ast_hash": "e22677b8bc13d49cc8eb57961bb6abe7",
+    "semantic_hash": ""
+  },
+  "speckit_assessment.md": {
+    "mtime": 1782568469.5322776,
+    "ast_hash": "cee2e4e92fa7a42de2dcf098d4441f55",
+    "semantic_hash": ""
+  },
+  "test-results/pos-POS---Flujo-de-Apertur-06d8a--registrar-el-arqueo-RN-44--chromium/error-context.md": {
+    "mtime": 1782569502.2060606,
+    "ast_hash": "049041d1a3e966e1e2683df4a8f11fff",
+    "semantic_hash": ""
+  },
+  "test-results/pos-POS---Flujo-de-Apertur-079a0-orrectamente-flujo-3-pasos--chromium/error-context.md": {
+    "mtime": 1782569489.713771,
+    "ast_hash": "b8807fa9c4ec59687af294b9c8047254",
+    "semantic_hash": ""
+  },
+  "test-results/pos-POS---Flujo-de-Apertur-937fb-decrementar-el-stock-RN-01--chromium/error-context.md": {
+    "mtime": 1782569489.6647396,
+    "ast_hash": "64b30cace58bbbce19b97dae7cbebea2",
+    "semantic_hash": ""
+  },
+  "test-results/pos-POS---Flujo-de-Apertur-fc7bc-con-stock-0---mostrar-error-chromium/error-context.md": {
+    "mtime": 1782569499.9835675,
+    "ast_hash": "1daa79767a48f7097b206141eef5053b",
     "semantic_hash": ""
   }
 }
