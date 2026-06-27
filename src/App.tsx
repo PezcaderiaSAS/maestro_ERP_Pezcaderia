@@ -13,6 +13,7 @@ import PayrollView from './views/PayrollView.tsx';
 import CRMView from './views/CRMView.tsx';
 import CashFlowView from './views/cash/CashFlowView.tsx';
 import { AlistamientoBodegaView } from './views/inventory/AlistamientoBodegaView.tsx';
+import { DevTestDashboard } from './dev/DevTestDashboard.tsx';
 import * as localDb from './services/localDb.ts';
 // Stores de Zustand
 import { useInventoryStore } from './store/useInventoryStore.ts';
@@ -1705,6 +1706,7 @@ export default function App() {
             <div
               className={`sidebar-item ${currentView === 'pos' ? 'active' : ''}`}
               onClick={() => { setCurrentView('pos'); setSidebarOpen(false); }}
+              data-testid="nav-pos"
             >
               <ShoppingBag size={16} />
               <span>POS</span>
@@ -1713,6 +1715,7 @@ export default function App() {
             <div
               className={`sidebar-item ${currentView === 'precios' ? 'active' : ''}`}
               onClick={() => { setCurrentView('precios'); setSidebarOpen(false); }}
+              data-testid="nav-precios"
             >
               <DollarSign size={16} />
               <span>Cotizacion</span>
@@ -1721,6 +1724,7 @@ export default function App() {
             <div
               className={`sidebar-item ${currentView === 'clientes' ? 'active' : ''}`}
               onClick={() => { setCurrentView('clientes'); setSidebarOpen(false); }}
+              data-testid="nav-clientes"
             >
               <Users size={16} />
               <span>Clientes</span>
@@ -1729,6 +1733,7 @@ export default function App() {
             <div
               className={`sidebar-item ${currentView === 'crm' ? 'active' : ''}`}
               onClick={() => { setCurrentView('crm'); setSidebarOpen(false); }}
+              data-testid="nav-crm"
             >
               <PieChart size={16} />
               <span>CRM (Twenty)</span>
@@ -1742,6 +1747,7 @@ export default function App() {
             <div
               className={`sidebar-item ${currentView === 'compras' ? 'active' : ''}`}
               onClick={() => { setCurrentView('compras'); setSidebarOpen(false); }}
+              data-testid="nav-compras"
             >
               <ShoppingCart size={16} />
               <span>Compras y Gastos</span>
@@ -1750,6 +1756,7 @@ export default function App() {
             <div
               className={`sidebar-item ${currentView === 'cartera' ? 'active' : ''}`}
               onClick={() => { setCurrentView('cartera'); setSidebarOpen(false); }}
+              data-testid="nav-cartera"
             >
               <Wallet size={16} />
               <span>Cartera</span>
@@ -1758,6 +1765,7 @@ export default function App() {
             <div
               className={`sidebar-item ${currentView === 'inventario' ? 'active' : ''}`}
               onClick={() => { setCurrentView('inventario'); setSidebarOpen(false); }}
+              data-testid="nav-inventario"
             >
               <Box size={16} />
               <span>Inventario</span>
@@ -1766,6 +1774,7 @@ export default function App() {
             <div
               className={`sidebar-item ${currentView === 'alistamiento' ? 'active' : ''}`}
               onClick={() => { setCurrentView('alistamiento'); setSidebarOpen(false); }}
+              data-testid="nav-alistamiento"
             >
               <PackageCheck size={16} />
               <span>Alistamiento Bodega</span>
@@ -1784,6 +1793,7 @@ export default function App() {
             <div
               className={`sidebar-item ${currentView === 'caja' ? 'active' : ''}`}
               onClick={() => { setCurrentView('caja'); setSidebarOpen(false); }}
+              data-testid="nav-caja"
             >
               <Database size={16} />
               <span>Caja</span>
@@ -1797,6 +1807,7 @@ export default function App() {
             <div
               className={`sidebar-item ${currentView === 'rrhh' ? 'active' : ''}`}
               onClick={() => { setCurrentView('rrhh'); setSidebarOpen(false); }}
+              data-testid="nav-rrhh"
             >
               <Users size={16} />
               <span>Personal (RRHH)</span>
@@ -1805,6 +1816,7 @@ export default function App() {
             <div
               className={`sidebar-item ${currentView === 'nomina' ? 'active' : ''}`}
               onClick={() => { setCurrentView('nomina'); setSidebarOpen(false); }}
+              data-testid="nav-nomina"
             >
               <FileText size={16} />
               <span>Nómina</span>
@@ -1813,6 +1825,7 @@ export default function App() {
             <div
               className={`sidebar-item ${currentView === 'kanban' ? 'active' : ''}`}
               onClick={() => { setCurrentView('kanban'); setSidebarOpen(false); }}
+              data-testid="nav-kanban"
             >
               <Truck size={16} />
               <span>Despachos / Kanban</span>
@@ -1827,6 +1840,7 @@ export default function App() {
               className={`sidebar-item ${currentView === 'dashboard' ? 'active' : ''}`}
               onClick={() => { setCurrentView('dashboard'); setSidebarOpen(false); }}
               style={{ marginTop: 'auto' }}
+              data-testid="nav-dashboard"
             >
               <LayoutDashboard size={16} />
               <span>Panel de Control</span>
@@ -1847,6 +1861,7 @@ export default function App() {
           </main>
         </div>
       </div>
+      {import.meta.env.DEV && <DevTestDashboard />}
     </div>
   );
 }

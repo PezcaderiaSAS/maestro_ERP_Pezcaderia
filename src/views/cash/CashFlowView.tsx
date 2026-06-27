@@ -183,6 +183,7 @@ export default function CashFlowView({ userRole, usuarioId }: CashFlowViewProps)
           <h2 className="text-2xl font-bold text-gray-800 mb-2">La caja está cerrada</h2>
           <p className="text-gray-500 mb-8">Debe abrir un turno para procesar ventas y registrar movimientos de efectivo en esta caja.</p>
           <button 
+            data-testid="btn-abrir-turno"
             onClick={handleApertura}
             className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto"
           >
@@ -245,6 +246,7 @@ export default function CashFlowView({ userRole, usuarioId }: CashFlowViewProps)
 
                 <div className="space-y-3 pt-6 border-t border-gray-100">
                   <button 
+                    data-testid="btn-egreso-rapido"
                     onClick={handleEgresoRapido}
                     className="w-full bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
                   >
@@ -252,6 +254,7 @@ export default function CashFlowView({ userRole, usuarioId }: CashFlowViewProps)
                     Registrar Egreso (Gasto)
                   </button>
                   <button 
+                    data-testid="btn-traslado-dinero"
                     onClick={() => setShowTrasladoModal(true)}
                     className="w-full bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
                   >
@@ -259,6 +262,7 @@ export default function CashFlowView({ userRole, usuarioId }: CashFlowViewProps)
                     Trasladar Dinero
                   </button>
                   <button 
+                    data-testid="btn-cierre-caja"
                     onClick={() => setShowCierreModal(true)}
                     className="w-full bg-red-50 hover:bg-red-100 text-red-700 font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors mt-4 border border-red-200"
                   >

@@ -181,6 +181,7 @@ export default function CierreCajaModal({ turnoActivo, usuarioId, onClose, onSuc
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm pointer-events-none">$</span>
                   <input
+                    data-testid="input-datafono"
                     type="number"
                     min="0"
                     onKeyDown={preventInvalidKeys}
@@ -200,6 +201,7 @@ export default function CierreCajaModal({ turnoActivo, usuarioId, onClose, onSuc
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm pointer-events-none">$</span>
                   <input
+                    data-testid="input-transferencia"
                     type="number"
                     min="0"
                     onKeyDown={preventInvalidKeys}
@@ -229,6 +231,7 @@ export default function CierreCajaModal({ turnoActivo, usuarioId, onClose, onSuc
                     <AlertCircle size={15} /> Justificación Obligatoria
                   </label>
                   <textarea
+                    data-testid="input-justificacion"
                     value={justificacion}
                     onChange={(e) => setJustificacion(e.target.value)}
                     placeholder="Explique el motivo del faltante o sobrante..."
@@ -278,6 +281,7 @@ export default function CierreCajaModal({ turnoActivo, usuarioId, onClose, onSuc
             <X size={18} /> Cancelar
           </button>
           <button
+            data-testid="btn-confirmar-cierre"
             type="button"
             onClick={handleCierre}
             className="h-12 px-6 flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-md shadow-red-200 transition-all"

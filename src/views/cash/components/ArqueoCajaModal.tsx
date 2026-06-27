@@ -168,6 +168,7 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
                   <td className="px-5 py-3 text-slate-500 font-medium">${turnoActivo.totalEfectivo.toLocaleString()}</td>
                   <td className="px-5 py-3">
                     <input
+                      data-testid="input-efectivo-arqueo"
                       type="number"
                       value={efectivo}
                       onKeyDown={handleNumberInput}
@@ -189,6 +190,7 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
                   <td className="px-5 py-3">
                     <div className="relative">
                       <input
+                        data-testid="input-datafono-arqueo"
                         type="number"
                         disabled={lockDatafono}
                         value={datafono}
@@ -218,6 +220,7 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
                   <td className="px-5 py-3">
                     <div className="relative">
                       <input
+                        data-testid="input-transferencia-arqueo"
                         type="number"
                         disabled={lockTransferencia}
                         value={transferencia}
@@ -272,6 +275,7 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
                   <b>${Math.abs(diffTotal).toLocaleString()}</b>. Por política RN-44 debe justificar este evento.
                 </p>
                 <textarea
+                  data-testid="input-justificacion-arqueo"
                   value={justificacion}
                   onChange={(e) => setJustificacion(e.target.value)}
                   placeholder="Ej. Cambio mal entregado, venta no registrada en el sistema..."
@@ -325,6 +329,7 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
             Cancelar
           </button>
           <button
+            data-testid="btn-confirmar-arqueo"
             type="button"
             onClick={handleCierre}
             className="h-11 px-6 flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-md shadow-red-200 transition-all"

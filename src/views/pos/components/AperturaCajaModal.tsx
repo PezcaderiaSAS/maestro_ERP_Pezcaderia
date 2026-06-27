@@ -163,6 +163,7 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
                 </label>
                 {cajasDisponibles.length > 0 ? (
                   <select
+                    data-testid="select-caja"
                     value={cajaSeleccionada}
                     onChange={(e) => setCajaSeleccionada(e.target.value)}
                     className="w-full h-14 px-4 rounded-xl border-2 border-slate-200 bg-slate-50 focus:border-blue-400 focus:bg-white text-lg text-slate-800 outline-none transition-colors appearance-none cursor-pointer"
@@ -182,6 +183,7 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
 
               <div className="flex flex-col gap-3 mt-2">
                 <button
+                  data-testid="btn-siguiente-paso1"
                   type="button"
                   onClick={() => setStep(2)}
                   disabled={!cajaSeleccionada}
@@ -233,6 +235,7 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
                   <ChevronLeft size={20} /> Atrás
                 </button>
                 <button
+                  data-testid="btn-siguiente-paso2"
                   type="button"
                   onClick={() => setStep(3)}
                   className="h-14 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg rounded-xl shadow-md shadow-blue-200 transition-all"
@@ -275,6 +278,7 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
                     <ChevronLeft size={20} /> Atrás
                   </button>
                   <button
+                    data-testid="btn-confirmar-apertura"
                     type="button"
                     onClick={handleSubmit}
                     className="h-14 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg rounded-xl shadow-md shadow-blue-200 transition-all"

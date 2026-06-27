@@ -84,6 +84,7 @@ export default function TrasladoDineroModal({ turnoOrigen, usuarioId, onClose, o
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">Medio de Pago a Trasladar *</label>
           <select 
+            data-testid="select-metodo-traslado"
             className="w-full border rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
             value={metodoPago}
             onChange={(e) => setMetodoPago(e.target.value as any)}
@@ -97,6 +98,7 @@ export default function TrasladoDineroModal({ turnoOrigen, usuarioId, onClose, o
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">Caja Destino *</label>
           <select 
+            data-testid="select-caja-destino"
             className="w-full border rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
             value={cajaDestinoId}
             onChange={(e) => setCajaDestinoId(e.target.value)}
@@ -116,6 +118,7 @@ export default function TrasladoDineroModal({ turnoOrigen, usuarioId, onClose, o
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">Monto a Trasladar *</label>
           <input 
+            data-testid="input-monto-traslado"
             type="number" 
             className="w-full border rounded p-2 text-lg font-bold text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none"
             value={monto}
@@ -127,6 +130,7 @@ export default function TrasladoDineroModal({ turnoOrigen, usuarioId, onClose, o
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">Concepto *</label>
           <input 
+            data-testid="input-concepto-traslado"
             type="text" 
             className="w-full border rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
             value={concepto}
@@ -143,6 +147,7 @@ export default function TrasladoDineroModal({ turnoOrigen, usuarioId, onClose, o
             Cancelar
           </button>
           <button 
+            data-testid="btn-procesar-traslado"
             onClick={handleTraslado}
             className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded font-medium transition-colors"
           >
