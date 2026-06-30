@@ -230,8 +230,8 @@
     "semantic_hash": ""
   },
   "src/views/POSView.tsx": {
-    "mtime": 1782571062.2973957,
-    "ast_hash": "e16bd46530bd4c5dcc747b25c344f063",
+    "mtime": 1782318775.5456722,
+    "ast_hash": "ba2067538d2d590405312eb73ee94a2e",
     "semantic_hash": ""
   },
   "src/views/PayrollView.tsx": {
@@ -250,8 +250,8 @@
     "semantic_hash": "b3a0896e66ed61cb58202693ccfe6243"
   },
   "src/views/cash/CashFlowView.tsx": {
-    "mtime": 1782752398.481283,
-    "ast_hash": "7e2a20a218ede9249b8f0774d2b70f4d",
+    "mtime": 1782567920.723595,
+    "ast_hash": "a2217c3762116d3a7ad1ed9cdc522f5c",
     "semantic_hash": ""
   },
   "src/views/cash/components/CierreCajaModal.tsx": {
@@ -325,8 +325,8 @@
     "semantic_hash": "2f40c05e6baf7567c9b1a83fc3486561"
   },
   "src/views/pos/components/PaymentPanel.tsx": {
-    "mtime": 1782752013.8073697,
-    "ast_hash": "90bc645b9de6c9b70b42534b58b69a40",
+    "mtime": 1782312351.6412556,
+    "ast_hash": "4f2efcaf6275446ded1c4231a25539d5",
     "semantic_hash": ""
   },
   "src/views/pos/components/TicketBuilder.tsx": {
@@ -765,8 +765,8 @@
     "semantic_hash": ""
   },
   "src/views/pos/components/CartPanel.tsx": {
-    "mtime": 1782742073.7757187,
-    "ast_hash": "e38cc7366e1f3345fee607558037f8b2",
+    "mtime": 1782318621.1697414,
+    "ast_hash": "b6554a2e2fdf85eb4c49f8800820ea9d",
     "semantic_hash": ""
   },
   "src/views/pos/components/LineaVentaRow.tsx": {
@@ -780,8 +780,8 @@
     "semantic_hash": ""
   },
   "src/views/cash/components/CalculadorDenominaciones.tsx": {
-    "mtime": 1782581110.320262,
-    "ast_hash": "f280e0c1bb3dbfd8fd6d9e4d9c236e1b",
+    "mtime": 1782410345.4105597,
+    "ast_hash": "434e4a283721d89c391c7834564d92fe",
     "semantic_hash": ""
   },
   ".claude-flow/metrics/learning.json": {
@@ -2015,8 +2015,8 @@
     "semantic_hash": ""
   },
   "src/dev/seeds/seedCash.ts": {
-    "mtime": 1782571343.998241,
-    "ast_hash": "9b71d0c0d662627f0a92cec005599780",
+    "mtime": 1782569022.3749952,
+    "ast_hash": "8db34a804677ef4f92c4d20f3cc20ce4",
     "semantic_hash": ""
   },
   "src/dev/seeds/seedInventory.ts": {
@@ -2025,13 +2025,13 @@
     "semantic_hash": ""
   },
   "src/dev/seeds/seedPOS.ts": {
-    "mtime": 1782574624.841159,
-    "ast_hash": "f5432c7600f8dbf6de5f863a4224c5ab",
+    "mtime": 1782566258.6398602,
+    "ast_hash": "3fb480dcd334b6dd17136b718b247bb4",
     "semantic_hash": ""
   },
   "test-results/.last-run.json": {
-    "mtime": 1782752800.287952,
-    "ast_hash": "35742b7c372f479a4f056c0ab67e1e94",
+    "mtime": 1782569503.681584,
+    "ast_hash": "25a141f7993e3ca9207c7fa88e7cb0ff",
     "semantic_hash": ""
   },
   "tests/e2e/cash.spec.ts": {
@@ -2040,13 +2040,33 @@
     "semantic_hash": ""
   },
   "tests/e2e/pos.spec.ts": {
-    "mtime": 1782753092.1265292,
-    "ast_hash": "4361498f8eaa3c9dfb7dfbfc2411e344",
+    "mtime": 1782569020.3599913,
+    "ast_hash": "86644105d94346d65aee8d80fd853123",
+    "semantic_hash": ""
+  },
+  "playwright-report/data/228a476e649a9fdef57311d4453095206a64ef74.md": {
+    "mtime": 1782569503.6531346,
+    "ast_hash": "049041d1a3e966e1e2683df4a8f11fff",
+    "semantic_hash": ""
+  },
+  "playwright-report/data/a4a04f0a87f0031459be1eb212b6aec5691b7874.md": {
+    "mtime": 1782569503.6481314,
+    "ast_hash": "b8807fa9c4ec59687af294b9c8047254",
+    "semantic_hash": ""
+  },
+  "playwright-report/data/d56a89b2282b3927dba3787cf68c300d960a9e35.md": {
+    "mtime": 1782569503.6511352,
+    "ast_hash": "1daa79767a48f7097b206141eef5053b",
+    "semantic_hash": ""
+  },
+  "playwright-report/data/dfa515d2a323ba814095331a87cfbeebd9082049.md": {
+    "mtime": 1782569503.6491315,
+    "ast_hash": "64b30cace58bbbce19b97dae7cbebea2",
     "semantic_hash": ""
   },
   "playwright-report/index.html": {
-    "mtime": 1782571697.6023333,
-    "ast_hash": "38cf14b60cc832531725c529b3a9c23e",
+    "mtime": 1782569503.6805825,
+    "ast_hash": "e22677b8bc13d49cc8eb57961bb6abe7",
     "semantic_hash": ""
   },
   "speckit_assessment.md": {
@@ -2054,54 +2074,24 @@
     "ast_hash": "cee2e4e92fa7a42de2dcf098d4441f55",
     "semantic_hash": ""
   },
+  "test-results/pos-POS---Flujo-de-Apertur-06d8a--registrar-el-arqueo-RN-44--chromium/error-context.md": {
+    "mtime": 1782569502.2060606,
+    "ast_hash": "049041d1a3e966e1e2683df4a8f11fff",
+    "semantic_hash": ""
+  },
+  "test-results/pos-POS---Flujo-de-Apertur-079a0-orrectamente-flujo-3-pasos--chromium/error-context.md": {
+    "mtime": 1782569489.713771,
+    "ast_hash": "b8807fa9c4ec59687af294b9c8047254",
+    "semantic_hash": ""
+  },
   "test-results/pos-POS---Flujo-de-Apertur-937fb-decrementar-el-stock-RN-01--chromium/error-context.md": {
-    "mtime": 1782752780.4588573,
-    "ast_hash": "829fc227a742b23157abd60b9e9a3b29",
+    "mtime": 1782569489.6647396,
+    "ast_hash": "64b30cace58bbbce19b97dae7cbebea2",
     "semantic_hash": ""
   },
   "test-results/pos-POS---Flujo-de-Apertur-fc7bc-con-stock-0---mostrar-error-chromium/error-context.md": {
-    "mtime": 1782752798.8911242,
-    "ast_hash": "2d2cee26e3788c99a919689111040e04",
-    "semantic_hash": ""
-  },
-  "DOCS/mar_episodic_memory_architecture.md": {
-    "mtime": 1782581533.6482718,
-    "ast_hash": "f57293833f0d6354318be640bad2f3fe",
-    "semantic_hash": ""
-  },
-  "playwright-report/data/19762c930e7cf0d58e3291fb4d266aa6b121e64c.md": {
-    "mtime": 1782571697.564106,
-    "ast_hash": "33ae95fe2db3b194998ae2525373dc4d",
-    "semantic_hash": ""
-  },
-  "playwright-report/data/3c35bbe957d9b399ee8c2176baeed0fc2a0516e7.md": {
-    "mtime": 1782571697.5701041,
-    "ast_hash": "bdb9c44d6627aea502a00229ec84cba0",
-    "semantic_hash": ""
-  },
-  "playwright-report/data/3fcb4c7e94e5c8f53c66d5b0b0bab6232576e725.md": {
-    "mtime": 1782571697.5661058,
-    "ast_hash": "6d17d026e4ae4ec65d1fde17b738cf6a",
-    "semantic_hash": ""
-  },
-  "playwright-report/data/4b3e7e2c4eacbc46948f49d349e97055e5e4a55d.md": {
-    "mtime": 1782571697.5621035,
-    "ast_hash": "dfab80d28e83e1e47afcef2fdda89ab2",
-    "semantic_hash": ""
-  },
-  "playwright-report/data/6b980be603de56ced77c2b8c9045c6e04c74b168.md": {
-    "mtime": 1782571697.5681047,
-    "ast_hash": "a0200a2165604076309065e9a93cafb6",
-    "semantic_hash": ""
-  },
-  "playwright-report/data/cc934d6979cc197a5bcad74d12bd7899f61aa2b0.md": {
-    "mtime": 1782571697.5583,
-    "ast_hash": "3a848bd1d0a61da97b905252308d64df",
-    "semantic_hash": ""
-  },
-  "playwright-report/data/f39b3bd7a10fd4ca15c007af7d6f9db56a7c9a65.md": {
-    "mtime": 1782571697.5562985,
-    "ast_hash": "91ee80e91f4d6a8ba45efdef23430eb6",
+    "mtime": 1782569499.9835675,
+    "ast_hash": "1daa79767a48f7097b206141eef5053b",
     "semantic_hash": ""
   }
 }
