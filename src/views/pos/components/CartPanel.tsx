@@ -400,6 +400,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
           lineas={lineas}
           cliente={cliente}
           stock={stock}
+          bodegaActiva={bodegaActiva}
           onPagar={onPagar}
           onGuardarBorrador={onGuardarBorrador}
           onLimpiarCarrito={onLimpiarCarrito}

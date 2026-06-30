@@ -4,11 +4,7 @@ import { load, save } from './localDb';
 import type { Producto } from '../types/inventory.types';
 import type { ResultadoOperacion } from '../types/common.types'; // Reusando tipo genérico
 
-export interface StockItem {
-  bodegaId: string;
-  productoId: string;
-  cantidad: number;
-}
+export type StockDictionary = Record<string, Record<string, number>>;
 
 export interface MovimientoInventario {
   id: string;
@@ -21,6 +17,20 @@ export interface MovimientoInventario {
   referenciaId: string | null; // ID de venta, orden de compra, traslado, etc.
 }
 
+// Helper para obtener SKU a partir de productoId
+function getSkuByProductoId(productoId: string): string | null {
+  const catalog = load<Producto[]>('productsCatalog', []);
+  const producto = catalog.find((p) => p.id === productoId);
+  return producto ? producto.sku : null;
+}
+
+// Helper para obtener la unidad de medida
+function getUnidadByProductoId(productoId: string): string {
+  const catalog = load<Producto[]>('productsCatalog', []);
+  const producto = catalog.find((p) => p.id === productoId);
+  return producto?.unidadMedida || 'KG';
+}
+
 /**
  * Valida si hay stock suficiente de un producto en una bodega.
  * Aplica: RN-01 (Stock nunca negativo)
@@ -31,19 +41,15 @@ export function validarStock(
   cantidadRequerida: number
 ): ResultadoOperacion<{ disponible: number }> {
   try {
-    const stockList = load<StockItem[]>('stock', []);
-    const stockItem = stockList.find(
-      (s) => s.productoId === productoId && s.bodegaId === bodegaId
-    );
+    const sku = getSkuByProductoId(productoId);
+    if (!sku) return { data: null, error: 'Producto no encontrado en el catálogo' };
 
-    const disponible = stockItem ? stockItem.cantidad : 0;
+    const stockDict = load<StockDictionary>('stock', {});
+    const bodegaStock = stockDict[bodegaId] || {};
+    const disponible = bodegaStock[sku] || 0;
 
     if (disponible < cantidadRequerida) {
-      // Cargar producto para conocer su unidad de medida
-      const catalog = load<Producto[]>('productsCatalog', []);
-      const producto = catalog.find((p) => p.id === productoId);
-      const unidad = producto?.unidadMedida || 'KG';
-
+      const unidad = getUnidadByProductoId(productoId);
       return {
         data: null,
         error: `Stock insuficiente. Disponible: ${disponible} ${unidad}`,
@@ -72,19 +78,20 @@ export function registrarEntrada(params: {
   }
 
   try {
-    const stockList = load<StockItem[]>('stock', []);
-    let stockItem = stockList.find(
-      (s) => s.productoId === productoId && s.bodegaId === bodegaId
-    );
+    const sku = getSkuByProductoId(productoId);
+    if (!sku) return { data: null, error: 'Producto no encontrado' };
 
-    if (stockItem) {
-      stockItem.cantidad += cantidad;
-    } else {
-      stockItem = { bodegaId, productoId, cantidad };
-      stockList.push(stockItem);
+    const stockDict = load<StockDictionary>('stock', {});
+    if (!stockDict[bodegaId]) {
+      stockDict[bodegaId] = {};
     }
+    
+    if (stockDict[bodegaId][sku] === undefined) {
+      stockDict[bodegaId][sku] = 0;
+    }
+    stockDict[bodegaId][sku] += cantidad;
 
-    save('stock', stockList);
+    save('stock', stockDict);
 
     // Registrar movimiento
     const movimientos = load<MovimientoInventario[]>('movimientos', []);
@@ -100,7 +107,7 @@ export function registrarEntrada(params: {
     };
     save('movimientos', [...movimientos, nuevoMovimiento]);
 
-    return { data: { cantidadNueva: stockItem.cantidad }, error: null };
+    return { data: { cantidadNueva: stockDict[bodegaId][sku] }, error: null };
   } catch {
     return { data: null, error: 'Error al registrar la entrada de stock' };
   }
@@ -129,17 +136,18 @@ export function registrarSalida(params: {
   }
 
   try {
-    const stockList = load<StockItem[]>('stock', []);
-    const stockItem = stockList.find(
-      (s) => s.productoId === productoId && s.bodegaId === bodegaId
-    );
+    const sku = getSkuByProductoId(productoId);
+    if (!sku) return { data: null, error: 'Producto no encontrado' };
 
-    if (!stockItem) {
+    const stockDict = load<StockDictionary>('stock', {});
+    const bodegaStock = stockDict[bodegaId] || {};
+    
+    if (bodegaStock[sku] === undefined) {
       return { data: null, error: 'Stock no inicializado para este producto' };
     }
 
-    stockItem.cantidad -= cantidad;
-    save('stock', stockList);
+    stockDict[bodegaId][sku] -= cantidad;
+    save('stock', stockDict);
 
     // Registrar movimiento
     const movimientos = load<MovimientoInventario[]>('movimientos', []);
@@ -155,7 +163,7 @@ export function registrarSalida(params: {
     };
     save('movimientos', [...movimientos, nuevoMovimiento]);
 
-    return { data: { cantidadNueva: stockItem.cantidad }, error: null };
+    return { data: { cantidadNueva: stockDict[bodegaId][sku] }, error: null };
   } catch {
     return { data: null, error: 'Error al registrar la salida de stock' };
   }
@@ -185,25 +193,27 @@ export function registrarTraslado(params: {
   }
 
   try {
-    const stockList = load<StockItem[]>('stock', []);
+    const sku = getSkuByProductoId(productoId);
+    if (!sku) return { data: null, error: 'Producto no encontrado' };
+
+    const stockDict = load<StockDictionary>('stock', {});
     
     // Buscar items
-    const origenItem = stockList.find(s => s.productoId === productoId && s.bodegaId === bodegaOrigenId);
-    let destinoItem = stockList.find(s => s.productoId === productoId && s.bodegaId === bodegaDestinoId);
-
-    if (!origenItem) return { data: null, error: 'Stock no encontrado en origen' };
+    const origenStock = stockDict[bodegaOrigenId] || {};
+    
+    if (!stockDict[bodegaDestinoId]) stockDict[bodegaDestinoId] = {};
+    
+    if (origenStock[sku] === undefined) return { data: null, error: 'Stock no encontrado en origen' };
 
     // Operación atómica en memoria
-    origenItem.cantidad -= cantidad;
+    stockDict[bodegaOrigenId][sku] -= cantidad;
     
-    if (destinoItem) {
-      destinoItem.cantidad += cantidad;
-    } else {
-      destinoItem = { bodegaId: bodegaDestinoId, productoId, cantidad };
-      stockList.push(destinoItem);
+    if (stockDict[bodegaDestinoId][sku] === undefined) {
+      stockDict[bodegaDestinoId][sku] = 0;
     }
+    stockDict[bodegaDestinoId][sku] += cantidad;
 
-    save('stock', stockList);
+    save('stock', stockDict);
 
     // Registrar movimiento
     const movimientos = load<MovimientoInventario[]>('movimientos', []);

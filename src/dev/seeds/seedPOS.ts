@@ -18,16 +18,16 @@ export const SEED_DATA: Record<string, unknown> = {
     { id: 'prc-trucha', productoId: 'prod-trucha', vigenciaDesde: new Date().toISOString(), precio_compra: 15000, buffer_seguridad: 5, precio_venta_pos: 25000, precio_venta_restaurante: 22000, precio_venta_mayorista: 20000, actualizadoPor: 'admin' }
   ],
   pezcaderia_stock: {
-    'caja-test-menor': [
-      { sku: 'PES-ENT-001', stock: 10 },
-      { sku: 'FIL-LIM-002', stock: 5 },
-      { sku: 'CAM-TIG-003', stock: 8 }
-    ],
-    'Bodega Principal': [
-      { sku: 'PES-ENT-001', stock: 10 },
-      { sku: 'FIL-LIM-002', stock: 5 },
-      { sku: 'CAM-TIG-003', stock: 8 }
-    ]
+    'caja-test-menor': {
+      'PES-ENT-001': 10,
+      'FIL-LIM-002': 5,
+      'CAM-TIG-003': 8
+    },
+    'Bodega Principal': {
+      'PES-ENT-001': 10,
+      'FIL-LIM-002': 5,
+      'CAM-TIG-003': 8
+    }
   },
   pezcaderia_clientes: [
     {

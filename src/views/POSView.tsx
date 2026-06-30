@@ -26,7 +26,7 @@ interface POSViewProps {
   ) => void;
   userRole: string;
   setCurrentView: (view: string) => void;
-  stock: Record<string, any[]>;
+  stock: Record<string, Record<string, number>>;
   setStock: (val: any) => void;
   lastClientPrices: Record<string, Record<string, number>>;
   updateLastClientPrice: (clientKey: string, sku: string, price: number) => void;
@@ -102,6 +102,9 @@ export default function POSView({
     const turnos = cashService.getTurnos();
     setIsTurnoAbierto(turnos.some(t => t.cajeroId === userRole && t.estado === 'ABIERTO'));
   }, [userRole, showAperturaModal]);
+
+  const { getPrimaryBodega } = useWarehouseStore();
+  const bodegaActiva = getPrimaryBodega()?.nombre || 'Bodega Principal';
 
   // Filtrar productos activos
   const activeProducts = products.filter(p => p.activo);
@@ -517,9 +520,7 @@ export default function POSView({
 
   // Helper to query stock for a given product and warehouse
   const getProductStock = (sku: string, bodega: string) => {
-    const list = stock[bodega] || [];
-    const matched = list.find((item: any) => item.sku === sku);
-    return matched ? matched.stock : 0;
+    return stock[bodega]?.[sku] || 0;
   };
 
   const handlePagar = async (metodo: 'EFECTIVO' | 'TRANSFERENCIA' | 'CREDITO'): Promise<Venta | void> => {
@@ -581,16 +582,17 @@ export default function POSView({
     const orderNo = 'PED-' + Math.floor(100000 + Math.random() * 900000);
     const vtaId = generateId('vta');
 
-    // RN-01: Disminuir stock en Bodega Principal
-    setStock((prev: any) => {
+    // RN-01: Disminuir stock en la bodega activa
+    setStock((prev: Record<string, Record<string, number>>) => {
       const newStock = { ...prev };
-      if (newStock['Bodega Principal']) {
-        newStock['Bodega Principal'] = newStock['Bodega Principal'].map((stockItem: any) => {
-          const cartItem = cart.find(i => i.product.sku === stockItem.sku);
-          if (cartItem) {
-            return { ...stockItem, stock: Math.max(0, stockItem.stock - Number(cartItem.cantidad)) };
-          }
-          return stockItem;
+      const currentWarehouse = newStock[bodegaActiva];
+      
+      if (currentWarehouse) {
+        newStock[bodegaActiva] = { ...currentWarehouse };
+        cart.forEach(cartItem => {
+          const sku = cartItem.product.sku;
+          const currentStock = newStock[bodegaActiva][sku] || 0;
+          newStock[bodegaActiva][sku] = Math.max(0, currentStock - Number(cartItem.cantidad));
         });
       }
       return newStock;
@@ -640,17 +642,15 @@ export default function POSView({
     });
 
     const newMovements: MovimientoInventario[] = cart.map(item => {
-      const prodStock = stock['Bodega Principal']?.find((s: any) => s.sku === item.product.sku);
-      const lote = prodStock ? prodStock.lote : 'VENTA';
       return {
         id: generateId('mov'),
         timestamp: new Date().toISOString(),
         tipo: 'VENTA',
         sku: item.product.sku,
         nombreProducto: item.product.nombre,
-        bodegaOrigen: 'Bodega Principal',
+        bodegaOrigen: bodegaActiva,
         cantidad: Number(item.cantidad),
-        lote: lote,
+        lote: 'VENTA',
         referenciaId: vtaId,
         referenciaTipo: 'VENTA',
         actor: userRole,
@@ -918,16 +918,17 @@ export default function POSView({
     await new Promise(resolve => setTimeout(resolve, 1500));
 
     // Descontar stock real
-    setStock((prev: any) => {
+    setStock((prev: Record<string, Record<string, number>>) => {
       const newStock = { ...prev };
-      if (newStock['Bodega Principal']) {
-        newStock['Bodega Principal'] = newStock['Bodega Principal'].map((stockItem: any) => {
-          const orderItem = b2bItems.find((i: any) => i.sku === stockItem.sku);
-          if (orderItem) {
-            const qtyToDeduct = orderItem.cantidad_real !== undefined ? orderItem.cantidad_real : orderItem.cantidad;
-            return { ...stockItem, stock: Math.max(0, stockItem.stock - qtyToDeduct) };
-          }
-          return stockItem;
+      const principal = newStock['Bodega Principal'];
+      
+      if (principal) {
+        newStock['Bodega Principal'] = { ...principal };
+        b2bItems.forEach((orderItem: any) => {
+          const sku = orderItem.sku;
+          const qtyToDeduct = orderItem.cantidad_real !== undefined ? orderItem.cantidad_real : orderItem.cantidad;
+          const currentStock = newStock['Bodega Principal'][sku] || 0;
+          newStock['Bodega Principal'][sku] = Math.max(0, currentStock - qtyToDeduct);
         });
       }
       return newStock;
@@ -935,8 +936,6 @@ export default function POSView({
 
     // Registrar Movimiento de Inventario
     const newMovements: MovimientoInventario[] = b2bItems.map((item: any) => {
-      const prodStock = stock['Bodega Principal']?.find((s: any) => s.sku === item.sku);
-      const lote = prodStock ? prodStock.lote : 'B2B-WMS';
       const qty = item.cantidad_real !== undefined ? item.cantidad_real : item.cantidad;
       return {
         id: generateId('mov'),
@@ -946,7 +945,7 @@ export default function POSView({
         nombreProducto: item.nombre,
         bodegaOrigen: 'Bodega Principal',
         cantidad: qty,
-        lote: lote,
+        lote: 'B2B-WMS',
         referenciaId: quoteId,
         referenciaTipo: 'VENTA',
         actor: userRole,
@@ -1266,7 +1265,7 @@ export default function POSView({
             drafts={drafts}
             activeDraftId={activeDraftId}
             stock={stock}
-            bodegaActiva="Bodega Principal"
+            bodegaActiva={bodegaActiva}
             lastClientPrices={lastClientPrices}
             onUpdateCantidad={actualizarCantidad}
             onUpdateDescuentoLinea={actualizarDescuentoLinea}

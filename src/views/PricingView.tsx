@@ -21,8 +21,8 @@ interface PricingViewProps {
     enqueueSync?: boolean
   ) => void;
   userRole: string;
-  stock: Record<string, any[]>;
-  setStock: React.Dispatch<React.SetStateAction<Record<string, any[]>>>;
+  stock: Record<string, Record<string, number>>;
+  setStock: React.Dispatch<React.SetStateAction<Record<string, Record<string, number>>>>;
   lastClientPrices: Record<string, Record<string, number>>;
   updateLastClientPrice: (clientKey: string, sku: string, price: number) => void;
   clientes: Cliente[];
@@ -608,15 +608,15 @@ export default function PricingView({
           // Decrease stock in Bodega Principal
           setStock(prev => {
             const newStock = { ...prev };
-            if (newStock['Bodega Principal']) {
-              newStock['Bodega Principal'] = newStock['Bodega Principal'].map((stockItem: any) => {
-                // If it was prepared, we deduct the quantity_real; otherwise the quantity_solicitada
-                const quoteItem = q.items.find((i: any) => i.sku === stockItem.sku);
-                if (quoteItem) {
+            const mainBodega = 'Bodega Principal';
+            if (newStock[mainBodega]) {
+              newStock[mainBodega] = { ...newStock[mainBodega] };
+              q.items.forEach((quoteItem: any) => {
+                const sku = quoteItem.sku;
+                if (newStock[mainBodega][sku] !== undefined) {
                   const cantADescontar = quoteItem.cantidad_real !== undefined ? quoteItem.cantidad_real : quoteItem.cantidad;
-                  return { ...stockItem, stock: Math.max(0, stockItem.stock - cantADescontar) };
+                  newStock[mainBodega][sku] = Math.max(0, newStock[mainBodega][sku] - cantADescontar);
                 }
-                return stockItem;
               });
             }
             return newStock;

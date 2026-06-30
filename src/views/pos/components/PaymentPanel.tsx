@@ -9,7 +9,8 @@ export interface PaymentPanelProps {
   totalFinal: number;
   lineas: LineaVenta[];
   cliente: ClientePOS | null;
-  stock: Record<string, any[]>;
+  stock: Record<string, Record<string, number>>;
+  bodegaActiva: string;
   onGuardarBorrador: () => void;
   onPagar: (metodo: 'EFECTIVO' | 'TRANSFERENCIA' | 'CREDITO') => Promise<any> | void;
   onLimpiarCarrito: () => void;
@@ -23,6 +24,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
   lineas,
   cliente,
   stock,
+  bodegaActiva,
   onGuardarBorrador,
   onPagar,
   onLimpiarCarrito,
@@ -49,7 +51,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
     let stockSuficiente = true;
     const itemsFaltantes: string[] = [];
     lineas.forEach(item => {
-      const stockDisponible = stock['Bodega Principal']?.find(s => s.sku === item.sku)?.stock || 0;
+      const stockDisponible = stock[bodegaActiva]?.[item.sku] || 0;
       if (stockDisponible < item.cantidad) {
         stockSuficiente = false;
         itemsFaltantes.push(`• ${item.nombre} (Solicitado: ${item.cantidad}, Disp: ${stockDisponible})`);
@@ -62,7 +64,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
         title: 'Venta Bloqueada: Stock Insuficiente',
         html: `
           <div style="text-align: left; font-size: 14px;">
-            <p>No se puede liquidar la venta porque el stock en <strong>Bodega Principal</strong> es insuficiente:</p>
+            <p>No se puede liquidar la venta porque el stock en <strong>${bodegaActiva}</strong> es insuficiente:</p>
             <ul style="color: #EF4444; font-weight: 600; list-style-type: none; padding-left: 0;">
               ${itemsFaltantes.map(msg => `<li style="margin-bottom: 6px;">${msg}</li>`).join('')}
             </ul>
@@ -193,6 +195,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
           className="flex-[2] flex items-center justify-center gap-2 bg-blue-600 text-white font-bold rounded-xl min-h-[3.5rem] active:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-md text-lg"
           onClick={handleCobrarClick}
           disabled={isDisabled}
+          data-testid="btn-cobrar"
         >
           <span>Cobrar: ${totalFinal.toLocaleString('es-CO')}</span>
         </button>

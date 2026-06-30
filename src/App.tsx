@@ -788,7 +788,33 @@ export default function App() {
     loadProveedores(INITIAL_PROVEEDORES);
   }, [loadOrders, loadBodegas, loadInventory, loadClientes, loadProveedores]);
 
-  const [stock, setStock] = useState<Record<string, any[]>>(() => localDb.load('stock', {}));
+  const [stock, setStock] = useState<Record<string, Record<string, number>>>(() => {
+    const saved = localDb.load('stock', {} as any);
+    let needsSave = false;
+    const migrated: Record<string, Record<string, number>> = {};
+    
+    // Migration logic from Array to O(1) Dictionary
+    for (const bodega in saved) {
+      if (Array.isArray(saved[bodega])) {
+        needsSave = true;
+        migrated[bodega] = {};
+        saved[bodega].forEach((item: any) => {
+          if (item && item.sku && typeof item.stock === 'number') {
+            migrated[bodega][item.sku] = item.stock;
+          }
+        });
+      } else {
+        migrated[bodega] = saved[bodega] || {};
+      }
+    }
+    
+    if (needsSave) {
+      console.log('Migración de stock ejecutada: array -> dict O(1)');
+      localDb.save('stock', migrated);
+    }
+    
+    return migrated;
+  });
   const [lastClientPrices, setLastClientPrices] = useState<Record<string, Record<string, number>>>(() => localDb.load('lastClientPrices', {}));
 
   const [categorias, setCategorias] = useState<CategoriaConfig[]>(() => localDb.load('categorias', [
@@ -987,19 +1013,17 @@ export default function App() {
 
   // Synchronize stock based on current products catalog and active bodegas
   useEffect(() => {
-    setStock((prev: Record<string, any[]>) => {
+    setStock((prev: Record<string, Record<string, number>>) => {
       const newStock = { ...prev };
       const activeBodegas = bodegas.filter(b => b.activa).map(b => b.nombre);
       
       activeBodegas.forEach((bodega: string) => {
         if (!newStock[bodega]) {
-          newStock[bodega] = [];
+          newStock[bodega] = {};
         }
         
-        // Agregar productos faltantes
-        const currentSkus = new Set(newStock[bodega].map((item: any) => item.sku));
         products.forEach((p: any) => {
-          if (!currentSkus.has(p.sku)) {
+          if (newStock[bodega][p.sku] === undefined) {
             let qty = 0;
             if (bodega === 'Bodega Principal') {
               if (p.sku === 'PES-ENT-001') qty = 500;
@@ -1011,24 +1035,17 @@ export default function App() {
             } else if (bodega === 'Bodega Averías') {
               if (p.sku === 'FIL-LIM-002') qty = 12;
             }
-            
-            newStock[bodega].push({
-              sku: p.sku,
-              nombre: p.nombre,
-              stock: qty,
-              lote: `LOT-2026-${p.sku.slice(0, 3)}-${bodega.slice(7, 10).toUpperCase()}`
-            });
+            newStock[bodega][p.sku] = qty;
           }
         });
 
-        // Actualizar nombres y filtrar productos obsoletos
-        newStock[bodega] = newStock[bodega].map((item: any) => {
-          const matched = products.find((p: any) => p.sku === item.sku);
-          if (matched) {
-            return { ...item, nombre: matched.nombre };
+        // Filtrar productos obsoletos (que ya no están en el catálogo)
+        const productSkus = new Set(products.map((p: any) => p.sku));
+        for (const sku in newStock[bodega]) {
+          if (!productSkus.has(sku)) {
+            delete newStock[bodega][sku];
           }
-          return item;
-        }).filter((item: any) => products.some((p: any) => p.sku === item.sku));
+        }
       });
 
       return newStock;
