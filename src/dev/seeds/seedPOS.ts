@@ -8,13 +8,26 @@ export const SEED_DATA: Record<string, unknown> = {
   ],
   pezcaderia_turnos_caja: [],
   pezcaderia_products_catalog: [
-    { id: 'prod-salmon', name: 'Salmón Fresco', price: 35000, category: 'Pescados', active: true, claseABC: 'A' },
-    { id: 'prod-tilapia', name: 'Tilapia Roja', price: 15000, category: 'Pescados', active: true, claseABC: 'B' },
-    { id: 'prod-trucha', name: 'Trucha Arcoiris', price: 25000, category: 'Pescados', active: true, claseABC: 'A' }
+    { id: 'prod-salmon', sku: 'PES-ENT-001', nombre: 'Salmón Fresco', categoria: 'Pescados', activo: true, categoriaABC: 'A' },
+    { id: 'prod-tilapia', sku: 'FIL-LIM-002', nombre: 'Tilapia Roja', categoria: 'Pescados', activo: true, categoriaABC: 'B' },
+    { id: 'prod-trucha', sku: 'CAM-TIG-003', nombre: 'Trucha Arcoiris', categoria: 'Pescados', activo: true, categoriaABC: 'A' }
+  ],
+  pezcaderia_product_pricings: [
+    { id: 'prc-salmon', productoId: 'prod-salmon', vigenciaDesde: new Date().toISOString(), precio_compra: 20000, buffer_seguridad: 5, precio_venta_pos: 35000, precio_venta_restaurante: 32000, precio_venta_mayorista: 30000, actualizadoPor: 'admin' },
+    { id: 'prc-tilapia', productoId: 'prod-tilapia', vigenciaDesde: new Date().toISOString(), precio_compra: 8000, buffer_seguridad: 5, precio_venta_pos: 15000, precio_venta_restaurante: 12000, precio_venta_mayorista: 10000, actualizadoPor: 'admin' },
+    { id: 'prc-trucha', productoId: 'prod-trucha', vigenciaDesde: new Date().toISOString(), precio_compra: 15000, buffer_seguridad: 5, precio_venta_pos: 25000, precio_venta_restaurante: 22000, precio_venta_mayorista: 20000, actualizadoPor: 'admin' }
   ],
   pezcaderia_stock: {
-    'caja-test-menor': { 'prod-salmon': 10, 'prod-tilapia': 5, 'prod-trucha': 8 },
-    'Bodega Principal': { 'prod-salmon': 10, 'prod-tilapia': 5, 'prod-trucha': 8 } // Adding both just in case the system relies on bodega or caja stock mapping
+    'caja-test-menor': [
+      { sku: 'PES-ENT-001', stock: 10 },
+      { sku: 'FIL-LIM-002', stock: 5 },
+      { sku: 'CAM-TIG-003', stock: 8 }
+    ],
+    'Bodega Principal': [
+      { sku: 'PES-ENT-001', stock: 10 },
+      { sku: 'FIL-LIM-002', stock: 5 },
+      { sku: 'CAM-TIG-003', stock: 8 }
+    ]
   },
   pezcaderia_clientes: [
     {

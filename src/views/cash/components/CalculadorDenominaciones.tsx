@@ -85,6 +85,7 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
             min="0"
             step="1"
             disabled={readOnly}
+            data-denominacion={item.key}
             value={cantidad === 0 ? '' : cantidad}
             onChange={(e) => handleChange(item.key as keyof DetalleArqueo, e.target.value)}
             onKeyDown={handleKeyDown}

@@ -1,19 +1,19 @@
 // src/views/POSView.tsx
 import React, { useState, useEffect } from 'react';
-import * as localDb from '../services/localDb.ts';
+import * as localDb from '../services/localDb';
 import { Plus, X, Check, CreditCard, FileText, Truck, RefreshCw, AlertTriangle, AlertCircle } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { Product, DynamicField, Cliente, generateId, Venta, MovimientoInventario, Conductor, DevolucionPedido, toTitleCase } from '../App.tsx';
-import { InvoiceAR } from './ARView.tsx';
-import OrderKanbanView from './OrderKanbanView.tsx';
-import { usePOSCart } from '../hooks/usePOSCart.ts';
-import { TicketBuilder } from './pos/components/TicketBuilder.tsx';
-import { CartPanel } from './pos/components/CartPanel.tsx';
-import { ProductSearchPanel } from './pos/components/ProductSearchPanel.tsx';
-import { AperturaCajaModal } from './pos/components/AperturaCajaModal.tsx';
-import ArqueoCajaModal from './cash/components/ArqueoCajaModal.tsx';
-import { cashService } from '../services/cashService.ts';
-import { useWarehouseStore } from '../store/useWarehouseStore.ts';
+import { Product, DynamicField, Cliente, generateId, Venta, MovimientoInventario, Conductor, DevolucionPedido, toTitleCase } from '../App';
+import { InvoiceAR } from './ARView';
+import OrderKanbanView from './OrderKanbanView';
+import { usePOSCart } from '../hooks/usePOSCart';
+import { TicketBuilder } from './pos/components/TicketBuilder';
+import { CartPanel } from './pos/components/CartPanel';
+import { ProductSearchPanel } from './pos/components/ProductSearchPanel';
+import { AperturaCajaModal } from './pos/components/AperturaCajaModal';
+import ArqueoCajaModal from './cash/components/ArqueoCajaModal';
+import { cashService } from '../services/cashService';
+import { useWarehouseStore } from '../store/useWarehouseStore';
 interface POSViewProps {
   products: Product[];
   dynamicFields: DynamicField[];
@@ -2072,7 +2072,7 @@ export default function POSView({
           userRole={userRole}
           bodegaActiva={useWarehouseStore.getState().getPrimaryBodega()?.nombre || 'Bodega Principal'}
           onSuccess={() => setShowAperturaModal(false)}
-          onCancel={() => setCurrentView('dashboard')}
+          onCancel={() => setShowAperturaModal(false)}
         />
       )}
 

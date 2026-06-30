@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Save, CreditCard, Banknote, Landmark, Unlock } from 'lucide-react';
+import { Save, CreditCard, Banknote, Landmark, Unlock, Lock } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { usePOSPrinter } from '../../../hooks/usePOSPrinter';
 import type { LineaVenta } from '../../../types/pos.types';
@@ -15,7 +15,7 @@ export interface PaymentPanelProps {
   onLimpiarCarrito: () => void;
   isDisabled: boolean;
   isTurnoAbierto: boolean;
-  onAbrirTurnoClick: () => void;
+  onAbrirTurnoClick?: () => void;
 }
 
 export const PaymentPanel: React.FC<PaymentPanelProps> = ({
@@ -109,16 +109,28 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
 
   if (!isTurnoAbierto) {
     return (
-      <div className="flex flex-col gap-3 mt-4 p-4 bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl items-center justify-center text-center">
-        <div className="bg-white p-3 rounded-full shadow-sm mb-2">
-          <Unlock size={32} className="text-slate-400" />
+      <div className="relative flex flex-col gap-4 mt-4 p-6 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl items-center justify-center text-center shadow-xl overflow-hidden group">
+        {/* Decorative background glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-blue-500/20 blur-3xl rounded-full opacity-50 group-hover:opacity-75 transition-opacity duration-500 pointer-events-none" />
+        
+        <div className="relative z-10 flex items-center justify-center w-16 h-16 bg-white/10 rounded-2xl backdrop-blur-md border border-white/20 shadow-inner mb-1">
+          <Lock size={32} className="text-blue-400 drop-shadow-md" />
         </div>
-        <h4 className="font-bold text-slate-700 text-lg">Caja Cerrada</h4>
-        <p className="text-sm text-slate-500 mb-2">Debe abrir un turno de caja para procesar cobros en el POS.</p>
+        
+        <div className="relative z-10 mb-2">
+          <h4 className="font-extrabold text-white text-xl tracking-tight mb-1">Caja Cerrada</h4>
+          <p className="text-sm text-slate-300 font-medium max-w-[220px] mx-auto leading-tight">
+            El flujo de ventas está pausado. Abra un turno para reanudar.
+          </p>
+        </div>
+
         <button 
+          type="button"
           onClick={onAbrirTurnoClick}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all active:scale-[0.98]"
+          data-testid="btn-abrir-turno"
+          className="relative z-10 w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold py-3.5 px-4 rounded-xl shadow-[0_4px_14px_0_rgba(59,130,246,0.39)] hover:shadow-[0_6px_20px_rgba(59,130,246,0.23)] transition-all duration-300 active:scale-[0.98] border border-blue-400/30"
         >
+          <Unlock size={20} />
           Abrir Turno de Caja
         </button>
       </div>

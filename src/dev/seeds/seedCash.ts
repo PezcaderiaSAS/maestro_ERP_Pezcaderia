@@ -3,8 +3,8 @@ export const SEED_DATA: Record<string, unknown> = {
     { id: 'b1', nombre: 'Bodega Principal', activa: true }
   ],
   pezcaderia_cajas: [
-    { id: 'caja-cash-test', bodegaId: 'BODEGA-1', nombre: 'Caja Menor - Bodega Principal', activa: true },
-    { id: 'caja-fuerte-test', bodegaId: 'BODEGA-1', nombre: 'Caja Fuerte', activa: true }
+    { id: 'caja-cash-test', bodegaId: 'Bodega Principal', nombre: 'Caja Menor - Bodega Principal', activa: true },
+    { id: 'caja-fuerte-test', bodegaId: 'Bodega Principal', nombre: 'Caja Fuerte', activa: true }
   ],
   pezcaderia_turnos_caja: [
     {

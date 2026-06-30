@@ -42,7 +42,7 @@ interface CartPanelProps {
 
   // Props de caja
   isTurnoAbierto: boolean;
-  onAbrirTurnoClick: () => void;
+  onAbrirTurnoClick?: () => void;
   onCerrarTurnoClick?: () => void;
 }
 

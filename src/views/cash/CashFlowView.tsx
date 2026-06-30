@@ -5,8 +5,7 @@ import { Caja, TurnoCaja, MovimientoCaja } from '../../types/cash.types';
 import Swal from 'sweetalert2';
 import ArqueoCajaModal from './components/ArqueoCajaModal';
 import TrasladoDineroModal from './components/TrasladoDineroModal';
-// Import dependencies para selector de bodega (mockeado o tomado del store real si existe)
-// Asumimos que userRole y activeBodega son pasados como props o sacados de un contexto.
+import { useWarehouseStore } from '../../store/useWarehouseStore';
 
 interface CashFlowViewProps {
   userRole: string;
@@ -14,8 +13,10 @@ interface CashFlowViewProps {
 }
 
 export default function CashFlowView({ userRole, usuarioId }: CashFlowViewProps) {
-  // Estado local para mockear bodega activa (en un caso real vendría de props o context)
-  const [bodegaId, setBodegaId] = useState<string>('BODEGA-1'); 
+  const { bodegas, getPrimaryBodega } = useWarehouseStore();
+  const primaryBodega = getPrimaryBodega()?.nombre || 'Bodega Principal';
+  
+  const [bodegaSeleccionada, setBodegaSeleccionada] = useState<string>(primaryBodega); 
   
   const [cajas, setCajas] = useState<Caja[]>([]);
   const [cajaSeleccionada, setCajaSeleccionada] = useState<string>('');
@@ -32,19 +33,23 @@ export default function CashFlowView({ userRole, usuarioId }: CashFlowViewProps)
     // Si no existen cajas en la BD, inyectamos unas de prueba por primera vez
     let cajasGuardadas = cashService.getCajas();
     if (cajasGuardadas.length === 0) {
-      cashService.guardarCaja({ id: 'CAJA-1', bodegaId: 'BODEGA-1', nombre: 'Caja POS Principal', activa: true });
-      cashService.guardarCaja({ id: 'CAJA-2', bodegaId: 'BODEGA-1', nombre: 'Caja Fuerte Administrativa', activa: true });
-      cashService.guardarCaja({ id: 'CAJA-3', bodegaId: 'BODEGA-1', nombre: 'Caja POS Secundaria', activa: true });
+      cashService.guardarCaja({ id: 'CAJA-1', bodegaId: primaryBodega, nombre: 'Caja POS Principal', activa: true });
+      cashService.guardarCaja({ id: 'CAJA-2', bodegaId: primaryBodega, nombre: 'Caja Fuerte Administrativa', activa: true });
+      cashService.guardarCaja({ id: 'CAJA-3', bodegaId: primaryBodega, nombre: 'Caja POS Secundaria', activa: true });
       cajasGuardadas = cashService.getCajas();
     }
     
-    const cajasBodega = cajasGuardadas.filter(c => c.bodegaId === bodegaId && c.activa);
+    const cajasBodega = cajasGuardadas.filter(c => c.bodegaId === bodegaSeleccionada && c.activa);
     setCajas(cajasBodega);
     
-    if (cajasBodega.length > 0 && !cajaSeleccionada) {
+    if (cajasBodega.length > 0) {
       setCajaSeleccionada(cajasBodega[0].id);
+    } else {
+      setCajaSeleccionada('');
+      setTurnoActivo(null);
+      setMovimientos([]);
     }
-  }, [bodegaId]);
+  }, [bodegaSeleccionada, primaryBodega]);
 
   // Cargar Turno Activo
   const loadData = () => {
@@ -155,11 +160,12 @@ export default function CashFlowView({ userRole, usuarioId }: CashFlowViewProps)
           <span className="text-sm font-medium text-gray-600">Bodega:</span>
           <select 
             className="border-gray-300 rounded text-sm focus:ring-blue-500 font-semibold"
-            value={bodegaId}
-            onChange={(e) => setBodegaId(e.target.value)}
+            value={bodegaSeleccionada}
+            onChange={(e) => setBodegaSeleccionada(e.target.value)}
           >
-            <option value="BODEGA-1">Bodega Norte (Principal)</option>
-            <option value="BODEGA-2">Bodega Sur</option>
+            {bodegas.filter(b => b.activa).map(b => (
+              <option key={b.id} value={b.nombre}>{b.nombre}</option>
+            ))}
           </select>
 
           <span className="text-sm font-medium text-gray-600 ml-4">Caja:</span>
