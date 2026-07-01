@@ -6,24 +6,22 @@
 
 # Test info
 
-- Name: pos.spec.ts >> POS - Flujo de Apertura, Venta y Cierre (FASE 6) >> TASK-12: Agregar test de venta a pos.spec.ts >> Debe validar RN-01: Intentar vender producto con stock=0 -> mostrar error
-- Location: tests\e2e\pos.spec.ts:195:5
+- Name: pos.spec.ts >> POS - Flujo de Apertura, Venta y Cierre (FASE 6) >> TASK-13: Agregar test de cierre a pos.spec.ts >> Debe cerrar la caja y registrar el arqueo (RN-44)
+- Location: tests\e2e\pos.spec.ts:245:5
 
 # Error details
 
 ```
-Error: expect(locator).toHaveText(expected) failed
+Error: expect(locator).toBeVisible() failed
 
-Locator: locator('.swal2-title')
-Expected pattern: /Venta Bloqueada: Stock Insuficiente|Sin stock|Error/i
-Timeout: 4000ms
+Locator: locator('[data-testid="btn-cierre-caja"], [data-testid="btn-cerrar-turno"], button:has-text("Cerrar Turno"), button:has-text("Cierre de Caja")').first()
+Expected: visible
+Timeout: 15000ms
 Error: element(s) not found
 
 Call log:
-  - Expect "toHaveText" with timeout 4000ms
-  - waiting for locator('.swal2-title')
-    7 × locator resolved to <h2 id="swal2-title" class="swal2-title">Venta Procesada</h2>
-      - unexpected value "Venta Procesada"
+  - Expect "toBeVisible" with timeout 15000ms
+  - waiting for locator('[data-testid="btn-cierre-caja"], [data-testid="btn-cerrar-turno"], button:has-text("Cerrar Turno"), button:has-text("Cierre de Caja")').first()
 
 ```
 
@@ -32,7 +30,7 @@ Call log:
   - text: 🐟 La Pezcadería
   - button:
     - img
-  - text: Comercial > Punto de Venta (POS) PEZCADERIA S.A.S
+  - text: Comercial > Gestión de Cajas PEZCADERIA S.A.S
   - button "Ayuda":
     - img
   - button "Inicio":
@@ -42,64 +40,71 @@ Call log:
     - text: Facturar
   - text: Yu
 - complementary:
-  - text: Yu
-  - button:
+  - text: Yu Yurgen Moreno
+  - combobox:
+    - option "Super administrador" [selected]
+    - option "Vendedor"
+    - option "Jefe de bodega"
+    - option "Administrativo"
+  - button "Facturar":
     - img
+    - text: Facturar
   - navigation:
     - img
+    - text: POS
     - img
+    - text: Cotizacion
     - img
+    - text: Clientes
     - img
+    - text: CRM (Twenty)
     - img
+    - text: Documentos
     - img
+    - text: Compras y Gastos
     - img
+    - text: Cartera
     - img
+    - text: Inventario
     - img
+    - text: Alistamiento Bodega
     - img
+    - text: Traslados
     - img
+    - text: Ajuste
     - img
+    - text: Caja
     - img
+    - text: Cuentas
     - img
+    - text: Personal (RRHH)
     - img
+    - text: Nómina
     - img
+    - text: Despachos / Kanban
     - img
+    - text: Produccion
     - img
-  - button:
+    - text: Panel de Control
+  - button "Salir":
     - img
+    - text: Salir
 - main:
-  - button "Venta Rápida (POS)":
-    - img
-    - text: Venta Rápida (POS)
-  - button "Consolidación y Facturación B2B":
-    - img
-    - text: Consolidación y Facturación B2B
-  - button "Monitoreo Canales Digitales":
-    - img
-    - text: Monitoreo Canales Digitales
-  - button "KB Gestión Kanban"
-  - text: "Rol: admin"
+  - heading "Gestión de Cajas" [level=1]
+  - paragraph: Control de flujo de efectivo por bodega
+  - text: "Bodega:"
+  - combobox:
+    - option "Bodega Principal" [selected]
+  - text: "Caja:"
+  - combobox:
+    - option "Caja Menor - Bodega Principal" [selected]
+    - option "Caja Mayor - Bodega Principal"
   - img
-  - textbox "Buscar por nombre o SKU..."
-  - img
-  - textbox "Código de Barras..."
-  - button "Simular Scan":
+  - heading "La caja está cerrada" [level=2]
+  - paragraph: Debe abrir un turno para procesar ventas y registrar movimientos de efectivo en esta caja.
+  - button "Abrir Turno de Caja":
     - img
-    - text: Simular Scan
-  - button "TODOS"
-  - button "Pescados"
-  - img "Salmón Fresco"
-  - text: "Salmón Fresco $35.000 Categoría Descriptiva (Grupo): General Bod. Principal: 499 uds Bod. Secundaria: 0 uds Bod. Averías: 0 uds"
-  - img "Trucha Arcoiris"
-  - text: "Trucha Arcoiris $25.000 Categoría Descriptiva (Grupo): General Bod. Principal: 85 uds Bod. Secundaria: 0 uds Bod. Averías: 0 uds"
-  - img "Tilapia Roja"
-  - text: "Tilapia Roja $15.000 Categoría Descriptiva (Grupo): General Bod. Principal: 120 uds Bod. Secundaria: 0 uds Bod. Averías: 0 uds"
-  - heading "Venta Realizada con Éxito" [level=3]
-  - text: Previsualización de Ticket
-  - button "Imprimir":
-    - img
-    - text: Imprimir
-  - text: "*** ERP MAESTRO PESCADERIA *** PESCADERIA S.A.S. NIT: 900.123.456-1 Dirección: Calle 72 # 15-23, Bogotá Teléfono: 310 123 4567 ======================================== Factura: VTA-D11E22A6 Fecha : 1/7/2026, 9:46:26 a. m. Cajero : admin ---------------------------------------- Cliente: CONSUMIDOR FINAL NIT/CC : 222222222222 ======================================== PRODUCTO/CANT TOTAL ---------------------------------------- Salmón Fresco 1 UNIDAD x $35.000 $35.000 ======================================== SUBTOTAL: $35.000 TOTAL FINAL: $35.000 ---------------------------------------- Método Pago: CONTADO Efectivo Recibido: $35.000 ======================================== ¡GRACIAS POR SU COMPRA! Pescado fresco del día"
-  - button "Nueva Venta"
+    - text: Abrir Turno de Caja
 - button "Panel de Pruebas Dev":
   - img
 ```
@@ -107,31 +112,6 @@ Call log:
 # Test source
 
 ```ts
-  123 |         // Fix for dynamic warehouse architecture stock structure (dictionary format by SKU)
-  124 |         const pezcaderiaStock = {
-  125 |           "b1": {
-  126 |             "PES-ENT-001": 10,
-  127 |             "FIL-LIM-002": 5,
-  128 |             "CAM-TIG-003": 8
-  129 |           }
-  130 |         };
-  131 |         localStorage.setItem('pezcaderia_stock', JSON.stringify(pezcaderiaStock));
-  132 |       }, { ...POS_SEED_DATA, ...CASH_SEED_DATA }); // Merge to get products AND open shift
-  133 |       await page.reload();
-  134 |       await page.waitForLoadState('domcontentloaded');
-  135 |       await page.waitForLoadState('networkidle');
-  136 |       await expect(page.locator('.sidebar-menu')).toBeVisible({ timeout: 15000 });
-  137 |       await page.click('[data-testid="nav-pos"]');
-  138 |     });
-  139 | 
-  140 |     test('Debe procesar una venta y decrementar el stock (RN-01)', async ({ page }) => {
-  141 |       page.on('console', msg => console.log('BROWSER CONSOLE:', msg.text()));
-  142 |       
-  143 |       const turnosStr = await page.evaluate(() => localStorage.getItem('pezcaderia_turnos_caja'));
-  144 |       console.log('TURNOS EN LOCALSTORAGE AL INICIO:', turnosStr);
-  145 |       
-  146 |       const paymentPanelHTML = await page.evaluate(() => {
-  147 |         const el = document.querySelector('.pos-cart-footer');
   148 |         return el ? el.innerHTML : 'No cart footer found';
   149 |       });
   150 |       console.log('PAYMENT PANEL HTML:', paymentPanelHTML);
@@ -207,8 +187,7 @@ Call log:
   220 |       await btnCobrar.click();
   221 | 
   222 |       const swalTitle = page.locator('.swal2-title');
-> 223 |       await expect(swalTitle).toHaveText(/Venta Bloqueada: Stock Insuficiente|Sin stock|Error/i, { timeout: 4000 });
-      |                               ^ Error: expect(locator).toHaveText(expected) failed
+  223 |       await expect(swalTitle).toHaveText(/Venta Bloqueada: Stock Insuficiente|Sin stock|Error/i, { timeout: 4000 });
   224 |     });
   225 |   });
   226 | 
@@ -233,7 +212,8 @@ Call log:
   245 |     test('Debe cerrar la caja y registrar el arqueo (RN-44)', async ({ page }) => {
   246 |       // Hacer clic en data-testid="btn-cierre-caja" o su equivalente visual
   247 |       const btnCierreCaja = page.locator('[data-testid="btn-cierre-caja"], [data-testid="btn-cerrar-turno"], button:has-text("Cerrar Turno"), button:has-text("Cierre de Caja")').first();
-  248 |       await expect(btnCierreCaja).toBeVisible({ timeout: 15000 });
+> 248 |       await expect(btnCierreCaja).toBeVisible({ timeout: 15000 });
+      |                                   ^ Error: expect(locator).toBeVisible() failed
   249 |       await btnCierreCaja.click({ force: true });
   250 | 
   251 |       // Ingresar monto en data-testid="input-efectivo-arqueo"

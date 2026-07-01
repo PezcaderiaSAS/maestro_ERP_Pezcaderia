@@ -5,6 +5,7 @@ import { Caja, TurnoCaja, MovimientoCaja } from '../../types/cash.types';
 import Swal from 'sweetalert2';
 import ArqueoCajaModal from './components/ArqueoCajaModal';
 import TrasladoDineroModal from './components/TrasladoDineroModal';
+import { AperturaCajaModal } from '../pos/components/AperturaCajaModal';
 import { useWarehouseStore } from '../../store/useWarehouseStore';
 
 interface CashFlowViewProps {
@@ -27,6 +28,8 @@ export default function CashFlowView({ userRole, usuarioId }: CashFlowViewProps)
   // Modales
   const [showCierreModal, setShowCierreModal] = useState(false);
   const [showTrasladoModal, setShowTrasladoModal] = useState(false);
+
+  const [showAperturaModal, setShowAperturaModal] = useState(false);
 
   // Cargar Cajas
   useEffect(() => {
@@ -69,30 +72,7 @@ export default function CashFlowView({ userRole, usuarioId }: CashFlowViewProps)
   }, [cajaSeleccionada]);
 
   const handleApertura = () => {
-    Swal.fire({
-      title: 'Apertura de Turno',
-      input: 'number',
-      inputLabel: 'Base Inicial (Efectivo en gaveta)',
-      inputPlaceholder: 'Ej: 100000',
-      showCancelButton: true,
-      confirmButtonText: 'Abrir Caja',
-      preConfirm: (value) => {
-        if (!value || isNaN(Number(value)) || Number(value) < 0) {
-          Swal.showValidationMessage('Debe ingresar una base inicial válida mayor o igual a cero');
-        }
-        return Number(value);
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const res = cashService.abrirTurno(cajaSeleccionada, usuarioId, result.value);
-        if (!res.error) {
-          Swal.fire('Éxito', 'Turno abierto correctamente', 'success');
-          loadData();
-        } else {
-          Swal.fire('Error', res.error, 'error');
-        }
-      }
-    });
+    setShowAperturaModal(true);
   };
 
   const handleEgresoRapido = () => {
@@ -344,6 +324,18 @@ export default function CashFlowView({ userRole, usuarioId }: CashFlowViewProps)
       )}
 
       {/* Render Modales */}
+      {showAperturaModal && (
+        <AperturaCajaModal
+          userRole={userRole}
+          bodegaActiva={bodegaSeleccionada}
+          onSuccess={() => {
+            setShowAperturaModal(false);
+            loadData();
+          }}
+          onCancel={() => setShowAperturaModal(false)}
+        />
+      )}
+
       {showCierreModal && turnoActivo && (
         <ArqueoCajaModal 
           turnoActivo={turnoActivo}

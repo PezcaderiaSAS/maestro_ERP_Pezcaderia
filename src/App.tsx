@@ -5,7 +5,7 @@ import POSView from './views/POSView.tsx';
 import InventoryView from './views/InventoryView.tsx';
 import HRView from './views/HRView.tsx';
 import PricingView from './views/PricingView.tsx';
-import ARView, { InvoiceAR } from './views/ARView.tsx';
+import ARView from './views/ARView.tsx';
 import ClientsView from './views/ClientsView.tsx';
 import SuppliersView from './views/SuppliersView.tsx';
 import OrderKanbanView from './views/OrderKanbanView.tsx';
@@ -21,6 +21,17 @@ import { useWarehouseStore } from './store/useWarehouseStore.ts';
 import { useOrderStore } from './store/useOrderStore.ts';
 import { useClientStore } from './store/useClientStore.ts';
 import { useSupplierStore } from './store/useSupplierStore.ts';
+import { useCategoryStore } from './store/useCategoryStore.ts';
+import { useDriverStore } from './store/useDriverStore.ts';
+import { useEmployeeStore } from './store/useEmployeeStore.ts';
+import { useExpenseStore } from './store/useExpenseStore.ts';
+import { useDynamicFieldStore } from './store/useDynamicFieldStore.ts';
+import { useARStore } from './store/useARStore.ts';
+import { useReturnStore } from './store/useReturnStore.ts';
+import { useIntegrationStore } from './store/useIntegrationStore.ts';
+import { usePurchaseStore } from './store/usePurchaseStore.ts';
+import { useMovementStore } from './store/useMovementStore.ts';
+import { useEventStore } from './store/useEventStore.ts';
 
 /** Genera IDs únicos usando crypto.randomUUID() — resistente a colisiones en operaciones rápidas */
 export const generateId = (prefix: string): string =>
@@ -283,11 +294,6 @@ export interface DevolucionPedido {
     loteInventario?: string;
   }>;
 }
-
-const INITIAL_CONDUCTORES: Conductor[] = [
-  { id: 'cond-1', nombre: 'José Daniel Ortiz', identificacion: '10203040', licencia: 'C2-10203040', celular: '3129998877', activo: true },
-  { id: 'cond-2', nombre: 'Carlos Mario Giraldo', identificacion: '80907060', licencia: 'C2-80907060', celular: '3157776655', activo: true }
-];
 
 export interface CategoriaConfig {
   id: string;
@@ -762,117 +768,46 @@ export default function App() {
     localDb.save('role', role);
   };
 
-  // Other dynamic states
-  const [events, setEvents] = useState<DomainEvent[]>(() => localDb.load('events', []));
-  const [syncQueue, setSyncQueue] = useState<SyncJob[]>(() => localDb.load('syncQueue', []));
-  
-  const [dynamicFields, setDynamicFields] = useState<DynamicField[]>(() => localDb.load('dynamicFields', [
-    {
-      key: 'categoria_descriptiva',
-      label: 'Categoría Descriptiva (Grupo)',
-      tipo: 'text',
-      defaultValue: 'General'
-    }
-  ]));
-
   const { ventas, setVentas, quotations, setQuotations, loadOrders } = useOrderStore();
   const { bodegas, setBodegas, loadBodegas } = useWarehouseStore();
-  const { clientes, setClientes, loadClientes } = useClientStore();
+  const { clientes, setClientes, loadClientes, lastClientPrices, loadLastClientPrices } = useClientStore();
   const { proveedores, setProveedores, loadProveedores } = useSupplierStore();
-  
+  const { categorias, setCategorias, loadCategorias } = useCategoryStore();
+  const { conductores, loadConductores } = useDriverStore();
+  const { empleados, setEmpleados, nominas, setNominas, loadEmpleados, loadNominas } = useEmployeeStore();
+  const { gastos, setGastos, loadGastos } = useExpenseStore();
+  const { dynamicFields, setDynamicFields, loadDynamicFields } = useDynamicFieldStore();
+  const { cartera, setCartera, loadCartera } = useARStore();
+  const { devoluciones, setDevoluciones, loadDevoluciones } = useReturnStore();
+  const { logIntegracion, setLogIntegracion, parametros, loadLogIntegracion, loadParametros } = useIntegrationStore();
+  const { stock, setStock, loadStock } = useInventoryStore();
+  const { ordenesCompra, setOrdenesCompra, loadOrdenesCompra } = usePurchaseStore();
+  const { movimientos, setMovimientos, loadMovimientos } = useMovementStore();
+  const { events, syncQueue, setEvents, setSyncQueue, loadEvents, loadSyncQueue } = useEventStore();
+
   useEffect(() => {
     loadOrders();
     loadBodegas();
     loadInventory();
     loadClientes(INITIAL_CLIENTS);
     loadProveedores(INITIAL_PROVEEDORES);
-  }, [loadOrders, loadBodegas, loadInventory, loadClientes, loadProveedores]);
-
-  const [stock, setStock] = useState<Record<string, Record<string, number>>>(() => {
-    const saved = localDb.load('stock', {} as any);
-    let needsSave = false;
-    const migrated: Record<string, Record<string, number>> = {};
-    
-    // Migration logic from Array to O(1) Dictionary
-    for (const bodega in saved) {
-      if (Array.isArray(saved[bodega])) {
-        needsSave = true;
-        migrated[bodega] = {};
-        saved[bodega].forEach((item: any) => {
-          if (item && item.sku && typeof item.stock === 'number') {
-            migrated[bodega][item.sku] = item.stock;
-          }
-        });
-      } else {
-        migrated[bodega] = saved[bodega] || {};
-      }
-    }
-    
-    if (needsSave) {
-      console.log('Migración de stock ejecutada: array -> dict O(1)');
-      localDb.save('stock', migrated);
-    }
-    
-    return migrated;
-  });
-  const [lastClientPrices, setLastClientPrices] = useState<Record<string, Record<string, number>>>(() => localDb.load('lastClientPrices', {}));
-
-  const [categorias, setCategorias] = useState<CategoriaConfig[]>(() => localDb.load('categorias', [
-    { id: generateId('cat'), tipo: 'Producto', linea: 'Pescados', clase: 'Filetes' },
-    { id: generateId('cat'), tipo: 'Producto', linea: 'Mariscos', clase: 'Camarones' },
-    { id: generateId('cat'), tipo: 'Materia Prima', linea: 'Pescados Enteros', clase: 'Corvina' }
-  ]));
-
-  useEffect(() => {
-    localDb.save('categorias', categorias);
-  }, [categorias]);
-
-  const [cartera, setCartera] = useState<InvoiceAR[]>(() => {
-    const saved = localDb.load('cartera', null as InvoiceAR[] | null);
-    if (saved) return saved;
-    return [
-      {
-        id: 'PED-045091',
-        clienteId: 'c-1',
-        clienteNombre: 'Restaurante Central',
-        clienteIdentificacion: '123',
-        fecha: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        total: 350000,
-        saldo: 200000,
-        pagado: 150000,
-        pagos: [
-          {
-            id: 'pgo-1',
-            fecha: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-            monto: 150000,
-            metodo: 'Transferencia'
-          }
-        ]
-      },
-      {
-        id: 'PED-098231',
-        clienteId: 'c-2',
-        clienteNombre: 'Restaurante del Mar',
-        clienteIdentificacion: '900123456-1',
-        fecha: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-        total: 500000,
-        saldo: 500000,
-        pagado: 0,
-        pagos: []
-      }
-    ];
-  });
-
-  useEffect(() => { localDb.save('events', events); }, [events]);
-  useEffect(() => { localDb.save('syncQueue', syncQueue); }, [syncQueue]);
-  useEffect(() => { localDb.save('dynamicFields', dynamicFields); }, [dynamicFields]);
-  useEffect(() => { localDb.save('stock', stock); }, [stock]);
-  useEffect(() => { localDb.save('lastClientPrices', lastClientPrices); }, [lastClientPrices]);
-  useEffect(() => { localDb.save('cartera', cartera); }, [cartera]);
-
-  // ─ F2: Estado de entidades transaccionales ───────────────────────────────────────────────
-  const [movimientos, setMovimientos] = useState<MovimientoInventario[]>(() => localDb.load('movimientos', []));
-  useEffect(() => { localDb.save('movimientos', movimientos); }, [movimientos]);
+    loadCategorias();
+    loadConductores();
+    loadEmpleados();
+    loadNominas();
+    loadGastos();
+    loadDynamicFields();
+    loadCartera();
+    loadDevoluciones();
+    loadLogIntegracion();
+    loadParametros();
+    loadStock();
+    loadOrdenesCompra();
+    loadMovimientos();
+    loadEvents();
+    loadSyncQueue();
+    loadLastClientPrices();
+  }, [loadOrders, loadBodegas, loadInventory, loadClientes, loadProveedores, loadCategorias, loadConductores, loadEmpleados, loadNominas, loadGastos, loadDynamicFields, loadCartera, loadDevoluciones, loadLogIntegracion, loadParametros, loadStock, loadOrdenesCompra, loadMovimientos, loadEvents, loadSyncQueue, loadLastClientPrices]);
 
   // Normalización del separador decimal para el teclado numérico
   useEffect(() => {
@@ -908,36 +843,6 @@ export default function App() {
     };
   }, []);
 
-  const [ordenesCompra, setOrdenesCompra] = useState<OrdenCompra[]>(() => localDb.load('ordenesCompra', []));
-  useEffect(() => { localDb.save('ordenesCompra', ordenesCompra); }, [ordenesCompra]);
-
-  const [conductores, _setConductores] = useState<Conductor[]>(() => localDb.load('conductores', INITIAL_CONDUCTORES));
-  useEffect(() => { localDb.save('conductores', conductores); }, [conductores]);
-
-  const [devoluciones, setDevoluciones] = useState<DevolucionPedido[]>(() => localDb.load('devoluciones', []));
-  useEffect(() => { localDb.save('devoluciones', devoluciones); }, [devoluciones]);
-
-  const [logIntegracion, setLogIntegracion] = useState<LogIntegracion[]>(() => localDb.load('logIntegracion', []));
-  useEffect(() => { localDb.save('logIntegracion', logIntegracion); }, [logIntegracion]);
-
-  const [parametros, _setParametros] = useState<Record<string, any>>(() => localDb.load('parametros', {
-    metodosPagoExternos: {
-      rappi: 'RAP-001',
-      shopify: 'SHO-001',
-      b2b: 'B2B-001'
-    },
-    cajaAisladaMetodos: ['RAP-001', 'SHO-001', 'B2B-001']
-  }));
-  useEffect(() => { localDb.save('parametros', parametros); }, [parametros]);
-
-  const [empleados, setEmpleados] = useState<Empleado[]>(() => localDb.load('empleados', []));
-  useEffect(() => { localDb.save('empleados', empleados); }, [empleados]);
-
-  const [nominas, setNominas] = useState<NominaRegistro[]>(() => localDb.load('nominas', []));
-  useEffect(() => { localDb.save('nominas', nominas); }, [nominas]);
-
-  const [gastos, setGastos] = useState<Gasto[]>(() => localDb.load('gastos', []));
-  useEffect(() => { localDb.save('gastos', gastos); }, [gastos]);
   // ──────────────────────────────────────────────────────────────────────────────
   // MIGRATE TO TITLE CASE (One-Time / Idempotent Cleanup)
   useEffect(() => {
@@ -1008,7 +913,7 @@ export default function App() {
       setProductsCatalog(migratedProducts);
       setEmpleados(migratedEmpleados);
     }
-  }, []); // Run once on mount
+  }, [clientes, proveedores, productsCatalog, empleados]); // Re-run when store data loads async
   // ──────────────────────────────────────────────────────────────────────────────
 
   // Synchronize stock based on current products catalog and active bodegas
@@ -1058,17 +963,7 @@ export default function App() {
    * Antes usaba el nombre, lo que provocaba pérdida del historial al editar el nombre.
    */
   const updateLastClientPrice = (identificacion: string, sku: string, price: number) => {
-    setLastClientPrices((prev: Record<string, Record<string, number>>) => {
-      const key = identificacion.trim().toLowerCase();
-      const updated = {
-        ...prev,
-        [key]: {
-          ...(prev[key] || {}),
-          [sku]: price
-        }
-      };
-      return updated;
-    });
+    useClientStore.getState().updateLastClientPrice(identificacion, sku, price);
   };
 
 
@@ -1080,27 +975,7 @@ export default function App() {
     metadata?: any,
     enqueueSync = true
   ) => {
-    const newEvent: DomainEvent = {
-      id: 'evt-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
-      timestamp: new Date().toISOString(),
-      tipo,
-      actor,
-      descripcion,
-      metadata
-    };
-    setEvents((prev: DomainEvent[]) => [newEvent, ...prev]);
-
-    if (enqueueSync) {
-      const newSyncJob: SyncJob = {
-        id: 'job-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
-        eventTipo: tipo,
-        payload: { newEvent },
-        estado: 'PENDIENTE',
-        intentos: 0,
-        timestamp: new Date().toISOString()
-      };
-      setSyncQueue((prev: SyncJob[]) => [newSyncJob, ...prev]);
-    }
+    useEventStore.getState().publishEvent(tipo, actor, descripcion, metadata, enqueueSync);
   };
 
   // Background processor for simulated resilient outbox integration queue (metasfresh style)

@@ -1,5 +1,10 @@
 import { create } from 'zustand';
+import type { IDataService } from '../types/services.types';
+import { LocalDataService } from '../services/LocalDataService';
 import * as localDb from '../services/localDb';
+
+let dataService: IDataService = new LocalDataService();
+export const setInventoryDataService = (ds: IDataService) => { dataService = ds; };
 
 export interface Producto {
   id: string;
@@ -20,16 +25,19 @@ export interface Producto {
   precio_venta_mayorista: number;
   activo: boolean;
   metadata?: Record<string, string>;
-  categoriaABC?: 'A' | 'B' | 'C'; // Para Análisis de Pareto 80/20
+  categoriaABC?: 'A' | 'B' | 'C';
 }
 
 interface InventoryState {
   productsCatalog: any[];
   productPricings: any[];
   products: Producto[];
+  stock: Record<string, Record<string, number>>;
   loadInventory: () => void;
+  loadStock: () => void;
   setProductsCatalog: (catalog: any[]) => void;
   setProductPricings: (pricings: any[]) => void;
+  setStock: (stockOrUpdater: any) => void;
   getProductoById: (id: string) => Producto | undefined;
 }
 
@@ -37,44 +45,75 @@ export const useInventoryStore = create<InventoryState>()((set, get) => ({
   productsCatalog: [],
   productPricings: [],
   products: [],
+  stock: {},
 
-  loadInventory: () => {
-    const catalog = localDb.load<any[]>('productsCatalog', []);
-    const pricings = localDb.load<any[]>('productPricings', []);
+  loadInventory: async () => {
+    try {
+      const [catalog, pricings] = await Promise.all([
+        dataService.getAll<any>('productos_catalogo'),
+        dataService.getAll<any>('productos_precios'),
+      ]);
 
-    const unifiedProducts: Producto[] = catalog.map(cat => {
-      const productPricings = pricings.filter(pr => pr.productoId === cat.id);
-      let currentPricing = productPricings[0];
-      if (productPricings.length > 1) {
-        currentPricing = productPricings.reduce((latest, current) => 
-          new Date(current.vigenciaDesde) > new Date(latest.vigenciaDesde) ? current : latest
-        );
+      const unifiedProducts: Producto[] = catalog.map((cat: any) => {
+        const productPricings = pricings.filter((pr: any) => pr.productoId === cat.id);
+        let currentPricing = productPricings[0];
+        if (productPricings.length > 1) {
+          currentPricing = productPricings.reduce((latest: any, current: any) =>
+            new Date(current.vigenciaDesde) > new Date(latest.vigenciaDesde) ? current : latest
+          );
+        }
+        const fb = { precio_compra: 0, buffer_seguridad: 0, precio_venta_pos: 0, precio_venta_restaurante: 0, precio_venta_mayorista: 0 };
+        return { ...cat, ...(currentPricing || fb), categoriaABC: cat.categoriaABC || 'C' } as Producto;
+      });
+
+      set({ productsCatalog: catalog, productPricings: pricings, products: unifiedProducts });
+    } catch {
+      set({ productsCatalog: [], productPricings: [], products: [] });
+    }
+  },
+
+  loadStock: () => {
+    const saved = localDb.load<any>('stock', {});
+    let needsSave = false;
+    const migrated: Record<string, Record<string, number>> = {};
+
+    for (const bodega in saved) {
+      if (Array.isArray(saved[bodega])) {
+        needsSave = true;
+        migrated[bodega] = {};
+        saved[bodega].forEach((item: any) => {
+          if (item && item.sku && typeof item.stock === 'number') {
+            migrated[bodega][item.sku] = item.stock;
+          }
+        });
+      } else {
+        migrated[bodega] = saved[bodega] || {};
       }
-      const fallbackPricing = { precio_compra: 0, buffer_seguridad: 0, precio_venta_pos: 0, precio_venta_restaurante: 0, precio_venta_mayorista: 0 };
-      
-      return { 
-        ...cat, 
-        ...(currentPricing || fallbackPricing),
-        categoriaABC: cat.categoriaABC || 'C'
-      } as Producto;
-    });
+    }
 
-    set({ productsCatalog: catalog, productPricings: pricings, products: unifiedProducts });
+    if (needsSave) {
+      console.log('Migración de stock ejecutada: array -> dict O(1)');
+      localDb.save('stock', migrated);
+    }
+
+    set({ stock: migrated });
   },
 
   setProductsCatalog: (catalog: any[]) => {
-    localDb.save('productsCatalog', catalog);
     set({ productsCatalog: catalog });
-    get().loadInventory(); // Recalculate unified products
+    get().loadInventory();
   },
 
   setProductPricings: (pricings: any[]) => {
-    localDb.save('productPricings', pricings);
     set({ productPricings: pricings });
-    get().loadInventory(); // Recalculate unified products
+    get().loadInventory();
   },
 
-  getProductoById: (id) => {
-    return get().products.find(p => p.id === id);
-  }
+  setStock: (stockOrUpdater: any) => set((state) => {
+    const newStock = typeof stockOrUpdater === 'function' ? stockOrUpdater(state.stock) : stockOrUpdater;
+    localDb.save('stock', newStock);
+    return { stock: newStock };
+  }),
+
+  getProductoById: (id) => get().products.find(p => p.id === id),
 }));

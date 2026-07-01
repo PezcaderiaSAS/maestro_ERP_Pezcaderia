@@ -1,5 +1,9 @@
 import { create } from 'zustand';
-import * as localDb from '../services/localDb';
+import type { IDataService } from '../types/services.types';
+import { LocalDataService } from '../services/LocalDataService';
+
+let dataService: IDataService = new LocalDataService();
+export const setSupplierDataService = (ds: IDataService) => { dataService = ds; };
 
 export interface Proveedor {
   id: string;
@@ -26,29 +30,28 @@ interface SupplierState {
 export const useSupplierStore = create<SupplierState>()((set) => ({
   proveedores: [],
 
-  loadProveedores: (initialProveedores = []) => {
-    const loaded = localDb.load<Proveedor[]>('proveedores', initialProveedores);
-    // Solo usamos initialProveedores si loaded viene vacío y no había datos
-    // En localDb.load, si no existe el key, retorna el default.
-    set({ proveedores: loaded });
+  loadProveedores: async (initialProveedores = []) => {
+    try {
+      const loaded = await dataService.getAll<Proveedor>('proveedores');
+      set({ proveedores: loaded.length ? loaded : initialProveedores });
+    } catch {
+      set({ proveedores: initialProveedores });
+    }
   },
 
   setProveedores: (proveedores: Proveedor[]) => {
-    localDb.save('proveedores', proveedores);
     set({ proveedores });
   },
 
-  addProveedor: (proveedor) => set((state) => {
-    const newProveedores = [...state.proveedores, proveedor];
-    localDb.save('proveedores', newProveedores);
-    return { proveedores: newProveedores };
-  }),
+  addProveedor: (proveedor) => {
+    dataService.create('proveedores', proveedor);
+    set((state) => ({ proveedores: [...state.proveedores, proveedor] }));
+  },
 
-  updateProveedor: (id, data) => set((state) => {
-    const newProveedores = state.proveedores.map(p => 
-      p.id === id ? { ...p, ...data } : p
-    );
-    localDb.save('proveedores', newProveedores);
-    return { proveedores: newProveedores };
-  })
+  updateProveedor: (id, data) => {
+    dataService.update('proveedores', id, data);
+    set((state) => ({
+      proveedores: state.proveedores.map(p => p.id === id ? { ...p, ...data } : p),
+    }));
+  },
 }));

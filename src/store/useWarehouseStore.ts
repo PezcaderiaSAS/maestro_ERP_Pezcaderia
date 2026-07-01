@@ -1,5 +1,9 @@
 import { create } from 'zustand';
-import * as localDb from '../services/localDb';
+import type { IDataService } from '../types/services.types';
+import { LocalDataService } from '../services/LocalDataService';
+
+let dataService: IDataService = new LocalDataService();
+export const setWarehouseDataService = (ds: IDataService) => { dataService = ds; };
 
 export interface Bodega {
   id: string;
@@ -19,52 +23,51 @@ interface WarehouseState {
   getPrimaryBodega: () => Bodega | undefined;
 }
 
+const DEFAULT_BODEGAS: Bodega[] = [
+  { id: '1', nombre: 'Bodega Principal', activa: true },
+  { id: '2', nombre: 'Bodega Averías', activa: true },
+];
+
 export const useWarehouseStore = create<WarehouseState>()((set, get) => ({
   bodegas: [],
 
-  loadBodegas: () => {
-    // Si no hay bodegas en db, se carga la por defecto.
-    const savedBodegas = localDb.load<Bodega[]>('bodegas', [
-      { id: '1', nombre: 'Bodega Principal', activa: true },
-      { id: '2', nombre: 'Bodega Averías', activa: true }
-    ]);
-    set({ bodegas: savedBodegas });
+  loadBodegas: async () => {
+    try {
+      const loaded = await dataService.getAll<Bodega>('bodegas');
+      set({ bodegas: loaded.length ? loaded : DEFAULT_BODEGAS });
+    } catch {
+      set({ bodegas: DEFAULT_BODEGAS });
+    }
   },
 
-  addBodega: (bodega) => set((state) => {
-    const newBodegas = [...state.bodegas, bodega];
-    localDb.save('bodegas', newBodegas);
-    // Disparar siembra de cajas para que la nueva bodega tenga su Caja Menor de inmediato
-    import('../services/cashService').then(({ cashService }) => {
-      cashService.seedCajasParaBodegas();
+  addBodega: (bodega) => {
+    dataService.create('bodegas', bodega);
+    set((state) => {
+      const newBodegas = [...state.bodegas, bodega];
+      import('../services/cashService').then(({ cashService }) => { cashService.seedCajasParaBodegas(); });
+      return { bodegas: newBodegas };
     });
-    return { bodegas: newBodegas };
-  }),
+  },
 
-  updateBodega: (id, data) => set((state) => {
-    const newBodegas = state.bodegas.map(b => 
-      b.id === id ? { ...b, ...data } : b
-    );
-    localDb.save('bodegas', newBodegas);
-    return { bodegas: newBodegas };
-  }),
+  updateBodega: (id, data) => {
+    dataService.update('bodegas', id, data);
+    set((state) => ({
+      bodegas: state.bodegas.map(b => b.id === id ? { ...b, ...data } : b),
+    }));
+  },
 
-  deleteBodega: (id) => set((state) => {
-    const newBodegas = state.bodegas.filter(b => b.id !== id);
-    localDb.save('bodegas', newBodegas);
-    return { bodegas: newBodegas };
-  }),
+  deleteBodega: (id) => {
+    dataService.hardDelete('bodegas', id);
+    set((state) => ({ bodegas: state.bodegas.filter(b => b.id !== id) }));
+  },
 
-  // Drop-in replacement para App.tsx
   setBodegas: (bodegasOrUpdater: any) => set((state) => {
     const newBodegas = typeof bodegasOrUpdater === 'function' ? bodegasOrUpdater(state.bodegas) : bodegasOrUpdater;
-    localDb.save('bodegas', newBodegas);
     return { bodegas: newBodegas };
   }),
 
   getPrimaryBodega: () => {
     const { bodegas } = get();
-    // Intenta buscar la que se llame 'Bodega Principal' u obtiene la primera activa
     return bodegas.find(b => b.nombre === 'Bodega Principal') || bodegas.find(b => b.activa);
-  }
+  },
 }));

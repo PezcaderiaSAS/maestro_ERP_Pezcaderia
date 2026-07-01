@@ -16,7 +16,7 @@ export interface PaymentPanelProps {
   onLimpiarCarrito: () => void;
   isDisabled: boolean;
   isTurnoAbierto: boolean;
-  onAbrirTurnoClick?: () => void;
+  onAbrirTurnoRequest?: () => void;
 }
 
 export const PaymentPanel: React.FC<PaymentPanelProps> = ({
@@ -30,7 +30,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
   onLimpiarCarrito,
   isDisabled,
   isTurnoAbierto,
-  onAbrirTurnoClick
+  onAbrirTurnoRequest
 }) => {
   const { imprimirTicket } = usePOSPrinter();
   const [metodoPago, setMetodoPago] = useState<'EFECTIVO' | 'TRANSFERENCIA' | 'CREDITO'>('EFECTIVO');
@@ -128,7 +128,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
 
         <button 
           type="button"
-          onClick={onAbrirTurnoClick}
+          onClick={onAbrirTurnoRequest}
           data-testid="btn-abrir-turno"
           className="relative z-10 w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold py-3.5 px-4 rounded-xl shadow-[0_4px_14px_0_rgba(59,130,246,0.39)] hover:shadow-[0_6px_20px_rgba(59,130,246,0.23)] transition-all duration-300 active:scale-[0.98] border border-blue-400/30"
         >

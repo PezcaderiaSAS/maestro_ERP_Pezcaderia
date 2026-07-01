@@ -3,13 +3,13 @@ export const SEED_DATA: Record<string, unknown> = {
     { id: 'b1', nombre: 'Bodega Principal', activa: true }
   ],
   pezcaderia_cajas: [
-    { id: 'caja-cash-test', bodegaId: 'Bodega Principal', nombre: 'Caja Menor - Bodega Principal', activa: true },
-    { id: 'caja-fuerte-test', bodegaId: 'Bodega Principal', nombre: 'Caja Fuerte', activa: true }
+    { id: 'caja-test-menor', bodegaId: 'b1', nombre: 'Caja Menor - Bodega Principal', activa: true },
+    { id: 'caja-test-mayor', bodegaId: 'b1', nombre: 'Caja Fuerte', activa: true }
   ],
   pezcaderia_turnos_caja: [
     {
       id: 'trn-test-01',
-      cajaId: 'caja-cash-test',
+      cajaId: 'caja-test-menor',
       cajeroId: 'admin',
       fechaApertura: new Date().toISOString(),
       fechaCierre: null,
@@ -28,7 +28,7 @@ export const SEED_DATA: Record<string, unknown> = {
     },
     {
       id: 'trn-test-02',
-      cajaId: 'caja-fuerte-test',
+      cajaId: 'caja-test-mayor',
       cajeroId: 'admin',
       fechaApertura: new Date().toISOString(),
       fechaCierre: null,

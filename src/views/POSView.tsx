@@ -14,6 +14,7 @@ import { AperturaCajaModal } from './pos/components/AperturaCajaModal';
 import ArqueoCajaModal from './cash/components/ArqueoCajaModal';
 import { cashService } from '../services/cashService';
 import { useWarehouseStore } from '../store/useWarehouseStore';
+import { useCashStore } from '../store/useCashStore';
 interface POSViewProps {
   products: Product[];
   dynamicFields: DynamicField[];
@@ -94,14 +95,15 @@ export default function POSView({
   const [tempRealQuantities, setTempRealQuantities] = useState<Record<string, number | string>>({});
 
   // Turno Management State
-  const [isTurnoAbierto, setIsTurnoAbierto] = useState<boolean>(false);
+  const { turnoActivo, loadTurnoActivoPorCajero } = useCashStore();
+  const isTurnoAbierto = turnoActivo !== null && turnoActivo.estado === 'ABIERTO' && turnoActivo.cajeroId === userRole;
+  
   const [showAperturaModal, setShowAperturaModal] = useState<boolean>(false);
   const [showArqueoModal, setShowArqueoModal] = useState<boolean>(false);
 
   useEffect(() => {
-    const turnos = cashService.getTurnos();
-    setIsTurnoAbierto(turnos.some(t => t.cajeroId === userRole && t.estado === 'ABIERTO'));
-  }, [userRole, showAperturaModal]);
+    loadTurnoActivoPorCajero(userRole);
+  }, [userRole, showAperturaModal, loadTurnoActivoPorCajero]);
 
   const { getPrimaryBodega } = useWarehouseStore();
   const bodegaActiva = getPrimaryBodega()?.nombre || 'Bodega Principal';
@@ -525,16 +527,14 @@ export default function POSView({
 
   const handlePagar = async (metodo: 'EFECTIVO' | 'TRANSFERENCIA' | 'CREDITO'): Promise<Venta | void> => {
     // RN-57: Validacion estricta de Turno de Caja Abierto
-    const turnosAbiertos = cashService.getTurnos().filter(t => t.cajeroId === userRole && t.estado === 'ABIERTO');
-    
-    if (turnosAbiertos.length === 0) {
+    if (!isTurnoAbierto || !turnoActivo) {
       Swal.fire({
         icon: 'error',
         title: 'Operación Bloqueada',
         text: 'Debe abrir un Turno de Caja antes de poder registrar pagos o facturar.',
         confirmButtonColor: 'var(--primary-color)'
       }).then(() => {
-        setCurrentView('caja');
+        setShowAperturaModal(true);
       });
       return;
     }
@@ -545,7 +545,7 @@ export default function POSView({
     let cash = 0;
     let credit = 0;
     let creditDate = '';
-    const turnoSeleccionadoId = turnosAbiertos[0].id; // Asignamos el primer turno abierto por defecto
+    const turnoSeleccionadoId = turnoActivo.id; // Obtenemos el turno abierto del estado reactivo
     const requiereFE = false; // Por defecto Fase 1
 
     if (metodo === 'EFECTIVO') {
@@ -675,16 +675,15 @@ export default function POSView({
       setCartera((prev: InvoiceAR[]) => [newAR, ...prev]);
     }
 
-    const turnoDestino = cashService.getTurnos().find(t => t.id === turnoSeleccionadoId);
-    if (turnoDestino) {
+    if (turnoActivo) {
       if (cash > 0) {
         cashService.registrarMovimiento(
-          turnoDestino.id, turnoDestino.cajaId, 'INGRESO_VENTA', 'EFECTIVO', cash, `Cobro POS (Venta: ${orderNo})`, vtaId, userRole
+          turnoActivo.id, turnoActivo.cajaId, 'INGRESO_VENTA', 'EFECTIVO', cash, `Cobro POS (Venta: ${orderNo})`, vtaId, userRole
         );
       }
       if (transfer > 0) {
         cashService.registrarMovimiento(
-          turnoDestino.id, turnoDestino.cajaId, 'INGRESO_VENTA', 'TRANSFERENCIA', transfer, `Cobro POS (Venta: ${orderNo})`, vtaId, userRole
+          turnoActivo.id, turnoActivo.cajaId, 'INGRESO_VENTA', 'TRANSFERENCIA', transfer, `Cobro POS (Venta: ${orderNo})`, vtaId, userRole
         );
       }
     }
@@ -1282,7 +1281,7 @@ export default function POSView({
             onSetDrafts={setDrafts}
             onSetDescuentoGlobal={setDescuentoGlobal}
             isTurnoAbierto={isTurnoAbierto}
-            onAbrirTurnoClick={() => setShowAperturaModal(true)}
+            onAbrirTurnoRequest={() => setShowAperturaModal(true)}
             onCerrarTurnoClick={() => setShowArqueoModal(true)}
           />
         )}
@@ -2076,13 +2075,13 @@ export default function POSView({
       )}
 
       {/* Modal de Arqueo de Caja */}
-      {showArqueoModal && (
+      {showArqueoModal && turnoActivo && (
         <ArqueoCajaModal
-          turnoActivo={cashService.getTurnos().find(t => t.cajeroId === userRole && t.estado === 'ABIERTO')!}
+          turnoActivo={turnoActivo}
           usuarioId={userRole}
           onSuccess={() => {
             setShowArqueoModal(false);
-            setIsTurnoAbierto(false);
+            loadTurnoActivoPorCajero(userRole);
             setCurrentView('dashboard');
           }}
           onClose={() => setShowArqueoModal(false)}

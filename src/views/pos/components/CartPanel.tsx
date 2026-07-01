@@ -42,7 +42,7 @@ interface CartPanelProps {
 
   // Props de caja
   isTurnoAbierto: boolean;
-  onAbrirTurnoClick?: () => void;
+  onAbrirTurnoRequest?: () => void;
   onCerrarTurnoClick?: () => void;
 }
 
@@ -72,14 +72,12 @@ export const CartPanel: React.FC<CartPanelProps> = ({
   onSetDescuentoGlobal,
   onLimpiarCarrito,
   isTurnoAbierto,
-  onAbrirTurnoClick,
+  onAbrirTurnoRequest,
   onCerrarTurnoClick,
 }) => {
   // Helpers para resolver datos por fila dentro del .map()
   const getStockDisponible = (sku: string): number => {
-    const bodegaStock = stock[bodegaActiva] || [];
-    const item = bodegaStock.find((s: any) => s.sku === sku);
-    return item ? item.stock : 0;
+    return stock[bodegaActiva]?.[sku] || 0;
   };
 
   const getLastClientPrice = (sku: string): number | undefined => {
@@ -406,7 +404,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
           onLimpiarCarrito={onLimpiarCarrito}
           isDisabled={lineas.length === 0}
           isTurnoAbierto={isTurnoAbierto}
-          onAbrirTurnoClick={onAbrirTurnoClick}
+          onAbrirTurnoRequest={onAbrirTurnoRequest}
         />
       </div>
     </div>
