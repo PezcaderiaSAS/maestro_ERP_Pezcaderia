@@ -1,9 +1,7 @@
 // src/views/InventoryView.tsx
-import React, { useState, useEffect } from 'react';
-
+import { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
-import { Product, ProductCatalog, ProductPricing, Proveedor, MovimientoInventario, OrdenCompra, generateId, CategoriaConfig, DevolucionPedido, toTitleCase } from '../App.tsx';
-import { Bodega } from '../services/warehouseService.ts';
+import { generateId, toTitleCase, Product, ProductCatalog, ProductPricing, MovimientoInventario, OrdenCompra } from '../App.tsx';
 import { ProductTable } from './inventory/components/ProductTable.tsx';
 import { ProductForm } from './inventory/components/ProductForm.tsx';
 import { CategoryManager } from './inventory/components/CategoryManager.tsx';
@@ -13,67 +11,28 @@ import { ProductionForm } from './inventory/components/ProductionForm.tsx';
 import { ColdRoomPreparation } from './inventory/components/ColdRoomPreparation.tsx';
 import { ReturnsReceiver } from './inventory/components/ReturnsReceiver.tsx';
 import { PurchasesReport } from './inventory/components/PurchasesReport.tsx';
+import { useInventoryStore } from '../store/useInventoryStore.ts';
+import { useMovementStore } from '../store/useMovementStore.ts';
+import { usePurchaseStore } from '../store/usePurchaseStore.ts';
+import { useCategoryStore } from '../store/useCategoryStore.ts';
+import { useOrderStore } from '../store/useOrderStore.ts';
+import { useReturnStore } from '../store/useReturnStore.ts';
+import { useEventStore } from '../store/useEventStore.ts';
+import { useAppStore } from '../store/useAppStore.ts';
+import { useSupplierStore } from '../store/useSupplierStore.ts';
 
-interface StockItem {
-  sku: string;
-  nombre: string;
-  stock: number;
-  lote: string;
-}
 
-interface InventoryViewProps {
-  products: Product[];
-  setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
-  productsCatalog: ProductCatalog[];
-  setProductsCatalog: React.Dispatch<React.SetStateAction<ProductCatalog[]>>;
-  productPricings: ProductPricing[];
-  setProductPricings: React.Dispatch<React.SetStateAction<ProductPricing[]>>;
-  stock: Record<string, StockItem[]>;
-  setStock: React.Dispatch<React.SetStateAction<Record<string, StockItem[]>>>;
-  proveedores: Proveedor[];
-  publishEvent: (
-    tipo: 'SALE_COMPLETED' | 'PRICE_CHANGED' | 'MERMA_ALERT' | 'QUOTE_STATUS_CHANGED' | 'METADATA_CONFIGURED',
-    actor: string,
-    descripcion: string,
-    metadata?: any,
-    enqueueSync?: boolean
-  ) => void;
-  userRole: string;
-  movimientos: MovimientoInventario[];
-  setMovimientos: React.Dispatch<React.SetStateAction<MovimientoInventario[]>>;
-  ordenesCompra: OrdenCompra[];
-  setOrdenesCompra: React.Dispatch<React.SetStateAction<OrdenCompra[]>>;
-  categorias: CategoriaConfig[];
-  setCategorias: React.Dispatch<React.SetStateAction<CategoriaConfig[]>>;
-  quotations: any[];
-  setQuotations: React.Dispatch<React.SetStateAction<any[]>>;
-  devoluciones?: DevolucionPedido[];
-  setDevoluciones?: React.Dispatch<React.SetStateAction<DevolucionPedido[]>>;
-  bodegas: Bodega[];
-  setBodegas: React.Dispatch<React.SetStateAction<Bodega[]>>;
-}
-
-export default function InventoryView({
-  products,
-  productsCatalog,
-  setProductsCatalog,
-  setProductPricings,
-  stock,
-  setStock,
-  proveedores,
-  publishEvent,
-  userRole,
-  movimientos,
-  setMovimientos,
-  ordenesCompra,
-  setOrdenesCompra,
-  categorias,
-  setCategorias,
-  quotations,
-  setQuotations,
-  devoluciones = [],
-  setDevoluciones
-}: InventoryViewProps) {
+export default function InventoryView() {
+  const { products, productsCatalog, setProductsCatalog, setProductPricings, setStock } = useInventoryStore();
+  const stock = useInventoryStore((s) => s.stock) as any;
+  const { movimientos, setMovimientos } = useMovementStore();
+  const { ordenesCompra, setOrdenesCompra } = usePurchaseStore();
+  const { categorias, setCategorias } = useCategoryStore();
+  const { quotations, setQuotations } = useOrderStore();
+  const { devoluciones, setDevoluciones } = useReturnStore();
+  const publishEvent = useEventStore((s) => s.publishEvent);
+  const userRole = useAppStore((s) => s.userRole);
+  const proveedores = useSupplierStore((s) => s.proveedores);
   const [activeBodega, setActiveBodega] = useState('Bodega Principal');
   const [historyTab, setHistoryTab] = useState<'movimientos' | 'compras'>('movimientos');
   const [viewMode, setViewMode] = useState<'operaciones' | 'catalogo' | 'categorias' | 'cuarto_frio' | 'recepcion_devoluciones' | 'configuracion_bodegas' | 'reportes_compra'>('operaciones');
@@ -109,28 +68,28 @@ export default function InventoryView({
   // Helper to calculate stock in a specific bodega for a given SKU
   const getStockInBodega = (sku: string, bodegaName: string) => {
     const items = stock[bodegaName] || [];
-    return items.filter(item => item.sku === sku).reduce((acc, item) => acc + item.stock, 0);
+    return items.filter((item: any) => item.sku === sku).reduce((acc: any, item) => acc + item.stock, 0);
   };
 
   // Helper to calculate total stock across all bodegas for a given SKU
   const getTotalStock = (sku: string) => {
-    return Object.keys(stock).reduce((acc, bodegaName) => {
+    return Object.keys(stock).reduce((acc: any, bodegaName) => {
       return acc + getStockInBodega(sku, bodegaName);
     }, 0);
   };
 
   // Derive unique categories for selectors
-  const uniqueTipos = Array.from(new Set(categorias.map(c => c.tipo))).filter(Boolean);
+  const uniqueTipos = Array.from(new Set(categorias.map((c: any) => c.tipo))).filter(Boolean);
   if (productForm.tipoCategoria && !uniqueTipos.includes(productForm.tipoCategoria) && productForm.tipoCategoria !== 'NEW_TIPO') {
     uniqueTipos.push(productForm.tipoCategoria);
   }
 
-  const uniqueLineas = Array.from(new Set(categorias.filter(c => c.tipo === productForm.tipoCategoria).map(c => c.linea))).filter(Boolean);
+  const uniqueLineas = Array.from(new Set(categorias.filter(c => c.tipo === productForm.tipoCategoria).map((c: any) => c.linea))).filter(Boolean);
   if (productForm.lineaCategoria && !uniqueLineas.includes(productForm.lineaCategoria) && productForm.lineaCategoria !== 'NEW_LINEA') {
     uniqueLineas.push(productForm.lineaCategoria);
   }
 
-  const uniqueClases = Array.from(new Set(categorias.filter(c => c.tipo === productForm.tipoCategoria && c.linea === productForm.lineaCategoria).map(c => c.clase))).filter(Boolean);
+  const uniqueClases = Array.from(new Set(categorias.filter(c => c.tipo === productForm.tipoCategoria && c.linea === productForm.lineaCategoria).map((c: any) => c.clase))).filter(Boolean);
   if (productForm.claseCategoria && !uniqueClases.includes(productForm.claseCategoria) && productForm.claseCategoria !== 'NEW_CLASE') {
     uniqueClases.push(productForm.claseCategoria);
   }
@@ -155,7 +114,7 @@ export default function InventoryView({
     );
     if (!existsCat && finalTipo) {
       const newCatId = generateId('cat');
-      setCategorias(prev => [...prev, { id: newCatId, tipo: finalTipo, linea: finalLinea, clase: finalClase }]);
+      setCategorias((prev: any) => [...prev, { id: newCatId, tipo: finalTipo, linea: finalLinea, clase: finalClase }]);
       finalCategoriaId = newCatId;
     } else if (existsCat) {
       finalCategoriaId = existsCat.id;
@@ -170,7 +129,7 @@ export default function InventoryView({
       if (!currentProduct) return;
 
       // 1. Actualizar catálogo
-      setProductsCatalog(prev => prev.map(p => p.id === editingProductId ? {
+      setProductsCatalog((prev: any) => prev.map((p: any) => p.id === editingProductId ? {
         ...p,
         sku: productForm.sku.toUpperCase().trim(),
         nombre: toTitleCase(productForm.nombre.trim()),
@@ -210,7 +169,7 @@ export default function InventoryView({
           precio_venta_mayorista: sugMay,
           actualizadoPor: userRole
         };
-        setProductPricings(prev => [newPricing, ...prev]);
+        setProductPricings((prev: any) => [newPricing, ...prev]);
         publishEvent('PRICE_CHANGED', userRole, `Actualización de precios para el producto ${productForm.nombre} por edición de costo`);
       }
 
@@ -260,8 +219,8 @@ export default function InventoryView({
         actualizadoPor: userRole
       };
 
-      setProductsCatalog(prev => [newCatalogItem, ...prev]);
-      setProductPricings(prev => [newPricingItem, ...prev]);
+      setProductsCatalog((prev: any) => [newCatalogItem, ...prev]);
+      setProductPricings((prev: any) => [newPricingItem, ...prev]);
       setIsCreating(false);
 
       publishEvent('METADATA_CONFIGURED', userRole, `Nuevo producto registrado: ${productForm.nombre} (${productForm.sku})`);
@@ -386,7 +345,7 @@ export default function InventoryView({
       }
     }).then((result) => {
       if (result.isConfirmed && result.value) {
-        setProductForm(prev => ({ ...prev, imagen: result.value }));
+        setProductForm((prev: any) => ({ ...prev, imagen: result.value }));
         Swal.fire({
           icon: 'success',
           title: '¡Imagen Asignada!',
@@ -481,7 +440,7 @@ export default function InventoryView({
         }
 
         // Si la descarga es exitosa, guardamos la URL pública en el producto
-        setProductForm(prev => ({ ...prev, imagen: publicUrl }));
+        setProductForm((prev: any) => ({ ...prev, imagen: publicUrl }));
         setIsGeneratingImage(false);
 
         Swal.fire({
@@ -539,7 +498,7 @@ export default function InventoryView({
   };
 
   const handleToggleProduct = (sku: string) => {
-    setProductsCatalog(prev => prev.map(p => p.sku === sku ? { ...p, activo: !p.activo } : p));
+    setProductsCatalog((prev: any) => prev.map((p: any) => p.sku === sku ? { ...p, activo: !p.activo } : p));
   };
 
   const handleSaveCategory = (e: React.FormEvent) => {
@@ -554,7 +513,7 @@ export default function InventoryView({
     const cleanClase = categoryForm.clase.trim();
 
     if (editingCategoryId) {
-      setCategorias(prev => prev.map(c => c.id === editingCategoryId ? {
+      setCategorias((prev: any) => prev.map((c: any) => c.id === editingCategoryId ? {
         ...c,
         tipo: cleanTipo,
         linea: cleanLinea,
@@ -573,7 +532,7 @@ export default function InventoryView({
         return;
       }
 
-      setCategorias(prev => [...prev, {
+      setCategorias((prev: any) => [...prev, {
         id: generateId('cat'),
         tipo: cleanTipo,
         linea: cleanLinea,
@@ -596,7 +555,7 @@ export default function InventoryView({
       confirmButtonColor: '#EF4444'
     }).then(result => {
       if (result.isConfirmed) {
-        setCategorias(prev => prev.filter(c => c.id !== id));
+        setCategorias((prev: any) => prev.filter(c => c.id !== id));
         Swal.fire({ icon: 'success', title: 'Eliminada', text: 'La categoría ha sido eliminada.', timer: 1500, showConfirmButton: false });
       }
     });
@@ -617,14 +576,14 @@ export default function InventoryView({
 
   useEffect(() => {
     if (products.length > 0 && !compra.sku) {
-      setCompra(prev => ({ ...prev, sku: products[0].sku }));
+      setCompra((prev: any) => ({ ...prev, sku: products[0].sku }));
     }
   }, [products]);
 
   useEffect(() => {
     const activeProv = proveedores.filter(p => p.activo);
     if (activeProv.length > 0 && !compra.proveedorId) {
-      setCompra(prev => ({ ...prev, proveedorId: activeProv[0].id }));
+      setCompra((prev: any) => ({ ...prev, proveedorId: activeProv[0].id }));
     }
   }, [proveedores]);
 
@@ -685,7 +644,7 @@ export default function InventoryView({
     const loteFinal = (compra.lote || `LT-${Date.now().toString().slice(-6)}`).toUpperCase();
 
     // Actualizar stock
-    setStock(prev => {
+    setStock((prev: any) => {
       const newStock = { ...prev };
       const currentList = newStock[compra.bodega] || [];
       const existingIndex = currentList.findIndex(item => item.sku === compra.sku && item.lote === loteFinal);
@@ -742,7 +701,7 @@ export default function InventoryView({
       actor: userRole,
       notas: `Lote recibido: ${loteFinal}. Forma de Pago: ${compra.formaPago || 'CONTADO'}. Flete: $${compra.fletes || 0}. IVA: ${compra.iva}%`
     };
-    setOrdenesCompra(prev => [newOC, ...prev]);
+    setOrdenesCompra((prev: any) => [newOC, ...prev]);
 
     // F2: Registrar Movimiento de Inventario
     const newMov: MovimientoInventario = {
@@ -759,7 +718,7 @@ export default function InventoryView({
       actor: userRole,
       notas: `Entrada por compra recibida de ${selectedProveedor.nombre}`
     };
-    setMovimientos(prev => [newMov, ...prev]);
+    setMovimientos((prev: any) => [newMov, ...prev]);
 
     // Publicar evento
     publishEvent(
@@ -777,7 +736,7 @@ export default function InventoryView({
     });
 
     // Resetear formulario (manteniendo proveedor y bodega)
-    setCompra(prev => ({
+    setCompra((prev: any) => ({
       ...prev,
       cantidad: 10,
       costoUnitario: 0,
@@ -809,16 +768,16 @@ export default function InventoryView({
     }
 
     // Procesar traslado de manera atómica local
-    setStock(prev => {
+    setStock((prev: any) => {
       const newStock = { ...prev };
       // Restar
-      newStock[traslado.origen] = newStock[traslado.origen].map(i =>
+      newStock[traslado.origen] = newStock[traslado.origen].map((i: any) =>
         i.sku === traslado.sku ? { ...i, stock: i.stock - tCant } : i
       );
       // Sumar
       const itemDestino = newStock[traslado.destino]?.find(i => i.sku === traslado.sku);
       if (itemDestino) {
-        newStock[traslado.destino] = newStock[traslado.destino].map(i =>
+        newStock[traslado.destino] = newStock[traslado.destino].map((i: any) =>
           i.sku === traslado.sku ? { ...i, stock: i.stock + tCant } : i
         );
       } else {
@@ -863,7 +822,7 @@ export default function InventoryView({
       notas: `Traslado desde ${traslado.origen}`
     };
 
-    setMovimientos(prev => [movSalida, movEntrada, ...prev]);
+    setMovimientos((prev: any) => [movSalida, movEntrada, ...prev]);
 
     Swal.fire({
       icon: 'success',
@@ -927,14 +886,14 @@ export default function InventoryView({
     }
 
     // Procesar Producción
-    setStock(prev => {
+    setStock((prev: any) => {
       const newStock = { ...prev };
       // Restar materia prima
-      newStock['Bodega Principal'] = newStock['Bodega Principal'].map(i =>
+      newStock['Bodega Principal'] = newStock['Bodega Principal'].map((i: any) =>
         i.sku === prodMateriaPrima ? { ...i, stock: i.stock - mpCant } : i
       );
       // Sumar producto terminado
-      newStock['Bodega Principal'] = newStock['Bodega Principal'].map(i =>
+      newStock['Bodega Principal'] = newStock['Bodega Principal'].map((i: any) =>
         i.sku === prodTerminado ? { ...i, stock: i.stock + ptCant } : i
       );
       return newStock;
@@ -982,7 +941,7 @@ export default function InventoryView({
       notas: `Ingreso de producto terminado procesado. Merma: ${mermaPct}%`
     };
 
-    setMovimientos(prev => [movConsumo, movSalida, ...prev]);
+    setMovimientos((prev: any) => [movConsumo, movSalida, ...prev]);
 
     Swal.fire({
       icon: 'success',
@@ -1152,7 +1111,7 @@ export default function InventoryView({
     });
 
     if (Object.keys(stockChanges).length > 0) {
-      setStock(prev => {
+      setStock((prev: any) => {
         const newStock = { ...prev };
         const mainList = [...(newStock['Bodega Principal'] || [])];
         
@@ -1180,7 +1139,7 @@ export default function InventoryView({
     }
 
     if (newMovements.length > 0) {
-      setMovimientos(prev => [...newMovements, ...prev]);
+      setMovimientos((prev: any) => [...newMovements, ...prev]);
     }
 
     const updatedDevoluciones = devoluciones.map(d => {
@@ -1595,3 +1554,6 @@ export default function InventoryView({
     </div>
   );
 }
+
+
+

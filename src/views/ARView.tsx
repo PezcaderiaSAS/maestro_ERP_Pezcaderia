@@ -1,8 +1,13 @@
 // src/views/ARView.tsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Search, DollarSign, Wallet, FileText, Check, Plus, Calendar, Clock, AlertCircle, Undo2 } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { Cliente, DevolucionPedido } from '../App.tsx';
+import { DevolucionPedido } from '../App.tsx';
+import { useARStore } from '../store/useARStore.ts';
+import { useClientStore } from '../store/useClientStore.ts';
+import { useEventStore } from '../store/useEventStore.ts';
+import { useAppStore } from '../store/useAppStore.ts';
+import { useReturnStore } from '../store/useReturnStore.ts';
 
 export interface PaymentAR {
   id: string;
@@ -25,31 +30,12 @@ export interface InvoiceAR {
   pagos: PaymentAR[];
 }
 
-interface ARViewProps {
-  cartera: InvoiceAR[];
-  setCartera: React.Dispatch<React.SetStateAction<InvoiceAR[]>>;
-  clientes: Cliente[];            // Fuente de verdad para nombres en runtime
-  publishEvent: (
-    tipo: 'SALE_COMPLETED' | 'PRICE_CHANGED' | 'MERMA_ALERT' | 'QUOTE_STATUS_CHANGED' | 'METADATA_CONFIGURED',
-    actor: string,
-    descripcion: string,
-    metadata?: any,
-    enqueueSync?: boolean
-  ) => void;
-  userRole: string;
-  devoluciones?: DevolucionPedido[];
-  setDevoluciones?: React.Dispatch<React.SetStateAction<DevolucionPedido[]>>;
-}
-
-export default function ARView({ 
-  cartera, 
-  setCartera, 
-  clientes, 
-  publishEvent, 
-  userRole, 
-  devoluciones = [], 
-  setDevoluciones: _setDevoluciones 
-}: ARViewProps) {
+export default function ARView() {
+  const { cartera, setCartera } = useARStore();
+  const clientes = useClientStore((s) => s.clientes);
+  const publishEvent = useEventStore((s) => s.publishEvent);
+  const userRole = useAppStore((s) => s.userRole);
+  const devoluciones = useReturnStore((s) => s.devoluciones);
   const [activeTab, setActiveTab] = useState<'facturas' | 'devoluciones'>('facturas');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'TODAS' | 'PENDIENTES' | 'CANCELADAS'>('PENDIENTES');
@@ -323,7 +309,7 @@ export default function ARView({
     if (formValues) {
       const { transfer, card, cash, totalAbonado } = formValues;
 
-      setCartera(prev => prev.map(inv => {
+      setCartera((prev: InvoiceAR[]) => prev.map((inv: InvoiceAR) => {
         if (inv.id === invoice.id) {
           const nuevosPagos: PaymentAR[] = [];
           if (transfer > 0) {

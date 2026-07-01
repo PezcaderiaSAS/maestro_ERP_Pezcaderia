@@ -1,10 +1,10 @@
 // src/views/POSView.tsx
-import React, { useState, useEffect } from 'react';
-import * as localDb from '../services/localDb';
+import { useState, useEffect } from 'react';
 import { Plus, X, Check, CreditCard, FileText, Truck, RefreshCw, AlertTriangle, AlertCircle } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { Product, DynamicField, Cliente, generateId, Venta, MovimientoInventario, Conductor, DevolucionPedido, toTitleCase } from '../App';
+import { generateId, Product, Cliente, Venta, MovimientoInventario, DevolucionPedido, toTitleCase } from '../App';
 import { InvoiceAR } from './ARView';
+import * as localDb from '../services/localDb';
 import OrderKanbanView from './OrderKanbanView';
 import { usePOSCart } from '../hooks/usePOSCart';
 import { TicketBuilder } from './pos/components/TicketBuilder';
@@ -15,71 +15,40 @@ import ArqueoCajaModal from './cash/components/ArqueoCajaModal';
 import { cashService } from '../services/cashService';
 import { useWarehouseStore } from '../store/useWarehouseStore';
 import { useCashStore } from '../store/useCashStore';
+import { useInventoryStore } from '../store/useInventoryStore.ts';
+import { useEventStore } from '../store/useEventStore.ts';
+import { useAppStore } from '../store/useAppStore.ts';
+import { useClientStore } from '../store/useClientStore.ts';
+import { useARStore } from '../store/useARStore.ts';
+import { useOrderStore } from '../store/useOrderStore.ts';
+import { useMovementStore } from '../store/useMovementStore.ts';
+import { useReturnStore } from '../store/useReturnStore.ts';
+import { useIntegrationStore } from '../store/useIntegrationStore.ts';
+import { useDynamicFieldStore } from '../store/useDynamicFieldStore.ts';
+
 interface POSViewProps {
-  products: Product[];
-  dynamicFields: DynamicField[];
-  publishEvent: (
-    tipo: 'SALE_COMPLETED' | 'PRICE_CHANGED' | 'MERMA_ALERT' | 'QUOTE_STATUS_CHANGED' | 'METADATA_CONFIGURED',
-    actor: string,
-    descripcion: string,
-    metadata?: any,
-    enqueueSync?: boolean
-  ) => void;
-  userRole: string;
-  setCurrentView: (view: string) => void;
-  stock: Record<string, Record<string, number>>;
-  setStock: (val: any) => void;
-  lastClientPrices: Record<string, Record<string, number>>;
-  updateLastClientPrice: (clientKey: string, sku: string, price: number) => void;
-  cartera: any[];
-  setCartera: (val: any) => void;
-  clientes: Cliente[];
-  setClientes: (val: any) => void;
-  ventas: Venta[];
-  setVentas: (val: any) => void;
-  movimientos: MovimientoInventario[];
-  setMovimientos: (val: any) => void;
-  conductores: Conductor[];
-  devoluciones: DevolucionPedido[];
-  setDevoluciones: (val: any) => void;
-  quotations: any[];
-  setQuotations: (val: any) => void;
-  logIntegracion?: any[];
-  setLogIntegracion?: React.Dispatch<React.SetStateAction<any[]>>;
   handleCancelarPedidoDigital?: (logId: string) => void;
   handleAprobarPedidoManual?: (logId: string, modo: 'parcial' | 'forzar') => void;
-  parametros?: Record<string, any>;
 }
 
 export default function POSView({
-  products,
-  dynamicFields,
-  publishEvent,
-  userRole,
-  stock,
-  setStock,
-  lastClientPrices,
-  updateLastClientPrice,
-  cartera,
-  setCartera,
-  clientes,
-  setClientes,
-  ventas: _ventas,
-  setVentas,
-  movimientos: _movimientos,
-  setMovimientos,
-  conductores: _conductores,
-  devoluciones,
-  setDevoluciones,
-  quotations,
-  setQuotations,
-  logIntegracion = [],
-  setLogIntegracion = () => {},
   handleCancelarPedidoDigital = () => {},
   handleAprobarPedidoManual = () => {},
-  parametros: _parametros = {},
-  setCurrentView
 }: POSViewProps) {
+  const products = useInventoryStore((s) => s.products) as any;
+  const { stock, setStock } = useInventoryStore();
+  const publishEvent = useEventStore((s) => s.publishEvent);
+  const userRole = useAppStore((s) => s.userRole);
+  const setCurrentView = useAppStore((s) => s.setCurrentView);
+  const { clientes, setClientes, lastClientPrices, updateLastClientPrice } = useClientStore();
+  const { cartera, setCartera } = useARStore();
+
+  const { setMovimientos } = useMovementStore();
+
+  const { devoluciones, setDevoluciones } = useReturnStore();
+  const { quotations, setQuotations, setVentas } = useOrderStore();
+  const { logIntegracion, setLogIntegracion } = useIntegrationStore();
+  const dynamicFields = useDynamicFieldStore((s) => s.dynamicFields);
   const [drafts, setDrafts] = useState<any[]>([]);
   const [activeDraftId, setActiveDraftId] = useState<string | null>(null);
   const [ultimoTicket, setUltimoTicket] = useState<{ venta: any; cliente: any } | null>(null);
@@ -545,7 +514,6 @@ export default function POSView({
     let cash = 0;
     let credit = 0;
     let creditDate = '';
-    const turnoSeleccionadoId = turnoActivo.id; // Obtenemos el turno abierto del estado reactivo
     const requiereFE = false; // Por defecto Fase 1
 
     if (metodo === 'EFECTIVO') {
@@ -1263,7 +1231,7 @@ export default function POSView({
             totales={{ subtotal, descuento: totalDescuento, totalFinal }}
             drafts={drafts}
             activeDraftId={activeDraftId}
-            stock={stock}
+            stock={stock as any}
             bodegaActiva={bodegaActiva}
             lastClientPrices={lastClientPrices}
             onUpdateCantidad={actualizarCantidad}
@@ -1774,11 +1742,7 @@ export default function POSView({
         </div>
         ) : activeSubView === 'gestion_kanban' ? (
           <OrderKanbanView
-            quotations={quotations}
-            setQuotations={setQuotations}
-            publishEvent={publishEvent}
-            userRole={userRole}
-            onEditOrder={(quote) => {
+            onEditOrder={(quote: any) => {
               setSelectedB2BQuoteId(quote.id);
               setSelectedDevIds([]);
               const initialQtys: Record<string, number | string> = {};

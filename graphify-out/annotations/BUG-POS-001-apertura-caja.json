@@ -1,0 +1,92 @@
+{
+  "_meta": {
+    "type": "bugfix_annotation",
+    "id": "BUG-POS-001",
+    "title": "Flujo Abrir Turno de Caja inoperante",
+    "adr": "DOCS/adr/ADR-012-bugfix-apertura-caja-pos.md",
+    "fecha": "2026-07-01",
+    "severidad": "P0-Bloqueante",
+    "resuelto": true,
+    "autor": "Antigravity Agent",
+    "conversacion": "ef4b9756-491a-470f-af7f-27986093ccc1"
+  },
+  "bugs": [
+    {
+      "id": "BUG-POS-001-A",
+      "titulo": "Doble anotación de tipo TypeScript rompe compilación",
+      "archivo": "src/views/InventoryView.tsx",
+      "linea": 71,
+      "categoria": "syntax_error",
+      "patron_roto": "(item: any: any)",
+      "patron_corregido": "(item: any)",
+      "efecto": "Vite no compilaba — pantalla en blanco en toda la app"
+    },
+    {
+      "id": "BUG-POS-001-B",
+      "titulo": "Mismatch bodegaId: UUID vs Nombre en filtro de Cajas",
+      "archivo": "src/views/pos/components/AperturaCajaModal.tsx",
+      "linea": 184,
+      "categoria": "data_contract_mismatch",
+      "nodos_afectados": [
+        "AperturaCajaModal",
+        "cashService.seedCajasParaBodegas",
+        "cashService.getCajas",
+        "Caja (type)"
+      ],
+      "invariante_violada": "seedCajasParaBodegas persiste bodegaId=bodega.nombre pero el <select> emitía value=bodega.id",
+      "patron_roto": "<option value={b.id}>",
+      "patron_corregido": "<option value={b.nombre}>",
+      "efecto": "cajasDisponibles=[] → botón Siguiente deshabilitado → usuario no puede abrir turno",
+      "roles_afectados": ["admin"],
+      "roles_no_afectados": ["cajero"]
+    },
+    {
+      "id": "BUG-POS-001-C",
+      "titulo": "Modal portal fuera del viewport — Tailwind no instalado",
+      "archivo": "src/views/pos/components/AperturaCajaModal.tsx",
+      "lineas": "130-134",
+      "categoria": "css_dependency_missing",
+      "dependencia_ausente": "tailwindcss",
+      "nodo_afectado": "AperturaCajaModal (portal wrapper)",
+      "clases_sin_efecto": ["fixed", "inset-0", "z-[99999]", "backdrop-blur-sm"],
+      "patron_roto": "className=\"fixed inset-0 z-[99999]\"",
+      "patron_corregido": "style={{ position: 'fixed', inset: 0, zIndex: 99999 }}",
+      "efecto": "Modal renderizado a Y:842px — invisible fuera del viewport de 888px"
+    }
+  ],
+  "deuda_tecnica": [
+    {
+      "id": "DT-021",
+      "descripcion": "tailwindcss no está en package.json — auditar clases sin efecto en todo el proyecto",
+      "prioridad": "alta",
+      "archivos_criticos": ["src/views/pos/components/AperturaCajaModal.tsx"]
+    },
+    {
+      "id": "DT-022",
+      "descripcion": "bodegaId en Caja debe ser UUID (bodega.id), no bodega.nombre. Migrar en sprint Supabase.",
+      "prioridad": "media",
+      "archivos": ["src/services/cashService.ts", "src/types/cash.types.ts"]
+    },
+    {
+      "id": "DT-023",
+      "descripcion": "storage key inconsistency: LegacyCashService usa 'turnosCaja', useCashStore usa 'turnos_caja'",
+      "prioridad": "media",
+      "archivos": ["src/services/cashService.ts", "src/store/useCashStore.ts"]
+    }
+  ],
+  "flujo_corregido": {
+    "descripcion": "Cadena de eventos del flujo Apertura de Caja (post-fix)",
+    "pasos": [
+      "PaymentPanel[btn-abrir-turno] → onAbrirTurnoRequest()",
+      "POSView → setShowAperturaModal(true)",
+      "{showAperturaModal && AperturaCajaModal} → monta via createPortal (ahora visible con style inline)",
+      "AperturaCajaModal.useEffect → cashService.getCajas()",
+      "filter: c.bodegaId === selectedBodegaId (ambos = bodega.nombre → match correcto)",
+      "cajasDisponibles = [CajaMenor, CajaMayor]",
+      "Usuario selecciona caja → btn Siguiente habilitado",
+      "cashService.abrirTurno(cajaId, cajeroId, base, denominaciones)",
+      "useCashStore.setTurnoActivo(nuevoTurno)",
+      "isTurnoAbierto = true → PaymentPanel renderiza botones de cobro"
+    ]
+  }
+}

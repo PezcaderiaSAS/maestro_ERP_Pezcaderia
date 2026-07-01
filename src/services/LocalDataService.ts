@@ -27,7 +27,6 @@ const TABLE_TO_KEY: Record<string, localDb.DbKey> = {
   eventos: 'events',
   dynamicFields: 'dynamicFields',
   logIntegracion: 'logIntegracion',
-  eventos: 'events',
   syncQueue: 'syncQueue',
 };
 

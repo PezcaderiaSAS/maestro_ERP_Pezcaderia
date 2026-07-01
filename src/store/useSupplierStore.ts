@@ -22,7 +22,7 @@ export interface Proveedor {
 interface SupplierState {
   proveedores: Proveedor[];
   loadProveedores: (initialProveedores?: Proveedor[]) => void;
-  setProveedores: (proveedores: Proveedor[]) => void;
+  setProveedores: (proveedoresOrUpdater: any) => void;
   addProveedor: (proveedor: Proveedor) => void;
   updateProveedor: (id: string, data: Partial<Proveedor>) => void;
 }
@@ -39,8 +39,12 @@ export const useSupplierStore = create<SupplierState>()((set) => ({
     }
   },
 
-  setProveedores: (proveedores: Proveedor[]) => {
-    set({ proveedores });
+  setProveedores: (proveedoresOrUpdater: any) => {
+    set((state) => ({
+      proveedores: typeof proveedoresOrUpdater === 'function'
+        ? proveedoresOrUpdater(state.proveedores)
+        : proveedoresOrUpdater,
+    }));
   },
 
   addProveedor: (proveedor) => {

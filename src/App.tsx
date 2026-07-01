@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Menu, LayoutDashboard, ShoppingBag, Box, Users, DollarSign, HelpCircle, Home, ShoppingCart, LogOut, FileText, PlusCircle, Wallet, Database, Truck, RefreshCw, PieChart, PackageCheck } from 'lucide-react';
 import DashboardView from './views/DashboardView.tsx';
 import POSView from './views/POSView.tsx';
@@ -32,6 +32,7 @@ import { useIntegrationStore } from './store/useIntegrationStore.ts';
 import { usePurchaseStore } from './store/usePurchaseStore.ts';
 import { useMovementStore } from './store/useMovementStore.ts';
 import { useEventStore } from './store/useEventStore.ts';
+import { useAppStore } from './store/useAppStore.ts';
 
 /** Genera IDs únicos usando crypto.randomUUID() — resistente a colisiones en operaciones rápidas */
 export const generateId = (prefix: string): string =>
@@ -718,20 +719,13 @@ export interface LogIntegracion {
 }
 
 export default function App() {
-  // Role persistent loading
-  const initialRole = localDb.load('role', 'admin');
-  const [userRole, setUserRole] = useState<'admin' | 'vendedor' | 'bodega' | 'administrativo'>(initialRole);
+  const { userRole, setUserRole, currentView, setCurrentView, sidebarOpen, setSidebarOpen } = useAppStore();
 
-  const [currentView, setCurrentView] = useState('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  // States F3: Catalog and Pricing
   const { productsCatalog, setProductsCatalog, productPricings, setProductPricings, products, loadInventory } = useInventoryStore();
 
   useEffect(() => {
     const savedCat = localDb.load('productsCatalog', null as ProductCatalog[] | null);
     if (!savedCat || savedCat.length === 0) {
-      // Migración o inicialización
       const oldSaved = localStorage.getItem('pezcaderia_products');
       let sourceProducts = INITIAL_PRODUCTS;
       if (oldSaved) {
@@ -750,23 +744,12 @@ export default function App() {
         });
       }
       
-      const { catalog, pricings } = migrateProductsToCatalogAndPricing(sourceProducts, initialRole);
+      const { catalog, pricings } = migrateProductsToCatalogAndPricing(sourceProducts, userRole);
       setProductsCatalog(catalog);
       setProductPricings(pricings);
-      localDb.removeRaw('pezcaderia_products'); // Limpiar viejo estado
+      localDb.removeRaw('pezcaderia_products');
     }
-  }, [initialRole, setProductsCatalog, setProductPricings]);
-
-  useEffect(() => {
-    if (initialRole) {
-      setUserRole(initialRole);
-    }
-  }, [initialRole]);
-
-  const handleSetUserRole = (role: 'admin' | 'vendedor' | 'bodega' | 'administrativo') => {
-    setUserRole(role);
-    localDb.save('role', role);
-  };
+  }, [userRole, setProductsCatalog, setProductPricings]);
 
   const { ventas, setVentas, quotations, setQuotations, loadOrders } = useOrderStore();
   const { bodegas, setBodegas, loadBodegas } = useWarehouseStore();
@@ -774,16 +757,16 @@ export default function App() {
   const { proveedores, setProveedores, loadProveedores } = useSupplierStore();
   const { categorias, setCategorias, loadCategorias } = useCategoryStore();
   const { conductores, loadConductores } = useDriverStore();
-  const { empleados, setEmpleados, nominas, setNominas, loadEmpleados, loadNominas } = useEmployeeStore();
-  const { gastos, setGastos, loadGastos } = useExpenseStore();
-  const { dynamicFields, setDynamicFields, loadDynamicFields } = useDynamicFieldStore();
+  const { empleados, setEmpleados, loadEmpleados, loadNominas } = useEmployeeStore();
+  const { loadGastos } = useExpenseStore();
+  const { dynamicFields, loadDynamicFields } = useDynamicFieldStore();
   const { cartera, setCartera, loadCartera } = useARStore();
   const { devoluciones, setDevoluciones, loadDevoluciones } = useReturnStore();
   const { logIntegracion, setLogIntegracion, parametros, loadLogIntegracion, loadParametros } = useIntegrationStore();
   const { stock, setStock, loadStock } = useInventoryStore();
   const { ordenesCompra, setOrdenesCompra, loadOrdenesCompra } = usePurchaseStore();
   const { movimientos, setMovimientos, loadMovimientos } = useMovementStore();
-  const { events, syncQueue, setEvents, setSyncQueue, loadEvents, loadSyncQueue } = useEventStore();
+  const { syncQueue, setSyncQueue, loadEvents, loadSyncQueue } = useEventStore();
 
   useEffect(() => {
     loadOrders();
@@ -1323,155 +1306,33 @@ export default function App() {
   const renderView = () => {
     switch (currentView) {
       case 'dashboard':
-        return (
-          <DashboardView 
-            setView={setCurrentView}
-            events={events}
-            setEvents={setEvents}
-            syncQueue={syncQueue}
-            setSyncQueue={setSyncQueue}
-            dynamicFields={dynamicFields}
-            setDynamicFields={setDynamicFields}
-            products={products}
-            setProducts={setProductsShim as any}
-            publishEvent={publishEvent}
-            ventas={ventas}
-            parametros={parametros}
-            devoluciones={devoluciones}
-          />
-        );
+        return <DashboardView />;
       case 'pos':
         return (
-          <POSView 
-            products={products} 
-            dynamicFields={dynamicFields}
-            publishEvent={publishEvent}
-            userRole={userRole}
-            setCurrentView={setCurrentView}
-            stock={stock}
-            setStock={setStock}
-            lastClientPrices={lastClientPrices}
-            updateLastClientPrice={updateLastClientPrice}
-            cartera={cartera}
-            setCartera={setCartera}
-            clientes={clientes}
-            setClientes={setClientes}
-            ventas={ventas}
-            setVentas={setVentas}
-            movimientos={movimientos}
-            setMovimientos={setMovimientos}
-            conductores={conductores}
-            devoluciones={devoluciones}
-            setDevoluciones={setDevoluciones}
-            quotations={quotations}
-            setQuotations={setQuotations}
-            logIntegracion={logIntegracion}
-            setLogIntegracion={setLogIntegracion}
+          <POSView
             handleCancelarPedidoDigital={handleCancelarPedidoDigital}
             handleAprobarPedidoManual={handleAprobarPedidoManual}
-            parametros={parametros}
           />
         );
       case 'inventario':
-        return (
-          <InventoryView 
-            products={products} 
-            setProducts={setProductsShim as any} 
-            productsCatalog={productsCatalog}
-            setProductsCatalog={setProductsCatalog}
-            productPricings={productPricings}
-            setProductPricings={setProductPricings} 
-            stock={stock}
-            setStock={setStock}
-            proveedores={proveedores}
-            publishEvent={publishEvent}
-            userRole={userRole}
-            movimientos={movimientos}
-            setMovimientos={setMovimientos}
-            ordenesCompra={ordenesCompra}
-            setOrdenesCompra={setOrdenesCompra}
-            categorias={categorias}
-            setCategorias={setCategorias}
-            devoluciones={devoluciones}
-            setDevoluciones={setDevoluciones}
-            quotations={quotations}
-            setQuotations={setQuotations}
-            bodegas={bodegas}
-            setBodegas={setBodegas}
-          />
-        );
+        return <InventoryView />;
       case 'alistamiento':
         return <AlistamientoBodegaView />;
       case 'precios':
-        return (
-          <PricingView 
-            products={products} 
-            setProducts={setProductsShim as any} 
-            productsCatalog={productsCatalog}
-            setProductsCatalog={setProductsCatalog}
-            productPricings={productPricings}
-            setProductPricings={setProductPricings} 
-            quotations={quotations}
-            setQuotations={setQuotations}
-            publishEvent={publishEvent}
-            userRole={userRole}
-            stock={stock}
-            setStock={setStock}
-            lastClientPrices={lastClientPrices}
-            updateLastClientPrice={updateLastClientPrice}
-            clientes={clientes}
-            conductores={conductores}
-            devoluciones={devoluciones}
-            setDevoluciones={setDevoluciones}
-          />
-        );
+        return <PricingView />;
       case 'rrhh':
-        return <HRView empleados={empleados} setEmpleados={setEmpleados} nominas={nominas} setView={setCurrentView} />;
+        return <HRView />;
       case 'nomina':
-        return <PayrollView empleados={empleados} nominas={nominas} setNominas={setNominas} gastos={gastos} setGastos={setGastos} setView={setCurrentView} />;
+        return <PayrollView />;
       case 'cartera':
-        return (
-          <ARView 
-            cartera={cartera}
-            setCartera={setCartera}
-            clientes={clientes}
-            publishEvent={publishEvent}
-            userRole={userRole}
-            devoluciones={devoluciones}
-            setDevoluciones={setDevoluciones}
-          />
-        );
+        return <ARView />;
       case 'clientes':
-        return (
-          <ClientsView 
-            clientes={clientes}
-            setClientes={setClientes}
-            ventas={ventas}
-            cartera={cartera}
-            publishEvent={publishEvent}
-            userRole={userRole}
-          />
-        );
+        return <ClientsView />;
       case 'compras':
-        return (
-          <SuppliersView
-            proveedores={proveedores}
-            setProveedores={setProveedores}
-            ordenesCompra={ordenesCompra}
-            movimientos={movimientos}
-            gastos={gastos}
-            setGastos={setGastos}
-            publishEvent={publishEvent}
-            userRole={userRole}
-          />
-        );
+        return <SuppliersView />;
       case 'kanban':
         return (
           <OrderKanbanView
-            quotations={quotations}
-            setQuotations={setQuotations}
-            publishEvent={publishEvent}
-            userRole={userRole}
             onEditOrder={(quote) => {
               setCurrentView('pos');
               setTimeout(() => {
@@ -1482,11 +1343,11 @@ export default function App() {
           />
         );
       case 'crm':
-        return <CRMView currentActor={userRole} />;
+        return <CRMView />;
       case 'caja':
-        return <CashFlowView userRole={userRole} usuarioId={userRole} />;
+        return <CashFlowView />;
       default:
-        return <DashboardView setView={setCurrentView} />;
+        return <DashboardView />;
     }
   };
 
@@ -1577,7 +1438,7 @@ export default function App() {
               <select 
                 className="sidebar-profile-role-select" 
                 value={userRole} 
-                onChange={(e) => handleSetUserRole(e.target.value as any)}
+                onChange={(e) => setUserRole(e.target.value as any)}
               >
                 <option value="admin">Super administrador</option>
                 <option value="vendedor">Vendedor</option>

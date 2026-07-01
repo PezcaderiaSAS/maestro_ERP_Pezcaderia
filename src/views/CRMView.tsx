@@ -6,17 +6,16 @@ import {
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { twentyCompanies, twentyContacts, twentyOpportunities, hasTwentyApiKey } from '../services/twentyClient';
-
-interface CRMViewProps {
-  currentActor: string;
-}
+import { useAppStore } from '../store/useAppStore.ts';
 
 type TabType = 'COMPANIES' | 'CONTACTS' | 'OPPORTUNITIES';
 
-export default function CRMView({ currentActor }: CRMViewProps) {
+export default function CRMView() {
+  const userRole = useAppStore((s) => s.userRole);
+
   useEffect(() => {
-    if (currentActor) console.debug('CRM View loaded for:', currentActor);
-  }, [currentActor]);
+    if (userRole) console.debug('CRM View loaded for:', userRole);
+  }, [userRole]);
 
   const [activeTab, setActiveTab] = useState<TabType>('OPPORTUNITIES');
   const [searchTerm, setSearchTerm] = useState('');

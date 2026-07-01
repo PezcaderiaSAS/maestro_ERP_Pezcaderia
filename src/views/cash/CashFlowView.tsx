@@ -7,13 +7,11 @@ import ArqueoCajaModal from './components/ArqueoCajaModal';
 import TrasladoDineroModal from './components/TrasladoDineroModal';
 import { AperturaCajaModal } from '../pos/components/AperturaCajaModal';
 import { useWarehouseStore } from '../../store/useWarehouseStore';
+import { useAppStore } from '../../store/useAppStore.ts';
 
-interface CashFlowViewProps {
-  userRole: string;
-  usuarioId: string;
-}
-
-export default function CashFlowView({ userRole, usuarioId }: CashFlowViewProps) {
+export default function CashFlowView() {
+  const { userRole } = useAppStore();
+  const usuarioId = userRole;
   const { bodegas, getPrimaryBodega } = useWarehouseStore();
   const primaryBodega = getPrimaryBodega()?.nombre || 'Bodega Principal';
   

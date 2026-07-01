@@ -1,16 +1,13 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { UserPlus, Lock, Calendar, Trash2, DollarSign, Calculator, FileText, CheckCircle } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { generateId, Empleado, NominaRegistro } from '../App.tsx';
+import { generateId, Empleado } from '../App.tsx';
+import { useEmployeeStore } from '../store/useEmployeeStore.ts';
+import { useAppStore } from '../store/useAppStore.ts';
 
-interface HRViewProps {
-  empleados: Empleado[];
-  setEmpleados: React.Dispatch<React.SetStateAction<Empleado[]>>;
-  nominas?: NominaRegistro[];
-  setView?: (view: string) => void;
-}
-
-export default function HRView({ empleados, setEmpleados, nominas = [], setView }: HRViewProps) {
+export default function HRView() {
+  const { empleados, setEmpleados, nominas = [] } = useEmployeeStore();
+  const setView = useAppStore((s) => s.setCurrentView);
   const [showModal, setShowModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showDocModal, setShowDocModal] = useState<'CERTIFICADO' | 'RECOMENDACION' | null>(null);
@@ -97,7 +94,7 @@ export default function HRView({ empleados, setEmpleados, nominas = [], setView 
       cancelButtonColor: '#64748B'
     }).then((result) => {
       if (result.isConfirmed) {
-        setEmpleados(prev => prev.map(emp => {
+        setEmpleados((prev: Empleado[]) => prev.map((emp: Empleado) => {
           if (emp.id === id) {
             return {
               ...emp,

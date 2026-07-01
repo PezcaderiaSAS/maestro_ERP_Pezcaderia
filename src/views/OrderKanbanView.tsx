@@ -1,27 +1,22 @@
-import React from 'react';
 import { Truck, CheckCircle, PackageSearch, Package, AlertCircle, FileText } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { b2bService } from '../services/b2bService';
 import { cashService } from '../services/cashService';
 import { EstadoPedido } from '../types/orders.types';
+import { useOrderStore } from '../store/useOrderStore.ts';
+import { useEventStore } from '../store/useEventStore.ts';
+import { useAppStore } from '../store/useAppStore.ts';
 
 interface OrderKanbanViewProps {
-  quotations: any[];
-  setQuotations: React.Dispatch<React.SetStateAction<any[]>>;
-  publishEvent: (tipo: any, actor: string, descripcion: string, metadata?: any) => void;
-  userRole: string;
   onEditOrder: (quote: any) => void;
 }
 
 type ColumnId = 'pausados' | 'creados' | 'listos' | 'en_despacho' | 'entregados' | 'facturados' | 'pagados';
 
-export default function OrderKanbanView({
-  quotations,
-  setQuotations,
-  publishEvent,
-  userRole,
-  onEditOrder
-}: OrderKanbanViewProps) {
+export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
+  const { quotations, setQuotations } = useOrderStore();
+  const publishEvent = useEventStore((s) => s.publishEvent);
+  const userRole = useAppStore((s) => s.userRole);
 
   const columns: { id: ColumnId; title: string; states: string[]; color: string; icon: React.ReactNode }[] = [
     { id: 'pausados', title: 'Pausados', states: ['PAUSADO', 'PAUSADO_POR_CREDITO'], color: '#FEE2E2', icon: <AlertCircle size={20} color="#EF4444" /> },
@@ -189,7 +184,7 @@ export default function OrderKanbanView({
               }
             }
 
-            setQuotations(prev => prev.map(q => q.id === quoteId ? { ...q, estado: nuevoEstado, fechaActualizacionKanban: new Date().toISOString() } : q));
+            setQuotations((prev: any[]) => prev.map((q: any) => q.id === quoteId ? { ...q, estado: nuevoEstado, fechaActualizacionKanban: new Date().toISOString() } : q));
             publishEvent('QUOTE_STATUS_CHANGED', userRole, `Pedido pagado y registrado en Caja`, { quoteId, nuevoEstado });
             
             Swal.fire({ icon: 'success', title: 'Pago Registrado', text: 'El pedido ha sido marcado como pagado y el ingreso se registró en la caja.', confirmButtonColor: 'var(--primary-color)' });
@@ -211,7 +206,7 @@ export default function OrderKanbanView({
         return;
       }
 
-      setQuotations(prev => prev.map(q => q.id === quoteId ? { ...q, estado: nuevoEstado, fechaActualizacionKanban: new Date().toISOString() } : q));
+      setQuotations((prev: any[]) => prev.map((q: any) => q.id === quoteId ? { ...q, estado: nuevoEstado, fechaActualizacionKanban: new Date().toISOString() } : q));
       
       publishEvent('QUOTE_STATUS_CHANGED', userRole, `Pedido actualizado a estado ${nuevoEstado}`, { quoteId, nuevoEstado });
     } catch (e: any) {

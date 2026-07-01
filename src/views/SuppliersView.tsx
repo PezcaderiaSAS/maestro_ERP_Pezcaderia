@@ -1,26 +1,17 @@
-import React, { useState } from 'react';
-import { Proveedor, OrdenCompra, MovimientoInventario, Gasto, generateId, toTitleCase } from '../App.tsx';
+import { useState } from 'react';
+import { Proveedor, generateId, toTitleCase } from '../App.tsx';
 import { Truck, Search, Save, ShoppingCart, Box, PlusCircle, ArrowLeft } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useSupplierStore } from '../store/useSupplierStore.ts';
+import { usePurchaseStore } from '../store/usePurchaseStore.ts';
+import { useMovementStore } from '../store/useMovementStore.ts';
+import { useExpenseStore } from '../store/useExpenseStore.ts';
 
-interface SuppliersViewProps {
-  proveedores: Proveedor[];
-  setProveedores: React.Dispatch<React.SetStateAction<Proveedor[]>>;
-  ordenesCompra: OrdenCompra[];
-  movimientos: MovimientoInventario[];
-  gastos?: Gasto[];
-  setGastos?: React.Dispatch<React.SetStateAction<Gasto[]>>;
-  publishEvent: (tipo: any, actor: string, desc: string, meta?: any) => void;
-  userRole: string;
-}
-
-export default function SuppliersView({
-  proveedores,
-  setProveedores,
-  ordenesCompra,
-  movimientos,
-  gastos = []
-}: SuppliersViewProps) {
+export default function SuppliersView() {
+  const { proveedores, setProveedores } = useSupplierStore();
+  const ordenesCompra = usePurchaseStore((s) => s.ordenesCompra);
+  const movimientos = useMovementStore((s) => s.movimientos);
+  const gastos = useExpenseStore((s) => s.gastos);
   const [activeTab, setActiveTab] = useState<'PROVEEDORES' | 'GASTOS'>('PROVEEDORES');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'TODOS' | 'ACTIVOS' | 'INACTIVOS'>('TODOS');
@@ -46,7 +37,7 @@ export default function SuppliersView({
     }
 
     if (selectedProveedorId && proveedores.some(p => p.id === selectedProveedorId)) {
-      setProveedores(prev => prev.map(p => p.id === selectedProveedorId ? {
+      setProveedores((prev: Proveedor[]) => prev.map((p: Proveedor) => p.id === selectedProveedorId ? {
         ...p,
         nombre: toTitleCase(proveedorForm.nombre),
         nit: proveedorForm.nit,
@@ -77,7 +68,7 @@ export default function SuppliersView({
         plazoPagoDias: proveedorForm.plazoPagoDias,
         activo: true
       };
-      setProveedores(prev => [...prev, nuevo]);
+      setProveedores((prev: Proveedor[]) => [...prev, nuevo]);
       setSelectedProveedorId(nuevo.id);
       Swal.fire({ icon: 'success', title: 'Proveedor registrado', text: 'El proveedor ha sido registrado exitosamente.', timer: 1500, showConfirmButton: false });
     }
@@ -107,7 +98,7 @@ export default function SuppliersView({
   };
 
   const handleToggleProveedor = (id: string) => {
-    setProveedores(prev => prev.map(p => p.id === id ? { ...p, activo: !p.activo } : p));
+    setProveedores((prev: Proveedor[]) => prev.map((p: Proveedor) => p.id === id ? { ...p, activo: !p.activo } : p));
   };
 
   const filteredProveedores = proveedores.filter(p => {

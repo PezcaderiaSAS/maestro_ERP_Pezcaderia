@@ -35,8 +35,9 @@ interface InventoryState {
   stock: Record<string, Record<string, number>>;
   loadInventory: () => void;
   loadStock: () => void;
-  setProductsCatalog: (catalog: any[]) => void;
-  setProductPricings: (pricings: any[]) => void;
+  setProducts: (productsOrUpdater: any) => void;
+  setProductsCatalog: (catalogOrUpdater: any) => void;
+  setProductPricings: (pricingsOrUpdater: any) => void;
   setStock: (stockOrUpdater: any) => void;
   getProductoById: (id: string) => Producto | undefined;
 }
@@ -99,13 +100,21 @@ export const useInventoryStore = create<InventoryState>()((set, get) => ({
     set({ stock: migrated });
   },
 
-  setProductsCatalog: (catalog: any[]) => {
-    set({ productsCatalog: catalog });
+  setProducts: (productsOrUpdater: any) => set((state) => ({
+    products: typeof productsOrUpdater === 'function' ? productsOrUpdater(state.products) : productsOrUpdater,
+  })),
+
+  setProductsCatalog: (catalogOrUpdater: any) => {
+    set((state) => ({
+      productsCatalog: typeof catalogOrUpdater === 'function' ? catalogOrUpdater(state.productsCatalog) : catalogOrUpdater,
+    }));
     get().loadInventory();
   },
 
-  setProductPricings: (pricings: any[]) => {
-    set({ productPricings: pricings });
+  setProductPricings: (pricingsOrUpdater: any) => {
+    set((state) => ({
+      productPricings: typeof pricingsOrUpdater === 'function' ? pricingsOrUpdater(state.productPricings) : pricingsOrUpdater,
+    }));
     get().loadInventory();
   },
 
