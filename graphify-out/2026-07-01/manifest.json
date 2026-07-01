@@ -60,8 +60,8 @@
     "semantic_hash": "2620f65b9af5bc706f0bcab47f7539a8"
   },
   "src/App.tsx": {
-    "mtime": 1782824439.5480728,
-    "ast_hash": "fadf6b07dcd3ee4b932e7d7d7f0fed88",
+    "mtime": 1782922679.3766341,
+    "ast_hash": "e3aa2c582c00918e89b220e223d84f61",
     "semantic_hash": ""
   },
   "src/hooks/useBalanza.ts": {
@@ -85,18 +85,18 @@
     "semantic_hash": "3e5bda86e57e6836a3531d9721bb9bbd"
   },
   "src/services/b2bService.ts": {
-    "mtime": 1782237430.312993,
-    "ast_hash": "c11ddd58ffe6216ba4957c736ef9bb4a",
+    "mtime": 1782915742.15916,
+    "ast_hash": "5340abb3d8d9679397727b22cbc1bb0c",
     "semantic_hash": ""
   },
   "src/services/cashService.ts": {
-    "mtime": 1782394769.389251,
-    "ast_hash": "dae6d4bd4c4a66cf0c52c40ba640f672",
+    "mtime": 1782915835.3703904,
+    "ast_hash": "4777f6b73633ba926feeb414b1b3c63b",
     "semantic_hash": ""
   },
   "src/services/inventoryService.ts": {
-    "mtime": 1782824161.726892,
-    "ast_hash": "dd4968c69645eaaad206d3974e92e8b9",
+    "mtime": 1782915850.601672,
+    "ast_hash": "d1f5bc2ab040684d33a35a1311f8ec07",
     "semantic_hash": ""
   },
   "src/services/localDb.ts": {
@@ -110,8 +110,8 @@
     "semantic_hash": "2f3d0ae749e742a5672870082b7324e6"
   },
   "src/services/posService.ts": {
-    "mtime": 1782236603.4734635,
-    "ast_hash": "13d9af235d50678b8885b7e3f4c61aef",
+    "mtime": 1782915779.945981,
+    "ast_hash": "abcabfd820abe79788c97cc75aa975cf",
     "semantic_hash": ""
   },
   "src/services/twentyClient.ts": {
@@ -195,63 +195,63 @@
     "semantic_hash": ""
   },
   "src/views/ARView.tsx": {
-    "mtime": 1781259089.4719462,
-    "ast_hash": "a4353ee6053bc10bae7c1c09cc6c2b6c",
-    "semantic_hash": "a4353ee6053bc10bae7c1c09cc6c2b6c"
+    "mtime": 1782919795.2018664,
+    "ast_hash": "2ec4bdd169c1b1bf307ae3352513a954",
+    "semantic_hash": ""
   },
   "src/views/CRMView.tsx": {
-    "mtime": 1782236665.960973,
-    "ast_hash": "d5a6dd0b485b76e3903c5f99f692e161",
+    "mtime": 1782918772.65455,
+    "ast_hash": "48757157dd8e328eaffa55c45be92d69",
     "semantic_hash": ""
   },
   "src/views/ClientsView.tsx": {
-    "mtime": 1781622836.7037785,
-    "ast_hash": "25fafafc8737726df5394e10878fbd17",
-    "semantic_hash": "25fafafc8737726df5394e10878fbd17"
+    "mtime": 1782919700.2828524,
+    "ast_hash": "be728d1361e9f6f98a593ccbd56cd6dd",
+    "semantic_hash": ""
   },
   "src/views/DashboardView.tsx": {
-    "mtime": 1781190540.1646142,
-    "ast_hash": "7e7e795d332610454d8def2476ebc9c2",
-    "semantic_hash": "7e7e795d332610454d8def2476ebc9c2"
+    "mtime": 1782918881.2260082,
+    "ast_hash": "e6c30bb5f9314ce8a94fa0d461e44fe2",
+    "semantic_hash": ""
   },
   "src/views/HRView.tsx": {
-    "mtime": 1781283628.316856,
-    "ast_hash": "57bf61c56ee781ef547f1cc3db2d3a79",
-    "semantic_hash": "57bf61c56ee781ef547f1cc3db2d3a79"
+    "mtime": 1782919099.2249036,
+    "ast_hash": "8db3ed19ef7a9505dff4911c8b5ddf8b",
+    "semantic_hash": ""
   },
   "src/views/InventoryView.tsx": {
-    "mtime": 1782235827.740573,
-    "ast_hash": "098f6f6c4e8fc57ddcf15fadfef47d9b",
+    "mtime": 1782922598.7971845,
+    "ast_hash": "37082fbc8b9140b071995dfe36a97a9c",
     "semantic_hash": ""
   },
   "src/views/OrderKanbanView.tsx": {
-    "mtime": 1782234801.8173513,
-    "ast_hash": "fda8a72acabf60083d3995cce37f324a",
+    "mtime": 1782919769.881524,
+    "ast_hash": "a42ca80900c8513aee599e3b66ba9dd7",
     "semantic_hash": ""
   },
   "src/views/POSView.tsx": {
-    "mtime": 1782828446.5547206,
-    "ast_hash": "b7dcc7220d87bb7e64e6e9c95e91cfd7",
+    "mtime": 1782923137.9430282,
+    "ast_hash": "6aeab50ed811e41104940f52bbe082de",
     "semantic_hash": ""
   },
   "src/views/PayrollView.tsx": {
-    "mtime": 1781888825.0767987,
-    "ast_hash": "8ac85beb9f9c3bf9c15dab7c3240b92e",
-    "semantic_hash": "8ac85beb9f9c3bf9c15dab7c3240b92e"
+    "mtime": 1782919159.5715802,
+    "ast_hash": "65e22f15c50ed3aacc3aa7f8d18b2997",
+    "semantic_hash": ""
   },
   "src/views/PricingView.tsx": {
-    "mtime": 1782824522.0658448,
-    "ast_hash": "3351422c2f3f1c561292577d0cc5d243",
+    "mtime": 1782921493.0773363,
+    "ast_hash": "876a2fa0eb2f1983c7ee8e220c0cf20c",
     "semantic_hash": ""
   },
   "src/views/SuppliersView.tsx": {
-    "mtime": 1781888844.9437666,
-    "ast_hash": "b3a0896e66ed61cb58202693ccfe6243",
-    "semantic_hash": "b3a0896e66ed61cb58202693ccfe6243"
+    "mtime": 1782919745.5138185,
+    "ast_hash": "db90e37fc3e92cfc3abeab3427a35142",
+    "semantic_hash": ""
   },
   "src/views/cash/CashFlowView.tsx": {
-    "mtime": 1782752398.481283,
-    "ast_hash": "7e2a20a218ede9249b8f0774d2b70f4d",
+    "mtime": 1782918805.3567777,
+    "ast_hash": "39b1443777e9a1077830377d0466f5c2",
     "semantic_hash": ""
   },
   "src/views/cash/components/CierreCajaModal.tsx": {
@@ -325,8 +325,8 @@
     "semantic_hash": "2f40c05e6baf7567c9b1a83fc3486561"
   },
   "src/views/pos/components/PaymentPanel.tsx": {
-    "mtime": 1782828416.7929285,
-    "ast_hash": "794993fe7410e2cf6f13778e30f2ddea",
+    "mtime": 1782842504.4425745,
+    "ast_hash": "db3b78db34e95f30b95c02646b683af2",
     "semantic_hash": ""
   },
   "src/views/pos/components/TicketBuilder.tsx": {
@@ -385,8 +385,8 @@
     "semantic_hash": ""
   },
   "src/services/warehouseService.ts": {
-    "mtime": 1782137751.9640298,
-    "ast_hash": "4ba5ba7a221aa0e43d608a89d071ce70",
+    "mtime": 1782915256.5515661,
+    "ast_hash": "ac237b93d43cdef09d2fe13b01fa89f6",
     "semantic_hash": ""
   },
   "src/views/inventory/components/WarehouseConfigManager.tsx": {
@@ -695,28 +695,28 @@
     "semantic_hash": ""
   },
   "src/store/useClientStore.ts": {
-    "mtime": 1782237563.5949671,
-    "ast_hash": "a9713843c7ff0677cec9113c0768125d",
+    "mtime": 1782917729.933434,
+    "ast_hash": "eb0bb056054a94bd16d07eac4839e525",
     "semantic_hash": ""
   },
   "src/store/useInventoryStore.ts": {
-    "mtime": 1782236823.7209015,
-    "ast_hash": "ca75d562a4686c483dee45d01789ed7f",
+    "mtime": 1782920344.9779105,
+    "ast_hash": "2f8391457d51af2dd3ace8342dadc99e",
     "semantic_hash": ""
   },
   "src/store/useOrderStore.ts": {
-    "mtime": 1782236821.6802993,
-    "ast_hash": "8274a04080aa8356c3c21eff08d3df41",
+    "mtime": 1782915554.2656343,
+    "ast_hash": "ce3cc1373e92100482d67da75e78c1ee",
     "semantic_hash": ""
   },
   "src/store/useSupplierStore.ts": {
-    "mtime": 1782236819.5686352,
-    "ast_hash": "c9532592124c680c3da117deb11590c2",
+    "mtime": 1782919944.1154108,
+    "ast_hash": "6316bb697d2bebae812853b295a151ef",
     "semantic_hash": ""
   },
   "src/store/useWarehouseStore.ts": {
-    "mtime": 1782315464.4107616,
-    "ast_hash": "ed97e26512d293c24fd74b54a6ec8e61",
+    "mtime": 1782915530.7717469,
+    "ast_hash": "c370770751b03e7e37362d9ef1f66c69",
     "semantic_hash": ""
   },
   "src/views/inventory/AlistamientoBodegaView.tsx": {
@@ -760,13 +760,13 @@
     "semantic_hash": ""
   },
   "src/views/pos/components/AperturaCajaModal.tsx": {
-    "mtime": 1782567074.4350243,
-    "ast_hash": "825a73cc8123da9a7b065c0cc52305dc",
+    "mtime": 1782927206.5805912,
+    "ast_hash": "ed928d76dcb83bdf71cf86b10377ee3b",
     "semantic_hash": ""
   },
   "src/views/pos/components/CartPanel.tsx": {
-    "mtime": 1782828426.9258542,
-    "ast_hash": "858eb4eb83b2dd21a8afd52045bfe4ab",
+    "mtime": 1782909101.849536,
+    "ast_hash": "a66e35d8b1d85677bc9c9222bc26eaf8",
     "semantic_hash": ""
   },
   "src/views/pos/components/LineaVentaRow.tsx": {
@@ -2015,8 +2015,8 @@
     "semantic_hash": ""
   },
   "src/dev/seeds/seedCash.ts": {
-    "mtime": 1782571343.998241,
-    "ast_hash": "9b71d0c0d662627f0a92cec005599780",
+    "mtime": 1782917076.1318684,
+    "ast_hash": "841d5b98a3dac6e173b4131f39500945",
     "semantic_hash": ""
   },
   "src/dev/seeds/seedInventory.ts": {
@@ -2025,13 +2025,13 @@
     "semantic_hash": ""
   },
   "src/dev/seeds/seedPOS.ts": {
-    "mtime": 1782824577.4225938,
-    "ast_hash": "5e33d1cda992a14098e82c0f1ac566aa",
+    "mtime": 1782917060.5698857,
+    "ast_hash": "aa0f4b45efee9a618f6a7d70bb3bc120",
     "semantic_hash": ""
   },
   "test-results/.last-run.json": {
-    "mtime": 1782830715.4726567,
-    "ast_hash": "35742b7c372f479a4f056c0ab67e1e94",
+    "mtime": 1782917309.4874895,
+    "ast_hash": "96410d23519284c16b0212f198cca7c0",
     "semantic_hash": ""
   },
   "tests/e2e/cash.spec.ts": {
@@ -2040,13 +2040,13 @@
     "semantic_hash": ""
   },
   "tests/e2e/pos.spec.ts": {
-    "mtime": 1782830428.4108088,
-    "ast_hash": "74d54c4c9040e50abe7c3a5dffeb4ecb",
+    "mtime": 1782917091.9045842,
+    "ast_hash": "78c46d1733a71d1ab5fb8d5d06487f00",
     "semantic_hash": ""
   },
   "playwright-report/index.html": {
-    "mtime": 1782571697.6023333,
-    "ast_hash": "38cf14b60cc832531725c529b3a9c23e",
+    "mtime": 1782917309.485973,
+    "ast_hash": "398b1465c8c80f65ba6432c9815d660f",
     "semantic_hash": ""
   },
   "speckit_assessment.md": {
@@ -2055,53 +2055,18 @@
     "semantic_hash": ""
   },
   "test-results/pos-POS---Flujo-de-Apertur-937fb-decrementar-el-stock-RN-01--chromium/error-context.md": {
-    "mtime": 1782830709.4461305,
-    "ast_hash": "2ae617fe4337c959c78d6d1fcb8bfdc7",
+    "mtime": 1782917183.2730606,
+    "ast_hash": "8d2a9d3ca8681020528912fb9844a1e6",
     "semantic_hash": ""
   },
   "test-results/pos-POS---Flujo-de-Apertur-fc7bc-con-stock-0---mostrar-error-chromium/error-context.md": {
-    "mtime": 1782830705.6170256,
-    "ast_hash": "bde6186b89883fcf82258d3b85e33802",
+    "mtime": 1782917190.3761847,
+    "ast_hash": "588471d36be371918897bee5c1f82c9a",
     "semantic_hash": ""
   },
   "DOCS/mar_episodic_memory_architecture.md": {
     "mtime": 1782581533.6482718,
     "ast_hash": "f57293833f0d6354318be640bad2f3fe",
-    "semantic_hash": ""
-  },
-  "playwright-report/data/19762c930e7cf0d58e3291fb4d266aa6b121e64c.md": {
-    "mtime": 1782571697.564106,
-    "ast_hash": "33ae95fe2db3b194998ae2525373dc4d",
-    "semantic_hash": ""
-  },
-  "playwright-report/data/3c35bbe957d9b399ee8c2176baeed0fc2a0516e7.md": {
-    "mtime": 1782571697.5701041,
-    "ast_hash": "bdb9c44d6627aea502a00229ec84cba0",
-    "semantic_hash": ""
-  },
-  "playwright-report/data/3fcb4c7e94e5c8f53c66d5b0b0bab6232576e725.md": {
-    "mtime": 1782571697.5661058,
-    "ast_hash": "6d17d026e4ae4ec65d1fde17b738cf6a",
-    "semantic_hash": ""
-  },
-  "playwright-report/data/4b3e7e2c4eacbc46948f49d349e97055e5e4a55d.md": {
-    "mtime": 1782571697.5621035,
-    "ast_hash": "dfab80d28e83e1e47afcef2fdda89ab2",
-    "semantic_hash": ""
-  },
-  "playwright-report/data/6b980be603de56ced77c2b8c9045c6e04c74b168.md": {
-    "mtime": 1782571697.5681047,
-    "ast_hash": "a0200a2165604076309065e9a93cafb6",
-    "semantic_hash": ""
-  },
-  "playwright-report/data/cc934d6979cc197a5bcad74d12bd7899f61aa2b0.md": {
-    "mtime": 1782571697.5583,
-    "ast_hash": "3a848bd1d0a61da97b905252308d64df",
-    "semantic_hash": ""
-  },
-  "playwright-report/data/f39b3bd7a10fd4ca15c007af7d6f9db56a7c9a65.md": {
-    "mtime": 1782571697.5562985,
-    "ast_hash": "91ee80e91f4d6a8ba45efdef23430eb6",
     "semantic_hash": ""
   },
   ".claude/settings.local.json": {
@@ -2492,6 +2457,176 @@
   "agent-skills/skills/using-agent-skills/SKILL.md": {
     "mtime": 1782819783.0244706,
     "ast_hash": "41f8d367207121d18b0ec25908597d41",
+    "semantic_hash": ""
+  },
+  "database/08_productos_catalogo_precios.sql": {
+    "mtime": 1782914320.7301056,
+    "ast_hash": "7a23abbdbe490c736ed6b5b7e825eb60",
+    "semantic_hash": ""
+  },
+  "database/09_inventario_movimientos.sql": {
+    "mtime": 1782914371.880421,
+    "ast_hash": "b10197316a9876850e3f3ee395e0f0e2",
+    "semantic_hash": ""
+  },
+  "database/10_cartera.sql": {
+    "mtime": 1782914586.732754,
+    "ast_hash": "306d6dc9d20e73f63431a3ac4cacba88",
+    "semantic_hash": ""
+  },
+  "database/11_ordenes_compra.sql": {
+    "mtime": 1782914630.921014,
+    "ast_hash": "0de5b1c7e50d051bf6732ca2df9069ab",
+    "semantic_hash": ""
+  },
+  "database/12_cotizaciones.sql": {
+    "mtime": 1782914691.364315,
+    "ast_hash": "45f7114e1a9b5cb74401d7acd3fa56b8",
+    "semantic_hash": ""
+  },
+  "database/13_devoluciones_ext.sql": {
+    "mtime": 1782914747.262076,
+    "ast_hash": "d35103280db44b6f5845980315580fc1",
+    "semantic_hash": ""
+  },
+  "database/14_cajas_ext.sql": {
+    "mtime": 1782914808.176224,
+    "ast_hash": "90cf04a69573126a04406648f1656a27",
+    "semantic_hash": ""
+  },
+  "database/15_rls_nuevas_tablas.sql": {
+    "mtime": 1782914830.7178652,
+    "ast_hash": "79fd8965a77bc25950618fbc41f9a75a",
+    "semantic_hash": ""
+  },
+  "database/16_indexes_and_maintenance.sql": {
+    "mtime": 1782914845.3422668,
+    "ast_hash": "a5bf31d478c3e03e3603242e93908f49",
+    "semantic_hash": ""
+  },
+  "src/lib/supabase.ts": {
+    "mtime": 1782915738.373814,
+    "ast_hash": "c6d98575971f766b331551025dacf4a0",
+    "semantic_hash": ""
+  },
+  "src/services/LocalDataService.ts": {
+    "mtime": 1782918711.0769403,
+    "ast_hash": "d16f589dd98fe698117519ca87f499fe",
+    "semantic_hash": ""
+  },
+  "src/services/SupabaseDataService.ts": {
+    "mtime": 1782915749.6091259,
+    "ast_hash": "817c1a5c27815d79fc1a672fdd8b77d5",
+    "semantic_hash": ""
+  },
+  "src/store/useARStore.ts": {
+    "mtime": 1782916980.7459612,
+    "ast_hash": "e372333775ab77394eb80c82367073ea",
+    "semantic_hash": ""
+  },
+  "src/store/useCashStore.ts": {
+    "mtime": 1782915564.9974165,
+    "ast_hash": "a6c7cbb831added4e8c4017ccc8e0749",
+    "semantic_hash": ""
+  },
+  "src/store/useCategoryStore.ts": {
+    "mtime": 1782916590.2390025,
+    "ast_hash": "e8093ab8b4a237a8f44583edc7c00c4c",
+    "semantic_hash": ""
+  },
+  "src/store/useDriverStore.ts": {
+    "mtime": 1782916159.5487823,
+    "ast_hash": "10f2d2811a2a192e5846102bbdc98ed0",
+    "semantic_hash": ""
+  },
+  "src/store/useDynamicFieldStore.ts": {
+    "mtime": 1782916976.0500002,
+    "ast_hash": "705de0b9994e5ba6ff54f83c66de2fa4",
+    "semantic_hash": ""
+  },
+  "src/store/useEmployeeStore.ts": {
+    "mtime": 1782916167.1110115,
+    "ast_hash": "4a8330f8351f07906b83a94f0488d129",
+    "semantic_hash": ""
+  },
+  "src/store/useEventStore.ts": {
+    "mtime": 1782917996.818652,
+    "ast_hash": "7229c7bac46b5efa648aca97f302dc90",
+    "semantic_hash": ""
+  },
+  "src/store/useExpenseStore.ts": {
+    "mtime": 1782916170.8937616,
+    "ast_hash": "bfc2f7a3d0c5203d2bd760cfd4f860f4",
+    "semantic_hash": ""
+  },
+  "src/store/useIntegrationStore.ts": {
+    "mtime": 1782917015.6805544,
+    "ast_hash": "a0c639e6e80f59da7becc6a0f611889b",
+    "semantic_hash": ""
+  },
+  "src/store/useMovementStore.ts": {
+    "mtime": 1782917701.5171044,
+    "ast_hash": "604ff6d0bff06561e4d8270b4297f694",
+    "semantic_hash": ""
+  },
+  "src/store/usePurchaseStore.ts": {
+    "mtime": 1782917698.7260537,
+    "ast_hash": "15caa15da5bc5fe981fcdf446fbed39c",
+    "semantic_hash": ""
+  },
+  "src/store/useReturnStore.ts": {
+    "mtime": 1782916984.648881,
+    "ast_hash": "6d13b56b78e94bf6ed91e36d1459649c",
+    "semantic_hash": ""
+  },
+  "src/types/services.types.ts": {
+    "mtime": 1782915027.1907256,
+    "ast_hash": "dd1e90eb6c376a1b6a34ea4a624a8e68",
+    "semantic_hash": ""
+  },
+  "unify_graphify.ps1": {
+    "mtime": 1782841430.0152953,
+    "ast_hash": "686d69ea9be98b22dcf6693378ae6a30",
+    "semantic_hash": ""
+  },
+  ".specify/extensions/erp/commands/speckit.erp.postgresql.md": {
+    "mtime": 1782910641.9419975,
+    "ast_hash": "69bd3b8e07fd391e00d64b23c0879250",
+    "semantic_hash": ""
+  },
+  "playwright-report/data/35ed3d05dd09e91b82a1a156acf296e6f6cc81d8.md": {
+    "mtime": 1782917309.421455,
+    "ast_hash": "8d2a9d3ca8681020528912fb9844a1e6",
+    "semantic_hash": ""
+  },
+  "playwright-report/data/71da8337ce1e3c9d0c790a5422160ee64af0a6ca.md": {
+    "mtime": 1782917309.4244545,
+    "ast_hash": "588471d36be371918897bee5c1f82c9a",
+    "semantic_hash": ""
+  },
+  "playwright-report/data/a91f3bdbb3ce6a75f04ddc6ef12ff46a46da2a70.md": {
+    "mtime": 1782917309.4274542,
+    "ast_hash": "035728cec0bb02a79ef7bfc953453446",
+    "semantic_hash": ""
+  },
+  "test-results/pos-POS---Flujo-de-Apertur-06d8a--registrar-el-arqueo-RN-44--chromium/error-context.md": {
+    "mtime": 1782917253.313082,
+    "ast_hash": "035728cec0bb02a79ef7bfc953453446",
+    "semantic_hash": ""
+  },
+  "test_out.txt": {
+    "mtime": 1782912786.74763,
+    "ast_hash": "9217d2edbaf888c9c958f5ea22997c99",
+    "semantic_hash": ""
+  },
+  "src/store/useAppStore.ts": {
+    "mtime": 1782918497.1186001,
+    "ast_hash": "ba06230a9fa5b6ffb041161a723b6d4c",
+    "semantic_hash": ""
+  },
+  "DOCS/adr/ADR-012-bugfix-apertura-caja-pos.md": {
+    "mtime": 1782927579.4745946,
+    "ast_hash": "4a2c0c7e069f3feeedaff3308cca31dd",
     "semantic_hash": ""
   }
 }
