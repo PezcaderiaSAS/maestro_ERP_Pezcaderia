@@ -40,8 +40,8 @@
     "semantic_hash": "881a6a54ae59b9340a9dd15bb10328c1"
   },
   "package.json": {
-    "mtime": 1782569161.187014,
-    "ast_hash": "04b16425de61ce879311380bafc2c417",
+    "mtime": 1783011327.1487784,
+    "ast_hash": "148186abbcd2d3dc5473d64dfc322c99",
     "semantic_hash": ""
   },
   "refactor.js": {
@@ -230,8 +230,8 @@
     "semantic_hash": ""
   },
   "src/views/POSView.tsx": {
-    "mtime": 1783009934.998802,
-    "ast_hash": "14dd5cd1f8efbadd606f04748013538d",
+    "mtime": 1783015242.8473897,
+    "ast_hash": "1daa17cfe5e12138ececafa3870f6300",
     "semantic_hash": ""
   },
   "src/views/PayrollView.tsx": {
@@ -760,8 +760,8 @@
     "semantic_hash": ""
   },
   "src/views/pos/components/AperturaCajaModal.tsx": {
-    "mtime": 1783009612.8460972,
-    "ast_hash": "57b9f50f36d4e87ee89a7dc2b7b72b19",
+    "mtime": 1783011893.0056572,
+    "ast_hash": "3665814166c2375addc408b22cfbff0f",
     "semantic_hash": ""
   },
   "src/views/pos/components/CartPanel.tsx": {
@@ -2030,8 +2030,8 @@
     "semantic_hash": ""
   },
   "test-results/.last-run.json": {
-    "mtime": 1782917309.4874895,
-    "ast_hash": "96410d23519284c16b0212f198cca7c0",
+    "mtime": 1783014216.8221982,
+    "ast_hash": "afb25b338822343de9a6653c1b5c52d8",
     "semantic_hash": ""
   },
   "tests/e2e/cash.spec.ts": {
@@ -2040,13 +2040,13 @@
     "semantic_hash": ""
   },
   "tests/e2e/pos.spec.ts": {
-    "mtime": 1783009279.4010558,
-    "ast_hash": "82df339dcdcbb0a63f31726be4616a90",
+    "mtime": 1783015122.5486076,
+    "ast_hash": "a8157efff74e5e42eec6646fb8eafb92",
     "semantic_hash": ""
   },
   "playwright-report/index.html": {
-    "mtime": 1782917309.485973,
-    "ast_hash": "398b1465c8c80f65ba6432c9815d660f",
+    "mtime": 1783014216.8211997,
+    "ast_hash": "36a0892dd3f6be6cb073e44fa511dfd9",
     "semantic_hash": ""
   },
   "speckit_assessment.md": {
@@ -2055,13 +2055,13 @@
     "semantic_hash": ""
   },
   "test-results/pos-POS---Flujo-de-Apertur-937fb-decrementar-el-stock-RN-01--chromium/error-context.md": {
-    "mtime": 1782917183.2730606,
-    "ast_hash": "8d2a9d3ca8681020528912fb9844a1e6",
+    "mtime": 1783014190.0626805,
+    "ast_hash": "d2690e64346eb145a5d65ae134818010",
     "semantic_hash": ""
   },
   "test-results/pos-POS---Flujo-de-Apertur-fc7bc-con-stock-0---mostrar-error-chromium/error-context.md": {
-    "mtime": 1782917190.3761847,
-    "ast_hash": "588471d36be371918897bee5c1f82c9a",
+    "mtime": 1783014194.9374166,
+    "ast_hash": "5be9571bb0e42194477a52d366e86d5c",
     "semantic_hash": ""
   },
   "DOCS/mar_episodic_memory_architecture.md": {
@@ -2594,24 +2594,9 @@
     "ast_hash": "69bd3b8e07fd391e00d64b23c0879250",
     "semantic_hash": ""
   },
-  "playwright-report/data/35ed3d05dd09e91b82a1a156acf296e6f6cc81d8.md": {
-    "mtime": 1782917309.421455,
-    "ast_hash": "8d2a9d3ca8681020528912fb9844a1e6",
-    "semantic_hash": ""
-  },
-  "playwright-report/data/71da8337ce1e3c9d0c790a5422160ee64af0a6ca.md": {
-    "mtime": 1782917309.4244545,
-    "ast_hash": "588471d36be371918897bee5c1f82c9a",
-    "semantic_hash": ""
-  },
-  "playwright-report/data/a91f3bdbb3ce6a75f04ddc6ef12ff46a46da2a70.md": {
-    "mtime": 1782917309.4274542,
-    "ast_hash": "035728cec0bb02a79ef7bfc953453446",
-    "semantic_hash": ""
-  },
   "test-results/pos-POS---Flujo-de-Apertur-06d8a--registrar-el-arqueo-RN-44--chromium/error-context.md": {
-    "mtime": 1782917253.313082,
-    "ast_hash": "035728cec0bb02a79ef7bfc953453446",
+    "mtime": 1783014210.456514,
+    "ast_hash": "205616d2c5b3ced6f53cc43bc03d0494",
     "semantic_hash": ""
   },
   "test_out.txt": {
@@ -2667,6 +2652,41 @@
   ".specify/extensions/erp/tasks-breakdown.md": {
     "mtime": 1783005725.4825127,
     "ast_hash": "5db67c56f15013b506c4d4fc30d9e2bf",
+    "semantic_hash": ""
+  },
+  "playwright-report/data/082be53bf2e5d470044b456501442ed23b3f4ae6.md": {
+    "mtime": 1783014216.7647564,
+    "ast_hash": "0eacbb90e5202613de8c2faaa11f00c9",
+    "semantic_hash": ""
+  },
+  "playwright-report/data/636157066cd2065b58ffb23c236b3916ce986841.md": {
+    "mtime": 1783014216.7617626,
+    "ast_hash": "205616d2c5b3ced6f53cc43bc03d0494",
+    "semantic_hash": ""
+  },
+  "playwright-report/data/6556337967323cb73575d05363f91341d2330091.md": {
+    "mtime": 1783014216.7557516,
+    "ast_hash": "d2690e64346eb145a5d65ae134818010",
+    "semantic_hash": ""
+  },
+  "playwright-report/data/bdcd252b22c6ac6389af52fdc8d5d7218aeb478d.md": {
+    "mtime": 1783014216.7587514,
+    "ast_hash": "5be9571bb0e42194477a52d366e86d5c",
+    "semantic_hash": ""
+  },
+  "playwright-report/data/f717a9a4e7c56985909790ec3f084bedca733b6e.md": {
+    "mtime": 1783014216.766765,
+    "ast_hash": "f15b517aa2152c582b29e94667bc6a6c",
+    "semantic_hash": ""
+  },
+  "test-results/pos-POS---Flujo-de-Apertur-74595-itado-y-mostrar-advertencia-chromium/error-context.md": {
+    "mtime": 1783014205.8026803,
+    "ast_hash": "0eacbb90e5202613de8c2faaa11f00c9",
+    "semantic_hash": ""
+  },
+  "test-results/pos-POS---Flujo-de-Apertur-96474-s-y-Toggle-Ocultar-Agotados-chromium/error-context.md": {
+    "mtime": 1783014215.779704,
+    "ast_hash": "f15b517aa2152c582b29e94667bc6a6c",
     "semantic_hash": ""
   }
 }

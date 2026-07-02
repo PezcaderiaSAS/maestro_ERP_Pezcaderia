@@ -60,29 +60,29 @@
     "semantic_hash": "2620f65b9af5bc706f0bcab47f7539a8"
   },
   "src/App.tsx": {
-    "mtime": 1782922679.3766341,
-    "ast_hash": "e3aa2c582c00918e89b220e223d84f61",
+    "mtime": 1783009133.6612558,
+    "ast_hash": "5c00b3ecb5f53520001b53fda4048dc0",
     "semantic_hash": ""
   },
   "src/hooks/useBalanza.ts": {
-    "mtime": 1781877647.3069007,
-    "ast_hash": "09f8c6ddec1da8d397155bcff2ff5179",
-    "semantic_hash": "09f8c6ddec1da8d397155bcff2ff5179"
+    "mtime": 1783008860.2789762,
+    "ast_hash": "3d7b18df8eb868173a78a2eee6b1d3ed",
+    "semantic_hash": ""
   },
   "src/hooks/usePOSCart.ts": {
-    "mtime": 1782309867.1082108,
-    "ast_hash": "d912d63cd9cfeb4303f1e7ab96679859",
+    "mtime": 1783008650.7772138,
+    "ast_hash": "97048c4e8345b92212e92af109c4e80d",
     "semantic_hash": ""
   },
   "src/hooks/usePOSPrinter.ts": {
-    "mtime": 1782396432.908185,
-    "ast_hash": "fffdd867c49eb9d046201613761d995c",
+    "mtime": 1783008771.3823428,
+    "ast_hash": "bf0b6fdb24c6df3b9a57e8044c9ee879",
     "semantic_hash": ""
   },
   "src/main.tsx": {
-    "mtime": 1779816995.5815468,
-    "ast_hash": "3e5bda86e57e6836a3531d9721bb9bbd",
-    "semantic_hash": "3e5bda86e57e6836a3531d9721bb9bbd"
+    "mtime": 1783008502.7611194,
+    "ast_hash": "69cd8f9e5b7838533347e7d25578f6f8",
+    "semantic_hash": ""
   },
   "src/services/b2bService.ts": {
     "mtime": 1782915742.15916,
@@ -90,8 +90,8 @@
     "semantic_hash": ""
   },
   "src/services/cashService.ts": {
-    "mtime": 1782915835.3703904,
-    "ast_hash": "4777f6b73633ba926feeb414b1b3c63b",
+    "mtime": 1783009161.5882218,
+    "ast_hash": "238abd9da723fa7cc0e13bf7e25301cd",
     "semantic_hash": ""
   },
   "src/services/inventoryService.ts": {
@@ -145,9 +145,9 @@
     "semantic_hash": "c5596936e6d3e773c04dabd549131aac"
   },
   "src/tests/setup.ts": {
-    "mtime": 1781875120.4833417,
-    "ast_hash": "a4d6b736b8b418e84be39dae529045b1",
-    "semantic_hash": "a4d6b736b8b418e84be39dae529045b1"
+    "mtime": 1783009629.482664,
+    "ast_hash": "bf531e9a26addb43f6b189593e95fd15",
+    "semantic_hash": ""
   },
   "src/tests/useBalanza.test.ts": {
     "mtime": 1781877720.242743,
@@ -170,8 +170,8 @@
     "semantic_hash": ""
   },
   "src/types/cash.types.ts": {
-    "mtime": 1782394714.9139924,
-    "ast_hash": "fdf923bd3af688e0092ead4faabd77b9",
+    "mtime": 1783009148.3917794,
+    "ast_hash": "1fc512537af0d286f25e8a0832e7a09b",
     "semantic_hash": ""
   },
   "src/types/common.types.ts": {
@@ -230,8 +230,8 @@
     "semantic_hash": ""
   },
   "src/views/POSView.tsx": {
-    "mtime": 1782923137.9430282,
-    "ast_hash": "6aeab50ed811e41104940f52bbe082de",
+    "mtime": 1783009934.998802,
+    "ast_hash": "14dd5cd1f8efbadd606f04748013538d",
     "semantic_hash": ""
   },
   "src/views/PayrollView.tsx": {
@@ -250,13 +250,13 @@
     "semantic_hash": ""
   },
   "src/views/cash/CashFlowView.tsx": {
-    "mtime": 1782918805.3567777,
+    "mtime": 1783009615.6486518,
     "ast_hash": "39b1443777e9a1077830377d0466f5c2",
     "semantic_hash": ""
   },
   "src/views/cash/components/CierreCajaModal.tsx": {
-    "mtime": 1782567089.007272,
-    "ast_hash": "44567c0396ccb5621a0d273db3cbc975",
+    "mtime": 1783009613.810154,
+    "ast_hash": "14519de5b2729a3b3b25eb38fa08adc7",
     "semantic_hash": ""
   },
   "src/views/cash/components/TrasladoDineroModal.tsx": {
@@ -695,28 +695,28 @@
     "semantic_hash": ""
   },
   "src/store/useClientStore.ts": {
-    "mtime": 1782917729.933434,
-    "ast_hash": "eb0bb056054a94bd16d07eac4839e525",
+    "mtime": 1783008076.1950512,
+    "ast_hash": "8b5b9b0b691dea98fcf5d2772d40d818",
     "semantic_hash": ""
   },
   "src/store/useInventoryStore.ts": {
-    "mtime": 1782920344.9779105,
-    "ast_hash": "2f8391457d51af2dd3ace8342dadc99e",
+    "mtime": 1783007497.1874948,
+    "ast_hash": "7ef3c282a772cb265bac52a667b39574",
     "semantic_hash": ""
   },
   "src/store/useOrderStore.ts": {
-    "mtime": 1782915554.2656343,
-    "ast_hash": "ce3cc1373e92100482d67da75e78c1ee",
+    "mtime": 1783009927.373555,
+    "ast_hash": "2463c45cb94ca18b97bc4829a28740c9",
     "semantic_hash": ""
   },
   "src/store/useSupplierStore.ts": {
-    "mtime": 1782919944.1154108,
-    "ast_hash": "6316bb697d2bebae812853b295a151ef",
+    "mtime": 1783008216.217198,
+    "ast_hash": "9b8c58957c67bff70054b09e7c7d13ce",
     "semantic_hash": ""
   },
   "src/store/useWarehouseStore.ts": {
-    "mtime": 1782915530.7717469,
-    "ast_hash": "c370770751b03e7e37362d9ef1f66c69",
+    "mtime": 1783007678.6938524,
+    "ast_hash": "39d0c8ad0d558a542282a3fd1d33a799",
     "semantic_hash": ""
   },
   "src/views/inventory/AlistamientoBodegaView.tsx": {
@@ -760,13 +760,13 @@
     "semantic_hash": ""
   },
   "src/views/pos/components/AperturaCajaModal.tsx": {
-    "mtime": 1782927206.5805912,
-    "ast_hash": "ed928d76dcb83bdf71cf86b10377ee3b",
+    "mtime": 1783009612.8460972,
+    "ast_hash": "57b9f50f36d4e87ee89a7dc2b7b72b19",
     "semantic_hash": ""
   },
   "src/views/pos/components/CartPanel.tsx": {
-    "mtime": 1782909101.849536,
-    "ast_hash": "a66e35d8b1d85677bc9c9222bc26eaf8",
+    "mtime": 1783009548.127406,
+    "ast_hash": "2f5831a2d9fc04d053526dafa89dc7c5",
     "semantic_hash": ""
   },
   "src/views/pos/components/LineaVentaRow.tsx": {
@@ -775,8 +775,8 @@
     "semantic_hash": ""
   },
   "src/views/pos/components/ProductSearchPanel.tsx": {
-    "mtime": 1782309675.9650123,
-    "ast_hash": "02f39cb5bb17a6197378b48603d65a95",
+    "mtime": 1783009277.3139272,
+    "ast_hash": "0cd70cf5cf4f1fa5382fa83809f7e558",
     "semantic_hash": ""
   },
   "src/views/cash/components/CalculadorDenominaciones.tsx": {
@@ -2040,8 +2040,8 @@
     "semantic_hash": ""
   },
   "tests/e2e/pos.spec.ts": {
-    "mtime": 1782917091.9045842,
-    "ast_hash": "78c46d1733a71d1ab5fb8d5d06487f00",
+    "mtime": 1783009279.4010558,
+    "ast_hash": "82df339dcdcbb0a63f31726be4616a90",
     "semantic_hash": ""
   },
   "playwright-report/index.html": {
@@ -2520,63 +2520,63 @@
     "semantic_hash": ""
   },
   "src/store/useARStore.ts": {
-    "mtime": 1782916980.7459612,
-    "ast_hash": "e372333775ab77394eb80c82367073ea",
+    "mtime": 1783008357.2352884,
+    "ast_hash": "17beb904ad03d0297ee021fc74e90418",
     "semantic_hash": ""
   },
   "src/store/useCashStore.ts": {
-    "mtime": 1782915564.9974165,
-    "ast_hash": "a6c7cbb831added4e8c4017ccc8e0749",
+    "mtime": 1783008425.4879956,
+    "ast_hash": "f8cc5ae1a98ee5743b0b49834899afbc",
     "semantic_hash": ""
   },
   "src/store/useCategoryStore.ts": {
-    "mtime": 1782916590.2390025,
-    "ast_hash": "e8093ab8b4a237a8f44583edc7c00c4c",
+    "mtime": 1783008326.0892801,
+    "ast_hash": "c316275a5992f5fe6742eb6c5a7b04dd",
     "semantic_hash": ""
   },
   "src/store/useDriverStore.ts": {
-    "mtime": 1782916159.5487823,
-    "ast_hash": "10f2d2811a2a192e5846102bbdc98ed0",
+    "mtime": 1783008327.896963,
+    "ast_hash": "6500990016cb3546ee87b15b24c93109",
     "semantic_hash": ""
   },
   "src/store/useDynamicFieldStore.ts": {
-    "mtime": 1782916976.0500002,
-    "ast_hash": "705de0b9994e5ba6ff54f83c66de2fa4",
+    "mtime": 1783008370.8162484,
+    "ast_hash": "9018d81ef23697ab928194d93a752db4",
     "semantic_hash": ""
   },
   "src/store/useEmployeeStore.ts": {
-    "mtime": 1782916167.1110115,
-    "ast_hash": "4a8330f8351f07906b83a94f0488d129",
+    "mtime": 1783008329.9794533,
+    "ast_hash": "2b1907d54b1cc0402ac6fdbcafd72669",
     "semantic_hash": ""
   },
   "src/store/useEventStore.ts": {
-    "mtime": 1782917996.818652,
-    "ast_hash": "7229c7bac46b5efa648aca97f302dc90",
+    "mtime": 1783008423.1824832,
+    "ast_hash": "539060f00f9e4f80392d92d0b78c6feb",
     "semantic_hash": ""
   },
   "src/store/useExpenseStore.ts": {
-    "mtime": 1782916170.8937616,
-    "ast_hash": "bfc2f7a3d0c5203d2bd760cfd4f860f4",
+    "mtime": 1783008353.1703527,
+    "ast_hash": "a45ed45566200ad1124d45f0ba2c6ea3",
     "semantic_hash": ""
   },
   "src/store/useIntegrationStore.ts": {
-    "mtime": 1782917015.6805544,
-    "ast_hash": "a0c639e6e80f59da7becc6a0f611889b",
+    "mtime": 1783008396.0519903,
+    "ast_hash": "6227f227dc171385f1c6e56245eace8a",
     "semantic_hash": ""
   },
   "src/store/useMovementStore.ts": {
-    "mtime": 1782917701.5171044,
-    "ast_hash": "604ff6d0bff06561e4d8270b4297f694",
+    "mtime": 1783008421.1464474,
+    "ast_hash": "f1e1e67f88e3566a6fc0c10c3e87684e",
     "semantic_hash": ""
   },
   "src/store/usePurchaseStore.ts": {
-    "mtime": 1782917698.7260537,
-    "ast_hash": "15caa15da5bc5fe981fcdf446fbed39c",
+    "mtime": 1783008397.9508193,
+    "ast_hash": "c9ec6b1490559b6164c54170a64bde04",
     "semantic_hash": ""
   },
   "src/store/useReturnStore.ts": {
-    "mtime": 1782916984.648881,
-    "ast_hash": "6d13b56b78e94bf6ed91e36d1459649c",
+    "mtime": 1783008393.8668442,
+    "ast_hash": "926152c18ec1c0c315c7eb90309d84b6",
     "semantic_hash": ""
   },
   "src/types/services.types.ts": {
@@ -2620,13 +2620,53 @@
     "semantic_hash": ""
   },
   "src/store/useAppStore.ts": {
-    "mtime": 1782918497.1186001,
-    "ast_hash": "ba06230a9fa5b6ffb041161a723b6d4c",
+    "mtime": 1783007377.0195835,
+    "ast_hash": "4eec31a6fdf78b03bee0c4570336915a",
     "semantic_hash": ""
   },
   "DOCS/adr/ADR-012-bugfix-apertura-caja-pos.md": {
     "mtime": 1782927579.4745946,
     "ast_hash": "4a2c0c7e069f3feeedaff3308cca31dd",
+    "semantic_hash": ""
+  },
+  "src/hooks/useActionLogger.ts": {
+    "mtime": 1783007280.677341,
+    "ast_hash": "1a72b6d544a23a7496cf4ea2862987e6",
+    "semantic_hash": ""
+  },
+  "src/lib/consoleLogger.ts": {
+    "mtime": 1783005893.5263796,
+    "ast_hash": "6a3c9e61f8c6cbdb9d11e2f2ca06c9d4",
+    "semantic_hash": ""
+  },
+  "src/lib/consoleMiddleware.ts": {
+    "mtime": 1783006232.587129,
+    "ast_hash": "9bb105956565a7c79cb402f7d7de50b0",
+    "semantic_hash": ""
+  },
+  ".specify/extensions/erp/console-logger-spec.md": {
+    "mtime": 1783002686.7606547,
+    "ast_hash": "c599d6af78f175c764a88800ceb2fbe3",
+    "semantic_hash": ""
+  },
+  ".specify/extensions/erp/cross-alignment-audit.md": {
+    "mtime": 1783003097.4560912,
+    "ast_hash": "524b2a982be0f35b8c936d3244b5af80",
+    "semantic_hash": ""
+  },
+  ".specify/extensions/erp/implementation-plan.md": {
+    "mtime": 1783002839.385164,
+    "ast_hash": "c9177f2178dc67c4102cb6372f1e6177",
+    "semantic_hash": ""
+  },
+  ".specify/extensions/erp/quality-checklist.md": {
+    "mtime": 1783002704.5493042,
+    "ast_hash": "c2063fcb492af4f2ec1634fce7714e8f",
+    "semantic_hash": ""
+  },
+  ".specify/extensions/erp/tasks-breakdown.md": {
+    "mtime": 1783005725.4825127,
+    "ast_hash": "5db67c56f15013b506c4d4fc30d9e2bf",
     "semantic_hash": ""
   }
 }
