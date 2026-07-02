@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { IDataService } from '../types/services.types';
 import { LocalDataService } from '../services/LocalDataService';
+import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
 
 let dataService: IDataService = new LocalDataService();
 export const setCategoryDataService = (ds: IDataService) => { dataService = ds; };
@@ -27,7 +28,8 @@ interface CategoryState {
   deleteCategoria: (id: string) => void;
 }
 
-export const useCategoryStore = create<CategoryState>()((set) => ({
+export const useCategoryStore = create<CategoryState>()(
+  zustandConsoleMiddleware((set) => ({
   categorias: [],
 
   loadCategorias: async () => {
@@ -60,4 +62,4 @@ export const useCategoryStore = create<CategoryState>()((set) => ({
     dataService.hardDelete('categorias', id);
     set((state) => ({ categorias: state.categorias.filter(c => c.id !== id) }));
   },
-}));
+  })));

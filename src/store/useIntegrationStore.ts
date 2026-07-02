@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { IDataService } from '../types/services.types';
 import { LocalDataService } from '../services/LocalDataService';
 import * as localDb from '../services/localDb';
+import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
 
 let dataService: IDataService = new LocalDataService();
 export const setIntegrationDataService = (ds: IDataService) => { dataService = ds; };
@@ -36,7 +37,8 @@ interface IntegrationState {
   setParametros: (paramsOrUpdater: any) => void;
 }
 
-export const useIntegrationStore = create<IntegrationState>()((set) => ({
+export const useIntegrationStore = create<IntegrationState>()(
+  zustandConsoleMiddleware((set) => ({
   logIntegracion: [],
   parametros: {},
 
@@ -69,4 +71,4 @@ export const useIntegrationStore = create<IntegrationState>()((set) => ({
     localDb.save('parametros', newParams);
     return { parametros: newParams };
   }),
-}));
+  })));

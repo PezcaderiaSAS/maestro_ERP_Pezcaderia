@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 import { Caja, DetalleArqueo } from '../../../types/cash.types';
 import { CalculadorDenominaciones } from '../../cash/components/CalculadorDenominaciones';
 import { useWarehouseStore } from '../../../store/useWarehouseStore';
+import { useActionLogger } from '../../../hooks/useActionLogger';
 
 interface AperturaCajaModalProps {
   userRole: string;
@@ -31,7 +32,13 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
   const [cajaSeleccionada, setCajaSeleccionada] = useState<string>('');
   const [cajasDisponibles, setCajasDisponibles] = useState<Caja[]>([]);
 
-  const baseInicial =
+  // States para Fase 4
+  const [saldoRecomendado, setSaldoRecomendado] = useState<number>(0);
+  const [modoDeclaracion, setModoDeclaracion] = useState<'calculadora' | 'directo'>('calculadora');
+  const [baseDirecta, setBaseDirecta] = useState<string>('');
+  const [notasApertura, setNotasApertura] = useState<string>('');
+
+  const baseInicial = modoDeclaracion === 'calculadora' ? (
     denominacionesApertura.billetes100k * 100000 +
     denominacionesApertura.billetes50k * 50000 +
     denominacionesApertura.billetes20k * 20000 +
@@ -42,7 +49,23 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
     denominacionesApertura.monedas500 * 500 +
     denominacionesApertura.monedas200 * 200 +
     denominacionesApertura.monedas100 * 100 +
-    denominacionesApertura.monedas50 * 50;
+    denominacionesApertura.monedas50 * 50
+  ) : Number(baseDirecta);
+
+  // Cargar saldo de arrastre (Fase 4.1)
+  useEffect(() => {
+    if (!cajaSeleccionada) {
+      setSaldoRecomendado(0);
+      return;
+    }
+    const turnos = cashService.getTurnos();
+    const ultimoCierre = turnos
+      .filter(t => t.cajaId === cajaSeleccionada && t.estado === 'CERRADO')
+      .sort((a, b) => new Date(b.fechaCierre!).getTime() - new Date(a.fechaCierre!).getTime())[0];
+    
+    const saldo = ultimoCierre?.saldoFisicoEfectivo ?? 0;
+    setSaldoRecomendado(saldo);
+  }, [cajaSeleccionada]);
 
   useEffect(() => {
     loadBodegas();
@@ -85,7 +108,7 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
     setStep(prev => prev - 1);
   };
 
-  const handleSubmit = (e?: React.FormEvent) => {
+  const handleSubmit = useActionLogger('CashFlow', 'AbrirTurno', (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!cajaSeleccionada) {
       Swal.fire({ icon: 'warning', title: 'Seleccione una caja' });
@@ -97,7 +120,7 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
     }
 
     try {
-      const result = cashService.abrirTurno(cajaSeleccionada, userRole, baseInicial, denominacionesApertura);
+      const result = cashService.abrirTurno(cajaSeleccionada, userRole, baseInicial, modoDeclaracion === 'calculadora' ? denominacionesApertura : undefined, notasApertura);
 
       if (result.error) {
         Swal.fire({ icon: 'error', title: 'Error', text: result.error });
@@ -115,7 +138,7 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
     } catch (err: any) {
       Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'No se pudo abrir la caja' });
     }
-  };
+  });
 
   const handleCancel = () => {
     setDenominacionesApertura({
@@ -123,6 +146,8 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
       monedas1k: 0, monedas500: 0, monedas200: 0, monedas100: 0, monedas50: 0
     });
     setCajaSeleccionada('');
+    setBaseDirecta('');
+    setNotasApertura('');
     if (onCancel) onCancel();
   };
 
@@ -225,14 +250,69 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
           {/* STEP 2: CASH DECLARATION */}
           {step === 2 && (
             <div className="flex flex-col gap-6" style={{ animation: 'modalFadeIn 0.3s ease-out forwards' }}>
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col max-h-[60vh]">
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">
-                  Declare la Base (Obligatorio usar calculadora)
-                </label>
-                <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                  <CalculadorDenominaciones
-                    valores={denominacionesApertura}
-                    onChange={(key, valor) => setDenominacionesApertura(prev => ({ ...prev, [key]: valor }))}
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
+                <div className="flex justify-between items-center mb-4">
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest">
+                    Declare la Base
+                  </label>
+                  <div className="flex bg-slate-100 p-1 rounded-lg">
+                    <button
+                      type="button"
+                      className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors ${modoDeclaracion === 'calculadora' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                      onClick={() => setModoDeclaracion('calculadora')}
+                    >
+                      Calculadora
+                    </button>
+                    <button
+                      type="button"
+                      className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors ${modoDeclaracion === 'directo' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                      onClick={() => setModoDeclaracion('directo')}
+                    >
+                      Ingreso Directo
+                    </button>
+                  </div>
+                </div>
+
+                {modoDeclaracion === 'calculadora' ? (
+                  <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar max-h-[40vh]">
+                    <CalculadorDenominaciones
+                      valores={denominacionesApertura}
+                      onChange={(key, valor) => setDenominacionesApertura(prev => ({ ...prev, [key]: valor }))}
+                    />
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-4 py-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Total Efectivo en Caja</label>
+                      <input
+                        type="number"
+                        autoFocus
+                        min="0"
+                        value={baseDirecta}
+                        onChange={(e) => setBaseDirecta(e.target.value)}
+                        className="w-full h-14 px-4 rounded-xl border-2 border-slate-200 bg-slate-50 focus:border-blue-400 focus:bg-white text-2xl text-slate-800 font-bold outline-none transition-colors"
+                        placeholder="0"
+                      />
+                    </div>
+                    {saldoRecomendado > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setBaseDirecta(saldoRecomendado.toString())}
+                        className="self-start text-sm font-bold text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-2 rounded-lg transition-colors"
+                      >
+                        Usar saldo de arrastre (${saldoRecomendado.toLocaleString('es-CO')})
+                      </button>
+                    )}
+                  </div>
+                )}
+                
+                <div className="mt-4 pt-4 border-t border-slate-100">
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Notas de Apertura (Opcional)</label>
+                  <textarea
+                    value={notasApertura}
+                    onChange={(e) => setNotasApertura(e.target.value)}
+                    className="w-full h-20 px-4 py-3 rounded-xl border-2 border-slate-200 bg-slate-50 focus:border-blue-400 focus:bg-white text-sm text-slate-800 outline-none transition-colors resize-none"
+                    placeholder="Escriba alguna observación sobre el estado de la caja al iniciar..."
                   />
                 </div>
               </div>

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { IDataService } from '../types/services.types';
 import { LocalDataService } from '../services/LocalDataService';
 import * as localDb from '../services/localDb';
+import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
 
 let dataService: IDataService = new LocalDataService();
 export const setInventoryDataService = (ds: IDataService) => { dataService = ds; };
@@ -42,7 +43,8 @@ interface InventoryState {
   getProductoById: (id: string) => Producto | undefined;
 }
 
-export const useInventoryStore = create<InventoryState>()((set, get) => ({
+export const useInventoryStore = create<InventoryState>()(
+  zustandConsoleMiddleware((set, get) => ({
   productsCatalog: [],
   productPricings: [],
   products: [],
@@ -125,4 +127,4 @@ export const useInventoryStore = create<InventoryState>()((set, get) => ({
   }),
 
   getProductoById: (id) => get().products.find(p => p.id === id),
-}));
+  })));

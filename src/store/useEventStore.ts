@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { IDataService } from '../types/services.types';
 import { LocalDataService } from '../services/LocalDataService';
+import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
 
 let dataService: IDataService = new LocalDataService();
 export const setEventDataService = (ds: IDataService) => { dataService = ds; };
@@ -39,7 +40,8 @@ interface EventState {
   ) => void;
 }
 
-export const useEventStore = create<EventState>()((set) => ({
+export const useEventStore = create<EventState>()(
+  zustandConsoleMiddleware((set) => ({
   events: [],
   syncQueue: [],
 
@@ -100,4 +102,4 @@ export const useEventStore = create<EventState>()((set) => ({
       set((state) => ({ syncQueue: [newSyncJob, ...state.syncQueue] }));
     }
   },
-}));
+  })));

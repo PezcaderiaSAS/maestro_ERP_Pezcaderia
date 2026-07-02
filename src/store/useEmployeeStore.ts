@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { IDataService } from '../types/services.types';
 import { LocalDataService } from '../services/LocalDataService';
+import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
 
 let dataService: IDataService = new LocalDataService();
 export const setEmployeeDataService = (ds: IDataService) => { dataService = ds; };
@@ -72,7 +73,8 @@ interface EmployeeState {
   updateNomina: (id: string, data: Partial<NominaRegistro>) => void;
 }
 
-export const useEmployeeStore = create<EmployeeState>()((set) => ({
+export const useEmployeeStore = create<EmployeeState>()(
+  zustandConsoleMiddleware((set) => ({
   empleados: [],
   nominas: [],
 
@@ -127,4 +129,4 @@ export const useEmployeeStore = create<EmployeeState>()((set) => ({
       nominas: state.nominas.map(n => n.id === id ? { ...n, ...data } : n),
     }));
   },
-}));
+  })));

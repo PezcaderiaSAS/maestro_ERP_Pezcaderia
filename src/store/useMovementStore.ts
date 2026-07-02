@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { IDataService } from '../types/services.types';
 import { LocalDataService } from '../services/LocalDataService';
+import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
 
 let dataService: IDataService = new LocalDataService();
 export const setMovementDataService = (ds: IDataService) => { dataService = ds; };
@@ -28,7 +29,8 @@ interface MovementState {
   addMovimiento: (mov: MovimientoInventario) => void;
 }
 
-export const useMovementStore = create<MovementState>()((set) => ({
+export const useMovementStore = create<MovementState>()(
+  zustandConsoleMiddleware((set) => ({
   movimientos: [],
 
   loadMovimientos: async () => {
@@ -49,4 +51,4 @@ export const useMovementStore = create<MovementState>()((set) => ({
     dataService.create('inventario_movimientos', mov);
     set((state) => ({ movimientos: [...state.movimientos, mov] }));
   },
-}));
+  })));

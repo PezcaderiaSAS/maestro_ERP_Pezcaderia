@@ -70,7 +70,7 @@ class LegacyCashService {
     return this.getTurnos().find(t => t.cajaId === cajaId && t.estado === 'ABIERTO') || null;
   }
 
-  public abrirTurno(cajaId: string, cajeroId: string, baseInicial: number, detalleApertura?: DetalleArqueo): ResultadoOperacion<TurnoCaja> {
+  public abrirTurno(cajaId: string, cajeroId: string, baseInicial: number, detalleApertura?: DetalleArqueo, notasApertura?: string): ResultadoOperacion<TurnoCaja> {
     try {
       const turnoActivo = this.getTurnoActivo(cajaId);
       if (turnoActivo) return { data: null, error: 'La caja ya tiene un turno abierto' };
@@ -81,7 +81,7 @@ class LegacyCashService {
         detalleArqueoApertura: detalleApertura, saldoTeoricoGlobal: baseInicial,
         totalEfectivo: baseInicial, totalDatafono: 0, totalTransferencias: 0,
         saldoFisicoEfectivo: null, diferenciaEfectivo: null, estado: 'ABIERTO',
-        justificacion: null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), createdBy: cajeroId
+        justificacion: null, notasApertura: notasApertura || null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), createdBy: cajeroId
       };
 
       const turnos = this.getTurnos();
@@ -244,7 +244,7 @@ export class CashService {
     catch (e: any) { return { data: null, error: e.message || 'Error al guardar la caja' }; }
   }
 
-  async abrirTurno(cajaId: string, cajeroId: string, baseInicial: number, detalleApertura?: DetalleArqueo): Promise<ResultadoOperacion<TurnoCaja>> {
+  async abrirTurno(cajaId: string, cajeroId: string, baseInicial: number, detalleApertura?: DetalleArqueo, notasApertura?: string): Promise<ResultadoOperacion<TurnoCaja>> {
     try {
       const turnos = await this.dataService.getAll<TurnoCaja>('turnos_caja');
       const activo = turnos.find(t => t.cajaId === cajaId && t.estado === 'ABIERTO');
@@ -256,7 +256,7 @@ export class CashService {
         detalleArqueoApertura: detalleApertura, saldoTeoricoGlobal: baseInicial,
         totalEfectivo: baseInicial, totalDatafono: 0, totalTransferencias: 0,
         saldoFisicoEfectivo: null, diferenciaEfectivo: null, estado: 'ABIERTO',
-        justificacion: null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), createdBy: cajeroId,
+        justificacion: null, notasApertura: notasApertura || null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), createdBy: cajeroId,
       };
 
       await this.dataService.create('turnos_caja', nuevoTurno);

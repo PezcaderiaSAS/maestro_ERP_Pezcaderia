@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { IDataService } from '../types/services.types';
 import { LocalDataService } from '../services/LocalDataService';
+import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
 
 let dataService: IDataService = new LocalDataService();
 export const setReturnDataService = (ds: IDataService) => { dataService = ds; };
@@ -38,7 +39,8 @@ interface ReturnState {
   updateDevolucion: (id: string, data: Partial<DevolucionPedido>) => void;
 }
 
-export const useReturnStore = create<ReturnState>()((set) => ({
+export const useReturnStore = create<ReturnState>()(
+  zustandConsoleMiddleware((set) => ({
   devoluciones: [],
 
   loadDevoluciones: async () => {
@@ -66,4 +68,4 @@ export const useReturnStore = create<ReturnState>()((set) => ({
       devoluciones: state.devoluciones.map(d => d.id === id ? { ...d, ...data } : d),
     }));
   },
-}));
+  })));

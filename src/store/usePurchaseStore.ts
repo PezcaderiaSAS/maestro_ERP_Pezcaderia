@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { IDataService } from '../types/services.types';
 import { LocalDataService } from '../services/LocalDataService';
+import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
 
 let dataService: IDataService = new LocalDataService();
 export const setPurchaseDataService = (ds: IDataService) => { dataService = ds; };
@@ -40,7 +41,8 @@ interface PurchaseState {
   updateOrdenCompra: (id: string, data: Partial<OrdenCompra>) => void;
 }
 
-export const usePurchaseStore = create<PurchaseState>()((set) => ({
+export const usePurchaseStore = create<PurchaseState>()(
+  zustandConsoleMiddleware((set) => ({
   ordenesCompra: [],
 
   loadOrdenesCompra: async () => {
@@ -68,4 +70,4 @@ export const usePurchaseStore = create<PurchaseState>()((set) => ({
       ordenesCompra: state.ordenesCompra.map(o => o.id === id ? { ...o, ...data } : o),
     }));
   },
-}));
+  })));

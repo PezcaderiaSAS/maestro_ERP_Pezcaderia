@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { IDataService } from '../types/services.types';
 import { LocalDataService } from '../services/LocalDataService';
+import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
 
 let dataService: IDataService = new LocalDataService();
 export const setARDataService = (ds: IDataService) => { dataService = ds; };
@@ -63,7 +64,8 @@ interface ARState {
   updateInvoice: (id: string, data: Partial<InvoiceAR>) => void;
 }
 
-export const useARStore = create<ARState>()((set) => ({
+export const useARStore = create<ARState>()(
+  zustandConsoleMiddleware((set) => ({
   cartera: [],
 
   loadCartera: async () => {
@@ -91,4 +93,4 @@ export const useARStore = create<ARState>()((set) => ({
       cartera: state.cartera.map(inv => inv.id === id ? { ...inv, ...data } : inv),
     }));
   },
-}));
+  })));

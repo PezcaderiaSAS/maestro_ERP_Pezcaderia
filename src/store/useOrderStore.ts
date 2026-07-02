@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { IDataService } from '../types/services.types';
 import { LocalDataService } from '../services/LocalDataService';
 import { Pedido } from '../types/orders.types';
+import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
 
 let dataService: IDataService = new LocalDataService();
 export const setOrderDataService = (ds: IDataService) => { dataService = ds; };
@@ -10,7 +11,11 @@ interface Cotizacion {
   id: string;
   fecha: string;
   cliente: string;
+  clienteId?: string;
   total: number;
+  items?: any[];
+  estado?: string;
+  fechaActualizacion?: string;
 }
 
 interface OrderState {
@@ -25,7 +30,8 @@ interface OrderState {
   setQuotations: (quotationsOrUpdater: any) => void;
 }
 
-export const useOrderStore = create<OrderState>()((set) => ({
+export const useOrderStore = create<OrderState>()(
+  zustandConsoleMiddleware((set) => ({
   ventas: [],
   quotations: [],
 
@@ -74,4 +80,4 @@ export const useOrderStore = create<OrderState>()((set) => ({
     const newQuotations = typeof quotationsOrUpdater === 'function' ? quotationsOrUpdater(state.quotations) : quotationsOrUpdater;
     return { quotations: newQuotations };
   }),
-}));
+  })));

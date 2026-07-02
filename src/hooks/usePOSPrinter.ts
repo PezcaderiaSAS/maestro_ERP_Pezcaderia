@@ -1,6 +1,9 @@
 // src/hooks/usePOSPrinter.ts
 
 import { useState } from 'react';
+import { createLogger } from '../lib/consoleLogger';
+
+const log = createLogger('POSPrinter');
 
 export interface ClientePrinter {
   nombre: string;
@@ -110,6 +113,7 @@ export function usePOSPrinter() {
    * Simula o realiza la impresión del ticket en consola o mediante el driver del navegador
    */
   const imprimirTicket = async (venta: any, cliente: ClientePrinter | null): Promise<boolean> => {
+    log.info('imprimirTicket', { ventaId: venta.id, total: venta.total });
     setPrinting(true);
     setError(null);
 
@@ -125,9 +129,11 @@ export function usePOSPrinter() {
       
       // Si el navegador soporta Web Serial, podríamos abrir un puerto y enviarlo.
       // Como fallback de producción, también podemos abrir un iframe oculto para impresión nativa del sistema.
+      log.info('imprimirTicket OK', { ventaId: venta.id });
       setPrinting(false);
       return true;
     } catch (err: any) {
+      log.error('imprimirTicket FAIL', { error: err instanceof Error ? err.message : err });
       setPrinting(false);
       setError(err.message || 'Error al imprimir ticket');
       return false;

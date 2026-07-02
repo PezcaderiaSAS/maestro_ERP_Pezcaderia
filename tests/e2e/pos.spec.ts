@@ -273,4 +273,58 @@ test.describe('POS - Flujo de Apertura, Venta y Cierre (FASE 6)', () => {
       expect(turnos[0].diferenciaEfectivo).toBe(0);
     });
   });
+  test.describe('FASE 5: Optimizaciones UX/UI', () => {
+    test.beforeEach(async ({ page }) => {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto('/');
+      // Inyectar estado CON un turno cerrado para testear caja cerrada
+      await page.evaluate((data) => {
+        localStorage.clear();
+        for (const [key, value] of Object.entries(data)) {
+          localStorage.setItem(key, JSON.stringify(value));
+        }
+        // Configurar stock específico para probar semáforos y toggle
+        const pezcaderiaStock = {
+          "b1": {
+            "PES-ENT-001": 10, // verde
+            "FIL-LIM-002": 2,  // amarillo (buffer por defecto es 4)
+            "CAM-TIG-003": 0   // rojo
+          }
+        };
+        localStorage.setItem('pezcaderia_stock', JSON.stringify(pezcaderiaStock));
+      }, { ...POS_SEED_DATA, pezcaderia_turnos_caja: [] }); 
+
+      await page.reload();
+      await page.waitForLoadState('domcontentloaded');
+      await page.waitForLoadState('networkidle');
+      await expect(page.locator('.sidebar-menu')).toBeVisible({ timeout: 15000 });
+      await page.click('[data-testid="nav-pos"]');
+    });
+
+    test('5.2 Test Caja Cerrada: Botón cobrar debe estar deshabilitado y mostrar advertencia', async ({ page }) => {
+      const btnCobrar = page.locator('[data-testid="btn-cobrar"]');
+      await expect(btnCobrar).toBeDisabled();
+      const footerMsg = page.locator('text=Abre un turno para habilitar los pagos');
+      await expect(footerMsg).toBeVisible();
+    });
+
+    test('5.3 y 5.4 Semáforos y Toggle Ocultar Agotados', async ({ page }) => {
+      const productGrid = page.locator('[data-testid="product-grid"]');
+      await expect(productGrid).toBeVisible();
+
+      // Verificar semáforo rojo (stock 0)
+      const redBadge = productGrid.locator('[data-testid="stock-badge-red"]').first();
+      await expect(redBadge).toBeVisible();
+      
+      const outOfStockCard = page.locator('.product-card').filter({ has: page.locator('[data-testid="stock-badge-red"]') }).first();
+      await expect(outOfStockCard).toHaveClass(/opacity-50/); // Grayscale y opacity aplicadas
+      
+      // Test Toggle
+      const toggle = page.locator('label', { hasText: 'Ocultar agotados' }).locator('input[type="checkbox"]');
+      await toggle.check();
+
+      // La tarjeta con stock 0 ya no debe estar en el grid
+      await expect(outOfStockCard).toBeHidden();
+    });
+  });
 });

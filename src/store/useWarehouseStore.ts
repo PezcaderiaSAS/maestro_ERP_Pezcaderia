@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { IDataService } from '../types/services.types';
 import { LocalDataService } from '../services/LocalDataService';
+import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
 
 let dataService: IDataService = new LocalDataService();
 export const setWarehouseDataService = (ds: IDataService) => { dataService = ds; };
@@ -28,7 +29,8 @@ const DEFAULT_BODEGAS: Bodega[] = [
   { id: '2', nombre: 'Bodega Averías', activa: true },
 ];
 
-export const useWarehouseStore = create<WarehouseState>()((set, get) => ({
+export const useWarehouseStore = create<WarehouseState>()(
+  zustandConsoleMiddleware((set, get) => ({
   bodegas: [],
 
   loadBodegas: async () => {
@@ -70,4 +72,4 @@ export const useWarehouseStore = create<WarehouseState>()((set, get) => ({
     const { bodegas } = get();
     return bodegas.find(b => b.nombre === 'Bodega Principal') || bodegas.find(b => b.activa);
   },
-}));
+  })));

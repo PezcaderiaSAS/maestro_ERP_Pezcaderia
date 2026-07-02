@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { createLogger } from './lib/consoleLogger';
 import { Menu, LayoutDashboard, ShoppingBag, Box, Users, DollarSign, HelpCircle, Home, ShoppingCart, LogOut, FileText, PlusCircle, Wallet, Database, Truck, RefreshCw, PieChart, PackageCheck } from 'lucide-react';
 import DashboardView from './views/DashboardView.tsx';
 import POSView from './views/POSView.tsx';
@@ -719,6 +720,32 @@ export interface LogIntegracion {
 }
 
 export default function App() {
+  const log = createLogger('App');
+
+  useEffect(() => {
+    const onError = (event: ErrorEvent) => {
+      log.error('window.onerror', {
+        mensaje: event.message,
+        archivo: event.filename,
+        linea: event.lineno,
+        columna: event.colno,
+        error: event.error?.stack,
+      });
+    };
+    const onRejection = (event: PromiseRejectionEvent) => {
+      log.error('unhandledrejection', {
+        motivo: event.reason?.message ?? event.reason,
+        stack: event.reason?.stack,
+      });
+    };
+    window.addEventListener('error', onError);
+    window.addEventListener('unhandledrejection', onRejection);
+    return () => {
+      window.removeEventListener('error', onError);
+      window.removeEventListener('unhandledrejection', onRejection);
+    };
+  }, []);
+
   const { userRole, setUserRole, currentView, setCurrentView, sidebarOpen, setSidebarOpen } = useAppStore();
 
   const { productsCatalog, setProductsCatalog, productPricings, setProductPricings, products, loadInventory } = useInventoryStore();
@@ -958,7 +985,14 @@ export default function App() {
     metadata?: any,
     enqueueSync = true
   ) => {
+    log.info('publishEvent', {
+      tipo,
+      actor,
+      descripcion: descripcion?.substring(0, 120),
+      metadata,
+    });
     useEventStore.getState().publishEvent(tipo, actor, descripcion, metadata, enqueueSync);
+    log.debug('DomainEvent creado', { tipo, actor });
   };
 
   // Background processor for simulated resilient outbox integration queue (metasfresh style)
@@ -1010,6 +1044,10 @@ export default function App() {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', userRole);
   }, [userRole]);
+
+  useEffect(() => {
+    log.info('navegacion', { vista: currentView });
+  }, [currentView]);
 
   // ─ REGLAS DE NEGOCIO INTEGRACIÓN: Worker de Canales Digitales y Gestión de Cancelaciones ──────────────────────────────
   // Worker para Procesamiento Asíncrono de Canales Digitales (RN-03, RN-01, RN-02, RN-05, RN-07)
@@ -1152,17 +1190,18 @@ export default function App() {
 
   // Handler para cancelaciones automáticas (RN-04)
   const handleCancelarPedidoDigital = (logId: string) => {
-    const log = logIntegracion.find(l => l.id === logId);
-    if (!log) return;
+    log.info('cancelarPedidoDigital', { logId });
+    const integLog = logIntegracion.find(l => l.id === logId);
+    if (!integLog) return;
 
     let orderData: any;
     try {
-      orderData = JSON.parse(log.payload_json);
+      orderData = JSON.parse(integLog.payload_json);
     } catch (e) {
       return;
     }
 
-    if (log.estado === 'PROCESADO' && log.id_factura_pos) {
+    if (integLog.estado === 'PROCESADO' && integLog.id_factura_pos) {
       // Reversar stock a Bodega Principal
       setStock((prev: Record<string, any[]>) => {
         const newStock = { ...prev };
@@ -1189,10 +1228,10 @@ export default function App() {
           bodegaDestino: 'Bodega Principal',
           cantidad: item.cantidad,
           lote: 'RETORNO',
-          referenciaId: log.id_factura_pos,
+          referenciaId: integLog.id_factura_pos,
           referenciaTipo: 'DEVOLUCION',
           actor: 'Integracion Digital',
-          notas: `Reversión por Cancelación Pedido ${log.id_pedido_externo}`
+          notas: `Reversión por Cancelación Pedido ${integLog.id_pedido_externo}`
         };
       });
       setMovimientos((prev: MovimientoInventario[]) => [...newMovements, ...prev]);
@@ -1200,8 +1239,8 @@ export default function App() {
       // Generar Devolución (Nota de Crédito)
       const newDevolucion: DevolucionPedido = {
         id: generateId('dev'),
-        pedidoId: log.id_factura_pos,
-        pedidoNo: log.id_pedido_externo,
+        pedidoId: integLog.id_factura_pos,
+        pedidoNo: integLog.id_pedido_externo,
         clienteId: orderData.clienteId || 'c-anon',
         clienteNombre: orderData.clienteNombre || 'Consumidor Digital',
         conductorId: 'cond-none',
@@ -1225,8 +1264,8 @@ export default function App() {
       publishEvent(
         'METADATA_CONFIGURED',
         'Integracion Digital',
-        `Nota de Crédito emitida y stock devuelto por cancelación del pedido ${log.id_pedido_externo}`,
-        { logId, pedidoNo: log.id_pedido_externo }
+        `Nota de Crédito emitida y stock devuelto por cancelación del pedido ${integLog.id_pedido_externo}`,
+        { logId, pedidoNo: integLog.id_pedido_externo }
       );
     }
 
@@ -1237,12 +1276,13 @@ export default function App() {
 
   // Handler para liberar pedidos retenidos por falta de stock (Aprobación manual RN-07)
   const handleAprobarPedidoManual = (logId: string, modo: 'parcial' | 'forzar') => {
-    const log = logIntegracion.find(l => l.id === logId);
-    if (!log) return;
+    log.info('aprobarPedidoManual', { logId, modo });
+    const integLog = logIntegracion.find(l => l.id === logId);
+    if (!integLog) return;
 
     let orderData: any;
     try {
-      orderData = JSON.parse(log.payload_json);
+      orderData = JSON.parse(integLog.payload_json);
     } catch (e) {
       return;
     }

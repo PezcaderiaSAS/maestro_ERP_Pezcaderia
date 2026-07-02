@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import * as localDb from '../services/localDb';
+import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
 
 export type UserRole = 'admin' | 'vendedor' | 'bodega' | 'administrativo';
 
@@ -15,7 +16,8 @@ interface AppState {
 
 const initialRole = localDb.load<UserRole>('role', 'admin');
 
-export const useAppStore = create<AppState>()((set) => ({
+export const useAppStore = create<AppState>()(
+  zustandConsoleMiddleware((set) => ({
   userRole: initialRole,
   currentView: 'dashboard',
   sidebarOpen: false,
@@ -30,4 +32,4 @@ export const useAppStore = create<AppState>()((set) => ({
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
 
   toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
-}));
+  })));

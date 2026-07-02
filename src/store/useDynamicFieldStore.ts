@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { IDataService } from '../types/services.types';
 import { LocalDataService } from '../services/LocalDataService';
+import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
 
 let dataService: IDataService = new LocalDataService();
 export const setDynamicFieldDataService = (ds: IDataService) => { dataService = ds; };
@@ -22,7 +23,8 @@ interface DynamicFieldState {
   setDynamicFields: (fieldsOrUpdater: any) => void;
 }
 
-export const useDynamicFieldStore = create<DynamicFieldState>()((set) => ({
+export const useDynamicFieldStore = create<DynamicFieldState>()(
+  zustandConsoleMiddleware((set) => ({
   dynamicFields: [],
 
   loadDynamicFields: async () => {
@@ -38,4 +40,4 @@ export const useDynamicFieldStore = create<DynamicFieldState>()((set) => ({
     const newFields = typeof fieldsOrUpdater === 'function' ? fieldsOrUpdater(state.dynamicFields) : fieldsOrUpdater;
     return { dynamicFields: newFields };
   }),
-}));
+  })));

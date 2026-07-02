@@ -5,6 +5,7 @@ import { cashService } from '../../../services/cashService';
 import Swal from 'sweetalert2';
 import { Wallet, CreditCard, Landmark, Check, X, AlertCircle } from 'lucide-react';
 import { CalculadorDenominaciones } from './CalculadorDenominaciones';
+import { useActionLogger } from '../../../hooks/useActionLogger';
 
 interface CierreCajaModalProps {
   turnoActivo: TurnoCaja;
@@ -44,7 +45,7 @@ export default function CierreCajaModal({ turnoActivo, usuarioId, onClose, onSuc
   const requiereJustificacion = diferenciaGlobal !== 0;
   const diferenciaPositiva = diferenciaGlobal === 0;
 
-  const handleCierre = () => {
+  const handleCierre = useActionLogger('CashFlow', 'CerrarTurno', () => {
     if (requiereJustificacion && justificacion.trim() === '') {
       Swal.fire({
         icon: 'error',
@@ -100,7 +101,7 @@ export default function CierreCajaModal({ turnoActivo, usuarioId, onClose, onSuc
         }
       }
     });
-  };
+  });
 
   const handleInputNumber = (setter: React.Dispatch<React.SetStateAction<number | ''>>, value: string) => {
     if (value === '') { setter(''); return; }

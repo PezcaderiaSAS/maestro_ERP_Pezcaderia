@@ -1,6 +1,9 @@
 // src/hooks/useBalanza.ts
 
 import { useState } from 'react';
+import { createLogger } from '../lib/consoleLogger';
+
+const log = createLogger('Balanza');
 
 export function useBalanza() {
   const [reading, setReading] = useState(false);
@@ -11,6 +14,7 @@ export function useBalanza() {
    * Aplica: RN-13 (Lectura de balanza con fallback manual y timeout de 3 segundos)
    */
   const leerPeso = async (baudRate: number = 9600): Promise<number> => {
+    log.info('leerPeso', { baudRate });
     setReading(true);
     setError(null);
 
@@ -67,6 +71,7 @@ export function useBalanza() {
       setReading(false);
       return peso;
     } catch (err: any) {
+      log.error('leerPeso FAIL', { error: err.message });
       setReading(false);
       const errMsg = err.message || 'Error desconocido en la balanza';
       setError(errMsg);
@@ -78,6 +83,7 @@ export function useBalanza() {
    * Simulador de peso para pruebas locales o cuando no hay hardware físico conectado
    */
   const simularLeerPeso = async (): Promise<number> => {
+    log.info('simularLeerPeso');
     setReading(true);
     setError(null);
     await new Promise((resolve) => setTimeout(resolve, 1000));

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { IDataService } from '../types/services.types';
 import { LocalDataService } from '../services/LocalDataService';
 import { TurnoCaja } from '../types/cash.types';
+import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
 
 let dataService: IDataService = new LocalDataService();
 export const setCashDataService = (ds: IDataService) => { dataService = ds; };
@@ -14,7 +15,8 @@ interface CashState {
   clearTurnoActivo: () => void;
 }
 
-export const useCashStore = create<CashState>()((set) => ({
+export const useCashStore = create<CashState>()(
+  zustandConsoleMiddleware((set) => ({
   turnoActivo: null,
 
   loadTurnoActivo: async (cajaId: string) => {
@@ -40,4 +42,4 @@ export const useCashStore = create<CashState>()((set) => ({
   setTurnoActivo: (turno) => set({ turnoActivo: turno }),
 
   clearTurnoActivo: () => set({ turnoActivo: null }),
-}));
+  })));

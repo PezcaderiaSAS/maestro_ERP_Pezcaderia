@@ -18,6 +18,7 @@ import { useCashStore } from '../store/useCashStore';
 import { useInventoryStore } from '../store/useInventoryStore.ts';
 import { useEventStore } from '../store/useEventStore.ts';
 import { useAppStore } from '../store/useAppStore.ts';
+import { useActionLogger } from '../hooks/useActionLogger';
 import { useClientStore } from '../store/useClientStore.ts';
 import { useARStore } from '../store/useARStore.ts';
 import { useOrderStore } from '../store/useOrderStore.ts';
@@ -31,11 +32,29 @@ interface POSViewProps {
   handleAprobarPedidoManual?: (logId: string, modo: 'parcial' | 'forzar') => void;
 }
 
+const BannerCajaCerrada = ({ onAbrir }: { onAbrir: () => void }) => (
+  <div className="bg-red-500 text-white p-4 rounded-xl mb-4 flex justify-between items-center shadow-lg" style={{ backgroundColor: '#EF4444', color: 'white', padding: '16px', borderRadius: '12px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <AlertTriangle size={24} />
+      <div>
+        <h3 style={{ fontWeight: 700, fontSize: '18px', margin: 0 }}>Turno de Caja Cerrado</h3>
+        <p style={{ fontSize: '14px', margin: 0, opacity: 0.9 }}>No puedes realizar cobros hasta abrir un nuevo turno.</p>
+      </div>
+    </div>
+    <button
+      onClick={onAbrir}
+      style={{ backgroundColor: 'white', color: '#DC2626', padding: '8px 24px', borderRadius: '8px', fontWeight: 700, border: 'none', cursor: 'pointer', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+    >
+      Abrir Turno Ahora
+    </button>
+  </div>
+);
+
 export default function POSView({
   handleCancelarPedidoDigital = () => {},
   handleAprobarPedidoManual = () => {},
 }: POSViewProps) {
-  const products = useInventoryStore((s) => s.products) as any;
+  const products = useInventoryStore((s) => s.products) as Product[];
   const { stock, setStock } = useInventoryStore();
   const publishEvent = useEventStore((s) => s.publishEvent);
   const userRole = useAppStore((s) => s.userRole);
@@ -782,7 +801,7 @@ export default function POSView({
     });
   };
 
-  const handleFacturarB2B = async (quoteId: string) => {
+  const handleFacturarB2B = useActionLogger('POSCart', 'FacturarB2B', async (quoteId: string) => {
     const quote = quotations?.find(q => q.id === quoteId);
     if (!quote) return;
 
@@ -1033,7 +1052,54 @@ export default function POSView({
     setSelectedDevIds([]);
     setFechaVencimientoB2B('');
     setObservacionesB2B('');
-  };
+  });
+
+  // Atajos de teclado globales para POS
+  useEffect(() => {
+    if (activeSubView !== 'venta_pos') return;
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // 1.4 Filtro de Inputs: No interferir si el usuario está escribiendo
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        if (e.key === 'Escape') {
+          (e.target as HTMLElement).blur();
+        }
+        return;
+      }
+
+      // 1.5 Atajos
+      if (e.altKey && e.key >= '1' && e.key <= '9') {
+        e.preventDefault();
+        const index = parseInt(e.key) - 1;
+        const tabs = document.querySelectorAll('.pos-category-tab');
+        if (tabs[index]) {
+          (tabs[index] as HTMLButtonElement).click();
+        }
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (!isTurnoAbierto) {
+          setShowAperturaModal(true);
+        } else if (cartLineas.length > 0) {
+          // Buscamos el botón de cobrar en el panel de carrito y lo clickeamos
+          const btns = Array.from(document.querySelectorAll('button'));
+          const btnCobrar = btns.find(b => b.textContent?.toLowerCase().includes('cobrar'));
+          if (btnCobrar) btnCobrar.click();
+        }
+      } else if (e.key === 'F2') {
+        e.preventDefault();
+        const searchInput = document.querySelector('.pos-search-input') as HTMLInputElement;
+        if (searchInput) searchInput.focus();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        if (showAperturaModal) setShowAperturaModal(false);
+        else if (showArqueoModal) setShowArqueoModal(false);
+        else limpiarCarrito();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [activeSubView, isTurnoAbierto, cartLineas.length, showAperturaModal, showArqueoModal, limpiarCarrito]);
 
   // Cálculos financieros delegados al hook usePOSCart
   return (
@@ -1182,8 +1248,10 @@ export default function POSView({
       </div>
 
       {activeSubView === 'venta_pos' ? (
-        <div className="pos-layout animate-fade-in" style={{ padding: 0, border: 'none', boxShadow: 'none', background: 'transparent', margin: 0, width: '100%', display: 'grid', gridTemplateColumns: '2fr 1.2fr', gap: '20px' }}>
-          {/* Catálogo de Productos */}
+        <>
+          {!isTurnoAbierto && <BannerCajaCerrada onAbrir={() => setShowAperturaModal(true)} />}
+          <div className="pos-layout animate-fade-in" style={{ padding: 0, border: 'none', boxShadow: 'none', background: 'transparent', margin: 0, width: '100%', display: 'grid', gridTemplateColumns: '7fr 3fr', gap: '20px' }}>
+            {/* Catálogo de Productos */}
         <ProductSearchPanel 
           activeProducts={activeProducts} 
           dynamicFields={dynamicFields} 
@@ -1194,7 +1262,7 @@ export default function POSView({
         />
 
       {/* Carrito de Compras / Factura — delegado a CartPanel */}
-      <div className="pos-sidebar-cart">
+      <div className="pos-sidebar-cart" style={{ position: 'sticky', top: '24px', height: 'calc(100vh - 120px)', overflowY: 'auto' }}>
         {ultimoTicket ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px', height: '100%', overflowY: 'auto' }}>
             <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: 0, textAlign: 'center' }}>Venta Realizada con Éxito</h3>
@@ -1255,9 +1323,8 @@ export default function POSView({
         )}
       </div>
       </div>
-      ) : activeSubView === 'consolidacion_b2b' ? (
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px', width: '100%', boxSizing: 'border-box' }} className="animate-fade-in">
+      </>
+      ) : activeSubView === 'consolidacion_b2b' ? (        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px', width: '100%', boxSizing: 'border-box' }} className="animate-fade-in">
            {/* COLUMNA IZQUIERDA: LISTADO DE PEDIDOS */}
            <div className="hr-table-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', backgroundColor: 'white', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { IDataService } from '../types/services.types';
 import { LocalDataService } from '../services/LocalDataService';
+import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
 
 let dataService: IDataService = new LocalDataService();
 export const setExpenseDataService = (ds: IDataService) => { dataService = ds; };
@@ -24,7 +25,8 @@ interface ExpenseState {
   deleteGasto: (id: string) => void;
 }
 
-export const useExpenseStore = create<ExpenseState>()((set) => ({
+export const useExpenseStore = create<ExpenseState>()(
+  zustandConsoleMiddleware((set) => ({
   gastos: [],
 
   loadGastos: async () => {
@@ -57,4 +59,4 @@ export const useExpenseStore = create<ExpenseState>()((set) => ({
     dataService.hardDelete('gastos', id);
     set((state) => ({ gastos: state.gastos.filter(g => g.id !== id) }));
   },
-}));
+  })));

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { IDataService } from '../types/services.types';
 import { LocalDataService } from '../services/LocalDataService';
 import * as localDb from '../services/localDb';
+import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
 
 let dataService: IDataService = new LocalDataService();
 export const setClientDataService = (ds: IDataService) => { dataService = ds; };
@@ -35,7 +36,8 @@ interface ClientState {
   updateLastClientPrice: (identificacion: string, sku: string, price: number) => void;
 }
 
-export const useClientStore = create<ClientState>()((set, get) => ({
+export const useClientStore = create<ClientState>()(
+  zustandConsoleMiddleware((set, get) => ({
   clientes: [],
   lastClientPrices: {},
 
@@ -92,4 +94,4 @@ export const useClientStore = create<ClientState>()((set, get) => ({
       return { lastClientPrices: updated };
     });
   },
-}));
+  })));

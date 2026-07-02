@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { IDataService } from '../types/services.types';
 import { LocalDataService } from '../services/LocalDataService';
+import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
 
 let dataService: IDataService = new LocalDataService();
 export const setSupplierDataService = (ds: IDataService) => { dataService = ds; };
@@ -27,7 +28,8 @@ interface SupplierState {
   updateProveedor: (id: string, data: Partial<Proveedor>) => void;
 }
 
-export const useSupplierStore = create<SupplierState>()((set) => ({
+export const useSupplierStore = create<SupplierState>()(
+  zustandConsoleMiddleware((set) => ({
   proveedores: [],
 
   loadProveedores: async (initialProveedores = []) => {
@@ -58,4 +60,4 @@ export const useSupplierStore = create<SupplierState>()((set) => ({
       proveedores: state.proveedores.map(p => p.id === id ? { ...p, ...data } : p),
     }));
   },
-}));
+  })));

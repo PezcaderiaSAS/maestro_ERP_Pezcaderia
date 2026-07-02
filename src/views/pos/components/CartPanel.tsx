@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Check, X, Plus } from 'lucide-react';
 import type { LineaVenta } from '../../../types/pos.types';
 import type { ClientePOS } from '../../../hooks/usePOSCart';
@@ -75,6 +75,17 @@ export const CartPanel: React.FC<CartPanelProps> = ({
   onAbrirTurnoRequest,
   onCerrarTurnoClick,
 }) => {
+  const [isBouncing, setIsBouncing] = useState(false);
+  const totalItems = lineas.reduce((sum, l) => sum + Number(l.cantidad), 0);
+
+  useEffect(() => {
+    if (totalItems > 0) {
+      setIsBouncing(true);
+      const timer = setTimeout(() => setIsBouncing(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [totalItems]);
+
   // Helpers para resolver datos por fila dentro del .map()
   const getStockDisponible = (sku: string): number => {
     return stock[bodegaActiva]?.[sku] || 0;
@@ -185,8 +196,6 @@ export const CartPanel: React.FC<CartPanelProps> = ({
       },
     });
   };
-
-  const totalItems = lineas.reduce((sum, l) => sum + Number(l.cantidad), 0);
 
   return (
     <div
@@ -361,6 +370,12 @@ export const CartPanel: React.FC<CartPanelProps> = ({
           gap: '8px',
         }}
       >
+        {!isTurnoAbierto && (
+          <div style={{ textAlign: 'center', backgroundColor: '#FEF2F2', color: '#EF4444', fontSize: '12px', fontWeight: 'bold', padding: '6px', borderRadius: '6px' }}>
+            ⚠️ Abre un turno para habilitar los pagos
+          </div>
+        )}
+
         {/* Total prominente táctil */}
         {lineas.length > 0 && (
           <div
@@ -371,7 +386,15 @@ export const CartPanel: React.FC<CartPanelProps> = ({
               padding: '8px 4px',
             }}
           >
-            <span style={{ fontSize: '13px', color: '#64748B', fontWeight: 600 }}>TOTAL</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '13px', color: '#64748B', fontWeight: 600 }}>TOTAL</span>
+              <span 
+                className={`bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded ${isBouncing ? 'animate-bounce' : ''}`}
+                style={{ display: 'inline-block' }}
+              >
+                {totalItems} ítems
+              </span>
+            </div>
             <strong
               style={{
                 fontSize: '24px',
@@ -402,7 +425,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
           onPagar={onPagar}
           onGuardarBorrador={onGuardarBorrador}
           onLimpiarCarrito={onLimpiarCarrito}
-          isDisabled={lineas.length === 0}
+          isDisabled={!isTurnoAbierto || lineas.length === 0}
           isTurnoAbierto={isTurnoAbierto}
           onAbrirTurnoRequest={onAbrirTurnoRequest}
         />

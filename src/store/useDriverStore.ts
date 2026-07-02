@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { IDataService } from '../types/services.types';
 import { LocalDataService } from '../services/LocalDataService';
+import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
 
 let dataService: IDataService = new LocalDataService();
 export const setDriverDataService = (ds: IDataService) => { dataService = ds; };
@@ -27,7 +28,8 @@ interface DriverState {
   updateConductor: (id: string, data: Partial<Conductor>) => void;
 }
 
-export const useDriverStore = create<DriverState>()((set) => ({
+export const useDriverStore = create<DriverState>()(
+  zustandConsoleMiddleware((set) => ({
   conductores: [],
 
   loadConductores: async () => {
@@ -55,4 +57,4 @@ export const useDriverStore = create<DriverState>()((set) => ({
       conductores: state.conductores.map(c => c.id === id ? { ...c, ...data } : c),
     }));
   },
-}));
+  })));

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Search, Barcode } from 'lucide-react';
 import Swal from 'sweetalert2';
 
@@ -22,6 +22,16 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('TODOS');
   const [barcodeInput, setBarcodeInput] = useState('');
+  const [hideOutOfStock, setHideOutOfStock] = useState(false);
+  const [showTopSellers, setShowTopSellers] = useState(false);
+
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (searchRef.current) {
+      searchRef.current.focus();
+    }
+  }, []);
 
   // Categorías calculadas dinámicamente
   const CATEGORIAS = ['TODOS', ...Array.from(new Set(activeProducts.map(p => p.categoria)))];
@@ -72,11 +82,16 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
   let filteredProducts = activeProducts.filter(p => {
     const matchesSearch = p.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || p.sku.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'TODOS' || p.categoria === selectedCategory;
-    return matchesSearch && matchesCategory;
+    
+    // Ocultar agotados suma bodegas principal y secundaria
+    const totalStock = getProductStock(p.sku, 'Bodega Principal') + getProductStock(p.sku, 'Bodega Secundaria');
+    const matchesStock = !hideOutOfStock || totalStock > 0;
+
+    return matchesSearch && matchesCategory && matchesStock;
   });
 
-  // Productos más vendidos por defecto
-  if (searchTerm === '' && selectedCategory === 'TODOS') {
+  // Productos más vendidos (activado por toggle o por defecto si no hay búsqueda)
+  if (showTopSellers || (searchTerm === '' && selectedCategory === 'TODOS')) {
     const topKeywords = ['salmon', 'salmón', 'camaron', 'camarón', 'trucha', 'robalo', 'róbalo', 'langostino'];
     filteredProducts = [...filteredProducts].sort((a, b) => {
        const aTop = topKeywords.some(k => a.nombre.toLowerCase().includes(k)) ? 1 : 0;
@@ -92,7 +107,9 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
         <div className="pos-search-bar" style={{ flex: 1, marginBottom: 0 }}>
           <Search size={18} color="#64748B" />
           <input
+            ref={searchRef}
             type="text"
+            id="search-input-f2"
             className="pos-search-input"
             placeholder="Buscar por nombre o SKU..."
             value={searchTerm}
@@ -136,14 +153,30 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
         ))}
       </div>
 
-      <div className="pos-products-grid">
+      {/* Barra de Controles: Filtros de Stock y Más Vendidos */}
+      <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', alignItems: 'center' }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', color: '#475569', fontWeight: 600 }}>
+          <input type="checkbox" checked={hideOutOfStock} onChange={e => setHideOutOfStock(e.target.checked)} style={{ cursor: 'pointer' }} />
+          Ocultar agotados
+        </label>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', color: '#475569', fontWeight: 600 }}>
+          <input type="checkbox" checked={showTopSellers} onChange={e => setShowTopSellers(e.target.checked)} style={{ cursor: 'pointer' }} />
+          ⭐ Más vendidos
+        </label>
+      </div>
+
+      <div className="pos-products-grid" data-testid="product-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
         {filteredProducts.map(prod => {
           const stockPrincipal = getProductStock(prod.sku, 'Bodega Principal');
           const stockSecundaria = getProductStock(prod.sku, 'Bodega Secundaria');
           const stockAverias = getProductStock(prod.sku, 'Bodega Averías');
+          const totalStock = stockPrincipal + stockSecundaria;
+          const isOutOfStock = totalStock <= 0;
           return (
-            <div key={prod.id} className="product-card" onClick={() => onAddProduct(prod)}>
-              <div className="product-image-container">
+            <div key={prod.id} className={`product-card ${isOutOfStock ? 'opacity-50 grayscale pointer-events-none' : ''}`} onClick={() => onAddProduct(prod)}>
+              <div className="product-image-container" style={{ position: 'relative' }}>
+                {/* Semáforo de Stock usando buffer_seguridad dinámico */}
+                <div data-testid={stockPrincipal === 0 ? 'stock-badge-red' : stockPrincipal <= (prod.buffer_seguridad || 4) ? 'stock-badge-yellow' : 'stock-badge-green'} style={{ position: 'absolute', top: '8px', right: '8px', width: '12px', height: '12px', borderRadius: '50%', backgroundColor: stockPrincipal === 0 ? '#EF4444' : stockPrincipal <= (prod.buffer_seguridad || 4) ? '#F59E0B' : '#10B981', border: '2px solid white', zIndex: 10 }} />
                 <img
                   src={prod.imagen || 'https://images.unsplash.com/photo-1534482421-64566f976cfa?w=300&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'}
                   alt={prod.nombre}
@@ -176,7 +209,7 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
                     <span style={{ color: '#64748B', fontWeight: 500 }}>Bod. Principal:</span>
                     <span style={{
                       fontWeight: 700,
-                      color: stockPrincipal === 0 ? '#EF4444' : stockPrincipal <= prod.buffer_seguridad ? '#F59E0B' : '#10B981'
+                      color: stockPrincipal === 0 ? '#EF4444' : stockPrincipal <= (prod.buffer_seguridad || 4) ? '#F59E0B' : '#10B981'
                     }}>
                       {stockPrincipal} uds
                     </span>

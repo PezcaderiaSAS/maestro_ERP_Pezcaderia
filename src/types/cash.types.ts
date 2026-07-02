@@ -57,6 +57,7 @@ export interface TurnoCaja extends Auditable {
   
   estado: EstadoTurno;
   justificacion: string | null;
+  notasApertura?: string | null;
   
   detalleArqueoApertura?: DetalleArqueo;
   detalleArqueoCierre?: DetalleArqueo;
