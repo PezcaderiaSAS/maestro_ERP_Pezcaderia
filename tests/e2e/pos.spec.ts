@@ -76,19 +76,16 @@ test.describe('POS - Flujo de Apertura, Venta y Cierre (FASE 6)', () => {
       // 7. Seleccionar caja por label
       await selectCaja.selectOption({ label: 'Caja Menor - Bodega Principal' });
 
-      // Pasar al Paso 2
-      await page.locator('button', { hasText: 'Siguiente' }).click();
+      // Cambiar a modo Ingreso Directo
+      await page.locator('button', { hasText: 'Ingreso Directo' }).click();
 
-      // 7. Ingresar base con denominaciones (Paso 2: Declaración de Base)
-      const input100k = page.locator('input[data-denominacion="billetes100k"]');
-      await expect(input100k).toBeVisible({ timeout: 5000 });
-      await input100k.fill('2');
+      // Ingresar base en el input NumericFormat
+      const inputBaseDirecta = page.locator('[data-testid="input-base-directa"]');
+      await expect(inputBaseDirecta).toBeVisible({ timeout: 5000 });
+      await inputBaseDirecta.fill('100000');
 
-      // Pasar al Paso 3
-      await page.locator('button', { hasText: 'Siguiente' }).click();
-
-      // 8. Confirmar apertura (Paso 3: Confirmación)
-      const btnConfirmar = page.locator('[data-testid="btn-confirmar-apertura"]');
+      // 8. Confirmar apertura
+      const btnConfirmar = page.locator('[data-testid="btn-abrir-caja"]');
       await expect(btnConfirmar).toBeVisible({ timeout: 5000 });
       await btnConfirmar.click();
 
@@ -138,16 +135,7 @@ test.describe('POS - Flujo de Apertura, Venta y Cierre (FASE 6)', () => {
     });
 
     test('Debe procesar una venta y decrementar el stock (RN-01)', async ({ page }) => {
-      page.on('console', msg => console.log('BROWSER CONSOLE:', msg.text()));
-      
-      const turnosStr = await page.evaluate(() => localStorage.getItem('pezcaderia_turnos_caja'));
-      console.log('TURNOS EN LOCALSTORAGE AL INICIO:', turnosStr);
-      
-      const paymentPanelHTML = await page.evaluate(() => {
-        const el = document.querySelector('.pos-cart-footer');
-        return el ? el.innerHTML : 'No cart footer found';
-      });
-      console.log('PAYMENT PANEL HTML:', paymentPanelHTML);
+      // Los console.log excesivos fueron removidos para no truncar la salida
 
       // Agregar producto al carrito vía clic
       // 1. Esperar EXPLÍCITAMENTE a que el producto sea visible en el DOM.

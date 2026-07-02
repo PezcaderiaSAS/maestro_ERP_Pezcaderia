@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { NumericFormat } from 'react-number-format';
 import { cashService } from '../../../services/cashService';
-import { Wallet, Check, AlertCircle, X, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Wallet, Check, AlertCircle, X } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { Caja, DetalleArqueo } from '../../../types/cash.types';
 import { CalculadorDenominaciones } from '../../cash/components/CalculadorDenominaciones';
@@ -21,7 +22,6 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
   onSuccess,
   onCancel
 }) => {
-  const [step, setStep] = useState<number>(1);
   const { bodegas, loadBodegas } = useWarehouseStore();
   const [selectedBodegaId, setSelectedBodegaId] = useState<string>(bodegaActiva);
 
@@ -35,7 +35,7 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
   // States para Fase 4
   const [saldoRecomendado, setSaldoRecomendado] = useState<number>(0);
   const [modoDeclaracion, setModoDeclaracion] = useState<'calculadora' | 'directo'>('calculadora');
-  const [baseDirecta, setBaseDirecta] = useState<string>('');
+  const [baseDirecta, setBaseDirecta] = useState<number>(0);
   const [notasApertura, setNotasApertura] = useState<string>('');
 
   const baseInicial = modoDeclaracion === 'calculadora' ? (
@@ -50,7 +50,7 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
     denominacionesApertura.monedas200 * 200 +
     denominacionesApertura.monedas100 * 100 +
     denominacionesApertura.monedas50 * 50
-  ) : Number(baseDirecta);
+  ) : baseDirecta;
 
   // Cargar saldo de arrastre (Fase 4.1)
   useEffect(() => {
@@ -96,17 +96,7 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
     }
   }, [selectedBodegaId, userRole]);
 
-  const handleNextStep = () => {
-    if (step === 1 && !cajaSeleccionada) {
-      Swal.fire({ icon: 'warning', title: 'Seleccione una caja' });
-      return;
-    }
-    setStep(prev => prev + 1);
-  };
 
-  const handlePrevStep = () => {
-    setStep(prev => prev - 1);
-  };
 
   const handleSubmit = useActionLogger('CashFlow', 'AbrirTurno', (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -146,7 +136,7 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
       monedas1k: 0, monedas500: 0, monedas200: 0, monedas100: 0, monedas50: 0
     });
     setCajaSeleccionada('');
-    setBaseDirecta('');
+    setBaseDirecta(0);
     setNotasApertura('');
     if (onCancel) onCancel();
   };
@@ -174,8 +164,8 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
             </div>
             <div>
               <h3 className="font-extrabold text-xl text-slate-800 m-0">Apertura de Turno</h3>
-              <p className="text-sm text-slate-500 m-0">
-                Paso {step} de 3: {step === 1 ? 'Selección de Caja' : step === 2 ? 'Declaración de Base' : 'Confirmación'}
+              <p className="text-sm text-slate-500 font-medium m-0">
+                Declaración de Base
               </p>
             </div>
           </div>
@@ -192,17 +182,17 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
         <div className="w-full bg-slate-100 h-1">
           <div 
             className="bg-blue-500 h-1 transition-all duration-300" 
-            style={{ width: `${(step / 3) * 100}%` }}
+            style={{ width: '100%' }}
           />
         </div>
 
         {/* BODY */}
         <div className="p-6 overflow-y-auto flex-1 bg-slate-50/50">
           
-          {/* STEP 1: WAREHOUSE & REGISTER SELECTION */}
-          {step === 1 && (
-            <div className="flex flex-col gap-6" style={{ animation: 'modalFadeIn 0.3s ease-out forwards' }}>
-              
+          <div className="flex flex-col md:flex-row gap-6">
+            
+            {/* LEFT COLUMN: WAREHOUSE & REGISTER */}
+            <div className="flex flex-col gap-6 w-full md:w-1/3">
               {userRole === 'admin' && (
                 <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">
@@ -212,7 +202,7 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
                     data-testid="select-bodega"
                     value={selectedBodegaId}
                     onChange={(e) => setSelectedBodegaId(e.target.value)}
-                    className="w-full h-14 px-4 rounded-xl border-2 border-slate-200 bg-slate-50 focus:border-blue-400 focus:bg-white text-lg text-slate-800 outline-none transition-colors appearance-none cursor-pointer"
+                    className="w-full h-12 px-4 rounded-xl border-2 border-slate-200 bg-slate-50 focus:border-blue-400 focus:bg-white text-base text-slate-800 outline-none transition-colors appearance-none cursor-pointer"
                   >
                     {bodegas.map(b => (
                       <option key={b.id} value={b.nombre}>{b.nombre}</option>
@@ -221,16 +211,17 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
                 </div>
               )}
 
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex-1">
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">
-                  Caja
+                  Caja a Abrir
                 </label>
                 {cajasDisponibles.length > 0 ? (
                   <select
                     data-testid="select-caja"
+                    autoFocus={cajasDisponibles.length > 1 && !cajaSeleccionada}
                     value={cajaSeleccionada}
                     onChange={(e) => setCajaSeleccionada(e.target.value)}
-                    className="w-full h-14 px-4 rounded-xl border-2 border-slate-200 bg-slate-50 focus:border-blue-400 focus:bg-white text-lg text-slate-800 outline-none transition-colors appearance-none cursor-pointer"
+                    className="w-full h-12 px-4 rounded-xl border-2 border-slate-200 bg-slate-50 focus:border-blue-400 focus:bg-white text-base text-slate-800 outline-none transition-colors appearance-none cursor-pointer"
                   >
                     <option value="">-- Seleccione una caja --</option>
                     {cajasDisponibles.map(c => (
@@ -240,17 +231,27 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
                 ) : (
                   <div className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-red-100 bg-red-50 text-red-600 text-center font-medium">
                     <AlertCircle size={24} />
-                    <p className="text-sm">No hay cajas disponibles para apertura en esta bodega.</p>
+                    <p className="text-sm">No hay cajas disponibles.</p>
+                  </div>
+                )}
+
+                {/* INFO PANEL */}
+                {cajaSeleccionada && (
+                  <div className="mt-6 p-4 bg-blue-50/50 border border-blue-100 rounded-xl">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs text-slate-500 font-semibold uppercase">Base Total</span>
+                    </div>
+                    <div className="text-3xl font-black text-blue-700 tracking-tight">
+                      ${baseInicial.toLocaleString('es-CO')}
+                    </div>
                   </div>
                 )}
               </div>
             </div>
-          )}
 
-          {/* STEP 2: CASH DECLARATION */}
-          {step === 2 && (
-            <div className="flex flex-col gap-6" style={{ animation: 'modalFadeIn 0.3s ease-out forwards' }}>
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
+            {/* RIGHT COLUMN: CASH DECLARATION */}
+            <div className="flex flex-col gap-6 w-full md:w-2/3">
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col h-full">
                 <div className="flex justify-between items-center mb-4">
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest">
                     Declare la Base
@@ -274,34 +275,64 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
                 </div>
 
                 {modoDeclaracion === 'calculadora' ? (
-                  <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar max-h-[40vh]">
+                  <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar min-h-[300px]">
                     <CalculadorDenominaciones
                       valores={denominacionesApertura}
                       onChange={(key, valor) => setDenominacionesApertura(prev => ({ ...prev, [key]: valor }))}
                     />
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-4 py-4">
+                  <div className="flex flex-col gap-4 py-4 min-h-[300px]">
                     <div>
                       <label className="block text-sm font-semibold text-slate-700 mb-2">Total Efectivo en Caja</label>
-                      <input
-                        type="number"
-                        autoFocus
-                        min="0"
-                        value={baseDirecta}
-                        onChange={(e) => setBaseDirecta(e.target.value)}
-                        className="w-full h-14 px-4 rounded-xl border-2 border-slate-200 bg-slate-50 focus:border-blue-400 focus:bg-white text-2xl text-slate-800 font-bold outline-none transition-colors"
-                        placeholder="0"
+                      <NumericFormat
+                        data-testid="input-base-directa"
+                        autoFocus={cajasDisponibles.length <= 1 || !!cajaSeleccionada}
+                        thousandSeparator="."
+                        decimalSeparator=","
+                        decimalScale={0}
+                        allowNegative={false}
+                        prefix="$ "
+                        value={baseDirecta || ''}
+                        onValueChange={(values) => setBaseDirecta(values.floatValue ?? 0)}
+                        className="w-full h-16 px-4 rounded-xl border-2 border-slate-200 bg-slate-50 focus:border-blue-400 focus:bg-white text-3xl text-slate-800 font-black outline-none transition-colors"
+                        placeholder="$ 0"
                       />
                     </div>
-                    {saldoRecomendado > 0 && (
+                    
+                    {/* Botones de Suma Rápida (Quick Add) */}
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {[10000, 20000, 50000, 100000].map(amount => (
+                        <button
+                          key={amount}
+                          type="button"
+                          onClick={() => setBaseDirecta(prev => prev + amount)}
+                          className="px-3 py-2 text-sm font-bold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 transition-all shadow-sm active:scale-95 flex-1 min-w-[80px]"
+                        >
+                          +${amount.toLocaleString('es-CO')}
+                        </button>
+                      ))}
                       <button
                         type="button"
-                        onClick={() => setBaseDirecta(saldoRecomendado.toString())}
-                        className="self-start text-sm font-bold text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-2 rounded-lg transition-colors"
+                        onClick={() => setBaseDirecta(0)}
+                        className="px-3 py-2 text-sm font-bold text-red-600 bg-red-50 border border-red-100 rounded-lg hover:bg-red-100 hover:border-red-300 transition-all shadow-sm active:scale-95 ml-auto"
+                        title="Limpiar base"
                       >
-                        Usar saldo de arrastre (${saldoRecomendado.toLocaleString('es-CO')})
+                        <X size={20} />
                       </button>
+                    </div>
+
+                    {saldoRecomendado > 0 && (
+                      <div className="mt-auto pt-4">
+                        <button
+                          type="button"
+                          onClick={() => setBaseDirecta(saldoRecomendado)}
+                          className="w-full text-sm font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-4 py-3 rounded-xl hover:bg-emerald-100 hover:border-emerald-300 transition-colors shadow-sm flex items-center justify-center gap-2"
+                        >
+                          <Wallet size={18} />
+                          Usar saldo de arrastre: ${saldoRecomendado.toLocaleString('es-CO')}
+                        </button>
+                      </div>
                     )}
                   </div>
                 )}
@@ -311,61 +342,19 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
                   <textarea
                     value={notasApertura}
                     onChange={(e) => setNotasApertura(e.target.value)}
-                    className="w-full h-20 px-4 py-3 rounded-xl border-2 border-slate-200 bg-slate-50 focus:border-blue-400 focus:bg-white text-sm text-slate-800 outline-none transition-colors resize-none"
-                    placeholder="Escriba alguna observación sobre el estado de la caja al iniciar..."
+                    className="w-full h-20 px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:border-blue-400 focus:bg-white text-sm text-slate-800 outline-none transition-colors resize-none"
+                    placeholder="Observaciones sobre el estado de la caja al iniciar..."
                   />
                 </div>
               </div>
             </div>
-          )}
 
-          {/* STEP 3: SUMMARY */}
-          {step === 3 && (
-            <div className="flex flex-col gap-6" style={{ animation: 'modalFadeIn 0.3s ease-out forwards' }}>
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 p-6 rounded-2xl border border-blue-100 shadow-sm flex flex-col items-center justify-center gap-4 text-center">
-                <div className="bg-blue-600 text-white rounded-full p-4 mb-2 shadow-lg shadow-blue-200">
-                  <Wallet size={32} />
-                </div>
-                <h4 className="text-xl font-bold text-slate-800">Resumen de Apertura</h4>
-                
-                <div className="flex flex-col justify-center gap-1 mt-4">
-                  <span className="text-sm text-slate-500 font-medium uppercase tracking-wider">Base Declarada</span>
-                  <div className="text-5xl font-black text-blue-700 tracking-tight">
-                    ${baseInicial.toLocaleString()}
-                  </div>
-                </div>
-
-                <div className="w-full bg-white/60 rounded-xl p-4 mt-4 text-sm text-slate-600 flex flex-col gap-2">
-                  <div className="flex justify-between">
-                    <span className="font-semibold">Bodega:</span>
-                    <span>{bodegas.find(b => b.id === selectedBodegaId)?.nombre || selectedBodegaId}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-semibold">Caja:</span>
-                    <span>{cajasDisponibles.find(c => c.id === cajaSeleccionada)?.nombre || 'Seleccionada'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-semibold">Responsable:</span>
-                    <span className="uppercase">{userRole}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          </div>
           
         </div>
 
         {/* FOOTER ACTIONS */}
         <div className="px-6 py-4 bg-white border-t border-slate-100 flex justify-between gap-4">
-          {step > 1 ? (
-            <button
-              type="button"
-              onClick={handlePrevStep}
-              className="px-6 py-3 flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors"
-            >
-              <ArrowLeft size={18} /> Atrás
-            </button>
-          ) : (
             <button
               type="button"
               onClick={handleCancel}
@@ -373,27 +362,20 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
             >
               Cancelar
             </button>
-          )}
 
-          {step < 3 ? (
             <button
+              data-testid="btn-abrir-caja"
               type="button"
-              onClick={handleNextStep}
-              disabled={step === 1 && !cajaSeleccionada}
-              className="px-8 py-3 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:text-slate-500 text-white font-bold rounded-xl shadow-md transition-all ml-auto"
-            >
-              Siguiente <ArrowRight size={18} />
-            </button>
-          ) : (
-            <button
-              data-testid="btn-confirmar-apertura"
-              type="button"
+              disabled={!cajaSeleccionada}
               onClick={handleSubmit}
-              className="px-8 py-3 flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-md transition-all ml-auto"
+              className={`px-8 py-3 flex items-center gap-2 font-bold rounded-xl shadow-md transition-all ml-auto ${
+                cajaSeleccionada
+                  ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
+                  : 'bg-slate-300 text-slate-500 cursor-not-allowed'
+              }`}
             >
               Confirmar Apertura <Check size={18} />
             </button>
-          )}
         </div>
       </div>
     </div>,

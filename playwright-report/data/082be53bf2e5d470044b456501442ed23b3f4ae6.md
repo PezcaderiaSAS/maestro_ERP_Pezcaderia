@@ -6,24 +6,22 @@
 
 # Test info
 
-- Name: pos.spec.ts >> POS - Flujo de Apertura, Venta y Cierre (FASE 6) >> TASK-12: Agregar test de venta a pos.spec.ts >> Debe validar RN-01: Intentar vender producto con stock=0 -> mostrar error
-- Location: tests\e2e\pos.spec.ts:192:5
+- Name: pos.spec.ts >> POS - Flujo de Apertura, Venta y Cierre (FASE 6) >> FASE 5: Optimizaciones UX/UI >> 5.2 Test Caja Cerrada: Botón cobrar debe estar deshabilitado y mostrar advertencia
+- Location: tests\e2e\pos.spec.ts:301:5
 
 # Error details
 
 ```
-Error: expect(locator).toHaveText(expected) failed
+Error: expect(locator).toBeDisabled() failed
 
-Locator: locator('.swal2-title')
-Expected pattern: /Venta Bloqueada: Stock Insuficiente|Sin stock|Error/i
-Timeout: 4000ms
+Locator: locator('[data-testid="btn-cobrar"]')
+Expected: disabled
+Timeout: 5000ms
 Error: element(s) not found
 
 Call log:
-  - Expect "toHaveText" with timeout 4000ms
-  - waiting for locator('.swal2-title')
-    7 × locator resolved to <h2 id="swal2-title" class="swal2-title">Venta Procesada</h2>
-      - unexpected value "Venta Procesada"
+  - Expect "toBeDisabled" with timeout 5000ms
+  - waiting for locator('[data-testid="btn-cobrar"]')
 
 ```
 
@@ -42,30 +40,55 @@ Call log:
     - text: Facturar
   - text: Yu
 - complementary:
-  - text: Yu
-  - button:
+  - text: Yu Yurgen Moreno
+  - combobox:
+    - option "Super administrador" [selected]
+    - option "Vendedor"
+    - option "Jefe de bodega"
+    - option "Administrativo"
+  - button "Facturar":
     - img
+    - text: Facturar
   - navigation:
     - img
+    - text: POS
     - img
+    - text: Cotizacion
     - img
+    - text: Clientes
     - img
+    - text: CRM (Twenty)
     - img
+    - text: Documentos
     - img
+    - text: Compras y Gastos
     - img
+    - text: Cartera
     - img
+    - text: Inventario
     - img
+    - text: Alistamiento Bodega
     - img
+    - text: Traslados
     - img
+    - text: Ajuste
     - img
+    - text: Caja
     - img
+    - text: Cuentas
     - img
+    - text: Personal (RRHH)
     - img
+    - text: Nómina
     - img
+    - text: Despachos / Kanban
     - img
+    - text: Produccion
     - img
-  - button:
+    - text: Panel de Control
+  - button "Salir":
     - img
+    - text: Salir
 - main:
   - button "Venta Rápida (POS)":
     - img
@@ -78,6 +101,10 @@ Call log:
     - text: Monitoreo Canales Digitales
   - button "KB Gestión Kanban"
   - text: "Rol: admin"
+  - img
+  - heading "Turno de Caja Cerrado" [level=3]
+  - paragraph: No puedes realizar cobros hasta abrir un nuevo turno.
+  - button "Abrir Turno Ahora"
   - img
   - textbox "Buscar por nombre o SKU..."
   - img
@@ -92,18 +119,24 @@ Call log:
   - checkbox "⭐ Más vendidos"
   - text: ⭐ Más vendidos
   - img "Salmón Fresco"
-  - text: "Salmón Fresco $35.000 Categoría Descriptiva (Grupo): General Bod. Principal: 499 uds Bod. Secundaria: 0 uds Bod. Averías: 0 uds"
+  - text: "Salmón Fresco $35.000 Categoría Descriptiva (Grupo): General Bod. Principal: 500 uds Bod. Secundaria: 0 uds Bod. Averías: 0 uds"
   - img "Trucha Arcoiris"
   - text: "Trucha Arcoiris $25.000 Categoría Descriptiva (Grupo): General Bod. Principal: 85 uds Bod. Secundaria: 0 uds Bod. Averías: 0 uds"
   - img "Tilapia Roja"
   - text: "Tilapia Roja $15.000 Categoría Descriptiva (Grupo): General Bod. Principal: 120 uds Bod. Secundaria: 0 uds Bod. Averías: 0 uds"
-  - heading "Venta Realizada con Éxito" [level=3]
-  - text: Previsualización de Ticket
-  - button "Imprimir":
+  - img
+  - text: Consumidor Final (222222222222)
+  - img
+  - button "Borradores"
+  - text: 🛒 El carrito está vacío ⚠️ Abre un turno para habilitar los pagos Subtotal (0 ítems) $0 Impuestos (0%) $0 Descuento
+  - img
+  - text: "-$0"
+  - img
+  - heading "Caja Cerrada" [level=4]
+  - paragraph: El flujo de ventas está pausado. Abra un turno para reanudar.
+  - button "Abrir Turno de Caja":
     - img
-    - text: Imprimir
-  - text: "*** ERP MAESTRO PESCADERIA *** PESCADERIA S.A.S. NIT: 900.123.456-1 Dirección: Calle 72 # 15-23, Bogotá Teléfono: 310 123 4567 ======================================== Factura: VTA-14F6E9AF Fecha : 2/7/2026, 12:43:10 p. m. Cajero : admin ---------------------------------------- Cliente: CONSUMIDOR FINAL NIT/CC : 222222222222 ======================================== PRODUCTO/CANT TOTAL ---------------------------------------- Salmón Fresco 1 UNIDAD x $35.000 $35.000 ======================================== SUBTOTAL: $35.000 TOTAL FINAL: $35.000 ---------------------------------------- Método Pago: CONTADO Efectivo Recibido: $35.000 ======================================== ¡GRACIAS POR SU COMPRA! Pescado fresco del día"
-  - button "Nueva Venta"
+    - text: Abrir Turno de Caja
 - button "Panel de Pruebas Dev":
   - img
 ```
@@ -111,89 +144,6 @@ Call log:
 # Test source
 
 ```ts
-  120 |         // Fix for dynamic warehouse architecture stock structure (dictionary format by SKU)
-  121 |         const pezcaderiaStock = {
-  122 |           "b1": {
-  123 |             "PES-ENT-001": 10,
-  124 |             "FIL-LIM-002": 5,
-  125 |             "CAM-TIG-003": 8
-  126 |           }
-  127 |         };
-  128 |         localStorage.setItem('pezcaderia_stock', JSON.stringify(pezcaderiaStock));
-  129 |       }, { ...POS_SEED_DATA, ...CASH_SEED_DATA }); // Merge to get products AND open shift
-  130 |       await page.reload();
-  131 |       await page.waitForLoadState('domcontentloaded');
-  132 |       await page.waitForLoadState('networkidle');
-  133 |       await expect(page.locator('.sidebar-menu')).toBeVisible({ timeout: 15000 });
-  134 |       await page.click('[data-testid="nav-pos"]');
-  135 |     });
-  136 | 
-  137 |     test('Debe procesar una venta y decrementar el stock (RN-01)', async ({ page }) => {
-  138 |       page.on('console', msg => console.log('BROWSER CONSOLE:', msg.text()));
-  139 |       
-  140 |       const turnosStr = await page.evaluate(() => localStorage.getItem('pezcaderia_turnos_caja'));
-  141 |       console.log('TURNOS EN LOCALSTORAGE AL INICIO:', turnosStr);
-  142 |       
-  143 |       const paymentPanelHTML = await page.evaluate(() => {
-  144 |         const el = document.querySelector('.pos-cart-footer');
-  145 |         return el ? el.innerHTML : 'No cart footer found';
-  146 |       });
-  147 |       console.log('PAYMENT PANEL HTML:', paymentPanelHTML);
-  148 | 
-  149 |       // Agregar producto al carrito vía clic
-  150 |       // 1. Esperar EXPLÍCITAMENTE a que el producto sea visible en el DOM.
-  151 |       const productItem = page.locator('text=Salmón Fresco').first();
-  152 |       await expect(productItem).toBeVisible({ timeout: 15000 });
-  153 |       
-  154 |       const btnCobrar = page.locator('[data-testid="btn-cobrar"]');
-  155 |       
-  156 |       // Retry clicking the product until the 'Cobrar' button becomes enabled.
-  157 |       // This solves race conditions where the click is lost because React is re-rendering the list.
-  158 |       await expect(async () => {
-  159 |         if (await btnCobrar.isDisabled()) {
-  160 |           await productItem.click({ force: true });
-  161 |         }
-  162 |         await expect(btnCobrar).toBeEnabled({ timeout: 1000 });
-  163 |       }).toPass({ timeout: 15000 });
-  164 |       
-  165 |       await btnCobrar.click();
-  166 | 
-  167 |       // En este flujo, COBRAR procesa directamente la venta si es Efectivo.
-  168 |       // Verify SweetAlert success
-  169 |       const swalTitle = page.locator('.swal2-title');
-  170 |       await expect(swalTitle).toHaveText(/Venta procesada/i);
-  171 |       
-  172 |       // Wait for it to close completely del DOM
-  173 |       await expect(page.locator('.swal2-container')).not.toBeAttached({ timeout: 15000 });
-  174 | 
-  175 |       // Asertión: localStorage pezcaderia_ventas tiene 1 venta; stock del producto decrementó
-  176 |       // Usamos toPass porque la escritura a localStorage (en App.tsx) puede ser asíncrona (useEffect)
-  177 |       await expect(async () => {
-  178 |         const ventasStr = await page.evaluate(() => localStorage.getItem('pezcaderia_ventas'));
-  179 |         const ventas = JSON.parse(ventasStr || '[]');
-  180 |         expect(ventas.length).toBe(1);
-  181 | 
-  182 |         const stockStr = await page.evaluate(() => localStorage.getItem('pezcaderia_stock'));
-  183 |         const stock = JSON.parse(stockStr || '{}');
-  184 |         const salmonStock = stock['b1']?.['PES-ENT-001'];
-  185 |         
-  186 |         // Calculamos la cantidad vendida real, ya que el test pudo haber hecho varios clics
-  187 |         const cantVendida = ventas[0].items[0].cantidad;
-  188 |         expect(salmonStock).toBe(10 - cantVendida);
-  189 |       }).toPass({ timeout: 5000 });
-  190 |     });
-  191 | 
-  192 |     test('Debe validar RN-01: Intentar vender producto con stock=0 -> mostrar error', async ({ page }) => {
-  193 |       // First let's set stock of Salmón to 0
-  194 |       await page.evaluate(() => {
-  195 |         const stockData = JSON.parse(localStorage.getItem('pezcaderia_stock') || '{}');
-  196 |         const setStockZero = (location: string, sku: string) => {
-  197 |           if (stockData[location] && stockData[location][sku] !== undefined) {
-  198 |             stockData[location][sku] = 0;
-  199 |           }
-  200 |         };
-  201 |         setStockZero('b1', 'PES-ENT-001');
-  202 |         localStorage.setItem('pezcaderia_stock', JSON.stringify(stockData));
   203 |       });
   204 |       await page.reload();
   205 |       await page.waitForLoadState('domcontentloaded');
@@ -211,8 +161,7 @@ Call log:
   217 |       await btnCobrar.click();
   218 | 
   219 |       const swalTitle = page.locator('.swal2-title');
-> 220 |       await expect(swalTitle).toHaveText(/Venta Bloqueada: Stock Insuficiente|Sin stock|Error/i, { timeout: 4000 });
-      |                               ^ Error: expect(locator).toHaveText(expected) failed
+  220 |       await expect(swalTitle).toHaveText(/Venta Bloqueada: Stock Insuficiente|Sin stock|Error/i, { timeout: 4000 });
   221 |     });
   222 |   });
   223 | 
@@ -295,7 +244,8 @@ Call log:
   300 | 
   301 |     test('5.2 Test Caja Cerrada: Botón cobrar debe estar deshabilitado y mostrar advertencia', async ({ page }) => {
   302 |       const btnCobrar = page.locator('[data-testid="btn-cobrar"]');
-  303 |       await expect(btnCobrar).toBeDisabled();
+> 303 |       await expect(btnCobrar).toBeDisabled();
+      |                               ^ Error: expect(locator).toBeDisabled() failed
   304 |       const footerMsg = page.locator('text=Abre un turno para habilitar los pagos');
   305 |       await expect(footerMsg).toBeVisible();
   306 |     });
@@ -313,4 +263,12 @@ Call log:
   318 |       
   319 |       // Test Toggle
   320 |       const toggle = page.locator('label', { hasText: 'Ocultar agotados' }).locator('input[type="checkbox"]');
+  321 |       await toggle.check();
+  322 | 
+  323 |       // La tarjeta con stock 0 ya no debe estar en el grid
+  324 |       await expect(outOfStockCard).toBeHidden();
+  325 |     });
+  326 |   });
+  327 | });
+  328 | 
 ```

@@ -94,7 +94,7 @@ export default function POSView({
   }, [userRole, showAperturaModal, loadTurnoActivoPorCajero]);
 
   const { getPrimaryBodega } = useWarehouseStore();
-  const bodegaActiva = getPrimaryBodega()?.nombre || 'Bodega Principal';
+  const bodegaActiva = getPrimaryBodega()?.id || '1';
 
   // Filtrar productos activos
   const activeProducts = products.filter(p => p.activo);
