@@ -90,8 +90,8 @@
     "semantic_hash": ""
   },
   "src/services/cashService.ts": {
-    "mtime": 1783083007.1174433,
-    "ast_hash": "95acb281a5bfcce8b405f53414f07eaa",
+    "mtime": 1783009161.5882218,
+    "ast_hash": "238abd9da723fa7cc0e13bf7e25301cd",
     "semantic_hash": ""
   },
   "src/services/inventoryService.ts": {
@@ -230,8 +230,8 @@
     "semantic_hash": ""
   },
   "src/views/POSView.tsx": {
-    "mtime": 1783087055.0282483,
-    "ast_hash": "7a17f8567b9fed8336fef99fec45d4e2",
+    "mtime": 1783015242.8473897,
+    "ast_hash": "1daa17cfe5e12138ececafa3870f6300",
     "semantic_hash": ""
   },
   "src/views/PayrollView.tsx": {
@@ -255,8 +255,8 @@
     "semantic_hash": ""
   },
   "src/views/cash/components/CierreCajaModal.tsx": {
-    "mtime": 1783081345.2554026,
-    "ast_hash": "06dace67a4b8b172f802e18e21a62a13",
+    "mtime": 1783009613.810154,
+    "ast_hash": "14519de5b2729a3b3b25eb38fa08adc7",
     "semantic_hash": ""
   },
   "src/views/cash/components/TrasladoDineroModal.tsx": {
@@ -325,8 +325,8 @@
     "semantic_hash": "2f40c05e6baf7567c9b1a83fc3486561"
   },
   "src/views/pos/components/PaymentPanel.tsx": {
-    "mtime": 1783087034.6935506,
-    "ast_hash": "a68569f97166c5584386fa07a006dd37",
+    "mtime": 1782842504.4425745,
+    "ast_hash": "db3b78db34e95f30b95c02646b683af2",
     "semantic_hash": ""
   },
   "src/views/pos/components/TicketBuilder.tsx": {
@@ -760,13 +760,13 @@
     "semantic_hash": ""
   },
   "src/views/pos/components/AperturaCajaModal.tsx": {
-    "mtime": 1783081319.8816352,
-    "ast_hash": "dba5b6c18bc834670a63482b64acf3bd",
+    "mtime": 1783011893.0056572,
+    "ast_hash": "3665814166c2375addc408b22cfbff0f",
     "semantic_hash": ""
   },
   "src/views/pos/components/CartPanel.tsx": {
-    "mtime": 1783087042.171608,
-    "ast_hash": "48c296305cc589242a9d7e488d62ea54",
+    "mtime": 1783009548.127406,
+    "ast_hash": "2f5831a2d9fc04d053526dafa89dc7c5",
     "semantic_hash": ""
   },
   "src/views/pos/components/LineaVentaRow.tsx": {
@@ -775,8 +775,8 @@
     "semantic_hash": ""
   },
   "src/views/pos/components/ProductSearchPanel.tsx": {
-    "mtime": 1783086479.4470608,
-    "ast_hash": "dddaa8b9f56050c7fcf342b92b37a7e1",
+    "mtime": 1783009277.3139272,
+    "ast_hash": "0cd70cf5cf4f1fa5382fa83809f7e558",
     "semantic_hash": ""
   },
   "src/views/cash/components/CalculadorDenominaciones.tsx": {

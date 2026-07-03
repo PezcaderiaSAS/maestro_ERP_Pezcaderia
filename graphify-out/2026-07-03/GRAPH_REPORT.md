@@ -1,7 +1,7 @@
-# Graph Report - MaestroPescaderia  (2026-07-03)
+# Graph Report - MaestroPescaderia  (2026-07-02)
 
 ## Corpus Check
-- 529 files · ~421,883 words
+- 529 files · ~421,275 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `b6102cf1`
+- Built from commit: `0be52ebe`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -418,8 +418,8 @@
 - 4-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/views/pos/components/AperturaCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 4-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/views/cash/components/ArqueoCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 4-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/views/OrderKanbanView.tsx -> src/services/cashService.ts -> src/App.tsx`
-- 4-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/views/cash/components/CierreCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 4-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/views/pos/components/AperturaCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
+- 4-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/views/cash/components/CierreCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 4-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/views/cash/components/ArqueoCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 4-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/views/cash/components/TrasladoDineroModal.tsx -> src/services/cashService.ts -> src/App.tsx`
 
@@ -1806,7 +1806,7 @@ Cohesion: 0.40
 Nodes (4): Error details, Instructions, Test info, Test source
 
 ## Knowledge Gaps
-- **2895 isolated node(s):** `AperturaCajaModalProps`, `ProductSearchPanelProps`, `name`, `private`, `version` (+2890 more)
+- **2895 isolated node(s):** `name`, `private`, `version`, `type`, `dev` (+2890 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **26 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -1817,9 +1817,9 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.003) - this node is a cross-community bridge._
 - **Why does `Release Swarm - Intelligent Release Automation` connect `Community 124` to `Community 230`?**
   _High betweenness centrality (0.003) - this node is a cross-community bridge._
-- **Why does `Workflow Automation - GitHub Actions Integration` connect `Community 48` to `Community 354`, `Community 357`, `Community 358`, `Community 230`, `Community 365`, `Community 379`, `Community 380`, `Community 381`?**
+- **Why does `LoggableDataService` connect `Community 306` to `Community 304`, `Community 331`?**
   _High betweenness centrality (0.002) - this node is a cross-community bridge._
-- **What connects `AperturaCajaModalProps`, `ProductSearchPanelProps`, `name` to the rest of the system?**
+- **What connects `name`, `private`, `version` to the rest of the system?**
   _2898 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 2` be split into smaller, more focused modules?**
   _Cohesion score 0.046511627906976744 - nodes in this community are weakly interconnected._
