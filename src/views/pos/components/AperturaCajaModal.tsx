@@ -77,6 +77,8 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
     }
   }, [userRole, bodegaActiva]);
 
+  const [totalCajasEnBodega, setTotalCajasEnBodega] = useState<number>(0);
+
   useEffect(() => {
     cashService.seedCajasParaBodegas();
     let cajas = cashService.getCajas().filter(c => c.bodegaId === selectedBodegaId && c.activa);
@@ -85,6 +87,8 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
       cajas = cajas.filter(c => !c.nombre.includes('Caja Mayor'));
     }
     
+    setTotalCajasEnBodega(cajas.length);
+
     const turnos = cashService.getTurnos();
     cajas = cajas.filter(c => !turnos.some(t => t.cajaId === c.id && t.estado === 'ABIERTO'));
     
@@ -142,20 +146,8 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
   };
 
   return createPortal(
-    <div style={{
-      position: 'fixed', inset: 0, zIndex: 99999,
-      background: 'rgba(15,23,42,0.65)', backdropFilter: 'blur(4px)',
-      display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1rem'
-    }}>
-      <div
-        style={{
-          background: '#fff', borderRadius: '1rem',
-          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.35)',
-          width: '100%', maxWidth: '42rem', maxHeight: '95vh',
-          display: 'flex', flexDirection: 'column', overflow: 'hidden',
-          animation: 'modalFadeIn 0.3s ease-out forwards'
-        }}
-      >
+    <div className="fixed inset-0 z-[99999] bg-slate-900/65 backdrop-blur-sm flex justify-center items-center p-4">
+      <div className="bg-white rounded-3xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.35)] w-full max-w-4xl max-h-[95vh] flex flex-col overflow-hidden animate-[modalFadeIn_0.3s_ease-out_forwards]">
         {/* HEADER */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50 shrink-0">
           <div className="flex items-center gap-4">
@@ -205,7 +197,7 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
                     className="w-full h-12 px-4 rounded-xl border-2 border-slate-200 bg-slate-50 focus:border-blue-400 focus:bg-white text-base text-slate-800 outline-none transition-colors appearance-none cursor-pointer"
                   >
                     {bodegas.map(b => (
-                      <option key={b.id} value={b.nombre}>{b.nombre}</option>
+                      <option key={b.id} value={b.id}>{b.nombre}</option>
                     ))}
                   </select>
                 </div>
@@ -229,9 +221,13 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
                     ))}
                   </select>
                 ) : (
-                  <div className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-red-100 bg-red-50 text-red-600 text-center font-medium">
+                  <div className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 text-center font-medium ${totalCajasEnBodega > 0 ? 'border-amber-100 bg-amber-50 text-amber-700' : 'border-red-100 bg-red-50 text-red-600'}`}>
                     <AlertCircle size={24} />
-                    <p className="text-sm">No hay cajas disponibles.</p>
+                    <p className="text-sm">
+                      {totalCajasEnBodega > 0 
+                        ? 'Todas las cajas de esta bodega ya tienen un turno abierto.' 
+                        : 'No hay cajas configuradas o activas para esta bodega.'}
+                    </p>
                   </div>
                 )}
 

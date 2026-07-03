@@ -19,7 +19,8 @@ interface CartPanelProps {
 
   // Datos de contexto para resolver stock y precio histórico por fila
   stock: Record<string, any[]>;
-  bodegaActiva: string;
+  bodegaActivaId: string;
+  bodegaActivaNombre: string;
   lastClientPrices: Record<string, Record<string, number>>;
 
   // Callbacks de escritura al carrito
@@ -34,7 +35,7 @@ interface CartPanelProps {
   onSelectCliente: () => void;
   onClearCliente: () => void;
   onDescuentoClick: () => void;
-  onPagar: (metodo: 'EFECTIVO' | 'TRANSFERENCIA' | 'CREDITO') => Promise<any> | void;
+  onPagar: (pagos: { metodo: 'EFECTIVO' | 'TRANSFERENCIA' | 'DATAFONO' | 'CREDITO'; monto: number }[]) => Promise<any> | void;
   onGuardarBorrador: () => void;
   onSetActiveDraftId: (id: string | null) => void;
   onSetDrafts: (fn: (prev: any[]) => any[]) => void;
@@ -55,7 +56,8 @@ export const CartPanel: React.FC<CartPanelProps> = ({
   drafts,
   activeDraftId,
   stock,
-  bodegaActiva,
+  bodegaActivaId,
+  bodegaActivaNombre,
   lastClientPrices,
   onUpdateCantidad,
   onUpdateDescuentoLinea,
@@ -88,7 +90,8 @@ export const CartPanel: React.FC<CartPanelProps> = ({
 
   // Helpers para resolver datos por fila dentro del .map()
   const getStockDisponible = (sku: string): number => {
-    return stock[bodegaActiva]?.[sku] || 0;
+    const targetWarehouseKey = stock[bodegaActivaId] ? bodegaActivaId : bodegaActivaNombre;
+    return stock[targetWarehouseKey]?.[sku] || 0;
   };
 
   const getLastClientPrice = (sku: string): number | undefined => {
@@ -198,14 +201,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
   };
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        gap: 0,
-      }}
-    >
+    <div className="flex flex-col h-full overflow-hidden">
       {/* ── HEADER: Selector de cliente + Borradores ── */}
       <div
         className="pos-cart-header"
@@ -307,13 +303,10 @@ export const CartPanel: React.FC<CartPanelProps> = ({
 
       {/* ── LISTA DE ÍTEMS: scroll táctil vertical ── */}
       <div
-        className="pos-cart-items-list"
+        className="pos-cart-items-list flex-1 overflow-y-auto"
         style={{
-          flex: 1,
-          overflowY: 'auto',
           WebkitOverflowScrolling: 'touch',
           scrollSnapType: 'y proximity',
-          maxHeight: 'calc(100vh - 380px)',
         }}
       >
         {lineas.length === 0 ? (
@@ -421,7 +414,8 @@ export const CartPanel: React.FC<CartPanelProps> = ({
           lineas={lineas}
           cliente={cliente}
           stock={stock}
-          bodegaActiva={bodegaActiva}
+          bodegaActivaId={bodegaActivaId}
+          bodegaActivaNombre={bodegaActivaNombre}
           onPagar={onPagar}
           onGuardarBorrador={onGuardarBorrador}
           onLimpiarCarrito={onLimpiarCarrito}

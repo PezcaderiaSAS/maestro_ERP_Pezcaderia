@@ -30,17 +30,26 @@ class LegacyCashService {
     const cajas = localDb.load<Caja[]>('cajas', []);
     let modified = false;
 
+    // Migrar cajas existentes que usen el nombre en lugar del id
+    cajas.forEach(c => {
+      const bodegaMatched = bodegas.find(b => b.nombre === c.bodegaId);
+      if (bodegaMatched) {
+        c.bodegaId = bodegaMatched.id;
+        modified = true;
+      }
+    });
+
     bodegas.forEach(bodega => {
-      const tieneCajaMenor = cajas.some(c => c.bodegaId === bodega.nombre && c.nombre.includes('Caja Menor'));
+      const tieneCajaMenor = cajas.some(c => c.bodegaId === bodega.id && c.nombre.includes('Caja Menor'));
       if (!tieneCajaMenor) {
-        cajas.push({ id: generateId('caja'), bodegaId: bodega.nombre, nombre: `Caja Menor - ${bodega.nombre}`, activa: true });
+        cajas.push({ id: generateId('caja'), bodegaId: bodega.id, nombre: `Caja Menor - ${bodega.nombre}`, activa: true });
         modified = true;
       }
 
       if (bodega.id === '1' || bodega.nombre === 'Bodega Principal') {
-        const tieneCajaMayor = cajas.some(c => c.bodegaId === bodega.nombre && c.nombre.includes('Caja Mayor'));
+        const tieneCajaMayor = cajas.some(c => c.bodegaId === bodega.id && c.nombre.includes('Caja Mayor'));
         if (!tieneCajaMayor) {
-          cajas.push({ id: generateId('caja'), bodegaId: bodega.nombre, nombre: `Caja Mayor - ${bodega.nombre}`, activa: true });
+          cajas.push({ id: generateId('caja'), bodegaId: bodega.id, nombre: `Caja Mayor - ${bodega.nombre}`, activa: true });
           modified = true;
         }
       }

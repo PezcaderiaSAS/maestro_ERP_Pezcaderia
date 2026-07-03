@@ -101,7 +101,7 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
   }
 
   return (
-    <div className="pos-catalog">
+    <div className="pos-catalog flex-1 lg:flex-none h-full lg:h-full flex flex-col overflow-hidden">
       <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
         {/* Búsqueda por Texto */}
         <div className="pos-search-bar" style={{ flex: 1, marginBottom: 0 }}>
@@ -165,7 +165,7 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
         </label>
       </div>
 
-      <div className="pos-products-grid" data-testid="product-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+      <div className="pos-products-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 overflow-y-auto flex-1 pb-4" data-testid="product-grid">
         {filteredProducts.map(prod => {
           const stockPrincipal = getProductStock(prod.sku, 'Bodega Principal');
           const stockSecundaria = getProductStock(prod.sku, 'Bodega Secundaria');

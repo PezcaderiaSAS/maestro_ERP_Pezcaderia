@@ -93,8 +93,9 @@ export default function POSView({
     loadTurnoActivoPorCajero(userRole);
   }, [userRole, showAperturaModal, loadTurnoActivoPorCajero]);
 
-  const { getPrimaryBodega } = useWarehouseStore();
-  const bodegaActiva = getPrimaryBodega()?.id || '1';
+  const { getPrimaryBodega, activaId } = useWarehouseStore();
+  const bodegaActivaId = activaId || getPrimaryBodega()?.id || 'b1';
+  const bodegaActivaNombre = getPrimaryBodega()?.nombre || 'Bodega Principal';
 
   // Filtrar productos activos
   const activeProducts = products.filter(p => p.activo);
@@ -513,7 +514,7 @@ export default function POSView({
     return stock[bodega]?.[sku] || 0;
   };
 
-  const handlePagar = async (metodo: 'EFECTIVO' | 'TRANSFERENCIA' | 'CREDITO'): Promise<Venta | void> => {
+  const handlePagar = async (pagos: { metodo: 'EFECTIVO' | 'TRANSFERENCIA' | 'DATAFONO' | 'CREDITO', monto: number }[]): Promise<Venta | void> => {
     // RN-57: Validacion estricta de Turno de Caja Abierto
     if (!isTurnoAbierto || !turnoActivo) {
       Swal.fire({
@@ -535,12 +536,14 @@ export default function POSView({
     let creditDate = '';
     const requiereFE = false; // Por defecto Fase 1
 
-    if (metodo === 'EFECTIVO') {
-      cash = totalFinal;
-    } else if (metodo === 'TRANSFERENCIA') {
-      transfer = totalFinal;
-    } else if (metodo === 'CREDITO') {
-      credit = totalFinal;
+    pagos.forEach(p => {
+      if (p.metodo === 'EFECTIVO') cash += p.monto;
+      if (p.metodo === 'TRANSFERENCIA') transfer += p.monto;
+      if (p.metodo === 'DATAFONO') card += p.monto;
+      if (p.metodo === 'CREDITO') credit += p.monto;
+    });
+
+    if (credit > 0) {
       const { value: date } = await Swal.fire({
         title: 'Venta a Crédito',
         input: 'date',
@@ -572,14 +575,15 @@ export default function POSView({
     // RN-01: Disminuir stock en la bodega activa
     setStock((prev: Record<string, Record<string, number>>) => {
       const newStock = { ...prev };
-      const currentWarehouse = newStock[bodegaActiva];
+      const targetWarehouseKey = newStock[bodegaActivaId] ? bodegaActivaId : bodegaActivaNombre;
+      const currentWarehouse = newStock[targetWarehouseKey];
       
       if (currentWarehouse) {
-        newStock[bodegaActiva] = { ...currentWarehouse };
-        cart.forEach(cartItem => {
-          const sku = cartItem.product.sku;
-          const currentStock = newStock[bodegaActiva][sku] || 0;
-          newStock[bodegaActiva][sku] = Math.max(0, currentStock - Number(cartItem.cantidad));
+        newStock[targetWarehouseKey] = { ...currentWarehouse };
+        cartLineas.forEach(cartItem => {
+          const sku = cartItem.sku;
+          const currentStock = newStock[targetWarehouseKey][sku] || 0;
+          newStock[targetWarehouseKey][sku] = Math.max(0, currentStock - Number(cartItem.cantidad));
         });
       }
       return newStock;
@@ -592,6 +596,9 @@ export default function POSView({
         updateLastClientPrice(cliente.identificacion, item.product.sku, finalUnitPrice);
       });
     }
+
+    let multipleMethods = pagos.length > 1;
+    let paymentString = pagos.map(p => `${p.metodo}`).join(' + ');
 
     const newVenta: Venta = {
       id: vtaId,
@@ -613,7 +620,7 @@ export default function POSView({
       subtotal: subtotal,
       descuento: totalDescuento,
       total: totalFinal,
-      metodoPago: metodo === 'EFECTIVO' || metodo === 'TRANSFERENCIA' ? 'CONTADO' : 'CREDITO',
+      metodoPago: multipleMethods ? 'MIXTO' : (credit > 0 ? 'CREDITO' : 'CONTADO'),
       montoPagadoEfectivo: cash,
       montoPagadoTransferencia: transfer,
       montoPagadoTarjeta: card,
@@ -654,7 +661,7 @@ export default function POSView({
         clienteIdentificacion: cliente.identificacion,
         fecha: new Date().toISOString(),
         fechaVencimiento: creditDate,
-        total: totalFinal,
+        total: credit,
         saldo: credit,
         pagado: 0,
         pagos: []
@@ -673,19 +680,24 @@ export default function POSView({
           turnoActivo.id, turnoActivo.cajaId, 'INGRESO_VENTA', 'TRANSFERENCIA', transfer, `Cobro POS (Venta: ${orderNo})`, vtaId, userRole
         );
       }
+      if (card > 0) {
+        cashService.registrarMovimiento(
+          turnoActivo.id, turnoActivo.cajaId, 'INGRESO_VENTA', 'DATAFONO', card, `Cobro POS (Venta: ${orderNo})`, vtaId, userRole
+        );
+      }
     }
 
     publishEvent(
       'SALE_COMPLETED',
       userRole,
-      `Venta liquidada para ${cliente ? cliente.nombre : 'Consumidor Final'} por $${totalFinal.toLocaleString('es-CO')}. (${metodo})`,
+      `Venta liquidada para ${cliente ? cliente.nombre : 'Consumidor Final'} por $${totalFinal.toLocaleString('es-CO')}. (${paymentString})`,
       { cliente, total: totalFinal, requiereFE, items: cart.map(i => ({ sku: i.product.sku, cantidad: i.cantidad })) }
     );
 
     Swal.fire({
       icon: 'success',
       title: 'Venta Procesada',
-      text: `Total: $${totalFinal.toLocaleString('es-CO')} (${metodo})`,
+      text: `Total: $${totalFinal.toLocaleString('es-CO')} (${paymentString})`,
       confirmButtonColor: 'var(--primary-color)',
       timer: 1500,
       showConfirmButton: false
@@ -1250,7 +1262,7 @@ export default function POSView({
       {activeSubView === 'venta_pos' ? (
         <>
           {!isTurnoAbierto && <BannerCajaCerrada onAbrir={() => setShowAperturaModal(true)} />}
-          <div className="pos-layout animate-fade-in" style={{ padding: 0, border: 'none', boxShadow: 'none', background: 'transparent', margin: 0, width: '100%', display: 'grid', gridTemplateColumns: '7fr 3fr', gap: '20px' }}>
+          <div className="pos-layout min-h-[calc(100vh-130px)] lg:h-[calc(100vh-64px)] lg:overflow-hidden animate-fade-in flex flex-col lg:grid lg:grid-cols-[7fr_3fr] gap-4 lg:gap-5 w-full m-0 p-0 bg-transparent shadow-none border-none">
             {/* Catálogo de Productos */}
         <ProductSearchPanel 
           activeProducts={activeProducts} 
@@ -1262,7 +1274,7 @@ export default function POSView({
         />
 
       {/* Carrito de Compras / Factura — delegado a CartPanel */}
-      <div className="pos-sidebar-cart" style={{ position: 'sticky', top: '24px', height: 'calc(100vh - 120px)', overflowY: 'auto' }}>
+      <div className="pos-sidebar-cart flex-none h-[75vh] lg:sticky lg:top-6 lg:h-[calc(100vh-120px)] flex flex-col bg-white rounded-xl shadow-sm border border-slate-200">
         {ultimoTicket ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px', height: '100%', overflowY: 'auto' }}>
             <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: 0, textAlign: 'center' }}>Venta Realizada con Éxito</h3>
@@ -1300,7 +1312,8 @@ export default function POSView({
             drafts={drafts}
             activeDraftId={activeDraftId}
             stock={stock as any}
-            bodegaActiva={bodegaActiva}
+            bodegaActivaId={bodegaActivaId}
+            bodegaActivaNombre={bodegaActivaNombre}
             lastClientPrices={lastClientPrices}
             onUpdateCantidad={actualizarCantidad}
             onUpdateDescuentoLinea={actualizarDescuentoLinea}
@@ -1324,7 +1337,7 @@ export default function POSView({
       </div>
       </div>
       </>
-      ) : activeSubView === 'consolidacion_b2b' ? (        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px', width: '100%', boxSizing: 'border-box' }} className="animate-fade-in">
+      ) : activeSubView === 'consolidacion_b2b' ? (        <div className="animate-fade-in flex flex-col lg:grid lg:grid-cols-[1fr_2fr] gap-6 w-full box-border">
            {/* COLUMNA IZQUIERDA: LISTADO DE PEDIDOS */}
            <div className="hr-table-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', backgroundColor: 'white', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

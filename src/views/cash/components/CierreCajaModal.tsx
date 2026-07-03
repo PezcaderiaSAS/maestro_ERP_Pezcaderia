@@ -115,13 +115,10 @@ export default function CierreCajaModal({ turnoActivo, usuarioId, onClose, onSuc
 
   return createPortal(
     // OVERLAY — fijo, cubre toda la pantalla, sin cierre al clic externo
-    <div className="fixed inset-0 z-[99999] bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4">
+    <div className="fixed inset-0 z-[99999] bg-slate-900/65 backdrop-blur-sm flex justify-center items-center p-4">
 
       {/* CARD — ancho máximo xl para acomodar calculador + saldos */}
-      <div
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl flex flex-col overflow-hidden max-h-[95vh]"
-        style={{ animation: 'modalFadeIn 0.3s ease-out forwards' }}
-      >
+      <div className="bg-white rounded-3xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.35)] w-full max-w-5xl max-h-[95vh] flex flex-col overflow-hidden animate-[modalFadeIn_0.3s_ease-out_forwards]">
 
         {/* HEADER — fijo, nunca hace scroll */}
         <div className="flex flex-col items-center justify-center px-6 pt-5 pb-4 border-b border-slate-100 bg-slate-50 relative shrink-0">
