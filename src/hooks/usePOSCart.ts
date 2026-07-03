@@ -32,12 +32,12 @@ export function usePOSCart(initialCliente: ClientePOS | null = null) {
 
   const agregarProducto = (producto: Producto, cantidad: number = 1, esPesoManual: boolean = false) => {
     // Resolver precio de venta según el tipo de cliente
-    let precioLista = producto.precioVentaPOS;
+    let precioLista = Number((producto as any).precio_venta_pos ?? producto.precioVentaPOS) || 0;
     if (cliente) {
       if (cliente.tipoPrecio === 'RESTAURANTE') {
-        precioLista = producto.precioVentaRestaurante;
+        precioLista = Number((producto as any).precio_venta_restaurante ?? producto.precioVentaRestaurante) || 0;
       } else if (cliente.tipoPrecio === 'MAYORISTA') {
-        precioLista = producto.precioVentaMayorista;
+        precioLista = Number((producto as any).precio_venta_mayorista ?? producto.precioVentaMayorista) || 0;
       }
     }
 
@@ -117,6 +117,26 @@ export function usePOSCart(initialCliente: ClientePOS | null = null) {
     );
   };
 
+  const updateItemPrice = (productoId: string, newPrice: number) => {
+    if (newPrice < 0) return;
+
+    setLineas((prev) =>
+      prev.map((l) => {
+        if (l.productoId === productoId) {
+          const calc = calcularTotalLinea(newPrice, l.descuentoPct, l.cantidad);
+          return {
+            ...l,
+            precioModificadoOriginal: l.precioModificadoOriginal ?? l.precioLista,
+            precioLista: newPrice,
+            precioFinal: calc.precioFinal,
+            totalLinea: calc.totalLinea,
+          };
+        }
+        return l;
+      })
+    );
+  };
+
   const removerProducto = (productoId: string) => {
     setLineas((prev) => prev.filter((l) => l.productoId !== productoId));
   };
@@ -136,6 +156,7 @@ export function usePOSCart(initialCliente: ClientePOS | null = null) {
     agregarProducto,
     actualizarCantidad,
     actualizarDescuentoLinea,
+    updateItemPrice,
     removerProducto,
     setCliente,
     setDescuentoGlobalPct,

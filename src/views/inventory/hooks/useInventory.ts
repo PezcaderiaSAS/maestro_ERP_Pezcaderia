@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { generateId } from '../../../utils/helpers';
 import Swal from 'sweetalert2';
 
 export function useInventory(props: any) {

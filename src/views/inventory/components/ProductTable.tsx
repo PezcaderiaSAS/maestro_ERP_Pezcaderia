@@ -142,7 +142,7 @@ export function ProductTable({
                         {totalStock} {p.unidadMedida || 'kg'}
                       </span>
                       {isLowStock && p.control_inventario && (
-                        <ShieldAlert size={14} color="#EF4444" title="Stock bajo buffer de seguridad" />
+                        <span title="Stock bajo buffer de seguridad"><ShieldAlert size={14} color="#EF4444" /></span>
                       )}
                     </div>
                   </td>

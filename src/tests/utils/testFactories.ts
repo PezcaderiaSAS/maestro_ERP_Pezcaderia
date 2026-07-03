@@ -47,6 +47,7 @@ export const crearVentaPOS = (overrides: Partial<VentaPOS> = {}): VentaPOS => ({
   requiereFacturaElectronica: false,
   estadoSiigo: 'NO_REQUERIDO',
   idempotencyKey: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'mock-uuid-pos',
+  turnoActivoId: 'turno-test-001',
   ...overrides,
 });
 

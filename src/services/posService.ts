@@ -13,8 +13,11 @@ export function calcularTotalLinea(
   descuentoPct: number,
   cantidad: number
 ): { precioFinal: number; totalLinea: number } {
-  const precioFinal = precioLista * (1 - descuentoPct / 100); // RN-06
-  const totalLinea = cantidad * precioFinal;
+  const precio = Number(precioLista) || 0;
+  const desc = Number(descuentoPct) || 0;
+  const cant = Number(cantidad) || 0;
+  const precioFinal = precio * (1 - desc / 100); // RN-06
+  const totalLinea = cant * precioFinal;
   return {
     precioFinal: Math.round(precioFinal),
     totalLinea: Math.round(totalLinea)

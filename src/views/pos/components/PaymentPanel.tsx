@@ -34,14 +34,14 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
           justifyContent: 'center', 
           gap: '8px', 
           padding: '12px 8px', 
-          backgroundColor: isDisabled ? '#CBD5E1' : 'var(--primary-color)',
-          cursor: isDisabled ? 'not-allowed' : 'pointer'
+          backgroundColor: isDisabled || !isFinite(totalFinal) || totalFinal <= 0 ? '#CBD5E1' : 'var(--primary-color)',
+          cursor: isDisabled || !isFinite(totalFinal) || totalFinal <= 0 ? 'not-allowed' : 'pointer'
         }}
         onClick={onPagar}
-        disabled={isDisabled}
+        disabled={isDisabled || !isFinite(totalFinal) || totalFinal <= 0}
       >
         <CreditCard size={16} />
-        <span>Cobrar: ${totalFinal.toLocaleString('es-CO')}</span>
+        <span>Cobrar: ${(isFinite(totalFinal) && totalFinal >= 0 ? totalFinal : 0).toLocaleString('es-CO')}</span>
       </button>
     </div>
   );

@@ -15,6 +15,18 @@ describe('POS: Cálculo de Descuentos (RN-06)', () => {
     expect(resultado.totalLinea).toBe(29700);    // 19800 * 1.5
   });
 
+  it('debería manejar inputs undefined o nulos como 0 (Regresión NaN T-POS-NAN-01)', () => {
+    const resultado = calcularTotalLinea(undefined as any, 0, 1);
+    expect(resultado.precioFinal).toBe(0);
+    expect(resultado.totalLinea).toBe(0);
+  });
+
+  it('debería manejar inputs nulos como 0 (Regresión NaN T-POS-NAN-02)', () => {
+    const resultado = calcularTotalLinea(null as any, 0, 1);
+    expect(resultado.precioFinal).toBe(0);
+    expect(resultado.totalLinea).toBe(0);
+  });
+
   it('debería bloquear si el descuento global supera el subtotal (RN-06)', () => {
     const lineas = [{ totalLinea: 10000 }];
     const descuentoGlobalValor = 15000;

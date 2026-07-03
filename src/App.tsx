@@ -12,6 +12,10 @@ import OrderKanbanView from './views/OrderKanbanView.tsx';
 import PayrollView from './views/PayrollView.tsx';
 import CRMView from './views/CRMView.tsx';
 import * as localDb from './services/localDb.ts';
+import { authService } from './services/authService.ts';
+import { cajaService } from './services/cajaService.ts';
+import { LoginView } from './views/auth/LoginView.tsx';
+import { CajaTurnoPanel } from './views/pos/components/CajaTurnoPanel.tsx';
 
 /** Genera IDs únicos usando crypto.randomUUID() — resistente a colisiones en operaciones rápidas */
 export const generateId = (prefix: string): string =>
@@ -710,6 +714,17 @@ export default function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Autenticación y Caja (Fase 1-4)
+  const [sesion, setSesion] = useState(authService.getSesionActiva());
+  const [turnoActivo, setTurnoActivo] = useState(sesion ? cajaService.getTurnoActivo(sesion.usuarioId) : null);
+  const [showCierreCaja, setShowCierreCaja] = useState(false);
+
+  useEffect(() => {
+    authService.seedUsuarios();
+    cajaService.seedCajas();
+  }, []);
+
+
   // States F3: Catalog and Pricing
   const [productsCatalog, setProductsCatalog] = useState<ProductCatalog[]>(() => {
     const savedCat = localDb.load('productsCatalog', null as ProductCatalog[] | null);
@@ -1076,6 +1091,60 @@ export default function App() {
     metadata?: any,
     enqueueSync = true
   ) => {
+    // Intercepción FASE 4: Registro de ingreso en Caja (T-4.3)
+    if (tipo === 'SALE_COMPLETED' && turnoActivo) {
+      // Registrar transacciones separadas por cada método de pago si viene en metadata
+      if (metadata && metadata.pagos) {
+        if (metadata.pagos.transferencia > 0) {
+          cajaService.registrarTransaccion({
+            turnoId: turnoActivo.id,
+            cajaId: turnoActivo.cajaId,
+            tipo: 'INGRESO',
+            monto: metadata.pagos.transferencia,
+            metodoPago: 'TRANSFERENCIA',
+            categoria: 'VENTA_POS',
+            referenciaId: metadata.idFactura,
+            descripcion: metadata.hasModifiedPrices ? descripcion + ' [PRECIO MODIFICADO POR ADMIN]' : descripcion
+          });
+        }
+        if (metadata.pagos.tarjeta > 0) {
+          cajaService.registrarTransaccion({
+            turnoId: turnoActivo.id,
+            cajaId: turnoActivo.cajaId,
+            tipo: 'INGRESO',
+            monto: metadata.pagos.tarjeta,
+            metodoPago: 'TARJETA',
+            categoria: 'VENTA_POS',
+            referenciaId: metadata.idFactura,
+            descripcion: metadata.hasModifiedPrices ? descripcion + ' [PRECIO MODIFICADO POR ADMIN]' : descripcion
+          });
+        }
+        if (metadata.pagos.efectivo > 0) {
+          cajaService.registrarTransaccion({
+            turnoId: turnoActivo.id,
+            cajaId: turnoActivo.cajaId,
+            tipo: 'INGRESO',
+            monto: metadata.pagos.efectivo,
+            metodoPago: 'EFECTIVO',
+            categoria: 'VENTA_POS',
+            referenciaId: metadata.idFactura,
+            descripcion: metadata.hasModifiedPrices ? descripcion + ' [PRECIO MODIFICADO POR ADMIN]' : descripcion
+          });
+        }
+      } else if (metadata && metadata.total) {
+        cajaService.registrarTransaccion({
+          turnoId: turnoActivo.id,
+          cajaId: turnoActivo.cajaId,
+          tipo: 'INGRESO',
+          monto: metadata.total,
+          metodoPago: 'EFECTIVO', // fallback si no viene desglose
+          categoria: 'VENTA_POS',
+          referenciaId: metadata.quoteId || metadata.idFactura,
+          descripcion: metadata.hasModifiedPrices ? descripcion + ' [PRECIO MODIFICADO POR ADMIN]' : descripcion
+        });
+      }
+    }
+
     const newEvent: DomainEvent = {
       id: 'evt-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
       timestamp: new Date().toISOString(),
@@ -1469,6 +1538,7 @@ export default function App() {
             publishEvent={publishEvent}
             userRole={userRole}
             setCurrentView={setCurrentView}
+            onRequestCierreTurno={() => setShowCierreCaja(true)}
             stock={stock}
             setStock={setStock}
             lastClientPrices={lastClientPrices}
@@ -1556,12 +1626,6 @@ export default function App() {
             userRole={userRole}
             devoluciones={devoluciones}
             setDevoluciones={setDevoluciones}
-            proveedores={proveedores}
-            ordenesCompra={ordenesCompra}
-            setOrdenesCompra={setOrdenesCompra}
-            gastos={gastos}
-            setGastos={setGastos}
-            ventas={ventas}
           />
         );
       case 'clientes':
@@ -1638,6 +1702,37 @@ export default function App() {
     }
   };
 
+  if (!sesion) {
+    return <LoginView onLoginSuccess={setSesion} />;
+  }
+
+  if (!turnoActivo) {
+    return (
+      <CajaTurnoPanel 
+        mode="apertura" 
+        sesionActiva={sesion} 
+        onTurnoAbierto={setTurnoActivo} 
+      />
+    );
+  }
+
+  if (showCierreCaja) {
+    return (
+      <CajaTurnoPanel 
+        mode="cierre"
+        sesionActiva={sesion}
+        turnoActivo={turnoActivo}
+        onCancel={() => setShowCierreCaja(false)}
+        onTurnoCerrado={(turno) => {
+          setTurnoActivo(null);
+          setShowCierreCaja(false);
+          // Optional: log out user after closing or just require new turn
+          // setSesion(null); authService.logout();
+        }}
+      />
+    );
+  }
+
   return (
     <div className="spa-container">
       {/* Top Navbar */}
@@ -1677,7 +1772,7 @@ export default function App() {
             backgroundColor: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontWeight: 'bold', fontSize: '14px', border: '1px solid rgba(255,255,255,0.4)'
           }}>
-            Yu
+            {sesion?.nombre?.slice(0, 2).toUpperCase() || 'YU'}
           </div>
         </div>
       </header>
@@ -1833,7 +1928,11 @@ export default function App() {
           </nav>
 
           {/* Log out */}
-          <button className="sidebar-btn-exit" onClick={() => alert('Cerrando sesión...')}>
+          <button className="sidebar-btn-exit" onClick={() => {
+            authService.logout();
+            setSesion(null);
+            setTurnoActivo(null);
+          }}>
             <LogOut size={16} />
             <span>Salir</span>
           </button>

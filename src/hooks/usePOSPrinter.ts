@@ -61,7 +61,8 @@ export function usePOSPrinter() {
     ticket += lineDash() + '\n';
 
     // Items
-    venta.items.forEach((item: LineaVenta) => {
+    const items = venta.items || venta.lineas || [];
+    items.forEach((item: LineaVenta) => {
       // Cortar nombre largo
       const truncatedName = item.nombre.substring(0, 25);
       ticket += truncatedName + '\n';
@@ -77,10 +78,12 @@ export function usePOSPrinter() {
 
     // Totales
     ticket += justify('SUBTOTAL:', `$${venta.subtotal.toLocaleString('es-CO')}`) + '\n';
-    if (venta.descuento > 0) {
-      ticket += justify('DESCUENTO:', `-$${venta.descuento.toLocaleString('es-CO')}`) + '\n';
+    const descuento = venta.descuento !== undefined ? venta.descuento : (venta.descuentoGlobalValor || 0);
+    if (descuento > 0) {
+      ticket += justify('DESCUENTO:', `-$${descuento.toLocaleString('es-CO')}`) + '\n';
     }
-    ticket += justify('TOTAL FINAL:', `$${venta.total.toLocaleString('es-CO')}`) + '\n';
+    const total = venta.total !== undefined ? venta.total : (venta.totalFinal || 0);
+    ticket += justify('TOTAL FINAL:', `$${total.toLocaleString('es-CO')}`) + '\n';
     ticket += lineDash() + '\n';
 
     // Detalle Pago

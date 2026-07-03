@@ -24,7 +24,14 @@ export const DB_KEYS = {
   logIntegracion: 'pezcaderia_log_integracion',
   parametros: 'pezcaderia_parametros',
   nominas: 'pezcaderia_nominas',
-  gastos: 'pezcaderia_gastos'
+  gastos: 'pezcaderia_gastos',
+  // Nuevas colecciones para Caja y Turnos (Fase 2)
+  usuarios: 'pezcaderia_usuarios',
+  sesionActiva: 'pezcaderia_sesion_activa',
+  cajas: 'pezcaderia_cajas',
+  turnos: 'pezcaderia_turnos',
+  transacciones_caja: 'pezcaderia_transacciones_caja',
+  audit_logs: 'pezcaderia_audit_logs'
 } as const;
 
 export type DbKey = keyof typeof DB_KEYS;

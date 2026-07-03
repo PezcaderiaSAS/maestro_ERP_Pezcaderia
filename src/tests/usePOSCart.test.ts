@@ -140,4 +140,20 @@ describe('usePOSCart Hook', () => {
     expect(result.current.totales.error).toBe('El descuento no puede superar el total del pedido');
     expect(result.current.totales.totalFinal).toBe(0);
   });
+  it('debería actualizar el precio manualmente y guardar el original', () => {
+    const { result } = renderHook(() => usePOSCart());
+
+    act(() => {
+      result.current.agregarProducto(mockProducto, 2); // 40000
+    });
+    act(() => {
+      result.current.updateItemPrice('p-1', 15000);
+    });
+
+    expect(result.current.lineas[0].precioModificadoOriginal).toBe(20000);
+    expect(result.current.lineas[0].precioLista).toBe(15000);
+    expect(result.current.lineas[0].precioFinal).toBe(15000);
+    expect(result.current.lineas[0].totalLinea).toBe(30000);
+    expect(result.current.totales.totalFinal).toBe(30000);
+  });
 });

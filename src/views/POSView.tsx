@@ -1,7 +1,7 @@
 // src/views/POSView.tsx
 import React, { useState } from 'react';
 import * as localDb from '../services/localDb.ts';
-import { Search, Plus, Minus, X, Check, Barcode, Save, CreditCard, FileText, Truck, RefreshCw, AlertTriangle, AlertCircle } from 'lucide-react';
+import { Search, Plus, Minus, X, Check, Barcode, Save, CreditCard, FileText, Truck, RefreshCw, AlertTriangle, AlertCircle, Square } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { Product, DynamicField, Cliente, generateId, Venta, MovimientoInventario, Conductor, DevolucionPedido, toTitleCase } from '../App.tsx';
 import { InvoiceAR } from './ARView.tsx';
@@ -52,6 +52,7 @@ interface POSViewProps {
   handleCancelarPedidoDigital?: (logId: string) => void;
   handleAprobarPedidoManual?: (logId: string, modo: 'parcial' | 'forzar') => void;
   parametros?: Record<string, any>;
+  onRequestCierreTurno?: () => void;
 }
 
 export default function POSView({
@@ -81,7 +82,8 @@ export default function POSView({
   handleCancelarPedidoDigital = () => {},
   handleAprobarPedidoManual = () => {},
   parametros: _parametros = {},
-  setCurrentView
+  setCurrentView,
+  onRequestCierreTurno
 }: POSViewProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('TODOS');
@@ -117,6 +119,7 @@ export default function POSView({
     agregarProducto,
     actualizarCantidad,
     actualizarDescuentoLinea,
+    updateItemPrice,
     removerProducto,
     setCliente,
     setDescuentoGlobalPct: setDescuentoGlobal,
@@ -140,9 +143,13 @@ export default function POSView({
     return {
       product,
       cantidad: linea.cantidad,
-      precioOverride: linea.precioFinal !== linea.precioLista ? linea.precioFinal : undefined
+      precioOverride: linea.precioFinal !== linea.precioLista ? linea.precioFinal : undefined,
+      precioModificadoOriginal: linea.precioModificadoOriginal
     };
   });
+
+  const [editingPriceProductId, setEditingPriceProductId] = useState<string | null>(null);
+  const [tempPriceInput, setTempPriceInput] = useState<string>('');
 
   const getClienteDeuda = (cId: string) => {
     return cartera
@@ -986,11 +993,13 @@ export default function POSView({
           setCartera(prev => [newAR, ...prev]);
         }
 
+        const hasModifiedPrices = cart.some(i => i.precioModificadoOriginal !== undefined && i.precioModificadoOriginal !== (i.precioOverride !== undefined ? i.precioOverride : getProductPrice(i.product)));
+
         publishEvent(
           'SALE_COMPLETED',
           userRole,
           `Venta liquidada para ${cliente ? cliente.nombre : 'Consumidor Final'} por total de $${totalFinal.toLocaleString('es-CO')}. FE: ${requiereFE ? 'SÍ' : 'NO'}. (Transf: $${transfer.toLocaleString('es-CO')}, Tarjeta: $${card.toLocaleString('es-CO')}, Efectivo: $${cash.toLocaleString('es-CO')}, Crédito: $${credit.toLocaleString('es-CO')})`,
-          { cliente, total: totalFinal, requiereFE, items: cart.map(i => ({ sku: i.product.sku, cantidad: i.cantidad })), transfer, card, cash, credit, change }
+          { cliente, total: totalFinal, requiereFE, items: cart.map(i => ({ sku: i.product.sku, cantidad: i.cantidad })), transfer, card, cash, credit, change, hasModifiedPrices }
         );
 
         let desgloseHtml = `
@@ -1574,9 +1583,27 @@ export default function POSView({
             <span>Gestión Kanban</span>
           </button>
         </div>
-        
-        <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', fontWeight: 500 }}>
-          Rol: <span style={{ color: '#38BDF8', fontWeight: 700, textTransform: 'uppercase' }}>{userRole}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', fontWeight: 500 }}>
+            Rol: <span style={{ color: '#38BDF8', fontWeight: 700, textTransform: 'uppercase' }}>{userRole}</span>
+          </div>
+          {onRequestCierreTurno && (
+            <button
+              onClick={onRequestCierreTurno}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '6px',
+                padding: '8px 16px', borderRadius: '8px',
+                backgroundColor: '#ef4444', color: 'white',
+                border: 'none', fontWeight: 'bold', cursor: 'pointer',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
+            >
+              <Square size={16} fill="currentColor" />
+              Cerrar Turno
+            </button>
+          )}
         </div>
       </div>
 
@@ -1845,12 +1872,65 @@ export default function POSView({
                   <div className="cart-item-left" style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1 }}>
                     <span className="cart-item-name" style={{ fontWeight: 700 }}>{item.product.nombre}</span>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
+                      {item.precioModificadoOriginal !== undefined && item.precioModificadoOriginal !== finalUnitPrice && (
+                        <del style={{ fontSize: '10px', color: '#94A3B8', marginRight: '4px' }}>
+                          ${item.precioModificadoOriginal.toLocaleString('es-CO')}
+                        </del>
+                      )}
                       <span className="cart-item-price" style={{ color: 'var(--primary-color)', fontWeight: 700 }}>
                         ${(finalUnitPrice * Number(item.cantidad)).toLocaleString('es-CO')}
                       </span>
-                      <span style={{ fontSize: '11px', color: '#64748B' }}>
-                        (${finalUnitPrice.toLocaleString('es-CO')} c/u)
-                      </span>
+                      {editingPriceProductId === item.product.id ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <input 
+                            type="number"
+                            value={tempPriceInput}
+                            onChange={(e) => setTempPriceInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                const newPrice = parseFloat(tempPriceInput);
+                                if (!isNaN(newPrice) && newPrice >= 0) {
+                                  updateItemPrice(item.product.id, newPrice);
+                                }
+                                setEditingPriceProductId(null);
+                              } else if (e.key === 'Escape') {
+                                setEditingPriceProductId(null);
+                              }
+                            }}
+                            autoFocus
+                            style={{ width: '80px', padding: '2px 4px', fontSize: '11px', border: '1px solid #3B82F6', borderRadius: '4px' }}
+                          />
+                          <button 
+                            onClick={() => {
+                              const newPrice = parseFloat(tempPriceInput);
+                              if (!isNaN(newPrice) && newPrice >= 0) {
+                                updateItemPrice(item.product.id, newPrice);
+                              }
+                              setEditingPriceProductId(null);
+                            }}
+                            style={{ background: '#10B981', color: 'white', border: 'none', borderRadius: '4px', padding: '2px 6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          >
+                            <Check size={12} />
+                          </button>
+                        </div>
+                      ) : (
+                        <span 
+                          style={{ 
+                            fontSize: '11px', 
+                            color: '#64748B', 
+                            cursor: userRole === 'admin' ? 'pointer' : 'default',
+                            textDecoration: userRole === 'admin' ? 'underline dashed #CBD5E1' : 'none'
+                          }}
+                          onClick={() => {
+                            if (userRole === 'admin') {
+                              setTempPriceInput(finalUnitPrice.toString());
+                              setEditingPriceProductId(item.product.id);
+                            }
+                          }}
+                        >
+                          (${finalUnitPrice.toLocaleString('es-CO')} c/u)
+                        </span>
+                      )}
                       <span style={{
                         fontSize: '10px',
                         padding: '2px 6px',
@@ -1882,7 +1962,7 @@ export default function POSView({
                         ) : (
                           <button
                             onClick={() => {
-                              setCart(prev => prev.map(i => i.product.id === item.product.id ? { ...i, precioOverride: historicalPrice } : i));
+                              setCartLineas(prev => prev.map(l => l.productoId === item.product.id ? { ...l, precioFinal: historicalPrice, totalLinea: l.cantidad * historicalPrice, descuentoPct: Math.round(((l.precioLista - historicalPrice) / l.precioLista) * 100) } : l));
                               Swal.fire({
                                 toast: true,
                                 position: 'top-end',
@@ -1993,6 +2073,7 @@ export default function POSView({
         </>
         )}
       </div>
+    </div>
       ) : activeSubView === 'consolidacion_b2b' ? (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px', width: '100%', boxSizing: 'border-box' }} className="animate-fade-in">
            {/* COLUMNA IZQUIERDA: LISTADO DE PEDIDOS */}

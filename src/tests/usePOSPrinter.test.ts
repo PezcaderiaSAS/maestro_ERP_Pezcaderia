@@ -4,7 +4,7 @@ import { usePOSPrinter } from '../hooks/usePOSPrinter';
 import type { VentaPOS } from '../types/pos.types';
 
 describe('usePOSPrinter Hook', () => {
-  const mockVenta: VentaPOS = {
+  const mockVenta = {
     id: 'vta-1',
     fecha: '2026-06-19T14:00:00.000Z',
     items: [
@@ -28,7 +28,7 @@ describe('usePOSPrinter Hook', () => {
     montoPagadoEfectivo: 50000,
     cambioEntregado: 5000,
     actor: 'Cajero Juan'
-  };
+  } as unknown as VentaPOS;
 
   const mockCliente = {
     nombre: 'Juan Pérez',

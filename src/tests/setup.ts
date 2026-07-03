@@ -50,6 +50,24 @@ if (!globalThis.crypto) {
           arr[i] = Math.floor(Math.random() * 256);
         }
         return arr;
+      },
+      subtle: {
+        digest: async (_alg: string, data: ArrayBuffer) => {
+          // Mock determinístico: mismo input → mismo output (para tests)
+          const bytes = new Uint8Array(data);
+          const sum = Array.from(bytes).reduce((a, b) => a + b, 0);
+          return new TextEncoder().encode(sum.toString(16).padStart(64, '0')).buffer;
+        }
+      }
+    }
+  });
+} else if (!globalThis.crypto.subtle) {
+  Object.defineProperty(globalThis.crypto, 'subtle', {
+    value: {
+      digest: async (_alg: string, data: ArrayBuffer) => {
+        const bytes = new Uint8Array(data);
+        const sum = Array.from(bytes).reduce((a, b) => a + b, 0);
+        return new TextEncoder().encode(sum.toString(16).padStart(64, '0')).buffer;
       }
     }
   });

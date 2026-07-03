@@ -72,7 +72,7 @@ export default function InventoryView({
 }: InventoryViewProps) {
   const [activeBodega, setActiveBodega] = useState('Bodega Principal');
   const [historyTab, setHistoryTab] = useState<'movimientos' | 'compras'>('movimientos');
-  const [viewMode, setViewMode] = useState<'operaciones' | 'catalogo' | 'categorias' | 'cuarto_frio' | 'recepcion_devoluciones'>('operaciones');
+  const [viewMode, setViewMode] = useState<'operaciones' | 'catalogo' | 'categorias' | 'cuarto_frio' | 'recepcion_devoluciones' | 'reportes_compra'>('operaciones');
 
   // State de Catalogo de Productos
   const [searchTerm, setSearchTerm] = useState('');
@@ -593,7 +593,12 @@ export default function InventoryView({
     }).then(result => {
       if (result.isConfirmed) {
         setCategorias(prev => prev.filter(c => c.id !== id));
-        Swal.fire({ icon: 'success', title: 'Eliminada', text: 'La categoría ha sido eliminada.',  // State de Entrada de Compra (Replenishment)
+        Swal.fire({ icon: 'success', title: 'Eliminada', text: 'La categoría ha sido eliminada.' });
+      }
+    });
+  };
+
+  // State de Entrada de Compra (Replenishment)
   const [compra, setCompra] = useState({
     proveedorId: '',
     sku: '',
@@ -1577,7 +1582,7 @@ export default function InventoryView({
         <PurchasesReport 
           ordenesCompra={ordenesCompra}
           proveedores={proveedores}
-          productsCatalog={productsCatalog}
+          productsCatalog={products}
           categorias={categorias}
           userRole={userRole}
         />
