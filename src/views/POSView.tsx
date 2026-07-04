@@ -43,7 +43,7 @@ export default function POSView({
   const { clientes, setClientes, lastClientPrices, updateLastClientPrice } = useClientStore();
   const { cartera, setCartera } = useARStore();
 
-  const { setMovimientos } = useMovementStore();
+  const { addMovimiento } = useMovementStore();
 
   const { devoluciones, setDevoluciones } = useReturnStore();
   const { quotations, setQuotations, setVentas } = useOrderStore();
@@ -660,7 +660,7 @@ export default function POSView({
         tipo: 'VENTA',
         sku: item.product.sku,
         nombreProducto: item.product.nombre,
-        bodegaOrigen: bodegaActiva,
+        bodegaOrigen: bodegaActivaNombre,
         cantidad: Number(item.cantidad),
         lote: 'VENTA',
         referenciaId: vtaId,
@@ -669,7 +669,7 @@ export default function POSView({
         notas: `Venta POS a ${cliente ? cliente.nombre : 'Consumidor Final'}`
       };
     });
-    setMovimientos((prev: MovimientoInventario[]) => [...newMovements, ...prev]);
+    newMovements.forEach(mov => addMovimiento(mov));
 
     if (credit > 0 && cliente) {
       const newAR: InvoiceAR = {
@@ -956,7 +956,7 @@ export default function POSView({
       return {
         id: generateId('mov'),
         timestamp: new Date().toISOString(),
-        tipo: 'SALIDA_VENTA' as any,
+        tipo: 'VENTA',
         sku: item.sku,
         nombreProducto: item.nombre,
         bodegaOrigen: 'Bodega Principal',
@@ -968,7 +968,7 @@ export default function POSView({
         notas: `Despacho B2B Facturado. Cliente: ${client.nombre}`
       };
     });
-    setMovimientos((prev: MovimientoInventario[]) => [...newMovements, ...prev]);
+    newMovements.forEach(mov => addMovimiento(mov));
 
     // Actualizar estado cotización
     if (setQuotations) {

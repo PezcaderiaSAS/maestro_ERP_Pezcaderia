@@ -49,4 +49,5 @@ export interface Pedido {
   rutaId: string | null;
   facturacionElectronica: boolean;
   idSiigo: string | null;
+  inventarioDescontado?: boolean; // True si ya se registró la salida en inventario
 }

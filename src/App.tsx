@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { createLogger } from './lib/consoleLogger';
-import { Menu, LayoutDashboard, ShoppingBag, Box, Users, DollarSign, HelpCircle, Home, ShoppingCart, LogOut, FileText, PlusCircle, Wallet, Database, Truck, RefreshCw, PieChart, PackageCheck } from 'lucide-react';
+import { Menu, LayoutDashboard, ShoppingBag, Box, Users, DollarSign, HelpCircle, Home, ShoppingCart, LogOut, FileText, PlusCircle, Wallet, Database, Truck, RefreshCw, PieChart, PackageCheck, BookOpen } from 'lucide-react';
 import DashboardView from './views/DashboardView.tsx';
 import POSView from './views/POSView.tsx';
 import InventoryView from './views/InventoryView.tsx';
@@ -14,7 +14,9 @@ import PayrollView from './views/PayrollView.tsx';
 import CRMView from './views/CRMView.tsx';
 import CashFlowView from './views/cash/CashFlowView.tsx';
 import { AlistamientoBodegaView } from './views/inventory/AlistamientoBodegaView.tsx';
+import { DispatchView } from './views/inventory/DispatchView.tsx';
 import { DevTestDashboard } from './dev/DevTestDashboard.tsx';
+import AccountingView from './views/AccountingView.tsx';
 import * as localDb from './services/localDb.ts';
 // Stores de Zustand
 import { useInventoryStore } from './store/useInventoryStore.ts';
@@ -317,6 +319,7 @@ export interface ProductCatalog {
   control_inventario?: boolean;
   produccion?: boolean;
   activo: boolean;
+  categoriaABC?: 'A' | 'B' | 'C';
   metadata?: Record<string, string>;
 }
 
@@ -359,6 +362,7 @@ export function migrateProductsToCatalogAndPricing(oldProducts: any[], currentAc
       control_inventario: p.control_inventario ?? true,
       produccion: p.produccion ?? false,
       activo: p.activo ?? true,
+      categoriaABC: p.categoriaABC,
       metadata: p.metadata
     });
     pricings.push({
@@ -792,7 +796,7 @@ export default function App() {
   const { logIntegracion, setLogIntegracion, parametros, loadLogIntegracion, loadParametros } = useIntegrationStore();
   const { stock, setStock, loadStock } = useInventoryStore();
   const { ordenesCompra, setOrdenesCompra, loadOrdenesCompra } = usePurchaseStore();
-  const { movimientos, setMovimientos, loadMovimientos } = useMovementStore();
+  const { movimientos, addMovimiento, loadMovimientos } = useMovementStore();
   const { syncQueue, setSyncQueue, loadEvents, loadSyncQueue } = useEventStore();
 
   useEffect(() => {
@@ -1087,11 +1091,11 @@ export default function App() {
 
       // 3. Validación de Stock Restrictiva (RN-07)
       let stockSuficiente = true;
-      const stockPrincipal = stock['Bodega Principal'] || [];
+      const stockPrincipal = stock['Bodega Principal'] || {};
       const itemsFaltantes: string[] = [];
 
       orderData.items.forEach((item: any) => {
-        const currentStock = stockPrincipal.find((s: any) => s.sku === item.sku)?.stock || 0;
+        const currentStock = stockPrincipal[item.sku] || 0;
         if (currentStock < item.cantidad) {
           stockSuficiente = false;
           itemsFaltantes.push(`${item.nombre} (Solicitado: ${item.cantidad}, Disponible: ${currentStock})`);
@@ -1112,15 +1116,14 @@ export default function App() {
       const vtaId = generateId('vta');
 
       // Restar stock
-      setStock((prev: Record<string, any[]>) => {
+      setStock((prev: Record<string, Record<string, number>>) => {
         const newStock = { ...prev };
         if (newStock['Bodega Principal']) {
-          newStock['Bodega Principal'] = newStock['Bodega Principal'].map((stockItem: any) => {
-            const orderItem = orderData.items.find((i: any) => i.sku === stockItem.sku);
-            if (orderItem) {
-              return { ...stockItem, stock: Math.max(0, stockItem.stock - orderItem.cantidad) };
-            }
-            return stockItem;
+          newStock['Bodega Principal'] = { ...newStock['Bodega Principal'] };
+          orderData.items.forEach((orderItem: any) => {
+             const sku = orderItem.sku;
+             const currentStock = newStock['Bodega Principal'][sku] || 0;
+             newStock['Bodega Principal'][sku] = Math.max(0, currentStock - orderItem.cantidad);
           });
         }
         return newStock;
@@ -1153,12 +1156,11 @@ export default function App() {
 
       // Registrar movimiento de inventario
       const newMovements: MovimientoInventario[] = orderData.items.map((item: any) => {
-        const prodStock = stockPrincipal.find((s: any) => s.sku === item.sku);
-        const lote = prodStock ? prodStock.lote : 'CANAL-DIGITAL';
+        const lote = 'CANAL-DIGITAL';
         return {
           id: generateId('mov'),
           timestamp: new Date().toISOString(),
-          tipo: 'SALIDA_VENTA' as any,
+          tipo: 'VENTA',
           sku: item.sku,
           nombreProducto: item.nombre,
           bodegaOrigen: 'Bodega Principal',
@@ -1170,7 +1172,7 @@ export default function App() {
           notas: `Integración Digital (${pendingOrder.canal}) - Pedido ${pendingOrder.id_pedido_externo}`
         };
       });
-      setMovimientos((prev: MovimientoInventario[]) => [...newMovements, ...prev]);
+      newMovements.forEach((mov: MovimientoInventario) => addMovimiento(mov));
 
       setLogIntegracion((prev: LogIntegracion[]) =>
         prev.map((l: LogIntegracion) => l.id === pendingOrder.id ? { ...l, estado: 'PROCESADO', id_factura_pos: vtaId } : l)
@@ -1234,7 +1236,7 @@ export default function App() {
           notas: `Reversión por Cancelación Pedido ${integLog.id_pedido_externo}`
         };
       });
-      setMovimientos((prev: MovimientoInventario[]) => [...newMovements, ...prev]);
+      newMovements.forEach((mov: MovimientoInventario) => addMovimiento(mov));
 
       // Generar Devolución (Nota de Crédito)
       const newDevolucion: DevolucionPedido = {
@@ -1358,6 +1360,8 @@ export default function App() {
         return <InventoryView />;
       case 'alistamiento':
         return <AlistamientoBodegaView />;
+      case 'despachos':
+        return <DispatchView />;
       case 'precios':
         return <PricingView />;
       case 'rrhh':
@@ -1386,6 +1390,8 @@ export default function App() {
         return <CRMView />;
       case 'caja':
         return <CashFlowView />;
+      case 'contabilidad':
+        return <AccountingView />;
       default:
         return <DashboardView />;
     }
@@ -1401,6 +1407,8 @@ export default function App() {
         return { cat: 'Inventario y Planta', sub: 'Bodegas y Producción' };
       case 'alistamiento':
         return { cat: 'Inventario y Planta', sub: 'Alistamiento de Bodega' };
+      case 'despachos':
+        return { cat: 'Logística', sub: 'Despachos y Rutas' };
       case 'precios':
         return { cat: 'Comercial', sub: 'Precios y Cotizaciones' };
       case 'rrhh':
@@ -1417,6 +1425,8 @@ export default function App() {
         return { cat: 'Comercial', sub: 'CRM (Twenty)' };
       case 'caja':
         return { cat: 'Comercial', sub: 'Gestión de Cajas' };
+      case 'contabilidad':
+        return { cat: 'Administrativo', sub: 'Libro Mayor' };
       default:
         return { cat: 'General', sub: 'ERP' };
     }
@@ -1579,6 +1589,15 @@ export default function App() {
               <span>Alistamiento Bodega</span>
             </div>
 
+            <div
+              className={`sidebar-item ${currentView === 'despachos' ? 'active' : ''}`}
+              onClick={() => { setCurrentView('despachos'); setSidebarOpen(false); }}
+              data-testid="nav-despachos"
+            >
+              <Truck size={16} />
+              <span>Despachos y Rutas</span>
+            </div>
+
             <div className={`sidebar-item`} style={{ opacity: 0.5 }}>
               <Truck size={16} />
               <span>Traslados</span>
@@ -1596,6 +1615,15 @@ export default function App() {
             >
               <Database size={16} />
               <span>Caja</span>
+            </div>
+
+            <div
+              className={`sidebar-item ${currentView === 'contabilidad' ? 'active' : ''}`}
+              onClick={() => { setCurrentView('contabilidad'); setSidebarOpen(false); }}
+              data-testid="nav-contabilidad"
+            >
+              <BookOpen size={16} />
+              <span>Contabilidad</span>
             </div>
 
             <div className={`sidebar-item`} style={{ opacity: 0.5 }}>

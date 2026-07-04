@@ -163,7 +163,7 @@ export class InventoryService {
     try {
       const sku = await this.getSku(productoId);
       if (!sku) return { data: null, error: 'Producto no encontrado' };
-      await this.dataService.create('inventario_movimientos', { tipo: 'SALIDA_VENTA', sku, producto_id: productoId, bodega_origen_id: bodegaId, cantidad, referencia_id: referenciaId, actor: 'sistema' } as any);
+      await this.dataService.create('inventario_movimientos', { tipo: 'VENTA', sku, producto_id: productoId, bodega_origen_id: bodegaId, cantidad, referencia_id: referenciaId, actor: 'sistema' } as any);
       return { data: { cantidadNueva: 0 }, error: null };
     } catch { return { data: null, error: 'Error al registrar la salida' }; }
   }

@@ -28,10 +28,13 @@ Esta es la lista granular y secuencial de tareas basadas en la arquitectura prop
 - [x] 3.4 Actualizar `src/views/inventory/AlistamientoBodegaView.tsx` para permitir seleccionar cantidades parciales a despachar (Fulfill parcial) o generar backorders.
 
 ## Fase 4: Interfaces (UI) e Inventario ABC
-- [ ] 4.1 Crear `src/views/AccountingView.tsx` (UI del Libro Mayor simplificado) usando los componentes atómicos (`Button`, `Input`, `Table`).
-- [ ] 4.2 Actualizar `src/App.tsx` para incluir las nuevas rutas (`AccountingView`, `DispatchView`).
-- [ ] 4.3 Modificar `src/views/InventoryView.tsx` para leer la columna `categoriaABC` existente, aplicar badges de colores (Rojo/Amarillo/Verde) y programar alertas `SweetAlert2` para bajo stock en productos 'A'.
-- [ ] 4.4 Crear `src/views/DispatchView.tsx` (Módulo de Despachos y Rutas) para completar el ecosistema logístico.
+- [x] 4.1 Crear `src/views/AccountingView.tsx` (UI del Libro Mayor simplificado) usando los componentes atómicos (`Button`, `Input`, `Table`).
+- [x] 4.2 Actualizar `src/App.tsx` para incluir las nuevas rutas (`AccountingView`, `DispatchView`).
+- [x] 4.3 Modificar `src/views/InventoryView.tsx` para leer la columna `categoriaABC` existente, aplicar badges de colores (Rojo/Amarillo/Verde) y programar alertas `SweetAlert2` para bajo stock en productos 'A'.
+- [x] 4.4 Crear `src/views/inventory/DispatchView.tsx` (Módulo de Despachos y Rutas) para completar el ecosistema logístico.
+  - [x] Enlazar estado `EN_DESPACHO` con generación automática de movimientos de inventario en `OrderKanbanView`.
+  - [x] Construir la interfaz de despacho para conductores.
+- [ ] 4.5 Actualizar dependencias de layout e integración.
 
 ---
 *Nota: Las tareas se marcarán como `[/]` (en progreso) y `[x]` (completadas) a medida que avancemos.*

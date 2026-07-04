@@ -25,7 +25,7 @@ import { useSupplierStore } from '../store/useSupplierStore.ts';
 export default function InventoryView() {
   const { products, productsCatalog, setProductsCatalog, setProductPricings, setStock } = useInventoryStore();
   const stock = useInventoryStore((s) => s.stock) as any;
-  const { movimientos, setMovimientos } = useMovementStore();
+  const { movimientos, addMovimiento } = useMovementStore();
   const { ordenesCompra, setOrdenesCompra } = usePurchaseStore();
   const { categorias, setCategorias } = useCategoryStore();
   const { quotations, setQuotations } = useOrderStore();
@@ -77,6 +77,30 @@ export default function InventoryView() {
       return acc + getStockInBodega(sku, bodegaName);
     }, 0);
   };
+
+  // --- ALERTAS INVENTARIO ABC ---
+  useEffect(() => {
+    if (products.length === 0 || Object.keys(stock).length === 0) return;
+    
+    if (sessionStorage.getItem('alertedLowStockA')) return;
+
+    const lowStockAItems = products.filter((p: any) => {
+      if (p.categoriaABC !== 'A' || !p.activo || p.control_inventario === false) return false;
+      const totalStock = getTotalStock(p.sku);
+      return totalStock <= (p.buffer_seguridad || 5);
+    });
+
+    if (lowStockAItems.length > 0) {
+      sessionStorage.setItem('alertedLowStockA', 'true');
+      const itemNames = lowStockAItems.map((p: any) => `<b>${p.nombre}</b> (Stock: ${getTotalStock(p.sku)} ${p.unidadMedida || 'kg'})`).join('<br/>');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Stock Crítico - Categoría A',
+        html: `<div style="text-align: left; font-size: 14px;">Los siguientes productos de Categoría A (Prioridad Alta) están por debajo de su buffer de seguridad:<br/><br/>${itemNames}</div>`,
+        confirmButtonColor: 'var(--primary-color)'
+      });
+    }
+  }, [products, stock]);
 
   // Derive unique categories for selectors
   const uniqueTipos = Array.from(new Set(categorias.map((c: any) => c.tipo))).filter(Boolean);
@@ -718,7 +742,7 @@ export default function InventoryView() {
       actor: userRole,
       notas: `Entrada por compra recibida de ${selectedProveedor.nombre}`
     };
-    setMovimientos((prev: any) => [newMov, ...prev]);
+    addMovimiento(newMov);
 
     // Publicar evento
     publishEvent(
@@ -856,7 +880,8 @@ export default function InventoryView() {
       notas: `Traslado desde ${traslado.origen}`
     };
 
-    setMovimientos((prev: any) => [movSalida, movEntrada, ...prev]);
+    addMovimiento(movSalida);
+    addMovimiento(movEntrada);
 
     Swal.fire({
       icon: 'success',
@@ -975,7 +1000,8 @@ export default function InventoryView() {
       notas: `Ingreso de producto terminado procesado. Merma: ${mermaPct}%`
     };
 
-    setMovimientos((prev: any) => [movConsumo, movSalida, ...prev]);
+    addMovimiento(movConsumo);
+    addMovimiento(movSalida);
 
     Swal.fire({
       icon: 'success',
@@ -1173,7 +1199,7 @@ export default function InventoryView() {
     }
 
     if (newMovements.length > 0) {
-      setMovimientos((prev: any) => [...newMovements, ...prev]);
+      newMovements.forEach((mov: any) => addMovimiento(mov));
     }
 
     const updatedDevoluciones = devoluciones.map(d => {

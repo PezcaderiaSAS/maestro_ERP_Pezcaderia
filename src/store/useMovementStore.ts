@@ -25,7 +25,6 @@ export interface MovimientoInventario {
 interface MovementState {
   movimientos: MovimientoInventario[];
   loadMovimientos: () => void;
-  setMovimientos: (movimientosOrUpdater: any) => void;
   addMovimiento: (mov: MovimientoInventario) => void;
 }
 
@@ -42,10 +41,7 @@ export const useMovementStore = create<MovementState>()(
     }
   },
 
-  setMovimientos: (movimientosOrUpdater: any) => set((state) => {
-    const newMovimientos = typeof movimientosOrUpdater === 'function' ? movimientosOrUpdater(state.movimientos) : movimientosOrUpdater;
-    return { movimientos: newMovimientos };
-  }),
+
 
   addMovimiento: (mov) => {
     dataService.create('inventario_movimientos', mov);

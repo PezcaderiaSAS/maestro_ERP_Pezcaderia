@@ -6,6 +6,8 @@ import { EstadoPedido } from '../types/orders.types';
 import { useOrderStore } from '../store/useOrderStore.ts';
 import { useEventStore } from '../store/useEventStore.ts';
 import { useAppStore } from '../store/useAppStore.ts';
+import { useInventoryStore } from '../store/useInventoryStore.ts';
+import { useMovementStore } from '../store/useMovementStore.ts';
 
 interface OrderKanbanViewProps {
   onEditOrder: (quote: any) => void;
@@ -14,9 +16,11 @@ interface OrderKanbanViewProps {
 type ColumnId = 'pausados' | 'creados' | 'listos' | 'en_despacho' | 'entregados' | 'facturados' | 'pagados';
 
 export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
-  const { ventas, setVentas } = useOrderStore();
+  const { ventas, setVentas, updateVenta } = useOrderStore();
   const publishEvent = useEventStore((s) => s.publishEvent);
   const userRole = useAppStore((s) => s.userRole);
+  const { products, stock, setStock } = useInventoryStore();
+  const { addMovimiento } = useMovementStore();
 
   const columns: { id: ColumnId; title: string; states: string[]; color: string; icon: React.ReactNode }[] = [
     { id: 'pausados', title: 'Pausados', states: ['PAUSADO', 'PAUSADO_POR_CREDITO'], color: '#FEE2E2', icon: <AlertCircle size={20} color="#EF4444" /> },
@@ -76,6 +80,97 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
 
     const currentQuote = ventas.find(q => q.id === quoteId);
     if (!currentQuote || currentQuote.estado === nuevoEstado) return;
+
+    // Lógica para DESPACHO (Inventario)
+    if (nuevoEstado === 'EN_DESPACHO') {
+      if (currentQuote.inventarioDescontado) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Stock ya descontado',
+          text: 'Este pedido ya generó una salida de inventario previamente.',
+          confirmButtonColor: 'var(--primary-color)'
+        });
+        return;
+      }
+
+      Swal.fire({
+        title: 'Despachar y Descontar Stock',
+        html: `
+          <div style="text-align: left; font-size: 14px;">
+            <p>Se descontará el stock de bodega y el pedido pasará a EN_DESPACHO.</p>
+            <label style="display: block; font-weight: 600; margin-top: 10px;">Seleccionar Conductor:</label>
+            <select id="dispatch-driver" class="swal2-select" style="margin-top: 5px; width: 100%; font-size: 14px;">
+              <option value="Conductor Interno 1">Conductor Interno 1</option>
+              <option value="Conductor Interno 2">Conductor Interno 2</option>
+              <option value="Servicio Tercerizado">Servicio Tercerizado</option>
+            </select>
+          </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Confirmar y Descontar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#3B82F6',
+        preConfirm: () => {
+          const select = document.getElementById('dispatch-driver') as HTMLSelectElement;
+          return select.value;
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const conductor = result.value || 'Conductor Predeterminado';
+          try {
+            const newStock = { ...stock };
+            const bodegaId = currentQuote.bodegaId || 'Bodega Principal';
+            
+            if (!newStock[bodegaId]) newStock[bodegaId] = {};
+
+            currentQuote.lineas.forEach((linea: any) => {
+              const producto = products.find((p: any) => p.id === linea.productoId);
+              if (!producto) return;
+
+              const sku = producto.sku;
+              const cantidadADescontar = linea.pesoReal || linea.cantidadAlistada || linea.cantidadSolicitada;
+
+              if (newStock[bodegaId][sku] === undefined) newStock[bodegaId][sku] = 0;
+              newStock[bodegaId][sku] -= cantidadADescontar;
+
+              addMovimiento({
+                id: crypto.randomUUID(),
+                timestamp: new Date().toISOString(),
+                tipo: 'VENTA',
+                sku: sku,
+                nombreProducto: producto.nombre,
+                bodegaOrigen: bodegaId,
+                cantidad: cantidadADescontar,
+                lote: linea.loteSeleccionado || 'DESPACHO',
+                referenciaId: currentQuote.id,
+                referenciaTipo: 'DESPACHO_B2B',
+                actor: userRole,
+                notas: \`Despacho de Pedido \${currentQuote.numeroPedido} (Conductor: \${conductor})\`
+              });
+            });
+
+            setStock(newStock);
+
+            const pedidoActualizado = {
+              ...currentQuote,
+              estado: 'EN_DESPACHO',
+              inventarioDescontado: true,
+              fechaActualizacionKanban: new Date().toISOString(),
+              observaciones: \`\${currentQuote.observaciones || ''}\\nDespachado con: \${conductor}\`
+            };
+
+            updateVenta(currentQuote.id, pedidoActualizado);
+            
+            publishEvent('QUOTE_STATUS_CHANGED', userRole, \`Pedido despachado con \${conductor}\`, { quoteId, nuevoEstado });
+            
+            Swal.fire({ icon: 'success', title: 'Despacho Exitoso', text: 'El pedido está en ruta y el stock ha sido descontado.', confirmButtonColor: '#10B981' });
+          } catch (e: any) {
+            Swal.fire({ icon: 'error', title: 'Error interno', text: e.message, confirmButtonColor: 'var(--primary-color)' });
+          }
+        }
+      });
+      return;
+    }
 
     // Lógica especial para cuando el pedido se mueve a 'PAGADO' (RN-58 y RN-57)
     if (nuevoEstado === 'PAGADO') {

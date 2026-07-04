@@ -39,3 +39,14 @@ Implementamos un registro inteligente de tarifas por cliente (`lastClientPrices`
 
 * **Solución de Colapso de Tarjetas**: Se corrigió el problema de colapso de las tarjetas del catálogo (donde las imágenes se reducían a 0px y las filas se apretaban) forzando `flex-shrink: 0` en el contenedor de imagen y estableciendo `grid-auto-rows: max-content` en la rejilla del POS.
 * **Adaptabilidad de Categorías**: En pantallas móviles y tablets, las pestañas de categorías superiores ahora se envuelven (`flex-wrap: wrap`) y distribuyen proporcionalmente para evitar truncamientos de texto.
+
+---
+
+## 5. Módulo de Despachos B2B y Sincronización de Inventario
+
+* **Nueva Vista de Despacho (`DispatchView.tsx`)**: Se implementó una interfaz dedicada para el equipo de logística. Muestra los pedidos en estado `LISTO`, permitiendo asignar un conductor (interno o externo) y despachar.
+* **Deducción de Inventario en Tiempo Real**: Al despachar (tanto desde el Kanban moviendo la tarjeta a `EN_DESPACHO` como desde `DispatchView`), el sistema:
+  * Calcula la cantidad final a despachar considerando peso real o cantidades alistadas/solicitadas.
+  * Realiza una salida de la **Bodega Principal**.
+  * Genera un movimiento de inventario inmutable (`VENTA`) referenciado con el ID del pedido y las notas del conductor.
+* **Integridad (Prevención de doble descuento)**: Se incorporó la bandera `inventarioDescontado` en la estructura de `Pedido`. Esto blinda el proceso evitando que mover un pedido repetidas veces genere múltiples reducciones erróneas en el inventario.

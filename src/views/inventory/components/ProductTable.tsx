@@ -64,7 +64,7 @@ export function ProductTable({
             setProductForm({ 
               sku: '', nombre: '', categoria: '', unidadMedida: 'kg', precio_compra: 0, buffer_seguridad: 5, 
               codigo_barras: '', iva: 0, ivaIncluido: true, control_inventario: true, produccion: false, 
-              tipoCategoria: '', lineaCategoria: '', claseCategoria: '', imagen: '' 
+              tipoCategoria: '', lineaCategoria: '', claseCategoria: '', imagen: '', categoriaABC: undefined
             });
             setCustomTipo('');
             setCustomLinea('');
@@ -116,6 +116,7 @@ export function ProductTable({
               <th>Imagen</th>
               <th>SKU</th>
               <th>Nombre y Categoría</th>
+              <th>Clasificación ABC</th>
               <th>Stock Total</th>
               <th>Precio Venta (POS)</th>
               <th>Estado</th>
@@ -147,6 +148,26 @@ export function ProductTable({
                         {catData ? `${catData.tipo} > ${catData.linea} > ${catData.clase}` : p.categoria}
                       </span>
                     </div>
+                  </td>
+                  <td>
+                    {(() => {
+                      const abc = p.categoriaABC;
+                      let bg = '#F1F5F9';
+                      let color = '#475569';
+                      let label = 'N/A';
+                      if (abc === 'A') { bg = '#FEE2E2'; color = '#DC2626'; label = 'A'; }
+                      else if (abc === 'B') { bg = '#FEF9C3'; color = '#CA8A04'; label = 'B'; }
+                      else if (abc === 'C') { bg = '#DCFCE7'; color = '#16A34A'; label = 'C'; }
+                      
+                      return (
+                        <span style={{ 
+                          backgroundColor: bg, color, padding: '4px 8px', borderRadius: '4px', 
+                          fontWeight: 700, fontSize: '12px', display: 'inline-block', textAlign: 'center', minWidth: '24px'
+                        }}>
+                          {label}
+                        </span>
+                      );
+                    })()}
                   </td>
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -184,7 +205,8 @@ export function ProductTable({
                             tipoCategoria: catData?.tipo || '',
                             lineaCategoria: catData?.linea || '',
                             claseCategoria: catData?.clase || '',
-                            imagen: p.imagen || ''
+                            imagen: p.imagen || '',
+                            categoriaABC: p.categoriaABC
                           });
                           setIsCreating(false);
                         }}
