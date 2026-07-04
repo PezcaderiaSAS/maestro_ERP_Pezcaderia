@@ -1,6 +1,7 @@
 import React from 'react';
 import { RefreshCw } from 'lucide-react';
 import { useBalanza } from '../../../hooks/useBalanza';
+import { Button } from '../../../components/ui/Button';
 import Swal from 'sweetalert2';
 
 interface BalanzaButtonProps {
@@ -63,30 +64,25 @@ export const BalanzaButton: React.FC<BalanzaButtonProps> = ({
   };
 
   return (
-    <button
-      type="button"
-      className="btn-secondary"
+    <Button
+      variant="secondary"
       onClick={handleRead}
       disabled={reading}
+      className={reading ? 'bg-slate-100 cursor-not-allowed text-slate-500' : 'text-slate-600 hover:bg-slate-50'}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
         gap: '6px',
         fontSize: '11px',
         padding: '4px 8px',
-        borderRadius: '6px',
+        height: '36px',
         border: '1px solid #CBD5E1',
-        backgroundColor: reading ? '#F1F5F9' : '#FFFFFF',
-        cursor: reading ? 'not-allowed' : 'pointer',
-        fontWeight: 600,
-        color: '#475569',
         boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-        transition: 'all 0.2s ease',
       }}
       title="Obtener peso desde balanza USB/Serial"
     >
       <RefreshCw size={12} className={reading ? 'animate-spin' : ''} />
       <span>{reading ? 'Pesando...' : 'Balanza'}</span>
-    </button>
+    </Button>
   );
 };

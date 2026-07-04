@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Barcode } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { Input } from '../../../components/ui/Input';
+import { Button } from '../../../components/ui/Button';
 
 interface ProductSearchPanelProps {
   activeProducts: any[];
@@ -22,7 +24,7 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('TODOS');
   const [barcodeInput, setBarcodeInput] = useState('');
-  const [hideOutOfStock, setHideOutOfStock] = useState(false);
+  const [hideOutOfStock, setHideOutOfStock] = useState(true);
   const [showTopSellers, setShowTopSellers] = useState(false);
 
   const searchRef = useRef<HTMLInputElement>(null);
@@ -104,40 +106,40 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
     <div className="pos-catalog flex-1 lg:flex-none h-full lg:h-full flex flex-col overflow-hidden">
       <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
         {/* Búsqueda por Texto */}
-        <div className="pos-search-bar" style={{ flex: 1, marginBottom: 0 }}>
-          <Search size={18} color="#64748B" />
-          <input
+        <div style={{ flex: 1 }}>
+          <Input
             ref={searchRef}
             type="text"
             id="search-input-f2"
-            className="pos-search-input"
             placeholder="Buscar por nombre o SKU..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            leftIcon={<Search size={18} />}
+            fullWidth
           />
         </div>
 
         {/* Búsqueda por Código de Barras */}
         <form onSubmit={handleBarcodeSubmit} style={{ display: 'flex', gap: '8px' }}>
-          <div className="pos-search-bar" style={{ width: '220px', marginBottom: 0 }}>
-            <Barcode size={18} color="#64748B" />
-            <input
+          <div style={{ width: '220px' }}>
+            <Input
               type="text"
-              className="pos-search-input"
               placeholder="Código de Barras..."
               value={barcodeInput}
               onChange={(e) => setBarcodeInput(e.target.value)}
+              leftIcon={<Barcode size={18} />}
+              fullWidth
             />
           </div>
-          <button
+          <Button
             type="button"
-            className="btn-secondary"
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
+            variant="secondary"
             onClick={simulateBarcodeScan}
+            leftIcon={<Barcode size={16} />}
+            className="whitespace-nowrap"
           >
-            <Barcode size={16} />
             Simular Scan
-          </button>
+          </Button>
         </form>
       </div>
 
@@ -156,8 +158,8 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
       {/* Barra de Controles: Filtros de Stock y Más Vendidos */}
       <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', alignItems: 'center' }}>
         <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', color: '#475569', fontWeight: 600 }}>
-          <input type="checkbox" checked={hideOutOfStock} onChange={e => setHideOutOfStock(e.target.checked)} style={{ cursor: 'pointer' }} />
-          Ocultar agotados
+          <input type="checkbox" checked={!hideOutOfStock} onChange={e => setHideOutOfStock(!e.target.checked)} style={{ cursor: 'pointer' }} />
+          Ver agotados
         </label>
         <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', color: '#475569', fontWeight: 600 }}>
           <input type="checkbox" checked={showTopSellers} onChange={e => setShowTopSellers(e.target.checked)} style={{ cursor: 'pointer' }} />
@@ -173,7 +175,7 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
           const totalStock = stockPrincipal + stockSecundaria;
           const isOutOfStock = totalStock <= 0;
           return (
-            <div key={prod.id} className={`product-card ${isOutOfStock ? 'opacity-50 grayscale pointer-events-none' : ''}`} onClick={() => onAddProduct(prod)}>
+            <div key={prod.id} className={`product-card border border-gray-300 shadow-sm hover:shadow-md transition-all ${isOutOfStock ? 'opacity-50 grayscale pointer-events-none' : ''}`} onClick={() => onAddProduct(prod)}>
               <div className="product-image-container" style={{ position: 'relative' }}>
                 {/* Semáforo de Stock usando buffer_seguridad dinámico */}
                 <div data-testid={stockPrincipal === 0 ? 'stock-badge-red' : stockPrincipal <= (prod.buffer_seguridad || 4) ? 'stock-badge-yellow' : 'stock-badge-green'} style={{ position: 'absolute', top: '8px', right: '8px', width: '12px', height: '12px', borderRadius: '50%', backgroundColor: stockPrincipal === 0 ? '#EF4444' : stockPrincipal <= (prod.buffer_seguridad || 4) ? '#F59E0B' : '#10B981', border: '2px solid white', zIndex: 10 }} />

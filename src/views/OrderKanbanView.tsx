@@ -14,7 +14,7 @@ interface OrderKanbanViewProps {
 type ColumnId = 'pausados' | 'creados' | 'listos' | 'en_despacho' | 'entregados' | 'facturados' | 'pagados';
 
 export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
-  const { quotations, setQuotations } = useOrderStore();
+  const { ventas, setVentas } = useOrderStore();
   const publishEvent = useEventStore((s) => s.publishEvent);
   const userRole = useAppStore((s) => s.userRole);
 
@@ -36,7 +36,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
     e.preventDefault(); // Necesario para permitir el drop
   };
 
-  const handleDrop = (e: React.DragEvent, targetColumnId: ColumnId) => {
+  const handleDrop = async (e: React.DragEvent, targetColumnId: ColumnId) => {
     e.preventDefault();
     const quoteId = e.dataTransfer.getData('quoteId');
     if (!quoteId) return;
@@ -74,7 +74,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
       }
     }
 
-    const currentQuote = quotations.find(q => q.id === quoteId);
+    const currentQuote = ventas.find(q => q.id === quoteId);
     if (!currentQuote || currentQuote.estado === nuevoEstado) return;
 
     // Lógica especial para cuando el pedido se mueve a 'PAGADO' (RN-58 y RN-57)
@@ -91,7 +91,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
         return;
       }
 
-      const totalPedido = currentQuote.totalFinal || currentQuote.total || 0;
+      const totalPedido = currentQuote.totalFinal || currentQuote.subtotal || 0;
 
       Swal.fire({
         title: 'Registrar Pago B2B',
@@ -156,12 +156,13 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
 
           return { cash, card, transfer, turnoId, change: totalIngresado - totalPedido };
         }
-      }).then((result) => {
+      }).then(async (result) => {
         if (result.isConfirmed && result.value) {
           const { cash, card, transfer, turnoId, change } = result.value;
           
           try {
-            const resultado = b2bService.cambiarEstadoPedido(quoteId, nuevoEstado);
+            // Nota: Aquí se usará useOrderStore o b2bService dependiendo del modelo unificado
+            const resultado = b2bService.cambiarEstadoPedido(quoteId, nuevoEstado); // Podría requerir updateVenta
             if (resultado.error) {
               Swal.fire({ icon: 'error', title: 'Error de transición', text: resultado.error, confirmButtonColor: 'var(--primary-color)' });
               return;
@@ -169,7 +170,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
 
             const turnoDestino = cashService.getTurnos().find(t => t.id === turnoId);
             if (turnoDestino) {
-              const orderNoStr = currentQuote.numeroPedido || currentQuote.no || currentQuote.id;
+              const orderNoStr = currentQuote.numeroPedido || currentQuote.id;
               const refId = currentQuote.id;
               
               const efectivoReal = Math.max(0, cash - change);
@@ -184,7 +185,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
               }
             }
 
-            setQuotations((prev: any[]) => prev.map((q: any) => q.id === quoteId ? { ...q, estado: nuevoEstado, fechaActualizacionKanban: new Date().toISOString() } : q));
+            setVentas((prev: any[]) => prev.map((q: any) => q.id === quoteId ? { ...q, estado: nuevoEstado, fechaActualizacionKanban: new Date().toISOString() } : q));
             publishEvent('QUOTE_STATUS_CHANGED', userRole, `Pedido pagado y registrado en Caja`, { quoteId, nuevoEstado });
             
             Swal.fire({ icon: 'success', title: 'Pago Registrado', text: 'El pedido ha sido marcado como pagado y el ingreso se registró en la caja.', confirmButtonColor: 'var(--primary-color)' });
@@ -198,15 +199,15 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
       return; // Detenemos la ejecución síncrona aquí porque dependemos de la promesa del Swal
     }
 
-    // Aquí usamos b2bService en lugar de setQuotations crudo para validar reglas (para otros estados)
     try {
+      // También podríamos querer unificar con Supabase update acá, por ahora update local state
       const resultado = b2bService.cambiarEstadoPedido(quoteId, nuevoEstado);
       if (resultado.error) {
         Swal.fire({ icon: 'error', title: 'Error de transición', text: resultado.error, confirmButtonColor: 'var(--primary-color)' });
         return;
       }
 
-      setQuotations((prev: any[]) => prev.map((q: any) => q.id === quoteId ? { ...q, estado: nuevoEstado, fechaActualizacionKanban: new Date().toISOString() } : q));
+      setVentas((prev: any[]) => prev.map((q: any) => q.id === quoteId ? { ...q, estado: nuevoEstado, fechaActualizacionKanban: new Date().toISOString() } : q));
       
       publishEvent('QUOTE_STATUS_CHANGED', userRole, `Pedido actualizado a estado ${nuevoEstado}`, { quoteId, nuevoEstado });
     } catch (e: any) {
@@ -231,11 +232,11 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
           cutoffTime.setHours(6, 0, 0, 0);
           if (now.getHours() < 6) cutoffTime.setDate(cutoffTime.getDate() - 1);
 
-          const columnQuotes = quotations.filter(q => {
+          const columnQuotes = ventas.filter(q => {
             if (!column.states.includes(q.estado)) return false;
             
             if (['PAGADO', 'ANULADO'].includes(q.estado)) {
-              const updateTimeStr = q.fechaActualizacionKanban || q.fecha;
+              const updateTimeStr = (q as any).fechaActualizacionKanban || q.fecha;
               if (!updateTimeStr) return false;
               const updateTime = new Date(updateTimeStr);
               if (isNaN(updateTime.getTime())) return true; 
@@ -304,8 +305,8 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div>
-                          <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary-color)' }}>{quote.numeroPedido || quote.no}</div>
-                          <div style={{ fontSize: '14px', fontWeight: 700, color: '#1E293B', marginTop: '2px' }}>{quote.clientName || 'Cliente No Identificado'}</div>
+                          <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary-color)' }}>{quote.numeroPedido || (quote as any).no}</div>
+                          <div style={{ fontSize: '14px', fontWeight: 700, color: '#1E293B', marginTop: '2px' }}>{(quote as any).clientName || quote.clienteId || 'Cliente No Identificado'}</div>
                         </div>
                         {quote.estado === 'PAUSADO' && (
                           <span style={{ backgroundColor: '#FEE2E2', color: '#EF4444', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -321,7 +322,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
 
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#64748B' }}>
                         <FileText size={14} />
-                        <span>{quote.lineas?.length || quote.items?.length || 0} ítems</span>
+                        <span>{quote.lineas?.length || 0} ítems</span>
                       </div>
 
                       {quote.tipoEntrega === 'EN_RUTA' && (
@@ -336,7 +337,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                       <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: '8px', marginTop: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ fontSize: '11px', color: '#94A3B8' }}>{quote.fecha}</div>
                         <div style={{ fontWeight: 800, color: '#1E293B', fontSize: '14px' }}>
-                          ${(quote.totalFinal || quote.total || 0).toLocaleString('es-CO')}
+                          ${(quote.totalFinal || quote.subtotal || 0).toLocaleString('es-CO')}
                         </div>
                       </div>
                     </div>

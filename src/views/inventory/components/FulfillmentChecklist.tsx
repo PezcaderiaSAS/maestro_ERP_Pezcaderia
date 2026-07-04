@@ -3,6 +3,7 @@ import { Pedido, LineaPedido } from '../../../types/orders.types';
 import { useInventoryStore } from '../../../store/useInventoryStore';
 import { CheckCircle2, Circle, Scale, AlertTriangle, PackageCheck } from 'lucide-react';
 import { WeighingModal } from './WeighingModal';
+import { QuantityModal } from './QuantityModal';
 import { useOrderStore } from '../../../store/useOrderStore';
 import Swal from 'sweetalert2';
 
@@ -23,6 +24,7 @@ export const FulfillmentChecklist: React.FC<FulfillmentChecklistProps> = ({
   // Local state to track fulfillment progress before saving
   const [lineasAlistadas, setLineasAlistadas] = useState<LineaPedido[]>(pedido.lineas);
   const [weighingModalOpen, setWeighingModalOpen] = useState(false);
+  const [quantityModalOpen, setQuantityModalOpen] = useState(false);
   const [selectedLineIndex, setSelectedLineIndex] = useState<number | null>(null);
 
   const handleToggleCheck = (index: number) => {
@@ -36,15 +38,9 @@ export const FulfillmentChecklist: React.FC<FulfillmentChecklistProps> = ({
       setSelectedLineIndex(index);
       setWeighingModalOpen(true);
     } else {
-      // Es por unidad, marcar como alistado completo si no lo estaba
-      const newLineas = [...lineasAlistadas];
-      const isCompleted = newLineas[index].cantidadAlistada === newLineas[index].cantidadSolicitada;
-      
-      newLineas[index] = {
-        ...newLineas[index],
-        cantidadAlistada: isCompleted ? 0 : newLineas[index].cantidadSolicitada
-      };
-      setLineasAlistadas(newLineas);
+      // Abrir modal de cantidad para permitir despacho parcial
+      setSelectedLineIndex(index);
+      setQuantityModalOpen(true);
     }
   };
 
@@ -60,12 +56,37 @@ export const FulfillmentChecklist: React.FC<FulfillmentChecklistProps> = ({
         pesoReal: pesoReal,
         loteSeleccionado: loteSeleccionado,
         // El precio y total se recalcularán a nivel de servidor o en el checkout final, pero podemos estimarlo:
-        totalLinea: pesoReal * linea.precioPactado
+        totalLinea: pesoReal * linea.precioPactado,
+        estadoLinea: 'COMPLETO'
       };
       
       setLineasAlistadas(newLineas);
     }
     setWeighingModalOpen(false);
+    setSelectedLineIndex(null);
+  };
+
+  const handleConfirmQuantity = (cantidadReal: number, loteSeleccionado?: string) => {
+    if (selectedLineIndex !== null) {
+      const newLineas = [...lineasAlistadas];
+      const linea = newLineas[selectedLineIndex];
+      
+      let estadoLinea: 'PENDIENTE' | 'PARCIAL' | 'COMPLETO' = 'PENDIENTE';
+      if (cantidadReal > 0) {
+        estadoLinea = cantidadReal < linea.cantidadSolicitada ? 'PARCIAL' : 'COMPLETO';
+      }
+
+      newLineas[selectedLineIndex] = {
+        ...linea,
+        cantidadAlistada: cantidadReal,
+        loteSeleccionado: loteSeleccionado,
+        totalLinea: cantidadReal * linea.precioPactado,
+        estadoLinea
+      };
+      
+      setLineasAlistadas(newLineas);
+    }
+    setQuantityModalOpen(false);
     setSelectedLineIndex(null);
   };
 
@@ -148,6 +169,7 @@ export const FulfillmentChecklist: React.FC<FulfillmentChecklistProps> = ({
           const isByWeight = producto.unidadMedida === 'KG';
           const isCompleted = linea.cantidadAlistada > 0;
           const isPriorityA = producto.categoriaABC === 'A';
+          const isPartial = isCompleted && linea.cantidadAlistada < linea.cantidadSolicitada;
 
           return (
             <div 
@@ -155,14 +177,18 @@ export const FulfillmentChecklist: React.FC<FulfillmentChecklistProps> = ({
               onClick={() => handleToggleCheck(index)}
               className={`relative p-4 rounded-xl border transition-all cursor-pointer group flex items-center gap-4
                 ${isCompleted 
-                  ? 'bg-emerald-900/20 border-emerald-500/30' 
+                  ? (isPartial ? 'bg-amber-900/20 border-amber-500/30' : 'bg-emerald-900/20 border-emerald-500/30') 
                   : isPriorityA 
                     ? 'bg-amber-900/10 border-amber-500/30 hover:border-amber-400'
                     : 'bg-slate-900 border-slate-700 hover:border-blue-500/50'}`}
             >
               <div className="flex-shrink-0">
                 {isCompleted ? (
-                  <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+                  isPartial ? (
+                    <CheckCircle2 className="w-8 h-8 text-amber-500" />
+                  ) : (
+                    <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+                  )
                 ) : (
                   <Circle className={`w-8 h-8 ${isPriorityA ? 'text-amber-500/50' : 'text-slate-600'} group-hover:text-blue-400 transition-colors`} />
                 )}
@@ -170,13 +196,18 @@ export const FulfillmentChecklist: React.FC<FulfillmentChecklistProps> = ({
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <h3 className={`font-semibold truncate ${isCompleted ? 'text-emerald-100' : 'text-white'}`}>
+                  <h3 className={`font-semibold truncate ${isCompleted ? (isPartial ? 'text-amber-100' : 'text-emerald-100') : 'text-white'}`}>
                     {producto.nombre}
                   </h3>
                   {isPriorityA && !isCompleted && (
                     <span className="px-2 py-0.5 rounded text-xs font-bold bg-amber-500/20 text-amber-400 flex items-center gap-1">
                       <AlertTriangle className="w-3 h-3" />
                       Prioridad A
+                    </span>
+                  )}
+                  {isPartial && (
+                    <span className="px-2 py-0.5 rounded text-xs font-bold bg-amber-500/20 text-amber-400 flex items-center gap-1">
+                      PARCIAL
                     </span>
                   )}
                 </div>
@@ -189,7 +220,7 @@ export const FulfillmentChecklist: React.FC<FulfillmentChecklistProps> = ({
               </div>
 
               <div className="flex-shrink-0 text-right">
-                {isByWeight && (
+                {isByWeight ? (
                   <div className="flex flex-col items-end">
                     <span className="text-xs text-slate-400 mb-1 flex items-center gap-1">
                       <Scale className="w-3 h-3" />
@@ -201,11 +232,14 @@ export const FulfillmentChecklist: React.FC<FulfillmentChecklistProps> = ({
                       </span>
                     )}
                   </div>
-                )}
-                {!isByWeight && isCompleted && (
-                  <span className="text-lg font-bold text-emerald-400">
-                    Lista
-                  </span>
+                ) : (
+                  <div className="flex flex-col items-end">
+                    {isCompleted && (
+                      <span className={`text-lg font-bold ${isPartial ? 'text-amber-400' : 'text-emerald-400'}`}>
+                        {linea.cantidadAlistada} / {linea.cantidadSolicitada}
+                      </span>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
@@ -232,16 +266,28 @@ export const FulfillmentChecklist: React.FC<FulfillmentChecklistProps> = ({
       </div>
 
       {selectedLineIndex !== null && (
-        <WeighingModal
-          isOpen={weighingModalOpen}
-          onClose={() => {
-            setWeighingModalOpen(false);
-            setSelectedLineIndex(null);
-          }}
-          linea={lineasAlistadas[selectedLineIndex]}
-          producto={getProductoById(lineasAlistadas[selectedLineIndex].productoId)!}
-          onConfirm={handleConfirmWeight}
-        />
+        <>
+          <WeighingModal
+            isOpen={weighingModalOpen}
+            onClose={() => {
+              setWeighingModalOpen(false);
+              setSelectedLineIndex(null);
+            }}
+            linea={lineasAlistadas[selectedLineIndex]}
+            producto={getProductoById(lineasAlistadas[selectedLineIndex].productoId)!}
+            onConfirm={handleConfirmWeight}
+          />
+          <QuantityModal
+            isOpen={quantityModalOpen}
+            onClose={() => {
+              setQuantityModalOpen(false);
+              setSelectedLineIndex(null);
+            }}
+            linea={lineasAlistadas[selectedLineIndex]}
+            producto={getProductoById(lineasAlistadas[selectedLineIndex].productoId)!}
+            onConfirm={handleConfirmQuantity}
+          />
+        </>
       )}
     </div>
   );

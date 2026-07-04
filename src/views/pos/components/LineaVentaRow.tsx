@@ -2,8 +2,9 @@ import React from 'react';
 import { Minus, Plus, X } from 'lucide-react';
 import type { LineaVenta } from '../../../types/pos.types';
 import { BalanzaButton } from './BalanzaButton';
+import { Button } from '../../../components/ui/Button';
+import { Input } from '../../../components/ui/Input';
 import Swal from 'sweetalert2';
-
 interface LineaVentaRowProps {
   linea: LineaVenta;
   stockDisponible: number;
@@ -169,41 +170,39 @@ export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
                 ✓ Tarifa histórica aplicada
               </span>
             ) : (
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={handleAplicarHistorico}
                 style={{
                   fontSize: '10px',
                   padding: '2px 6px',
-                  borderRadius: '4px',
-                  border: '1px solid #F59E0B',
+                  borderColor: '#F59E0B',
                   backgroundColor: '#FEF3C7',
                   color: '#D97706',
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '2px',
                 }}
               >
                 💡 Último precio: ${lastClientPrice.toLocaleString('es-CO')} (Aplicar)
-              </button>
+              </Button>
             )}
 
             {tieneDescuentoLinea && (
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => onResetPrecio(linea.productoId)}
                 style={{
                   fontSize: '10px',
                   padding: '2px 4px',
-                  background: 'none',
-                  border: 'none',
                   color: '#EF4444',
                   textDecoration: 'underline',
-                  cursor: 'pointer',
                 }}
               >
                 Restablecer
-              </button>
+              </Button>
             )}
           </div>
         )}
@@ -227,45 +226,49 @@ export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
         />
 
         {/* Botón decrementar */}
-        <button
+        <Button
+          variant="secondary"
           className="qty-btn"
           onClick={() => handleQtyDelta(-1)}
-          style={{ width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          style={{ width: '36px', height: '36px', padding: 0 }}
         >
           <Minus size={14} />
-        </button>
+        </Button>
 
         {/* Input cantidad */}
-        <input
-          type="number"
-          value={linea.cantidad}
-          onChange={handleInputChange}
-          onBlur={handleInputBlur}
-          style={{
-            width: '60px',
-            textAlign: 'center',
-            border: '1px solid #CBD5E1',
-            borderRadius: '6px',
-            fontSize: '15px',
-            fontWeight: 'bold',
-            height: '36px',
-            padding: '0 4px',
-          }}
-          step="any"
-          min="0"
-        />
+        <div style={{ width: '60px' }}>
+          <Input
+            type="number"
+            value={linea.cantidad}
+            onChange={handleInputChange}
+            onBlur={handleInputBlur}
+            style={{
+              textAlign: 'center',
+              border: '1px solid #CBD5E1',
+              borderRadius: '6px',
+              fontSize: '15px',
+              fontWeight: 'bold',
+              height: '36px',
+              padding: '0 4px',
+            }}
+            step="any"
+            min="0"
+          />
+        </div>
 
         {/* Botón incrementar */}
-        <button
+        <Button
+          variant="secondary"
           className="qty-btn"
           onClick={() => handleQtyDelta(1)}
-          style={{ width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          style={{ width: '36px', height: '36px', padding: 0 }}
         >
           <Plus size={14} />
-        </button>
+        </Button>
 
         {/* Botón eliminar */}
-        <button
+        <Button
+          variant="danger"
           className="delete-cart-item-btn"
           onClick={() => onRemove(linea.productoId)}
           style={{
@@ -273,16 +276,12 @@ export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
             height: '36px',
             backgroundColor: '#FEE2E2',
             color: '#EF4444',
-            border: 'none',
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
+            padding: 0,
+            boxShadow: 'none',
           }}
         >
           <X size={14} />
-        </button>
+        </Button>
       </div>
     </div>
   );

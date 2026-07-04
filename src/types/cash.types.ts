@@ -38,6 +38,7 @@ export interface DetalleArqueo {
 export interface TurnoCaja extends Auditable {
   id: string;
   cajaId: string;
+  branch_id: string; // ID de la sucursal para filtrado RLS y Realtime
   cajeroId: string;
   fechaApertura: string;
   fechaCierre: string | null;
@@ -67,6 +68,7 @@ export interface MovimientoCaja extends Auditable {
   id: string;
   turnoId: string;
   cajaId: string;
+  branch_id: string; // ID de la sucursal para filtrado RLS
   tipo: TipoMovimientoCaja;
   metodoPago: MetodoPago;
   monto: number;

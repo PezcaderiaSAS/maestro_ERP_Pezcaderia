@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Save, CreditCard, Banknote, Landmark, Unlock, Lock, Calculator, AlertCircle, Phone } from 'lucide-react';
 import { NumericFormat } from 'react-number-format';
+import { Button } from '../../../components/ui/Button';
 import Swal from 'sweetalert2';
 import { usePOSPrinter } from '../../../hooks/usePOSPrinter';
 import type { LineaVenta } from '../../../types/pos.types';
@@ -54,6 +55,11 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
   };
 
   const handleCobrarClick = async () => {
+    if (!isTurnoAbierto) {
+      if (onAbrirTurnoRequest) onAbrirTurnoRequest();
+      return;
+    }
+
     // RN-06: Validar totalFinal mayor a 0
     if (totalFinal <= 0) {
       Swal.fire({
@@ -156,35 +162,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
     }
   };
 
-  if (!isTurnoAbierto) {
-    return (
-      <div className="relative flex flex-col gap-4 mt-4 p-6 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl items-center justify-center text-center shadow-xl overflow-hidden group">
-        {/* Decorative background glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-blue-500/20 blur-3xl rounded-full opacity-50 group-hover:opacity-75 transition-opacity duration-500 pointer-events-none" />
-        
-        <div className="relative z-10 flex items-center justify-center w-16 h-16 bg-white/10 rounded-2xl backdrop-blur-md border border-white/20 shadow-inner mb-1">
-          <Lock size={32} className="text-blue-400 drop-shadow-md" />
-        </div>
-        
-        <div className="relative z-10 mb-2">
-          <h4 className="font-extrabold text-white text-xl tracking-tight mb-1">Caja Cerrada</h4>
-          <p className="text-sm text-slate-300 font-medium max-w-[220px] mx-auto leading-tight">
-            El flujo de ventas está pausado. Abra un turno para reanudar.
-          </p>
-        </div>
 
-        <button 
-          type="button"
-          onClick={onAbrirTurnoRequest}
-          data-testid="btn-abrir-turno"
-          className="relative z-10 w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold py-3.5 px-4 rounded-xl shadow-[0_4px_14px_0_rgba(59,130,246,0.39)] hover:shadow-[0_6px_20px_rgba(59,130,246,0.23)] transition-all duration-300 active:scale-[0.98] border border-blue-400/30"
-        >
-          <Unlock size={20} />
-          Abrir Turno de Caja
-        </button>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col gap-3 mt-4">
@@ -318,22 +296,36 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
 
       {/* Botones de Acción Principales */}
       <div className="flex gap-2">
-        <button 
-          className="flex-1 flex items-center justify-center gap-2 bg-slate-100 text-slate-600 font-bold rounded-xl border border-slate-300 min-h-[3.5rem] active:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        <Button
+          variant="outline"
           onClick={onGuardarBorrador}
           disabled={isDisabled}
+          leftIcon={<Save size={20} />}
+          className="flex-1 min-h-[3.5rem] bg-slate-100"
         >
-          <Save size={20} />
-          <span>Borrador</span>
-        </button>
-        <button 
-          className="flex-[2] flex items-center justify-center gap-2 bg-blue-600 text-white font-bold rounded-xl min-h-[3.5rem] active:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-md text-lg"
-          onClick={handleCobrarClick}
-          disabled={isDisabled}
-          data-testid="btn-cobrar"
-        >
-          <span>Cobrar: ${totalFinal.toLocaleString('es-CO')}</span>
-        </button>
+          Borrador
+        </Button>
+        
+        {!isTurnoAbierto ? (
+          <Button
+            variant="primary"
+            onClick={handleCobrarClick}
+            className="flex-[2] min-h-[3.5rem] text-lg border-0"
+            style={{ backgroundColor: '#F59E0B', color: 'white' }}
+          >
+            Abrir Caja
+          </Button>
+        ) : (
+          <Button
+            variant="primary"
+            onClick={handleCobrarClick}
+            disabled={isDisabled}
+            className="flex-[2] min-h-[3.5rem] text-lg"
+            data-testid="btn-cobrar"
+          >
+            Cobrar: ${totalFinal.toLocaleString('es-CO')}
+          </Button>
+        )}
       </div>
     </div>
   );

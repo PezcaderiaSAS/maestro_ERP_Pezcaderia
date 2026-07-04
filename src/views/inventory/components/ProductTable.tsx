@@ -1,5 +1,7 @@
 import { Package, Search, PlusCircle, Edit3, ShieldAlert } from 'lucide-react';
 
+import { useState } from 'react';
+
 export function ProductTable({
   products,
   stock,
@@ -15,6 +17,8 @@ export function ProductTable({
   setCustomClase,
   productsCatalog
 }: any) {
+  const [sortBy, setSortBy] = useState<'nombre' | 'pareto'>('nombre');
+
   const getTotalStock = (sku: string) => {
     let total = 0;
     Object.values(stock).forEach((bodegaList: any) => {
@@ -28,6 +32,22 @@ export function ProductTable({
     const matchesSearch = p.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || p.sku.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'TODOS' ? true : statusFilter === 'ACTIVOS' ? p.activo : !p.activo;
     return matchesSearch && matchesStatus;
+  }).sort((a: any, b: any) => {
+    if (sortBy === 'pareto') {
+      const aStock = getTotalStock(a.sku);
+      const bStock = getTotalStock(b.sku);
+      const aIsWeighable = a.unidadMedida === 'kg' || a.unidadMedida === 'gr' ? 1 : 0;
+      const bIsWeighable = b.unidadMedida === 'kg' || b.unidadMedida === 'gr' ? 1 : 0;
+      
+      if (aIsWeighable !== bIsWeighable) {
+          return bIsWeighable - aIsWeighable;
+      }
+      
+      const aValue = aStock * (a.precio_compra || 0);
+      const bValue = bStock * (b.precio_compra || 0);
+      return bValue - aValue;
+    }
+    return a.nombre.localeCompare(b.nombre);
   });
 
   return (
@@ -69,6 +89,15 @@ export function ProductTable({
               style={{ width: '100%', border: 'none', outline: 'none', background: 'transparent' }}
             />
           </div>
+          <select 
+            className="form-control" 
+            style={{ width: '200px' }}
+            value={sortBy}
+            onChange={e => setSortBy(e.target.value as any)}
+          >
+            <option value="nombre">Ordenar por Nombre</option>
+            <option value="pareto">Análisis ABC (Pesables)</option>
+          </select>
           <select 
             className="form-control" 
             style={{ width: '200px' }}

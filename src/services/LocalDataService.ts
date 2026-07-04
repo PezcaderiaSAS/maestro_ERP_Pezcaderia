@@ -40,7 +40,8 @@ export class LocalDataService implements IDataService {
   async getAll<T>(table: string): Promise<T[]> {
     const key = tableToKey(table);
     try {
-      return localDb.load<T[]>(key, []);
+      const data = localDb.load<any>(key, []);
+      return (Array.isArray(data) ? data : [data]) as T[];
     } catch {
       return [];
     }
@@ -53,7 +54,8 @@ export class LocalDataService implements IDataService {
 
   async create<T>(table: string, data: Partial<T>): Promise<T> {
     const key = tableToKey(table);
-    const all = localDb.load<any[]>(key, []);
+    let all = localDb.load<any>(key, []);
+    if (!Array.isArray(all)) all = Object.keys(all).length ? [{ id: 'singleton', ...all }] : [];
     all.push(data);
     localDb.save(key, all);
     return data as T;
@@ -61,7 +63,8 @@ export class LocalDataService implements IDataService {
 
   async update<T>(table: string, id: string, data: Partial<T>): Promise<T> {
     const key = tableToKey(table);
-    const all = localDb.load<any[]>(key, []);
+    let all = localDb.load<any>(key, []);
+    if (!Array.isArray(all)) all = Object.keys(all).length ? [{ id: 'singleton', ...all }] : [];
     const idx = all.findIndex((item: any) => item.id === id);
     if (idx === -1) throw new Error(`Registro no encontrado: ${table}#${id}`);
     all[idx] = { ...all[idx], ...data };

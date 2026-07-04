@@ -16,6 +16,8 @@ export interface Bodega {
 
 interface WarehouseState {
   bodegas: Bodega[];
+  activaId?: string;
+  setActivaId: (id: string) => void;
   loadBodegas: () => void;
   addBodega: (bodega: Bodega) => void;
   updateBodega: (id: string, data: Partial<Bodega>) => void;
@@ -32,6 +34,14 @@ const DEFAULT_BODEGAS: Bodega[] = [
 export const useWarehouseStore = create<WarehouseState>()(
   zustandConsoleMiddleware((set, get) => ({
   bodegas: [],
+  activaId: undefined,
+
+  setActivaId: (id: string) => {
+    set({ activaId: id });
+    import('../services/cashService').then(({ cashService }) => {
+      cashService.seedCajasParaBodegas(id);
+    });
+  },
 
   loadBodegas: async () => {
     try {

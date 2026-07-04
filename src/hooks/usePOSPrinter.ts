@@ -17,7 +17,7 @@ export function usePOSPrinter() {
   /**
    * Da formato a una cadena de texto a un ancho fijo de 40 columnas para impresoras térmicas
    */
-  const formatearTextoTicket = (venta: any, cliente: ClientePrinter | null): string => {
+  const formatearTextoTicket = (venta: any, cliente: ClientePrinter | null, omitirDescuentos: boolean = false): string => {
     const width = 40;
     const center = (text: string) => {
       const pad = Math.max(0, Math.floor((width - text.length) / 2));
@@ -82,9 +82,11 @@ export function usePOSPrinter() {
     ticket += separator() + '\n';
 
     // Totales
-    ticket += justify('SUBTOTAL:', `$${venta.subtotal.toLocaleString('es-CO')}`) + '\n';
-    if (venta.descuento > 0) {
-      ticket += justify('DESCUENTO:', `-$${venta.descuento.toLocaleString('es-CO')}`) + '\n';
+    if (!omitirDescuentos) {
+      ticket += justify('SUBTOTAL:', `$${venta.subtotal.toLocaleString('es-CO')}`) + '\n';
+      if (venta.descuento > 0) {
+        ticket += justify('DESCUENTO:', `-$${venta.descuento.toLocaleString('es-CO')}`) + '\n';
+      }
     }
     ticket += justify('TOTAL FINAL:', `$${venta.total.toLocaleString('es-CO')}`) + '\n';
     ticket += lineDash() + '\n';
@@ -112,12 +114,12 @@ export function usePOSPrinter() {
   /**
    * Simula o realiza la impresión del ticket en consola o mediante el driver del navegador
    */
-  const imprimirTicket = async (venta: any, cliente: ClientePrinter | null): Promise<boolean> => {
+  const imprimirTicket = async (venta: any, cliente: ClientePrinter | null, omitirDescuentos: boolean = false): Promise<boolean> => {
     log.info('imprimirTicket', { ventaId: venta.id, total: venta.total });
     setPrinting(true);
     setError(null);
 
-    const ticketText = formatearTextoTicket(venta, cliente);
+    const ticketText = formatearTextoTicket(venta, cliente, omitirDescuentos);
 
     try {
       // Simulación de delay de hardware

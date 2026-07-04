@@ -1468,6 +1468,12 @@ export default function App() {
 
       {/* Main Body */}
       <div className="spa-body">
+        {/* Overlay for mobile sidebar */}
+        <div 
+          className={`mobile-overlay ${sidebarOpen ? 'open' : ''}`} 
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+
         {/* Sidebar Navigation */}
         <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
           {/* User Profile Card */}

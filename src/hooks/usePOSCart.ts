@@ -79,6 +79,7 @@ export function usePOSCart(initialCliente: ClientePOS | null = null) {
         descuentoPct: 0,
         precioFinal: calc.precioFinal,
         totalLinea: calc.totalLinea,
+        precioCompra: producto.precioCompra || 0,
         esPesoManual,
       };
       return [...prev, nuevaLinea];

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Check, X, Plus } from 'lucide-react';
+import { Button } from '../../../components/ui/Button';
 import type { LineaVenta } from '../../../types/pos.types';
 import type { ClientePOS } from '../../../hooks/usePOSCart';
 import { LineaVentaRow } from './LineaVentaRow';
@@ -101,6 +102,27 @@ export const CartPanel: React.FC<CartPanelProps> = ({
   };
 
   const handleAplicarPrecioHistorico = (productoId: string, precio: number) => {
+    const linea = lineas.find((l) => l.productoId === productoId);
+    if (!linea) return;
+
+    // Regla de Obsequios
+    if (precio === 0) {
+      if (totales.subtotal < 20000) {
+        Swal.fire({ title: 'Obsequio Denegado', text: 'El subtotal del carrito debe ser mayor a $20,000.', icon: 'error', confirmButtonColor: 'var(--primary-color)' });
+        return;
+      }
+      const countGifts = lineas.filter(l => l.productoId !== productoId && l.precioFinal === 0).length;
+      if (countGifts >= 1) {
+        Swal.fire({ title: 'Obsequio Denegado', text: 'Solo se permite 1 obsequio por transacción.', icon: 'error', confirmButtonColor: 'var(--primary-color)' });
+        return;
+      }
+    } 
+    // Guardia de Rentabilidad
+    else if (precio < linea.precioCompra) {
+      Swal.fire({ title: 'Rentabilidad Comprometida', text: `El precio histórico ($${precio}) es menor al costo de compra actual ($${linea.precioCompra}).`, icon: 'error', confirmButtonColor: 'var(--primary-color)' });
+      return;
+    }
+
     onSetLineas(
       lineas.map((l) =>
         l.productoId === productoId
@@ -115,8 +137,35 @@ export const CartPanel: React.FC<CartPanelProps> = ({
     );
   };
 
+  const handleUpdateDescuentoLineaWrapper = (productoId: string, pct: number) => {
+    const linea = lineas.find((l) => l.productoId === productoId);
+    if (!linea) return;
+
+    const precioFinalCalculado = linea.precioLista * (1 - pct / 100);
+
+    // Regla de Obsequios
+    if (pct === 100 || precioFinalCalculado === 0) {
+      if (totales.subtotal < 20000) {
+        Swal.fire({ title: 'Obsequio Denegado', text: 'El subtotal del carrito debe ser mayor a $20,000.', icon: 'error', confirmButtonColor: 'var(--primary-color)' });
+        return;
+      }
+      const countGifts = lineas.filter(l => l.productoId !== productoId && l.precioFinal === 0).length;
+      if (countGifts >= 1) {
+        Swal.fire({ title: 'Obsequio Denegado', text: 'Solo se permite 1 obsequio por transacción.', icon: 'error', confirmButtonColor: 'var(--primary-color)' });
+        return;
+      }
+    } 
+    // Guardia de Rentabilidad
+    else if (precioFinalCalculado < linea.precioCompra) {
+      Swal.fire({ title: 'Rentabilidad Comprometida', text: `El precio final ($${precioFinalCalculado}) no puede ser menor al costo de compra ($${linea.precioCompra}).`, icon: 'error', confirmButtonColor: 'var(--primary-color)' });
+      return;
+    }
+
+    onUpdateDescuentoLinea(productoId, pct);
+  };
+
   const handleResetPrecio = (productoId: string) => {
-    onUpdateDescuentoLinea(productoId, 0);
+    handleUpdateDescuentoLineaWrapper(productoId, 0);
   };
 
   const handleOpenBorradores = () => {
@@ -178,6 +227,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
                     : 0,
                   precioFinal: precio,
                   totalLinea: Number(item.cantidad) * precio,
+                  precioCompra: prod.precioCompra || 0,
                   esPesoManual: false,
                 } satisfies LineaVenta;
               });
@@ -217,87 +267,77 @@ export const CartPanel: React.FC<CartPanelProps> = ({
       >
         {/* Selector de cliente */}
         {cliente ? (
-          <div className="add-client-btn" onClick={onSelectCliente} style={{ cursor: 'pointer' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Check size={16} />
-              <span style={{ fontSize: '12px' }}>
-                {cliente.nombre.slice(0, 18)} ({cliente.identificacion})
-              </span>
-            </div>
-            <X
-              size={14}
-              onClick={(e) => {
-                e.stopPropagation();
-                onClearCliente();
-              }}
-            />
-          </div>
+          <Button
+            variant="outline"
+            onClick={onSelectCliente}
+            leftIcon={<Check size={16} />}
+            rightIcon={
+              <X
+                size={14}
+                className="hover:text-red-500 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClearCliente();
+                }}
+              />
+            }
+          >
+            <span style={{ fontSize: '12px' }}>
+              {cliente.nombre.slice(0, 18)} ({cliente.identificacion})
+            </span>
+          </Button>
         ) : (
-          <button className="add-client-btn" onClick={onSelectCliente}>
-            <span>Agregar Cliente</span>
-            <Plus size={16} />
-          </button>
+          <Button 
+            variant="outline" 
+            onClick={onSelectCliente} 
+            rightIcon={<Plus size={16} />}
+          >
+            Agregar Cliente
+          </Button>
         )}
 
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           {/* Botón Cerrar Turno (solo si está abierto) */}
           {isTurnoAbierto && onCerrarTurnoClick && (
-            <button
+            <Button
+              variant="danger"
               onClick={onCerrarTurnoClick}
-              style={{
-                background: '#FEF2F2',
-                color: '#EF4444',
-                border: '1px solid #FCA5A5',
-                borderRadius: '6px',
-                padding: '6px 10px',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
+              className="text-xs py-1.5 px-3"
             >
               Cerrar Turno
-            </button>
+            </Button>
           )}
 
           {/* Botón Borradores */}
-        <button
-          onClick={handleOpenBorradores}
-          style={{
-            position: 'relative',
-            background: 'none',
-            border: '1px solid #CBD5E1',
-            borderRadius: '6px',
-            padding: '6px 10px',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            color: '#475569',
-            backgroundColor: '#F8FAFC',
-          }}
-        >
-          Borradores
-          {drafts.length > 0 && (
-            <span
-              style={{
-                position: 'absolute',
-                top: '-6px',
-                right: '-6px',
-                background: '#EF4444',
-                color: 'white',
-                borderRadius: '50%',
-                width: '16px',
-                height: '16px',
-                fontSize: '10px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+          <div className="relative">
+            <Button
+              variant="outline"
+              onClick={handleOpenBorradores}
+              className="text-xs py-1.5 px-3 bg-slate-50"
             >
-              {drafts.length}
-            </span>
-          )}
-        </button>
+              Borradores
+            </Button>
+            {drafts.length > 0 && (
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '-6px',
+                  right: '-6px',
+                  background: '#EF4444',
+                  color: 'white',
+                  borderRadius: '50%',
+                  width: '16px',
+                  height: '16px',
+                  fontSize: '10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {drafts.length}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -337,7 +377,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
                 precioFinalDisplay={linea.precioFinal}
                 lastClientPrice={lastClientPrice}
                 onUpdateCantidad={onUpdateCantidad}
-                onUpdateDescuentoLinea={onUpdateDescuentoLinea}
+                onUpdateDescuentoLinea={handleUpdateDescuentoLineaWrapper}
                 onRemove={onRemoveLinea}
                 onWeightRead={onWeightRead}
                 onAplicarPrecioHistorico={handleAplicarPrecioHistorico}
@@ -363,11 +403,6 @@ export const CartPanel: React.FC<CartPanelProps> = ({
           gap: '8px',
         }}
       >
-        {!isTurnoAbierto && (
-          <div style={{ textAlign: 'center', backgroundColor: '#FEF2F2', color: '#EF4444', fontSize: '12px', fontWeight: 'bold', padding: '6px', borderRadius: '6px' }}>
-            ⚠️ Abre un turno para habilitar los pagos
-          </div>
-        )}
 
         {/* Total prominente táctil */}
         {lineas.length > 0 && (
@@ -419,7 +454,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
           onPagar={onPagar}
           onGuardarBorrador={onGuardarBorrador}
           onLimpiarCarrito={onLimpiarCarrito}
-          isDisabled={!isTurnoAbierto || lineas.length === 0}
+          isDisabled={lineas.length === 0}
           isTurnoAbierto={isTurnoAbierto}
           onAbrirTurnoRequest={onAbrirTurnoRequest}
         />

@@ -3,6 +3,8 @@ import type { IDataService } from '../types/services.types';
 import { LocalDataService } from '../services/LocalDataService';
 import { Pedido } from '../types/orders.types';
 import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
+import { getSupabaseClient } from '../lib/supabase';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 
 let dataService: IDataService = new LocalDataService();
 export const setOrderDataService = (ds: IDataService) => { dataService = ds; };
@@ -21,6 +23,7 @@ interface Cotizacion {
 interface OrderState {
   ventas: Pedido[];
   quotations: Cotizacion[];
+  subscription: RealtimeChannel | null;
   loadOrders: () => void;
   addVenta: (venta: Pedido) => void;
   updateVenta: (id: string, data: Partial<Pedido>) => void;
@@ -28,12 +31,15 @@ interface OrderState {
   updateQuotation: (id: string, data: Partial<Cotizacion>) => void;
   setVentas: (ventasOrUpdater: any) => void;
   setQuotations: (quotationsOrUpdater: any) => void;
+  subscribeToOrders: (branchId: string) => void;
+  unsubscribeFromOrders: () => void;
 }
 
 export const useOrderStore = create<OrderState>()(
-  zustandConsoleMiddleware((set) => ({
+  zustandConsoleMiddleware((set, get) => ({
   ventas: [],
   quotations: [],
+  subscription: null,
 
   loadOrders: async () => {
     try {
@@ -80,4 +86,42 @@ export const useOrderStore = create<OrderState>()(
     const newQuotations = typeof quotationsOrUpdater === 'function' ? quotationsOrUpdater(state.quotations) : quotationsOrUpdater;
     return { quotations: newQuotations };
   }),
+
+  subscribeToOrders: (branchId: string) => {
+    const { subscription } = get();
+    if (subscription) return;
+
+    const supabase = getSupabaseClient();
+    const channel = supabase
+      .channel('orders-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'orders', filter: `branch_id=eq.${branchId}` },
+        (payload) => {
+          const { eventType, new: newRecord, old: oldRecord } = payload;
+          if (eventType === 'INSERT') {
+            set((state) => ({ ventas: [...state.ventas, newRecord as any] }));
+          } else if (eventType === 'UPDATE') {
+            set((state) => ({
+              ventas: state.ventas.map(v => v.id === newRecord.id ? { ...v, ...newRecord } : v)
+            }));
+          } else if (eventType === 'DELETE') {
+            set((state) => ({
+              ventas: state.ventas.filter(v => v.id !== oldRecord.id)
+            }));
+          }
+        }
+      )
+      .subscribe();
+
+    set({ subscription: channel });
+  },
+
+  unsubscribeFromOrders: () => {
+    const { subscription } = get();
+    if (subscription) {
+      subscription.unsubscribe();
+      set({ subscription: null });
+    }
+  }
   })));

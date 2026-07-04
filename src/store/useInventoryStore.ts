@@ -76,30 +76,43 @@ export const useInventoryStore = create<InventoryState>()(
   },
 
   loadStock: () => {
-    const saved = localDb.load<any>('stock', {});
-    let needsSave = false;
-    const migrated: Record<string, Record<string, number>> = {};
+    dataService.getAll<any>('stock').then(raw => {
+      const saved = (Array.isArray(raw) && raw.length ? raw[0] : raw) || {};
+      let needsSave = false;
+      const migrated: any = { id: 'singleton' };
 
-    for (const bodega in saved) {
-      if (Array.isArray(saved[bodega])) {
-        needsSave = true;
-        migrated[bodega] = {};
-        saved[bodega].forEach((item: any) => {
-          if (item && item.sku && typeof item.stock === 'number') {
-            migrated[bodega][item.sku] = item.stock;
-          }
-        });
-      } else {
-        migrated[bodega] = saved[bodega] || {};
+      for (const bodega in saved) {
+        if (bodega === 'id') continue;
+        if (Array.isArray(saved[bodega])) {
+          needsSave = true;
+          migrated[bodega] = {};
+          saved[bodega].forEach((item: any) => {
+            if (item && item.sku && typeof item.stock === 'number') {
+              migrated[bodega][item.sku] = item.stock;
+            }
+          });
+        } else {
+          migrated[bodega] = saved[bodega] || {};
+        }
       }
-    }
 
-    if (needsSave) {
-      console.log('Migración de stock ejecutada: array -> dict O(1)');
-      localDb.save('stock', migrated);
-    }
+      if (needsSave || (!Array.isArray(raw) && Object.keys(saved).length > 0)) {
+        console.log('Migración de stock ejecutada: array -> dict O(1) vía dataService');
+        if (!Array.isArray(raw) || raw.length === 0) {
+          dataService.create('stock', migrated).catch(console.error);
+        } else {
+          dataService.update('stock', raw[0].id || 'singleton', migrated).catch(console.error);
+        }
+      }
 
-    set({ stock: migrated });
+      // Eliminar el id para el estado interno
+      const stockState = { ...migrated };
+      delete stockState.id;
+      set({ stock: stockState });
+    }).catch(err => {
+      console.error('Error loading stock:', err);
+      set({ stock: {} });
+    });
   },
 
   setProducts: (productsOrUpdater: any) => set((state) => ({
@@ -122,7 +135,19 @@ export const useInventoryStore = create<InventoryState>()(
 
   setStock: (stockOrUpdater: any) => set((state) => {
     const newStock = typeof stockOrUpdater === 'function' ? stockOrUpdater(state.stock) : stockOrUpdater;
-    localDb.save('stock', newStock);
+    
+    // Persistir de forma asíncrona mediante la abstracción dataService
+    dataService.getAll<any>('stock').then(raw => {
+      const id = (Array.isArray(raw) && raw.length > 0 && raw[0].id) ? raw[0].id : 'singleton';
+      const payload = { id, ...newStock };
+      
+      if (!Array.isArray(raw) || raw.length === 0) {
+        dataService.create('stock', payload).catch(console.error);
+      } else {
+        dataService.update('stock', id, payload).catch(console.error);
+      }
+    }).catch(console.error);
+
     return { stock: newStock };
   }),
 

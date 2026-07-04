@@ -8,6 +8,7 @@ import type { IDataService } from '../types/services.types';
 import { LocalDataService } from './LocalDataService';
 import { useWarehouseStore } from '../store/useWarehouseStore';
 import { useCashStore } from '../store/useCashStore';
+import { accountingService } from './accountingService';
 
 const generateId = (prefix: string) => {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 5)}`;
@@ -19,7 +20,7 @@ class LegacyCashService {
     this.seedCajasParaBodegas();
   }
 
-  public seedCajasParaBodegas(): void {
+  public seedCajasParaBodegas(bodegaId?: string): void {
     let bodegas = useWarehouseStore.getState().bodegas;
     if (bodegas.length === 0) {
       bodegas = localDb.load<any[]>('bodegas', [
@@ -84,8 +85,12 @@ class LegacyCashService {
       const turnoActivo = this.getTurnoActivo(cajaId);
       if (turnoActivo) return { data: null, error: 'La caja ya tiene un turno abierto' };
 
+      const cajas = this.getCajas();
+      const caja = cajas.find(c => c.id === cajaId);
+      const branch_id = caja?.bodegaId || 'default';
+
       const nuevoTurno: TurnoCaja = {
-        id: generateId('trn'), cajaId, cajeroId,
+        id: generateId('trn'), cajaId, branch_id, cajeroId,
         fechaApertura: new Date().toISOString(), fechaCierre: null, baseInicial,
         detalleArqueoApertura: detalleApertura, saldoTeoricoGlobal: baseInicial,
         totalEfectivo: baseInicial, totalDatafono: 0, totalTransferencias: 0,
@@ -146,6 +151,17 @@ class LegacyCashService {
         if (diferencia !== 0) {
           const tipoAjuste: TipoMovimientoCaja = diferencia > 0 ? 'AJUSTE_SOBRANTE' : 'AJUSTE_FALTANTE';
           this.registrarMovimiento(turno.id, turno.cajaId, tipoAjuste, metodoPago, Math.abs(diferencia), `Ajuste automático de cierre: ${justificacion}`, null, usuarioId);
+          
+          // Registrar en contabilidad
+          accountingService.recordCategorizedTransaction({
+            categoryKey: diferencia > 0 ? 'SALE_CASH' : 'EXPENSE_GENERAL', // Simplificación para sobrantes/faltantes
+            amount: Math.abs(diferencia),
+            referenceType: 'CASH_SHIFT',
+            referenceId: turno.id,
+            description: `Ajuste de caja (${tipoAjuste}) en cierre de turno - ${metodoPago}: ${justificacion}`,
+            branchId: turno.branch_id,
+            createdBy: usuarioId
+          }).catch(console.error);
         }
       };
       registrarAjuste(diferenciaEfectivo, 'EFECTIVO');
@@ -177,8 +193,10 @@ class LegacyCashService {
         return { data: null, error: 'No se pueden registrar movimientos en un turno cerrado' };
       }
 
+      const branch_id = turno.branch_id;
+
       const nuevoMovimiento: MovimientoCaja = {
-        id: generateId('mov'), turnoId, cajaId, tipo, metodoPago, monto, concepto, referenciaId,
+        id: generateId('mov'), turnoId, cajaId, branch_id, tipo, metodoPago, monto, concepto, referenciaId,
         createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), createdBy: usuarioId
       };
 
@@ -259,8 +277,12 @@ export class CashService {
       const activo = turnos.find(t => t.cajaId === cajaId && t.estado === 'ABIERTO');
       if (activo) return { data: null, error: 'La caja ya tiene un turno abierto' };
 
+      const cajas = await this.getCajas();
+      const caja = cajas.find(c => c.id === cajaId);
+      const branch_id = caja?.bodegaId || 'default';
+
       const nuevoTurno: TurnoCaja = {
-        id: generateId('trn'), cajaId, cajeroId,
+        id: generateId('trn'), cajaId, branch_id, cajeroId,
         fechaApertura: new Date().toISOString(), fechaCierre: null, baseInicial,
         detalleArqueoApertura: detalleApertura, saldoTeoricoGlobal: baseInicial,
         totalEfectivo: baseInicial, totalDatafono: 0, totalTransferencias: 0,
@@ -304,7 +326,21 @@ export class CashService {
       await this.dataService.update('turnos_caja', turnoId, update as any);
 
       const regAjuste = async (dif: number, mp: MetodoPago) => {
-        if (dif !== 0) await this.registrarMovimiento(turnoId, turno.cajaId, dif > 0 ? 'AJUSTE_SOBRANTE' : 'AJUSTE_FALTANTE', mp, Math.abs(dif), `Ajuste automático: ${justificacion}`, null);
+        if (dif !== 0) {
+          const tipoAjuste: TipoMovimientoCaja = dif > 0 ? 'AJUSTE_SOBRANTE' : 'AJUSTE_FALTANTE';
+          await this.registrarMovimiento(turnoId, turno.cajaId, tipoAjuste, mp, Math.abs(dif), `Ajuste automático: ${justificacion}`, null);
+          
+          // Registrar en contabilidad
+          await accountingService.recordCategorizedTransaction({
+            categoryKey: dif > 0 ? 'SALE_CASH' : 'EXPENSE_GENERAL', // Simplificación
+            amount: Math.abs(dif),
+            referenceType: 'CASH_SHIFT',
+            referenceId: turno.id,
+            description: `Ajuste de caja (${tipoAjuste}) en cierre de turno - ${mp}: ${justificacion}`,
+            branchId: turno.branch_id,
+            createdBy: turno.createdBy // Ideally this should be the closing user
+          }).catch(console.error);
+        }
       };
       await Promise.all([regAjuste(diferenciaEfectivo, 'EFECTIVO'), regAjuste(diferenciaDatafono, 'DATAFONO'), regAjuste(diferenciaTransferencia, 'TRANSFERENCIA')]);
 
@@ -328,8 +364,10 @@ export class CashService {
         return { data: null, error: 'No se pueden registrar movimientos en un turno cerrado' };
       }
 
+      const branch_id = turno.branch_id;
+      
       const nuevoMovimiento: MovimientoCaja = {
-        id: generateId('mov'), turnoId, cajaId, tipo, metodoPago, monto, concepto, referenciaId,
+        id: generateId('mov'), turnoId, cajaId, branch_id, tipo, metodoPago, monto, concepto, referenciaId,
         createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), createdBy: '',
       };
 

@@ -747,7 +747,7 @@ export default function InventoryView() {
     }));
   };
 
-  const handleTraslado = (e: React.FormEvent) => {
+  const handleTraslado = async (e: React.FormEvent) => {
     e.preventDefault();
     if (traslado.origen === traslado.destino) {
       Swal.fire({ icon: 'error', title: 'Error', text: 'La bodega origen y destino no pueden ser iguales.' });
@@ -761,9 +761,43 @@ export default function InventoryView() {
       return;
     }
 
-    const itemOrigen = stock[traslado.origen]?.find(i => i.sku === traslado.sku);
+    const itemOrigen = stock[traslado.origen]?.find((i: any) => i.sku === traslado.sku);
     if (!itemOrigen || itemOrigen.stock < tCant) {
       Swal.fire({ icon: 'error', title: 'Stock Insuficiente', text: 'La bodega de origen no dispone de existencias del lote.' });
+      return;
+    }
+
+    // Control FEFO Simulado
+    const result = await Swal.fire({
+      title: 'Validación FEFO',
+      html: `
+        <div style="font-size: 14px; color: #475569;">
+          <p><strong>Atención:</strong> Validando regla First-Expired-First-Out (FEFO).</p>
+          <p>Se priorizará el lote más antiguo disponible para este traslado.</p>
+        </div>
+      `,
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonText: 'Continuar',
+      cancelButtonText: 'Omitir Regla',
+      confirmButtonColor: 'var(--primary-color)',
+      cancelButtonColor: '#EF4444'
+    });
+
+    if (result.dismiss === Swal.DismissReason.cancel) {
+       const pinResult = await Swal.fire({
+         title: 'Autorización de Supervisor',
+         text: 'Ingrese el PIN para omitir la regla FEFO. (PIN: 1234)',
+         input: 'password',
+         showCancelButton: true,
+         confirmButtonColor: 'var(--primary-color)'
+       });
+
+       if (!pinResult.isConfirmed || pinResult.value !== '1234') {
+         Swal.fire('Denegado', 'PIN incorrecto o acción cancelada.', 'error');
+         return;
+       }
+    } else if (!result.isConfirmed) {
       return;
     }
 

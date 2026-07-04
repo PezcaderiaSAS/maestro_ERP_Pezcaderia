@@ -10,6 +10,7 @@ export interface LineaVenta {
   descuentoPct: number;     // Descuento por línea en %
   precioFinal: number;      // precioLista * (1 - descuentoPct/100) — RN-06
   totalLinea: number;       // cantidad * precioFinal — RN-06
+  precioCompra: number;     // Costo del producto para validación de rentabilidad
   esPesoManual: boolean;    // true si el peso se ingresó manualmente — RN-13
 }
 

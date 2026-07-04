@@ -10,10 +10,14 @@ export type EstadoPedido =
   | 'PAUSADO_POR_CREDITO' 
   | 'ANULADO';
 
+export type EstadoLineaPedido = 'PENDIENTE' | 'PARCIAL' | 'COMPLETO';
+
 export interface LineaPedido {
   productoId: string;
   cantidadSolicitada: number;
   cantidadAlistada: number;
+  cantidadDespachada: number; // Para despachos parciales (fulfilled_quantity)
+  estadoLinea: EstadoLineaPedido; // Para manejar el estado del despacho (status)
   pesoEstimado?: number;     // Para productos por KG
   pesoReal?: number;         // Peso real pesado en la báscula durante alistamiento
   loteSeleccionado?: string; // Lote asignado para trazabilidad (FIFO)
@@ -28,6 +32,7 @@ export interface Pedido {
   origen: 'VISITA' | 'RAPPI' | 'TELEFONO';
   clienteId: string;
   bodegaId: string;
+  branch_id: string; // ID de la sucursal para filtrado RLS y Realtime
   vendedorId: string;
   formaPago: 'CONTADO' | 'CREDITO';
   tipoEntrega: 'EN_RUTA' | 'RECOGE';

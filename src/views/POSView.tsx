@@ -1,6 +1,5 @@
-// src/views/POSView.tsx
 import { useState, useEffect } from 'react';
-import { Plus, X, Check, CreditCard, FileText, Truck, RefreshCw, AlertTriangle, AlertCircle } from 'lucide-react';
+import { Plus, X, Check, CreditCard, FileText, Truck, RefreshCw, AlertTriangle, AlertCircle, Menu } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { generateId, Product, Cliente, Venta, MovimientoInventario, DevolucionPedido, toTitleCase } from '../App';
 import { InvoiceAR } from './ARView';
@@ -31,24 +30,6 @@ interface POSViewProps {
   handleCancelarPedidoDigital?: (logId: string) => void;
   handleAprobarPedidoManual?: (logId: string, modo: 'parcial' | 'forzar') => void;
 }
-
-const BannerCajaCerrada = ({ onAbrir }: { onAbrir: () => void }) => (
-  <div className="bg-red-500 text-white p-4 rounded-xl mb-4 flex justify-between items-center shadow-lg" style={{ backgroundColor: '#EF4444', color: 'white', padding: '16px', borderRadius: '12px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-      <AlertTriangle size={24} />
-      <div>
-        <h3 style={{ fontWeight: 700, fontSize: '18px', margin: 0 }}>Turno de Caja Cerrado</h3>
-        <p style={{ fontSize: '14px', margin: 0, opacity: 0.9 }}>No puedes realizar cobros hasta abrir un nuevo turno.</p>
-      </div>
-    </div>
-    <button
-      onClick={onAbrir}
-      style={{ backgroundColor: 'white', color: '#DC2626', padding: '8px 24px', borderRadius: '8px', fontWeight: 700, border: 'none', cursor: 'pointer', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
-    >
-      Abrir Turno Ahora
-    </button>
-  </div>
-);
 
 export default function POSView({
   handleCancelarPedidoDigital = () => {},
@@ -88,6 +69,7 @@ export default function POSView({
   
   const [showAperturaModal, setShowAperturaModal] = useState<boolean>(false);
   const [showArqueoModal, setShowArqueoModal] = useState<boolean>(false);
+  const [showHamburger, setShowHamburger] = useState<boolean>(false);
 
   useEffect(() => {
     loadTurnoActivoPorCajero(userRole);
@@ -173,8 +155,41 @@ export default function POSView({
     return product.precio_venta_pos;
   };
 
-  const handleAddProduct = (product: Product) => {
-    agregarProducto(product as any, 1);
+  const handleAddProduct = async (product: Product) => {
+    const isWeighable = product.unidadMedida === 'kg' || product.unidadMedida === 'gr';
+    
+    if (isWeighable) {
+      const { value: weight } = await Swal.fire({
+        title: 'Ingreso de Peso',
+        input: 'number',
+        inputLabel: `Ingrese el peso exacto en ${product.unidadMedida}`,
+        inputPlaceholder: 'Ej: 1.5',
+        inputAttributes: {
+          min: '0.01',
+          step: '0.01'
+        },
+        showCancelButton: true,
+        confirmButtonText: 'Agregar al carrito',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: 'var(--primary-color)'
+      });
+
+      if (weight) {
+        const parsedWeight = parseFloat(weight);
+        if (!isNaN(parsedWeight) && parsedWeight > 0) {
+          agregarProducto(product as any, parsedWeight);
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Peso inválido',
+            text: 'Debe ingresar un valor numérico mayor a 0.',
+            confirmButtonColor: 'var(--primary-color)'
+          });
+        }
+      }
+    } else {
+      agregarProducto(product as any, 1);
+    }
   };
 
   const handleAgregarCliente = async () => {
@@ -510,8 +525,11 @@ export default function POSView({
   };
 
   // Helper to query stock for a given product and warehouse
-  const getProductStock = (sku: string, bodega: string) => {
-    return stock[bodega]?.[sku] || 0;
+  const getProductStock = (sku: string, bodegaKey: string) => {
+    const bodegas = useWarehouseStore.getState().bodegas;
+    const bodega = bodegas.find(b => b.id === bodegaKey || b.nombre === bodegaKey);
+    const targetKey = bodega ? bodega.id : bodegaKey;
+    return stock[targetKey]?.[sku] || stock[bodegaKey]?.[sku] || 0;
   };
 
   const handlePagar = async (pagos: { metodo: 'EFECTIVO' | 'TRANSFERENCIA' | 'DATAFONO' | 'CREDITO', monto: number }[]): Promise<Venta | void> => {
@@ -1115,7 +1133,12 @@ export default function POSView({
 
   // Cálculos financieros delegados al hook usePOSCart
   return (
-    <div className="pos-layout animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <div className="pos-layout animate-fade-in relative" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {!isTurnoAbierto && activeSubView === 'venta_pos' && (
+        <div className="absolute z-50 top-0 left-0 right-0 bg-red-500 text-white text-center py-1.5 text-xs font-bold shadow-md rounded-b-md flex items-center justify-center gap-2" style={{ marginTop: '-16px' }}>
+          <AlertCircle size={14} /> CAJA CERRADA - ABRIR TURNO AL COBRAR
+        </div>
+      )}
       {/* Selector de Vistas / Pestañas de POS */}
       <div style={{
         display: 'flex',
@@ -1254,15 +1277,55 @@ export default function POSView({
           </button>
         </div>
         
-        <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', fontWeight: 500 }}>
-          Rol: <span style={{ color: '#38BDF8', fontWeight: 700, textTransform: 'uppercase' }}>{userRole}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', fontWeight: 500 }}>
+            Rol: <span style={{ color: '#38BDF8', fontWeight: 700, textTransform: 'uppercase' }}>{userRole}</span>
+          </div>
+          <div className="relative">
+            <button
+              onClick={() => setShowHamburger(!showHamburger)}
+              style={{
+                background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                color: 'white',
+                padding: '6px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <Menu size={20} />
+            </button>
+            {showHamburger && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden">
+                {!isTurnoAbierto ? (
+                  <button onClick={() => { setShowAperturaModal(true); setShowHamburger(false); }} className="w-full text-left px-4 py-3 hover:bg-slate-50 text-sm font-semibold text-slate-700 border-b border-gray-100 flex items-center gap-2">
+                    <Plus size={16} /> Abrir Turno
+                  </button>
+                ) : (
+                  <>
+                    <button onClick={() => { setShowArqueoModal(true); setShowHamburger(false); }} className="w-full text-left px-4 py-3 hover:bg-slate-50 text-sm font-semibold text-red-600 border-b border-gray-100 flex items-center gap-2">
+                      <X size={16} /> Cerrar Turno
+                    </button>
+                    <button onClick={() => { setShowHamburger(false); }} className="w-full text-left px-4 py-3 hover:bg-slate-50 text-sm font-medium text-slate-600 border-b border-gray-100 flex items-center gap-2">
+                      <AlertTriangle size={16} /> Retiros / Egresos
+                    </button>
+                  </>
+                )}
+                <button onClick={() => { setShowHamburger(false); }} className="w-full text-left px-4 py-3 hover:bg-slate-50 text-sm font-medium text-slate-600 flex items-center gap-2">
+                  <FileText size={16} /> Historial
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {activeSubView === 'venta_pos' ? (
         <>
-          {!isTurnoAbierto && <BannerCajaCerrada onAbrir={() => setShowAperturaModal(true)} />}
-          <div className="pos-layout min-h-[calc(100vh-130px)] lg:h-[calc(100vh-64px)] lg:overflow-hidden animate-fade-in flex flex-col lg:grid lg:grid-cols-[7fr_3fr] gap-4 lg:gap-5 w-full m-0 p-0 bg-transparent shadow-none border-none">
+          <div className="pos-layout min-h-[calc(100vh-130px)] lg:h-[calc(100vh-64px)] lg:overflow-hidden animate-fade-in flex flex-col lg:grid lg:grid-cols-[7fr_3fr] gap-4 lg:gap-5 w-full m-0 p-0 bg-transparent shadow-none border-none pt-2">
             {/* Catálogo de Productos */}
         <ProductSearchPanel 
           activeProducts={activeProducts} 
@@ -1274,7 +1337,7 @@ export default function POSView({
         />
 
       {/* Carrito de Compras / Factura — delegado a CartPanel */}
-      <div className="pos-sidebar-cart flex-none h-[75vh] lg:sticky lg:top-6 lg:h-[calc(100vh-120px)] flex flex-col bg-white rounded-xl shadow-sm border border-slate-200">
+      <div className="pos-sidebar-cart flex-none h-[75vh] lg:sticky lg:top-6 lg:h-[calc(100vh-120px)] flex flex-col bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
         {ultimoTicket ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px', height: '100%', overflowY: 'auto' }}>
             <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: 0, textAlign: 'center' }}>Venta Realizada con Éxito</h3>
