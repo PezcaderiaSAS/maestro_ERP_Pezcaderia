@@ -2380,8 +2380,8 @@
     "semantic_hash": ""
   },
   "agent-skills/skills/git-workflow-and-versioning/SKILL.md": {
-    "mtime": 1782819783.0054455,
-    "ast_hash": "03453db766477ceeba6caf152dcdfec0",
+    "mtime": 1783169354.3524613,
+    "ast_hash": "7369e46dae904928c9ff47dc201d8d2e",
     "semantic_hash": ""
   },
   "agent-skills/skills/idea-refine/SKILL.md": {
@@ -2425,8 +2425,8 @@
     "semantic_hash": ""
   },
   "agent-skills/skills/planning-and-task-breakdown/SKILL.md": {
-    "mtime": 1782819783.016957,
-    "ast_hash": "f799fbbc9879689eb090a462a144d5cc",
+    "mtime": 1783169354.3544617,
+    "ast_hash": "38bb5401f90d7da395df0c2c8205ea5d",
     "semantic_hash": ""
   },
   "agent-skills/skills/security-and-hardening/SKILL.md": {
@@ -2445,8 +2445,8 @@
     "semantic_hash": ""
   },
   "agent-skills/skills/spec-driven-development/SKILL.md": {
-    "mtime": 1782819783.0224702,
-    "ast_hash": "53b6b492b931aa913fec1620f60c2a19",
+    "mtime": 1783169354.35646,
+    "ast_hash": "d3f90c2d152861e2aa72469d8aed5cc7",
     "semantic_hash": ""
   },
   "agent-skills/skills/test-driven-development/SKILL.md": {
