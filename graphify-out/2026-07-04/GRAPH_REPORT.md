@@ -1,16 +1,16 @@
-# Graph Report - MaestroPescaderia  (2026-07-03)
+# Graph Report - MaestroPescaderia  (2026-07-04)
 
 ## Corpus Check
-- 529 files · ~421,883 words
+- 548 files · ~430,006 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 4696 nodes · 5528 edges · 385 communities (359 shown, 26 thin omitted)
+- 4785 nodes · 5652 edges · 392 communities (370 shown, 22 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 4 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `b6102cf1`
+- Built from commit: `628dfa4c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -386,6 +386,11 @@
 - [[_COMMUNITY_Community 381|Community 381]]
 - [[_COMMUNITY_Community 382|Community 382]]
 - [[_COMMUNITY_Community 383|Community 383]]
+- [[_COMMUNITY_Community 385|Community 385]]
+- [[_COMMUNITY_Community 386|Community 386]]
+- [[_COMMUNITY_Community 387|Community 387]]
+- [[_COMMUNITY_Community 388|Community 388]]
+- [[_COMMUNITY_Community 389|Community 389]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `LocalDataService` - 33 edges
@@ -402,44 +407,44 @@
 ## Surprising Connections (you probably didn't know these)
 - `System Design Architecture` --references--> `localDb Service`  [EXTRACTED]
   DOCS/system_design.md → src/services/localDb.ts
-- `CRMView()` --calls--> `useAppStore`  [EXTRACTED]
-  src/views/CRMView.tsx → src/store/useAppStore.ts
-- `HRView()` --calls--> `useAppStore`  [EXTRACTED]
-  src/views/HRView.tsx → src/store/useAppStore.ts
-- `CashState` --references--> `TurnoCaja`  [EXTRACTED]
-  src/store/useCashStore.ts → src/types/cash.types.ts
-- `POSViewProps` --references--> `Product`  [EXTRACTED]
+- `POSViewProps` --references--> `MovimientoInventario`  [EXTRACTED]
   src/views/POSView.tsx → src/App.tsx
+- `App()` --calls--> `createLogger()`  [EXTRACTED]
+  src/App.tsx → src/lib/consoleLogger.ts
+- `App()` --calls--> `useAppStore`  [EXTRACTED]
+  src/App.tsx → src/store/useAppStore.ts
+- `App()` --calls--> `useEmployeeStore`  [EXTRACTED]
+  src/App.tsx → src/store/useEmployeeStore.ts
 
 ## Import Cycles
-- 3-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 3-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 3-file cycle: `src/App.tsx -> src/views/OrderKanbanView.tsx -> src/services/cashService.ts -> src/App.tsx`
-- 4-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/views/pos/components/AperturaCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
-- 4-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/views/cash/components/ArqueoCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
-- 4-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/views/OrderKanbanView.tsx -> src/services/cashService.ts -> src/App.tsx`
-- 4-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/views/cash/components/CierreCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
+- 3-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 4-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/views/pos/components/AperturaCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
+- 4-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/views/cash/components/CierreCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 4-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/views/cash/components/ArqueoCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
 - 4-file cycle: `src/App.tsx -> src/views/cash/CashFlowView.tsx -> src/views/cash/components/TrasladoDineroModal.tsx -> src/services/cashService.ts -> src/App.tsx`
+- 4-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/views/OrderKanbanView.tsx -> src/services/cashService.ts -> src/App.tsx`
+- 4-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/views/pos/components/AperturaCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
+- 4-file cycle: `src/App.tsx -> src/views/POSView.tsx -> src/views/cash/components/ArqueoCajaModal.tsx -> src/services/cashService.ts -> src/App.tsx`
 
-## Communities (385 total, 26 thin omitted)
+## Communities (392 total, 22 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.17
 Nodes (11): ADR-012: Bugfix — Flujo "Abrir Turno de Caja" inoperante en POS, Bug #1 — Error de compilación en `InventoryView.tsx` (bloqueante de app), Bug #2 — Mismatch de `bodegaId` en `AperturaCajaModal` (modal vacío), Bug #3 — Modal fuera del viewport (CSS sin compilar), Causa Raíz (3 bugs encadenados), DA-1: No normalizar `bodegaId` en `seedCajasParaBodegas` a UUID, DA-2: Estilos inline para el portal del modal, Decisiones Arquitectónicas (+3 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.26
-Nodes (14): getSkuByProductoId(), getUnidadByProductoId(), MovimientoInventario, registrarEntrada(), registrarSalida(), registrarTraslado(), StockDictionary, validarStock() (+6 more)
+Cohesion: 0.16
+Nodes (18): transicionesValidas, getSkuByProductoId(), getUnidadByProductoId(), InventoryService, MovimientoInventario, procesarProduccion(), registrarEntrada(), registrarSalida() (+10 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.05
-Nodes (42): dependencies, axios, jspdf, lucide-react, react, react-dom, react-number-format, @supabase/supabase-js (+34 more)
+Cohesion: 0.04
+Nodes (44): dependencies, axios, jspdf, lucide-react, react, react-dom, react-number-format, @supabase/supabase-js (+36 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.10
-Nodes (29): CashFlowView(), AperturaCajaModal(), AperturaCajaModalProps, ArqueoCajaModal(), ArqueoCajaModalProps, CalculadorDenominaciones(), DENOMINACIONES_BILLETES, DENOMINACIONES_MONEDAS (+21 more)
+Nodes (30): CashFlowView(), AperturaCajaModal(), AperturaCajaModalProps, ArqueoCajaModal(), ArqueoCajaModalProps, CalculadorDenominaciones(), DENOMINACIONES_BILLETES, DENOMINACIONES_MONEDAS (+22 more)
 
 ### Community 4 - "Community 4"
 Cohesion: 0.09
@@ -454,8 +459,8 @@ Cohesion: 0.11
 Nodes (18): cateEnd, catEnd, cateStart, catStart, content, crEnd, crStart, filePath (+10 more)
 
 ### Community 7 - "Community 7"
-Cohesion: 0.29
-Nodes (6): hasTwentyApiKey(), twentyCompanies, twentyContacts, twentyOpportunities, CRMView(), TabType
+Cohesion: 0.09
+Nodes (20): TABLE_TO_KEY, ARState, dataService, InvoiceAR, PaymentAR, setARDataService(), dataService, ExpenseState (+12 more)
 
 ### Community 8 - "Community 8"
 Cohesion: 0.13
@@ -538,12 +543,12 @@ Cohesion: 0.05
 Nodes (44): 1. Issue Dependencies, 1. Issue-PR Linking, 1. Issue Templates, 1. Issue-to-Swarm Conversion, 2. Epic Management, 2. Issue Comment Commands, 2. Label Strategy, 2. Milestone Coordination (+36 more)
 
 ### Community 47 - "Community 47"
-Cohesion: 0.08
-Nodes (49): DiscountPanel(), DiscountPanelProps, FulfillmentChecklist(), ProductSearchPanel(), ProductSearchPanelProps, AlistamientoBodegaView(), App(), Cliente (+41 more)
+Cohesion: 0.11
+Nodes (37): DiscountPanel(), DiscountPanelProps, usePOSCart(), App(), CategoriaConfig, Cliente, Conductor, DevolucionPedido (+29 more)
 
 ### Community 48 - "Community 48"
-Cohesion: 0.13
-Nodes (15): 1. PR Validation Swarm, 1. Self-Healing CI/CD, 2. Progressive Deployment, 2. Release Automation, 3. Documentation Updates, 3. Performance Regression Detection, Advanced Workflows, Custom Actions (+7 more)
+Cohesion: 0.05
+Nodes (41): 1. PR Validation Swarm, 1. Self-Healing CI/CD, 1. Swarm-Powered Actions, 1. Workflow Organization, 2. Dynamic Workflow Generation, 2. Progressive Deployment, 2. Release Automation, 2. Security (+33 more)
 
 ### Community 49 - "Community 49"
 Cohesion: 0.05
@@ -755,7 +760,7 @@ Nodes (14): Available Commands, Workflows Commands, Examples, Options, Usage, wo
 
 ### Community 101 - "Community 101"
 Cohesion: 0.12
-Nodes (16): 1. PR-Based Swarm Creation, 2. PR Comment Commands, 3. Automated PR Workflows, Automatic Agent Assignment, Core Features, Dashboard Integration, Integration with Claude Code, Label-Based Topology (+8 more)
+Nodes (17): 1. PR Templates, 2. Status Checks, 3. PR Merge Automation, Automatic Agent Assignment, Best Practices, Bug Fix PR, Documentation PR, Examples (+9 more)
 
 ### Community 102 - "Community 102"
 Cohesion: 0.20
@@ -846,8 +851,8 @@ Cohesion: 0.15
 Nodes (13): 1. Changelog Requirements, 1. Comprehensive CI/CD Pipeline, 1. Regular Release Cadence, 2. Feature Freeze Strategy, 2. Progressive Deployment, 2. Release Notes Content, 3. API Documentation, 3. Monitoring & Observability (+5 more)
 
 ### Community 124 - "Community 124"
-Cohesion: 0.05
-Nodes (43): 1. Progressive Deployment, 1. Release Planning, 1. Release Planning, 2. Automated Versioning, 2. Automation, 2. Multi-Repo Releases, 3. Documentation, 3. Hotfix Automation (+35 more)
+Cohesion: 0.15
+Nodes (13): Auto-Generated Docs, Continuous Deployment, Documentation, Emergency Procedures, Hotfix Process, Overview, Release Config File, Release Configuration (+5 more)
 
 ### Community 125 - "Community 125"
 Cohesion: 0.15
@@ -1558,28 +1563,28 @@ Cohesion: 0.19
 Nodes (9): DevTestDashboard(), applySeed(), SEED_DATA, applySeed(), SEED_DATA, applySeed(), SEED_DATA, applySeed() (+1 more)
 
 ### Community 304 - "Community 304"
-Cohesion: 0.03
-Nodes (93): COLORS, ICONS, initLogger(), LOG_LEVELS, LogFn, Logger, LogLevel, MODULE_LEVELS (+85 more)
+Cohesion: 0.05
+Nodes (42): COLORS, getModuleLevel(), ICONS, initLogger(), LOG_LEVELS, LogFn, Logger, LogLevel (+34 more)
 
 ### Community 305 - "Community 305"
-Cohesion: 0.14
-Nodes (16): FulfillmentChecklistProps, WeighingModal(), WeighingModalProps, transicionesValidas, OrderState, Bodega, Categoria, LineaCompra (+8 more)
+Cohesion: 0.16
+Nodes (19): FulfillmentChecklist(), FulfillmentChecklistProps, QuantityModal(), QuantityModalProps, WeighingModal(), WeighingModalProps, AlistamientoBodegaView(), Cotizacion (+11 more)
 
 ### Community 307 - "Community 307"
-Cohesion: 0.18
-Nodes (8): WizardType, Empleado, Gasto, NominaRegistro, useEmployeeStore, HRView(), calcDiasComerciales(), PayrollView()
+Cohesion: 0.08
+Nodes (22): WizardType, hasTwentyApiKey(), twentyCompanies, twentyContacts, twentyOpportunities, Empleado, Gasto, NominaRegistro (+14 more)
 
 ### Community 308 - "Community 308"
 Cohesion: 0.40
 Nodes (5): 1. Store Configurations Securely, 2. Use OIDC Authentication, 3. Implement Least-Privilege, 4. Audit Swarm Operations, 🔒 Security Best Practices
 
 ### Community 309 - "Community 309"
-Cohesion: 0.14
-Nodes (12): CategoryManager(), ColdRoomPreparation(), ProductForm(), ProductionForm(), ProductTable(), PurchaseOrderForm(), ReturnsReceiver(), TransferForm() (+4 more)
+Cohesion: 0.09
+Nodes (22): CategoryManager(), ColdRoomPreparation(), ProductForm(), ProductionForm(), ProductTable(), PurchaseOrderForm(), PurchasesReport(), PurchasesReportProps (+14 more)
 
 ### Community 310 - "Community 310"
-Cohesion: 0.22
-Nodes (11): TicketBuilder(), TicketBuilderProps, ClientePrinter, log, usePOSPrinter(), ConfiguracionPOS, LineaVenta, VentaPOS (+3 more)
+Cohesion: 0.07
+Nodes (38): BalanzaButton(), BalanzaButtonProps, CartPanel(), CartPanelProps, LineaVentaRow(), LineaVentaRowProps, PaymentPanel(), PaymentPanelProps (+30 more)
 
 ### Community 311 - "Community 311"
 Cohesion: 0.50
@@ -1658,8 +1663,12 @@ Cohesion: 0.67
 Nodes (3): Example: Complete PR Management, 🔗 Integration with Claude Code, Workflow Pattern
 
 ### Community 331 - "Community 331"
-Cohesion: 0.27
-Nodes (6): BalanzaButton(), BalanzaButtonProps, log, useBalanza(), createLogger(), getModuleLevel()
+Cohesion: 0.16
+Nodes (7): LocalDataService, tableToKey(), Conductor, dataService, DriverState, INITIAL_CONDUCTORES, setDriverDataService()
+
+### Community 332 - "Community 332"
+Cohesion: 0.12
+Nodes (15): 1. `categoriaABC` ya existe en el modelo, 2. `LineaPedido` ya tiene campos de parcialidad, 3. `EstadoPedido` cubre el flujo de despacho, 4. `TipoMovimientoCaja` cubre los ajustes de cierre, ADVERTENCIA 1 — `DispatchView.tsx` no tiene tarea en Task.md, ADVERTENCIA 2 — Falta implementación de soft-delete en ledger, ⚠️ ADVERTENCIAS (No Bloqueadoras), FISURA 1 — Falta `branch_id` en los tipos existentes (+7 more)
 
 ### Community 333 - "Community 333"
 Cohesion: 0.67
@@ -1670,8 +1679,8 @@ Cohesion: 0.67
 Nodes (3): Basic Issue Creation with Swarm Coordination, Project Board Quick Setup, Quick Start
 
 ### Community 335 - "Community 335"
-Cohesion: 0.24
-Nodes (9): CartPanel(), CartPanelProps, LineaVentaRow(), LineaVentaRowProps, PaymentPanel(), PaymentPanelProps, ClientePOS, log (+1 more)
+Cohesion: 0.22
+Nodes (11): accountingService, TRANSACTION_CATEGORIES, TransactionCategory, AccountingState, AccountSummary, useAccountingStore, Account, AccountType (+3 more)
 
 ### Community 336 - "Community 336"
 Cohesion: 0.67
@@ -1686,8 +1695,8 @@ Cohesion: 0.67
 Nodes (3): Single command to get started, Template 2: Intermediate Skill (With Scripts), Template 3: Advanced Skill (Full-Featured)
 
 ### Community 339 - "Community 339"
-Cohesion: 0.29
-Nodes (6): dataService, ItemOrdenCompra, OrdenCompra, PurchaseState, setPurchaseDataService(), usePurchaseStore
+Cohesion: 0.17
+Nodes (11): 1. Esquemas de Datos (Supabase SQL), 2. Flujos de Información y Servicios Frontend, 3. Plan de Ejecución (Fases de Desarrollo), A. Base Contable (Partida Doble), A. Módulo Contable (UX Simple), B. Automatización de Cierre de Caja, B. Despachos Parciales y Logística, C. Inventario ABC (Backend Cron) (+3 more)
 
 ### Community 340 - "Community 340"
 Cohesion: 0.67
@@ -1705,9 +1714,13 @@ Nodes (3): Basic Pattern, Prerequisites, Quick Start
 Cohesion: 0.33
 Nodes (5): Error details, Instructions, Page snapshot, Test info, Test source
 
+### Community 353 - "Community 353"
+Cohesion: 0.12
+Nodes (8): B2bService, PosService, dataService, DEFAULT_DYNAMIC_FIELDS, DynamicField, DynamicFieldState, setDynamicFieldDataService(), IDataService
+
 ### Community 354 - "Community 354"
-Cohesion: 0.50
-Nodes (4): 1. Swarm-Powered Actions, 2. Dynamic Workflow Generation, 3. Intelligent Test Selection, Core Features
+Cohesion: 0.20
+Nodes (9): ADR-013: Inventory Storage Abstraction and Migration Strategy, Alternatives Considered, Consequences, Context, Date, Decision, Direct Supabase JSONB Column, Refactoring Stock into a Relational Array (Store Side) (+1 more)
 
 ### Community 355 - "Community 355"
 Cohesion: 0.33
@@ -1718,12 +1731,12 @@ Cohesion: 0.40
 Nodes (4): Error details, Instructions, Test info, Test source
 
 ### Community 357 - "Community 357"
-Cohesion: 0.50
-Nodes (4): Action Commands, Failure Analysis, Pipeline Optimization, Resource Management
+Cohesion: 0.25
+Nodes (7): ERP Modules Escalation (Ventas, Contabilidad, Despachos, Inventario), Key Assumptions to Validate, MVP Scope, Not Doing (and Why), Open Questions, Problem Statement, Recommended Direction
 
 ### Community 358 - "Community 358"
-Cohesion: 0.50
-Nodes (4): Advanced Features, Automated Optimization, Predictive Failures, Workflow Recommendations
+Cohesion: 0.29
+Nodes (6): 1. Módulo Contable (Partida Doble + UI Simple), 2. Flujo de Caja y Cierre de Turno, 3. Inventario ABC (Cron Job a 15 días), 4. Despachos y Logística (Filtro por Sucursal), Speckit Checklist: Requisitos y Calidad, User Review Required
 
 ### Community 359 - "Community 359"
 Cohesion: 0.40
@@ -1737,13 +1750,21 @@ Nodes (4): Error details, Instructions, Test info, Test source
 Cohesion: 0.40
 Nodes (4): Error details, Instructions, Test info, Test source
 
+### Community 362 - "Community 362"
+Cohesion: 0.29
+Nodes (6): Fase 0: Correcciones Bloqueadoras (Core), Fase 1: Infraestructura Base de Datos (Supabase), Fase 2: Core Contable y Cierre de Caja, Fase 3: Logística Realtime y Despachos Parciales, Fase 4: Interfaces (UI) e Inventario ABC, Speckit Tasks: Tareas de Ejecución
+
 ### Community 363 - "Community 363"
 Cohesion: 0.29
 Nodes (8): Bodega, BODEGAS_DEFECTO, desactivarBodega(), eliminarBodega(), guardarBodega(), obtenerBodegas(), ServiceResponse, WarehouseService
 
+### Community 364 - "Community 364"
+Cohesion: 0.20
+Nodes (3): getSupabaseClient(), SupabaseDataService, QueryOptions
+
 ### Community 365 - "Community 365"
-Cohesion: 0.50
-Nodes (4): 1. Workflow Organization, 2. Security, 3. Performance, Best Practices
+Cohesion: 0.33
+Nodes (6): Build Agent, Changelog Agent, Deploy Agent, Release Agents, Test Agent, Version Agent
 
 ### Community 366 - "Community 366"
 Cohesion: 0.67
@@ -1762,8 +1783,8 @@ Cohesion: 0.40
 Nodes (4): Error details, Instructions, Test info, Test source
 
 ### Community 372 - "Community 372"
-Cohesion: 0.29
-Nodes (6): PurchasesReport(), PurchasesReportProps, MOCK_CATEGORIAS, MOCK_ORDENES, MOCK_PRODUCTS, MOCK_PROVEEDORES
+Cohesion: 0.33
+Nodes (5): CategoriaConfig, CategoryState, dataService, DEFAULT_CATEGORIAS, setCategoryDataService()
 
 ### Community 373 - "Community 373"
 Cohesion: 0.40
@@ -1778,12 +1799,12 @@ Cohesion: 0.50
 Nodes (4): 1. Multi-PR Swarm Coordination, 2. PR Dependency Analysis, 3. Automated PR Fixes, Advanced Features
 
 ### Community 376 - "Community 376"
-Cohesion: 0.50
-Nodes (4): 1. PR Templates, 2. Status Checks, 3. PR Merge Automation, Best Practices
+Cohesion: 0.33
+Nodes (5): Bodega, dataService, DEFAULT_BODEGAS, setWarehouseDataService(), WarehouseState
 
 ### Community 377 - "Community 377"
-Cohesion: 0.50
-Nodes (4): Bug Fix PR, Documentation PR, Examples, Feature Development PR
+Cohesion: 0.40
+Nodes (4): dataService, Proveedor, setSupplierDataService(), SupplierState
 
 ### Community 378 - "Community 378"
 Cohesion: 0.50
@@ -1791,39 +1812,59 @@ Nodes (4): Code Review Integration, Initialize from PR, PR Swarm Commands, Progr
 
 ### Community 379 - "Community 379"
 Cohesion: 0.50
-Nodes (4): Cost Optimization, Failure Patterns, Monitoring & Insights, Workflow Analytics
+Nodes (4): 1. Progressive Deployment, 2. Multi-Repo Releases, 3. Hotfix Automation, Advanced Features
 
 ### Community 380 - "Community 380"
-Cohesion: 0.67
-Nodes (3): Adaptive Security Scanning, Multi-Language Detection, Workflow Templates
+Cohesion: 0.50
+Nodes (4): 1. Release Planning, 2. Automated Versioning, 3. Release Orchestration, Core Features
 
 ### Community 381 - "Community 381"
-Cohesion: 0.67
-Nodes (3): Debug Mode, Debugging & Troubleshooting, Performance Profiling
+Cohesion: 0.50
+Nodes (4): 1. Release Planning, 2. Automation, 3. Documentation, Best Practices
+
+### Community 382 - "Community 382"
+Cohesion: 0.50
+Nodes (4): Automated Rollback, Monitoring & Rollback, Release Analytics, Release Monitoring
 
 ### Community 383 - "Community 383"
 Cohesion: 0.40
 Nodes (4): Error details, Instructions, Test info, Test source
 
+### Community 385 - "Community 385"
+Cohesion: 0.50
+Nodes (4): Compatibility Testing, Pre-Release Checks, Release Validation, Security Scanning
+
+### Community 386 - "Community 386"
+Cohesion: 0.50
+Nodes (4): Docker Image Release, Integration Examples, Mobile App Release, NPM Package Release
+
+### Community 387 - "Community 387"
+Cohesion: 0.50
+Nodes (4): 1. PR-Based Swarm Creation, 2. PR Comment Commands, 3. Automated PR Workflows, Core Features
+
+### Community 388 - "Community 388"
+Cohesion: 0.67
+Nodes (3): Dashboard Integration, Metrics & Reporting, PR Swarm Analytics
+
 ## Knowledge Gaps
-- **2895 isolated node(s):** `AperturaCajaModalProps`, `ProductSearchPanelProps`, `name`, `private`, `version` (+2890 more)
+- **2947 isolated node(s):** `Status`, `Date`, `Context`, `Decision`, `Direct Supabase JSONB Column` (+2942 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **26 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **22 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Swarm Issue - Issue-Based Swarm Coordination` connect `Community 46` to `Community 230`?**
-  _High betweenness centrality (0.003) - this node is a cross-community bridge._
-- **Why does `Release Swarm - Intelligent Release Automation` connect `Community 124` to `Community 230`?**
-  _High betweenness centrality (0.003) - this node is a cross-community bridge._
-- **Why does `Workflow Automation - GitHub Actions Integration` connect `Community 48` to `Community 354`, `Community 357`, `Community 358`, `Community 230`, `Community 365`, `Community 379`, `Community 380`, `Community 381`?**
+- **Why does `Workflow Automation - GitHub Actions Integration` connect `Community 48` to `Community 230`?**
   _High betweenness centrality (0.002) - this node is a cross-community bridge._
-- **What connects `AperturaCajaModalProps`, `ProductSearchPanelProps`, `name` to the rest of the system?**
-  _2898 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Why does `Swarm Issue - Issue-Based Swarm Coordination` connect `Community 46` to `Community 230`?**
+  _High betweenness centrality (0.002) - this node is a cross-community bridge._
+- **Why does `IDataService` connect `Community 353` to `Community 1`, `Community 3`, `Community 7`, `Community 331`, `Community 364`, `Community 363`, `Community 304`, `Community 305`, `Community 372`, `Community 376`, `Community 377`?**
+  _High betweenness centrality (0.002) - this node is a cross-community bridge._
+- **What connects `Status`, `Date`, `Context` to the rest of the system?**
+  _2950 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 2` be split into smaller, more focused modules?**
-  _Cohesion score 0.046511627906976744 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.044444444444444446 - nodes in this community are weakly interconnected._
 - **Should `Community 3` be split into smaller, more focused modules?**
-  _Cohesion score 0.09672131147540984 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.09562841530054644 - nodes in this community are weakly interconnected._
 - **Should `Community 4` be split into smaller, more focused modules?**
   _Cohesion score 0.09090909090909091 - nodes in this community are weakly interconnected._
