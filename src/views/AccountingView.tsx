@@ -4,8 +4,6 @@ import { useWarehouseStore } from '../store/useWarehouseStore';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { BookOpen, Search, RefreshCw, AlertCircle, DollarSign } from 'lucide-react';
-import { formatCurrency } from '../utils/formatters'; // Asumimos que existe o lo creamos inline, usemos inline si no estamos seguros.
-
 export default function AccountingView() {
   const { summary, loading, error, fetchAccounts, fetchEntriesByDateRange } = useAccountingStore();
   const { bodegas } = useWarehouseStore();

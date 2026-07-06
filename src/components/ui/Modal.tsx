@@ -69,7 +69,7 @@ export const Modal: React.FC<ModalProps> = ({
         aria-modal="true"
       >
         {/* Cabecera (opcional) */}
-        {(title || onClose) && (
+        {(title || !!onClose) && (
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
             {title && (
               <h2 className="text-xl font-bold text-[var(--text-primary)]">

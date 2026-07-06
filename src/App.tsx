@@ -1205,15 +1205,14 @@ export default function App() {
 
     if (integLog.estado === 'PROCESADO' && integLog.id_factura_pos) {
       // Reversar stock a Bodega Principal
-      setStock((prev: Record<string, any[]>) => {
+      setStock((prev: Record<string, Record<string, number>>) => {
         const newStock = { ...prev };
         if (newStock['Bodega Principal']) {
-          newStock['Bodega Principal'] = newStock['Bodega Principal'].map((stockItem: any) => {
-            const orderItem = orderData.items.find((i: any) => i.sku === stockItem.sku);
-            if (orderItem) {
-              return { ...stockItem, stock: stockItem.stock + orderItem.cantidad };
-            }
-            return stockItem;
+          newStock['Bodega Principal'] = { ...newStock['Bodega Principal'] };
+          orderData.items.forEach((orderItem: any) => {
+            const sku = orderItem.sku;
+            const currentStock = newStock['Bodega Principal'][sku] || 0;
+            newStock['Bodega Principal'][sku] = currentStock + orderItem.cantidad;
           });
         }
         return newStock;
@@ -1289,9 +1288,9 @@ export default function App() {
       return;
     }
 
-    const stockPrincipal = stock['Bodega Principal'] || [];
+    const stockPrincipal = stock['Bodega Principal'] || {};
     const updatedItems = orderData.items.map((item: any) => {
-      const currentStock = stockPrincipal.find((s: any) => s.sku === item.sku)?.stock || 0;
+      const currentStock = stockPrincipal[item.sku] || 0;
       if (modo === 'parcial' && currentStock < item.cantidad) {
         return { ...item, cantidad: currentStock }; // ajustar a lo que hay
       }
@@ -1327,15 +1326,14 @@ export default function App() {
     );
     
     if (modo === 'forzar') {
-      setStock((prev: Record<string, any[]>) => {
+      setStock((prev: Record<string, Record<string, number>>) => {
         const newStock = { ...prev };
         if (newStock['Bodega Principal']) {
-          newStock['Bodega Principal'] = newStock['Bodega Principal'].map((stockItem: any) => {
-            const orderItem = updatedItems.find((i: any) => i.sku === stockItem.sku);
-            if (orderItem) {
-              return { ...stockItem, stock: stockItem.stock + orderItem.cantidad };
-            }
-            return stockItem;
+          newStock['Bodega Principal'] = { ...newStock['Bodega Principal'] };
+          updatedItems.forEach((orderItem: any) => {
+            const sku = orderItem.sku;
+            const currentStock = newStock['Bodega Principal'][sku] || 0;
+            newStock['Bodega Principal'][sku] = currentStock + orderItem.cantidad;
           });
         }
         return newStock;

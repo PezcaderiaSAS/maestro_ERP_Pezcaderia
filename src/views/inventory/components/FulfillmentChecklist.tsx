@@ -33,7 +33,7 @@ export const FulfillmentChecklist: React.FC<FulfillmentChecklistProps> = ({
     
     if (!producto) return;
 
-    if (producto.unidadMedida === 'KG') {
+    if (producto.unidadMedida?.toUpperCase() === 'KG') {
       // Necesita pesaje
       setSelectedLineIndex(index);
       setWeighingModalOpen(true);
@@ -166,7 +166,7 @@ export const FulfillmentChecklist: React.FC<FulfillmentChecklistProps> = ({
           const producto = getProductoById(linea.productoId);
           if (!producto) return null;
 
-          const isByWeight = producto.unidadMedida === 'KG';
+          const isByWeight = producto.unidadMedida?.toUpperCase() === 'KG';
           const isCompleted = linea.cantidadAlistada > 0;
           const isPriorityA = producto.categoriaABC === 'A';
           const isPartial = isCompleted && linea.cantidadAlistada < linea.cantidadSolicitada;
@@ -274,7 +274,7 @@ export const FulfillmentChecklist: React.FC<FulfillmentChecklistProps> = ({
               setSelectedLineIndex(null);
             }}
             linea={lineasAlistadas[selectedLineIndex]}
-            producto={getProductoById(lineasAlistadas[selectedLineIndex].productoId)!}
+            producto={getProductoById(lineasAlistadas[selectedLineIndex].productoId) as any}
             onConfirm={handleConfirmWeight}
           />
           <QuantityModal
@@ -284,7 +284,7 @@ export const FulfillmentChecklist: React.FC<FulfillmentChecklistProps> = ({
               setSelectedLineIndex(null);
             }}
             linea={lineasAlistadas[selectedLineIndex]}
-            producto={getProductoById(lineasAlistadas[selectedLineIndex].productoId)!}
+            producto={getProductoById(lineasAlistadas[selectedLineIndex].productoId) as any}
             onConfirm={handleConfirmQuantity}
           />
         </>

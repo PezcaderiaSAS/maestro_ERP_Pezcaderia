@@ -9,6 +9,8 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?: ButtonSize;
   className?: string;
   icon?: ReactNode;
+  leftIcon?: ReactNode;
+  rightIcon?: ReactNode;
   fullWidth?: boolean;
 }
 
@@ -18,6 +20,8 @@ export const Button: React.FC<ButtonProps> = ({
   size = 'md',
   className = '',
   icon,
+  leftIcon,
+  rightIcon,
   fullWidth = false,
   ...props
 }) => {
@@ -44,8 +48,9 @@ export const Button: React.FC<ButtonProps> = ({
       className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${widthStyle} ${className}`}
       {...props}
     >
-      {icon && <span className="flex-shrink-0">{icon}</span>}
+      {(icon || leftIcon) && <span className="flex-shrink-0">{icon || leftIcon}</span>}
       {children}
+      {rightIcon && <span className="flex-shrink-0">{rightIcon}</span>}
     </button>
   );
 };

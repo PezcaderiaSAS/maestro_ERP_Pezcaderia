@@ -18,8 +18,7 @@ interface CartPanelProps {
   drafts: any[];
   activeDraftId: string | null;
 
-  // Datos de contexto para resolver stock y precio histórico por fila
-  stock: Record<string, any[]>;
+  stock: any;
   bodegaActivaId: string;
   bodegaActivaNombre: string;
   lastClientPrices: Record<string, Record<string, number>>;
@@ -82,11 +81,10 @@ export const CartPanel: React.FC<CartPanelProps> = ({
   const totalItems = lineas.reduce((sum, l) => sum + Number(l.cantidad), 0);
 
   useEffect(() => {
-    if (totalItems > 0) {
-      setIsBouncing(true);
-      const timer = setTimeout(() => setIsBouncing(false), 300);
-      return () => clearTimeout(timer);
-    }
+    if (totalItems <= 0) return;
+    setIsBouncing(true);
+    const timer = setTimeout(() => setIsBouncing(false), 300);
+    return () => clearTimeout(timer);
   }, [totalItems]);
 
   // Helpers para resolver datos por fila dentro del .map()

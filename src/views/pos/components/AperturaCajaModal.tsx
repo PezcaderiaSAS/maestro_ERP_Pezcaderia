@@ -8,6 +8,8 @@ import { Caja, DetalleArqueo } from '../../../types/cash.types';
 import { CalculadorDenominaciones } from '../../cash/components/CalculadorDenominaciones';
 import { useWarehouseStore } from '../../../store/useWarehouseStore';
 import { useActionLogger } from '../../../hooks/useActionLogger';
+import { Button } from '../../../components/ui/Button';
+import { Modal } from '../../../components/ui/Modal';
 
 interface AperturaCajaModalProps {
   userRole: string;

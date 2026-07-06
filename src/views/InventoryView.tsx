@@ -67,13 +67,12 @@ export default function InventoryView() {
 
   // Helper to calculate stock in a specific bodega for a given SKU
   const getStockInBodega = (sku: string, bodegaName: string) => {
-    const items = stock[bodegaName] || [];
-    return items.filter((item: any) => item.sku === sku).reduce((acc: any, item) => acc + item.stock, 0);
+    return stock[bodegaName]?.[sku] || 0;
   };
 
   // Helper to calculate total stock across all bodegas for a given SKU
   const getTotalStock = (sku: string) => {
-    return Object.keys(stock).reduce((acc: any, bodegaName) => {
+    return Object.keys(stock).reduce((acc: any, bodegaName: string) => {
       return acc + getStockInBodega(sku, bodegaName);
     }, 0);
   };
@@ -579,7 +578,7 @@ export default function InventoryView() {
       confirmButtonColor: '#EF4444'
     }).then(result => {
       if (result.isConfirmed) {
-        setCategorias((prev: any) => prev.filter(c => c.id !== id));
+        setCategorias((prev: any) => prev.filter((c: any) => c.id !== id));
         Swal.fire({ icon: 'success', title: 'Eliminada', text: 'La categoría ha sido eliminada.', timer: 1500, showConfirmButton: false });
       }
     });
@@ -670,26 +669,11 @@ export default function InventoryView() {
     // Actualizar stock
     setStock((prev: any) => {
       const newStock = { ...prev };
-      const currentList = newStock[compra.bodega] || [];
-      const existingIndex = currentList.findIndex(item => item.sku === compra.sku && item.lote === loteFinal);
-      if (existingIndex > -1) {
-        const updatedList = [...currentList];
-        updatedList[existingIndex] = {
-          ...updatedList[existingIndex],
-          stock: updatedList[existingIndex].stock + compra.cantidad
-        };
-        newStock[compra.bodega] = updatedList;
-      } else {
-        newStock[compra.bodega] = [
-          ...currentList,
-          {
-            sku: compra.sku,
-            nombre: selectedProduct.nombre,
-            stock: compra.cantidad,
-            lote: loteFinal
-          }
-        ];
+      if (!newStock[compra.bodega]) {
+        newStock[compra.bodega] = {};
       }
+      const currentStock = newStock[compra.bodega][compra.sku] || 0;
+      newStock[compra.bodega][compra.sku] = currentStock + compra.cantidad;
       return newStock;
     });
 
@@ -828,22 +812,15 @@ export default function InventoryView() {
     // Procesar traslado de manera atómica local
     setStock((prev: any) => {
       const newStock = { ...prev };
-      // Restar
-      newStock[traslado.origen] = newStock[traslado.origen].map((i: any) =>
-        i.sku === traslado.sku ? { ...i, stock: i.stock - tCant } : i
-      );
-      // Sumar
-      const itemDestino = newStock[traslado.destino]?.find(i => i.sku === traslado.sku);
-      if (itemDestino) {
-        newStock[traslado.destino] = newStock[traslado.destino].map((i: any) =>
-          i.sku === traslado.sku ? { ...i, stock: i.stock + tCant } : i
-        );
-      } else {
-        newStock[traslado.destino] = [
-          ...(newStock[traslado.destino] || []),
-          { sku: traslado.sku, nombre: itemOrigen.nombre, stock: tCant, lote: itemOrigen.lote }
-        ];
-      }
+      if (!newStock[traslado.origen]) newStock[traslado.origen] = {};
+      if (!newStock[traslado.destino]) newStock[traslado.destino] = {};
+
+      const stockOrigen = newStock[traslado.origen][traslado.sku] || 0;
+      newStock[traslado.origen][traslado.sku] = Math.max(0, stockOrigen - tCant);
+
+      const stockDestino = newStock[traslado.destino][traslado.sku] || 0;
+      newStock[traslado.destino][traslado.sku] = stockDestino + tCant;
+
       return newStock;
     });
 
@@ -902,8 +879,8 @@ export default function InventoryView() {
       return;
     }
 
-    const itemMP = stock['Bodega Principal']?.find(i => i.sku === prodMateriaPrima);
-    if (!itemMP || itemMP.stock < mpCant) {
+    const currentStockMP = stock['Bodega Principal']?.[prodMateriaPrima] || 0;
+    if (currentStockMP < mpCant) {
       Swal.fire({ icon: 'error', title: 'Falta Materia Prima', text: 'No hay suficiente pescado entero disponible en Bodega Principal.' });
       return;
     }
@@ -947,14 +924,14 @@ export default function InventoryView() {
     // Procesar Producción
     setStock((prev: any) => {
       const newStock = { ...prev };
-      // Restar materia prima
-      newStock['Bodega Principal'] = newStock['Bodega Principal'].map((i: any) =>
-        i.sku === prodMateriaPrima ? { ...i, stock: i.stock - mpCant } : i
-      );
-      // Sumar producto terminado
-      newStock['Bodega Principal'] = newStock['Bodega Principal'].map((i: any) =>
-        i.sku === prodTerminado ? { ...i, stock: i.stock + ptCant } : i
-      );
+      if (!newStock['Bodega Principal']) newStock['Bodega Principal'] = {};
+
+      const currentMP = newStock['Bodega Principal'][prodMateriaPrima] || 0;
+      newStock['Bodega Principal'][prodMateriaPrima] = Math.max(0, currentMP - mpCant);
+
+      const currentPT = newStock['Bodega Principal'][prodTerminado] || 0;
+      newStock['Bodega Principal'][prodTerminado] = currentPT + ptCant;
+
       return newStock;
     });
 
@@ -962,7 +939,7 @@ export default function InventoryView() {
     const prodRefId = generateId('prod');
     const nameMP = products.find(p => p.sku === prodMateriaPrima)?.nombre || 'Materia Prima';
     const namePT = products.find(p => p.sku === prodTerminado)?.nombre || 'Producto Terminado';
-    const loteMP = stock['Bodega Principal']?.find(i => i.sku === prodMateriaPrima)?.lote || 'LOT-MP';
+    const loteMP = 'LOT-MP';
     const lotePT = `LT-PT-${Date.now().toString().slice(-6)}`;
 
     // Si merma > 35%, guardar la justificación en las notas
@@ -1333,14 +1310,17 @@ export default function InventoryView() {
                     </tr>
                   </thead>
                   <tbody>
-                    {(stock[activeBodega] || []).map(item => (
-                      <tr key={item.sku}>
-                        <td style={{ fontWeight: 700, color: '#00B171' }}>{item.lote}</td>
-                        <td>{item.sku}</td>
-                        <td style={{ fontWeight: 600 }}>{item.nombre}</td>
-                        <td style={{ fontWeight: 700, fontSize: '15px' }}>{item.stock} unidades</td>
-                      </tr>
-                    ))}
+                    {Object.entries(stock[activeBodega] || {}).map(([sku, cantidad]) => {
+                      const producto = products.find(p => p.sku === sku);
+                      return (
+                        <tr key={sku}>
+                          <td style={{ fontWeight: 700, color: '#00B171' }}>LOT-PRINCIPAL</td>
+                          <td>{sku}</td>
+                          <td style={{ fontWeight: 600 }}>{producto?.nombre || 'Producto Desconocido'}</td>
+                          <td style={{ fontWeight: 700, fontSize: '15px' }}>{cantidad as any} unidades</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

@@ -1799,7 +1799,7 @@ export default function PricingView() {
                       </tr>
                     </thead>
                     <tbody>
-                      {quotations.map(q => {
+                      {quotations.map((q: any) => {
                         let statusColor = '#64748B';
                         let statusBg = '#F1F5F9';
                         if (q.estado === 'Sent') { statusColor = 'var(--primary-color)'; statusBg = 'var(--primary-light)'; }
@@ -2013,7 +2013,7 @@ export default function PricingView() {
                         <option value="">Seleccione un pedido...</option>
                         {quotations
                           .filter(q => q.clienteId === devClienteId && (q.estado === 'Sold' || q.estado === 'Listo' || q.estado === 'FACTURADO'))
-                          .map(q => (
+                          .map((q: any) => (
                             <option key={q.id} value={q.id}>{q.no} ({q.fecha} - ${q.total.toLocaleString('es-CO')})</option>
                           ))
                         }
@@ -2164,7 +2164,7 @@ export default function PricingView() {
                         const newDev: DevolucionPedido = {
                           id: generateId('dev'),
                           pedidoId: devPedidoId || '',
-                          pedidoNo: quotations.find(q => q.id === devPedidoId)?.no || 'S/O',
+                          pedidoNo: (quotations.find(q => q.id === devPedidoId) as any)?.no || 'S/O',
                           clienteId: devClienteId,
                           clienteNombre: cli?.nombre || '',
                           conductorId: devConductorId,

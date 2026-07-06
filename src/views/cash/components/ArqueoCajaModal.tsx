@@ -14,7 +14,7 @@ interface ArqueoCajaModalProps {
 }
 
 export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuccess }: ArqueoCajaModalProps) {
-  const { productos } = useInventoryStore();
+  const { products } = useInventoryStore();
 
   const [efectivo, setEfectivo] = useState<string>('');
   const [datafono, setDatafono] = useState<string>(turnoActivo.totalDatafono.toString());
@@ -38,16 +38,16 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
 
   const sugerencias = useMemo(() => {
     if (diffTotal === 0) return [];
-    const lista = productos ?? [];
+    const lista = (products as any[]) ?? [];
     const absDiff = Math.abs(diffTotal);
     const minDiff = absDiff * 0.95;
     const maxDiff = absDiff * 1.05;
-    return lista.filter(p => {
-      const precio = p.precio_venta_pos || p.precio_venta;
+    return lista.filter((p: any) => {
+      const precio = p.precio_venta_pos || p.precio_venta || p.precioLista || 0;
       return precio >= minDiff && precio <= maxDiff;
     }).slice(0, 5);
 
-  }, [diffTotal, productos]);
+  }, [diffTotal, products]);
 
   const handleUnlock = (tipo: 'DATAFONO' | 'TRANSFERENCIA') => {
     Swal.fire({
@@ -293,14 +293,14 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
                 </p>
                 {sugerencias.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
-                    {sugerencias.map(prod => (
+                    {sugerencias.map((prod: any) => (
                       <div
                         key={prod.id}
                         className="flex items-center gap-2 bg-white border border-orange-200 rounded-lg px-3 py-1.5 shadow-sm"
                       >
                         <span className="font-bold text-orange-800 text-sm">{prod.nombre}</span>
                         <span className="bg-orange-100 text-orange-700 text-xs font-bold px-2 py-0.5 rounded-full">
-                          ${(prod.precio_venta_pos || prod.precio_venta).toLocaleString()}
+                          ${(prod.precio_venta_pos || prod.precio_venta || prod.precioLista || 0).toLocaleString()}
                         </span>
                       </div>
                     ))}

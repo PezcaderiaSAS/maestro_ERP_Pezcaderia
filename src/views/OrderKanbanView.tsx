@@ -145,23 +145,23 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                 referenciaId: currentQuote.id,
                 referenciaTipo: 'DESPACHO_B2B',
                 actor: userRole,
-                notas: \`Despacho de Pedido \${currentQuote.numeroPedido} (Conductor: \${conductor})\`
+                notas: `Despacho de Pedido ${currentQuote.numeroPedido} (Conductor: ${conductor})`
               });
             });
 
             setStock(newStock);
 
-            const pedidoActualizado = {
+            const pedidoActualizado: any = {
               ...currentQuote,
               estado: 'EN_DESPACHO',
               inventarioDescontado: true,
               fechaActualizacionKanban: new Date().toISOString(),
-              observaciones: \`\${currentQuote.observaciones || ''}\\nDespachado con: \${conductor}\`
+              observaciones: `${currentQuote.observaciones || ''}\nDespachado con: ${conductor}`
             };
 
             updateVenta(currentQuote.id, pedidoActualizado);
             
-            publishEvent('QUOTE_STATUS_CHANGED', userRole, \`Pedido despachado con \${conductor}\`, { quoteId, nuevoEstado });
+            publishEvent('QUOTE_STATUS_CHANGED', userRole, `Pedido despachado con ${conductor}`, { quoteId, nuevoEstado });
             
             Swal.fire({ icon: 'success', title: 'Despacho Exitoso', text: 'El pedido está en ruta y el stock ha sido descontado.', confirmButtonColor: '#10B981' });
           } catch (e: any) {

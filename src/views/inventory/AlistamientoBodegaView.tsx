@@ -68,7 +68,7 @@ export const AlistamientoBodegaView: React.FC = () => {
                       Pedido #{pedido.numeroPedido}
                     </span>
                     <h3 className="text-lg font-bold text-white mt-1">
-                      {cliente?.nombreComercial || 'Cliente Desconocido'}
+                      {cliente?.nombre || 'Cliente Desconocido'}
                     </h3>
                   </div>
                   <span className={`px-3 py-1 rounded-full text-xs font-bold

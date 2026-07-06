@@ -31,7 +31,7 @@ export const crearLineaVenta = (overrides: Partial<LineaVenta> = {}): LineaVenta
   totalLinea: 33000,
   esPesoManual: false,
   ...overrides,
-});
+} as any);
 
 export const crearVentaPOS = (overrides: Partial<VentaPOS> = {}): VentaPOS => ({
   id: 'venta-001',
@@ -75,4 +75,4 @@ export const crearPedido = (overrides: Partial<Pedido> = {}): Pedido => ({
   facturacionElectronica: false,
   idSiigo: null,
   ...overrides,
-});
+} as any);

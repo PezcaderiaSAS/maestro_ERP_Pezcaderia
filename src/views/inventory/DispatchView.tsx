@@ -22,7 +22,7 @@ export const DispatchView: React.FC = () => {
   const pedidosListos = ventas
     .filter(o => o.estado === 'LISTO')
     .filter(o => o.numeroPedido.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                 getClienteById(o.clienteId)?.nombreComercial?.toLowerCase().includes(searchTerm.toLowerCase()))
+                 getClienteById(o.clienteId)?.nombre?.toLowerCase().includes(searchTerm.toLowerCase()))
     .sort((a, b) => new Date(a.fechaEntrega).getTime() - new Date(b.fechaEntrega).getTime());
 
   const handleConductorChange = (pedidoId: string, value: string) => {
@@ -88,7 +88,7 @@ export const DispatchView: React.FC = () => {
               referenciaId: pedido.id,
               referenciaTipo: 'DESPACHO_B2B',
               actor: userRole,
-              notas: \`Despacho de Pedido \${pedido.numeroPedido} (Conductor: \${conductor})\`
+              notas: `Despacho de Pedido ${pedido.numeroPedido} (Conductor: ${conductor})`
             });
           });
 
@@ -100,7 +100,7 @@ export const DispatchView: React.FC = () => {
             ...pedido,
             estado: 'EN_DESPACHO',
             inventarioDescontado: true,
-            observaciones: \`\${pedido.observaciones || ''}\\nDespachado con: \${conductor}\`
+            observaciones: `${pedido.observaciones || ''}\nDespachado con: ${conductor}`
           };
 
           updateVenta(pedido.id, pedidoActualizado);
@@ -115,7 +115,7 @@ export const DispatchView: React.FC = () => {
         } catch (error: any) {
           Swal.fire({
             title: 'Error Crítico',
-            text: \`Ocurrió un error al despachar: \${error.message}\`,
+            text: `Ocurrió un error al despachar: ${error.message}`,
             icon: 'error',
             confirmButtonColor: '#EF4444'
           });
@@ -176,7 +176,7 @@ export const DispatchView: React.FC = () => {
                         Pedido #{pedido.numeroPedido}
                       </span>
                       <h3 className="text-xl font-bold text-white mt-1">
-                        {cliente?.nombreComercial || 'Cliente Desconocido'}
+                        {cliente?.nombre || 'Cliente Desconocido'}
                       </h3>
                     </div>
                     <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-400">

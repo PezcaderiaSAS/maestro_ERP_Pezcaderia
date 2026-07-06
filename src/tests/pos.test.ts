@@ -1,8 +1,32 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { calcularTotalLinea, calcularTotalesPedido, registrarVenta } from '../services/posService';
+import { calcularTotalLinea, calcularTotalesPedido } from '../services/posService';
 import { save, load } from '../services/localDb';
 import { crearProducto, crearLineaVenta, crearVentaPOS } from './utils/testFactories';
-import type { StockItem } from '../services/inventoryService';
+import { PosService } from '../services/posService';
+import { LocalDataService } from '../services/LocalDataService';
+import { validarStock, registrarSalida } from '../services/inventoryService';
+
+interface StockItem {
+  bodegaId: string;
+  productoId: string;
+  cantidad: number;
+}
+
+const dataService = new LocalDataService();
+const posService = new PosService(dataService);
+
+const registrarVenta = async (venta: any, bodegaId: string) => {
+  return posService.registrarVenta(
+    venta,
+    bodegaId,
+    (productoId, bId, qty) => {
+      return validarStock(productoId, bId, qty);
+    },
+    (params) => {
+      return registrarSalida(params);
+    }
+  );
+};
 
 describe('POS: Cálculo de Descuentos (RN-06)', () => {
   it('debería calcular precioFinal con descuento por línea', () => {
@@ -54,12 +78,14 @@ describe('POS: Registro de Ventas e Idempotencia (RN-01, RN-07)', () => {
     localStorage.clear();
     // Preparar catálogo de productos y stock inicial
     save('productsCatalog', [crearProducto({ id: 'prod-001', sku: 'SAL-001', unidadMedida: 'KG' })]);
-    save('stock', [
-      { bodegaId: BODEGA_ID, productoId: 'prod-001', cantidad: 10 } as StockItem
-    ]);
+    save('stock', {
+      [BODEGA_ID]: {
+        'SAL-001': 10
+      }
+    });
   });
 
-  it('debería registrar venta exitosamente si hay stock suficiente', () => {
+  it('debería registrar venta exitosamente si hay stock suficiente', async () => {
     const linea = crearLineaVenta({ productoId: 'prod-001', cantidad: 4 });
     const venta = crearVentaPOS({
       id: 'venta-101',
@@ -69,18 +95,17 @@ describe('POS: Registro de Ventas e Idempotencia (RN-01, RN-07)', () => {
       idempotencyKey: 'idemp-001'
     });
 
-    const result = registrarVenta(venta, BODEGA_ID);
+    const result = await registrarVenta(venta, BODEGA_ID);
 
     expect(result.error).toBeNull();
     expect(result.data?.id).toBe('venta-101');
 
     // Verificar que el stock se haya decrementado
-    const stockList = load<StockItem[]>('stock', []);
-    const stockItem = stockList.find(s => s.productoId === 'prod-001' && s.bodegaId === BODEGA_ID);
-    expect(stockItem?.cantidad).toBe(6); // 10 - 4
+    const stockDict = load<any>('stock', {});
+    expect(stockDict[BODEGA_ID]?.['SAL-001']).toBe(6); // 10 - 4
   });
 
-  it('debería bloquear venta si el stock es insuficiente (RN-01)', () => {
+  it('debería bloquear venta si el stock es insuficiente (RN-01)', async () => {
     const linea = crearLineaVenta({ productoId: 'prod-001', cantidad: 12 });
     const venta = crearVentaPOS({
       id: 'venta-102',
@@ -88,13 +113,13 @@ describe('POS: Registro de Ventas e Idempotencia (RN-01, RN-07)', () => {
       idempotencyKey: 'idemp-002'
     });
 
-    const result = registrarVenta(venta, BODEGA_ID);
+    const result = await registrarVenta(venta, BODEGA_ID);
 
     expect(result.error).toBe('Stock insuficiente. Disponible: 10 KG');
     expect(result.data).toBeNull();
   });
 
-  it('debería retornar venta existente ante peticiones duplicadas (RN-07)', () => {
+  it('debería retornar venta existente ante peticiones duplicadas (RN-07)', async () => {
     const linea = crearLineaVenta({ productoId: 'prod-001', cantidad: 1 });
     const venta = crearVentaPOS({
       id: 'venta-103',
@@ -103,17 +128,16 @@ describe('POS: Registro de Ventas e Idempotencia (RN-01, RN-07)', () => {
     });
 
     // Primera ejecución
-    const result1 = registrarVenta(venta, BODEGA_ID);
+    const result1 = await registrarVenta(venta, BODEGA_ID);
     expect(result1.error).toBeNull();
 
     // Segunda ejecución (duplicada)
-    const result2 = registrarVenta(venta, BODEGA_ID);
+    const result2 = await registrarVenta(venta, BODEGA_ID);
     expect(result2.error).toBeNull();
     expect(result2.data?.id).toBe(result1.data?.id);
 
     // Verificar que no se volvió a restar el stock (debería quedar en 9, no 8)
-    const stockList = load<StockItem[]>('stock', []);
-    const stockItem = stockList.find(s => s.productoId === 'prod-001' && s.bodegaId === BODEGA_ID);
-    expect(stockItem?.cantidad).toBe(9); // 10 - 1
+    const stockDict = load<any>('stock', {});
+    expect(stockDict[BODEGA_ID]?.['SAL-001']).toBe(9); // 10 - 1
   });
 });

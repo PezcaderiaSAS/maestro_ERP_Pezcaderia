@@ -316,7 +316,7 @@ export default function ClientsView() {
                   <p style={{ color: '#64748B', fontSize: '13px', textAlign: 'center', padding: '16px 0' }}>No hay ventas registradas.</p>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>
-                    {selectedClienteVentas.map(v => (
+                    {selectedClienteVentas.map((v: any) => (
                       <div key={v.id} style={{ padding: '12px', border: '1px solid #E2E8F0', borderRadius: '6px', backgroundColor: '#F8FAFC' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                           <span style={{ fontWeight: 700, fontSize: '13px' }}>{v.id}</span>

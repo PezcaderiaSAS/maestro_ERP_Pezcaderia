@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { usePOSPrinter } from '../hooks/usePOSPrinter';
+import type { VentaPOS } from '../types/pos.types';
 
 describe('usePOSPrinter Hook', () => {
   const mockVenta: any = {

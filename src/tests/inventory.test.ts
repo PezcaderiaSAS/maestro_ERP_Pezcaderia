@@ -2,7 +2,13 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { validarStock, registrarEntrada, registrarSalida } from '../services/inventoryService';
 import { save, load } from '../services/localDb';
 import { crearProducto } from './utils/testFactories';
-import type { StockItem, MovimientoInventario } from '../services/inventoryService';
+import type { MovimientoInventario } from '../services/inventoryService';
+
+interface StockItem {
+  bodegaId: string;
+  productoId: string;
+  cantidad: number;
+}
 
 describe('Inventario: Control de Stock (RN-01)', () => {
   const BODEGA_ID = 'bod-001';
@@ -13,9 +19,11 @@ describe('Inventario: Control de Stock (RN-01)', () => {
     save('productsCatalog', [
       crearProducto({ id: 'prod-001', sku: 'SAL-001', unidadMedida: 'KG' })
     ]);
-    save('stock', [
-      { bodegaId: BODEGA_ID, productoId: 'prod-001', cantidad: 10 } as StockItem
-    ]);
+    save('stock', {
+      [BODEGA_ID]: {
+        'SAL-001': 10
+      }
+    });
   });
 
   it('debería retornar válido si hay stock suficiente', () => {
