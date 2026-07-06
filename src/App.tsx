@@ -1432,37 +1432,6 @@ export default function App() {
     }
   };
 
-  if (!sesion) {
-    return <LoginView onLoginSuccess={setSesion} />;
-  }
-
-  if (!turnoActivo) {
-    return (
-      <CajaTurnoPanel 
-        mode="apertura" 
-        sesionActiva={sesion} 
-        onTurnoAbierto={setTurnoActivo} 
-      />
-    );
-  }
-
-  if (showCierreCaja) {
-    return (
-      <CajaTurnoPanel 
-        mode="cierre"
-        sesionActiva={sesion}
-        turnoActivo={turnoActivo}
-        onCancel={() => setShowCierreCaja(false)}
-        onTurnoCerrado={(turno) => {
-          setTurnoActivo(null);
-          setShowCierreCaja(false);
-          // Optional: log out user after closing or just require new turn
-          // setSesion(null); authService.logout();
-        }}
-      />
-    );
-  }
-
   return (
     <div className="spa-container">
       {/* Top Navbar */}
@@ -1502,7 +1471,7 @@ export default function App() {
             backgroundColor: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontWeight: 'bold', fontSize: '14px', border: '1px solid rgba(255,255,255,0.4)'
           }}>
-            {sesion?.nombre?.slice(0, 2).toUpperCase() || 'YU'}
+            Yu
           </div>
         </div>
       </header>
@@ -1706,11 +1675,7 @@ export default function App() {
           </nav>
 
           {/* Log out */}
-          <button className="sidebar-btn-exit" onClick={() => {
-            authService.logout();
-            setSesion(null);
-            setTurnoActivo(null);
-          }}>
+          <button className="sidebar-btn-exit" onClick={() => alert('Cerrando sesión...')}>
             <LogOut size={16} />
             <span>Salir</span>
           </button>
