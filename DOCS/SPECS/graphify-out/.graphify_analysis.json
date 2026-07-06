@@ -1,0 +1,163 @@
+{
+  "communities": {
+    "0": [
+      "spec_b2b_b2bservice",
+      "spec_b2b_estadopedido",
+      "spec_b2b_lineapedido",
+      "spec_b2b_pedido",
+      "spec_orders_ordersservice",
+      "spec_orders_ruta"
+    ],
+    "1": [
+      "spec_inventory_inventoryservice",
+      "spec_inventory_stockbodega",
+      "spec_pos_posservice",
+      "spec_pos_ventapos",
+      "spec_rappi_integration_logintegracionrappi"
+    ],
+    "2": [
+      "spec_cashflow_caja",
+      "spec_cashflow_cashservice",
+      "spec_cashflow_movimientocaja",
+      "spec_cashflow_turnocaja"
+    ],
+    "3": [
+      "spec_inventory_producto",
+      "spec_pricing_productpricing",
+      "spec_testing_testfactories"
+    ],
+    "4": [
+      "spec_devoluciones_finanzas_devolucionb2b",
+      "spec_devoluciones_finanzas_notacredito"
+    ],
+    "5": [
+      "spec_rrhh_nomina_empleado",
+      "spec_rrhh_nomina_nominaregistro"
+    ],
+    "6": [
+      "spec_payroll_nomina"
+    ]
+  },
+  "cohesion": {
+    "0": 0.3333333333333333,
+    "1": 0.4,
+    "2": 0.5,
+    "3": 0.6666666666666666,
+    "4": 1.0,
+    "5": 1.0,
+    "6": 1.0
+  },
+  "gods": [
+    {
+      "id": "spec_b2b_pedido",
+      "label": "Pedido B2B",
+      "degree": 5
+    },
+    {
+      "id": "spec_cashflow_turnocaja",
+      "label": "TurnoCaja",
+      "degree": 3
+    },
+    {
+      "id": "spec_pos_ventapos",
+      "label": "VentaPOS",
+      "degree": 3
+    },
+    {
+      "id": "spec_testing_testfactories",
+      "label": "Test Factories",
+      "degree": 3
+    },
+    {
+      "id": "spec_inventory_producto",
+      "label": "Producto",
+      "degree": 2
+    },
+    {
+      "id": "spec_inventory_inventoryservice",
+      "label": "Inventory Service",
+      "degree": 2
+    },
+    {
+      "id": "spec_orders_ordersservice",
+      "label": "Orders Service",
+      "degree": 2
+    },
+    {
+      "id": "spec_pos_posservice",
+      "label": "POS Service",
+      "degree": 2
+    },
+    {
+      "id": "spec_b2b_estadopedido",
+      "label": "EstadoPedido",
+      "degree": 1
+    },
+    {
+      "id": "spec_b2b_lineapedido",
+      "label": "LineaPedido",
+      "degree": 1
+    }
+  ],
+  "surprises": [
+    {
+      "source": "Orders Service",
+      "target": "Pedido B2B",
+      "source_files": [
+        "SPEC_ORDERS.md",
+        "SPEC_B2B.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories; peripheral node `Orders Service` unexpectedly reaches hub `Pedido B2B`"
+    },
+    {
+      "source": "Test Factories",
+      "target": "Pedido B2B",
+      "source_files": [
+        "SPEC_TESTING.md",
+        "SPEC_B2B.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "Test Factories",
+      "target": "VentaPOS",
+      "source_files": [
+        "SPEC_TESTING.md",
+        "SPEC_POS.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "ProductPricing",
+      "target": "Producto",
+      "source_files": [
+        "SPEC_PRICING.md",
+        "SPEC_INVENTORY.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories"
+    },
+    {
+      "source": "Test Factories",
+      "target": "Producto",
+      "source_files": [
+        "SPEC_TESTING.md",
+        "SPEC_INVENTORY.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories"
+    }
+  ],
+  "tokens": {
+    "input": 24595,
+    "output": 1975
+  }
+}

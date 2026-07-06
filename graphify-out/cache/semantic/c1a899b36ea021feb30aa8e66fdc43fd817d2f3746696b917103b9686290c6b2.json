@@ -1,0 +1,1 @@
+{"nodes": [{"id": "system_design", "label": "System Design Architecture", "file_type": "document", "source_file": "DOCS/system_design.md"}], "edges": [{"source": "system_design", "target": "localdb_ts", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "DOCS/system_design.md"}], "hyperedges": []}

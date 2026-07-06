@@ -1,6 +1,7 @@
 // src/views/DashboardView.tsx
 import { ReactNode } from 'react';
 import { DollarSign, ShoppingBag, PlusCircle, ArrowUpRight, Wallet, RefreshCw } from 'lucide-react';
+import { useAppStore } from '../store/useAppStore.ts';
 
 interface MetricCardProps {
   title: string;
@@ -37,7 +38,8 @@ function MetricCard({ title, value, change, positive, icon }: MetricCardProps) {
   );
 }
 
-export default function DashboardView({ setView, ventas = [], parametros: _parametros = {}, devoluciones = [] }: any) {
+export default function DashboardView({ ventas = [], parametros: _parametros = {}, devoluciones = [] }: any) {
+  const setView = useAppStore((s) => s.setCurrentView);
   const todayStr = new Date().toISOString().split('T')[0];
   const salesToday = ventas.filter((v: any) => v.fecha.startsWith(todayStr));
   

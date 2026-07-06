@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Calendar, Filter, Download, ChevronDown, ChevronUp, Lock, FileText, IndianRupee, DollarSign, BarChart2 } from 'lucide-react';
+import { Calendar, Filter, Download, ChevronDown, ChevronUp, Lock, FileText, BarChart2 } from 'lucide-react';
 
 interface PurchasesReportProps {
   ordenesCompra: any[];

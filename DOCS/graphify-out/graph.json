@@ -1,0 +1,577 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {
+    "hyperedges": [
+      {
+        "id": "warehouse_management_flow",
+        "label": "Dynamic Warehouse Management Flow",
+        "nodes": [
+          "delta_spec_warehouse",
+          "warehouse_config_manager",
+          "inventory_view",
+          "localdb_service"
+        ],
+        "relation": "participate_in",
+        "confidence": "EXTRACTED",
+        "confidence_score": 0.95,
+        "source_file": "plan.md"
+      },
+      {
+        "id": "sdd_methodology",
+        "label": "Spec Driven Development Pattern",
+        "nodes": [
+          "ai_rules_identity",
+          "system_design_arch",
+          "business_rules_inventory"
+        ],
+        "relation": "form",
+        "confidence": "EXTRACTED",
+        "confidence_score": 1.0,
+        "source_file": "spec_driven_development.md"
+      },
+      {
+        "id": "erp_core_entities",
+        "label": "ERP Core Data Entities",
+        "nodes": [
+          "spec_inventory_producto",
+          "spec_b2b_pedido",
+          "spec_pos_venta_pos",
+          "spec_cashflow_turno_caja"
+        ],
+        "relation": "participate_in",
+        "confidence": "EXTRACTED",
+        "confidence_score": 0.95,
+        "source_file": "SPECS/SPEC_TEMPLATE.md"
+      },
+      {
+        "id": "external_integration_flow",
+        "label": "External Integration & Security Flow",
+        "nodes": [
+          "pezcaderia_delivery_sync_validar_firma_rappi",
+          "context7_api",
+          "spec_pos_venta_pos"
+        ],
+        "relation": "form",
+        "confidence": "INFERRED",
+        "confidence_score": 0.8,
+        "source_file": "SKILLS/pezcaderia-delivery-sync/SKILL.md"
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "label": "optimize.js",
+      "file_type": "code",
+      "source_file": "SKILLS/pezcaderia-prompt-optimizer/scripts/optimize.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "scripts_optimize",
+      "community": 1,
+      "norm_label": "optimize.js"
+    },
+    {
+      "label": "https",
+      "file_type": "code",
+      "source_file": "SKILLS/pezcaderia-prompt-optimizer/scripts/optimize.js",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "scripts_optimize_https",
+      "community": 1,
+      "norm_label": "https"
+    },
+    {
+      "label": "LIBRARIES",
+      "file_type": "code",
+      "source_file": "SKILLS/pezcaderia-prompt-optimizer/scripts/optimize.js",
+      "source_location": "L11",
+      "_origin": "ast",
+      "id": "scripts_optimize_libraries",
+      "community": 1,
+      "norm_label": "libraries"
+    },
+    {
+      "label": "args",
+      "file_type": "code",
+      "source_file": "SKILLS/pezcaderia-prompt-optimizer/scripts/optimize.js",
+      "source_location": "L20",
+      "_origin": "ast",
+      "id": "scripts_optimize_args",
+      "community": 1,
+      "norm_label": "args"
+    },
+    {
+      "label": "req",
+      "file_type": "code",
+      "source_file": "SKILLS/pezcaderia-prompt-optimizer/scripts/optimize.js",
+      "source_location": "L54",
+      "_origin": "ast",
+      "id": "scripts_optimize_req",
+      "community": 1,
+      "norm_label": "req"
+    },
+    {
+      "label": "printOptimizedPrompt()",
+      "file_type": "code",
+      "source_file": "SKILLS/pezcaderia-prompt-optimizer/scripts/optimize.js",
+      "source_location": "L91",
+      "_origin": "ast",
+      "id": "scripts_optimize_printoptimizedprompt",
+      "community": 1,
+      "norm_label": "printoptimizedprompt()"
+    },
+    {
+      "label": "MaestroPescader\u00eda ERP Identity",
+      "file_type": "rationale",
+      "source_file": "AI_RULES.md",
+      "id": "ai_rules_identity",
+      "community": 6,
+      "norm_label": "maestropescaderia erp identity"
+    },
+    {
+      "label": "Inventory & WMS Rules",
+      "file_type": "concept",
+      "source_file": "business_rules.md",
+      "id": "business_rules_inventory",
+      "community": 0,
+      "norm_label": "inventory & wms rules"
+    },
+    {
+      "label": "POS & Cash Rules",
+      "file_type": "concept",
+      "source_file": "business_rules.md",
+      "id": "business_rules_pos",
+      "community": 8,
+      "norm_label": "pos & cash rules"
+    },
+    {
+      "label": "B2B & Commercial Rules",
+      "file_type": "concept",
+      "source_file": "business_rules.md",
+      "id": "business_rules_b2b",
+      "community": 7,
+      "norm_label": "b2b & commercial rules"
+    },
+    {
+      "label": "Dynamic Warehouse Configuration Spec",
+      "file_type": "document",
+      "source_file": "delta-spec.md",
+      "id": "delta_spec_warehouse",
+      "community": 0,
+      "norm_label": "dynamic warehouse configuration spec"
+    },
+    {
+      "label": "System Architecture Overview",
+      "file_type": "document",
+      "source_file": "system_design.md",
+      "id": "system_design_arch",
+      "community": 0,
+      "norm_label": "system architecture overview"
+    },
+    {
+      "label": "Local Database Service",
+      "file_type": "code",
+      "source_file": "src/services/localDb.ts",
+      "id": "localdb_service",
+      "community": 0,
+      "norm_label": "local database service"
+    },
+    {
+      "label": "Inventory View Component",
+      "file_type": "code",
+      "source_file": "src/views/InventoryView.tsx",
+      "id": "inventory_view",
+      "community": 0,
+      "norm_label": "inventory view component"
+    },
+    {
+      "label": "Warehouse Config Manager",
+      "file_type": "code",
+      "source_file": "src/views/inventory/components/WarehouseConfigManager.tsx",
+      "id": "warehouse_config_manager",
+      "community": 0,
+      "norm_label": "warehouse config manager"
+    },
+    {
+      "label": "App Root Component",
+      "file_type": "code",
+      "source_file": "src/App.tsx",
+      "id": "app_root",
+      "community": 0,
+      "norm_label": "app root component"
+    },
+    {
+      "label": "validarFirmaRappi",
+      "file_type": "code",
+      "source_file": "SKILLS/pezcaderia-delivery-sync/SKILL.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "pezcaderia_delivery_sync_validar_firma_rappi",
+      "community": 2,
+      "norm_label": "validarfirmarappi"
+    },
+    {
+      "label": "calcDiasComerciales",
+      "file_type": "code",
+      "source_file": "SKILLS/pezcaderia-payroll-colombia/SKILL.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "pezcaderia_payroll_colombia_calc_dias_comerciales",
+      "community": 3,
+      "norm_label": "calcdiascomerciales"
+    },
+    {
+      "label": "Vitest Setup",
+      "file_type": "code",
+      "source_file": "SKILLS/pezcaderia-testing-vitest/SKILL.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "pezcaderia_testing_vitest_setup",
+      "community": 9,
+      "norm_label": "vitest setup"
+    },
+    {
+      "label": "leerPesoBalanza",
+      "file_type": "code",
+      "source_file": "SKILLS/pezcaderia-web-serial/SKILL.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "pezcaderia_web_serial_leer_peso_balanza",
+      "community": 2,
+      "norm_label": "leerpesobalanza"
+    },
+    {
+      "label": "Pedido B2B Type",
+      "file_type": "code",
+      "source_file": "SPECS/SPEC_B2B.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "spec_b2b_pedido",
+      "community": 5,
+      "norm_label": "pedido b2b type"
+    },
+    {
+      "label": "TurnoCaja Type",
+      "file_type": "code",
+      "source_file": "SPECS/SPEC_CASHFLOW.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "spec_cashflow_turno_caja",
+      "community": 10,
+      "norm_label": "turnocaja type"
+    },
+    {
+      "label": "Producto Type",
+      "file_type": "code",
+      "source_file": "SPECS/SPEC_INVENTORY.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "spec_inventory_producto",
+      "community": 5,
+      "norm_label": "producto type"
+    },
+    {
+      "label": "VentaPOS Type",
+      "file_type": "code",
+      "source_file": "SPECS/SPEC_POS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "spec_pos_venta_pos",
+      "community": 4,
+      "norm_label": "ventapos type"
+    },
+    {
+      "label": "NominaRegistro Type",
+      "file_type": "code",
+      "source_file": "SPECS/SPEC_RRHH_NOMINA.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "spec_payroll_nomina_registro",
+      "community": 3,
+      "norm_label": "nominaregistro type"
+    },
+    {
+      "label": "Context7 API",
+      "file_type": "concept",
+      "source_file": null,
+      "source_location": null,
+      "source_url": "https://context7.com/api/v2/context",
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "context7_api",
+      "community": 2,
+      "norm_label": "context7 api"
+    },
+    {
+      "label": "RN-01: Stock No Negativo",
+      "file_type": "concept",
+      "source_file": "SPECS/SPEC_INVENTORY.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "rn_01_stock_no_negativo",
+      "community": 4,
+      "norm_label": "rn-01: stock no negativo"
+    },
+    {
+      "label": "RN-26: D\u00edas Comerciales (30)",
+      "file_type": "concept",
+      "source_file": "SPECS/SPEC_RRHH_NOMINA.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "rn_26_dias_comerciales",
+      "community": 3,
+      "norm_label": "rn-26: dias comerciales (30)"
+    }
+  ],
+  "links": [
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "SKILLS/pezcaderia-prompt-optimizer/scripts/optimize.js",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "scripts_optimize",
+      "target": "scripts_optimize_args",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "SKILLS/pezcaderia-prompt-optimizer/scripts/optimize.js",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "scripts_optimize",
+      "target": "scripts_optimize_https",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "SKILLS/pezcaderia-prompt-optimizer/scripts/optimize.js",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "scripts_optimize",
+      "target": "scripts_optimize_libraries",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "SKILLS/pezcaderia-prompt-optimizer/scripts/optimize.js",
+      "source_location": "L91",
+      "weight": 1.0,
+      "source": "scripts_optimize",
+      "target": "scripts_optimize_printoptimizedprompt",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "SKILLS/pezcaderia-prompt-optimizer/scripts/optimize.js",
+      "source_location": "L54",
+      "weight": 1.0,
+      "source": "scripts_optimize",
+      "target": "scripts_optimize_req",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "delta-spec.md",
+      "source": "delta_spec_warehouse",
+      "target": "business_rules_inventory"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "delta-spec.md",
+      "source": "warehouse_config_manager",
+      "target": "business_rules_inventory"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "delta-spec.md",
+      "source": "delta_spec_warehouse",
+      "target": "localdb_service"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "system_design.md",
+      "source": "system_design_arch",
+      "target": "localdb_service"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/App.tsx",
+      "source": "app_root",
+      "target": "localdb_service"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "src/views/InventoryView.tsx",
+      "source": "inventory_view",
+      "target": "warehouse_config_manager"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SKILLS/pezcaderia-delivery-sync/SKILL.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "pezcaderia_delivery_sync_validar_firma_rappi",
+      "target": "context7_api"
+    },
+    {
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SKILLS/pezcaderia-payroll-colombia/SKILL.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "pezcaderia_payroll_colombia_calc_dias_comerciales",
+      "target": "rn_26_dias_comerciales"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "SPECS/SPEC_RRHH_NOMINA.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "spec_payroll_nomina_registro",
+      "target": "pezcaderia_payroll_colombia_calc_dias_comerciales"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SKILLS/pezcaderia-web-serial/SKILL.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "pezcaderia_web_serial_leer_peso_balanza",
+      "target": "context7_api"
+    },
+    {
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "SPECS/SPEC_B2B.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "spec_b2b_pedido",
+      "target": "spec_inventory_producto"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SPECS/SPEC_POS.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "spec_pos_venta_pos",
+      "target": "rn_01_stock_no_negativo"
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "warehouse_management_flow",
+      "label": "Dynamic Warehouse Management Flow",
+      "nodes": [
+        "delta_spec_warehouse",
+        "warehouse_config_manager",
+        "inventory_view",
+        "localdb_service"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 0.95,
+      "source_file": "plan.md"
+    },
+    {
+      "id": "sdd_methodology",
+      "label": "Spec Driven Development Pattern",
+      "nodes": [
+        "ai_rules_identity",
+        "system_design_arch",
+        "business_rules_inventory"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "spec_driven_development.md"
+    },
+    {
+      "id": "erp_core_entities",
+      "label": "ERP Core Data Entities",
+      "nodes": [
+        "spec_inventory_producto",
+        "spec_b2b_pedido",
+        "spec_pos_venta_pos",
+        "spec_cashflow_turno_caja"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 0.95,
+      "source_file": "SPECS/SPEC_TEMPLATE.md"
+    },
+    {
+      "id": "external_integration_flow",
+      "label": "External Integration & Security Flow",
+      "nodes": [
+        "pezcaderia_delivery_sync_validar_firma_rappi",
+        "context7_api",
+        "spec_pos_venta_pos"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "SKILLS/pezcaderia-delivery-sync/SKILL.md"
+    }
+  ],
+  "built_at_commit": "72e849ba124154720057bd965d3f3132263c59ec"
+}

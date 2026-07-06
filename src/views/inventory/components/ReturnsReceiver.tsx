@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { RefreshCw, X } from 'lucide-react';
 
 export function ReturnsReceiver({

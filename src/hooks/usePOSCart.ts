@@ -4,6 +4,9 @@ import { useState, useMemo } from 'react';
 import type { LineaVenta } from '../types/pos.types';
 import type { Producto } from '../types/inventory.types';
 import { calcularTotalLinea, calcularTotalesPedido } from '../services/posService';
+import { createLogger } from '../lib/consoleLogger';
+
+const log = createLogger('POSCart');
 
 // Declaración local del tipo Cliente para evitar acoplamiento rígido con App.tsx
 export interface ClientePOS {
@@ -17,9 +20,14 @@ export interface ClientePOS {
 
 export function usePOSCart(initialCliente: ClientePOS | null = null) {
   const [lineas, setLineas] = useState<LineaVenta[]>([]);
-  const [cliente, setCliente] = useState<ClientePOS | null>(initialCliente);
+  const [cliente, setClienteState] = useState<ClientePOS | null>(initialCliente);
   const [descuentoGlobalPct, setDescuentoGlobalPct] = useState<number>(0);
   const [descuentoGlobalValor, setDescuentoGlobalValor] = useState<number>(0);
+
+  const setCliente = (value: ClientePOS | null) => {
+    if (value) log.info('setCliente', { clienteId: value.id, nombre: value.nombre, tipoPrecio: value.tipoPrecio });
+    setClienteState(value);
+  };
 
   // Recálculo automático de totales reactivos
   const totales = useMemo(() => {
@@ -31,6 +39,7 @@ export function usePOSCart(initialCliente: ClientePOS | null = null) {
   }, [lineas, descuentoGlobalPct, descuentoGlobalValor]);
 
   const agregarProducto = (producto: Producto, cantidad: number = 1, esPesoManual: boolean = false) => {
+    log.info('agregarProducto', { sku: producto.sku, nombre: producto.nombre, cantidad });
     // Resolver precio de venta según el tipo de cliente
     let precioLista = Number((producto as any).precio_venta_pos ?? producto.precioVentaPOS) || 0;
     if (cliente) {
@@ -70,6 +79,7 @@ export function usePOSCart(initialCliente: ClientePOS | null = null) {
         descuentoPct: 0,
         precioFinal: calc.precioFinal,
         totalLinea: calc.totalLinea,
+        precioCompra: producto.precioCompra || 0,
         esPesoManual,
       };
       return [...prev, nuevaLinea];
@@ -78,10 +88,12 @@ export function usePOSCart(initialCliente: ClientePOS | null = null) {
 
   const actualizarCantidad = (productoId: string, cantidad: number) => {
     if (cantidad <= 0) {
+      log.info('actualizarCantidad', { productoId, cantidad: 0 });
       removerProducto(productoId);
       return;
     }
 
+    log.info('actualizarCantidad', { productoId, cantidad });
     setLineas((prev) =>
       prev.map((l) => {
         if (l.productoId === productoId) {
@@ -101,6 +113,7 @@ export function usePOSCart(initialCliente: ClientePOS | null = null) {
   const actualizarDescuentoLinea = (productoId: string, descuentoPct: number) => {
     if (descuentoPct < 0 || descuentoPct > 100) return;
 
+    log.info('actualizarDescuentoLinea', { productoId, descuentoPct });
     setLineas((prev) =>
       prev.map((l) => {
         if (l.productoId === productoId) {
@@ -138,10 +151,12 @@ export function usePOSCart(initialCliente: ClientePOS | null = null) {
   };
 
   const removerProducto = (productoId: string) => {
+    log.info('removerProducto', { productoId });
     setLineas((prev) => prev.filter((l) => l.productoId !== productoId));
   };
 
   const limpiarCarrito = () => {
+    log.info('limpiarCarrito', { lineasPrevias: lineas.length });
     setLineas([]);
     setDescuentoGlobalPct(0);
     setDescuentoGlobalValor(0);

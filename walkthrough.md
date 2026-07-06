@@ -57,3 +57,14 @@ Hemos resuelto varios problemas críticos que impedían la instalación y ejecuc
   * Extendimos la interfaz `VentaPOS` en [pos.types.ts](file:///c:/Users/Personal/Documents/Yurgen/Maestro_Pezcaderia_ERP/maestro_ERP_Pezcaderia/src/types/pos.types.ts) para dar soporte de compatibilidad a los mocks de pruebas e impresoras.
   * Desactivamos la restricción estricta de variables no usadas (`noUnusedLocals`/`noUnusedParameters`) en [tsconfig.json](file:///c:/Users/Personal/Documents/Yurgen/Maestro_Pezcaderia_ERP/maestro_ERP_Pezcaderia/tsconfig.json) para permitir advertencias en lugar de fallos de compilación por imports de React no utilizados.
 * **Servidor Dev Activo**: La aplicación ahora compila exitosamente al 100% y el servidor de desarrollo está activo y escuchando peticiones locales.
+
+---
+
+## 6. Módulo de Despachos B2B y Sincronización de Inventario
+
+* **Nueva Vista de Despacho (`DispatchView.tsx`)**: Se implementó una interfaz dedicada para el equipo de logística. Muestra los pedidos en estado `LISTO`, permitiendo asignar un conductor (interno o externo) y despachar.
+* **Deducción de Inventario en Tiempo Real**: Al despachar (tanto desde el Kanban moviendo la tarjeta a `EN_DESPACHO` como desde `DispatchView`), el sistema:
+  * Calcula la cantidad final a despachar considerando peso real o cantidades alistadas/solicitadas.
+  * Realiza una salida de la **Bodega Principal**.
+  * Genera un movimiento de inventario inmutable (`VENTA`) referenciado con el ID del pedido y las notas del conductor.
+* **Integridad (Prevención de doble descuento)**: Se incorporó la bandera `inventarioDescontado` en la estructura de `Pedido`. Esto blinda el proceso evitando que mover un pedido repetidas veces genere múltiples reducciones erróneas en el inventario.

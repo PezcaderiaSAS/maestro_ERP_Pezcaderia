@@ -1,0 +1,1 @@
+{"nodes": [], "edges": [], "hyperedges": [{"id": "warehouse_management_flow", "label": "Dynamic Warehouse Management Flow", "nodes": ["delta_spec_warehouse", "warehouse_config_manager", "inventory_view", "localdb_service"], "relation": "participate_in", "confidence": "EXTRACTED", "confidence_score": 0.95, "source_file": "plan.md"}]}

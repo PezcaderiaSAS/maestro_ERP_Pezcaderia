@@ -1,53 +1,29 @@
 // src/views/PricingView.tsx
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Edit2, Save, Printer, Search, DollarSign, ShoppingCart, FileText, Check, X } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { Product, ProductCatalog, ProductPricing, Cliente, generateId, Conductor, DevolucionPedido } from '../App.tsx';
+import { generateId, ProductPricing, DevolucionPedido } from '../App.tsx';
+import { useInventoryStore } from '../store/useInventoryStore.ts';
+import { useOrderStore } from '../store/useOrderStore.ts';
+import { useEventStore } from '../store/useEventStore.ts';
+import { useAppStore } from '../store/useAppStore.ts';
+import { useClientStore } from '../store/useClientStore.ts';
+import { useDriverStore } from '../store/useDriverStore.ts';
+import { useReturnStore } from '../store/useReturnStore.ts';
 
-interface PricingViewProps {
-  products: Product[];
-  setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
-  productsCatalog?: ProductCatalog[];
-  setProductsCatalog?: React.Dispatch<React.SetStateAction<ProductCatalog[]>>;
-  productPricings?: ProductPricing[];
-  setProductPricings?: React.Dispatch<React.SetStateAction<ProductPricing[]>>;
-  quotations: any[];
-  setQuotations: React.Dispatch<React.SetStateAction<any[]>>;
-  publishEvent: (
-    tipo: 'SALE_COMPLETED' | 'PRICE_CHANGED' | 'MERMA_ALERT' | 'QUOTE_STATUS_CHANGED' | 'METADATA_CONFIGURED',
-    actor: string,
-    descripcion: string,
-    metadata?: any,
-    enqueueSync?: boolean
-  ) => void;
-  userRole: string;
-  stock: Record<string, any[]>;
-  setStock: React.Dispatch<React.SetStateAction<Record<string, any[]>>>;
-  lastClientPrices: Record<string, Record<string, number>>;
-  updateLastClientPrice: (clientKey: string, sku: string, price: number) => void;
-  clientes: Cliente[];
-  conductores?: Conductor[];
-  devoluciones?: DevolucionPedido[];
-  setDevoluciones?: React.Dispatch<React.SetStateAction<DevolucionPedido[]>>;
-}
-
-export default function PricingView({
-  products,
-  setProducts,
-  setProductsCatalog,
-  productPricings,
-  setProductPricings,
-  quotations,
-  setQuotations,
-  publishEvent,
-  userRole,
-  setStock,
-  updateLastClientPrice,
-  clientes,
-  conductores = [],
-  devoluciones = [],
-  setDevoluciones
-}: PricingViewProps) {
+export default function PricingView() {
+  const {
+    products, setProducts,
+    setProductsCatalog,
+    productPricings, setProductPricings,
+    setStock,
+  } = useInventoryStore();
+  const { quotations, setQuotations } = useOrderStore();
+  const publishEvent = useEventStore((s) => s.publishEvent);
+  const userRole = useAppStore((s) => s.userRole);
+  const { clientes, updateLastClientPrice } = useClientStore();
+  const conductores = useDriverStore((s) => s.conductores);
+  const { devoluciones, setDevoluciones } = useReturnStore();
   const [activeTab, setActiveTab] = useState<'catalog' | 'pricing' | 'quotes'>('quotes');
   const [quoteSubTab, setQuoteSubTab] = useState<'create' | 'history' | 'devoluciones'>('create');
   const [selectedQuoteForPrint, setSelectedQuoteForPrint] = useState<any>(null);
@@ -81,7 +57,7 @@ export default function PricingView({
   const [clientName, setClientName] = useState('');
   const [clientIdent, setClientIdent] = useState('');
   const [quoteItems, setQuoteItems] = useState<{ 
-    product: Product; 
+    product: any; 
     cantidad: number; 
     descuento: number; 
     precioOverride?: number;
@@ -103,7 +79,7 @@ export default function PricingView({
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingItemIndex, setEditingItemIndex] = useState<number | null>(null);
   const [currentProductLine, setCurrentProductLine] = useState<{
-    product: Product | null;
+    product: any | null;
     cantidad: number | string;
     descuento: number | string;
     precioOverride: number | string;
@@ -157,7 +133,7 @@ export default function PricingView({
 
     if (editingProductId) {
       // Editar existente
-      setProducts(prev => prev.map(p => {
+      setProducts((prev: any[]) => prev.map((p: any) => {
         if (p.id === editingProductId) {
           // Recalcular sugeridos si el costo o buffer cambió
           const compra = productForm.precio_compra;
@@ -196,7 +172,7 @@ export default function PricingView({
       const sugRest = Math.round(compra * (1 + (buffer / 100) + 0.30));
       const sugMay = Math.round(compra * (1 + (buffer / 100) + 0.15));
 
-      const nuevoProd: Product = {
+      const nuevoProd: any = {
         id: `p-${Date.now()}`,
         sku: productForm.sku.toUpperCase(),
         nombre: productForm.nombre.toUpperCase(),
@@ -209,14 +185,14 @@ export default function PricingView({
         activo: true
       };
 
-      setProducts(prev => [...prev, nuevoProd]);
+      setProducts((prev: any[]) => [...prev, nuevoProd]);
       Swal.fire({ icon: 'success', title: 'Producto creado', text: 'El producto se ha añadido con éxito.', confirmButtonColor: 'var(--primary-color)' });
     }
 
     setProductForm({ sku: '', nombre: '', categoria: '', unidadMedida: 'kg', precio_compra: 0, buffer_seguridad: 5 });
   };
 
-  const handleEditProduct = (prod: Product) => {
+  const handleEditProduct = (prod: any) => {
     setEditingProductId(prod.id);
     setProductForm({
       sku: prod.sku,
@@ -229,13 +205,11 @@ export default function PricingView({
   };
 
   const handleToggleStatus = (id: string) => {
-    if (setProductsCatalog) {
-      setProductsCatalog(prev => prev.map(p => p.id === id ? { ...p, activo: !p.activo } : p));
-    }
+      setProductsCatalog((prev: any[]) => prev.map((p: any) => p.id === id ? { ...p, activo: !p.activo } : p));
   };
 
   // --- MANEJADORES PRECIOS ---
-  const handleStartEditPrice = (prod: Product) => {
+  const handleStartEditPrice = (prod: any) => {
     setEditingPriceId(prod.id);
     setPriceForm({
       precio_compra: prod.precio_compra,
@@ -273,7 +247,7 @@ export default function PricingView({
         precio_venta_mayorista: priceForm.precio_venta_mayorista,
         actualizadoPor: userRole
       };
-      setProductPricings(prev => [...prev, newPricing]);
+      setProductPricings((prev: any[]) => [...prev, newPricing]);
       publishEvent('PRICE_CHANGED', userRole, `Actualización de precios para el producto ${prodId}`);
     }
 
@@ -288,7 +262,7 @@ export default function PricingView({
   };
 
   // Obtener el precio correspondiente al tipo de cliente
-  const getProductPriceByClientType = (prod: Product) => {
+  const getProductPriceByClientType = (prod: any) => {
     switch (clientType) {
       case 'RESTAURANTE':
         return prod.precio_venta_restaurante;
@@ -299,7 +273,7 @@ export default function PricingView({
     }
   };
 
-  const getQuoteItemUnitPrice = (item: { product: Product; precioOverride?: number }) => {
+  const getQuoteItemUnitPrice = (item: any) => {
     return item.precioOverride !== undefined ? item.precioOverride : getProductPriceByClientType(item.product);
   };
 
@@ -358,7 +332,7 @@ export default function PricingView({
     const origenFinal = origenPedido === 'OTRO' ? nuevoOrigen : origenPedido;
 
     if (editingQuoteId) {
-      setQuotations(prev => prev.map(q => {
+      setQuotations((prev: any[]) => prev.map((q: any) => {
         if (q.id === editingQuoteId) {
           publishEvent(
             'QUOTE_STATUS_CHANGED',
@@ -445,7 +419,7 @@ export default function PricingView({
         }
       };
 
-      setQuotations(prev => [newQuote, ...prev]);
+      setQuotations((prev: any[]) => [newQuote, ...prev]);
 
       publishEvent(
         'QUOTE_STATUS_CHANGED',
@@ -595,7 +569,7 @@ export default function PricingView({
       }
     }
 
-    setQuotations(prev => prev.map(q => {
+    setQuotations((prev: any[]) => prev.map((q: any) => {
       if (q.id === quoteId) {
         publishEvent(
           'QUOTE_STATUS_CHANGED',
@@ -606,17 +580,17 @@ export default function PricingView({
 
         if (nuevoEstado === 'Sold') {
           // Decrease stock in Bodega Principal
-          setStock(prev => {
+          setStock((prev: any) => {
             const newStock = { ...prev };
-            if (newStock['Bodega Principal']) {
-              newStock['Bodega Principal'] = newStock['Bodega Principal'].map((stockItem: any) => {
-                // If it was prepared, we deduct the quantity_real; otherwise the quantity_solicitada
-                const quoteItem = q.items.find((i: any) => i.sku === stockItem.sku);
-                if (quoteItem) {
+            const mainBodega = 'Bodega Principal';
+            if (newStock[mainBodega]) {
+              newStock[mainBodega] = { ...newStock[mainBodega] };
+              q.items.forEach((quoteItem: any) => {
+                const sku = quoteItem.sku;
+                if (newStock[mainBodega][sku] !== undefined) {
                   const cantADescontar = quoteItem.cantidad_real !== undefined ? quoteItem.cantidad_real : quoteItem.cantidad;
-                  return { ...stockItem, stock: Math.max(0, stockItem.stock - cantADescontar) };
+                  newStock[mainBodega][sku] = Math.max(0, newStock[mainBodega][sku] - cantADescontar);
                 }
-                return stockItem;
               });
             }
             return newStock;
@@ -2206,9 +2180,7 @@ export default function PricingView({
                           }))
                         };
 
-                        if (setDevoluciones) {
-                          setDevoluciones(prev => [newDev, ...prev]);
-                        }
+                          setDevoluciones((prev: any[]) => [newDev, ...prev]);
                         publishEvent(
                           'QUOTE_STATUS_CHANGED',
                           userRole,

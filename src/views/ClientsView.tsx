@@ -1,24 +1,15 @@
-import React, { useState } from 'react';
-import { Cliente, Venta, generateId, toTitleCase } from '../App.tsx';
-import { InvoiceAR } from './ARView.tsx';
+import { useState } from 'react';
+import { Cliente, generateId, toTitleCase } from '../App.tsx';
 import { Users, Search, Save, FileText, Wallet, PlusCircle } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useClientStore } from '../store/useClientStore.ts';
+import { useOrderStore } from '../store/useOrderStore.ts';
+import { useARStore } from '../store/useARStore.ts';
 
-interface ClientsViewProps {
-  clientes: Cliente[];
-  setClientes: React.Dispatch<React.SetStateAction<Cliente[]>>;
-  ventas: Venta[];
-  cartera: InvoiceAR[];
-  publishEvent: (tipo: any, actor: string, desc: string, meta?: any) => void;
-  userRole: string;
-}
-
-export default function ClientsView({
-  clientes,
-  setClientes,
-  ventas,
-  cartera
-}: ClientsViewProps) {
+export default function ClientsView() {
+  const { clientes, setClientes } = useClientStore();
+  const ventas = useOrderStore((s) => s.ventas);
+  const cartera = useARStore((s) => s.cartera);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'TODOS' | 'ACTIVOS' | 'INACTIVOS'>('TODOS');
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
@@ -51,7 +42,7 @@ export default function ClientsView({
     }
 
     if (selectedClientId && clientes.some(c => c.id === selectedClientId)) {
-      setClientes(prev => prev.map(c => c.id === selectedClientId ? {
+      setClientes((prev: Cliente[]) => prev.map((c: Cliente) => c.id === selectedClientId ? {
         ...c,
         nombre: toTitleCase(clienteForm.nombre),
         identificacion: clienteForm.identificacion,
@@ -86,7 +77,7 @@ export default function ClientsView({
         cupoCredito: clienteForm.cupoCredito,
         activo: true
       };
-      setClientes(prev => [...prev, nuevo]);
+      setClientes((prev: Cliente[]) => [...prev, nuevo]);
       setSelectedClientId(nuevo.id);
       Swal.fire({ icon: 'success', title: 'Cliente creado', text: 'El nuevo cliente ha sido registrado con éxito.', timer: 1500, showConfirmButton: false });
     }
@@ -119,7 +110,7 @@ export default function ClientsView({
   };
 
   const handleToggleCliente = (id: string) => {
-    setClientes(prev => prev.map(c => c.id === id ? { ...c, activo: !c.activo } : c));
+    setClientes((prev: Cliente[]) => prev.map((c: Cliente) => c.id === id ? { ...c, activo: !c.activo } : c));
   };
 
   const filteredClientes = clientes.filter(c => {

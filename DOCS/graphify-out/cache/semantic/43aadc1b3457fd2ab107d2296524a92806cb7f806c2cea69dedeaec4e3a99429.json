@@ -1,0 +1,1 @@
+{"nodes": [], "edges": [], "hyperedges": [{"id": "erp_core_entities", "label": "ERP Core Data Entities", "nodes": ["spec_inventory_producto", "spec_b2b_pedido", "spec_pos_venta_pos", "spec_cashflow_turno_caja"], "relation": "participate_in", "confidence": "EXTRACTED", "confidence_score": 0.95, "source_file": "SPECS/SPEC_TEMPLATE.md"}]}

@@ -1,0 +1,1 @@
+{"nodes": [], "edges": [{"source": "documentacion_maestro_erp", "target": "siigo_api", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "DOCUMENTACION_DEVOLUCIONES_FINANZAS.md"}], "hyperedges": []}

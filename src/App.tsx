@@ -1,21 +1,41 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Menu, LayoutDashboard, ShoppingBag, Box, Users, DollarSign, HelpCircle, Home, ShoppingCart, LogOut, FileText, PlusCircle, Wallet, Database, Truck, RefreshCw, PieChart } from 'lucide-react';
+import { useEffect } from 'react';
+import { createLogger } from './lib/consoleLogger';
+import { Menu, LayoutDashboard, ShoppingBag, Box, Users, DollarSign, HelpCircle, Home, ShoppingCart, LogOut, FileText, PlusCircle, Wallet, Database, Truck, RefreshCw, PieChart, PackageCheck, BookOpen } from 'lucide-react';
 import DashboardView from './views/DashboardView.tsx';
 import POSView from './views/POSView.tsx';
 import InventoryView from './views/InventoryView.tsx';
 import HRView from './views/HRView.tsx';
 import PricingView from './views/PricingView.tsx';
-import ARView, { InvoiceAR } from './views/ARView.tsx';
+import ARView from './views/ARView.tsx';
 import ClientsView from './views/ClientsView.tsx';
 import SuppliersView from './views/SuppliersView.tsx';
 import OrderKanbanView from './views/OrderKanbanView.tsx';
 import PayrollView from './views/PayrollView.tsx';
 import CRMView from './views/CRMView.tsx';
+import CashFlowView from './views/cash/CashFlowView.tsx';
+import { AlistamientoBodegaView } from './views/inventory/AlistamientoBodegaView.tsx';
+import { DispatchView } from './views/inventory/DispatchView.tsx';
+import { DevTestDashboard } from './dev/DevTestDashboard.tsx';
+import AccountingView from './views/AccountingView.tsx';
 import * as localDb from './services/localDb.ts';
-import { authService } from './services/authService.ts';
-import { cajaService } from './services/cajaService.ts';
-import { LoginView } from './views/auth/LoginView.tsx';
-import { CajaTurnoPanel } from './views/pos/components/CajaTurnoPanel.tsx';
+// Stores de Zustand
+import { useInventoryStore } from './store/useInventoryStore.ts';
+import { useWarehouseStore } from './store/useWarehouseStore.ts';
+import { useOrderStore } from './store/useOrderStore.ts';
+import { useClientStore } from './store/useClientStore.ts';
+import { useSupplierStore } from './store/useSupplierStore.ts';
+import { useCategoryStore } from './store/useCategoryStore.ts';
+import { useDriverStore } from './store/useDriverStore.ts';
+import { useEmployeeStore } from './store/useEmployeeStore.ts';
+import { useExpenseStore } from './store/useExpenseStore.ts';
+import { useDynamicFieldStore } from './store/useDynamicFieldStore.ts';
+import { useARStore } from './store/useARStore.ts';
+import { useReturnStore } from './store/useReturnStore.ts';
+import { useIntegrationStore } from './store/useIntegrationStore.ts';
+import { usePurchaseStore } from './store/usePurchaseStore.ts';
+import { useMovementStore } from './store/useMovementStore.ts';
+import { useEventStore } from './store/useEventStore.ts';
+import { useAppStore } from './store/useAppStore.ts';
 
 /** Genera IDs únicos usando crypto.randomUUID() — resistente a colisiones en operaciones rápidas */
 export const generateId = (prefix: string): string =>
@@ -279,11 +299,6 @@ export interface DevolucionPedido {
   }>;
 }
 
-const INITIAL_CONDUCTORES: Conductor[] = [
-  { id: 'cond-1', nombre: 'José Daniel Ortiz', identificacion: '10203040', licencia: 'C2-10203040', celular: '3129998877', activo: true },
-  { id: 'cond-2', nombre: 'Carlos Mario Giraldo', identificacion: '80907060', licencia: 'C2-80907060', celular: '3157776655', activo: true }
-];
-
 export interface CategoriaConfig {
   id: string;
   tipo: string;
@@ -304,6 +319,7 @@ export interface ProductCatalog {
   control_inventario?: boolean;
   produccion?: boolean;
   activo: boolean;
+  categoriaABC?: 'A' | 'B' | 'C';
   metadata?: Record<string, string>;
 }
 
@@ -346,6 +362,7 @@ export function migrateProductsToCatalogAndPricing(oldProducts: any[], currentAc
       control_inventario: p.control_inventario ?? true,
       produccion: p.produccion ?? false,
       activo: p.activo ?? true,
+      categoriaABC: p.categoriaABC,
       metadata: p.metadata
     });
     pricings.push({
@@ -707,171 +724,104 @@ export interface LogIntegracion {
 }
 
 export default function App() {
-  // Role persistent loading
-  const initialRole = localDb.load('role', 'admin');
-  const [userRole, setUserRole] = useState<'admin' | 'vendedor' | 'bodega' | 'administrativo'>(initialRole);
-
-  const [currentView, setCurrentView] = useState('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  // Autenticación y Caja (Fase 1-4)
-  const [sesion, setSesion] = useState(authService.getSesionActiva());
-  const [turnoActivo, setTurnoActivo] = useState(sesion ? cajaService.getTurnoActivo(sesion.usuarioId) : null);
-  const [showCierreCaja, setShowCierreCaja] = useState(false);
+  const log = createLogger('App');
 
   useEffect(() => {
-    authService.seedUsuarios();
-    cajaService.seedCajas();
+    const onError = (event: ErrorEvent) => {
+      log.error('window.onerror', {
+        mensaje: event.message,
+        archivo: event.filename,
+        linea: event.lineno,
+        columna: event.colno,
+        error: event.error?.stack,
+      });
+    };
+    const onRejection = (event: PromiseRejectionEvent) => {
+      log.error('unhandledrejection', {
+        motivo: event.reason?.message ?? event.reason,
+        stack: event.reason?.stack,
+      });
+    };
+    window.addEventListener('error', onError);
+    window.addEventListener('unhandledrejection', onRejection);
+    return () => {
+      window.removeEventListener('error', onError);
+      window.removeEventListener('unhandledrejection', onRejection);
+    };
   }, []);
 
+  const { userRole, setUserRole, currentView, setCurrentView, sidebarOpen, setSidebarOpen } = useAppStore();
 
-  // States F3: Catalog and Pricing
-  const [productsCatalog, setProductsCatalog] = useState<ProductCatalog[]>(() => {
+  const { productsCatalog, setProductsCatalog, productPricings, setProductPricings, products, loadInventory } = useInventoryStore();
+
+  useEffect(() => {
     const savedCat = localDb.load('productsCatalog', null as ProductCatalog[] | null);
-    if (savedCat) return savedCat;
-    
-    // Migración o inicialización
-    const oldSaved = localStorage.getItem('pezcaderia_products');
-    let sourceProducts = INITIAL_PRODUCTS;
-    if (oldSaved) {
-      try { sourceProducts = JSON.parse(oldSaved); } catch (e) {}
-    } else {
-      sourceProducts = INITIAL_PRODUCTS.map(p => {
-        let grp = 'General';
-        if (p.categoria === 'MATERIA PRIMA') grp = 'Materia Prima';
-        else if (p.categoria === 'PESCADOS') grp = 'Pescado Blanco';
-        else if (p.categoria === 'MARISCOS') grp = 'Camarones';
-        else if (p.categoria === 'BATIDOS') grp = 'Batidos Saludables';
-        else if (p.categoria === 'BEBIDAS') grp = 'Jugos Naturales';
-        else if (p.categoria === 'ENSALADAS') grp = 'Ensaladas Frescas';
-        else if (p.categoria === 'ENTRADAS') grp = 'Entradas';
-        return { ...p, metadata: p.metadata || { categoria_descriptiva: grp } };
-      });
-    }
-    
-    const { catalog, pricings } = migrateProductsToCatalogAndPricing(sourceProducts, initialRole);
-    localDb.save('productPricings', pricings);
-    localDb.removeRaw('pezcaderia_products'); // Limpiar viejo estado
-    return catalog;
-  });
-
-  const [productPricings, setProductPricings] = useState<ProductPricing[]>(() => {
-    return localDb.load('productPricings', []);
-  });
-
-  useEffect(() => {
-    localDb.save('productsCatalog', productsCatalog);
-  }, [productsCatalog]);
-
-  useEffect(() => {
-    localDb.save('productPricings', productPricings);
-  }, [productPricings]);
-
-  // DERIVACIÓN DINÁMICA de products para retrocompatibilidad
-  const products: Product[] = useMemo(() => {
-    return productsCatalog.map(cat => {
-      const pricings = productPricings.filter(pr => pr.productoId === cat.id);
-      let currentPricing = pricings[0];
-      if (pricings.length > 1) {
-        currentPricing = pricings.reduce((latest, current) => 
-          new Date(current.vigenciaDesde) > new Date(latest.vigenciaDesde) ? current : latest
-        );
+    if (!savedCat || savedCat.length === 0) {
+      const oldSaved = localStorage.getItem('pezcaderia_products');
+      let sourceProducts = INITIAL_PRODUCTS;
+      if (oldSaved) {
+        try { sourceProducts = JSON.parse(oldSaved); } catch (e) {}
+      } else {
+        sourceProducts = INITIAL_PRODUCTS.map(p => {
+          let grp = 'General';
+          if (p.categoria === 'MATERIA PRIMA') grp = 'Materia Prima';
+          else if (p.categoria === 'PESCADOS') grp = 'Pescado Blanco';
+          else if (p.categoria === 'MARISCOS') grp = 'Camarones';
+          else if (p.categoria === 'BATIDOS') grp = 'Batidos Saludables';
+          else if (p.categoria === 'BEBIDAS') grp = 'Jugos Naturales';
+          else if (p.categoria === 'ENSALADAS') grp = 'Ensaladas Frescas';
+          else if (p.categoria === 'ENTRADAS') grp = 'Entradas';
+          return { ...p, metadata: p.metadata || { categoria_descriptiva: grp } };
+        });
       }
-      const fallbackPricing = { precio_compra: 0, buffer_seguridad: 0, precio_venta_pos: 0, precio_venta_restaurante: 0, precio_venta_mayorista: 0 };
-      return { ...cat, ...(currentPricing || fallbackPricing) } as Product;
-    });
-  }, [productsCatalog, productPricings]);
+      
+      const { catalog, pricings } = migrateProductsToCatalogAndPricing(sourceProducts, userRole);
+      setProductsCatalog(catalog);
+      setProductPricings(pricings);
+      localDb.removeRaw('pezcaderia_products');
+    }
+  }, [userRole, setProductsCatalog, setProductPricings]);
+
+  const { ventas, setVentas, quotations, setQuotations, loadOrders } = useOrderStore();
+  const { bodegas, setBodegas, loadBodegas } = useWarehouseStore();
+  const { clientes, setClientes, loadClientes, lastClientPrices, loadLastClientPrices } = useClientStore();
+  const { proveedores, setProveedores, loadProveedores } = useSupplierStore();
+  const { categorias, setCategorias, loadCategorias } = useCategoryStore();
+  const { conductores, loadConductores } = useDriverStore();
+  const { empleados, setEmpleados, loadEmpleados, loadNominas } = useEmployeeStore();
+  const { loadGastos } = useExpenseStore();
+  const { dynamicFields, loadDynamicFields } = useDynamicFieldStore();
+  const { cartera, setCartera, loadCartera } = useARStore();
+  const { devoluciones, setDevoluciones, loadDevoluciones } = useReturnStore();
+  const { logIntegracion, setLogIntegracion, parametros, loadLogIntegracion, loadParametros } = useIntegrationStore();
+  const { stock, setStock, loadStock } = useInventoryStore();
+  const { ordenesCompra, setOrdenesCompra, loadOrdenesCompra } = usePurchaseStore();
+  const { movimientos, addMovimiento, loadMovimientos } = useMovementStore();
+  const { syncQueue, setSyncQueue, loadEvents, loadSyncQueue } = useEventStore();
 
   useEffect(() => {
-    if (initialRole) {
-      setUserRole(initialRole);
-    }
-  }, [initialRole]);
-
-  const handleSetUserRole = (role: 'admin' | 'vendedor' | 'bodega' | 'administrativo') => {
-    setUserRole(role);
-    localDb.save('role', role);
-  };
-
-  // Other dynamic states
-  const [events, setEvents] = useState<DomainEvent[]>(() => localDb.load('events', []));
-  const [syncQueue, setSyncQueue] = useState<SyncJob[]>(() => localDb.load('syncQueue', []));
-  
-  const [dynamicFields, setDynamicFields] = useState<DynamicField[]>(() => localDb.load('dynamicFields', [
-    {
-      key: 'categoria_descriptiva',
-      label: 'Categoría Descriptiva (Grupo)',
-      tipo: 'text',
-      defaultValue: 'General'
-    }
-  ]));
-
-  const [quotations, setQuotations] = useState<any[]>(() => localDb.load('quotations', []));
-  const [stock, setStock] = useState<Record<string, any[]>>(() => localDb.load('stock', {}));
-  const [lastClientPrices, setLastClientPrices] = useState<Record<string, Record<string, number>>>(() => localDb.load('lastClientPrices', {}));
-
-  const [categorias, setCategorias] = useState<CategoriaConfig[]>(() => localDb.load('categorias', [
-    { id: generateId('cat'), tipo: 'Producto', linea: 'Pescados', clase: 'Filetes' },
-    { id: generateId('cat'), tipo: 'Producto', linea: 'Mariscos', clase: 'Camarones' },
-    { id: generateId('cat'), tipo: 'Materia Prima', linea: 'Pescados Enteros', clase: 'Corvina' }
-  ]));
-
-  useEffect(() => {
-    localDb.save('categorias', categorias);
-  }, [categorias]);
-
-  const [cartera, setCartera] = useState<InvoiceAR[]>(() => {
-    const saved = localDb.load('cartera', null as InvoiceAR[] | null);
-    if (saved) return saved;
-    return [
-      {
-        id: 'PED-045091',
-        clienteId: 'c-1',
-        clienteNombre: 'Restaurante Central',
-        clienteIdentificacion: '123',
-        fecha: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        total: 350000,
-        saldo: 200000,
-        pagado: 150000,
-        pagos: [
-          {
-            id: 'pgo-1',
-            fecha: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-            monto: 150000,
-            metodo: 'Transferencia'
-          }
-        ]
-      },
-      {
-        id: 'PED-098231',
-        clienteId: 'c-2',
-        clienteNombre: 'Restaurante del Mar',
-        clienteIdentificacion: '900123456-1',
-        fecha: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-        total: 500000,
-        saldo: 500000,
-        pagado: 0,
-        pagos: []
-      }
-    ];
-  });
-
-  const [clientes, setClientes] = useState<Cliente[]>(() => localDb.load('clientes', INITIAL_CLIENTS));
-  const [proveedores, setProveedores] = useState<Proveedor[]>(() => localDb.load('proveedores', INITIAL_PROVEEDORES));
-
-  useEffect(() => { localDb.save('clientes', clientes); }, [clientes]);
-  useEffect(() => { localDb.save('proveedores', proveedores); }, [proveedores]);
-  useEffect(() => { localDb.save('events', events); }, [events]);
-  useEffect(() => { localDb.save('syncQueue', syncQueue); }, [syncQueue]);
-  useEffect(() => { localDb.save('dynamicFields', dynamicFields); }, [dynamicFields]);
-  useEffect(() => { localDb.save('quotations', quotations); }, [quotations]);
-  useEffect(() => { localDb.save('stock', stock); }, [stock]);
-  useEffect(() => { localDb.save('lastClientPrices', lastClientPrices); }, [lastClientPrices]);
-  useEffect(() => { localDb.save('cartera', cartera); }, [cartera]);
-
-  // ─ F2: Estado de entidades transaccionales ───────────────────────────────────────────────
-  const [movimientos, setMovimientos] = useState<MovimientoInventario[]>(() => localDb.load('movimientos', []));
-  useEffect(() => { localDb.save('movimientos', movimientos); }, [movimientos]);
+    loadOrders();
+    loadBodegas();
+    loadInventory();
+    loadClientes(INITIAL_CLIENTS);
+    loadProveedores(INITIAL_PROVEEDORES);
+    loadCategorias();
+    loadConductores();
+    loadEmpleados();
+    loadNominas();
+    loadGastos();
+    loadDynamicFields();
+    loadCartera();
+    loadDevoluciones();
+    loadLogIntegracion();
+    loadParametros();
+    loadStock();
+    loadOrdenesCompra();
+    loadMovimientos();
+    loadEvents();
+    loadSyncQueue();
+    loadLastClientPrices();
+  }, [loadOrders, loadBodegas, loadInventory, loadClientes, loadProveedores, loadCategorias, loadConductores, loadEmpleados, loadNominas, loadGastos, loadDynamicFields, loadCartera, loadDevoluciones, loadLogIntegracion, loadParametros, loadStock, loadOrdenesCompra, loadMovimientos, loadEvents, loadSyncQueue, loadLastClientPrices]);
 
   // Normalización del separador decimal para el teclado numérico
   useEffect(() => {
@@ -907,39 +857,6 @@ export default function App() {
     };
   }, []);
 
-  const [ordenesCompra, setOrdenesCompra] = useState<OrdenCompra[]>(() => localDb.load('ordenesCompra', []));
-  useEffect(() => { localDb.save('ordenesCompra', ordenesCompra); }, [ordenesCompra]);
-
-  const [ventas, setVentas] = useState<Venta[]>(() => localDb.load('ventas', []));
-  useEffect(() => { localDb.save('ventas', ventas); }, [ventas]);
-
-  const [conductores, _setConductores] = useState<Conductor[]>(() => localDb.load('conductores', INITIAL_CONDUCTORES));
-  useEffect(() => { localDb.save('conductores', conductores); }, [conductores]);
-
-  const [devoluciones, setDevoluciones] = useState<DevolucionPedido[]>(() => localDb.load('devoluciones', []));
-  useEffect(() => { localDb.save('devoluciones', devoluciones); }, [devoluciones]);
-
-  const [logIntegracion, setLogIntegracion] = useState<LogIntegracion[]>(() => localDb.load('logIntegracion', []));
-  useEffect(() => { localDb.save('logIntegracion', logIntegracion); }, [logIntegracion]);
-
-  const [parametros, _setParametros] = useState<Record<string, any>>(() => localDb.load('parametros', {
-    metodosPagoExternos: {
-      rappi: 'RAP-001',
-      shopify: 'SHO-001',
-      b2b: 'B2B-001'
-    },
-    cajaAisladaMetodos: ['RAP-001', 'SHO-001', 'B2B-001']
-  }));
-  useEffect(() => { localDb.save('parametros', parametros); }, [parametros]);
-
-  const [empleados, setEmpleados] = useState<Empleado[]>(() => localDb.load('empleados', []));
-  useEffect(() => { localDb.save('empleados', empleados); }, [empleados]);
-
-  const [nominas, setNominas] = useState<NominaRegistro[]>(() => localDb.load('nominas', []));
-  useEffect(() => { localDb.save('nominas', nominas); }, [nominas]);
-
-  const [gastos, setGastos] = useState<Gasto[]>(() => localDb.load('gastos', []));
-  useEffect(() => { localDb.save('gastos', gastos); }, [gastos]);
   // ──────────────────────────────────────────────────────────────────────────────
   // MIGRATE TO TITLE CASE (One-Time / Idempotent Cleanup)
   useEffect(() => {
@@ -972,7 +889,7 @@ export default function App() {
     });
 
     // Migrate Products
-    const migratedProducts = productsCatalog.map(p => {
+    const migratedProducts = productsCatalog.map((p: any) => {
       const newNombre = toTitleCase(p.nombre);
       if (p.nombre !== newNombre) {
         migrated = true;
@@ -982,7 +899,7 @@ export default function App() {
     });
 
     // Migrate Empleados (legacy `salario` to `salarioBase`, and ensure default fields)
-    const migratedEmpleados = empleados.map(e => {
+    const migratedEmpleados = empleados.map((e: any) => {
       let changed = false;
       const legacyEmp = e as any;
       if (legacyEmp.salario !== undefined && e.salarioBase === undefined) {
@@ -1010,58 +927,49 @@ export default function App() {
       setProductsCatalog(migratedProducts);
       setEmpleados(migratedEmpleados);
     }
-  }, []); // Run once on mount
+  }, [clientes, proveedores, productsCatalog, empleados]); // Re-run when store data loads async
   // ──────────────────────────────────────────────────────────────────────────────
 
-  // Synchronize stock based on current products catalog
+  // Synchronize stock based on current products catalog and active bodegas
   useEffect(() => {
-    setStock(prev => {
+    setStock((prev: Record<string, Record<string, number>>) => {
       const newStock = { ...prev };
-      const bodegas = ['Bodega Principal', 'Bodega Secundaria', 'Bodega Averías'];
+      const activeBodegas = bodegas.filter(b => b.activa).map(b => b.nombre);
       
-      bodegas.forEach(bodega => {
+      activeBodegas.forEach((bodega: string) => {
         if (!newStock[bodega]) {
-          newStock[bodega] = [];
+          newStock[bodega] = {};
         }
         
-        // Agregar productos faltantes
-        const currentSkus = new Set(newStock[bodega].map((item: any) => item.sku));
-        products.forEach(p => {
-          if (!currentSkus.has(p.sku)) {
+        products.forEach((p: any) => {
+          if (newStock[bodega][p.sku] === undefined) {
             let qty = 0;
             if (bodega === 'Bodega Principal') {
               if (p.sku === 'PES-ENT-001') qty = 500;
               else if (p.sku === 'FIL-LIM-002') qty = 120;
               else if (p.sku === 'CAM-TIG-003') qty = 85;
-            } else if (bodega === 'Bodega Secundaria') {
+            } else if (bodega === 'Bodega de Tránsito' || bodega === 'Bodega Secundaria') {
               if (p.sku === 'PES-ENT-001') qty = 200;
               else if (p.sku === 'FIL-LIM-002') qty = 45;
             } else if (bodega === 'Bodega Averías') {
               if (p.sku === 'FIL-LIM-002') qty = 12;
             }
-            
-            newStock[bodega].push({
-              sku: p.sku,
-              nombre: p.nombre,
-              stock: qty,
-              lote: `LOT-2026-${p.sku.slice(0, 3)}-${bodega.slice(7, 10).toUpperCase()}`
-            });
+            newStock[bodega][p.sku] = qty;
           }
         });
 
-        // Actualizar nombres y filtrar productos obsoletos
-        newStock[bodega] = newStock[bodega].map((item: any) => {
-          const matched = products.find(p => p.sku === item.sku);
-          if (matched) {
-            return { ...item, nombre: matched.nombre };
+        // Filtrar productos obsoletos (que ya no están en el catálogo)
+        const productSkus = new Set(products.map((p: any) => p.sku));
+        for (const sku in newStock[bodega]) {
+          if (!productSkus.has(sku)) {
+            delete newStock[bodega][sku];
           }
-          return item;
-        }).filter((item: any) => products.some(p => p.sku === item.sku));
+        }
       });
 
       return newStock;
     });
-  }, [products]);
+  }, [products, bodegas]);
 
   /**
    * Registra el último precio acordado por cliente y SKU.
@@ -1069,17 +977,7 @@ export default function App() {
    * Antes usaba el nombre, lo que provocaba pérdida del historial al editar el nombre.
    */
   const updateLastClientPrice = (identificacion: string, sku: string, price: number) => {
-    setLastClientPrices(prev => {
-      const key = identificacion.trim().toLowerCase();
-      const updated = {
-        ...prev,
-        [key]: {
-          ...(prev[key] || {}),
-          [sku]: price
-        }
-      };
-      return updated;
-    });
+    useClientStore.getState().updateLastClientPrice(identificacion, sku, price);
   };
 
 
@@ -1091,81 +989,14 @@ export default function App() {
     metadata?: any,
     enqueueSync = true
   ) => {
-    // Intercepción FASE 4: Registro de ingreso en Caja (T-4.3)
-    if (tipo === 'SALE_COMPLETED' && turnoActivo) {
-      // Registrar transacciones separadas por cada método de pago si viene en metadata
-      if (metadata && metadata.pagos) {
-        if (metadata.pagos.transferencia > 0) {
-          cajaService.registrarTransaccion({
-            turnoId: turnoActivo.id,
-            cajaId: turnoActivo.cajaId,
-            tipo: 'INGRESO',
-            monto: metadata.pagos.transferencia,
-            metodoPago: 'TRANSFERENCIA',
-            categoria: 'VENTA_POS',
-            referenciaId: metadata.idFactura,
-            descripcion: metadata.hasModifiedPrices ? descripcion + ' [PRECIO MODIFICADO POR ADMIN]' : descripcion
-          });
-        }
-        if (metadata.pagos.tarjeta > 0) {
-          cajaService.registrarTransaccion({
-            turnoId: turnoActivo.id,
-            cajaId: turnoActivo.cajaId,
-            tipo: 'INGRESO',
-            monto: metadata.pagos.tarjeta,
-            metodoPago: 'TARJETA',
-            categoria: 'VENTA_POS',
-            referenciaId: metadata.idFactura,
-            descripcion: metadata.hasModifiedPrices ? descripcion + ' [PRECIO MODIFICADO POR ADMIN]' : descripcion
-          });
-        }
-        if (metadata.pagos.efectivo > 0) {
-          cajaService.registrarTransaccion({
-            turnoId: turnoActivo.id,
-            cajaId: turnoActivo.cajaId,
-            tipo: 'INGRESO',
-            monto: metadata.pagos.efectivo,
-            metodoPago: 'EFECTIVO',
-            categoria: 'VENTA_POS',
-            referenciaId: metadata.idFactura,
-            descripcion: metadata.hasModifiedPrices ? descripcion + ' [PRECIO MODIFICADO POR ADMIN]' : descripcion
-          });
-        }
-      } else if (metadata && metadata.total) {
-        cajaService.registrarTransaccion({
-          turnoId: turnoActivo.id,
-          cajaId: turnoActivo.cajaId,
-          tipo: 'INGRESO',
-          monto: metadata.total,
-          metodoPago: 'EFECTIVO', // fallback si no viene desglose
-          categoria: 'VENTA_POS',
-          referenciaId: metadata.quoteId || metadata.idFactura,
-          descripcion: metadata.hasModifiedPrices ? descripcion + ' [PRECIO MODIFICADO POR ADMIN]' : descripcion
-        });
-      }
-    }
-
-    const newEvent: DomainEvent = {
-      id: 'evt-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
-      timestamp: new Date().toISOString(),
+    log.info('publishEvent', {
       tipo,
       actor,
-      descripcion,
-      metadata
-    };
-    setEvents(prev => [newEvent, ...prev]);
-
-    if (enqueueSync) {
-      const newSyncJob: SyncJob = {
-        id: 'job-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
-        eventTipo: tipo,
-        payload: { newEvent },
-        estado: 'PENDIENTE',
-        intentos: 0,
-        timestamp: new Date().toISOString()
-      };
-      setSyncQueue(prev => [newSyncJob, ...prev]);
-    }
+      descripcion: descripcion?.substring(0, 120),
+      metadata,
+    });
+    useEventStore.getState().publishEvent(tipo, actor, descripcion, metadata, enqueueSync);
+    log.debug('DomainEvent creado', { tipo, actor });
   };
 
   // Background processor for simulated resilient outbox integration queue (metasfresh style)
@@ -1179,8 +1010,8 @@ export default function App() {
     const timer = setTimeout(() => {
       const isSuccess = Math.random() < 0.8; // 80% success rate
       
-      setSyncQueue(prev =>
-        prev.map(j => {
+      setSyncQueue((prev: SyncJob[]) =>
+        prev.map((j: SyncJob) => {
           if (j.id === jobToProcess.id) {
             return {
               ...j,
@@ -1218,6 +1049,10 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', userRole);
   }, [userRole]);
 
+  useEffect(() => {
+    log.info('navegacion', { vista: currentView });
+  }, [currentView]);
+
   // ─ REGLAS DE NEGOCIO INTEGRACIÓN: Worker de Canales Digitales y Gestión de Cancelaciones ──────────────────────────────
   // Worker para Procesamiento Asíncrono de Canales Digitales (RN-03, RN-01, RN-02, RN-05, RN-07)
   useEffect(() => {
@@ -1229,16 +1064,16 @@ export default function App() {
       try {
         orderData = JSON.parse(pendingOrder.payload_json);
       } catch (e) {
-        setLogIntegracion(prev =>
-          prev.map(l => l.id === pendingOrder.id ? { ...l, estado: 'ERROR', mensaje_error: 'Payload JSON inválido' } : l)
+        setLogIntegracion((prev: LogIntegracion[]) =>
+          prev.map((l: LogIntegracion) => l.id === pendingOrder.id ? { ...l, estado: 'ERROR', mensaje_error: 'Payload JSON inválido' } : l)
         );
         return;
       }
 
       // 1. Verificar firma/autenticación (RN-01)
       if (!orderData.signature || orderData.signature !== 'VALID_CRYPTO_SIGNATURE') {
-        setLogIntegracion(prev =>
-          prev.map(l => l.id === pendingOrder.id ? { ...l, estado: 'ERROR', mensaje_error: 'Error de Autenticación: Firma criptográfica inválida o ausente' } : l)
+        setLogIntegracion((prev: LogIntegracion[]) =>
+          prev.map((l: LogIntegracion) => l.id === pendingOrder.id ? { ...l, estado: 'ERROR', mensaje_error: 'Error de Autenticación: Firma criptográfica inválida o ausente' } : l)
         );
         publishEvent('METADATA_CONFIGURED', 'System Integrator', `Rechazado pedido digital ${pendingOrder.id_pedido_externo} - Firma inválida`, null, false);
         return;
@@ -1247,8 +1082,8 @@ export default function App() {
       // 2. Verificar Idempotencia (RN-02)
       const isDuplicate = ventas.some((v: any) => v.metadata?.id_pedido_externo === pendingOrder.id_pedido_externo);
       if (isDuplicate) {
-        setLogIntegracion(prev =>
-          prev.map(l => l.id === pendingOrder.id ? { ...l, estado: 'ERROR', mensaje_error: 'Idempotencia: Pedido ya procesado' } : l)
+        setLogIntegracion((prev: LogIntegracion[]) =>
+          prev.map((l: LogIntegracion) => l.id === pendingOrder.id ? { ...l, estado: 'ERROR', mensaje_error: 'Idempotencia: Pedido ya procesado' } : l)
         );
         publishEvent('METADATA_CONFIGURED', 'System Integrator', `Rechazado pedido duplicado ${pendingOrder.id_pedido_externo} por idempotencia`, null, false);
         return;
@@ -1256,11 +1091,11 @@ export default function App() {
 
       // 3. Validación de Stock Restrictiva (RN-07)
       let stockSuficiente = true;
-      const stockPrincipal = stock['Bodega Principal'] || [];
+      const stockPrincipal = stock['Bodega Principal'] || {};
       const itemsFaltantes: string[] = [];
 
       orderData.items.forEach((item: any) => {
-        const currentStock = stockPrincipal.find((s: any) => s.sku === item.sku)?.stock || 0;
+        const currentStock = stockPrincipal[item.sku] || 0;
         if (currentStock < item.cantidad) {
           stockSuficiente = false;
           itemsFaltantes.push(`${item.nombre} (Solicitado: ${item.cantidad}, Disponible: ${currentStock})`);
@@ -1268,8 +1103,8 @@ export default function App() {
       });
 
       if (!stockSuficiente) {
-        setLogIntegracion(prev =>
-          prev.map(l => l.id === pendingOrder.id ? { ...l, estado: 'REVISION_MANUAL', mensaje_error: `Stock insuficiente: ${itemsFaltantes.join(', ')}` } : l)
+        setLogIntegracion((prev: LogIntegracion[]) =>
+          prev.map((l: LogIntegracion) => l.id === pendingOrder.id ? { ...l, estado: 'REVISION_MANUAL', mensaje_error: `Stock insuficiente: ${itemsFaltantes.join(', ')}` } : l)
         );
         publishEvent('METADATA_CONFIGURED', 'System Integrator', `Pedido ${pendingOrder.id_pedido_externo} retenido en REVISIÓN MANUAL por falta de stock`, null, false);
         return;
@@ -1281,15 +1116,14 @@ export default function App() {
       const vtaId = generateId('vta');
 
       // Restar stock
-      setStock(prev => {
+      setStock((prev: Record<string, Record<string, number>>) => {
         const newStock = { ...prev };
         if (newStock['Bodega Principal']) {
-          newStock['Bodega Principal'] = newStock['Bodega Principal'].map((stockItem: any) => {
-            const orderItem = orderData.items.find((i: any) => i.sku === stockItem.sku);
-            if (orderItem) {
-              return { ...stockItem, stock: Math.max(0, stockItem.stock - orderItem.cantidad) };
-            }
-            return stockItem;
+          newStock['Bodega Principal'] = { ...newStock['Bodega Principal'] };
+          orderData.items.forEach((orderItem: any) => {
+             const sku = orderItem.sku;
+             const currentStock = newStock['Bodega Principal'][sku] || 0;
+             newStock['Bodega Principal'][sku] = Math.max(0, currentStock - orderItem.cantidad);
           });
         }
         return newStock;
@@ -1318,16 +1152,15 @@ export default function App() {
         }
       };
 
-      setVentas(prev => [newVenta, ...prev]);
+      setVentas((prev: any[]) => [newVenta, ...prev]);
 
       // Registrar movimiento de inventario
       const newMovements: MovimientoInventario[] = orderData.items.map((item: any) => {
-        const prodStock = stockPrincipal.find((s: any) => s.sku === item.sku);
-        const lote = prodStock ? prodStock.lote : 'CANAL-DIGITAL';
+        const lote = 'CANAL-DIGITAL';
         return {
           id: generateId('mov'),
           timestamp: new Date().toISOString(),
-          tipo: 'SALIDA_VENTA' as any,
+          tipo: 'VENTA',
           sku: item.sku,
           nombreProducto: item.nombre,
           bodegaOrigen: 'Bodega Principal',
@@ -1339,10 +1172,10 @@ export default function App() {
           notas: `Integración Digital (${pendingOrder.canal}) - Pedido ${pendingOrder.id_pedido_externo}`
         };
       });
-      setMovimientos(prev => [...newMovements, ...prev]);
+      newMovements.forEach((mov: MovimientoInventario) => addMovimiento(mov));
 
-      setLogIntegracion(prev =>
-        prev.map(l => l.id === pendingOrder.id ? { ...l, estado: 'PROCESADO', id_factura_pos: vtaId } : l)
+      setLogIntegracion((prev: LogIntegracion[]) =>
+        prev.map((l: LogIntegracion) => l.id === pendingOrder.id ? { ...l, estado: 'PROCESADO', id_factura_pos: vtaId } : l)
       );
 
       publishEvent(
@@ -1359,19 +1192,20 @@ export default function App() {
 
   // Handler para cancelaciones automáticas (RN-04)
   const handleCancelarPedidoDigital = (logId: string) => {
-    const log = logIntegracion.find(l => l.id === logId);
-    if (!log) return;
+    log.info('cancelarPedidoDigital', { logId });
+    const integLog = logIntegracion.find(l => l.id === logId);
+    if (!integLog) return;
 
     let orderData: any;
     try {
-      orderData = JSON.parse(log.payload_json);
+      orderData = JSON.parse(integLog.payload_json);
     } catch (e) {
       return;
     }
 
-    if (log.estado === 'PROCESADO' && log.id_factura_pos) {
+    if (integLog.estado === 'PROCESADO' && integLog.id_factura_pos) {
       // Reversar stock a Bodega Principal
-      setStock(prev => {
+      setStock((prev: Record<string, any[]>) => {
         const newStock = { ...prev };
         if (newStock['Bodega Principal']) {
           newStock['Bodega Principal'] = newStock['Bodega Principal'].map((stockItem: any) => {
@@ -1396,19 +1230,19 @@ export default function App() {
           bodegaDestino: 'Bodega Principal',
           cantidad: item.cantidad,
           lote: 'RETORNO',
-          referenciaId: log.id_factura_pos,
+          referenciaId: integLog.id_factura_pos,
           referenciaTipo: 'DEVOLUCION',
           actor: 'Integracion Digital',
-          notas: `Reversión por Cancelación Pedido ${log.id_pedido_externo}`
+          notas: `Reversión por Cancelación Pedido ${integLog.id_pedido_externo}`
         };
       });
-      setMovimientos(prev => [...newMovements, ...prev]);
+      newMovements.forEach((mov: MovimientoInventario) => addMovimiento(mov));
 
       // Generar Devolución (Nota de Crédito)
       const newDevolucion: DevolucionPedido = {
         id: generateId('dev'),
-        pedidoId: log.id_factura_pos,
-        pedidoNo: log.id_pedido_externo,
+        pedidoId: integLog.id_factura_pos,
+        pedidoNo: integLog.id_pedido_externo,
         clienteId: orderData.clienteId || 'c-anon',
         clienteNombre: orderData.clienteNombre || 'Consumidor Digital',
         conductorId: 'cond-none',
@@ -1427,29 +1261,30 @@ export default function App() {
           loteInventario: 'RETORNO'
         }))
       };
-      setDevoluciones(prev => [newDevolucion, ...prev]);
+      setDevoluciones((prev: DevolucionPedido[]) => [newDevolucion, ...prev]);
 
       publishEvent(
         'METADATA_CONFIGURED',
         'Integracion Digital',
-        `Nota de Crédito emitida y stock devuelto por cancelación del pedido ${log.id_pedido_externo}`,
-        { logId, pedidoNo: log.id_pedido_externo }
+        `Nota de Crédito emitida y stock devuelto por cancelación del pedido ${integLog.id_pedido_externo}`,
+        { logId, pedidoNo: integLog.id_pedido_externo }
       );
     }
 
-    setLogIntegracion(prev =>
-      prev.map(l => l.id === logId ? { ...l, estado: 'ERROR', mensaje_error: 'Pedido Cancelado por el canal' } : l)
+    setLogIntegracion((prev: LogIntegracion[]) =>
+      prev.map((l: LogIntegracion) => l.id === logId ? { ...l, estado: 'ERROR', mensaje_error: 'Pedido Cancelado por el canal' } : l)
     );
   };
 
   // Handler para liberar pedidos retenidos por falta de stock (Aprobación manual RN-07)
   const handleAprobarPedidoManual = (logId: string, modo: 'parcial' | 'forzar') => {
-    const log = logIntegracion.find(l => l.id === logId);
-    if (!log) return;
+    log.info('aprobarPedidoManual', { logId, modo });
+    const integLog = logIntegracion.find(l => l.id === logId);
+    if (!integLog) return;
 
     let orderData: any;
     try {
-      orderData = JSON.parse(log.payload_json);
+      orderData = JSON.parse(integLog.payload_json);
     } catch (e) {
       return;
     }
@@ -1464,8 +1299,8 @@ export default function App() {
     }).filter((item: any) => item.cantidad > 0);
 
     if (updatedItems.length === 0) {
-      setLogIntegracion(prev =>
-        prev.map(l => l.id === logId ? { ...l, estado: 'ERROR', mensaje_error: 'Aprobación parcial resultó en 0 items' } : l)
+      setLogIntegracion((prev: LogIntegracion[]) =>
+        prev.map((l: LogIntegracion) => l.id === logId ? { ...l, estado: 'ERROR', mensaje_error: 'Aprobación parcial resultó en 0 items' } : l)
       );
       return;
     }
@@ -1482,8 +1317,8 @@ export default function App() {
       signature: 'VALID_CRYPTO_SIGNATURE'
     };
 
-    setLogIntegracion(prev =>
-      prev.map(l => l.id === logId ? {
+    setLogIntegracion((prev: LogIntegracion[]) =>
+      prev.map((l: LogIntegracion) => l.id === logId ? {
         ...l,
         estado: 'PENDIENTE',
         payload_json: JSON.stringify(updatedPayload),
@@ -1492,7 +1327,7 @@ export default function App() {
     );
     
     if (modo === 'forzar') {
-      setStock(prev => {
+      setStock((prev: Record<string, any[]>) => {
         const newStock = { ...prev };
         if (newStock['Bodega Principal']) {
           newStock['Bodega Principal'] = newStock['Bodega Principal'].map((stockItem: any) => {
@@ -1513,152 +1348,35 @@ export default function App() {
   const renderView = () => {
     switch (currentView) {
       case 'dashboard':
-        return (
-          <DashboardView 
-            setView={setCurrentView}
-            events={events}
-            setEvents={setEvents}
-            syncQueue={syncQueue}
-            setSyncQueue={setSyncQueue}
-            dynamicFields={dynamicFields}
-            setDynamicFields={setDynamicFields}
-            products={products}
-            setProducts={setProductsShim as any}
-            publishEvent={publishEvent}
-            ventas={ventas}
-            parametros={parametros}
-            devoluciones={devoluciones}
-          />
-        );
+        return <DashboardView />;
       case 'pos':
         return (
-          <POSView 
-            products={products} 
-            dynamicFields={dynamicFields}
-            publishEvent={publishEvent}
-            userRole={userRole}
-            setCurrentView={setCurrentView}
-            onRequestCierreTurno={() => setShowCierreCaja(true)}
-            stock={stock}
-            setStock={setStock}
-            lastClientPrices={lastClientPrices}
-            updateLastClientPrice={updateLastClientPrice}
-            cartera={cartera}
-            setCartera={setCartera}
-            clientes={clientes}
-            setClientes={setClientes}
-            ventas={ventas}
-            setVentas={setVentas}
-            movimientos={movimientos}
-            setMovimientos={setMovimientos}
-            conductores={conductores}
-            devoluciones={devoluciones}
-            setDevoluciones={setDevoluciones}
-            quotations={quotations}
-            setQuotations={setQuotations}
-            logIntegracion={logIntegracion}
-            setLogIntegracion={setLogIntegracion}
+          <POSView
             handleCancelarPedidoDigital={handleCancelarPedidoDigital}
             handleAprobarPedidoManual={handleAprobarPedidoManual}
-            parametros={parametros}
           />
         );
       case 'inventario':
-        return (
-          <InventoryView 
-            products={products} 
-            setProducts={setProductsShim as any} 
-            productsCatalog={productsCatalog}
-            setProductsCatalog={setProductsCatalog}
-            productPricings={productPricings}
-            setProductPricings={setProductPricings} 
-            stock={stock}
-            setStock={setStock}
-            proveedores={proveedores}
-            publishEvent={publishEvent}
-            userRole={userRole}
-            movimientos={movimientos}
-            setMovimientos={setMovimientos}
-            ordenesCompra={ordenesCompra}
-            setOrdenesCompra={setOrdenesCompra}
-            categorias={categorias}
-            setCategorias={setCategorias}
-            devoluciones={devoluciones}
-            setDevoluciones={setDevoluciones}
-            quotations={quotations}
-            setQuotations={setQuotations}
-          />
-        );
+        return <InventoryView />;
+      case 'alistamiento':
+        return <AlistamientoBodegaView />;
+      case 'despachos':
+        return <DispatchView />;
       case 'precios':
-        return (
-          <PricingView 
-            products={products} 
-            setProducts={setProductsShim as any} 
-            productsCatalog={productsCatalog}
-            setProductsCatalog={setProductsCatalog}
-            productPricings={productPricings}
-            setProductPricings={setProductPricings} 
-            quotations={quotations}
-            setQuotations={setQuotations}
-            publishEvent={publishEvent}
-            userRole={userRole}
-            stock={stock}
-            setStock={setStock}
-            lastClientPrices={lastClientPrices}
-            updateLastClientPrice={updateLastClientPrice}
-            clientes={clientes}
-            conductores={conductores}
-            devoluciones={devoluciones}
-            setDevoluciones={setDevoluciones}
-          />
-        );
+        return <PricingView />;
       case 'rrhh':
-        return <HRView empleados={empleados} setEmpleados={setEmpleados} nominas={nominas} setView={setCurrentView} />;
+        return <HRView />;
       case 'nomina':
-        return <PayrollView empleados={empleados} nominas={nominas} setNominas={setNominas} gastos={gastos} setGastos={setGastos} setView={setCurrentView} />;
+        return <PayrollView />;
       case 'cartera':
-        return (
-          <ARView 
-            cartera={cartera}
-            setCartera={setCartera}
-            clientes={clientes}
-            publishEvent={publishEvent}
-            userRole={userRole}
-            devoluciones={devoluciones}
-            setDevoluciones={setDevoluciones}
-          />
-        );
+        return <ARView />;
       case 'clientes':
-        return (
-          <ClientsView 
-            clientes={clientes}
-            setClientes={setClientes}
-            ventas={ventas}
-            cartera={cartera}
-            publishEvent={publishEvent}
-            userRole={userRole}
-          />
-        );
+        return <ClientsView />;
       case 'compras':
-        return (
-          <SuppliersView
-            proveedores={proveedores}
-            setProveedores={setProveedores}
-            ordenesCompra={ordenesCompra}
-            movimientos={movimientos}
-            gastos={gastos}
-            setGastos={setGastos}
-            publishEvent={publishEvent}
-            userRole={userRole}
-          />
-        );
+        return <SuppliersView />;
       case 'kanban':
         return (
           <OrderKanbanView
-            quotations={quotations}
-            setQuotations={setQuotations}
-            publishEvent={publishEvent}
-            userRole={userRole}
             onEditOrder={(quote) => {
               setCurrentView('pos');
               setTimeout(() => {
@@ -1669,9 +1387,13 @@ export default function App() {
           />
         );
       case 'crm':
-        return <CRMView currentActor={userRole} />;
+        return <CRMView />;
+      case 'caja':
+        return <CashFlowView />;
+      case 'contabilidad':
+        return <AccountingView />;
       default:
-        return <DashboardView setView={setCurrentView} />;
+        return <DashboardView />;
     }
   };
 
@@ -1683,6 +1405,10 @@ export default function App() {
         return { cat: 'Comercial', sub: 'Punto de Venta (POS)' };
       case 'inventario':
         return { cat: 'Inventario y Planta', sub: 'Bodegas y Producción' };
+      case 'alistamiento':
+        return { cat: 'Inventario y Planta', sub: 'Alistamiento de Bodega' };
+      case 'despachos':
+        return { cat: 'Logística', sub: 'Despachos y Rutas' };
       case 'precios':
         return { cat: 'Comercial', sub: 'Precios y Cotizaciones' };
       case 'rrhh':
@@ -1697,6 +1423,10 @@ export default function App() {
         return { cat: 'Logística', sub: 'Despachos / Kanban' };
       case 'crm':
         return { cat: 'Comercial', sub: 'CRM (Twenty)' };
+      case 'caja':
+        return { cat: 'Comercial', sub: 'Gestión de Cajas' };
+      case 'contabilidad':
+        return { cat: 'Administrativo', sub: 'Libro Mayor' };
       default:
         return { cat: 'General', sub: 'ERP' };
     }
@@ -1779,6 +1509,12 @@ export default function App() {
 
       {/* Main Body */}
       <div className="spa-body">
+        {/* Overlay for mobile sidebar */}
+        <div 
+          className={`mobile-overlay ${sidebarOpen ? 'open' : ''}`} 
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+
         {/* Sidebar Navigation */}
         <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
           {/* User Profile Card */}
@@ -1789,7 +1525,7 @@ export default function App() {
               <select 
                 className="sidebar-profile-role-select" 
                 value={userRole} 
-                onChange={(e) => handleSetUserRole(e.target.value as any)}
+                onChange={(e) => setUserRole(e.target.value as any)}
               >
                 <option value="admin">Super administrador</option>
                 <option value="vendedor">Vendedor</option>
@@ -1810,6 +1546,7 @@ export default function App() {
             <div
               className={`sidebar-item ${currentView === 'pos' ? 'active' : ''}`}
               onClick={() => { setCurrentView('pos'); setSidebarOpen(false); }}
+              data-testid="nav-pos"
             >
               <ShoppingBag size={16} />
               <span>POS</span>
@@ -1818,6 +1555,7 @@ export default function App() {
             <div
               className={`sidebar-item ${currentView === 'precios' ? 'active' : ''}`}
               onClick={() => { setCurrentView('precios'); setSidebarOpen(false); }}
+              data-testid="nav-precios"
             >
               <DollarSign size={16} />
               <span>Cotizacion</span>
@@ -1826,6 +1564,7 @@ export default function App() {
             <div
               className={`sidebar-item ${currentView === 'clientes' ? 'active' : ''}`}
               onClick={() => { setCurrentView('clientes'); setSidebarOpen(false); }}
+              data-testid="nav-clientes"
             >
               <Users size={16} />
               <span>Clientes</span>
@@ -1834,6 +1573,7 @@ export default function App() {
             <div
               className={`sidebar-item ${currentView === 'crm' ? 'active' : ''}`}
               onClick={() => { setCurrentView('crm'); setSidebarOpen(false); }}
+              data-testid="nav-crm"
             >
               <PieChart size={16} />
               <span>CRM (Twenty)</span>
@@ -1847,6 +1587,7 @@ export default function App() {
             <div
               className={`sidebar-item ${currentView === 'compras' ? 'active' : ''}`}
               onClick={() => { setCurrentView('compras'); setSidebarOpen(false); }}
+              data-testid="nav-compras"
             >
               <ShoppingCart size={16} />
               <span>Compras y Gastos</span>
@@ -1855,6 +1596,7 @@ export default function App() {
             <div
               className={`sidebar-item ${currentView === 'cartera' ? 'active' : ''}`}
               onClick={() => { setCurrentView('cartera'); setSidebarOpen(false); }}
+              data-testid="nav-cartera"
             >
               <Wallet size={16} />
               <span>Cartera</span>
@@ -1863,9 +1605,28 @@ export default function App() {
             <div
               className={`sidebar-item ${currentView === 'inventario' ? 'active' : ''}`}
               onClick={() => { setCurrentView('inventario'); setSidebarOpen(false); }}
+              data-testid="nav-inventario"
             >
               <Box size={16} />
               <span>Inventario</span>
+            </div>
+
+            <div
+              className={`sidebar-item ${currentView === 'alistamiento' ? 'active' : ''}`}
+              onClick={() => { setCurrentView('alistamiento'); setSidebarOpen(false); }}
+              data-testid="nav-alistamiento"
+            >
+              <PackageCheck size={16} />
+              <span>Alistamiento Bodega</span>
+            </div>
+
+            <div
+              className={`sidebar-item ${currentView === 'despachos' ? 'active' : ''}`}
+              onClick={() => { setCurrentView('despachos'); setSidebarOpen(false); }}
+              data-testid="nav-despachos"
+            >
+              <Truck size={16} />
+              <span>Despachos y Rutas</span>
             </div>
 
             <div className={`sidebar-item`} style={{ opacity: 0.5 }}>
@@ -1878,9 +1639,22 @@ export default function App() {
               <span>Ajuste</span>
             </div>
 
-            <div className={`sidebar-item`} style={{ opacity: 0.5 }}>
+            <div
+              className={`sidebar-item ${currentView === 'caja' ? 'active' : ''}`}
+              onClick={() => { setCurrentView('caja'); setSidebarOpen(false); }}
+              data-testid="nav-caja"
+            >
               <Database size={16} />
               <span>Caja</span>
+            </div>
+
+            <div
+              className={`sidebar-item ${currentView === 'contabilidad' ? 'active' : ''}`}
+              onClick={() => { setCurrentView('contabilidad'); setSidebarOpen(false); }}
+              data-testid="nav-contabilidad"
+            >
+              <BookOpen size={16} />
+              <span>Contabilidad</span>
             </div>
 
             <div className={`sidebar-item`} style={{ opacity: 0.5 }}>
@@ -1891,6 +1665,7 @@ export default function App() {
             <div
               className={`sidebar-item ${currentView === 'rrhh' ? 'active' : ''}`}
               onClick={() => { setCurrentView('rrhh'); setSidebarOpen(false); }}
+              data-testid="nav-rrhh"
             >
               <Users size={16} />
               <span>Personal (RRHH)</span>
@@ -1899,6 +1674,7 @@ export default function App() {
             <div
               className={`sidebar-item ${currentView === 'nomina' ? 'active' : ''}`}
               onClick={() => { setCurrentView('nomina'); setSidebarOpen(false); }}
+              data-testid="nav-nomina"
             >
               <FileText size={16} />
               <span>Nómina</span>
@@ -1907,6 +1683,7 @@ export default function App() {
             <div
               className={`sidebar-item ${currentView === 'kanban' ? 'active' : ''}`}
               onClick={() => { setCurrentView('kanban'); setSidebarOpen(false); }}
+              data-testid="nav-kanban"
             >
               <Truck size={16} />
               <span>Despachos / Kanban</span>
@@ -1921,6 +1698,7 @@ export default function App() {
               className={`sidebar-item ${currentView === 'dashboard' ? 'active' : ''}`}
               onClick={() => { setCurrentView('dashboard'); setSidebarOpen(false); }}
               style={{ marginTop: 'auto' }}
+              data-testid="nav-dashboard"
             >
               <LayoutDashboard size={16} />
               <span>Panel de Control</span>
@@ -1945,6 +1723,7 @@ export default function App() {
           </main>
         </div>
       </div>
+      {import.meta.env.DEV && <DevTestDashboard />}
     </div>
   );
 }

@@ -10,6 +10,7 @@ export interface LineaVenta {
   descuentoPct: number;     // Descuento por línea en %
   precioFinal: number;      // precioLista * (1 - descuentoPct/100) — RN-06
   totalLinea: number;       // cantidad * precioFinal — RN-06
+  precioCompra: number;     // Costo del producto para validación de rentabilidad
   esPesoManual: boolean;    // true si el peso se ingresó manualmente — RN-13
   precioModificadoOriginal?: number; // Precio original antes de edición manual
 }
@@ -48,9 +49,4 @@ export interface ConfiguracionPOS {
   cajaActivaId: string;
   puertoBalanza: string | null;
   puertoImpresora: string | null;
-}
-
-export interface ResultadoOperacion<T> {
-  data: T | null;
-  error: string | null;
 }

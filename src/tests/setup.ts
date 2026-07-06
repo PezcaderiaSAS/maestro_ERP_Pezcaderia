@@ -1,6 +1,9 @@
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
+// Silenciar consoleLogger en tests
+(globalThis as any).__LOGGER_ENABLED__ = false;
+
 // Mock de localStorage
 const localStorageMock = (() => {
   let store: Record<string, string> = {};

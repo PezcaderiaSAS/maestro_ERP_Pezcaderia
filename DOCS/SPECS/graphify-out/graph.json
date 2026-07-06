@@ -1,0 +1,421 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {
+    "hyperedges": [
+      {
+        "id": "b2b_sales_flow",
+        "label": "B2B Sales Lifecycle",
+        "nodes": [
+          "spec_b2b_pedido",
+          "spec_orders_ruta",
+          "spec_devoluciones_finanzas_devolucionb2b"
+        ],
+        "relation": "participate_in",
+        "confidence": "EXTRACTED",
+        "confidence_score": 0.9,
+        "source_file": "SPEC_B2B.md"
+      },
+      {
+        "id": "financial_integrity_group",
+        "label": "Financial and Cash Control",
+        "nodes": [
+          "spec_cashflow_turnocaja",
+          "spec_pos_ventapos",
+          "spec_devoluciones_finanzas_notacredito"
+        ],
+        "relation": "form",
+        "confidence": "INFERRED",
+        "confidence_score": 0.85,
+        "source_file": "SPEC_CASHFLOW.md"
+      },
+      {
+        "id": "inventory_management_core",
+        "label": "Inventory and Pricing Core",
+        "nodes": [
+          "spec_inventory_producto",
+          "spec_inventory_stockbodega",
+          "spec_pricing_productpricing"
+        ],
+        "relation": "implement",
+        "confidence": "EXTRACTED",
+        "confidence_score": 0.95,
+        "source_file": "SPEC_INVENTORY.md"
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "label": "Pedido B2B",
+      "file_type": "concept",
+      "source_file": "SPEC_B2B.md",
+      "id": "spec_b2b_pedido",
+      "community": 0,
+      "norm_label": "pedido b2b"
+    },
+    {
+      "label": "EstadoPedido",
+      "file_type": "code",
+      "source_file": "SPEC_B2B.md",
+      "id": "spec_b2b_estadopedido",
+      "community": 0,
+      "norm_label": "estadopedido"
+    },
+    {
+      "label": "LineaPedido",
+      "file_type": "code",
+      "source_file": "SPEC_B2B.md",
+      "id": "spec_b2b_lineapedido",
+      "community": 0,
+      "norm_label": "lineapedido"
+    },
+    {
+      "label": "B2B Service",
+      "file_type": "code",
+      "source_file": "SPEC_B2B.md",
+      "id": "spec_b2b_b2bservice",
+      "community": 0,
+      "norm_label": "b2b service"
+    },
+    {
+      "label": "Caja",
+      "file_type": "code",
+      "source_file": "SPEC_CASHFLOW.md",
+      "id": "spec_cashflow_caja",
+      "community": 2,
+      "norm_label": "caja"
+    },
+    {
+      "label": "TurnoCaja",
+      "file_type": "code",
+      "source_file": "SPEC_CASHFLOW.md",
+      "id": "spec_cashflow_turnocaja",
+      "community": 2,
+      "norm_label": "turnocaja"
+    },
+    {
+      "label": "MovimientoCaja",
+      "file_type": "code",
+      "source_file": "SPEC_CASHFLOW.md",
+      "id": "spec_cashflow_movimientocaja",
+      "community": 2,
+      "norm_label": "movimientocaja"
+    },
+    {
+      "label": "Cash Service",
+      "file_type": "code",
+      "source_file": "SPEC_CASHFLOW.md",
+      "id": "spec_cashflow_cashservice",
+      "community": 2,
+      "norm_label": "cash service"
+    },
+    {
+      "label": "DevolucionB2B",
+      "file_type": "code",
+      "source_file": "SPEC_DEVOLUCIONES_FINANZAS.md",
+      "id": "spec_devoluciones_finanzas_devolucionb2b",
+      "community": 4,
+      "norm_label": "devolucionb2b"
+    },
+    {
+      "label": "NotaCredito",
+      "file_type": "code",
+      "source_file": "SPEC_DEVOLUCIONES_FINANZAS.md",
+      "id": "spec_devoluciones_finanzas_notacredito",
+      "community": 4,
+      "norm_label": "notacredito"
+    },
+    {
+      "label": "Producto",
+      "file_type": "code",
+      "source_file": "SPEC_INVENTORY.md",
+      "id": "spec_inventory_producto",
+      "community": 3,
+      "norm_label": "producto"
+    },
+    {
+      "label": "StockBodega",
+      "file_type": "code",
+      "source_file": "SPEC_INVENTORY.md",
+      "id": "spec_inventory_stockbodega",
+      "community": 1,
+      "norm_label": "stockbodega"
+    },
+    {
+      "label": "Inventory Service",
+      "file_type": "code",
+      "source_file": "SPEC_INVENTORY.md",
+      "id": "spec_inventory_inventoryservice",
+      "community": 1,
+      "norm_label": "inventory service"
+    },
+    {
+      "label": "Ruta",
+      "file_type": "code",
+      "source_file": "SPEC_ORDERS.md",
+      "id": "spec_orders_ruta",
+      "community": 0,
+      "norm_label": "ruta"
+    },
+    {
+      "label": "Orders Service",
+      "file_type": "code",
+      "source_file": "SPEC_ORDERS.md",
+      "id": "spec_orders_ordersservice",
+      "community": 0,
+      "norm_label": "orders service"
+    },
+    {
+      "label": "Nomina",
+      "file_type": "code",
+      "source_file": "SPEC_PAYROLL.md",
+      "id": "spec_payroll_nomina",
+      "community": 6,
+      "norm_label": "nomina"
+    },
+    {
+      "label": "VentaPOS",
+      "file_type": "code",
+      "source_file": "SPEC_POS.md",
+      "id": "spec_pos_ventapos",
+      "community": 1,
+      "norm_label": "ventapos"
+    },
+    {
+      "label": "POS Service",
+      "file_type": "code",
+      "source_file": "SPEC_POS.md",
+      "id": "spec_pos_posservice",
+      "community": 1,
+      "norm_label": "pos service"
+    },
+    {
+      "label": "ProductPricing",
+      "file_type": "code",
+      "source_file": "SPEC_PRICING.md",
+      "id": "spec_pricing_productpricing",
+      "community": 3,
+      "norm_label": "productpricing"
+    },
+    {
+      "label": "LogIntegracionRappi",
+      "file_type": "code",
+      "source_file": "SPEC_RAPPI_INTEGRATION.md",
+      "id": "spec_rappi_integration_logintegracionrappi",
+      "community": 1,
+      "norm_label": "logintegracionrappi"
+    },
+    {
+      "label": "Empleado",
+      "file_type": "code",
+      "source_file": "SPEC_RRHH_NOMINA.md",
+      "id": "spec_rrhh_nomina_empleado",
+      "community": 5,
+      "norm_label": "empleado"
+    },
+    {
+      "label": "NominaRegistro",
+      "file_type": "code",
+      "source_file": "SPEC_RRHH_NOMINA.md",
+      "id": "spec_rrhh_nomina_nominaregistro",
+      "community": 5,
+      "norm_label": "nominaregistro"
+    },
+    {
+      "label": "Test Factories",
+      "file_type": "code",
+      "source_file": "SPEC_TESTING.md",
+      "id": "spec_testing_testfactories",
+      "community": 3,
+      "norm_label": "test factories"
+    }
+  ],
+  "links": [
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SPEC_B2B.md",
+      "source": "spec_b2b_b2bservice",
+      "target": "spec_b2b_pedido"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SPEC_B2B.md",
+      "source": "spec_b2b_pedido",
+      "target": "spec_b2b_estadopedido"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SPEC_B2B.md",
+      "source": "spec_b2b_pedido",
+      "target": "spec_b2b_lineapedido"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SPEC_ORDERS.md",
+      "source": "spec_orders_ordersservice",
+      "target": "spec_b2b_pedido"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SPEC_TESTING.md",
+      "source": "spec_testing_testfactories",
+      "target": "spec_b2b_pedido"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SPEC_CASHFLOW.md",
+      "source": "spec_cashflow_turnocaja",
+      "target": "spec_cashflow_caja"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SPEC_CASHFLOW.md",
+      "source": "spec_cashflow_cashservice",
+      "target": "spec_cashflow_turnocaja"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SPEC_CASHFLOW.md",
+      "source": "spec_cashflow_movimientocaja",
+      "target": "spec_cashflow_turnocaja"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SPEC_DEVOLUCIONES_FINANZAS.md",
+      "source": "spec_devoluciones_finanzas_devolucionb2b",
+      "target": "spec_devoluciones_finanzas_notacredito"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SPEC_PRICING.md",
+      "source": "spec_pricing_productpricing",
+      "target": "spec_inventory_producto"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SPEC_TESTING.md",
+      "source": "spec_testing_testfactories",
+      "target": "spec_inventory_producto"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SPEC_INVENTORY.md",
+      "source": "spec_inventory_inventoryservice",
+      "target": "spec_inventory_stockbodega"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SPEC_POS.md",
+      "source": "spec_pos_posservice",
+      "target": "spec_inventory_inventoryservice"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SPEC_ORDERS.md",
+      "source": "spec_orders_ordersservice",
+      "target": "spec_orders_ruta"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SPEC_POS.md",
+      "source": "spec_pos_posservice",
+      "target": "spec_pos_ventapos"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SPEC_RAPPI_INTEGRATION.md",
+      "source": "spec_rappi_integration_logintegracionrappi",
+      "target": "spec_pos_ventapos"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SPEC_TESTING.md",
+      "source": "spec_testing_testfactories",
+      "target": "spec_pos_ventapos"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SPEC_RRHH_NOMINA.md",
+      "source": "spec_rrhh_nomina_nominaregistro",
+      "target": "spec_rrhh_nomina_empleado"
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "b2b_sales_flow",
+      "label": "B2B Sales Lifecycle",
+      "nodes": [
+        "spec_b2b_pedido",
+        "spec_orders_ruta",
+        "spec_devoluciones_finanzas_devolucionb2b"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 0.9,
+      "source_file": "SPEC_B2B.md"
+    },
+    {
+      "id": "financial_integrity_group",
+      "label": "Financial and Cash Control",
+      "nodes": [
+        "spec_cashflow_turnocaja",
+        "spec_pos_ventapos",
+        "spec_devoluciones_finanzas_notacredito"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "SPEC_CASHFLOW.md"
+    },
+    {
+      "id": "inventory_management_core",
+      "label": "Inventory and Pricing Core",
+      "nodes": [
+        "spec_inventory_producto",
+        "spec_inventory_stockbodega",
+        "spec_pricing_productpricing"
+      ],
+      "relation": "implement",
+      "confidence": "EXTRACTED",
+      "confidence_score": 0.95,
+      "source_file": "SPEC_INVENTORY.md"
+    }
+  ],
+  "built_at_commit": "72e849ba124154720057bd965d3f3132263c59ec"
+}

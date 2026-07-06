@@ -1,16 +1,10 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { FileText, Calculator, CheckCircle, Shield, Briefcase, ArrowLeft, Sun, XOctagon } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { generateId, Empleado, NominaRegistro, Gasto } from '../App.tsx';
-
-interface PayrollViewProps {
-  empleados: Empleado[];
-  nominas: NominaRegistro[];
-  setNominas: React.Dispatch<React.SetStateAction<NominaRegistro[]>>;
-  gastos: Gasto[];
-  setGastos: React.Dispatch<React.SetStateAction<Gasto[]>>;
-  setView?: (view: string) => void;
-}
+import { generateId, NominaRegistro, Gasto } from '../App.tsx';
+import { useEmployeeStore } from '../store/useEmployeeStore.ts';
+import { useExpenseStore } from '../store/useExpenseStore.ts';
+import { useAppStore } from '../store/useAppStore.ts';
 
 const calcDiasComerciales = (inicio: string, fin: string) => {
   if (!inicio || !fin) return 0;
@@ -35,7 +29,10 @@ const calcDiasComerciales = (inicio: string, fin: string) => {
   return (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1) + 1;
 };
 
-export default function PayrollView({ empleados, nominas, setNominas, setGastos, setView }: PayrollViewProps) {
+export default function PayrollView() {
+  const { empleados, nominas, setNominas } = useEmployeeStore();
+  const { setGastos } = useExpenseStore();
+  const setView = useAppStore((s) => s.setCurrentView);
   const [wizardType, setWizardType] = useState<'REGULAR' | 'VACACIONES' | 'LIQUIDACION_FINAL' | null>(null);
   const [selectedEmpleadoId, setSelectedEmpleadoId] = useState<string>('');
 
@@ -247,9 +244,9 @@ export default function PayrollView({ empleados, nominas, setNominas, setGastos,
           metodoPago: 'TRANSFERENCIA'
         };
 
-        setGastos(prev => [nuevoGasto, ...prev]);
+        setGastos((prev: Gasto[]) => [nuevoGasto, ...prev]);
 
-        setNominas(prev => prev.map(n => {
+        setNominas((prev: NominaRegistro[]) => prev.map((n: NominaRegistro) => {
           if (n.id === id) {
             return {
               ...n,

@@ -1,72 +1,94 @@
-# Plan de Implementación: Frontend SPA & Interfaz POS (v2.1)
+# Speckit Plan: Implementación Técnica (El Cómo)
 
-Este documento detalla el diseño y la secuencia de construcción para la aplicación web de una sola página (SPA) modular del ERP de **La Pezcadería S.A.S.**, incorporando la interfaz del Punto de Venta (POS) y el nuevo módulo de Recursos Humanos (Empleados).
+Este plan de implementación traduce la arquitectura y los requisitos de calidad aprobados en esquemas técnicos concretos y tareas ejecutables.
+
+## 1. Esquemas de Datos (Supabase SQL)
+
+### A. Base Contable (Partida Doble)
+Se requiere crear dos tablas nuevas para el Libro Mayor, permitiendo el modelo estricto por debajo y la categorización simple por encima.
+
+```sql
+-- Catálogo de Cuentas (Simple para MVP)
+CREATE TABLE accounts (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  code text UNIQUE NOT NULL, -- Ej: '1105' (Caja), '4135' (Ingresos Comerciales)
+  name text NOT NULL,
+  type text NOT NULL CHECK (type IN ('ASSET', 'LIABILITY', 'EQUITY', 'REVENUE', 'EXPENSE')),
+  is_active boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now()
+);
+
+-- Asientos del Libro Mayor
+CREATE TABLE ledger_entries (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  account_id uuid REFERENCES accounts(id),
+  reference_type text NOT NULL, -- 'CASH_SHIFT', 'SALE', 'PURCHASE'
+  reference_id text NOT NULL, -- ID del turno o factura
+  debit numeric(12,2) DEFAULT 0,
+  credit numeric(12,2) DEFAULT 0,
+  description text,
+  branch_id text NOT NULL, -- Sucursal
+  created_at timestamp with time zone DEFAULT now(),
+  created_by text NOT NULL -- Usuario que causó el movimiento
+);
+-- Regla de Integridad en Aplicación: sum(debit) debe ser igual a sum(credit) por cada reference_id
+```
+
+### B. Despachos Parciales y Logística
+Modificaciones al esquema de órdenes existente para soportar despachos parciales.
+
+```sql
+-- Agregar columnas a la tabla order_items (o equivalente actual)
+ALTER TABLE order_items 
+ADD COLUMN requested_quantity numeric(10,2) NOT NULL DEFAULT 1,
+ADD COLUMN fulfilled_quantity numeric(10,2) NOT NULL DEFAULT 0,
+ADD COLUMN status text DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'PARTIAL', 'FULFILLED', 'CANCELLED'));
+```
+
+## 2. Flujos de Información y Servicios Frontend
+
+### A. Módulo Contable (UX Simple)
+*   **Servicio (`src/services/accountingService.ts`):** 
+    Expondrá una función `recordCategorizedTransaction(category, amount, referenceId)` que por debajo mapeará la categoría a las cuentas correctas e insertará dos registros en `ledger_entries` (Débito y Crédito).
+*   **Estado (`src/store/useAccountingStore.ts`):** 
+    Cargará los resúmenes financieros (Ingresos Totales vs Gastos Totales) utilizando llamadas a Supabase RPC para no cargar miles de registros en memoria.
+
+### B. Automatización de Cierre de Caja
+*   **Intercepción en `cashService.ts`:** 
+    Al ejecutar `cerrarTurno(id, diferencias)`, el servicio llamará a `accountingService.recordCategorizedTransaction('CASH_DIFFERENCE', diferencias, id)` para asentar los faltantes/sobrantes automáticamente.
+
+### C. Inventario ABC (Backend Cron)
+*   **Supabase RPC + pg_cron:**
+    Se creará una función SQL `calculate_abc_inventory()` que agrupa las ventas de los últimos 15 días, calcula porcentajes acumulados y actualiza una columna `abc_class` en la tabla `products`.
+*   **Frontend (`InventoryView.tsx`):**
+    Solo leerá la columna `abc_class` existente en `products`. Se aplicará una clase CSS condicional (rojo/amarillo/verde) basada en esa letra.
+
+### D. Supabase Realtime y RLS (Despachos)
+*   **Row Level Security (RLS):**
+    ```sql
+    CREATE POLICY "Ver ordenes de mi sucursal" 
+    ON orders FOR SELECT 
+    USING (branch_id = auth.jwt() ->> 'branch_id');
+    ```
+*   **Zustand Realtime Subscription:**
+    En `useOrderStore.ts`, se activará un canal `supabase.channel('orders')` que escuchará `INSERT` y `UPDATE` para actualizar el tablero Kanban en tiempo real, filtrado por el RLS del usuario.
+
+## 3. Plan de Ejecución (Fases de Desarrollo)
+
+Para evitar romper el sistema actual, la ejecución se hará de forma secuencial:
+
+1.  **Fase 1: Infraestructura DB:** Ejecutar scripts SQL en Supabase para `accounts`, `ledger_entries`, y la modificación de `order_items`. Crear la función RPC del cálculo ABC.
+2.  **Fase 2: Core Contable (Servicios):** Implementar `accountingService.ts` y conectarlo al proceso de cierre de caja en `cashService.ts`.
+3.  **Fase 3: Logística Realtime:** Implementar suscripciones WebSockets en `useOrderStore.ts`, adaptar `OrderKanbanView` y `AlistamientoBodegaView` para soportar estados y despachos parciales.
+4.  **Fase 4: UI de Reportes e Inventario:** Crear la vista `AccountingView.tsx` (Reportes financieros) y agregar los indicadores visuales ABC en `InventoryView.tsx`.
 
 ---
 
 ## User Review Required
 
 > [!IMPORTANT]
-> **Inicialización en Directorio de Trabajo**: Crearemos el proyecto SPA React con Vite en la raíz de la carpeta de trabajo `./` para mantener un repositorio limpio y unificado.
+> **Aprobación de la Arquitectura Técnica (El Cómo):**
+> Este es el mapa exacto de cómo se estructurará el código y la base de datos.
+> ¿Estás de acuerdo con el esquema SQL, los flujos de servicio propuestos y el orden de ejecución (Fase 1 a 4)? 
 > 
-> **Alineación de Diseño POS**: La pantalla de ventas POS implementará el diseño de dos columnas: la izquierda con rejilla de productos con imágenes reales (de la base de datos de productos) y la derecha con el carrito de cobro, desglose de impuestos/descuentos y botón de pago verde destacado.
-
----
-
-## Open Questions
-
-> [!IMPORTANT]
-> **Imágenes de Productos**: En el Google Sheet actual de productos, ¿existen URLs de imágenes de los pescados/mariscos, o deberíamos autogenerar imágenes ilustrativas realistas por defecto en el frontend (ej. usando imágenes predefinidas de stock para Filetes, Camarones, Pulpos, etc.)?
-> 
-> **Flujos de Navegación SPA**: Para la navegación modular de la SPA (POS, CRM/Visitas, Producción, Traslados, Gastos de Ruta, Contabilidad, Recursos Humanos), ¿prefieres un menú lateral retráctil (*sidebar*) accesible desde el botón de hamburguesa en la parte superior izquierda de la pantalla?
-
----
-
-## Cambios Propuestos
-
-### Componente 1: Base de Datos (Supabase / PostgreSQL)
-
-#### [NEW] [01_schema_inicial.sql](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/database/01_schema_inicial.sql)
-* Define tipos custom y tablas de terceros, clientes, proveedores, usuarios, productos, bodegas y configuraciones.
-
-#### [NEW] [02_sistema_inventario_y_produccion.sql](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/database/02_sistema_inventario_y_produccion.sql)
-* Gestión de lotes, stock y órdenes de producción con mermas y validación de PIN de Jefe de Bodega.
-
-#### [NEW] [03_ventas_y_facturacion.sql](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/database/03_ventas_y_facturacion.sql)
-* Pedidos, detalles y cálculo de subtotales/descuentos a nivel de motor PostgreSQL.
-
-#### [NEW] [04_caja_y_finanzas.sql](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/database/04_caja_y_finanzas.sql)
-* Gestión de cajas, ingresos/egresos, rutas y arqueo logístico.
-
-#### [NEW] [05_politicas_rls_y_seguridad.sql](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/database/05_politicas_rls_y_seguridad.sql)
-* Habilitación de RLS en todas las tablas del esquema.
-
-#### [NEW] [06_recursos_humanos.sql](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/database/06_recursos_humanos.sql)
-* Tabla `empleados` (id UUID refs terceros(id), cargo, salario, fecha_ingreso, fecha_egreso, url_hoja_vida).
-* Trigger de seguridad para desactivar credenciales de acceso ERP de forma inmediata si el empleado pasa a `INACTIVO`.
-
----
-
-### Componente 2: Configuración de la SPA React + Vite
-
-#### [NEW] [package.json](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/package.json)
-* Inicialización del entorno con React 18, Vite, Lucide-React (iconos) y SweetAlert2 (modales).
-* Estructura modular de carpetas.
-
----
-
-### Componente 3: Estilos Visuales e Interfaz POS
-
-#### [NEW] [index.css](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/index.css)
-* Paleta de colores a medida (#00B171) y tipografía premium modernizada.
-
-#### [NEW] [POSView.tsx](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/views/POSView.tsx)
-* Implementación de la vista del POS conforme a la captura: buscador superior, filtros horizontales de categoría, rejilla de productos e items con precio, resumen de totales a la derecha y gran botón verde de pagar.
-
----
-
-## Plan de Verificación
-
-### Pruebas de Interfaz y Usabilidad
-* **Simulación de Tablet**: Cargar la interfaz en vista móvil/tablet (1280x800) en el navegador para verificar la adaptabilidad.
-* **Integración de Seguridad**: Verificar que un cambio de estado a `INACTIVO` en la ficha de un empleado desactive inmediatamente su capacidad de autenticarse en el ERP.
+> Si apruebas, dime "Aprobado, inicia con la Fase 1" y comenzaré a generar y aplicar el código SQL y estructural directamente.

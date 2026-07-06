@@ -4,7 +4,7 @@ import Swal from 'sweetalert2';
 export function useInventory(props: any) {
   const {
     products, setProducts, productsCatalog, setProductsCatalog,
-    stock, setStock, movimientos, setMovimientos,
+    stock, setStock, movimientos,
     proveedores, publishEvent, userRole, ordenesCompra,
     setOrdenesCompra, categorias, setCategorias,
     quotations, setQuotations, devoluciones, setDevoluciones
@@ -98,7 +98,7 @@ export function useInventory(props: any) {
     
     // Props
     products, setProducts, productsCatalog, setProductsCatalog,
-    stock, setStock, movimientos, setMovimientos,
+    stock, setStock, movimientos,
     proveedores, publishEvent, userRole, ordenesCompra,
     setOrdenesCompra, categorias, setCategorias,
     quotations, setQuotations, devoluciones, setDevoluciones

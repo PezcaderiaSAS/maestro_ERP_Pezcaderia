@@ -1,0 +1,1 @@
+{"nodes": [{"id": "spec_pricing_productpricing", "label": "ProductPricing", "file_type": "code", "source_file": "SPEC_PRICING.md"}], "edges": [{"source": "spec_pricing_productpricing", "target": "spec_inventory_producto", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "SPEC_PRICING.md"}], "hyperedges": []}

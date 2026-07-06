@@ -1,5 +1,6 @@
-import React from 'react';
 import { Package, Search, PlusCircle, Edit3, ShieldAlert } from 'lucide-react';
+
+import { useState } from 'react';
 
 export function ProductTable({
   products,
@@ -14,13 +15,9 @@ export function ProductTable({
   setCustomTipo,
   setCustomLinea,
   setCustomClase,
-  productsCatalog,
-  setProductsCatalog
+  productsCatalog
 }: any) {
-  const getStockInBodega = (sku: string, bodega: string) => {
-    const list = stock[bodega] || [];
-    return list.find((i: any) => i.sku === sku)?.stock || 0;
-  };
+  const [sortBy, setSortBy] = useState<'nombre' | 'pareto'>('nombre');
 
   const getTotalStock = (sku: string) => {
     let total = 0;
@@ -31,20 +28,26 @@ export function ProductTable({
     return total;
   };
 
-  const handleToggleProductStatus = (sku: string) => {
-    const p = products.find((prod: any) => prod.sku === sku);
-    if (!p) return;
-    const isNowActive = !p.activo;
-    
-    // Aquí debería llamar a setProducts o similar para actualizar el estado,
-    // asumiendo que el padre pasa un método. Pero por simplicidad en esta refactorización, 
-    // delegaremos o emitiremos un evento.
-  };
-
   const filteredProducts = products.filter((p: any) => {
     const matchesSearch = p.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || p.sku.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'TODOS' ? true : statusFilter === 'ACTIVOS' ? p.activo : !p.activo;
     return matchesSearch && matchesStatus;
+  }).sort((a: any, b: any) => {
+    if (sortBy === 'pareto') {
+      const aStock = getTotalStock(a.sku);
+      const bStock = getTotalStock(b.sku);
+      const aIsWeighable = a.unidadMedida === 'kg' || a.unidadMedida === 'gr' ? 1 : 0;
+      const bIsWeighable = b.unidadMedida === 'kg' || b.unidadMedida === 'gr' ? 1 : 0;
+      
+      if (aIsWeighable !== bIsWeighable) {
+          return bIsWeighable - aIsWeighable;
+      }
+      
+      const aValue = aStock * (a.precio_compra || 0);
+      const bValue = bStock * (b.precio_compra || 0);
+      return bValue - aValue;
+    }
+    return a.nombre.localeCompare(b.nombre);
   });
 
   return (
@@ -61,7 +64,7 @@ export function ProductTable({
             setProductForm({ 
               sku: '', nombre: '', categoria: '', unidadMedida: 'kg', precio_compra: 0, buffer_seguridad: 5, 
               codigo_barras: '', iva: 0, ivaIncluido: true, control_inventario: true, produccion: false, 
-              tipoCategoria: '', lineaCategoria: '', claseCategoria: '', imagen: '' 
+              tipoCategoria: '', lineaCategoria: '', claseCategoria: '', imagen: '', categoriaABC: undefined
             });
             setCustomTipo('');
             setCustomLinea('');
@@ -89,6 +92,15 @@ export function ProductTable({
           <select 
             className="form-control" 
             style={{ width: '200px' }}
+            value={sortBy}
+            onChange={e => setSortBy(e.target.value as any)}
+          >
+            <option value="nombre">Ordenar por Nombre</option>
+            <option value="pareto">Análisis ABC (Pesables)</option>
+          </select>
+          <select 
+            className="form-control" 
+            style={{ width: '200px' }}
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value)}
           >
@@ -104,6 +116,7 @@ export function ProductTable({
               <th>Imagen</th>
               <th>SKU</th>
               <th>Nombre y Categoría</th>
+              <th>Clasificación ABC</th>
               <th>Stock Total</th>
               <th>Precio Venta (POS)</th>
               <th>Estado</th>
@@ -135,6 +148,26 @@ export function ProductTable({
                         {catData ? `${catData.tipo} > ${catData.linea} > ${catData.clase}` : p.categoria}
                       </span>
                     </div>
+                  </td>
+                  <td>
+                    {(() => {
+                      const abc = p.categoriaABC;
+                      let bg = '#F1F5F9';
+                      let color = '#475569';
+                      let label = 'N/A';
+                      if (abc === 'A') { bg = '#FEE2E2'; color = '#DC2626'; label = 'A'; }
+                      else if (abc === 'B') { bg = '#FEF9C3'; color = '#CA8A04'; label = 'B'; }
+                      else if (abc === 'C') { bg = '#DCFCE7'; color = '#16A34A'; label = 'C'; }
+                      
+                      return (
+                        <span style={{ 
+                          backgroundColor: bg, color, padding: '4px 8px', borderRadius: '4px', 
+                          fontWeight: 700, fontSize: '12px', display: 'inline-block', textAlign: 'center', minWidth: '24px'
+                        }}>
+                          {label}
+                        </span>
+                      );
+                    })()}
                   </td>
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -172,7 +205,8 @@ export function ProductTable({
                             tipoCategoria: catData?.tipo || '',
                             lineaCategoria: catData?.linea || '',
                             claseCategoria: catData?.clase || '',
-                            imagen: p.imagen || ''
+                            imagen: p.imagen || '',
+                            categoriaABC: p.categoriaABC
                           });
                           setIsCreating(false);
                         }}

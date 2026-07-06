@@ -1,0 +1,97 @@
+{
+  "communities": {
+    "0": [
+      "categoria_config",
+      "inventoryview_tsx",
+      "product_catalog",
+      "product_pricing"
+    ],
+    "1": [
+      "hrview_tsx",
+      "localdb_ts",
+      "payrollview_tsx",
+      "rappi_integration_middleware"
+    ],
+    "2": [
+      "app_tsx",
+      "clientsview_tsx",
+      "suppliersview_tsx"
+    ],
+    "3": [
+      "documentacion_maestro_erp",
+      "siigo_api",
+      "supabase_db"
+    ]
+  },
+  "cohesion": {
+    "0": 0.5,
+    "1": 0.5,
+    "2": 0.6666666666666666,
+    "3": 0.6666666666666666
+  },
+  "gods": [
+    {
+      "id": "documentacion_maestro_erp",
+      "label": "Maestro ERP Pescader\u00eda",
+      "degree": 2
+    },
+    {
+      "id": "product_catalog",
+      "label": "ProductCatalog",
+      "degree": 1
+    },
+    {
+      "id": "product_pricing",
+      "label": "ProductPricing",
+      "degree": 1
+    },
+    {
+      "id": "categoria_config",
+      "label": "CategoriaConfig",
+      "degree": 1
+    },
+    {
+      "id": "rappi_integration_middleware",
+      "label": "Rappi Integration Middleware",
+      "degree": 1
+    },
+    {
+      "id": "siigo_api",
+      "label": "Siigo API",
+      "degree": 1
+    },
+    {
+      "id": "supabase_db",
+      "label": "Supabase / PostgreSQL",
+      "degree": 1
+    }
+  ],
+  "surprises": [
+    {
+      "source": "Maestro ERP Pescader\u00eda",
+      "target": "Siigo API",
+      "source_files": [
+        "DOCUMENTACION.md",
+        "DOCUMENTACION_ERP_WMS_PEZCADERIA.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories"
+    },
+    {
+      "source": "Maestro ERP Pescader\u00eda",
+      "target": "Supabase / PostgreSQL",
+      "source_files": [
+        "DOCUMENTACION.md",
+        "plan_arquitectura_unificada_pezca.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories"
+    }
+  ],
+  "tokens": {
+    "input": 33619,
+    "output": 2124
+  }
+}

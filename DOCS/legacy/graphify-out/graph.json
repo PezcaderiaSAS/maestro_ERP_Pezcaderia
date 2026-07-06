@@ -1,0 +1,309 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {
+    "hyperedges": [
+      {
+        "id": "modular_ui_architecture",
+        "label": "Modular UI Architecture (Fase 5)",
+        "nodes": [
+          "clientsview_tsx",
+          "suppliersview_tsx",
+          "inventoryview_tsx"
+        ],
+        "relation": "participate_in",
+        "confidence": "EXTRACTED",
+        "confidence_score": 1.0,
+        "source_file": "DOCUMENTACION_FASE_5.md"
+      },
+      {
+        "id": "product_management_flow",
+        "label": "Product Management Flow",
+        "nodes": [
+          "product_catalog",
+          "product_pricing",
+          "categoria_config"
+        ],
+        "relation": "form",
+        "confidence": "EXTRACTED",
+        "confidence_score": 1.0,
+        "source_file": "DOCUMENTACION_PRODUCTOS.md"
+      },
+      {
+        "id": "hr_payroll_system",
+        "label": "HR and Payroll System",
+        "nodes": [
+          "hrview_tsx",
+          "payrollview_tsx",
+          "localdb_ts"
+        ],
+        "relation": "participate_in",
+        "confidence": "EXTRACTED",
+        "confidence_score": 1.0,
+        "source_file": "DOCUMENTACION_RRHH_NOMINA.md"
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "label": "Maestro ERP Pescader\u00eda",
+      "file_type": "document",
+      "source_file": "DOCUMENTACION.md",
+      "id": "documentacion_maestro_erp",
+      "community": 3,
+      "norm_label": "maestro erp pescaderia"
+    },
+    {
+      "label": "localDb.ts",
+      "file_type": "code",
+      "source_file": "src/services/localDb.ts",
+      "id": "localdb_ts",
+      "community": 1,
+      "norm_label": "localdb.ts"
+    },
+    {
+      "label": "App.tsx",
+      "file_type": "code",
+      "source_file": "src/App.tsx",
+      "id": "app_tsx",
+      "community": 2,
+      "norm_label": "app.tsx"
+    },
+    {
+      "label": "InventoryView.tsx",
+      "file_type": "code",
+      "source_file": "src/views/InventoryView.tsx",
+      "id": "inventoryview_tsx",
+      "community": 0,
+      "norm_label": "inventoryview.tsx"
+    },
+    {
+      "label": "HRView.tsx",
+      "file_type": "code",
+      "source_file": "src/views/HRView.tsx",
+      "id": "hrview_tsx",
+      "community": 1,
+      "norm_label": "hrview.tsx"
+    },
+    {
+      "label": "PayrollView.tsx",
+      "file_type": "code",
+      "source_file": "src/views/PayrollView.tsx",
+      "id": "payrollview_tsx",
+      "community": 1,
+      "norm_label": "payrollview.tsx"
+    },
+    {
+      "label": "ClientsView.tsx",
+      "file_type": "code",
+      "source_file": "src/views/ClientsView.tsx",
+      "id": "clientsview_tsx",
+      "community": 2,
+      "norm_label": "clientsview.tsx"
+    },
+    {
+      "label": "SuppliersView.tsx",
+      "file_type": "code",
+      "source_file": "src/views/SuppliersView.tsx",
+      "id": "suppliersview_tsx",
+      "community": 2,
+      "norm_label": "suppliersview.tsx"
+    },
+    {
+      "label": "ProductCatalog",
+      "file_type": "concept",
+      "source_file": "DOCUMENTACION_PRODUCTOS.md",
+      "id": "product_catalog",
+      "community": 0,
+      "norm_label": "productcatalog"
+    },
+    {
+      "label": "ProductPricing",
+      "file_type": "concept",
+      "source_file": "DOCUMENTACION_PRODUCTOS.md",
+      "id": "product_pricing",
+      "community": 0,
+      "norm_label": "productpricing"
+    },
+    {
+      "label": "CategoriaConfig",
+      "file_type": "concept",
+      "source_file": "DOCUMENTACION_PRODUCTOS.md",
+      "id": "categoria_config",
+      "community": 0,
+      "norm_label": "categoriaconfig"
+    },
+    {
+      "label": "Rappi Integration Middleware",
+      "file_type": "concept",
+      "source_file": "DOCUMENTACION_INTEGRACION_RAPPI.md",
+      "id": "rappi_integration_middleware",
+      "community": 1,
+      "norm_label": "rappi integration middleware"
+    },
+    {
+      "label": "Siigo API",
+      "file_type": "concept",
+      "source_file": "DOCUMENTACION_ERP_WMS_PEZCADERIA.md",
+      "id": "siigo_api",
+      "community": 3,
+      "norm_label": "siigo api"
+    },
+    {
+      "label": "Supabase / PostgreSQL",
+      "file_type": "concept",
+      "source_file": "plan_arquitectura_unificada_pezca.md",
+      "id": "supabase_db",
+      "community": 3,
+      "norm_label": "supabase / postgresql"
+    }
+  ],
+  "links": [
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DOCUMENTACION_DEVOLUCIONES_FINANZAS.md",
+      "source": "documentacion_maestro_erp",
+      "target": "siigo_api"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DOCUMENTACION.md",
+      "source": "documentacion_maestro_erp",
+      "target": "supabase_db"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DOCUMENTACION.md",
+      "source": "app_tsx",
+      "target": "localdb_ts"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DOCUMENTACION.md",
+      "source": "hrview_tsx",
+      "target": "localdb_ts"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DOCUMENTACION_PRODUCTOS.md",
+      "source": "inventoryview_tsx",
+      "target": "localdb_ts"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DOCUMENTACION_RRHH_NOMINA.md",
+      "source": "payrollview_tsx",
+      "target": "localdb_ts"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DOCUMENTACION_INTEGRACION_RAPPI.md",
+      "source": "rappi_integration_middleware",
+      "target": "localdb_ts"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DOCUMENTACION_FASE_5.md",
+      "source": "app_tsx",
+      "target": "clientsview_tsx"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DOCUMENTACION_FASE_5.md",
+      "source": "app_tsx",
+      "target": "inventoryview_tsx"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DOCUMENTACION_FASE_5.md",
+      "source": "app_tsx",
+      "target": "suppliersview_tsx"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DOCUMENTACION_PRODUCTOS.md",
+      "source": "inventoryview_tsx",
+      "target": "categoria_config"
+    },
+    {
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "DOCUMENTACION_PRODUCTOS.md",
+      "source": "inventoryview_tsx",
+      "target": "product_catalog"
+    },
+    {
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "DOCUMENTACION_PRODUCTOS.md",
+      "source": "inventoryview_tsx",
+      "target": "product_pricing"
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "modular_ui_architecture",
+      "label": "Modular UI Architecture (Fase 5)",
+      "nodes": [
+        "clientsview_tsx",
+        "suppliersview_tsx",
+        "inventoryview_tsx"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DOCUMENTACION_FASE_5.md"
+    },
+    {
+      "id": "product_management_flow",
+      "label": "Product Management Flow",
+      "nodes": [
+        "product_catalog",
+        "product_pricing",
+        "categoria_config"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DOCUMENTACION_PRODUCTOS.md"
+    },
+    {
+      "id": "hr_payroll_system",
+      "label": "HR and Payroll System",
+      "nodes": [
+        "hrview_tsx",
+        "payrollview_tsx",
+        "localdb_ts"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DOCUMENTACION_RRHH_NOMINA.md"
+    }
+  ],
+  "built_at_commit": "72e849ba124154720057bd965d3f3132263c59ec"
+}

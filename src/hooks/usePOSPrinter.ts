@@ -1,7 +1,9 @@
 // src/hooks/usePOSPrinter.ts
 
 import { useState } from 'react';
-import type { VentaPOS, LineaVenta } from '../types/pos.types';
+import { createLogger } from '../lib/consoleLogger';
+
+const log = createLogger('POSPrinter');
 
 export interface ClientePrinter {
   nombre: string;
@@ -15,7 +17,7 @@ export function usePOSPrinter() {
   /**
    * Da formato a una cadena de texto a un ancho fijo de 40 columnas para impresoras térmicas
    */
-  const formatearTextoTicket = (venta: VentaPOS, cliente: ClientePrinter | null): string => {
+  const formatearTextoTicket = (venta: any, cliente: ClientePrinter | null, omitirDescuentos: boolean = false): string => {
     const width = 40;
     const center = (text: string) => {
       const pad = Math.max(0, Math.floor((width - text.length) / 2));
@@ -62,14 +64,18 @@ export function usePOSPrinter() {
 
     // Items
     const items = venta.items || venta.lineas || [];
-    items.forEach((item: LineaVenta) => {
+    items.forEach((item: any) => {
       // Cortar nombre largo
-      const truncatedName = item.nombre.substring(0, 25);
+      const truncatedName = (item.nombre || 'Item').substring(0, 25);
       ticket += truncatedName + '\n';
       
-      const priceStr = `$${item.precioFinal.toLocaleString('es-CO')}`;
-      const qtyStr = `${item.cantidad} ${item.unidad}`;
-      const rightStr = `$${item.totalLinea.toLocaleString('es-CO')}`;
+      const precio = item.precioFinal ?? item.precioUnitario ?? 0;
+      const total = item.totalLinea ?? item.subtotal ?? 0;
+      const unidad = item.unidad ?? 'unid';
+      
+      const priceStr = `$${precio.toLocaleString('es-CO')}`;
+      const qtyStr = `${item.cantidad || 1} ${unidad}`;
+      const rightStr = `$${total.toLocaleString('es-CO')}`;
       
       ticket += justify(`  ${qtyStr} x ${priceStr}`, rightStr) + '\n';
     });
@@ -77,10 +83,12 @@ export function usePOSPrinter() {
     ticket += separator() + '\n';
 
     // Totales
-    ticket += justify('SUBTOTAL:', `$${venta.subtotal.toLocaleString('es-CO')}`) + '\n';
-    const descuento = venta.descuento !== undefined ? venta.descuento : (venta.descuentoGlobalValor || 0);
-    if (descuento > 0) {
-      ticket += justify('DESCUENTO:', `-$${descuento.toLocaleString('es-CO')}`) + '\n';
+    if (!omitirDescuentos) {
+      ticket += justify('SUBTOTAL:', `$${venta.subtotal.toLocaleString('es-CO')}`) + '\n';
+      const descuento = venta.descuento !== undefined ? venta.descuento : (venta.descuentoGlobalValor || 0);
+      if (descuento > 0) {
+        ticket += justify('DESCUENTO:', `-$${descuento.toLocaleString('es-CO')}`) + '\n';
+      }
     }
     const total = venta.total !== undefined ? venta.total : (venta.totalFinal || 0);
     ticket += justify('TOTAL FINAL:', `$${total.toLocaleString('es-CO')}`) + '\n';
@@ -109,11 +117,12 @@ export function usePOSPrinter() {
   /**
    * Simula o realiza la impresión del ticket en consola o mediante el driver del navegador
    */
-  const imprimirTicket = async (venta: VentaPOS, cliente: ClientePrinter | null): Promise<boolean> => {
+  const imprimirTicket = async (venta: any, cliente: ClientePrinter | null, omitirDescuentos: boolean = false): Promise<boolean> => {
+    log.info('imprimirTicket', { ventaId: venta.id, total: venta.total });
     setPrinting(true);
     setError(null);
 
-    const ticketText = formatearTextoTicket(venta, cliente);
+    const ticketText = formatearTextoTicket(venta, cliente, omitirDescuentos);
 
     try {
       // Simulación de delay de hardware
@@ -125,9 +134,11 @@ export function usePOSPrinter() {
       
       // Si el navegador soporta Web Serial, podríamos abrir un puerto y enviarlo.
       // Como fallback de producción, también podemos abrir un iframe oculto para impresión nativa del sistema.
+      log.info('imprimirTicket OK', { ventaId: venta.id });
       setPrinting(false);
       return true;
     } catch (err: any) {
+      log.error('imprimirTicket FAIL', { error: err instanceof Error ? err.message : err });
       setPrinting(false);
       setError(err.message || 'Error al imprimir ticket');
       return false;
