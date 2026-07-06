@@ -1,0 +1,18 @@
+[submodule "tools/ruflo"]
+    path = tools/ruflo
+    url = https://github.com/ruvnet/ruflo
+[submodule "tools/gitnexus"]
+    path = tools/gitnexus
+    url = https://github.com/abhigyanpatwari/GitNexus
+[submodule "tools/ecc"]
+    path = tools/ecc
+    url = https://github.com/affaan-m/ecc
+[submodule "tools/spec-kit"]
+    path = tools/spec-kit
+    url = https://github.com/github/spec-kit
+[submodule "agent-skills"]
+    path = agent-skills
+    url = https://github.com/github/spec-kit
+[submodule "tools/recursos"]
+    path = tools/recursos
+    url = https://github.com/github/spec-kit
