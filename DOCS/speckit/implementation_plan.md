@@ -1,147 +1,89 @@
-# Speckit Plan: Refactorización de PricingView y Centralización de Tipos (El Cómo)
+# Plan de Implementación: Corrección de Colapso de Grid en POS (v2.0)
 
-Este plan de implementación detalla la reestructuración del cotizador (`PricingView.tsx`) y del sistema de tipos globales del ERP para lograr un código desacoplado, mantenible y de alto rendimiento.
+Este documento detalla el plan técnico para restaurar la rejilla responsiva de dos columnas en el POS del ERP y solucionar los conflictos de especificidad de CSS, según la especificación aprobada.
 
-## 1. Esquema de Datos y Modelos (TypeScript)
-Centralizaremos los tipos en `src/types/erp.types.ts` para evitar dependencias circulares entre vistas y hooks:
+## Propuesta de Cambios
 
-```typescript
-// src/types/erp.types.ts
-
-export interface Cliente {
-  id: string;
-  nombre: string;
-  identificacion: string;
-  tipoIdentificacion: 'NIT' | 'CC' | 'CE';
-  tipoPersona: 'NATURAL' | 'JURIDICA';
-  direccion: string;
-  telefono: string;
-  email: string;
-  ciudad: string;
-  tipoPrecio: 'POS' | 'RESTAURANTE' | 'MAYORISTA';
-  encargadoCompras?: string;
-  cupoCredito: number;
-  activo: boolean;
-}
-
-export interface Conductor {
-  id: string;
-  nombre: string;
-  identificacion: string;
-  licencia: string;
-  celular: string;
-  activo: boolean;
-}
-
-export interface DevolucionPedido {
-  id: string;
-  pedidoId: string;
-  pedidoNo: string;
-  clienteId: string;
-  clienteNombre: string;
-  conductorId: string;
-  conductorNombre: string;
-  estado: 'PROGRAMADA' | 'RECIBIDA_BODEGA' | 'VALIDADA_FINANZAS' | 'ANULADA';
-  fechaProgramacion: string;
-  fechaRecibido?: string;
-  recibidoPor?: string;
-  fechaValidacion?: string;
-  items: Array<{
-    sku: string;
-    nombre: string;
-    cantidadSolicitada: number;
-    cantidadRecibida?: number;
-    precioUnitarioVenta: number;
-    estadoCalidad?: 'APROBADO_REINGRESO' | 'DESCARTE_MERMA';
-    estadoFisico?: 'APTO_INVENTARIO' | 'AVERIA_DESCARTE' | 'RECHAZADO';
-    loteInventario?: string;
-  }>;
-}
-
-export interface ProductCatalog {
-  id: string;
-  sku: string;
-  nombre: string;
-  categoria: string;
-  unidadMedida?: 'kg' | 'und' | 'lb' | 'gr';
-  imagen?: string;
-  codigo_barras?: string;
-  iva?: number;
-  ivaIncluido?: boolean;
-  control_inventario?: boolean;
-  produccion?: boolean;
-  activo: boolean;
-  categoriaABC?: 'A' | 'B' | 'C';
-  metadata?: Record<string, string>;
-}
-
-export interface ProductPricing {
-  id: string;
-  productoId: string;
-  vigenciaDesde: string;
-  precio_compra: number;
-  buffer_seguridad: number;
-  precio_venta_pos: number;
-  precio_venta_restaurante: number;
-  precio_venta_mayorista: number;
-  actualizadoPor: string;
-}
-
-export interface Product extends ProductCatalog {
-  precio_compra: number;
-  buffer_seguridad: number;
-  precio_venta_pos: number;
-  precio_venta_restaurante: number;
-  precio_venta_mayorista: number;
-}
-```
+Para resolver de forma limpia y definitiva el colapso del grid en escritorio y mantener la consistencia en todas las resoluciones, implementaremos un diseño basado en **Tailwind CSS puro** y eliminaremos las propiedades estructurales redundantes de los archivos CSS globales.
 
 ---
 
-## 2. Flujo de Información y Componentes
+## 🛠️ Cambios por Componente
 
-El flujo de control separa limpiamente el almacenamiento de datos, la lógica del negocio (hook) y el renderizado UI:
+### 1. Estilos Globales: [src/index.css](file:///c:/Users/PERSONAL/Documents/Aplicaciones/maestro_ERP_Pezcaderia/src/index.css)
 
-```mermaid
-graph TD
-    Zustand[Zustand Stores] <--> |Acceso Reactivo| usePricing[src/hooks/usePricing.ts]
-    LocalStorage[localStorage: pezcaderia_last_client_prices] <--> |Lectura/Escritura| usePricing
-    
-    usePricing --> |Estado & Acciones| PricingView[src/views/PricingView.tsx]
-    PricingView --> |Callbacks onSuccess/onError| SweetAlert[SweetAlert2 UI Alerts]
+Removeremos las propiedades de diseño de las clases `.pos-layout` y `.pos-products-grid` para evitar colisiones de especificidad con Tailwind:
+
+```css
+/* Modificar en src/index.css */
+.pos-layout {
+  /* Eliminar display: flex, height, overflow y flex: 1 */
+  /* Dejar únicamente variables o transiciones si son necesarias */
+}
+
+.pos-products-grid {
+  /* Eliminar display: grid, grid-template-columns, gap y overflow-y */
+  /* Dejar únicamente paddings menores de ser necesario */
+}
 ```
 
-### A. El Hook Orquestador (`src/hooks/usePricing.ts`)
-Encapsulará:
-1. **Selección de Cliente**:
-   * Filtrado y vinculación del cliente.
-   * Consulta del histórico de precios (`pezcaderia_last_client_prices`).
-   * Aplicación/Restauración automática de tarifas de fidelidad.
-2. **Cálculos y Cotización**:
-   * Gestión de las líneas agregadas.
-   * Cálculo de subtotales, IVA y total final (memoizados con `useMemo`).
-3. **Persistencia y Estado Global**:
-   * Consolidación de cotizaciones aprobadas interactuando con el store de pedidos de Zustand.
-   * Decremento de inventario al marcar el estado como `Sold`.
+### 2. Vista de Cartera: [src/views/ARView.tsx](file:///c:/Users/PERSONAL/Documents/Aplicaciones/maestro_ERP_Pezcaderia/src/views/ARView.tsx)
 
-### B. La Vista de UI (`src/views/PricingView.tsx`)
-1. Consume `usePricing()` para pintar:
-   * Lista de cotizaciones.
-   * Panel de edición y agregador de ítems.
-   * Botón dinámico de alerta: `💡 Último: $X.XXX (Aplicar)`.
-2. Escucha callbacks para renderizar:
-   * Confirmación o errores mediante modales emergentes de `SweetAlert2`.
+Dado que `ARView.tsx` consume la clase `.pos-layout` y asume que tiene `display: flex`, agregaremos la clase `flex` de Tailwind a su contenedor para evitar regresiones de diseño:
+
+```diff
+- <div className="pos-layout animate-fade-in" style={{ flexDirection: 'column', gap: '20px', padding: '20px', overflowY: 'auto' }}>
++ <div className="pos-layout flex animate-fade-in" style={{ flexDirection: 'column', gap: '20px', padding: '20px', overflowY: 'auto' }}>
+```
+
+### 3. Layout del POS: [src/views/POSView.tsx](file:///c:/Users/PERSONAL/Documents/Aplicaciones/maestro_ERP_Pezcaderia/src/views/POSView.tsx)
+
+1. Ajustar el contenedor raíz del POS para usar el patrón de Shell del ERP (`h-screen flex flex-col overflow-hidden`):
+   ```diff
+   - <div className="pos-layout animate-fade-in relative" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+   + <div className="pos-layout w-full h-full flex flex-col overflow-hidden gap-4 animate-fade-in relative">
+   ```
+2. Modificar la división del catálogo y el carrito a partir del breakpoint de escritorio (`lg:grid lg:grid-cols-[7fr_3fr]`):
+   ```diff
+   - <div className="pos-layout min-h-[calc(100vh-130px)] lg:h-[calc(100vh-64px)] lg:overflow-hidden animate-fade-in flex flex-col lg:grid lg:grid-cols-[7fr_3fr] gap-4 lg:gap-5 w-full m-0 p-0 bg-transparent shadow-none border-none pt-2">
+   + <div className="flex-1 min-h-0 w-full flex flex-col lg:grid lg:grid-cols-[7fr_3fr] gap-4 lg:gap-5 overflow-hidden m-0 p-0 bg-transparent shadow-none border-none pt-2">
+   ```
+3. Agregar contención de altura al panel del carrito (`min-h-0 h-full flex flex-col`):
+   ```diff
+   - <div className="pos-sidebar-cart flex-none h-[75vh] lg:sticky lg:top-6 lg:h-[calc(100vh-120px)] flex flex-col bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+   + <div className="pos-sidebar-cart flex flex-col bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden h-full min-h-0">
+   ```
+
+### 4. Panel de Catálogo: [src/views/pos/components/ProductSearchPanel.tsx](file:///c:/Users/PERSONAL/Documents/Aplicaciones/maestro_ERP_Pezcaderia/src/views/pos/components/ProductSearchPanel.tsx)
+
+1. Sincronizar el contenedor del catálogo para respetar los límites de altura (`min-h-0 flex-1`):
+   ```diff
+   - <div className="pos-catalog flex-1 lg:flex-none h-full lg:h-full flex flex-col overflow-hidden">
+   + <div className="pos-catalog flex-1 flex flex-col overflow-hidden min-h-0">
+   ```
+2. Asegurar que el grid de tarjetas sea responsivo puro (`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4`) y no sufra sobreescritura de CSS manual:
+   ```diff
+   - <div className="pos-products-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 overflow-y-auto flex-1 pb-4" data-testid="product-grid">
+   + <div className="pos-products-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 overflow-y-auto flex-1 pb-4 min-h-0" data-testid="product-grid">
+   ```
 
 ---
 
-## 3. Plan de Ejecución (Paso a Paso)
+## 🧪 Plan de Verificación
 
-* **Paso 1: Tipado y Compatibilidad**:
-  Crear `src/types/erp.types.ts` y mover los tipos de `App.tsx`. Re-exportarlos desde `App.tsx`. Verificar compilación estática ejecutando:
-  `npx.cmd tsc --noEmit`.
-* **Paso 2: Implementación de usePricing**:
-  Crear `src/hooks/usePricing.ts` agregando la lógica de cálculo y los hooks de Zustand.
-* **Paso 3: Refactorización de PricingView**:
-  Simplificar `src/views/PricingView.tsx` consumiendo el hook, reduciendo el código fuente a <1000 líneas.
-* **Paso 4: Validación**:
-  Verificar pruebas unitarias (`npx.cmd vitest run src/tests`) y control de compilación general.
+### Pruebas Automatizadas
+* Ejecutar la suite de pruebas unitarias existente del POS:
+  ```bash
+  npx.cmd vitest run src/tests/usePOSCart.test.ts
+  ```
+* Validar que la compilación de TypeScript siga libre de errores:
+  ```bash
+  npx.cmd tsc --noEmit
+  ```
+
+### Verificación Manual y Visual
+* Iniciar el servidor local de desarrollo (`npm.cmd run dev` o `npm run dev` tras bypass de políticas).
+* Cargar la vista de **Punto de Venta (POS)** en la resolución de escritorio y validar que:
+  * El catálogo y el carrito estén uno al lado del otro en proporción `70% / 30%`.
+  * La columna del catálogo mantenga sus 4 columnas de productos y el carrito permanezca a la derecha sin desbordamientos de pantalla.
+  * Cambiar a resoluciones medianas (tabletas) y verificar que los elementos se apilen verticalmente de forma ordenada.

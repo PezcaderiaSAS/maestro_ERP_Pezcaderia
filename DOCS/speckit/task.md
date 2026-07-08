@@ -1,31 +1,75 @@
-# Speckit Tasks: Tareas de Refactorización de Frontend y Tipos (Actualizado CC2)
+# Lista de Tareas (Task Tracker) — Corrección Grid POS (v2.1 — Post-Auditoría)
 
-Esta es la lista secuencial y granular de tareas para ejecutar la refactorización de `PricingView.tsx` y la centralización de los tipos de TypeScript, con las mitigaciones del Control de Calidad 2.
+> Actualizado tras Control de Calidad 2. Se amplía Tarea 3 para cubrir los **dos contenedores** `pos-layout` detectados en `POSView.tsx`.
 
-## Fase 1: Centralización de Tipos de TypeScript
+---
 
-- [x] 1.1 Crear el archivo [src/types/erp.types.ts](file:///c:/Users/PERSONAL/Documents/Aplicaciones/maestro_ERP_Pezcaderia/src/types/erp.types.ts), documentando explícitamente la distinción semántica entre `Product` (entidad comercial/precios) y `Producto` (entidad física de inventarios).
-- [x] 1.2 Mover las interfaces `Cliente`, `Proveedor`, `Conductor`, `DevolucionPedido`, `ProductCatalog`, `ProductPricing` y `Product` desde `src/App.tsx` hacia el nuevo archivo.
-- [x] 1.3 Modificar `src/App.tsx` para re-exportar estos tipos desde `src/types/erp.types.ts`, manteniendo la compatibilidad retroactiva.
-- [x] 1.4 Validar la compilación estática general ejecutando `npx.cmd tsc --noEmit`.
+## Fase 1: Limpieza de Estilos Globales
 
-## Fase 2: Implementación de usePricing
+- [ ] **Tarea 1: Limpiar `src/index.css`**
+  - [ ] 1.1 — Localizar el bloque `.pos-layout { ... }` y eliminar las propiedades estructurales:
+    - `display: flex;`
+    - `flex: 1;`
+    - `overflow: hidden;`
+    - `height: calc(100vh - 64px);`
+  - [ ] 1.2 — Localizar el bloque `.pos-products-grid { ... }` y eliminar las propiedades estructurales:
+    - `display: grid;`
+    - `grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));`
+    - `grid-auto-rows: max-content;`
+    - `gap: 16px;`
+    - `overflow-y: auto;`
+    - `padding-bottom: 24px;`
+    - (Mantener únicamente `flex: 1;` si algún selector lo requiere, o vaciar el bloque).
 
-- [x] 2.1 Crear el archivo de hook [src/hooks/usePricing.ts](file:///c:/Users/PERSONAL/Documents/Aplicaciones/maestro_ERP_Pezcaderia/src/hooks/usePricing.ts).
-- [x] 2.2 Vincular los stores de Zustand necesarios (`useInventoryStore`, `useOrderStore`, `useAppStore`, `useClientStore`, `useDriverStore`, `useEventStore`, `useReturnStore`).
-- [x] 2.3 Implementar la lógica del carrito de cotización, cálculos matemáticos e impuestos utilizando `useMemo`.
-- [x] 2.4 Integrar la lectura y escritura de tarifas de fidelidad (`pezcaderia_last_client_prices` en `localStorage`).
-- [x] 2.5 Estructurar los retornos de promesas y callbacks de éxito/error (`onSuccess`, `onError`) para desacoplar a `SweetAlert2`.
+---
 
-## Fase 3: Refactorización de PricingView.tsx
+## Fase 2: Retrocompatibilidad de Vistas Secundarias
 
-- [x] 3.1 Modificar [src/views/PricingView.tsx](file:///c:/Users/PERSONAL/Documents/Aplicaciones/maestro_ERP_Pezcaderia/src/views/PricingView.tsx) para consumir el nuevo hook `usePricing`.
-- [x] 3.2 Eliminar imports y variables de estado duplicadas que ahora administra el hook.
-- [x] 3.3 Configurar las alertas visuales (`SweetAlert2`) en la vista conectándolas a las respuestas de los callbacks del hook.
-- [x] 3.4 Comprobar que la vista reduzca su cantidad de código a menos de 1000 líneas (reducido en ~450 líneas de pura lógica comercial).
+- [ ] **Tarea 2: Ajustar `src/views/ARView.tsx` (L371)**
+  - [ ] 2.1 — En el `div` de la línea 371, agregar la clase utilitaria `flex` explícita de Tailwind:
+    - **Antes:** `className="pos-layout animate-fade-in"`
+    - **Después:** `className="pos-layout flex animate-fade-in"`
+  - [ ] 2.2 — Verificar que el estilo inline `style={{ flexDirection: 'column', ... }}` siga presente y sea suficiente para mantener el layout vertical de esa vista.
 
-## Fase 4: Pruebas y Validación Final
+---
 
-- [x] 4.1 Validar errores de compilación con `npx.cmd tsc --noEmit`.
-- [x] 4.2 Escribir e implementar las pruebas unitarias para el hook en `src/tests/usePricing.test.tsx` (asegurando incluir la limpieza del estado de Zustand en el bloque `beforeEach` para aislar las ejecuciones) y correr el suite general con `npx.cmd vitest run src/tests/usePricing.test.tsx`.
-- [x] 4.3 Validar flujos de trabajo de forma manual en el servidor local.
+## Fase 3: Refactorización de `src/views/POSView.tsx` (2 contenedores)
+
+- [ ] **Tarea 3a: Contenedor Raíz del POS (L1136) — Shell Principal**
+  - [ ] 3a.1 — Modificar el `div` raíz de retorno del componente:
+    - **Antes:** `className="pos-layout animate-fade-in relative"` + `style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}`
+    - **Después:** `className="pos-layout w-full h-full flex flex-col overflow-hidden gap-4 animate-fade-in relative"` — sin el atributo `style` de display.
+
+- [ ] **Tarea 3b: Contenedor del Grid Catálogo+Carrito (L1328) — Sub-vista `venta_pos`**
+  - [ ] 3b.1 — Modificar el `div` contenedor del grid responsivo:
+    - **Antes:** `className="pos-layout min-h-[calc(100vh-130px)] lg:h-[calc(100vh-64px)] lg:overflow-hidden animate-fade-in flex flex-col lg:grid lg:grid-cols-[7fr_3fr] gap-4 lg:gap-5 w-full m-0 p-0 bg-transparent shadow-none border-none pt-2"`
+    - **Después:** `className="flex-1 min-h-0 w-full flex flex-col lg:grid lg:grid-cols-[7fr_3fr] gap-4 overflow-hidden pt-2"` *(sin `pos-layout`, que ya está en el shell raíz)*
+
+- [ ] **Tarea 3c: Contenedor del Carrito (L1340) — `pos-sidebar-cart`**
+  - [ ] 3c.1 — Modificar el `div` del panel lateral del carrito:
+    - **Antes:** `className="pos-sidebar-cart flex-none h-[75vh] lg:sticky lg:top-6 lg:h-[calc(100vh-120px)] flex flex-col bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden"`
+    - **Después:** `className="pos-sidebar-cart flex flex-col bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden h-full min-h-0"`
+
+---
+
+## Fase 4: Estabilización del Catálogo de Productos
+
+- [ ] **Tarea 4: Ajustar `src/views/pos/components/ProductSearchPanel.tsx`**
+  - [ ] 4.1 — Modificar el contenedor `pos-catalog` (L106):
+    - **Antes:** `className="pos-catalog flex-1 lg:flex-none h-full lg:h-full flex flex-col overflow-hidden"`
+    - **Después:** `className="pos-catalog flex-1 flex flex-col overflow-hidden min-h-0"`
+  - [ ] 4.2 — Modificar el contenedor `pos-products-grid` (L170):
+    - **Antes:** `className="pos-products-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 overflow-y-auto flex-1 pb-4"`
+    - **Después:** `className="pos-products-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 overflow-y-auto flex-1 pb-4 min-h-0"`
+
+---
+
+## Fase 5: Verificación y Validación
+
+- [ ] **Tarea 5: Testing de Integridad**
+  - [ ] 5.1 — Ejecutar compilación estática TypeScript sin errores: `npx.cmd tsc --noEmit`
+  - [ ] 5.2 — Ejecutar suite de tests unitarios del POS: `npx.cmd vitest run src/tests/usePOSCart.test.ts`
+  - [ ] 5.3 — Verificar visualmente en el navegador que:
+    - En escritorio (1920px): catálogo 70% a la izquierda con 4 columnas de productos, carrito 30% a la derecha.
+    - El scroll del catálogo es independiente y no desborda la pantalla principal.
+    - Al reducir el viewport a < 1024px, los paneles se apilan verticalmente.
