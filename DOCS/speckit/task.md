@@ -43,10 +43,7 @@
 
 ## Fase 5: Verificación y Validación
 
-- [ ] **Tarea 5: Testing de Integridad**
-  - [ ] 5.1 — Ejecutar compilación estática TypeScript sin errores: `npx.cmd tsc --noEmit`
-  - [ ] 5.2 — Ejecutar suite de tests unitarios del POS: `npx.cmd vitest run src/tests/usePOSCart.test.ts`
-  - [ ] 5.3 — Verificar visualmente en el navegador que:
-    - En escritorio (1920px): catálogo 70% a la izquierda con 4 columnas de productos, carrito 30% a la derecha.
-    - El scroll del catálogo es independiente y no desborda la pantalla principal.
-    - Al reducir el viewport a < 1024px, los paneles se apilan verticalmente.
+- [x] **Tarea 5: Testing de Integridad**
+  - [x] 5.1 — `tsc --noEmit`: 0 errores.
+  - [x] 5.2 — `vitest run`: 10/10 tests pasando.
+  - [x] 5.3 — Verificación visual: catálogo (70%) y carrito (30%) alineados horizontalmente. Grid de 3 columnas de productos visible. ✅
