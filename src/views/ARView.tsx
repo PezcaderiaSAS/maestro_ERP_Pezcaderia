@@ -368,7 +368,7 @@ export default function ARView() {
   };
 
   return (
-    <div className="pos-layout animate-fade-in" style={{ flexDirection: 'column', gap: '20px', padding: '20px', overflowY: 'auto' }}>
+    <div className="pos-layout flex animate-fade-in" style={{ flexDirection: 'column', gap: '20px', padding: '20px', overflowY: 'auto' }}>
       
       {/* Pestañas Superiores de Cartera / Notas de Crédito */}
       <div style={{ display: 'flex', gap: '10px', borderBottom: '2px solid #E2E8F0', paddingBottom: '10px', marginBottom: '-10px' }}>

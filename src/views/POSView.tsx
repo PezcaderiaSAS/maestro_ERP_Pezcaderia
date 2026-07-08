@@ -1133,7 +1133,7 @@ export default function POSView({
 
   // Cálculos financieros delegados al hook usePOSCart
   return (
-    <div className="pos-layout animate-fade-in relative" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <div className="pos-layout w-full flex flex-col gap-4 animate-fade-in relative">
       {!isTurnoAbierto && activeSubView === 'venta_pos' && (
         <div className="absolute z-50 top-0 left-0 right-0 bg-red-500 text-white text-center py-1.5 text-xs font-bold shadow-md rounded-b-md flex items-center justify-center gap-2" style={{ marginTop: '-16px' }}>
           <AlertCircle size={14} /> CAJA CERRADA - ABRIR TURNO AL COBRAR
@@ -1325,7 +1325,7 @@ export default function POSView({
 
       {activeSubView === 'venta_pos' ? (
         <>
-          <div className="pos-layout min-h-[calc(100vh-130px)] lg:h-[calc(100vh-64px)] lg:overflow-hidden animate-fade-in flex flex-col lg:grid lg:grid-cols-[7fr_3fr] gap-4 lg:gap-5 w-full m-0 p-0 bg-transparent shadow-none border-none pt-2">
+          <div className="flex-1 min-h-0 w-full flex flex-col lg:grid lg:grid-cols-[7fr_3fr] gap-4 overflow-hidden pt-2">
             {/* Catálogo de Productos */}
         <ProductSearchPanel 
           activeProducts={activeProducts} 
@@ -1337,7 +1337,7 @@ export default function POSView({
         />
 
       {/* Carrito de Compras / Factura — delegado a CartPanel */}
-      <div className="pos-sidebar-cart flex-none h-[75vh] lg:sticky lg:top-6 lg:h-[calc(100vh-120px)] flex flex-col bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+      <div className="pos-sidebar-cart flex flex-col bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden h-full min-h-0">
         {ultimoTicket ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px', height: '100%', overflowY: 'auto' }}>
             <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: 0, textAlign: 'center' }}>Venta Realizada con Éxito</h3>
