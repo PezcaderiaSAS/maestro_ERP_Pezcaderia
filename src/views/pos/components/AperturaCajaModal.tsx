@@ -151,7 +151,7 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
     <Modal
       isOpen={true}
       onClose={handleCancel}
-      maxWidth="2xl"
+      maxWidth="full"
       title={
         <div className="flex items-center gap-4">
           <div className="bg-blue-50 text-blue-600 rounded-full p-3 flex items-center justify-center">

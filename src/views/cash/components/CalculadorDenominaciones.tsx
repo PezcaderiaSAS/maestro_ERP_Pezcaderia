@@ -70,16 +70,16 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
         }}
       >
         {/* Encabezado de tarjeta */}
-        <div className="flex justify-between items-start mb-2">
-          <span className="font-extrabold text-lg">{item.label}</span>
-          <div className="flex flex-col items-end">
+        <div className="flex flex-wrap justify-between items-start mb-2 gap-x-2">
+          <span className="font-extrabold text-base md:text-lg shrink-0">{item.label}</span>
+          <div className="flex flex-col items-end ml-auto shrink-0">
             <span className="text-[10px] uppercase tracking-wide font-bold opacity-60">Subtotal</span>
             <span className="font-black text-sm">${subtotal.toLocaleString()}</span>
           </div>
         </div>
         {/* Input de cantidad */}
-        <div className="flex items-center gap-2">
-          <span className="opacity-70 font-semibold text-xs">CANT.</span>
+        <div className="flex items-center gap-2 mt-auto">
+          <span className="opacity-70 font-semibold text-xs shrink-0">CANT.</span>
           <input
             type="number"
             min="0"
@@ -91,7 +91,7 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
             onKeyDown={handleKeyDown}
             onFocus={(e) => e.target.select()}
             placeholder="0"
-            className="w-full text-right py-1.5 px-3 bg-white/60 border border-black/10 rounded-lg font-bold text-lg text-slate-900 transition-all outline-none focus:bg-white focus:border-blue-400 focus:ring-2 focus:ring-blue-200/50 disabled:opacity-50"
+            className="w-full min-w-0 text-right py-1.5 px-3 bg-white/60 border border-black/10 rounded-lg font-bold text-lg text-slate-900 transition-all outline-none focus:bg-white focus:border-blue-400 focus:ring-2 focus:ring-blue-200/50 disabled:opacity-50"
           />
         </div>
       </label>
