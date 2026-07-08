@@ -1135,8 +1135,8 @@ export default function POSView({
   return (
     <div className="pos-layout w-full flex flex-col gap-4 animate-fade-in relative">
       {!isTurnoAbierto && activeSubView === 'venta_pos' && (
-        <div className="absolute z-50 top-0 left-0 right-0 bg-red-500 text-white text-center py-1.5 text-xs font-bold shadow-md rounded-b-md flex items-center justify-center gap-2" style={{ marginTop: '-16px' }}>
-          <AlertCircle size={14} /> CAJA CERRADA - ABRIR TURNO AL COBRAR
+        <div className="w-full bg-red-600 text-white text-center py-2 text-xs font-bold flex items-center justify-center gap-2 rounded-lg shadow-lg animate-pulse">
+          <AlertCircle size={15} /> ⚠ CAJA CERRADA — Debes abrir un turno antes de cobrar
         </div>
       )}
       {/* Selector de Vistas / Pestañas de POS */}
