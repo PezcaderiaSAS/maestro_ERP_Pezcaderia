@@ -1,639 +1,259 @@
 // src/views/PricingView.tsx
-import { useState, useEffect } from 'react';
 import { Plus, Edit2, Save, Printer, Search, DollarSign, ShoppingCart, FileText, Check, X } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { generateId, ProductPricing, DevolucionPedido } from '../App.tsx';
-import { useInventoryStore } from '../store/useInventoryStore.ts';
-import { useOrderStore } from '../store/useOrderStore.ts';
-import { useEventStore } from '../store/useEventStore.ts';
-import { useAppStore } from '../store/useAppStore.ts';
-import { useClientStore } from '../store/useClientStore.ts';
-import { useDriverStore } from '../store/useDriverStore.ts';
-import { useReturnStore } from '../store/useReturnStore.ts';
+import { usePricing } from '../hooks/usePricing';
+import type { ProductPricing, DevolucionPedido } from '../types/erp.types';
 
 export default function PricingView() {
   const {
-    products, setProducts,
-    setProductsCatalog,
-    productPricings, setProductPricings,
-    setStock,
-  } = useInventoryStore();
-  const { quotations, setQuotations } = useOrderStore();
-  const publishEvent = useEventStore((s) => s.publishEvent);
-  const userRole = useAppStore((s) => s.userRole);
-  const { clientes, updateLastClientPrice } = useClientStore();
-  const conductores = useDriverStore((s) => s.conductores);
-  const { devoluciones, setDevoluciones } = useReturnStore();
-  const [activeTab, setActiveTab] = useState<'catalog' | 'pricing' | 'quotes'>('quotes');
-  const [quoteSubTab, setQuoteSubTab] = useState<'create' | 'history' | 'devoluciones'>('create');
-  const [selectedQuoteForPrint, setSelectedQuoteForPrint] = useState<any>(null);
+    // Estados generales
+    activeTab,
+    setActiveTab,
+    quoteSubTab,
+    setQuoteSubTab,
+    selectedQuoteForPrint,
+    setSelectedQuoteForPrint,
 
-  // --- ESTADO: PESTAÑA CATALOGO (CRUD) ---
-  const [editingProductId, setEditingProductId] = useState<string | null>(null);
-  const [productForm, setProductForm] = useState({
-    sku: '',
-    nombre: '',
-    categoria: '',
-    unidadMedida: 'kg' as 'kg' | 'und' | 'lb' | 'gr',
-    precio_compra: 0,
-    buffer_seguridad: 5,
-  });
-  const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('TODAS');
+    // Catálogo
+    editingProductId,
+    productForm,
+    setProductForm,
+    searchTerm,
+    setSearchTerm,
+    categoryFilter,
+    setCategoryFilter,
+    categoriasUnicas,
+    filteredProducts,
 
-  // --- ESTADO: PESTAÑA PRECIOS ---
-  const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
-  const [priceForm, setPriceForm] = useState({
-    precio_compra: 0,
-    buffer_seguridad: 0,
-    precio_venta_pos: 0,
-    precio_venta_restaurante: 0,
-    precio_venta_mayorista: 0,
-  });
-  const [selectedProductHistory, setSelectedProductHistory] = useState<string | null>(null);
+    // Precios
+    editingPriceId,
+    setEditingPriceId,
+    priceForm,
+    setPriceForm,
+    selectedProductHistory,
+    setSelectedProductHistory,
 
-  // --- ESTADO: PESTAÑA COTIZACIONES ---
-  const [clientType, setClientType] = useState<'POS' | 'RESTAURANTE' | 'MAYORISTA'>('POS');
-  const [clientName, setClientName] = useState('');
-  const [clientIdent, setClientIdent] = useState('');
-  const [quoteItems, setQuoteItems] = useState<{ 
-    product: any; 
-    cantidad: number; 
-    descuento: number; 
-    precioOverride?: number;
-    detalle?: string;
-    listo?: boolean;
-    esDevolucion?: boolean;
-    devolucionId?: string;
-  }[]>([]);
-  
-  // --- ESTADOS NUEVOS DEL WIZARD ---
-  const [wizardStep, setWizardStep] = useState<1 | 2 | 3>(1);
-  const [origenPedido, setOrigenPedido] = useState('WHATSAPP');
-  const [origenesDisponibles] = useState(['VISITA', 'LLAMADA', 'WHATSAPP']);
-  const [nuevoOrigen, setNuevoOrigen] = useState('');
-  const [facturaElectronica, setFacturaElectronica] = useState(false);
-  const [formaPago, setFormaPago] = useState<'CREDITO' | 'CONTADO'>('CREDITO');
-  
-  // Modal de Detalle de Producto
-  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
-  const [editingItemIndex, setEditingItemIndex] = useState<number | null>(null);
-  const [currentProductLine, setCurrentProductLine] = useState<{
-    product: any | null;
-    cantidad: number | string;
-    descuento: number | string;
-    precioOverride: number | string;
-    detalle: string;
-    listo: boolean;
-    esDevolucion: boolean;
-    devolucionId: string;
-  }>({
-    product: null,
-    cantidad: 1,
-    descuento: 0,
-    precioOverride: 0,
-    detalle: '',
-    listo: false,
-    esDevolucion: false,
-    devolucionId: ''
-  });
-  const [quoteDiscountGlobal, setQuoteDiscountGlobal] = useState(0); // Porcentaje
-  const [quoteSearchTerm, setQuoteSearchTerm] = useState('');
-  const [editingQuoteId, setEditingQuoteId] = useState<string | null>(null);
+    // Cotización
+    clientType,
+    setClientType,
+    clientName,
+    setClientName,
+    clientIdent,
+    setClientIdent,
+    quoteItems,
+    setQuoteItems,
+    wizardStep,
+    setWizardStep,
+    origenPedido,
+    setOrigenPedido,
+    origenesDisponibles,
+    nuevoOrigen,
+    setNuevoOrigen,
+    facturaElectronica,
+    setFacturaElectronica,
+    formaPago,
+    setFormaPago,
+    quoteDiscountGlobal,
+    setQuoteDiscountGlobal,
+    quoteSearchTerm,
+    setQuoteSearchTerm,
+    editingQuoteId,
 
-  // --- ESTADO: LOGÍSTICA DE ENTREGA B2B ---
-  const [logisticaTipo, setLogisticaTipo] = useState<'EN_RUTA' | 'INMEDIATA' | 'RECOGEN'>('EN_RUTA');
-  const [logisticaDireccion, setLogisticaDireccion] = useState('');
-  const [logisticaFecha, setLogisticaFecha] = useState(() => new Date().toISOString().split('T')[0]);
-  const [logisticaJornada, setLogisticaJornada] = useState<'MANANA' | 'TARDE'>('MANANA');
-  const [logisticaConductorId, setLogisticaConductorId] = useState('');
-  const [observacionesPedido, setObservacionesPedido] = useState('');
+    // Modal de línea
+    isProductModalOpen,
+    setIsProductModalOpen,
+    currentProductLine,
+    setCurrentProductLine,
+    editingItemIndex,
 
-  // --- ESTADO: SOLICITUD DE DEVOLUCIÓN ---
-  const [devClienteId, setDevClienteId] = useState('');
-  const [devConductorId, setDevConductorId] = useState('');
-  const [devFechaProg, setDevFechaProg] = useState(() => new Date().toISOString().split('T')[0]);
-  const [devPedidoId, setDevPedidoId] = useState('');
-  const [devItems, setDevItems] = useState<{ sku: string; nombre: string; cantidad: number; precio: number; motivo: string }[]>([]);
-  
-  const [devSelProductSku, setDevSelProductSku] = useState('');
-  const [devSelProductCant, setDevSelProductCant] = useState<number | string>(1);
-  const [devSelProductMotivo, setDevSelProductMotivo] = useState('MAL_ESTADO');
+    // Entrega y logística
+    logisticaTipo,
+    setLogisticaTipo,
+    logisticaDireccion,
+    setLogisticaDireccion,
+    logisticaFecha,
+    setLogisticaFecha,
+    logisticaJornada,
+    setLogisticaJornada,
+    logisticaConductorId,
+    setLogisticaConductorId,
+    observacionesPedido,
+    setObservacionesPedido,
 
-  // Obtener categorías únicas
-  const categoriasUnicas = ['TODAS', ...Array.from(new Set(products.map(p => p.categoria)))];
+    // Devoluciones
+    devClienteId,
+    setDevClienteId,
+    devConductorId,
+    setDevConductorId,
+    devFechaProg,
+    setDevFechaProg,
+    devPedidoId,
+    setDevPedidoId,
+    devItems,
+    setDevItems,
+    devSelProductSku,
+    setDevSelProductSku,
+    devSelProductCant,
+    setDevSelProductCant,
+    devSelProductMotivo,
+    setDevSelProductMotivo,
 
-  // --- MANEJADORES CATALOGO ---
+    // Datos stores
+    products,
+    productPricings,
+    quotations,
+    devoluciones,
+    clientes,
+    conductores,
+    lastClientPrices,
+    userRole,
+
+    // Cálculos
+    quoteSubtotal,
+    quoteLineDiscountsTotal,
+    quoteDevolucionesTotal,
+    quoteSubtotalAfterLineDiscounts,
+    quoteGlobalDiscountValue,
+    quoteTotalFinal,
+
+    // Handlers
+    handleSaveProduct: hookSaveProduct,
+    handleEditProduct,
+    handleToggleStatus,
+    handleStartEditPrice,
+    handleSavePrices: hookSavePrices,
+    handleSaveQuotation: hookSaveQuotation,
+    handleEditQuote: hookEditQuote,
+    handleTransitionQuote: hookTransitionQuote,
+    getProductPriceByClientType,
+    getQuoteItemUnitPrice,
+    saveProductLine,
+    removeProductLine,
+    openAddItemModal,
+    openEditItemModal,
+    handleSaveDevolucion: hookSaveDevolucion,
+    setEditingProductId,
+    setEditingQuoteId,
+    setEditingItemIndex,
+  } = usePricing();
+
+  // --- WRAPPERS LOCALES CON ALERTA DE SWEETALERT2 ---
+
   const handleSaveProduct = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!productForm.sku || !productForm.nombre || !productForm.categoria) {
-      Swal.fire({ icon: 'warning', title: 'Campos incompletos', text: 'Por favor complete todos los campos obligatorios.', confirmButtonColor: 'var(--primary-color)' });
-      return;
-    }
-
-    if (editingProductId) {
-      // Editar existente
-      setProducts((prev: any[]) => prev.map((p: any) => {
-        if (p.id === editingProductId) {
-          // Recalcular sugeridos si el costo o buffer cambió
-          const compra = productForm.precio_compra;
-          const buffer = productForm.buffer_seguridad;
-          const sugPos = Math.round(compra * (1 + (buffer / 100) + 0.40));
-          const sugRest = Math.round(compra * (1 + (buffer / 100) + 0.30));
-          const sugMay = Math.round(compra * (1 + (buffer / 100) + 0.15));
-
-          return {
-            ...p,
-            sku: productForm.sku.toUpperCase(),
-            nombre: productForm.nombre.toUpperCase(),
-            categoria: productForm.categoria.toUpperCase(),
-            precio_compra: compra,
-            buffer_seguridad: buffer,
-            precio_venta_pos: p.precio_compra === compra && p.buffer_seguridad === buffer ? p.precio_venta_pos : sugPos,
-            precio_venta_restaurante: p.precio_compra === compra && p.buffer_seguridad === buffer ? p.precio_venta_restaurante : sugRest,
-            precio_venta_mayorista: p.precio_compra === compra && p.buffer_seguridad === buffer ? p.precio_venta_mayorista : sugMay,
-          };
-        }
-        return p;
-      }));
-      setEditingProductId(null);
-      Swal.fire({ icon: 'success', title: 'Producto actualizado', text: 'Los cambios se han guardado exitosamente.', confirmButtonColor: 'var(--primary-color)' });
-    } else {
-      // Crear nuevo
-      const skuExists = products.some(p => p.sku.toUpperCase() === productForm.sku.toUpperCase());
-      if (skuExists) {
-        Swal.fire({ icon: 'error', title: 'SKU duplicado', text: 'Ya existe un producto con el SKU digitado.', confirmButtonColor: 'var(--primary-color)' });
-        return;
+    hookSaveProduct(e, {
+      onSuccess: (msg) => {
+        Swal.fire({
+          icon: 'success',
+          title: editingProductId ? 'Producto Actualizado' : 'Producto Creado',
+          text: msg,
+          confirmButtonColor: 'var(--primary-color)'
+        });
+      },
+      onWarn: (title, text) => {
+        Swal.fire({
+          icon: 'warning',
+          title,
+          text,
+          confirmButtonColor: 'var(--primary-color)'
+        });
       }
-
-      const compra = productForm.precio_compra;
-      const buffer = productForm.buffer_seguridad;
-      const sugPos = Math.round(compra * (1 + (buffer / 100) + 0.40));
-      const sugRest = Math.round(compra * (1 + (buffer / 100) + 0.30));
-      const sugMay = Math.round(compra * (1 + (buffer / 100) + 0.15));
-
-      const nuevoProd: any = {
-        id: `p-${Date.now()}`,
-        sku: productForm.sku.toUpperCase(),
-        nombre: productForm.nombre.toUpperCase(),
-        categoria: productForm.categoria.toUpperCase(),
-        precio_compra: compra,
-        buffer_seguridad: buffer,
-        precio_venta_pos: sugPos,
-        precio_venta_restaurante: sugRest,
-        precio_venta_mayorista: sugMay,
-        activo: true
-      };
-
-      setProducts((prev: any[]) => [...prev, nuevoProd]);
-      Swal.fire({ icon: 'success', title: 'Producto creado', text: 'El producto se ha añadido con éxito.', confirmButtonColor: 'var(--primary-color)' });
-    }
-
-    setProductForm({ sku: '', nombre: '', categoria: '', unidadMedida: 'kg', precio_compra: 0, buffer_seguridad: 5 });
-  };
-
-  const handleEditProduct = (prod: any) => {
-    setEditingProductId(prod.id);
-    setProductForm({
-      sku: prod.sku,
-      nombre: prod.nombre,
-      categoria: prod.categoria,
-      unidadMedida: prod.unidadMedida || 'kg',
-      precio_compra: prod.precio_compra,
-      buffer_seguridad: prod.buffer_seguridad,
     });
   };
-
-  const handleToggleStatus = (id: string) => {
-      setProductsCatalog((prev: any[]) => prev.map((p: any) => p.id === id ? { ...p, activo: !p.activo } : p));
-  };
-
-  // --- MANEJADORES PRECIOS ---
-  const handleStartEditPrice = (prod: any) => {
-    setEditingPriceId(prod.id);
-    setPriceForm({
-      precio_compra: prod.precio_compra,
-      buffer_seguridad: prod.buffer_seguridad,
-      precio_venta_pos: prod.precio_venta_pos,
-      precio_venta_restaurante: prod.precio_venta_restaurante,
-      precio_venta_mayorista: prod.precio_venta_mayorista
-    });
-  };
-
-  // Auto-calcular cuando cambian compra o buffer en el formulario de precios
-  useEffect(() => {
-    if (editingPriceId) {
-      const compra = priceForm.precio_compra;
-      const buffer = priceForm.buffer_seguridad;
-      setPriceForm(prev => ({
-        ...prev,
-        precio_venta_pos: Math.round(compra * (1 + (buffer / 100) + 0.40)),
-        precio_venta_restaurante: Math.round(compra * (1 + (buffer / 100) + 0.30)),
-        precio_venta_mayorista: Math.round(compra * (1 + (buffer / 100) + 0.15))
-      }));
-    }
-  }, [priceForm.precio_compra, priceForm.buffer_seguridad]);
 
   const handleSavePrices = (prodId: string) => {
-    if (setProductPricings) {
-      const newPricing: ProductPricing = {
-        id: generateId('prc'),
-        productoId: prodId,
-        vigenciaDesde: new Date().toISOString(),
-        precio_compra: priceForm.precio_compra,
-        buffer_seguridad: priceForm.buffer_seguridad,
-        precio_venta_pos: priceForm.precio_venta_pos,
-        precio_venta_restaurante: priceForm.precio_venta_restaurante,
-        precio_venta_mayorista: priceForm.precio_venta_mayorista,
-        actualizadoPor: userRole
-      };
-      setProductPricings((prev: any[]) => [...prev, newPricing]);
-      publishEvent('PRICE_CHANGED', userRole, `Actualización de precios para el producto ${prodId}`);
-    }
-
-    setEditingPriceId(null);
-    Swal.fire({
-      icon: 'success',
-      title: 'Precios Actualizados',
-      text: 'Los nuevos precios de venta y costos han sido guardados en el historial.',
-      timer: 1500,
-      showConfirmButton: false
+    hookSavePrices(prodId, {
+      onSuccess: () => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Precios Actualizados',
+          text: 'Los nuevos precios de venta y costos han sido guardados en el historial.',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      }
     });
   };
 
-  // Obtener el precio correspondiente al tipo de cliente
-  const getProductPriceByClientType = (prod: any) => {
-    switch (clientType) {
-      case 'RESTAURANTE':
-        return prod.precio_venta_restaurante;
-      case 'MAYORISTA':
-        return prod.precio_venta_mayorista;
-      default:
-        return prod.precio_venta_pos;
-    }
-  };
-
-  const getQuoteItemUnitPrice = (item: any) => {
-    return item.precioOverride !== undefined ? item.precioOverride : getProductPriceByClientType(item.product);
-  };
-
-
-
-  // Cálculos financieros cotización
-  const quoteSubtotal = quoteItems.reduce((sum, item) => {
-    if (item.esDevolucion) return sum;
-    const unitPrice = getQuoteItemUnitPrice(item);
-    return sum + (unitPrice * item.cantidad);
-  }, 0);
-
-  const quoteLineDiscountsTotal = quoteItems.reduce((sum, item) => {
-    if (item.esDevolucion) return sum;
-    const unitPrice = getQuoteItemUnitPrice(item);
-    const lineSubtotal = unitPrice * item.cantidad;
-    return sum + (lineSubtotal * ((item.descuento || 0) / 100));
-  }, 0);
-
-  const quoteDevolucionesTotal = quoteItems.reduce((sum, item) => {
-    if (!item.esDevolucion) return sum;
-    const unitPrice = getQuoteItemUnitPrice(item);
-    return sum + (unitPrice * item.cantidad);
-  }, 0);
-
-  const quoteSubtotalAfterLineDiscounts = quoteSubtotal - quoteLineDiscountsTotal;
-  const quoteGlobalDiscountValue = quoteSubtotalAfterLineDiscounts * (quoteDiscountGlobal / 100);
-  const totalPrevio = quoteSubtotalAfterLineDiscounts - quoteGlobalDiscountValue - quoteDevolucionesTotal;
-  const quoteTotalFinal = Math.max(0, totalPrevio);
-
   const handleSaveQuotation = () => {
-    if (!clientName) {
-      Swal.fire({ icon: 'warning', title: 'Falta Cliente', text: 'Ingrese el nombre o razón social del cliente.', confirmButtonColor: 'var(--primary-color)' });
-      return;
-    }
-    if (quoteItems.length === 0) {
-      Swal.fire({ icon: 'warning', title: 'Sin productos', text: 'Añada al menos un producto al pedido.', confirmButtonColor: 'var(--primary-color)' });
-      return;
-    }
-
-    const randomNo = 'COT-' + Math.floor(100000 + Math.random() * 900000);
-    // Buscar clienteId en la base de datos — null si el cliente no está registrado
-    const clienteRegistrado = clientes.find(
-      c => c.identificacion === clientIdent || c.nombre === clientName.toUpperCase()
-    );
-    
-    // Estado automático por rol
-    let estadoCalculado = 'Creado';
-    const normalizedRole = (userRole || '').trim().toLowerCase();
-    if (normalizedRole === 'admin' || normalizedRole === 'bodega') {
-        estadoCalculado = 'Listo';
-    } else {
-        estadoCalculado = 'Creado';
-    }
-
-    const origenFinal = origenPedido === 'OTRO' ? nuevoOrigen : origenPedido;
-
-    if (editingQuoteId) {
-      setQuotations((prev: any[]) => prev.map((q: any) => {
-        if (q.id === editingQuoteId) {
-          publishEvent(
-            'QUOTE_STATUS_CHANGED',
-            userRole,
-            `Pedido ${q.no} editado y actualizado por ${userRole}`,
-            { quoteId: q.id, total: Math.round(quoteTotalFinal) }
-          );
-          return {
-            ...q,
-            clienteId: clienteRegistrado?.id || null,
-            clientName,
-            clientIdent,
-            clientType,
-            origenPedido: origenFinal,
-            facturaElectronica,
-            formaPago,
-            descuentoGlobal: quoteDiscountGlobal,
-            items: quoteItems.map(i => ({
-              sku: i.product.sku,
-              nombre: i.product.nombre,
-              cantidad: i.cantidad,
-              precio: getQuoteItemUnitPrice(i),
-              descuento: i.descuento,
-              detalle: i.detalle || '',
-              listo: i.listo || false,
-              esDevolucion: i.esDevolucion || false,
-              devolucionId: i.devolucionId || '',
-              cantidad_real: (q.items.find((x: any) => x.sku === i.product.sku) as any)?.cantidad_real
-            })),
-            subtotal: quoteSubtotal,
-            descuentos: quoteLineDiscountsTotal + quoteGlobalDiscountValue,
-            total: Math.round(quoteTotalFinal),
-            observaciones: observacionesPedido,
-            logistica: {
-              tipoEntrega: logisticaTipo,
-              direccionEntrega: logisticaTipo === 'RECOGEN' ? 'Retira en Punto de Venta' : logisticaDireccion,
-              fechaEntrega: logisticaFecha,
-              jornada: logisticaJornada,
-              conductorId: logisticaConductorId,
-              conductorNombre: conductores.find(c => c.id === logisticaConductorId)?.nombre || ''
-            }
-          };
-        }
-        return q;
-      }));
-      setEditingQuoteId(null);
-    } else {
-      const newQuote = {
-        id: generateId('q'),
-        no: randomNo,
-        clienteId: clienteRegistrado?.id || null,  // FK formal (DEF-02 corregido)
-        clientName,
-        clientIdent,
-        clientType,
-        origenPedido: origenFinal,
-        facturaElectronica,
-        formaPago,
-        descuentoGlobal: quoteDiscountGlobal,
-        items: quoteItems.map(i => ({
-          sku: i.product.sku,
-          nombre: i.product.nombre,
-          cantidad: i.cantidad,
-          precio: getQuoteItemUnitPrice(i),
-          descuento: i.descuento,
-          detalle: i.detalle || '',
-          listo: i.listo || false,
-          esDevolucion: i.esDevolucion || false,
-          devolucionId: i.devolucionId || ''
-        })),
-        subtotal: quoteSubtotal,
-        descuentos: quoteLineDiscountsTotal + quoteGlobalDiscountValue,
-        total: Math.round(quoteTotalFinal),
-        estado: estadoCalculado,
-        observaciones: observacionesPedido,
-        fecha: new Date().toLocaleDateString('es-CO'),
-        vencimiento: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('es-CO'),
-        logistica: {
-          tipoEntrega: logisticaTipo,
-          direccionEntrega: logisticaTipo === 'RECOGEN' ? 'Retira en Punto de Venta' : logisticaDireccion,
-          fechaEntrega: logisticaFecha,
-          jornada: logisticaJornada,
-          conductorId: logisticaConductorId,
-          conductorNombre: conductores.find(c => c.id === logisticaConductorId)?.nombre || ''
-        }
-      };
-
-      setQuotations((prev: any[]) => [newQuote, ...prev]);
-
-      publishEvent(
-        'QUOTE_STATUS_CHANGED',
-        userRole,
-        `Nuevo pedido ${randomNo} creado en estado ${estadoCalculado} para ${clientName}`,
-        { quoteId: newQuote.id, total: newQuote.total }
-      );
-    }
-
-    // Reset form wizard
-    setWizardStep(1);
-    setClientName('');
-    setClientIdent('');
-    setOrigenPedido('WHATSAPP');
-    setNuevoOrigen('');
-    setFacturaElectronica(false);
-    setFormaPago('CREDITO');
-    setQuoteItems([]);
-    setQuoteDiscountGlobal(0);
-    setLogisticaTipo('EN_RUTA');
-    setLogisticaDireccion('');
-    setLogisticaFecha(new Date().toISOString().split('T')[0]);
-    setLogisticaJornada('MANANA');
-    setLogisticaConductorId('');
-    setObservacionesPedido('');
-    setQuoteSubTab('history');
-
-    Swal.fire({
-      icon: 'success',
-      title: editingQuoteId ? 'Pedido Actualizado' : 'Pedido Creado',
-      text: editingQuoteId ? 'Los cambios han sido guardados.' : `Pedido ${randomNo} registrado como ${estadoCalculado}.`,
-      confirmButtonColor: 'var(--primary-color)'
+    hookSaveQuotation({
+      onSuccess: (isEdit, no, estado) => {
+        Swal.fire({
+          icon: 'success',
+          title: isEdit ? 'Pedido Actualizado' : 'Pedido Creado',
+          text: isEdit ? 'Los cambios han sido guardados.' : `Pedido ${no} registrado como ${estado}.`,
+          confirmButtonColor: 'var(--primary-color)'
+        });
+      },
+      onWarn: (title, text) => {
+        Swal.fire({
+          icon: 'warning',
+          title,
+          text,
+          confirmButtonColor: 'var(--primary-color)'
+        });
+      }
     });
   };
 
   const handleEditQuote = (quote: any) => {
-    if (quote.estado === 'Sold' || quote.estado === 'Facturado') {
-      Swal.fire({
-        icon: 'error',
-        title: 'Acceso Denegado',
-        text: 'No se puede editar un pedido que ya ha sido facturado o vendido.',
-        confirmButtonColor: 'var(--primary-color)'
-      });
-      return;
-    }
-
-    setEditingQuoteId(quote.id);
-    
-    // Load quote info into cotizador state
-    setClientName(quote.clientName || '');
-    setClientIdent(quote.clientIdent || '');
-    setClientType(quote.clientType || 'POS');
-    setOrigenPedido(quote.origenPedido || 'WHATSAPP');
-    setFacturaElectronica(quote.facturaElectronica || false);
-    setFormaPago(quote.formaPago || 'CREDITO');
-    setQuoteDiscountGlobal(quote.descuentoGlobal || 0);
-
-    // Logistics
-    setLogisticaTipo(quote.logistica?.tipoEntrega || 'EN_RUTA');
-    setLogisticaDireccion(quote.logistica?.direccionEntrega || '');
-    setLogisticaFecha(quote.logistica?.fechaEntrega || new Date().toISOString().split('T')[0]);
-    setLogisticaJornada(quote.logistica?.jornada || 'MANANA');
-    setLogisticaConductorId(quote.logistica?.conductorId || '');
-    setObservacionesPedido(quote.observaciones || '');
-
-    // Map items back to catalog/products
-    const loadedItems = (quote.items || []).map((item: any) => {
-      const prod = products.find(p => p.sku === item.sku);
-      return {
-        product: prod || {
-          id: item.sku,
-          sku: item.sku,
-          nombre: item.nombre,
-          precio_base: item.precio,
-          precio_venta_pos: item.precio,
-          precio_venta_restaurante: item.precio,
-          precio_venta_mayorista: item.precio,
-          categoria: 'Otros',
-          activo: true,
-          buffer_seguridad: 0,
-          imagen: ''
-        },
-        cantidad: item.cantidad,
-        descuento: item.descuento || 0,
-        precioOverride: item.precio,
-        detalle: item.detalle || '',
-        listo: item.listo || false,
-        esDevolucion: item.esDevolucion || false,
-        devolucionId: item.devolucionId || ''
-      };
+    hookEditQuote(quote, {
+      onWarn: (title, text) => {
+        Swal.fire({
+          icon: 'error',
+          title,
+          text,
+          confirmButtonColor: 'var(--primary-color)'
+        });
+      }
     });
-
-    setQuoteItems(loadedItems);
-    setWizardStep(1); // Go to step 1
-    setQuoteSubTab('create'); // Switch to wizard sub-tab
   };
 
   const handleTransitionQuote = (quoteId: string, nuevoEstado: 'Sent' | 'Approved' | 'Pausado' | 'Listo' | 'Sold' | 'Expired') => {
-    const role = (userRole || '').trim().toLowerCase();
-
-    // Validar permisos por estado destino
-    if (nuevoEstado === 'Approved') {
-      if (role !== 'admin' && role !== 'administrativo' && role !== 'vendedor') {
+    hookTransitionQuote(quoteId, nuevoEstado, {
+      onSuccess: (estado) => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Estado Actualizado',
+          text: `Cotización actualizada a ${estado} exitosamente.`,
+          timer: 1500,
+          showConfirmButton: false
+        });
+      },
+      onWarn: (title, text) => {
         Swal.fire({
           icon: 'error',
-          title: 'Acceso Denegado',
-          text: 'Solo los roles de Super Administrador, Administrativo o Vendedor pueden aprobar pedidos.',
+          title,
+          text,
           confirmButtonColor: 'var(--primary-color)'
         });
-        return;
       }
-    }
+    });
+  };
 
-    if (nuevoEstado === 'Sold') {
-      if (role !== 'admin' && role !== 'administrativo' && role !== 'vendedor') {
+  const handleSaveDevolucion = () => {
+    hookSaveDevolucion({
+      onSuccess: () => {
         Swal.fire({
-          icon: 'error',
-          title: 'Acceso Denegado',
-          text: 'Solo los roles de Super Administrador, Administrativo o Vendedor pueden facturar y completar ventas.',
+          icon: 'success',
+          title: 'Devolución Programada',
+          text: 'La orden de recogida ha sido registrada y notificada al conductor.',
           confirmButtonColor: 'var(--primary-color)'
         });
-        return;
-      }
-    }
-
-    if (nuevoEstado === 'Listo' || nuevoEstado === 'Pausado') {
-      if (role !== 'admin' && role !== 'bodega' && role !== 'administrativo') {
+      },
+      onWarn: (title, text) => {
         Swal.fire({
-          icon: 'error',
-          title: 'Acceso Denegado',
-          text: 'Solo los roles de Super Administrador, Bodega o Administrativo pueden gestionar el alistamiento de pedidos.',
+          icon: 'warning',
+          title,
+          text,
           confirmButtonColor: 'var(--primary-color)'
         });
-        return;
       }
-    }
-
-    if (nuevoEstado === 'Sent' || nuevoEstado === 'Expired') {
-      if (role !== 'admin' && role !== 'vendedor' && role !== 'administrativo') {
-        Swal.fire({
-          icon: 'error',
-          title: 'Acceso Denegado',
-          text: 'Solo los roles de Super Administrador, Vendedor o Administrativo pueden modificar la vigencia y envío del pedido.',
-          confirmButtonColor: 'var(--primary-color)'
-        });
-        return;
-      }
-    }
-
-    setQuotations((prev: any[]) => prev.map((q: any) => {
-      if (q.id === quoteId) {
-        publishEvent(
-          'QUOTE_STATUS_CHANGED',
-          userRole,
-          `Cotización ${q.no} cambió de estado ${q.estado} a ${nuevoEstado}`,
-          { quoteId, oldEstado: q.estado, nuevoEstado }
-        );
-
-        if (nuevoEstado === 'Sold') {
-          // Decrease stock in Bodega Principal
-          setStock((prev: any) => {
-            const newStock = { ...prev };
-            const mainBodega = 'Bodega Principal';
-            if (newStock[mainBodega]) {
-              newStock[mainBodega] = { ...newStock[mainBodega] };
-              q.items.forEach((quoteItem: any) => {
-                const sku = quoteItem.sku;
-                if (newStock[mainBodega][sku] !== undefined) {
-                  const cantADescontar = quoteItem.cantidad_real !== undefined ? quoteItem.cantidad_real : quoteItem.cantidad;
-                  newStock[mainBodega][sku] = Math.max(0, newStock[mainBodega][sku] - cantADescontar);
-                }
-              });
-            }
-            return newStock;
-          });
-
-          // Record last prices per client
-          const clientKey = (q.clientIdent || q.clientName).trim().toLowerCase();
-          q.items.forEach((item: any) => {
-            updateLastClientPrice(clientKey, item.sku, item.precio);
-          });
-
-          publishEvent(
-            'SALE_COMPLETED',
-            userRole,
-            `Cotización aprobada ${q.no} ha sido facturada (Venta Realizada) y se actualizó el stock`,
-            { quoteNo: q.no, clientName: q.clientName, total: q.total }
-          );
-        }
-
-        return { ...q, estado: nuevoEstado };
-      }
-      return q;
-    }));
-
-    Swal.fire({
-      icon: 'success',
-      title: 'Estado Actualizado',
-      text: `Cotización actualizada a ${nuevoEstado} exitosamente.`,
-      timer: 1500,
-      showConfirmButton: false
     });
   };
 
   const handlePrintQuote = () => {
     window.print();
   };
-
-  // Filtrado de productos para el catálogo y el buscador del cotizador
-  const filteredProducts = products.filter(p => {
-    const matchesSearch = p.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || p.sku.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = categoryFilter === 'TODAS' || p.categoria === categoryFilter;
-    return matchesSearch && matchesCategory;
-  });
 
   return (
     <div className="hr-layout animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '24px', height: '100%', overflowY: 'auto', padding: '24px' }}>
@@ -2154,52 +1774,7 @@ export default function PricingView() {
                       type="button"
                       className="btn-primary"
                       style={{ border: 'none', backgroundColor: 'var(--primary-color)', color: 'white', padding: '12px', borderRadius: '8px', fontWeight: 'bold', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '12px' }}
-                      onClick={() => {
-                        if (!devClienteId || !devConductorId || devItems.length === 0) {
-                          Swal.fire({ icon: 'warning', title: 'Campos incompletos', text: 'Por favor complete todos los campos requeridos (Cliente, Conductor y al menos un producto).', confirmButtonColor: 'var(--primary-color)' });
-                          return;
-                        }
-                        const cli = clientes.find(c => c.id === devClienteId);
-                        const cond = conductores.find(c => c.id === devConductorId);
-                        const newDev: DevolucionPedido = {
-                          id: generateId('dev'),
-                          pedidoId: devPedidoId || '',
-                          pedidoNo: (quotations.find(q => q.id === devPedidoId) as any)?.no || 'S/O',
-                          clienteId: devClienteId,
-                          clienteNombre: cli?.nombre || '',
-                          conductorId: devConductorId,
-                          conductorNombre: cond?.nombre || '',
-                          estado: 'PROGRAMADA',
-                          fechaProgramacion: devFechaProg,
-                          items: devItems.map(i => ({
-                            sku: i.sku,
-                            nombre: i.nombre,
-                            cantidadSolicitada: i.cantidad,
-                            precioUnitarioVenta: i.precio,
-                            motivo: i.motivo
-                          }))
-                        };
-
-                          setDevoluciones((prev: any[]) => [newDev, ...prev]);
-                        publishEvent(
-                          'QUOTE_STATUS_CHANGED',
-                          userRole,
-                          `Solicitud de devolución programada para cliente ${newDev.clienteNombre} asignada a conductor ${newDev.conductorNombre}`
-                        );
-
-                        // Reset
-                        setDevClienteId('');
-                        setDevPedidoId('');
-                        setDevConductorId('');
-                        setDevItems([]);
-
-                        Swal.fire({
-                          icon: 'success',
-                          title: 'Devolución Programada',
-                          text: 'La orden de recogida ha sido registrada y notificada al conductor.',
-                          confirmButtonColor: 'var(--primary-color)'
-                        });
-                      }}
+                      onClick={handleSaveDevolucion}
                     >
                       Programar Recogida
                     </button>

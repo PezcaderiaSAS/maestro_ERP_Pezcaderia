@@ -1,94 +1,147 @@
-# Speckit Plan: Implementación Técnica (El Cómo)
+# Speckit Plan: Refactorización de PricingView y Centralización de Tipos (El Cómo)
 
-Este plan de implementación traduce la arquitectura y los requisitos de calidad aprobados en esquemas técnicos concretos y tareas ejecutables.
+Este plan de implementación detalla la reestructuración del cotizador (`PricingView.tsx`) y del sistema de tipos globales del ERP para lograr un código desacoplado, mantenible y de alto rendimiento.
 
-## 1. Esquemas de Datos (Supabase SQL)
+## 1. Esquema de Datos y Modelos (TypeScript)
+Centralizaremos los tipos en `src/types/erp.types.ts` para evitar dependencias circulares entre vistas y hooks:
 
-### A. Base Contable (Partida Doble)
-Se requiere crear dos tablas nuevas para el Libro Mayor, permitiendo el modelo estricto por debajo y la categorización simple por encima.
+```typescript
+// src/types/erp.types.ts
 
-```sql
--- Catálogo de Cuentas (Simple para MVP)
-CREATE TABLE accounts (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  code text UNIQUE NOT NULL, -- Ej: '1105' (Caja), '4135' (Ingresos Comerciales)
-  name text NOT NULL,
-  type text NOT NULL CHECK (type IN ('ASSET', 'LIABILITY', 'EQUITY', 'REVENUE', 'EXPENSE')),
-  is_active boolean DEFAULT true,
-  created_at timestamp with time zone DEFAULT now()
-);
+export interface Cliente {
+  id: string;
+  nombre: string;
+  identificacion: string;
+  tipoIdentificacion: 'NIT' | 'CC' | 'CE';
+  tipoPersona: 'NATURAL' | 'JURIDICA';
+  direccion: string;
+  telefono: string;
+  email: string;
+  ciudad: string;
+  tipoPrecio: 'POS' | 'RESTAURANTE' | 'MAYORISTA';
+  encargadoCompras?: string;
+  cupoCredito: number;
+  activo: boolean;
+}
 
--- Asientos del Libro Mayor
-CREATE TABLE ledger_entries (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  account_id uuid REFERENCES accounts(id),
-  reference_type text NOT NULL, -- 'CASH_SHIFT', 'SALE', 'PURCHASE'
-  reference_id text NOT NULL, -- ID del turno o factura
-  debit numeric(12,2) DEFAULT 0,
-  credit numeric(12,2) DEFAULT 0,
-  description text,
-  branch_id text NOT NULL, -- Sucursal
-  created_at timestamp with time zone DEFAULT now(),
-  created_by text NOT NULL -- Usuario que causó el movimiento
-);
--- Regla de Integridad en Aplicación: sum(debit) debe ser igual a sum(credit) por cada reference_id
+export interface Conductor {
+  id: string;
+  nombre: string;
+  identificacion: string;
+  licencia: string;
+  celular: string;
+  activo: boolean;
+}
+
+export interface DevolucionPedido {
+  id: string;
+  pedidoId: string;
+  pedidoNo: string;
+  clienteId: string;
+  clienteNombre: string;
+  conductorId: string;
+  conductorNombre: string;
+  estado: 'PROGRAMADA' | 'RECIBIDA_BODEGA' | 'VALIDADA_FINANZAS' | 'ANULADA';
+  fechaProgramacion: string;
+  fechaRecibido?: string;
+  recibidoPor?: string;
+  fechaValidacion?: string;
+  items: Array<{
+    sku: string;
+    nombre: string;
+    cantidadSolicitada: number;
+    cantidadRecibida?: number;
+    precioUnitarioVenta: number;
+    estadoCalidad?: 'APROBADO_REINGRESO' | 'DESCARTE_MERMA';
+    estadoFisico?: 'APTO_INVENTARIO' | 'AVERIA_DESCARTE' | 'RECHAZADO';
+    loteInventario?: string;
+  }>;
+}
+
+export interface ProductCatalog {
+  id: string;
+  sku: string;
+  nombre: string;
+  categoria: string;
+  unidadMedida?: 'kg' | 'und' | 'lb' | 'gr';
+  imagen?: string;
+  codigo_barras?: string;
+  iva?: number;
+  ivaIncluido?: boolean;
+  control_inventario?: boolean;
+  produccion?: boolean;
+  activo: boolean;
+  categoriaABC?: 'A' | 'B' | 'C';
+  metadata?: Record<string, string>;
+}
+
+export interface ProductPricing {
+  id: string;
+  productoId: string;
+  vigenciaDesde: string;
+  precio_compra: number;
+  buffer_seguridad: number;
+  precio_venta_pos: number;
+  precio_venta_restaurante: number;
+  precio_venta_mayorista: number;
+  actualizadoPor: string;
+}
+
+export interface Product extends ProductCatalog {
+  precio_compra: number;
+  buffer_seguridad: number;
+  precio_venta_pos: number;
+  precio_venta_restaurante: number;
+  precio_venta_mayorista: number;
+}
 ```
-
-### B. Despachos Parciales y Logística
-Modificaciones al esquema de órdenes existente para soportar despachos parciales.
-
-```sql
--- Agregar columnas a la tabla order_items (o equivalente actual)
-ALTER TABLE order_items 
-ADD COLUMN requested_quantity numeric(10,2) NOT NULL DEFAULT 1,
-ADD COLUMN fulfilled_quantity numeric(10,2) NOT NULL DEFAULT 0,
-ADD COLUMN status text DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'PARTIAL', 'FULFILLED', 'CANCELLED'));
-```
-
-## 2. Flujos de Información y Servicios Frontend
-
-### A. Módulo Contable (UX Simple)
-*   **Servicio (`src/services/accountingService.ts`):** 
-    Expondrá una función `recordCategorizedTransaction(category, amount, referenceId)` que por debajo mapeará la categoría a las cuentas correctas e insertará dos registros en `ledger_entries` (Débito y Crédito).
-*   **Estado (`src/store/useAccountingStore.ts`):** 
-    Cargará los resúmenes financieros (Ingresos Totales vs Gastos Totales) utilizando llamadas a Supabase RPC para no cargar miles de registros en memoria.
-
-### B. Automatización de Cierre de Caja
-*   **Intercepción en `cashService.ts`:** 
-    Al ejecutar `cerrarTurno(id, diferencias)`, el servicio llamará a `accountingService.recordCategorizedTransaction('CASH_DIFFERENCE', diferencias, id)` para asentar los faltantes/sobrantes automáticamente.
-
-### C. Inventario ABC (Backend Cron)
-*   **Supabase RPC + pg_cron:**
-    Se creará una función SQL `calculate_abc_inventory()` que agrupa las ventas de los últimos 15 días, calcula porcentajes acumulados y actualiza una columna `abc_class` en la tabla `products`.
-*   **Frontend (`InventoryView.tsx`):**
-    Solo leerá la columna `abc_class` existente en `products`. Se aplicará una clase CSS condicional (rojo/amarillo/verde) basada en esa letra.
-
-### D. Supabase Realtime y RLS (Despachos)
-*   **Row Level Security (RLS):**
-    ```sql
-    CREATE POLICY "Ver ordenes de mi sucursal" 
-    ON orders FOR SELECT 
-    USING (branch_id = auth.jwt() ->> 'branch_id');
-    ```
-*   **Zustand Realtime Subscription:**
-    En `useOrderStore.ts`, se activará un canal `supabase.channel('orders')` que escuchará `INSERT` y `UPDATE` para actualizar el tablero Kanban en tiempo real, filtrado por el RLS del usuario.
-
-## 3. Plan de Ejecución (Fases de Desarrollo)
-
-Para evitar romper el sistema actual, la ejecución se hará de forma secuencial:
-
-1.  **Fase 1: Infraestructura DB:** Ejecutar scripts SQL en Supabase para `accounts`, `ledger_entries`, y la modificación de `order_items`. Crear la función RPC del cálculo ABC.
-2.  **Fase 2: Core Contable (Servicios):** Implementar `accountingService.ts` y conectarlo al proceso de cierre de caja en `cashService.ts`.
-3.  **Fase 3: Logística Realtime:** Implementar suscripciones WebSockets en `useOrderStore.ts`, adaptar `OrderKanbanView` y `AlistamientoBodegaView` para soportar estados y despachos parciales.
-4.  **Fase 4: UI de Reportes e Inventario:** Crear la vista `AccountingView.tsx` (Reportes financieros) y agregar los indicadores visuales ABC en `InventoryView.tsx`.
 
 ---
 
-## User Review Required
+## 2. Flujo de Información y Componentes
 
-> [!IMPORTANT]
-> **Aprobación de la Arquitectura Técnica (El Cómo):**
-> Este es el mapa exacto de cómo se estructurará el código y la base de datos.
-> ¿Estás de acuerdo con el esquema SQL, los flujos de servicio propuestos y el orden de ejecución (Fase 1 a 4)? 
-> 
-> Si apruebas, dime "Aprobado, inicia con la Fase 1" y comenzaré a generar y aplicar el código SQL y estructural directamente.
+El flujo de control separa limpiamente el almacenamiento de datos, la lógica del negocio (hook) y el renderizado UI:
+
+```mermaid
+graph TD
+    Zustand[Zustand Stores] <--> |Acceso Reactivo| usePricing[src/hooks/usePricing.ts]
+    LocalStorage[localStorage: pezcaderia_last_client_prices] <--> |Lectura/Escritura| usePricing
+    
+    usePricing --> |Estado & Acciones| PricingView[src/views/PricingView.tsx]
+    PricingView --> |Callbacks onSuccess/onError| SweetAlert[SweetAlert2 UI Alerts]
+```
+
+### A. El Hook Orquestador (`src/hooks/usePricing.ts`)
+Encapsulará:
+1. **Selección de Cliente**:
+   * Filtrado y vinculación del cliente.
+   * Consulta del histórico de precios (`pezcaderia_last_client_prices`).
+   * Aplicación/Restauración automática de tarifas de fidelidad.
+2. **Cálculos y Cotización**:
+   * Gestión de las líneas agregadas.
+   * Cálculo de subtotales, IVA y total final (memoizados con `useMemo`).
+3. **Persistencia y Estado Global**:
+   * Consolidación de cotizaciones aprobadas interactuando con el store de pedidos de Zustand.
+   * Decremento de inventario al marcar el estado como `Sold`.
+
+### B. La Vista de UI (`src/views/PricingView.tsx`)
+1. Consume `usePricing()` para pintar:
+   * Lista de cotizaciones.
+   * Panel de edición y agregador de ítems.
+   * Botón dinámico de alerta: `💡 Último: $X.XXX (Aplicar)`.
+2. Escucha callbacks para renderizar:
+   * Confirmación o errores mediante modales emergentes de `SweetAlert2`.
+
+---
+
+## 3. Plan de Ejecución (Paso a Paso)
+
+* **Paso 1: Tipado y Compatibilidad**:
+  Crear `src/types/erp.types.ts` y mover los tipos de `App.tsx`. Re-exportarlos desde `App.tsx`. Verificar compilación estática ejecutando:
+  `npx.cmd tsc --noEmit`.
+* **Paso 2: Implementación de usePricing**:
+  Crear `src/hooks/usePricing.ts` agregando la lógica de cálculo y los hooks de Zustand.
+* **Paso 3: Refactorización de PricingView**:
+  Simplificar `src/views/PricingView.tsx` consumiendo el hook, reduciendo el código fuente a <1000 líneas.
+* **Paso 4: Validación**:
+  Verificar pruebas unitarias (`npx.cmd vitest run src/tests`) y control de compilación general.

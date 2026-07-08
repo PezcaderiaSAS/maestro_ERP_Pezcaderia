@@ -1,29 +1,27 @@
-# Speckit Checklist: Requisitos y Calidad
+# Lista de Verificación de Calidad: Refactorización y Buenas Prácticas de Frontend (v1.0)
 
-Con base en tus respuestas a las preguntas de aclaración (A, B, C, D, E), he generado esta lista de verificación (`/speckit.checklist`) para asegurar que no queden brechas arquitectónicas o de negocio antes de planificar la implementación (`speckit.plan`).
+Esta lista de verificación valida los criterios de calidad, completitud y mitigación de riesgos para la refactorización de `PricingView.tsx` y la centralización de los tipos globales de TypeScript.
 
-## 1. Módulo Contable (Partida Doble + UI Simple)
-- [ ] **Estructura DB (Supabase):** Existe un catálogo de cuentas (`accounts`) y una tabla de asientos (`ledger_entries`) que valida que `sum(debits) = sum(credits)`.
-- [ ] **UX "A Prueba de Tontos":** En el frontend, el usuario solo selecciona "Pago de Arriendo" (Categoría). Por debajo, el sistema mapea automáticamente: *Débito a Gasto Arriendo*, *Crédito a Caja/Banco*.
-- [ ] **Integridad:** Validar que los asientos automáticos no puedan ser eliminados manualmente sin dejar rastro (anulación reversible).
+## 1. Arquitectura y Tipado Estricto (TypeScript)
+- [ ] **Declaración Centralizada**: Todos los tipos e interfaces de negocio (`Cliente`, `Proveedor`, `Conductor`, `DevolucionPedido`, `ProductCatalog`, `ProductPricing`, `Product`) están definidos en [src/types/erp.types.ts](file:///c:/Users/PERSONAL/Documents/Aplicaciones/maestro_ERP_Pezcaderia/src/types/erp.types.ts).
+- [ ] **Compatibilidad de Re-exportación**: `src/App.tsx` re-exporta los tipos migrados sin romper la compatibilidad para el resto del proyecto.
+- [ ] **Cero Warnings de Importación Circular**: Se valida que la carga de tipos y hooks no genere ciclos de importación bloqueantes (TypeScript/ESLint).
+- [ ] **Cero Any**: Los casts del tipo `any` en llamadas a cotizaciones o clientes han sido erradicados y reemplazados por sus interfaces correspondientes.
 
-## 2. Flujo de Caja y Cierre de Turno
-- [ ] **Automatización del Cierre:** Al presionar "Cerrar Turno", el descuadre (Faltante o Sobrante) genera automáticamente una entrada en `ledger_entries` contra la cuenta de "Diferencias de Caja".
-- [ ] **Trazabilidad:** El asiento contable debe tener un `reference_id` apuntando al ID del turno de caja cerrado (`cash_shifts`).
+## 2. Desacoplamiento de Lógica (Hook usePricing)
+- [ ] **Pureza Lógica**: El hook `usePricing` contiene únicamente lógica de negocio, manipulación de estados reactivos y consumo de los 7 stores de Zustand. No contiene elementos JSX, importaciones de estilos ni código de UI directa.
+- [ ] **Aislamiento de Alertas**: `usePricing` no importa ni invoca a `SweetAlert2`. Devuelve callbacks como `onSuccess` o `onError` para que la vista ejecute las ventanas emergentes.
+- [ ] **Reducción de Deuda**: El tamaño del archivo `PricingView.tsx` se ha reducido en al menos un 40%, delegando la complejidad al hook.
+- [ ] **Memoización de Cálculos**: Los cálculos de subtotales, recargos, IVAs e históricos de fidelidad se realizan con `useMemo` dentro del hook para evitar recalculación innecesaria en re-renders.
 
-## 3. Inventario ABC (Cron Job a 15 días)
-- [ ] **Postgres / Supabase Cron:** Crear una función RPC en Supabase llamada `calculate_abc_inventory()` ejecutada vía `pg_cron` a medianoche.
-- [ ] **Lógica Pareto:** La función debe calcular el volumen de ventas de los **últimos 15 días**, ordenar descendentemente y asignar 'A' al top 80% del valor, 'B' al 15% y 'C' al 5%.
-- [ ] **Frontend:** `InventoryView.tsx` solo lee la etiqueta calculada (A, B o C), garantizando 0 impacto en el rendimiento al abrir la vista.
+## 3. Pruebas Unitarias y de Integración (TDD)
+- [ ] **Tests de Regresión**: El 100% de los tests unitarios existentes en `src/tests/` (incluyendo inventarios y POS) siguen ejecutándose y pasando con éxito.
+- [ ] **Tests Unitarios del Hook**: Se han diseñado y ejecutado pruebas unitarias para `usePricing.ts` verificando:
+  * Inicialización correcta de la cotización.
+  * Vinculación de un cliente y aplicación de su tipo de precio correspondiente (POS, Restaurante, Mayorista).
+  * Aplicación del histórico de fidelidad de tarifas (`lastClientPrices`).
+  * Consolidación final de la cotización aprobada (Zustand state update).
 
-## 4. Despachos y Logística (Filtro por Sucursal)
-- [ ] **Row Level Security (RLS):** Las políticas en Supabase para las órdenes deben tener una condición `auth.uid()` o el ID de la sucursal asignada al empleado, garantizando que el *Realtime* no envíe datos de otras sucursales.
-- [ ] **Despachos Parciales:** El modelo de datos (`order_items`) debe soportar los campos `requested_quantity` y `fulfilled_quantity`. Si se despacha parcial, el sistema debe preguntar si el resto queda en *Backorder* (Pendiente) o si se cancela la diferencia.
-
----
-
-## User Review Required
-
-> [!IMPORTANT]
-> **Aprobación de la Checklist:**
-> Revisa estos puntos de verificación. Si consideras que el estándar de calidad y los casos de uso están cubiertos, dímelo y procederé con **`/speckit.plan`** para diseñar el paso a paso detallado de la arquitectura de base de datos y componentes de React. (Recuerda que no generaré código fuente hasta que el plan técnico esté aprobado).
+## 4. Estética y Buenas Prácticas de UI (React 18)
+- [ ] **Cero Bloqueos**: El flujo de ruteo de la app en `App.tsx` no se interrumpe y la interfaz responde instantáneamente.
+- [ ] **Transiciones y Hover**: Se incorporan micro-interacciones (hover en botón de aplicación de tarifa histórica, animaciones suaves en modales) según estándares premium de diseño web.

@@ -53,35 +53,8 @@ export const toTitleCase = (str: string): string => {
   }).join(' ');
 };
 
-export interface Cliente {
-  id: string;
-  nombre: string;
-  identificacion: string;
-  tipoIdentificacion: 'NIT' | 'CC' | 'CE';
-  tipoPersona: 'NATURAL' | 'JURIDICA';
-  direccion: string;
-  telefono: string;
-  email: string;
-  ciudad: string;
-  tipoPrecio: 'POS' | 'RESTAURANTE' | 'MAYORISTA';
-  encargadoCompras?: string;
-  cupoCredito: number; // Para validación en ventas a crédito
-  activo: boolean;
-}
-
-export interface Proveedor {
-  id: string;
-  nombre: string;
-  nit: string;
-  tipoIdentificacion: 'NIT' | 'CC';
-  direccion: string;
-  telefono: string;
-  email: string;
-  ciudad: string;
-  contactoCompras?: string;
-  plazoPagoDias: number;
-  activo: boolean;
-}
+import type { Cliente, Proveedor, Conductor, DevolucionPedido, ProductCatalog, ProductPricing, Product } from './types/erp.types';
+export type { Cliente, Proveedor, Conductor, DevolucionPedido, ProductCatalog, ProductPricing, Product };
 
 const INITIAL_CLIENTS: Cliente[] = [
   {
@@ -265,82 +238,11 @@ export interface Gasto {
   metodoPago: string;
 }
 
-export interface Conductor {
-  id: string;
-  nombre: string;
-  identificacion: string;
-  licencia: string;
-  celular: string;
-  activo: boolean;
-}
-
-export interface DevolucionPedido {
-  id: string;
-  pedidoId: string;
-  pedidoNo: string;
-  clienteId: string;
-  clienteNombre: string;
-  conductorId: string;
-  conductorNombre: string;
-  estado: 'PROGRAMADA' | 'RECIBIDA_BODEGA' | 'VALIDADA_FINANZAS' | 'ANULADA';
-  fechaProgramacion: string;
-  fechaRecibido?: string;
-  recibidoPor?: string;
-  fechaValidacion?: string;
-  items: Array<{
-    sku: string;
-    nombre: string;
-    cantidadSolicitada: number;
-    cantidadRecibida?: number;
-    precioUnitarioVenta: number;
-    estadoCalidad?: 'APROBADO_REINGRESO' | 'DESCARTE_MERMA';
-    estadoFisico?: 'APTO_INVENTARIO' | 'AVERIA_DESCARTE' | 'RECHAZADO';
-    loteInventario?: string;
-  }>;
-}
-
 export interface CategoriaConfig {
   id: string;
   tipo: string;
   linea: string;
   clase: string;
-}
-
-export interface ProductCatalog {
-  id: string;
-  sku: string;
-  nombre: string;
-  categoria: string;
-  unidadMedida?: 'kg' | 'und' | 'lb' | 'gr';
-  imagen?: string;
-  codigo_barras?: string;
-  iva?: number;
-  ivaIncluido?: boolean;
-  control_inventario?: boolean;
-  produccion?: boolean;
-  activo: boolean;
-  categoriaABC?: 'A' | 'B' | 'C';
-  metadata?: Record<string, string>;
-}
-
-export interface ProductPricing {
-  id: string;
-  productoId: string;
-  vigenciaDesde: string;
-  precio_compra: number;
-  buffer_seguridad: number;
-  precio_venta_pos: number;
-  precio_venta_restaurante: number;
-  precio_venta_mayorista: number;
-  actualizadoPor: string;
-}
-
-export interface Product extends ProductCatalog {
-  precio_compra: number;
-  buffer_seguridad: number;
-  precio_venta_pos: number;
-  precio_venta_restaurante: number;
-  precio_venta_mayorista: number;
 }
 
 export function migrateProductsToCatalogAndPricing(oldProducts: any[], currentActor: string): { catalog: ProductCatalog[], pricings: ProductPricing[] } {

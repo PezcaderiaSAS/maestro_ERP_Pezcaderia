@@ -1,92 +1,48 @@
-# Speckit Analyze: Reporte de Consistencia y Alineación Cruzada
+# Speckit Analyze: Reporte de Consistencia y Alineación Cruzada (v1.0)
 
-**Fecha:** 2026-07-04 | **Estado:** Control de Calidad 2 completado
+**Fecha:** 2026-07-08 | **Estado:** Control de Calidad 2 completado
 
----
-
-## ✅ HALLAZGOS POSITIVOS (Alineación Confirmada)
-
-### 1. `categoriaABC` ya existe en el modelo
-> `src/types/inventory.types.ts` línea 16 ya contiene el campo `categoriaABC?: 'A' | 'B' | 'C'`.
-
-**Impacto en Plan:** La tarea 1.3 (función RPC `calculate_abc_inventory`) solo necesita **actualizar** ese campo, NO crear columna nueva en la BD. La tarea 4.3 de UI ya tiene el binding listo. ✅
-
-### 2. `LineaPedido` ya tiene campos de parcialidad
-> `src/types/orders.types.ts` línea 15-16 ya tiene `cantidadSolicitada` y `cantidadAlistada`.
-
-**Impacto en Plan:** La tarea 1.2 (ALTER TABLE `order_items`) es redundante para los tipos TypeScript — el tipo ya lo soporta. Sin embargo, **la BD de Supabase puede no tenerlos**. SQL sigue siendo necesario para sincronizar el esquema remoto.
-
-### 3. `EstadoPedido` cubre el flujo de despacho
-> Incluye `EN_ALISTAMIENTO`, `EN_DESPACHO`, `ENTREGADO`, `PAUSADO_POR_CREDITO`, `ANULADO`. Cubre el happy path de despacho parcial sin cambio de tipo.
-
-### 4. `TipoMovimientoCaja` cubre los ajustes de cierre
-> `AJUSTE_SOBRANTE` y `AJUSTE_FALTANTE` ya existen en `cash.types.ts`. El hook del cierre de turno en `cashService.ts` tiene la semántica correcta.
+Este reporte audita la consistencia y alineación cruzada entre la Especificación, el Plan Técnico y la Lista de Tareas para la refactorización de `PricingView.tsx` y la centralización de los tipos del ERP.
 
 ---
 
-## 🚨 FISURAS CRÍTICAS (Bloqueadoras)
+## ✅ HALLAZGOS DE ALINEACIÓN (Consistencia Confirmada)
 
-### FISURA 1 — Falta `branch_id` en los tipos existentes
+### 1. Coherencia en la Estructura de Tipos
 
-**Problema:** El plan (task 1.4) define una política RLS que filtra por `branch_id` en la tabla `orders`, pero ni `Pedido` (orders.types.ts) ni `TurnoCaja` (cash.types.ts) tienen el campo `branch_id`.
+* **Análisis**: El Spec, el Plan y las Tareas (Fase 1) están perfectamente alineados en la lista de tipos a centralizar: `Cliente`, `Proveedor`, `Conductor`, `DevolucionPedido`, `ProductCatalog`, `ProductPricing` y `Product`.
+* **Mitigación**: La propuesta de re-exportar estos tipos desde `src/App.tsx` hacia `src/types/erp.types.ts` evita dependencias circulares y previene tener que modificar imports en más de 12 archivos satélites (como `InventoryView.tsx`, `POSView.tsx` o `ARView.tsx`), reduciendo el riesgo de regresión de compilación al mínimo.
 
-**Impacto:** La suscripción Realtime y la política RLS no tendrán nada sobre qué filtrar. Las tasks 3.2 y 1.4 fallarán en ejecución.
+### 2. Separación Limpia de Lógica e Interfaz (Desacoplamiento de Alertas)
 
-**Corrección requerida (Tarea nueva: 0.1):**
-Agregar `branch_id: string` a los tipos `Pedido`, `TurnoCaja` y `MovimientoCaja` antes de ejecutar cualquier script SQL o migración de Supabase.
-
----
-
-### FISURA 2 — `useOrderStore.ts` no expone método de suscripción Realtime
-
-**Problema:** El plan (task 3.2) asume que se añadirá Supabase Realtime al store, pero el store actual usa `localStorage` (`localDb`) como fuente de verdad, no Supabase. No existe `supabaseClient` importado en ningún store.
-
-**Corrección requerida (Tarea nueva: 0.2):**
-Verificar si existe `/src/lib/supabaseClient.ts`. Si no existe, crearlo. Definir la estrategia de sincronización: ¿LocalStorage como caché + Supabase como fuente de verdad remota, o migración completa?
+* **Análisis**: Las cotizaciones requieren alertas de confirmación a través de `SweetAlert2` al cambiar el estado a "Vendida". El plan especifica que `usePricing.ts` no importará SweetAlert2, sino que utilizará un sistema de callbacks (`onSuccess`/`onError`).
+* **Verificación**: Las tareas 2.5 (en hooks) y 3.3 (en vistas) reflejan exactamente esta arquitectura. Esto simplifica las pruebas unitarias del hook en Vitest al no requerir el mockeo de elementos del DOM de SweetAlert2.
 
 ---
 
-### FISURA 3 — `ledger_entries` necesita constraint de integridad a nivel SQL
+## 🚨 FISURAS IDENTIFICADAS (Mitigación de Riesgos)
 
-**Problema:** El Plan dice "Regla de Integridad en Aplicación", pero si alguien llama directamente a Supabase (REST/Admin), puede romper la partida doble. En contabilidad real, esta validación **debe estar en la BD mediante un trigger PostgreSQL**.
+### FISURA 1 — Confusión de Nombres: `Product` vs `Producto`
 
-**Corrección requerida (Mejora en task 1.1):**
-Agregar función trigger SQL que rechace asientos donde `SUM(debit) ≠ SUM(credit)` por `reference_id`.
+* **Hallazgo**: El archivo `src/App.tsx` define `Product` (sin 'o') y `ProductCatalog`. Sin embargo, `src/store/useInventoryStore.ts` define e importa `Producto` (con 'o').
+* **Riesgo**: Mezclar ambas interfaces puede causar errores silenciosos de tipado o coerción de tipos (ej: que a `Producto` le hagan falta campos como `precio_venta_mayorista`).
+* **Acción de Mitigación**:
+  * Mantendremos la distinción de manera limpia en `erp.types.ts`.
+  * Documentaremos explícitamente en el código que `Product` representa la entidad con datos comerciales y de precios (para facturación y cotización), mientras que `Producto` (del store de inventario) representa la entidad física de control de existencias.
 
----
+### FISURA 2 — Entorno de Pruebas de Hooks en Vitest
 
-### FISURA 4 — `task.md` no incluye migración del catálogo de cuentas inicial (Seed Data)
-
-**Problema:** La tabla `accounts` estará vacía al crearse. El sistema no puede mapear categorías ("Pago Arriendo" → cuenta 5105) sin un catálogo inicial precargado. El UX "a prueba de tontos" depende completamente de este seed.
-
-**Corrección requerida (Tarea nueva: 1.6):**
-Crear script SQL de datos iniciales (seed) para la tabla `accounts` con el Plan de Cuentas simplificado en español colombiano (PUC básico). Ej: 1105 Caja, 1110 Banco, 4135 Ventas, 5105 Gastos Operativos.
-
----
-
-## ⚠️ ADVERTENCIAS (No Bloqueadoras)
-
-### ADVERTENCIA 1 — `DispatchView.tsx` no tiene tarea en Task.md
-El plan menciona `DispatchView.tsx` como módulo nuevo, pero `task.md` no tiene una tarea explícita para crearlo.
-
-### ADVERTENCIA 2 — Falta implementación de soft-delete en ledger
-El checklist exige que los asientos no puedan eliminarse sin rastro, pero no existe tarea correspondiente en `task.md`.
+* **Hallazgo**: La tarea 4.2 y la checklist especifican escribir pruebas unitarias para `usePricing.ts`. Sin embargo, para probar hooks personalizados de React que consumen stores de Zustand, es necesario envolverlos o asegurar que el store de Zustand se limpie entre ejecuciones de pruebas para evitar fugas de estado.
+* **Acción de Mitigación (Añadido a Tarea 4.2)**:
+  * El archivo de pruebas `src/tests/usePricing.test.tsx` deberá limpiar explícitamente el estado de los stores de Zustand en su bloque `beforeEach` utilizando el método `getState().reset` o similar, garantizando el aislamiento de las pruebas.
 
 ---
 
-## 📋 PLAN DE CORRECCIONES
+## 📋 PLAN DE CONTROL DE CALIDAD (Alineación de Entregables)
 
-| # | Acción | Tipo | Impacto |
-|---|--------|------|---------|
-| 0.1 | Agregar `branch_id` a tipos `Pedido`, `TurnoCaja`, `MovimientoCaja` | **BLOQUEADOR** | Habilita RLS y Realtime |
-| 0.2 | Verificar/Crear `supabaseClient.ts` y definir estrategia offline/online | **BLOQUEADOR** | Habilita todos los stores con Supabase |
-| 1.1b | Agregar trigger SQL de validación de balance contable | Mejora crítica | Garantiza integridad partida doble |
-| 1.6 | Script SQL de Seed Data para catálogo de cuentas (PUC básico) | **BLOQUEADOR** | Sin esto, el UX simplificado no funciona |
-| 4.4 | Añadir tarea para crear `DispatchView.tsx` | Mejora | Completa el módulo de despachos |
-
----
-
-> [!IMPORTANT]
-> **Aprobación Requerida:**
-> Se encontraron **4 fisuras críticas** (3 bloqueadoras). Aprueba este reporte para ajustar
-> el `task.md` con las correcciones antes de iniciar ejecución de código.
+| Fase | Entregable | Estado de Coherencia | Riesgo Relacionado |
+| :--- | :--- | :--- | :--- |
+| **Fase 1** | Centralizar tipos | **Consistente** (100% alineado) | Dependencia circular (Resuelto vía re-exportación) |
+| **Fase 2** | Hook `usePricing` | **Consistente** (100% alineado) | Acoplamiento de UI (Resuelto vía callbacks) |
+| **Fase 3** | Refactorizar vista | **Consistente** (100% alineado) | Bloqueos de ruteo (Resuelto en Tarea 3.1) |
+| **Fase 4** | Tests y Compilación | **Consistente** (100% alineado) | Fugas de estado en Zustand (Resuelto en Tarea 4.2) |
