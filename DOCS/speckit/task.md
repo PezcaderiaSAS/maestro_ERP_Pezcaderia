@@ -1,49 +1,50 @@
-# Lista de Tareas (Task Tracker) — Corrección Grid POS (v2.1 — Post-Auditoría)
+# Lista de Tareas (Task Tracker) — v2.0
 
-> Actualizado tras Control de Calidad 2. Se amplía Tarea 3 para cubrir los **dos contenedores** `pos-layout` detectados en `POSView.tsx`.
+Este documento contiene las tareas secuenciales para implementar la corrección visual del componente `CalculadorDenominaciones`.
 
----
+**Instrucción para el Agente:** Ejecuta **UNA TAREA A LA VEZ**. Después de completar el código de una tarea, detente y espera confirmación antes de pasar a la siguiente.
 
-## Fase 1: Limpieza de Estilos Globales
-
-- [x] **Tarea 1: Limpiar `src/index.css`**
-  - [x] 1.1 — Localizar el bloque `.pos-layout { ... }` y eliminar las propiedades estructurales.
-  - [x] 1.2 — Localizar el bloque `.pos-products-grid { ... }` y eliminar las propiedades estructurales.
+**Cambios respecto a v1.0:** Correcciones aplicadas según Fisuras #1 y #2 del CQ-2.
 
 ---
 
-## Fase 2: Retrocompatibilidad de Vistas Secundarias
+## Fase 0: Correcciones de Artefactos (Pre-Implementación)
 
-- [x] **Tarea 2: Ajustar `src/views/ARView.tsx` (L371)**
-  - [x] 2.1 — Clase `flex` explícita agregada: `className="pos-layout flex animate-fade-in"`
-  - [x] 2.2 — El estilo inline con `flexDirection: 'column'` sigue presente y mantiene el layout vertical.
-
----
-
-## Fase 3: Refactorización de `src/views/POSView.tsx` (2 contenedores)
-
-- [x] **Tarea 3a: Contenedor Raíz del POS (L1136) — Shell Principal**
-  - [x] 3a.1 — Estilo inline `display: flex` migrado a clases Tailwind: `className="pos-layout w-full flex flex-col gap-4 animate-fade-in relative"`
-
-- [x] **Tarea 3b: Contenedor del Grid Catálogo+Carrito (L1328) — Sub-vista `venta_pos`** ← *hallada en auditoría*
-  - [x] 3b.1 — Clase `pos-layout` redundante eliminada. Reemplazada con: `className="flex-1 min-h-0 w-full flex flex-col lg:grid lg:grid-cols-[7fr_3fr] gap-4 overflow-hidden pt-2"`
-
-- [x] **Tarea 3c: Contenedor del Carrito (L1340) — `pos-sidebar-cart`**
-  - [x] 3c.1 — `flex-none + h-[75vh] + lg:sticky` reemplazados por: `className="pos-sidebar-cart flex flex-col bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden h-full min-h-0"`
+- [x] **Tarea 0.1: Corregir Fisura #1 — Causa Raíz en Spec**
+  - Archivo: `DOCS/speckit/speckit_specify.md`
+  - Acción: ~~Actualizar la "Causa Técnica" con el diagnóstico correcto del CQ-1.~~ ✅ COMPLETADO.
 
 ---
 
-## Fase 4: Estabilización del Catálogo de Productos
+## Fase 1: Implementación de Clases Utilitarias (React/JSX)
 
-- [x] **Tarea 4: Ajustar `src/views/pos/components/ProductSearchPanel.tsx`**
-  - [x] 4.1 — `pos-catalog` (L106): eliminados `lg:flex-none h-full lg:h-full`. Añadido `min-h-0`.
-  - [x] 4.2 — `pos-products-grid` (L170): Añadido `min-h-0` al final del className.
+- [x] **Tarea 1: Ajuste de Altura Uniforme en Tarjetas**
+  - Archivo: `src/views/cash/components/CalculadorDenominaciones.tsx`
+  - Línea objetivo: `<label>` dentro de `renderCard` (aprox. L63-L65).
+  - Acción: Añadir la clase `h-full` al `className` del `<label>`.
+
+- [x] **Tarea 2: Corrección del Colapso del Input + Ocultar Spinners**
+  - Archivo: `src/views/cash/components/CalculadorDenominaciones.tsx`
+  - Línea objetivo: `<input>` dentro de `renderCard` (aprox. L83-L94).
+  - Acciones (**FISURA #2 — Aplicada**: la instrucción es REEMPLAZAR, NO AÑADIR):
+    1. **ELIMINAR** la clase `w-full` del `className` del `<input>`.
+    2. **AÑADIR** en su lugar la clase `flex-1` (para que el input negocie el espacio disponible dentro del contenedor flex).
+    3. **AÑADIR** las clases para ocultar el spinner nativo del navegador:
+       `[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`.
 
 ---
 
-## Fase 5: Verificación y Validación
+## Fase 2: Verificación de Calidad y Testing
 
-- [x] **Tarea 5: Testing de Integridad**
-  - [x] 5.1 — `tsc --noEmit`: 0 errores.
-  - [x] 5.2 — `vitest run`: 10/10 tests pasando.
-  - [x] 5.3 — Verificación visual: catálogo (70%) y carrito (30%) alineados horizontalmente. Grid de 3 columnas de productos visible. ✅
+- [x] **Tarea 3: Testing de Integridad Estática**
+  - Acción: Ejecutar `npx.cmd tsc --noEmit`. Verificar que la salida sea 0 errores y 0 advertencias.
+
+- [x] **Tarea 4: Verificación Visual (Browser — Casos de Borde)**
+  - Acción: Lanzar `browser_subagent` para capturar imagen del modal "Abrir Turno". Confirmar:
+    1. ✅ Los inputs son lo suficientemente anchos para leer números (incluir 4 cifras: `9999`).
+    2. ✅ Las tarjetas tienen altura consistente en la cuadrícula.
+    3. ✅ No se observan flechas del spinner del navegador.
+    4. ✅ La etiqueta "CANT." no se aplasta al encoger el modal o reducir el viewport.
+
+---
+*Versión 3.0-v2 (Calculadora de Base Fix — Post CQ-2)*

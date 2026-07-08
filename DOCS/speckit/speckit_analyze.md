@@ -1,83 +1,52 @@
-# Reporte de Auditoría Cruzada: Spec → Plan → Tasks (v2.0)
-## Control de Calidad 2 — Pre-Ejecución
+# Control de Calidad 2 — Reporte de Consistencia y Alineación Cruzada
+
+**Fecha de Auditoría:** 2026-07-08  
+**Artefactos Auditados:** `speckit_specify.md` → `speckit_checklist.md` → `speckit_plan.md` → `task.md`
 
 ---
 
-## Estado General del Pipeline
+## Matriz de Trazabilidad
 
-| Artefacto | Archivo | Estado |
-|---|---|---|
-| Especificación | `DOCS/speckit/speckit_specification.md` | ✅ Completo |
-| Plan de Implementación | `DOCS/speckit/implementation_plan.md` | ✅ Completo |
-| Lista de Tareas | `DOCS/speckit/task.md` | ✅ Completo |
-| Checklist de Calidad | `DOCS/speckit/speckit_checklist.md` | ✅ Completo |
-
----
-
-## Hallazgos del Grafo de Dependencias
-
-### Dependencias de `ARView.tsx` — **Hallazgo Crítico Confirmado**
-El grafo revela que `ARView.tsx` no sólo usa la clase `.pos-layout`, sino que también es **importado directamente por `POSView.tsx`** (relación `imports_from`). La Tarea 2 cubre correctamente la corrección, pero debe ejecutarse **antes** que la Tarea 3 para evitar una ventana de incompatibilidad temporal durante el desarrollo.
-
-> **Resolución:** Las tareas están numeradas en el orden correcto (Tarea 2 antes de Tarea 3). ✅
-
-### Dependencias de `POSView()` — 8+ Conexiones a Stores de Zustand
-El componente `POSView()` llama a 8+ stores de Zustand. Ninguno de estos stores gestiona estado visual de layout; son puramente de datos. Por lo tanto, la refactorización de las clases CSS en el JSX **no afectará** ningún store ni ninguna lógica de negocio.
-
-> **Resolución:** Riesgo de regresión en lógica de negocio = **Nulo**. ✅
-
-### `CartPanel.tsx` — Dependencia No Contemplada en el Plan
-El grafo muestra que `CartPanel.tsx` tiene 14 relaciones (botones de acción, stores de datos, tipos de POS). El plan menciona modificar el contenedor `.pos-sidebar-cart` que **envuelve** a `CartPanel` en `POSView.tsx`, pero **no toca el interior** del componente `CartPanel.tsx`.
-
-> **Resolución:** Cambio seguro y acotado. No se requiere modificar `CartPanel.tsx`. ✅
+| ID | Requerimiento (Spec) | En Checklist | En Plan | En Tasks | Estado |
+|---|---|---|---|---|---|
+| R1 | Restaurar visibilidad del input "CANT." | ✅ Sección 1 + DoD #1 | ✅ Sección B (`flex-1`) | ✅ Tarea 2 | ✅ ALINEADO |
+| R2 | Altura uniforme de tarjetas | ✅ Sección 2, Consistencia Visual | ✅ Sección A (`h-full`) | ✅ Tarea 1 | ✅ ALINEADO |
+| R3 | Ocultar spinners nativos | ✅ Sección 2, Accesibilidad | ✅ Sección C (appearance) | ✅ Tarea 2, paso 2 | ✅ ALINEADO |
+| R4 | `tsc --noEmit` pasa sin errores | ✅ DoD #4 | ✅ Sección 3, paso 1 | ✅ Tarea 3 | ✅ ALINEADO |
+| R5 | Verificación visual en browser | ✅ DoD #1 implícito | ✅ Sección 3, paso 2 | ✅ Tarea 4 | ✅ ALINEADO |
 
 ---
 
-## Auditoría de Consistencia: Spec vs. Plan vs. Tasks
+## Fisuras Detectadas
 
-### ✅ ALINEADO: Causa Raíz y Estrategia de Solución
-- **Spec** identifica correctamente el conflicto de especificidad CSS como causa raíz.
-- **Plan** traduce esto en acciones concretas: limpiar `index.css` y migrar a Tailwind utilitario puro.
-- **Tasks** descompone el Plan en pasos quirúrgicos y accionables con líneas de código específicas.
+### ⚠️ FISURA #1 (MEDIA): Causa Raíz Desactualizada en la Spec
+- **Ubicación:** `speckit_specify.md`, Sección 1, "Causa Técnica" (L9).
+- **Problema:** La Spec describe que el input colapsó porque "el contenedor padre no le proporciona un ancho base de referencia". Sin embargo, el CQ-1 (Preguntas Estructuradas) corrigió esto: la causa real es la ausencia de `flex-1` en el propio `<input>`, no en el contenedor. El Plan y la Checklist reflejan la causa corregida, pero la **Spec sigue teniendo el diagnóstico desactualizado**.
+- **Riesgo:** Si un desarrollador futuro lee solo la Spec, entenderá incorrectamente la causa raíz.
+- **Remediación:** Actualizar `speckit_specify.md`, Sección 1, "Causa Técnica" con el diagnóstico correcto documentado en la Checklist.
 
-### ✅ ALINEADO: Archivo `.pos-catalog` (ProductSearchPanel.tsx L106)
-- **Real en código:** `className="pos-catalog flex-1 lg:flex-none h-full lg:h-full flex flex-col overflow-hidden"`
-- **Tarea 4 propone:** `className="pos-catalog flex-1 flex flex-col overflow-hidden min-h-0"`
-- **Análisis:** La clase `lg:flex-none` y los `h-full` redundantes serán removidos. El cambio es correcto y mejora la contención.
+### ⚠️ FISURA #2 (BAJA): El Plan menciona `w-full` en el snippet pero lo elimina en la Task
+- **Ubicación:** `speckit_plan.md` L47 (snippet) vs. `task.md` Tarea 2, paso 1.
+- **Problema:** El snippet del Plan usa `flex-1 min-w-0` (correcto y sin `w-full`). La Task también dice "reemplazar `w-full` por `flex-1`". Sin embargo, el código actual en producción en `CalculadorDenominaciones.tsx` (L94) ya tiene `w-full min-w-0`. Necesitamos verificar que el Task esté describiendo correctamente la acción: **reemplazar** `w-full` por `flex-1`, **no añadir** `flex-1` adicionalmente.
+- **Riesgo:** El agente podría duplicar clases (`flex-1 w-full`) si no elimina la anterior.
+- **Remediación:** Clarificar explícitamente en Tarea 2 que se debe ELIMINAR `w-full` y AÑADIR `flex-1` como reemplazo.
 
-### ✅ ALINEADO: Archivo `.pos-products-grid` (ProductSearchPanel.tsx L170)
-- **Real en código:** `className="pos-products-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 overflow-y-auto flex-1 pb-4"`
-- **Tarea 4 propone:** agregar `min-h-0` al final.
-- **Análisis:** Cambio mínimo y correcto. No se alteran clases de Tailwind responsivas existentes.
-
-### ✅ ALINEADO: Archivo `.pos-sidebar-cart` (POSView.tsx L1340)
-- **Real en código:** `className="pos-sidebar-cart flex-none h-[75vh] lg:sticky lg:top-6 lg:h-[calc(100vh-120px)] flex flex-col ..."`
-- **Tarea 3 propone:** `className="pos-sidebar-cart flex flex-col bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden h-full min-h-0"`
-- **Análisis:** Se elimina el `flex-none` que previene el crecimiento del carrito, los `lg:sticky` y el cálculo manual de altura. La propuesta es correcta.
-
-### ⚠️ FISURA DETECTADA: Doble uso de `.pos-layout` en el JSX de `POSView.tsx`
-El Plan y las Tareas asumen un solo contenedor con la clase `pos-layout`. Sin embargo, el código real tiene **dos contenedores** con esta clase en el mismo árbol de `POSView.tsx`:
-1. **L1136** — El contenedor raíz: `className="pos-layout animate-fade-in relative"` (shell del POS).
-2. **L1328** — El contenedor de la sub-vista `venta_pos`: `className="pos-layout min-h-... lg:grid ..."`.
-
-El Plan y las Tareas solo mencionan modificar uno de los dos. Si se limpia `index.css` y se olvida el contenedor en L1328, la rejilla podría perder el `display` que hoy hereda de CSS y quedar sin estilos visibles.
-
-> **Fisura Confirmada:** Tarea 3 debe ser dividida o ampliada para cubrir **ambos** contenedores.
+### ℹ️ OBSERVACIÓN #1 (INFORMATIVA): Task no incluye casos de borde del Plan
+- **Ubicación:** `speckit_plan.md` Sección 3 ("Casos de borde") vs. `task.md` Tarea 4.
+- **Problema:** El Plan de Verificación menciona casos de borde específicos (digitar 4 cifras, encoger ventana). La Tarea 4 de verificación visual solo menciona 3 puntos de alto nivel, omitiendo los casos de borde.
+- **Riesgo:** Muy bajo. Es un proceso de QA informal, no código. No genera riesgo de regresión.
+- **Remediación:** Opcional — añadir los casos de borde a Tarea 4 para mayor cobertura.
 
 ---
 
-## Recomendaciones Finales
+## Veredicto General
 
-| # | Tipo | Acción |
-|---|---|---|
-| 1 | 🔴 Corrección | **Ampliar Tarea 3** para incluir explícitamente la modificación del contenedor L1328 (`pos-layout min-h-...`), que es el contenedor de la sub-vista y el origen real del grid vertical/horizontal. |
-| 2 | 🟡 Preventivo | Al limpiar `.pos-layout` en `index.css`, verificar que el contenedor raíz en L1136 no pierda su estructura de columna flexible; debe tener `flex flex-col` explícito como clases Tailwind. |
-| 3 | 🟢 Confirmado | El orden de ejecución (ARView → CSS → POSView → ProductSearchPanel → Tests) es correcto y seguro. |
+> **2 fisuras detectadas (1 MEDIA, 1 BAJA) + 1 observación informativa.**
+> El pipeline está sustancialmente alineado y es apto para implementación, condicionado a la corrección de las fisuras antes de ejecutar.
+
+**Acciones requeridas antes de implementar:**
+1. Actualizar la "Causa Técnica" en `speckit_specify.md`.
+2. Clarificar "reemplazar, no añadir" en `task.md`, Tarea 2.
 
 ---
-
-## Dictamen de Calidad
-
-El pipeline Spec → Plan → Tasks está **técnicamente consistente** con una excepción de riesgo medio (la doble ocurrencia de `.pos-layout` en `POSView.tsx`). El plan actualizado cubriendo los dos contenedores está listo para ejecución.
-
-**Estado: ✅ LISTO PARA EJECUCIÓN — con la ampliación de Tarea 3 incorporada.**
+**Estado:** ⏳ ESPERANDO APROBACIÓN PARA PROCEDER CON LAS CORRECCIONES Y LUEGO LA IMPLEMENTACIÓN.

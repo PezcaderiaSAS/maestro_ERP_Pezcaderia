@@ -1,23 +1,28 @@
-# Lista de Verificación de Calidad: Corrección de Colapso de Grid en POS (v2.0)
+# Lista de Verificación de Calidad (Checklist)
 
-Esta lista de verificación valida los criterios de calidad, completitud y mitigación de riesgos de UI/UX relacionados a la solución del colapso responsivo en la pantalla del Punto de Venta (POS) y conflictos de CSS.
+Esta lista valida que los requerimientos para la corrección del componente `CalculadorDenominaciones` estén completos, claros y alineados con los estándares de la industria UI/UX y la arquitectura del ERP.
 
-## 1. Diseño Responsivo y Reglas de CSS
-- [ ] **Limpieza de CSS Global**: La clase `.pos-layout` en `src/index.css` ya no contiene directivas destructivas de diseño (`display: flex`, `height: calc(...)`, `flex: 1`, `overflow: hidden`) que anulen a las utilidades de Tailwind CSS.
-- [ ] **Desacoplamiento de Grid en Catálogo**: La clase `.pos-products-grid` ya no fuerza columnas fijas en `index.css`, permitiendo que el número de columnas varíe fluidamente gracias a las directivas nativas de Tailwind (`grid-cols-2`, `sm:grid-cols-3`, `lg:grid-cols-4`).
-- [ ] **Compatibilidad de Módulos (Cuentas por Cobrar)**: El componente secundario `ARView.tsx` renderiza verticalmente sin distorsiones luego de la eliminación de los estilos intrusivos de `.pos-layout`.
+## 1. Validación del Requerimiento Base
+- [x] **Causa Raíz Identificada Correctamente:** Se corrigió el diagnóstico inicial de la Spec. El problema no era el ancho de la ventana modal, sino la falta de `flex-1` en el `<input>` dentro de su contenedor flex padre (`<div className="flex items-center gap-2 mt-auto">`), provocando que `CANT.` consumiera el espacio mínimo y el input colapsara a 0px.
+- [x] **Alcance Definido:** La solución debe aplicarse al componente compartido `src/views/cash/components/CalculadorDenominaciones.tsx`.
+- [x] **Impacto Comprendido:** Al ser un componente compartido, el fix resolverá automáticamente el problema tanto en **Apertura de Turno** como en **Cierre de Caja**.
 
-## 2. Contención Espacial (Box Model & Shell Pattern)
-- [ ] **Alineación de 2 Columnas (70/30) en Escritorio**: En resoluciones de pantalla iguales o superiores a 1024px (`lg`), el Catálogo (70%) y el Carrito de Compras (30%) están perfectamente alineados uno al lado del otro.
-- [ ] **Apilamiento Vertical Ordenado (Móviles)**: En pantallas menores a 1024px, el catálogo se muestra primero, apilado limpiamente encima del panel de carrito para asegurar legibilidad en tabletas.
-- [ ] **Inmutabilidad de Altura Padre**: El contenedor primario del POS implementa contención efectiva (`overflow-hidden`, `min-h-0` y `h-full`) para impedir que el DOM principal (la página web entera) experimente desbordamiento vertical debido a inventario dinámico.
+## 2. Estándares UI / UX
+- [x] **Responsividad:** El input debe usar el espacio remanente (`flex-1`) sin empujar a la etiqueta `CANT.` fuera de la tarjeta, manteniendo el diseño funcional en diferentes anchos de pantalla.
+- [x] **Consistencia Visual:** Todas las tarjetas (billetes y monedas) deben tener una **altura uniforme fija** (ej. `h-full`), para que la cuadrícula se vea ordenada independientemente de si el texto interno hace wrap o no.
+- [x] **Accesibilidad / Usabilidad:** Ocultar los botones del spinner nativo (flechas arriba/abajo) de los inputs tipo número con clases de utilidad de Tailwind (ej. `[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`). Esto evita el desorden visual en tarjetas estrechas y fomenta el uso del teclado numérico, que es la práctica estándar en un POS.
 
-## 3. Comportamiento en Casos Límite y Scroll Independiente
-- [ ] **Scroll Aislado en Catálogo**: Agregar o buscar numerosos productos invoca el scroll bar vertical (`overflow-y-auto`) **exclusivamente** dentro del contenedor del Catálogo (`pos-catalog`), dejando el carrito completamente estático y visible a la derecha.
-- [ ] **Scroll Aislado en Carrito**: Escanear y listar múltiples ítems simultáneos en una venta activa provoca un scroll independiente para la sub-vista de líneas del recibo.
-- [ ] **Contención Dinámica Segura (`min-h-0`)**: En caso de títulos extensos, SKU sobredimensionados, o componentes flexibles sin altura definida, el layout mantiene su integridad gracias a la regla protectora de flex/grid `min-h-0`.
+## 3. Arquitectura y Código
+- [x] **Uso de Clases Utilitarias:** La solución se implementará exclusivamente con clases de Tailwind CSS nativas (`flex-1`, `w-full`, `min-w-0`, utilidades de appearance).
+- [x] **Sin Afección a la Lógica de Negocio:** Los cambios no deben alterar los eventos `onChange`, `onKeyDown` ni el estado de `Zustand` asociado al cálculo de denominaciones.
+- [x] **Evitar CSS Global:** No se añadirán estilos a `index.css` para este fix puntual, manteniendo el aislamiento del componente.
 
-## 4. Estética de Interfaz e Implementación de Código
-- [ ] **Tailwind Estricto**: Todo refactor estructural emplea estrictamente clases utilitarias de Tailwind en JSX, respetando el sistema Data-Driven del ERP.
-- [ ] **Flujo de Renderizado React**: Las actualizaciones y remociones de clases en los JSX (`POSView.tsx` y `ProductSearchPanel.tsx`) no rompen referencias `ref` ni comportamientos anidados en la lógica de estados locales.
-- [ ] **Cero Errores Transpilados**: Se ha ejecutado una verificación en Typescript (TSC) y todo compila apropiadamente.
+## 4. Criterios de Aceptación (DoD - Definition of Done)
+- [ ] En el modal de Apertura de Turno, el campo "CANT." es claramente visible y permite ver números de múltiples dígitos.
+- [ ] Las tarjetas de denominaciones mantienen una altura idéntica en su respectiva cuadrícula.
+- [ ] Los spinners nativos de incremento/decremento no son visibles en el input.
+- [ ] La compilación estática (`tsc --noEmit`) pasa sin errores.
+
+---
+
+**Estado:** ⏳ ESPERANDO APROBACIÓN PARA CONTINUAR CON EL PLAN (`/speckit.plan`).

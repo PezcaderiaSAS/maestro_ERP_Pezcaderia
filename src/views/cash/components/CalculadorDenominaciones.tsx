@@ -62,7 +62,7 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
     return (
       <label
         key={item.key}
-        className="flex flex-col justify-between p-3 rounded-xl border-2 transition-transform hover:scale-[1.02] cursor-text shadow-sm"
+        className="flex flex-col justify-between h-full p-3 rounded-xl border-2 transition-transform hover:scale-[1.02] cursor-text shadow-sm"
         style={{
           backgroundColor: colors.bg,
           borderColor: colors.border,
@@ -70,15 +70,17 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
         }}
       >
         {/* Encabezado de tarjeta */}
-        <div className="flex flex-wrap justify-between items-start mb-2 gap-x-2">
+        <div className="flex flex-wrap justify-between items-start mb-2 gap-x-2 w-full">
           <span className="font-extrabold text-base md:text-lg shrink-0">{item.label}</span>
-          <div className="flex flex-col items-end ml-auto shrink-0">
+          <div className="flex flex-col items-end ml-auto min-w-0 flex-1">
             <span className="text-[10px] uppercase tracking-wide font-bold opacity-60">Subtotal</span>
-            <span className="font-black text-sm">${subtotal.toLocaleString()}</span>
+            <span className="font-black text-sm truncate w-full text-right" title={`$${subtotal.toLocaleString()}`}>
+              ${subtotal.toLocaleString()}
+            </span>
           </div>
         </div>
         {/* Input de cantidad */}
-        <div className="flex items-center gap-2 mt-auto">
+        <div className="flex items-center gap-2 mt-auto w-full">
           <span className="opacity-70 font-semibold text-xs shrink-0">CANT.</span>
           <input
             type="number"
@@ -91,7 +93,7 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
             onKeyDown={handleKeyDown}
             onFocus={(e) => e.target.select()}
             placeholder="0"
-            className="w-full min-w-0 text-right py-1.5 px-3 bg-white/60 border border-black/10 rounded-lg font-bold text-lg text-slate-900 transition-all outline-none focus:bg-white focus:border-blue-400 focus:ring-2 focus:ring-blue-200/50 disabled:opacity-50"
+            className="w-full flex-1 min-w-0 text-right py-1.5 px-3 bg-white/60 border border-black/10 rounded-lg font-bold text-lg text-slate-900 transition-all outline-none focus:bg-white focus:border-blue-400 focus:ring-2 focus:ring-blue-200/50 disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
         </div>
       </label>
