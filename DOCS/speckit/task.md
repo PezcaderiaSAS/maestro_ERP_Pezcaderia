@@ -47,4 +47,4 @@ Este documento contiene las tareas secuenciales para implementar la corrección 
     4. ✅ La etiqueta "CANT." no se aplasta al encoger el modal o reducir el viewport.
 
 ---
-*Versión 3.0-v2 (Calculadora de Base Fix — Post CQ-2)*
+Versión 3.0-v2 (Calculadora de Base Fix — Post CQ-2)

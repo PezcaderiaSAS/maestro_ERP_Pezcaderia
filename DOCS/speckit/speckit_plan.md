@@ -7,15 +7,21 @@ Este plan detalla las modificaciones exactas al código para cumplir con la Espe
 **Archivo Objetivo:** `src/views/cash/components/CalculadorDenominaciones.tsx`
 
 ### A. Uniformidad de Altura en Tarjetas (L65)
+
 Para cumplir con el criterio de "altura uniforme fija", se debe asegurar que las tarjetas ocupen el 100% de la altura de la fila de la cuadrícula.
+
 - **Cambio:** Añadir `h-full` a la clase del elemento contenedor `<label>`.
 
 ### B. Corrección de Colapso del Input (L94)
+
 Para cumplir con el requerimiento de responsividad y permitir que el input use todo el ancho libre que deja la palabra "CANT.".
+
 - **Cambio:** Añadir la clase `flex-1` a la definición del `<input>`. Esto instruye al input a crecer y consumir todo el espacio remanente dentro del contenedor `flex` padre (`L81`).
 
 ### C. Mejora UX / Accesibilidad: Ocultar Spinners (L94)
+
 Para limpiar el ruido visual y evitar comportamientos erráticos con clics accidentales en pantallas estrechas, se ocultarán los controles nativos del input type="number".
+
 - **Cambio:** Añadir las clases utilitarias de Tailwind mediante selectores arbitrarios:
   `[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`.
 
@@ -52,10 +58,12 @@ Para limpiar el ruido visual y evitar comportamientos erráticos con clics accid
 ```
 
 ## 3. Plan de Verificación (Testing)
+
 Una vez implementado, se validará de la siguiente forma:
+
 1. **Compilación:** Correr `npx.cmd tsc --noEmit` para validar tipado estricto.
 2. **Visual:** Renderizar la vista principal `http://localhost:3000/` y abrir el modal "Abrir Turno".
-3. **Casos de borde:** 
+3. **Casos de borde:**
    - Digitar valores de hasta 4 cifras (ej. `9999`) y verificar que el número se lea sin recortes.
    - Confirmar que al encoger la ventana, el input no aplasta a la palabra "CANT.".
    - Verificar la ausencia visual de las flechas (spinners).
