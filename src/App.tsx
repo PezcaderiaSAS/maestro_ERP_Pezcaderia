@@ -1,57 +1,44 @@
 import { useEffect } from 'react';
 import { createLogger } from './lib/consoleLogger';
 import { Menu, LayoutDashboard, ShoppingBag, Box, Users, DollarSign, HelpCircle, Home, ShoppingCart, LogOut, FileText, PlusCircle, Wallet, Database, Truck, RefreshCw, PieChart, PackageCheck, BookOpen } from 'lucide-react';
-import DashboardView from './views/DashboardView.tsx';
-import POSView from './views/POSView.tsx';
-import InventoryView from './views/InventoryView.tsx';
-import HRView from './views/HRView.tsx';
-import PricingView from './views/PricingView.tsx';
-import ARView from './views/ARView.tsx';
-import ClientsView from './views/ClientsView.tsx';
-import SuppliersView from './views/SuppliersView.tsx';
-import OrderKanbanView from './views/OrderKanbanView.tsx';
-import PayrollView from './views/PayrollView.tsx';
-import CRMView from './views/CRMView.tsx';
-import CashFlowView from './views/cash/CashFlowView.tsx';
-import { AlistamientoBodegaView } from './views/inventory/AlistamientoBodegaView.tsx';
-import { DispatchView } from './views/inventory/DispatchView.tsx';
-import { DevTestDashboard } from './dev/DevTestDashboard.tsx';
-import AccountingView from './views/AccountingView.tsx';
-import * as localDb from './services/localDb.ts';
+import DashboardView from './views/DashboardView';
+import POSView from './views/POSView';
+import InventoryView from './views/InventoryView';
+import HRView from './views/HRView';
+import PricingView from './views/PricingView';
+import ARView from './views/ARView';
+import ClientsView from './views/ClientsView';
+import SuppliersView from './views/SuppliersView';
+import OrderKanbanView from './views/OrderKanbanView';
+import PayrollView from './views/PayrollView';
+import CRMView from './views/CRMView';
+import CashFlowView from './views/cash/CashFlowView';
+import { AlistamientoBodegaView } from './views/inventory/AlistamientoBodegaView';
+import { DispatchView } from './views/inventory/DispatchView';
+import { DevTestDashboard } from './dev/DevTestDashboard';
+import AccountingView from './views/AccountingView';
+import * as localDb from './services/localDb';
 // Stores de Zustand
-import { useInventoryStore } from './store/useInventoryStore.ts';
-import { useWarehouseStore } from './store/useWarehouseStore.ts';
-import { useOrderStore } from './store/useOrderStore.ts';
-import { useClientStore } from './store/useClientStore.ts';
-import { useSupplierStore } from './store/useSupplierStore.ts';
-import { useCategoryStore } from './store/useCategoryStore.ts';
-import { useDriverStore } from './store/useDriverStore.ts';
-import { useEmployeeStore } from './store/useEmployeeStore.ts';
-import { useExpenseStore } from './store/useExpenseStore.ts';
-import { useDynamicFieldStore } from './store/useDynamicFieldStore.ts';
-import { useARStore } from './store/useARStore.ts';
-import { useReturnStore } from './store/useReturnStore.ts';
-import { useIntegrationStore } from './store/useIntegrationStore.ts';
-import { usePurchaseStore } from './store/usePurchaseStore.ts';
-import { useMovementStore } from './store/useMovementStore.ts';
-import { useEventStore } from './store/useEventStore.ts';
-import { useAppStore } from './store/useAppStore.ts';
+import { useInventoryStore } from './store/useInventoryStore';
+import { useWarehouseStore } from './store/useWarehouseStore';
+import { useOrderStore } from './store/useOrderStore';
+import { useClientStore } from './store/useClientStore';
+import { useSupplierStore } from './store/useSupplierStore';
+import { useCategoryStore } from './store/useCategoryStore';
+import { useDriverStore } from './store/useDriverStore';
+import { useEmployeeStore } from './store/useEmployeeStore';
+import { useExpenseStore } from './store/useExpenseStore';
+import { useDynamicFieldStore } from './store/useDynamicFieldStore';
+import { useARStore } from './store/useARStore';
+import { useReturnStore } from './store/useReturnStore';
+import { useIntegrationStore } from './store/useIntegrationStore';
+import { usePurchaseStore } from './store/usePurchaseStore';
+import { useMovementStore } from './store/useMovementStore';
+import { useEventStore } from './store/useEventStore';
+import { useAppStore } from './store/useAppStore';
 
-/** Genera IDs únicos usando crypto.randomUUID() — resistente a colisiones en operaciones rápidas */
-export const generateId = (prefix: string): string =>
-  `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
-
-export const toTitleCase = (str: string): string => {
-  if (!str) return '';
-  return str.toLowerCase().split(' ').map(word => {
-    // Excepciones para preposiciones y artículos
-    const smallWords = ['de', 'del', 'la', 'las', 'el', 'los', 'y', 'en', 'a', 'por', 'para'];
-    if (smallWords.includes(word) && str.toLowerCase().indexOf(word) !== 0) {
-      return word;
-    }
-    return word.charAt(0).toUpperCase() + word.slice(1);
-  }).join(' ');
-};
+import { generateId, toTitleCase } from './lib/utils';
+export { generateId, toTitleCase };
 
 import type { Cliente, Proveedor, Conductor, DevolucionPedido, ProductCatalog, ProductPricing, Product } from './types/erp.types';
 export type { Cliente, Proveedor, Conductor, DevolucionPedido, ProductCatalog, ProductPricing, Product };
@@ -1583,7 +1570,7 @@ export default function App() {
 
         {/* View Content */}
         <div className="main-content">
-          <main style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <main style={{ flex: 1, overflowY: 'auto', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
             {renderView()}
           </main>
         </div>

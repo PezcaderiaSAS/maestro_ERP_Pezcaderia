@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { TurnoCaja } from '../../../types/cash.types';
+import React, { useState } from 'react';
+import { TurnoCaja, Caja } from '../../../types/cash.types';
 import { cashService } from '../../../services/cashService';
 import Swal from 'sweetalert2';
 
@@ -71,75 +71,77 @@ export default function TrasladoDineroModal({ turnoOrigen, usuarioId, onClose, o
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-center items-center p-4">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl transition-all flex flex-col max-h-[90vh] overflow-hidden">
-        <h2 className="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Traslado de Dinero</h2>
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-center items-center p-2 md:p-4 overflow-y-auto">
+      <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl transition-all flex flex-col max-h-[90vh]">
+        <h2 className="text-xl font-bold text-gray-800 mb-4 border-b pb-2 shrink-0">Traslado de Dinero</h2>
         
-        <div className="mb-4 bg-blue-50 p-3 rounded border border-blue-100">
-          <p className="text-sm text-blue-800">
-            <strong>Saldo Disponible en {metodoPago}:</strong> ${saldoDisponible.toLocaleString()}
-          </p>
+        <div className="overflow-y-auto flex-1 pr-1 flex flex-col gap-4">
+          <div className="bg-blue-50 p-3 rounded border border-blue-100">
+            <p className="text-sm text-blue-800">
+              <strong>Saldo Disponible en {metodoPago}:</strong> ${saldoDisponible.toLocaleString()}
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Medio de Pago a Trasladar *</label>
+            <select 
+              data-testid="select-metodo-traslado"
+              className="w-full border rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+              value={metodoPago}
+              onChange={(e) => setMetodoPago(e.target.value as any)}
+            >
+              <option value="EFECTIVO">Efectivo</option>
+              <option value="DATAFONO">Datáfono</option>
+              <option value="TRANSFERENCIA">Transferencia</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Caja Destino *</label>
+            <select 
+              data-testid="select-caja-destino"
+              className="w-full border rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+              value={cajaDestinoId}
+              onChange={(e) => setCajaDestinoId(e.target.value)}
+            >
+              <option value="">-- Seleccione una caja destino --</option>
+              {cajasDisponibles.map(caja => {
+                const turnoDestinoActivo = cashService.getTurnoActivo(caja.id);
+                return (
+                  <option key={caja.id} value={caja.id} disabled={!turnoDestinoActivo}>
+                    {caja.nombre} {turnoDestinoActivo ? '(Abierta)' : '(CERRADA - No recibe)'}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Monto a Trasladar *</label>
+            <input 
+              data-testid="input-monto-traslado"
+              type="number" 
+              className="w-full border rounded p-2 text-lg font-bold text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none"
+              value={monto}
+              onChange={(e) => setMonto(e.target.value !== '' ? Number(e.target.value) : '')}
+              placeholder="0"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Concepto *</label>
+            <input 
+              data-testid="input-concepto-traslado"
+              type="text" 
+              className="w-full border rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+              value={concepto}
+              onChange={(e) => setConcepto(e.target.value)}
+              placeholder="Ej: Remesa a caja fuerte principal..."
+            />
+          </div>
         </div>
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Medio de Pago a Trasladar *</label>
-          <select 
-            data-testid="select-metodo-traslado"
-            className="w-full border rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
-            value={metodoPago}
-            onChange={(e) => setMetodoPago(e.target.value as any)}
-          >
-            <option value="EFECTIVO">Efectivo</option>
-            <option value="DATAFONO">Datáfono</option>
-            <option value="TRANSFERENCIA">Transferencia</option>
-          </select>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Caja Destino *</label>
-          <select 
-            data-testid="select-caja-destino"
-            className="w-full border rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
-            value={cajaDestinoId}
-            onChange={(e) => setCajaDestinoId(e.target.value)}
-          >
-            <option value="">-- Seleccione una caja destino --</option>
-            {cajasDisponibles.map(caja => {
-              const turnoDestinoActivo = cashService.getTurnoActivo(caja.id);
-              return (
-                <option key={caja.id} value={caja.id} disabled={!turnoDestinoActivo}>
-                  {caja.nombre} {turnoDestinoActivo ? '(Abierta)' : '(CERRADA - No recibe)'}
-                </option>
-              );
-            })}
-          </select>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Monto a Trasladar *</label>
-          <input 
-            data-testid="input-monto-traslado"
-            type="number" 
-            className="w-full border rounded p-2 text-lg font-bold text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none"
-            value={monto}
-            onChange={(e) => setMonto(e.target.value !== '' ? Number(e.target.value) : '')}
-            placeholder="0"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Concepto *</label>
-          <input 
-            data-testid="input-concepto-traslado"
-            type="text" 
-            className="w-full border rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
-            value={concepto}
-            onChange={(e) => setConcepto(e.target.value)}
-            placeholder="Ej: Remesa a caja fuerte principal..."
-          />
-        </div>
-
-        <div className="flex justify-end gap-2 mt-6">
+        <div className="flex justify-end gap-2 mt-4 pt-3 border-t shrink-0">
           <button 
             onClick={onClose}
             className="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded font-medium transition-colors"

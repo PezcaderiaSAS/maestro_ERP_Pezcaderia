@@ -31,7 +31,7 @@ const calcDiasComerciales = (inicio: string, fin: string) => {
 
 export default function PayrollView() {
   const { empleados, nominas, setNominas } = useEmployeeStore();
-  const { setGastos } = useExpenseStore();
+  const { addGastoAsync } = useExpenseStore();
   const setView = useAppStore((s) => s.setCurrentView);
   const [wizardType, setWizardType] = useState<'REGULAR' | 'VACACIONES' | 'LIQUIDACION_FINAL' | null>(null);
   const [selectedEmpleadoId, setSelectedEmpleadoId] = useState<string>('');

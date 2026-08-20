@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { generateId } from '../App';
+import { generateId } from '../lib/utils';
 import { useInventoryStore } from '../store/useInventoryStore.ts';
 import { useOrderStore } from '../store/useOrderStore.ts';
 import { useEventStore } from '../store/useEventStore.ts';
@@ -664,7 +664,22 @@ export function usePricing() {
       if (editingItemIndex !== null) {
         updated[editingItemIndex] = newLineItem;
       } else {
-        updated.push(newLineItem);
+        const normalizedNewDetail = (newLineItem.detalle || '').trim().toLowerCase();
+        const existingIndex = updated.findIndex(
+          (item) =>
+            item.product.sku === newLineItem.product.sku &&
+            (item.detalle || '').trim().toLowerCase() === normalizedNewDetail &&
+            Boolean(item.esDevolucion) === Boolean(newLineItem.esDevolucion)
+        );
+
+        if (existingIndex !== -1) {
+          updated[existingIndex] = {
+            ...updated[existingIndex],
+            cantidad: updated[existingIndex].cantidad + qty,
+          };
+        } else {
+          updated.push(newLineItem);
+        }
       }
       return updated;
     });

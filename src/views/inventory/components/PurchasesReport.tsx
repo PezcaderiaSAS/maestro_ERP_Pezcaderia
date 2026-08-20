@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Calendar, Filter, Download, ChevronDown, ChevronUp, Lock, FileText, BarChart2 } from 'lucide-react';
+import { Calendar, Filter, Download, ChevronDown, ChevronUp, Lock, FileText, BarChart2, PlusCircle } from 'lucide-react';
 
 interface PurchasesReportProps {
   ordenesCompra: any[];
@@ -7,6 +7,7 @@ interface PurchasesReportProps {
   productsCatalog: any[];
   categorias: any[];
   userRole: string;
+  onOpenNuevaCompra?: () => void;
 }
 
 export function PurchasesReport({
@@ -14,7 +15,8 @@ export function PurchasesReport({
   proveedores = [],
   productsCatalog = [],
   categorias: _categorias = [],
-  userRole
+  userRole,
+  onOpenNuevaCompra
 }: PurchasesReportProps) {
   // 1. Verificación de Rol Administrativo (Solo 'admin' y 'administrativo' tienen acceso)
   const isAuthorized = userRole === 'admin' || userRole === 'administrativo';
@@ -99,11 +101,13 @@ export function PurchasesReport({
     }> = {};
 
     filteredOCs.forEach(oc => {
-      const pId = oc.proveedorId;
+      const pId = oc.proveedorId || 'SIN_PROVEEDOR';
+      const pNombre = oc.proveedorNombre || 'Proveedor No Especificado';
+
       if (!supplierGroup[pId]) {
         supplierGroup[pId] = {
           proveedorId: pId,
-          proveedorNombre: oc.proveedorNombre || 'Proveedor Desconocido',
+          proveedorNombre: pNombre,
           totalKg: 0,
           totalPesos: 0,
           totalSubtotal: 0,
@@ -115,66 +119,63 @@ export function PurchasesReport({
         };
       }
 
-      const provData = supplierGroup[pId];
-      provData.ocIds.add(oc.id);
-      
-      // Sumar fletes e IVA de cabecera si aplica
-      provData.totalFletes += oc.fletes || 0;
-      provData.totalIva += oc.valorIva || 0;
-      provData.totalSubtotal += oc.subtotal || oc.totalCompra || 0;
-      provData.totalPesos += oc.totalCompra || 0;
+      const group = supplierGroup[pId];
+      group.ocIds.add(oc.id);
+      group.totalPesos += (oc.totalCompra || 0);
+      group.totalSubtotal += (oc.subtotal || 0);
+      group.totalIva += (oc.valorIva || 0);
+      group.totalFletes += (oc.fletes || 0);
 
       // Procesar items de la orden
-      const itemsList = oc.items || [];
-      itemsList.forEach((item: any) => {
-        // Encontrar categoría del producto en el catálogo
-        const catProd = productsCatalog.find(p => p.sku === item.sku);
-        const prodCategoria = catProd ? catProd.categoria : 'Sin Categoría';
+      if (Array.isArray(oc.items)) {
+        oc.items.forEach((item: any) => {
+          const itemSku = item.sku || 'DESCONOCIDO';
+          const itemNombre = item.nombre || itemSku;
+          
+          // Buscar producto en catálogo para categoría
+          const prodCatalog = productsCatalog.find(p => p.sku === itemSku);
+          const itemCat = prodCatalog?.categoria || 'General';
 
-        // Filtro SKU
-        if (selectedSku !== 'TODOS' && item.sku !== selectedSku) return;
+          // Aplicar filtros de SKU y Categoría
+          if (selectedSku !== 'TODOS' && itemSku !== selectedSku) return;
+          if (selectedCategoriaId !== 'TODOS' && itemCat !== selectedCategoriaId) return;
 
-        // Filtro Categoría
-        if (selectedCategoriaId !== 'TODOS' && prodCategoria !== selectedCategoriaId) return;
+          const cant = Number(item.cantidad) || 0;
+          const precio = Number(item.precioUnitario) || 0;
+          const subtotalItem = cant * precio;
 
-        // Agregar al desglose de items
-        if (!provData.items[item.sku]) {
-          provData.items[item.sku] = {
-            sku: item.sku,
-            nombre: item.nombre || 'Producto Desconocido',
-            categoria: prodCategoria,
-            cantidad: 0,
-            precioUnitario: item.precioUnitario || 0,
-            totalPesos: 0,
-            cantidadOrdenes: 0
-          };
-        }
+          group.totalKg += cant;
 
-        const skuData = provData.items[item.sku];
-        skuData.cantidad += item.cantidad;
-        skuData.totalPesos += item.cantidad * item.precioUnitario;
-        skuData.cantidadOrdenes = (skuData.cantidadOrdenes || 0) + 1;
-        
-        // Sumar peso acumulado del proveedor
-        provData.totalKg += item.cantidad;
-      });
+          if (!group.items[itemSku]) {
+            group.items[itemSku] = {
+              sku: itemSku,
+              nombre: itemNombre,
+              categoria: itemCat,
+              cantidad: 0,
+              precioUnitario: precio,
+              totalPesos: 0,
+              cantidadOrdenes: 0
+            };
+          }
+
+          group.items[itemSku].cantidad += cant;
+          group.items[itemSku].totalPesos += subtotalItem;
+          group.items[itemSku].cantidadOrdenes += 1;
+        });
+      }
     });
 
-    // Formatear mapa a array y calcular ordenes finales
-    let result = Object.values(supplierGroup).map(prov => {
-      prov.cantidadOrdenes = prov.ocIds.size;
+    // Convertir a arreglo y mapear itemsList
+    const result = Object.values(supplierGroup).map(grp => {
+      const itemsList = Object.values(grp.items);
       return {
-        ...prov,
-        itemsList: Object.values(prov.items)
+        ...grp,
+        cantidadOrdenes: grp.ocIds.size,
+        itemsList
       };
-    });
+    }).filter(grp => grp.itemsList.length > 0); // Solo proveedores con items que pasaron el filtro
 
-    // Filtrar proveedores que no tengan items válidos después de filtros de SKU/Categoría
-    if (selectedSku !== 'TODOS' || selectedCategoriaId !== 'TODOS') {
-      result = result.filter(prov => prov.itemsList.length > 0);
-    }
-
-    // Ordenar resultados
+    // Ordenar según opción seleccionada
     result.sort((a, b) => {
       if (sortBy === 'totalKg') return b.totalKg - a.totalKg;
       if (sortBy === 'totalPesos') return b.totalPesos - a.totalPesos;
@@ -183,60 +184,41 @@ export function PurchasesReport({
     });
 
     return result;
-  }, [ordenesCompra, fechaInicio, fechaFin, selectedProveedorId, selectedSku, selectedCategoriaId, selectedFormaPago, sortBy, productsCatalog]);
+  }, [ordenesCompra, fechaInicio, fechaFin, selectedProveedorId, selectedSku, selectedCategoriaId, selectedFormaPago, productsCatalog, sortBy]);
 
-  // 4. Totales Generales del Reporte
+  // 4. Totales Consolidados Globales
   const totals = useMemo(() => {
-    let kg = 0;
-    let pesos = 0;
-    let subtotal = 0;
-    let iva = 0;
-    let fletes = 0;
-    const ocIdsSet = new Set();
+    let globalKg = 0;
+    let globalPesos = 0;
+    let globalSubtotal = 0;
+    let globalIva = 0;
+    let globalFletes = 0;
+    let totalOrdenes = 0;
 
-    ordenesCompra.forEach(oc => {
-      if (oc.estado !== 'RECIBIDA') return;
-      if (oc.fecha) {
-        const ocDateStr = oc.fecha.split('T')[0];
-        if (ocDateStr < fechaInicio || ocDateStr > fechaFin) return;
-      }
-      if (selectedProveedorId !== 'TODOS' && oc.proveedorId !== selectedProveedorId) return;
-      if (selectedFormaPago !== 'TODOS') {
-        const fp = oc.formaPago || 'CONTADO';
-        if (fp !== selectedFormaPago) return;
-      }
-
-      let hasMatchingItems = false;
-      const itemsList = oc.items || [];
-      itemsList.forEach((item: any) => {
-        const catProd = productsCatalog.find(p => p.sku === item.sku);
-        const prodCategoria = catProd ? catProd.categoria : 'Sin Categoría';
-
-        if (selectedSku !== 'TODOS' && item.sku !== selectedSku) return;
-        if (selectedCategoriaId !== 'TODOS' && prodCategoria !== selectedCategoriaId) return;
-
-        kg += item.cantidad;
-        hasMatchingItems = true;
-      });
-
-      if (hasMatchingItems) {
-        pesos += oc.totalCompra || 0;
-        subtotal += oc.subtotal || oc.totalCompra || 0;
-        iva += oc.valorIva || 0;
-        fletes += oc.fletes || 0;
-        ocIdsSet.add(oc.id);
-      }
+    reportData.forEach(prov => {
+      globalKg += prov.totalKg;
+      globalPesos += prov.totalPesos;
+      globalSubtotal += prov.totalSubtotal;
+      globalIva += prov.totalIva;
+      globalFletes += prov.totalFletes;
+      totalOrdenes += prov.cantidadOrdenes;
     });
 
     return {
-      totalKg: kg,
-      totalPesos: pesos,
-      totalSubtotal: subtotal,
-      totalIva: iva,
-      totalFletes: fletes,
-      cantidadOrdenes: ocIdsSet.size
+      globalKg,
+      globalPesos,
+      globalSubtotal,
+      globalIva,
+      globalFletes,
+      totalKg: globalKg,
+      totalPesos: globalPesos,
+      totalSubtotal: globalSubtotal,
+      totalIva: globalIva,
+      totalFletes: globalFletes,
+      cantidadOrdenes: totalOrdenes,
+      totalProveedores: reportData.length
     };
-  }, [ordenesCompra, fechaInicio, fechaFin, selectedProveedorId, selectedSku, selectedCategoriaId, selectedFormaPago, productsCatalog]);
+  }, [reportData]);
 
   // 5. Categorías únicas y productos únicos para filtros
   const filterOptions = useMemo(() => {
@@ -306,14 +288,26 @@ export function PurchasesReport({
           <span style={{ fontSize: '14px', color: '#64748B', fontWeight: 500 }}>Módulo de Auditoría Financiera</span>
           <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px', letterSpacing: '-0.5px' }}>Reporte de Compras por Proveedor</h2>
         </div>
-        <button
-          onClick={handleExportCSV}
-          className="hr-btn-new"
-          style={{ backgroundColor: '#0F172A', color: '#FFF', border: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}
-        >
-          <Download size={16} />
-          <span>Exportar a CSV</span>
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {onOpenNuevaCompra && (
+            <button
+              onClick={onOpenNuevaCompra}
+              className="hr-btn-new"
+              style={{ backgroundColor: '#00B171', color: '#FFF', border: 'none', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+            >
+              <PlusCircle size={16} />
+              <span>+ Registrar Nueva Compra</span>
+            </button>
+          )}
+          <button
+            onClick={handleExportCSV}
+            className="hr-btn-new"
+            style={{ backgroundColor: '#0F172A', color: '#FFF', border: 'none', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+          >
+            <Download size={16} />
+            <span>Exportar a CSV</span>
+          </button>
+        </div>
       </div>
 
       {/* Panel de Filtros */}
@@ -326,10 +320,11 @@ export function PurchasesReport({
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
           {/* Rango de Fechas */}
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <label htmlFor="fecha-inicio-input" className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <Calendar size={13} /> Fecha Inicio
             </label>
             <input
+              id="fecha-inicio-input"
               type="date"
               className="form-control"
               value={fechaInicio}
@@ -337,10 +332,11 @@ export function PurchasesReport({
             />
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <label htmlFor="fecha-fin-input" className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <Calendar size={13} /> Fecha Fin
             </label>
             <input
+              id="fecha-fin-input"
               type="date"
               className="form-control"
               value={fechaFin}
@@ -350,8 +346,9 @@ export function PurchasesReport({
 
           {/* Proveedor */}
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">Proveedor</label>
+            <label htmlFor="proveedor-select" className="form-label">Proveedor</label>
             <select
+              id="proveedor-select"
               className="form-control"
               value={selectedProveedorId}
               onChange={e => setSelectedProveedorId(e.target.value)}
@@ -365,8 +362,9 @@ export function PurchasesReport({
 
           {/* Forma Pago */}
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">Forma de Pago</label>
+            <label htmlFor="forma-pago-select" className="form-label">Forma de Pago</label>
             <select
+              id="forma-pago-select"
               className="form-control"
               value={selectedFormaPago}
               onChange={e => setSelectedFormaPago(e.target.value)}
@@ -381,8 +379,9 @@ export function PurchasesReport({
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
           {/* Categoria */}
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">Categoría</label>
+            <label htmlFor="categoria-select" className="form-label">Categoría</label>
             <select
+              id="categoria-select"
               className="form-control"
               value={selectedCategoriaId}
               onChange={e => setSelectedCategoriaId(e.target.value)}
@@ -396,8 +395,9 @@ export function PurchasesReport({
 
           {/* Producto */}
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">Producto Específico</label>
+            <label htmlFor="producto-select" className="form-label">Producto Específico</label>
             <select
+              id="producto-select"
               className="form-control"
               value={selectedSku}
               onChange={e => setSelectedSku(e.target.value)}

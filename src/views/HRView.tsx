@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { UserPlus, Lock, Calendar, Trash2, DollarSign, Calculator, FileText, CheckCircle } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { generateId, Empleado } from '../App.tsx';
-import { useEmployeeStore } from '../store/useEmployeeStore.ts';
-import { useAppStore } from '../store/useAppStore.ts';
+import { useEmployeeStore, Empleado } from '../store/useEmployeeStore';
+import { useAppStore } from '../store/useAppStore';
+
+const generateId = (prefix: string) => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 5)}`;
 
 export default function HRView() {
   const { empleados, setEmpleados, nominas = [] } = useEmployeeStore();

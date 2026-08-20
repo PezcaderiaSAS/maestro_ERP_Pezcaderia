@@ -24,15 +24,16 @@ export function ProductForm({
 }: any) {
 
   const getStockInBodega = (sku: string, bodega: string) => {
-    const list = stock[bodega] || [];
-    return list.find((i: any) => i.sku === sku)?.stock || 0;
+    return stock?.[bodega]?.[sku] || 0;
   };
 
   const getTotalStock = (sku: string) => {
     let total = 0;
-    Object.values(stock).forEach((bodegaList: any) => {
-      const item = bodegaList.find((i: any) => i.sku === sku);
-      if (item) total += item.stock;
+    if (!stock) return 0;
+    Object.values(stock).forEach((bodegaStock: any) => {
+      if (bodegaStock && typeof bodegaStock === 'object') {
+        total += bodegaStock[sku] || 0;
+      }
     });
     return total;
   };

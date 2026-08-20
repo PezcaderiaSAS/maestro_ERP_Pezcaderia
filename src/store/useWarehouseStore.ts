@@ -39,7 +39,7 @@ export const useWarehouseStore = create<WarehouseState>()(
   setActivaId: (id: string) => {
     set({ activaId: id });
     import('../services/cashService').then(({ cashService }) => {
-      cashService.seedCajasParaBodegas(id);
+      cashService.seedCajasParaBodegas();
     });
   },
 

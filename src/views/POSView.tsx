@@ -1,23 +1,25 @@
 import { useState, useEffect } from 'react';
-import { Plus, X, Check, CreditCard, FileText, Truck, RefreshCw, AlertTriangle, AlertCircle, Menu } from 'lucide-react';
+import { Plus, X, Check, CreditCard, FileText, Truck, RefreshCw, AlertTriangle, AlertCircle, Menu, Trash2, Edit2 } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { generateId, Product, Cliente, Venta, MovimientoInventario, DevolucionPedido, toTitleCase } from '../App';
-import { InvoiceAR } from './ARView';
-import * as localDb from '../services/localDb';
-import OrderKanbanView from './OrderKanbanView';
-import { usePOSCart } from '../hooks/usePOSCart';
-import { TicketBuilder } from './pos/components/TicketBuilder';
-import { CartPanel } from './pos/components/CartPanel';
-import { ProductSearchPanel } from './pos/components/ProductSearchPanel';
-import { AperturaCajaModal } from './pos/components/AperturaCajaModal';
-import ArqueoCajaModal from './cash/components/ArqueoCajaModal';
-import { cashService } from '../services/cashService';
-import { useWarehouseStore } from '../store/useWarehouseStore';
-import { useCashStore } from '../store/useCashStore';
+import { Product, DynamicField, Cliente, generateId, Venta, MovimientoInventario, Conductor, DevolucionPedido, toTitleCase } from '../App.tsx';
+import { InvoiceAR } from './ARView.tsx';
+import OrderKanbanView from './OrderKanbanView.tsx';
+import { usePOSCart } from '../hooks/usePOSCart.ts';
+import { DiscountPanel } from './pos/components/DiscountPanel.tsx';
+import { PaymentPanel } from './pos/components/PaymentPanel.tsx';
+import { BalanzaButton } from './pos/components/BalanzaButton.tsx';
+import { TicketBuilder } from './pos/components/TicketBuilder.tsx';
+import { CartPanel } from './pos/components/CartPanel.tsx';
+import { ProductSearchPanel } from './pos/components/ProductSearchPanel.tsx';
+import { AperturaCajaModal } from './pos/components/AperturaCajaModal.tsx';
+import ArqueoCajaModal from './cash/components/ArqueoCajaModal.tsx';
+import { cashService } from '../services/cashService.ts';
+import { useWarehouseStore } from '../store/useWarehouseStore.ts';
+import { useCashStore } from '../store/useCashStore.ts';
 import { useInventoryStore } from '../store/useInventoryStore.ts';
 import { useEventStore } from '../store/useEventStore.ts';
 import { useAppStore } from '../store/useAppStore.ts';
-import { useActionLogger } from '../hooks/useActionLogger';
+import { useActionLogger } from '../hooks/useActionLogger.ts';
 import { useClientStore } from '../store/useClientStore.ts';
 import { useARStore } from '../store/useARStore.ts';
 import { useOrderStore } from '../store/useOrderStore.ts';
@@ -25,11 +27,22 @@ import { useMovementStore } from '../store/useMovementStore.ts';
 import { useReturnStore } from '../store/useReturnStore.ts';
 import { useIntegrationStore } from '../store/useIntegrationStore.ts';
 import { useDynamicFieldStore } from '../store/useDynamicFieldStore.ts';
+import * as localDb from '../services/localDb.ts';
+
+interface CartItem {
+  product: Product;
+  cantidad: number | string;
+  precioOverride?: number;
+}
 
 interface POSViewProps {
   handleCancelarPedidoDigital?: (logId: string) => void;
   handleAprobarPedidoManual?: (logId: string, modo: 'parcial' | 'forzar') => void;
 }
+
+const getLineKey = (item: any, index: number) => {
+  return item.id || item.lineId || `${item.sku}_${index}`;
+};
 
 export default function POSView({
   handleCancelarPedidoDigital = () => {},
@@ -754,18 +767,30 @@ export default function POSView({
 
     const quote = quotations[quoteIndex];
     
-    const updatedItems = (quote.items || []).map((item: any) => {
-      const realQty = tempRealQuantities[item.sku] !== undefined ? tempRealQuantities[item.sku] : item.cantidad;
+    const b2bItemsList = quote.items || quote.lineas || [];
+    const updatedItems = b2bItemsList.map((item: any, index: number) => {
+      const lineKey = getLineKey(item, index);
+      const realQty = tempRealQuantities[lineKey] !== undefined ? tempRealQuantities[lineKey] : (item.cantidad_real !== undefined ? item.cantidad_real : item.cantidad);
       return {
         ...item,
         cantidad_real: Number(realQty)
       };
     });
 
+    const updatedSubtotal = updatedItems.reduce((sum: number, item: any) => {
+      const qty = item.cantidad_real !== undefined ? item.cantidad_real : item.cantidad;
+      const price = item.precioFinal || item.precio || item.precioUnitario || 0;
+      return sum + (Number(qty) * Number(price));
+    }, 0);
+
     const updatedQuotations = [...quotations];
     updatedQuotations[quoteIndex] = {
       ...quote,
       items: updatedItems,
+      lineas: updatedItems,
+      montoTotal: updatedSubtotal,
+      subtotal: updatedSubtotal,
+      total: updatedSubtotal,
       estado: 'Listo',
       fechaActualizacion: new Date().toISOString()
     };
@@ -776,14 +801,14 @@ export default function POSView({
     publishEvent(
       'QUOTE_STATUS_CHANGED',
       userRole,
-      `Alistamiento completado para el pedido #${quote.id.slice(-6).toUpperCase()}. Estado actualizado a Listo.`,
-      { quoteId, estado: 'Listo', items: updatedItems }
+      `Alistamiento completado para el pedido #${quote.id.slice(-6).toUpperCase()}. Estado actualizado a Listo. Total: $${updatedSubtotal.toLocaleString('es-CO')}.`,
+      { quoteId, estado: 'Listo', items: updatedItems, montoTotal: updatedSubtotal }
     );
 
     Swal.fire({
       icon: 'success',
       title: 'Alistamiento Guardado',
-      text: `El pedido #${quote.id.slice(-6).toUpperCase()} ha sido alistado con éxito y está listo para despacho.`,
+      text: `El pedido #${quote.id.slice(-6).toUpperCase()} ha sido alistado con éxito y está listo para despacho. Total: $${updatedSubtotal.toLocaleString('es-CO')}.`,
       confirmButtonColor: '#10B981'
     });
 
@@ -831,6 +856,314 @@ export default function POSView({
     });
   };
 
+  const handleRemoveQuoteItem = (quoteId: string, lineIndex: number) => {
+    const quoteIndex = quotations.findIndex((q: any) => q.id === quoteId);
+    if (quoteIndex === -1) return;
+
+    const quote = quotations[quoteIndex];
+    const itemsList = quote.items || quote.lineas || [];
+    const itemToRemove = itemsList[lineIndex];
+
+    Swal.fire({
+      title: '¿Eliminar producto del pedido?',
+      text: `¿Está seguro de eliminar "${itemToRemove?.nombre || 'este producto'}"${itemToRemove?.detalle ? ` (${itemToRemove.detalle})` : ''} de este pedido?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#EF4444',
+      cancelButtonColor: '#64748B'
+    }).then(result => {
+      if (result.isConfirmed) {
+        const updatedItems = itemsList.filter((_: any, idx: number) => idx !== lineIndex);
+        
+        // Recalcular subtotal con los ítems restantes
+        const updatedSubtotal = updatedItems.reduce((sum: number, item: any, index: number) => {
+          const lineKey = getLineKey(item, index);
+          const qty = tempRealQuantities[lineKey] !== undefined 
+            ? tempRealQuantities[lineKey] 
+            : (item.cantidad_real !== undefined ? item.cantidad_real : item.cantidad);
+          const price = item.precioFinal || item.precio || item.precioUnitario || 0;
+          return sum + ((Number(qty) || 0) * Number(price));
+        }, 0);
+
+        const updatedQuotations = [...quotations];
+        updatedQuotations[quoteIndex] = {
+          ...quote,
+          items: updatedItems,
+          lineas: updatedItems,
+          montoTotal: updatedSubtotal,
+          subtotal: updatedSubtotal,
+          total: updatedSubtotal,
+          fechaActualizacion: new Date().toISOString()
+        };
+
+        setQuotations(updatedQuotations);
+        localDb.save('quotations', updatedQuotations);
+
+        const newTempQuantities: Record<string, number | string> = {};
+        updatedItems.forEach((item: any, index: number) => {
+          const key = getLineKey(item, index);
+          if (tempRealQuantities[key] !== undefined) {
+            newTempQuantities[key] = tempRealQuantities[key];
+          } else {
+            newTempQuantities[key] = item.cantidad_real !== undefined ? item.cantidad_real : item.cantidad;
+          }
+        });
+        setTempRealQuantities(newTempQuantities);
+
+        publishEvent(
+          'QUOTE_UPDATED',
+          userRole,
+          `Producto ${itemToRemove?.nombre || 'de línea'} eliminado del pedido #${quote.id.slice(-6).toUpperCase()}.`,
+          { quoteId, lineIndex, remainingItems: updatedItems }
+        );
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Producto Eliminado',
+          text: `El producto fue removido del pedido con éxito.`,
+          timer: 1500,
+          showConfirmButton: false
+        });
+      }
+    });
+  };
+
+  const handleAddQuoteItem = async (quoteId: string) => {
+    const quoteIndex = quotations.findIndex((q: any) => q.id === quoteId);
+    if (quoteIndex === -1) return;
+
+    const quote = quotations[quoteIndex];
+    const itemsList = quote.items || quote.lineas || [];
+
+    const productOptionsHtml = activeProducts.map((p: any) => 
+      `<option value="${p.sku}">${p.nombre} (${p.sku}) - $${(p.precio_venta_mayorista || p.precio_venta_pos || 0).toLocaleString('es-CO')}</option>`
+    ).join('');
+
+    const { value: formValues } = await Swal.fire({
+      title: 'Agregar Producto al Pedido',
+      width: '500px',
+      html: `
+        <div style="text-align: left; display: flex; flex-direction: column; gap: 12px; font-family: var(--font-family);">
+          <div>
+            <label style="font-size: 12px; font-weight: 700; color: #475569;">Producto *</label>
+            <select id="swal-add-item-sku" class="swal2-select" style="margin: 4px 0 0 0; width: 100%; height: 38px; font-size: 13px;">
+              ${productOptionsHtml}
+            </select>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+              <label style="font-size: 12px; font-weight: 700; color: #475569;">Cant. Solicitada (kg/und) *</label>
+              <input type="number" step="any" min="0.01" id="swal-add-item-qty" class="swal2-input" value="1" style="margin: 4px 0 0 0; width: 100%; height: 38px; box-sizing: border-box;" />
+            </div>
+            <div>
+              <label style="font-size: 12px; font-weight: 700; color: #475569;">Peso Real (Cuarto Frío) *</label>
+              <input type="number" step="any" min="0" id="swal-add-item-real-qty" class="swal2-input" value="1" style="margin: 4px 0 0 0; width: 100%; height: 38px; box-sizing: border-box;" />
+            </div>
+          </div>
+          <div>
+            <label style="font-size: 12px; font-weight: 700; color: #475569;">Especificación / Detalle de Alistamiento</label>
+            <input type="text" id="swal-add-item-detail" class="swal2-input" placeholder="Ej: Calibre 500-600g, Empacado al vacío" style="margin: 4px 0 0 0; width: 100%; height: 38px; box-sizing: border-box;" />
+          </div>
+        </div>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Agregar Producto',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#10B981',
+      cancelButtonColor: '#64748B',
+      preConfirm: () => {
+        const sku = (document.getElementById('swal-add-item-sku') as HTMLSelectElement)?.value;
+        const qtyStr = (document.getElementById('swal-add-item-qty') as HTMLInputElement)?.value;
+        const realQtyStr = (document.getElementById('swal-add-item-real-qty') as HTMLInputElement)?.value;
+        const detail = (document.getElementById('swal-add-item-detail') as HTMLInputElement)?.value || '';
+
+        const qty = parseFloat(qtyStr);
+        const realQty = parseFloat(realQtyStr);
+
+        if (!sku) {
+          Swal.showValidationMessage('Debe seleccionar un producto');
+          return false;
+        }
+        if (isNaN(qty) || qty <= 0) {
+          Swal.showValidationMessage('Ingrese una cantidad válida mayor a 0');
+          return false;
+        }
+        if (isNaN(realQty) || realQty < 0) {
+          Swal.showValidationMessage('Ingrese un peso real válido');
+          return false;
+        }
+
+        const prod = activeProducts.find(p => p.sku === sku);
+        if (!prod) {
+          Swal.showValidationMessage('Producto no encontrado');
+          return false;
+        }
+
+        return {
+          product: prod,
+          cantidad: qty,
+          cantidad_real: realQty,
+          detalle: detail.trim()
+        };
+      }
+    });
+
+    if (!formValues) return;
+
+    const { product, cantidad, cantidad_real, detalle } = formValues;
+
+    const client = clientes.find(c => c.id === quote.clienteId);
+    let price = product.precio_venta_mayorista || product.precio_venta_pos || 0;
+    if (client) {
+      if (client.tipoPrecio === 'RESTAURANTE' && product.precio_venta_restaurante) {
+        price = product.precio_venta_restaurante;
+      } else if (client.tipoPrecio === 'MAYORISTA' && product.precio_venta_mayorista) {
+        price = product.precio_venta_mayorista;
+      }
+    }
+
+    const normalizedDetail = (detalle || '').trim().toLowerCase();
+    const existingIndex = itemsList.findIndex((item: any) => 
+      item.sku === product.sku && (item.detalle || '').trim().toLowerCase() === normalizedDetail
+    );
+
+    let updatedItems = [...itemsList];
+
+    if (existingIndex !== -1) {
+      const existing = updatedItems[existingIndex];
+      const newReqQty = (Number(existing.cantidad) || 0) + cantidad;
+      const existingReal = existing.cantidad_real !== undefined ? existing.cantidad_real : existing.cantidad;
+      const newRealQty = (Number(existingReal) || 0) + cantidad_real;
+
+      updatedItems[existingIndex] = {
+        ...existing,
+        cantidad: newReqQty,
+        cantidad_real: newRealQty
+      };
+    } else {
+      const newItem = {
+        id: `line_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        sku: product.sku,
+        nombre: product.nombre,
+        cantidad: cantidad,
+        cantidad_real: cantidad_real,
+        precio: price,
+        precioFinal: price,
+        precioUnitario: price,
+        detalle: detalle
+      };
+      updatedItems.push(newItem);
+    }
+
+    const newTempQuantities: Record<string, number | string> = { ...tempRealQuantities };
+    updatedItems.forEach((item: any, idx: number) => {
+      const key = getLineKey(item, idx);
+      if (newTempQuantities[key] === undefined) {
+        newTempQuantities[key] = item.cantidad_real !== undefined ? item.cantidad_real : item.cantidad;
+      }
+    });
+    setTempRealQuantities(newTempQuantities);
+
+    const newSubtotal = updatedItems.reduce((sum: number, item: any, idx: number) => {
+      const key = getLineKey(item, idx);
+      const itemQty = newTempQuantities[key] !== undefined 
+        ? newTempQuantities[key]
+        : (item.cantidad_real !== undefined ? item.cantidad_real : item.cantidad);
+      const itemPrice = item.precioFinal || item.precio || item.precioUnitario || 0;
+      return sum + (Number(itemQty) || 0) * Number(itemPrice);
+    }, 0);
+
+    const updatedQuotations = [...quotations];
+    updatedQuotations[quoteIndex] = {
+      ...quote,
+      items: updatedItems,
+      lineas: updatedItems,
+      subtotal: newSubtotal,
+      total: newSubtotal,
+      fechaActualizacion: new Date().toISOString()
+    };
+
+    setQuotations(updatedQuotations);
+    localDb.save('quotations', updatedQuotations);
+
+    publishEvent(
+      'QUOTE_UPDATED',
+      userRole,
+      `Producto ${product.nombre}${detalle ? ` (${detalle})` : ''} agregado al pedido #${quote.id.slice(-6).toUpperCase()}.`,
+      { quoteId, productSku: product.sku, cantidad, detalle }
+    );
+
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Producto Agregado',
+      text: `Se agregó ${product.nombre} al pedido.`,
+      showConfirmButton: false,
+      timer: 2000
+    });
+  };
+
+  const handleEditQuoteItemDetail = async (quoteId: string, lineIndex: number) => {
+    const quoteIndex = quotations.findIndex((q: any) => q.id === quoteId);
+    if (quoteIndex === -1) return;
+
+    const quote = quotations[quoteIndex];
+    const itemsList = quote.items || quote.lineas || [];
+    const currentItem = itemsList[lineIndex];
+    if (!currentItem) return;
+
+    const { value: newDetail } = await Swal.fire({
+      title: 'Editar Especificación de Producto',
+      text: `Producto: ${currentItem.nombre}`,
+      input: 'text',
+      inputValue: currentItem.detalle || '',
+      inputPlaceholder: 'Ej: Calibre 500-600g, Deshuesado, etc.',
+      showCancelButton: true,
+      confirmButtonText: 'Guardar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: 'var(--primary-color)'
+    });
+
+    if (newDetail === undefined) return;
+
+    const updatedItems = [...itemsList];
+    updatedItems[lineIndex] = {
+      ...currentItem,
+      detalle: newDetail.trim()
+    };
+
+    const updatedQuotations = [...quotations];
+    updatedQuotations[quoteIndex] = {
+      ...quote,
+      items: updatedItems,
+      lineas: updatedItems,
+      fechaActualizacion: new Date().toISOString()
+    };
+
+    setQuotations(updatedQuotations);
+    localDb.save('quotations', updatedQuotations);
+
+    publishEvent(
+      'QUOTE_UPDATED',
+      userRole,
+      `Especificación de ${currentItem.nombre} actualizada a: "${newDetail.trim()}".`,
+      { quoteId, lineIndex, newDetail: newDetail.trim() }
+    );
+
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Especificación Actualizada',
+      showConfirmButton: false,
+      timer: 1500
+    });
+  };
+
   const handleFacturarB2B = useActionLogger('POSCart', 'FacturarB2B', async (quoteId: string) => {
     const quote = quotations?.find(q => q.id === quoteId);
     if (!quote) return;
@@ -846,7 +1179,7 @@ export default function POSView({
       return;
     }
 
-    const b2bItems = quote.items || [];
+    const b2bItems = quote.items || quote.lineas || [];
     const b2bSubtotal = b2bItems.reduce((sum: number, item: any) => {
       const qty = item.cantidad_real !== undefined ? item.cantidad_real : item.cantidad;
       const price = item.precioFinal || item.precio || item.precioUnitario || 0;
@@ -1133,7 +1466,7 @@ export default function POSView({
 
   // Cálculos financieros delegados al hook usePOSCart
   return (
-    <div className="pos-layout w-full flex flex-col gap-4 animate-fade-in relative">
+    <div className="pos-layout w-full h-full flex flex-col gap-4 animate-fade-in relative min-h-0 overflow-y-auto p-1 lg:p-2">
       {!isTurnoAbierto && activeSubView === 'venta_pos' && (
         <div className="w-full bg-red-600 text-white text-center py-2 text-xs font-bold flex items-center justify-center gap-2 rounded-lg shadow-lg animate-pulse">
           <AlertCircle size={15} /> ⚠ CAJA CERRADA — Debes abrir un turno antes de cobrar
@@ -1325,7 +1658,7 @@ export default function POSView({
 
       {activeSubView === 'venta_pos' ? (
         <>
-          <div className="flex-1 min-h-0 w-full flex flex-col lg:grid lg:grid-cols-[7fr_3fr] gap-4 overflow-hidden pt-2">
+          <div className="flex-1 min-h-0 w-full flex flex-col lg:grid lg:grid-cols-[7fr_3fr] gap-4 overflow-y-auto pt-2">
             {/* Catálogo de Productos */}
         <ProductSearchPanel 
           activeProducts={activeProducts} 
@@ -1400,7 +1733,8 @@ export default function POSView({
       </div>
       </div>
       </>
-      ) : activeSubView === 'consolidacion_b2b' ? (        <div className="animate-fade-in flex flex-col lg:grid lg:grid-cols-[1fr_2fr] gap-6 w-full box-border">
+      ) : activeSubView === 'consolidacion_b2b' ? (
+        <div className="animate-fade-in flex flex-col lg:grid lg:grid-cols-[1fr_2fr] gap-6 w-full box-border">
            {/* COLUMNA IZQUIERDA: LISTADO DE PEDIDOS */}
            <div className="hr-table-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', backgroundColor: 'white', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -1494,8 +1828,9 @@ export default function POSView({
                          setSelectedB2BQuoteId(q.id);
                          setSelectedDevIds([]);
                          const initialQtys: Record<string, number | string> = {};
-                         (q.items || []).forEach((item: any) => {
-                           initialQtys[item.sku] = item.cantidad_real !== undefined ? item.cantidad_real : item.cantidad;
+                         (q.items || q.lineas || []).forEach((item: any, index: number) => {
+                           const lineKey = getLineKey(item, index);
+                           initialQtys[lineKey] = item.cantidad_real !== undefined ? item.cantidad_real : item.cantidad;
                          });
                          setTempRealQuantities(initialQtys);
                        }}
@@ -1545,11 +1880,15 @@ export default function POSView({
                 const currentDebt = client ? getClienteDeuda(client!.id) : 0;
                 const cupoDisponible = client ? Math.max(0, client!.cupoCredito - currentDebt) : 0;
 
-                const b2bItems = quote.items || [];
-                const b2bSubtotal = b2bItems.reduce((sum: number, item: any) => {
-                  const qty = item.cantidad_real !== undefined ? item.cantidad_real : item.cantidad;
+                const b2bItems = quote.items || quote.lineas || [];
+                const b2bSubtotal = b2bItems.reduce((sum: number, item: any, index: number) => {
+                  const isEditable = quote.estado !== 'Listo';
+                  const lineKey = getLineKey(item, index);
+                  const qty = isEditable 
+                    ? (tempRealQuantities[lineKey] !== undefined ? tempRealQuantities[lineKey] : item.cantidad)
+                    : (item.cantidad_real !== undefined ? item.cantidad_real : item.cantidad);
                   const price = item.precioFinal || item.precio || item.precioUnitario || 0;
-                  return sum + qty * price;
+                  return sum + (Number(qty) || 0) * price;
                 }, 0);
 
                 const clientDevs = (devoluciones || []).filter((d: any) => d.clienteId === quote.clienteId && d.estado === 'RECIBIDA_BODEGA');
@@ -1563,7 +1902,7 @@ export default function POSView({
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     <div style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
-                        <span style={{ fontSize: '12px', color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>Detalles de Liquidación</span>
+                        <span style={{ fontSize: '12px', color: '#3B82F6', fontWeight: 700, textTransform: 'uppercase' }}>Detalles de Liquidación</span>
                         <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0F172A' }}>Pedido #{quote.id.slice(-6).toUpperCase()}</h3>
                       </div>
                       <button 
@@ -1576,9 +1915,32 @@ export default function POSView({
 
                     {/* Items */}
                     <div>
-                      <h4 style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A', marginBottom: '8px' }}>
-                        {quote.estado === 'Listo' ? '1. Pesos Reales del Cuarto Frío' : 'Ítems del Pedido para Alistamiento'}
-                      </h4>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                        <h4 style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A', margin: 0 }}>
+                          {quote.estado === 'Listo' ? '1. Pesos Reales del Cuarto Frío' : 'Ítems del Pedido para Alistamiento'}
+                        </h4>
+                        {quote.estado !== 'Listo' && (
+                          <button
+                            onClick={() => handleAddQuoteItem(quote.id)}
+                            style={{
+                              fontSize: '12px',
+                              padding: '6px 12px',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              fontWeight: 700,
+                              backgroundColor: '#ECFDF5',
+                              color: '#059669',
+                              border: '1px solid #A7F3D0',
+                              borderRadius: '8px',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            <Plus size={14} />
+                            + Agregar Producto
+                          </button>
+                        )}
+                      </div>
                       <table className="hr-table">
                         <thead>
                           <tr>
@@ -1587,31 +1949,58 @@ export default function POSView({
                             <th style={{ textAlign: 'right' }}>Peso Real</th>
                             <th style={{ textAlign: 'right' }}>Precio Pactado</th>
                             <th style={{ textAlign: 'right' }}>Subtotal</th>
+                            {quote.estado !== 'Listo' && <th style={{ textAlign: 'center' }}>Acciones</th>}
                           </tr>
                         </thead>
                         <tbody>
-                          {b2bItems.map((item: any) => {
+                          {b2bItems.map((item: any, index: number) => {
                             const reqQty = item.cantidad;
                             const isEditable = quote.estado !== 'Listo';
+                            const lineKey = getLineKey(item, index);
                             const realQty = isEditable 
-                              ? (tempRealQuantities[item.sku] !== undefined ? tempRealQuantities[item.sku] : item.cantidad)
+                              ? (tempRealQuantities[lineKey] !== undefined ? tempRealQuantities[lineKey] : item.cantidad)
                               : (item.cantidad_real !== undefined ? item.cantidad_real : item.cantidad);
                             const price = item.precioFinal || item.precio || item.precioUnitario || 0;
                             return (
-                              <tr key={item.sku}>
-                                <td style={{ fontWeight: 600 }}>{item.nombre}</td>
+                              <tr key={lineKey}>
+                                <td style={{ fontWeight: 600 }}>
+                                  <div>{item.nombre}</div>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+                                    <span style={{ fontSize: '11px', color: item.detalle ? '#64748B' : '#94A3B8', fontWeight: item.detalle ? 500 : 400, fontStyle: !item.detalle ? 'italic' : undefined }}>
+                                      {item.detalle ? `Especificación: ${item.detalle}` : 'Sin especificación'}
+                                    </span>
+                                    {isEditable && (
+                                      <button
+                                        onClick={() => handleEditQuoteItemDetail(quote.id, index)}
+                                        title="Editar especificación / detalle de alistamiento"
+                                        style={{
+                                          background: 'none',
+                                          border: 'none',
+                                          color: '#3B82F6',
+                                          cursor: 'pointer',
+                                          padding: '2px',
+                                          display: 'inline-flex',
+                                          alignItems: 'center'
+                                        }}
+                                      >
+                                        <Edit2 size={12} />
+                                      </button>
+                                    )}
+                                  </div>
+                                </td>
                                 <td style={{ textAlign: 'right' }}>{reqQty} kg</td>
                                 <td style={{ textAlign: 'right' }}>
                                   {isEditable ? (
                                     <input 
                                       type="number"
                                       step="any"
+                                      min="0"
                                       value={realQty}
                                       onChange={e => {
                                         const val = e.target.value;
                                         setTempRealQuantities(prev => ({
                                           ...prev,
-                                          [item.sku]: val
+                                          [lineKey]: val
                                         }));
                                       }}
                                       style={{
@@ -1629,7 +2018,28 @@ export default function POSView({
                                   )}
                                 </td>
                                 <td style={{ textAlign: 'right' }}>${price.toLocaleString('es-CO')}</td>
-                                <td style={{ textAlign: 'right', fontWeight: 700 }}>${(Number(realQty) * price).toLocaleString('es-CO')}</td>
+                                <td style={{ textAlign: 'right', fontWeight: 700 }}>${((Number(realQty) || 0) * price).toLocaleString('es-CO')}</td>
+                                {isEditable && (
+                                  <td style={{ textAlign: 'center' }}>
+                                    <button
+                                      onClick={() => handleRemoveQuoteItem(quote.id, index)}
+                                      title="Eliminar producto del pedido"
+                                      style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        color: '#EF4444',
+                                        cursor: 'pointer',
+                                        padding: '4px',
+                                        borderRadius: '4px',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                      }}
+                                    >
+                                      <Trash2 size={16} />
+                                    </button>
+                                  </td>
+                                )}
                               </tr>
                             );
                           })}
@@ -1889,12 +2299,16 @@ export default function POSView({
               setSelectedB2BQuoteId(quote.id);
               setSelectedDevIds([]);
               const initialQtys: Record<string, number | string> = {};
-              (quote.items || []).forEach((item: any) => {
-                initialQtys[item.sku] = item.cantidad_real !== undefined ? item.cantidad_real : item.cantidad;
+              const lines = quote.lineas || quote.items || [];
+              lines.forEach((item: any, idx: number) => {
+                const lineKey = getLineKey(item, idx);
+                const qty = item.pesoReal !== undefined ? item.pesoReal : (item.cantidad_real !== undefined ? item.cantidad_real : (item.cantidadSolicitada !== undefined ? item.cantidadSolicitada : item.cantidad));
+                initialQtys[lineKey] = qty !== undefined ? qty : 0;
               });
               setTempRealQuantities(initialQtys);
               setActiveSubView('consolidacion_b2b');
             }}
+
           />
         ) : (
         <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>

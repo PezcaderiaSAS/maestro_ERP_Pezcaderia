@@ -1,7 +1,8 @@
 // src/views/DashboardView.tsx
 import { ReactNode } from 'react';
 import { DollarSign, ShoppingBag, PlusCircle, ArrowUpRight, Wallet, RefreshCw } from 'lucide-react';
-import { useAppStore } from '../store/useAppStore.ts';
+import { useAppStore } from '../store/useAppStore';
+import { calculateDashboardMetrics } from '../services/metricsService';
 
 interface MetricCardProps {
   title: string;
@@ -40,54 +41,14 @@ function MetricCard({ title, value, change, positive, icon }: MetricCardProps) {
 
 export default function DashboardView({ ventas = [], parametros: _parametros = {}, devoluciones = [] }: any) {
   const setView = useAppStore((s) => s.setCurrentView);
-  const todayStr = new Date().toISOString().split('T')[0];
-  const salesToday = ventas.filter((v: any) => v.fecha.startsWith(todayStr));
-  
-  // 1. Ventas del Día
-  const totalSalesToday = salesToday.reduce((sum: number, v: any) => sum + v.total, 0);
-
-  // 2. Caja Chica (Efectivo Neto en POS) - RN-06: Aislar canales digitales
-  const isolatedCajaFisica = salesToday.reduce((sum: number, v: any) => {
-    // Excluir si viene de un canal digital
-    if (v.metadata?.canal) return sum;
-    
-    // Sumar el efectivo recibido neto del cambio entregado
-    const efectivoRecibido = v.montoPagadoEfectivo || 0;
-    const cambio = v.cambioEntregado || 0;
-    return sum + Math.max(0, efectivoRecibido - cambio);
-  }, 0);
-
-  // 3. Ventas por Canales Digitales
-  const totalDigitalSales = salesToday
-    .filter((v: any) => v.metadata?.canal)
-    .reduce((sum: number, v: any) => sum + v.total, 0);
-
-  // 4. Devoluciones / Notas de Crédito
-  const totalDevoluciones = devoluciones
-    .filter((d: any) => d.fechaValidacion && d.fechaValidacion.startsWith(todayStr))
-    .reduce((sum: number, d: any) => {
-      const devAmount = (d.items || []).reduce((s: number, item: any) => {
-        const qty = item.cantidadRecibida || 0;
-        return s + qty * (item.precioUnitarioVenta || 0);
-      }, 0);
-      return sum + devAmount;
-    }, 0);
-
-  // Mapear transacciones recientes dinámicamente
-  const transaccionesRecientes = ventas.slice(0, 5).map((v: any) => {
-    const hora = new Date(v.fecha).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
-    const esDigital = !!v.metadata?.canal;
-    const desc = esDigital 
-      ? `Pedido Digital (${v.metadata.canal.toUpperCase()}) - ${v.metadata.id_pedido_externo}` 
-      : `Venta POS (${v.clienteNombre})`;
-    return {
-      id: v.id.slice(0, 10).toUpperCase(),
-      descripcion: desc,
-      tipo: 'INGRESO',
-      valor: v.total,
-      hora
-    };
-  });
+  const {
+    totalSalesToday,
+    salesTodayCount,
+    isolatedCajaFisica,
+    totalDigitalSales,
+    totalDevoluciones,
+    transaccionesRecientes
+  } = calculateDashboardMetrics(ventas, devoluciones);
 
   return (
     <div className="hr-layout animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -103,7 +64,7 @@ export default function DashboardView({ ventas = [], parametros: _parametros = {
         <MetricCard
           title="Ventas del Día"
           value={`$${totalSalesToday.toLocaleString('es-CO')}`}
-          change={`${salesToday.length} transacciones`}
+          change={`${salesTodayCount} transacciones`}
           positive={totalSalesToday > 0}
           icon={<DollarSign size={18} color="#00B171" />}
         />

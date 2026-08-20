@@ -80,6 +80,7 @@ export interface ProductCatalog {
   unidadMedida?: 'kg' | 'und' | 'lb' | 'gr';
   imagen?: string;
   codigo_barras?: string;
+  precio_compra?: number;
   iva?: number;
   ivaIncluido?: boolean;
   control_inventario?: boolean;

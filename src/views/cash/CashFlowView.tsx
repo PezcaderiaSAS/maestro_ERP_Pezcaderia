@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Wallet, ArrowRightLeft, Upload, Download, Power, AlertTriangle } from 'lucide-react';
 import { cashService } from '../../services/cashService';
 import { Caja, TurnoCaja, MovimientoCaja } from '../../types/cash.types';
@@ -7,9 +7,13 @@ import ArqueoCajaModal from './components/ArqueoCajaModal';
 import TrasladoDineroModal from './components/TrasladoDineroModal';
 import { AperturaCajaModal } from '../pos/components/AperturaCajaModal';
 import { useWarehouseStore } from '../../store/useWarehouseStore';
-import { useAppStore } from '../../store/useAppStore.ts';
+import { useCashStore } from '../../store/useCashStore';
+import { useAppStore } from '../../store/useAppStore';
 
 export default function CashFlowView() {
+  // Dominio de caja → useCashStore (Task 3.4)
+  const { isLoading } = useCashStore();
+  // userRole vive en useAppStore (dominio de sesión, no de caja — correcto)
   const { userRole } = useAppStore();
   const usuarioId = userRole;
   const { bodegas, getPrimaryBodega } = useWarehouseStore();
@@ -28,15 +32,14 @@ export default function CashFlowView() {
   const [showTrasladoModal, setShowTrasladoModal] = useState(false);
 
   const [showAperturaModal, setShowAperturaModal] = useState(false);
-
   // Cargar Cajas
   useEffect(() => {
     // Si no existen cajas en la BD, inyectamos unas de prueba por primera vez
     let cajasGuardadas = cashService.getCajas();
     if (cajasGuardadas.length === 0) {
-      cashService.guardarCaja({ id: 'CAJA-1', bodegaId: primaryBodega, nombre: 'Caja POS Principal', activa: true });
-      cashService.guardarCaja({ id: 'CAJA-2', bodegaId: primaryBodega, nombre: 'Caja Fuerte Administrativa', activa: true });
-      cashService.guardarCaja({ id: 'CAJA-3', bodegaId: primaryBodega, nombre: 'Caja POS Secundaria', activa: true });
+      cashService.guardarCaja({ id: 'CAJA-1', bodegaId: primaryBodega, nombre: 'Caja POS Principal',          tipo: 'MENOR', activa: true });
+      cashService.guardarCaja({ id: 'CAJA-2', bodegaId: primaryBodega, nombre: 'Caja Fuerte Administrativa', tipo: 'MAYOR', activa: true });
+      cashService.guardarCaja({ id: 'CAJA-3', bodegaId: primaryBodega, nombre: 'Caja POS Secundaria',         tipo: 'MENOR', activa: true });
       cajasGuardadas = cashService.getCajas();
     }
     
@@ -127,7 +130,7 @@ export default function CashFlowView() {
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-4 md:p-6 bg-gray-50 min-h-full flex-1 overflow-y-auto">
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Gestión de Cajas</h1>

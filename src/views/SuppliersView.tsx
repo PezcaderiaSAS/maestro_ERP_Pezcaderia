@@ -1,21 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Proveedor, generateId, toTitleCase } from '../App.tsx';
-import { Truck, Search, Save, ShoppingCart, Box, PlusCircle, ArrowLeft } from 'lucide-react';
+import { Truck, Search, Save, ShoppingCart, Box, PlusCircle, ArrowLeft, DollarSign } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useSupplierStore } from '../store/useSupplierStore.ts';
-import { usePurchaseStore } from '../store/usePurchaseStore.ts';
+import { usePurchaseStore, CuentaPorPagar } from '../store/usePurchaseStore.ts';
 import { useMovementStore } from '../store/useMovementStore.ts';
 import { useExpenseStore } from '../store/useExpenseStore.ts';
 
 export default function SuppliersView() {
   const { proveedores, setProveedores } = useSupplierStore();
   const ordenesCompra = usePurchaseStore((s) => s.ordenesCompra);
+  const cuentasPorPagar = usePurchaseStore((s) => s.cuentasPorPagar);
+  const loadCuentasPorPagar = usePurchaseStore((s) => s.loadCuentasPorPagar);
+  const registrarAbonoCuentaPorPagar = usePurchaseStore((s) => s.registrarAbonoCuentaPorPagar);
   const movimientos = useMovementStore((s) => s.movimientos);
   const gastos = useExpenseStore((s) => s.gastos);
   const [activeTab, setActiveTab] = useState<'PROVEEDORES' | 'GASTOS'>('PROVEEDORES');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'TODOS' | 'ACTIVOS' | 'INACTIVOS'>('TODOS');
   const [selectedProveedorId, setSelectedProveedorId] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadCuentasPorPagar();
+  }, [loadCuentasPorPagar]);
 
   const [proveedorForm, setProveedorForm] = useState({
     nombre: '',
@@ -111,13 +118,81 @@ export default function SuppliersView() {
 
   const selectedProveedorObj = proveedores.find(p => p.id === selectedProveedorId);
   const selectedProveedorOrdenes = ordenesCompra.filter(oc => oc.proveedorId === selectedProveedorId).sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
-  
+  const selectedProveedorCuentasPorPagar = cuentasPorPagar.filter(cpp => cpp.proveedorId === selectedProveedorId || (selectedProveedorObj && cpp.proveedorNombre === selectedProveedorObj.nombre)).sort((a, b) => new Date(b.fechaEmision).getTime() - new Date(a.fechaEmision).getTime());
+
   // Buscar movimientos de entrada que estén asociados a este proveedor 
   // (Asumiendo que el campo 'responsable' o 'observacion' guarda el nombre o ID del proveedor en entradas por compras)
   const selectedProveedorMovimientos = movimientos.filter(m => 
     m.tipo === 'ENTRADA_COMPRA' && 
     (m.notas?.includes(selectedProveedorObj?.nombre || '') || m.actor === selectedProveedorObj?.nombre)
   ).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+  const handleAbonarCuentaPorPagar = (cpp: CuentaPorPagar) => {
+    Swal.fire({
+      title: `Abonar a Factura ${cpp.ordenCompraId}`,
+      html: `
+        <div style="text-align: left; margin-bottom: 12px;">
+          <p style="margin: 4px 0; font-size: 13px;"><strong>Proveedor:</strong> ${cpp.proveedorNombre}</p>
+          <p style="margin: 4px 0; font-size: 13px;"><strong>Saldo Pendiente:</strong> <span style="color: #EF4444; font-weight: 800;">$${cpp.saldoPendiente.toLocaleString('es-CO')}</span></p>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px; text-align: left;">
+          <label style="font-size: 12px; font-weight: 600;">Monto a Abonar ($):</label>
+          <input type="number" id="abono-monto" class="swal2-input" value="${cpp.saldoPendiente}" max="${cpp.saldoPendiente}" style="margin:0; width: 100%; height: 38px; font-size: 14px;" />
+          <label style="font-size: 12px; font-weight: 600; margin-top: 4px;">Método de Pago:</label>
+          <select id="abono-metodo" class="swal2-select" style="margin:0; width: 100%; height: 38px; font-size: 14px;">
+            <option value="EFECTIVO">Efectivo (Caja Menor / Turno Activo)</option>
+            <option value="TRANSFERENCIA">Transferencia Bancaria</option>
+            <option value="DATAFONO">Datáfono / Tarjeta</option>
+          </select>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Registrar Abono',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: 'var(--primary-color)',
+      preConfirm: () => {
+        const montoInput = (document.getElementById('abono-monto') as HTMLInputElement).value;
+        const monto = parseFloat(montoInput) || 0;
+        const metodoPago = (document.getElementById('abono-metodo') as HTMLSelectElement).value as 'EFECTIVO' | 'DATAFONO' | 'TRANSFERENCIA';
+        
+        if (monto <= 0) {
+          Swal.showValidationMessage('Ingrese un monto mayor a cero.');
+          return false;
+        }
+        if (monto > cpp.saldoPendiente) {
+          Swal.showValidationMessage(`El monto excede el saldo pendiente ($${cpp.saldoPendiente.toLocaleString('es-CO')}).`);
+          return false;
+        }
+        return { monto, metodoPago };
+      }
+    }).then(async (result) => {
+      if (result.isConfirmed && result.value) {
+        const { monto, metodoPago } = result.value;
+        const res = await registrarAbonoCuentaPorPagar({
+          cuentaId: cpp.id,
+          monto,
+          metodoPago,
+          usuarioId: 'SISTEMA'
+        });
+
+        if (res.ok) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Abono Aplicado',
+            text: `Se registró un abono de $${monto.toLocaleString('es-CO')} a la cuenta por pagar y se sincronizó con el Flujo de Caja.`,
+            confirmButtonColor: 'var(--primary-color)'
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al registrar abono',
+            text: res.error || 'Ocurrió un error inesperado.',
+            confirmButtonColor: 'var(--primary-color)'
+          });
+        }
+      }
+    });
+  };
 
   return (
     <div className="animate-fade-in" style={{ padding: '24px', height: '100%', overflowY: 'auto' }}>
@@ -324,10 +399,10 @@ export default function SuppliersView() {
           </div>
 
           {selectedProveedorId && (
-            <div style={{ display: 'flex', gap: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
               
               {/* HISTORIAL DE ÓRDENES DE COMPRA */}
-              <div className="hr-table-card" style={{ padding: '24px', flex: 1 }}>
+              <div className="hr-table-card" style={{ padding: '24px' }}>
                 <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <ShoppingCart size={18} color="#0EA5E9" /> Órdenes de Compra
                 </h3>
@@ -363,8 +438,67 @@ export default function SuppliersView() {
                 )}
               </div>
 
+              {/* CUENTAS POR PAGAR (AP) */}
+              <div className="hr-table-card" style={{ padding: '24px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <DollarSign size={18} color="#EF4444" /> Cuentas por Pagar (AP)
+                </h3>
+                {selectedProveedorCuentasPorPagar.length === 0 ? (
+                  <p style={{ color: '#64748B', fontSize: '13px', textAlign: 'center', padding: '16px 0' }}>No hay cuentas por pagar registradas.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>
+                    {selectedProveedorCuentasPorPagar.map(cpp => (
+                      <div key={cpp.id} style={{ padding: '12px', border: '1px solid #E2E8F0', borderRadius: '6px', backgroundColor: '#FEF2F2' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                          <span style={{ fontWeight: 700, fontSize: '13px' }}>Orden: {cpp.ordenCompraId}</span>
+                          <span style={{ fontSize: '12px', color: '#64748B' }}>Vence: {new Date(cpp.fechaVencimiento).toLocaleDateString()}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '12px', color: '#64748B' }}>Total: ${cpp.montoTotal.toLocaleString('es-CO')}</span>
+                          <span style={{ fontSize: '14px', fontWeight: 800, color: '#EF4444' }}>Saldo: ${cpp.saldoPendiente.toLocaleString('es-CO')}</span>
+                        </div>
+                        <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ 
+                            fontSize: '10px', 
+                            padding: '2px 6px', 
+                            backgroundColor: cpp.estado === 'PAGADA' ? '#D1FAE5' : cpp.estado === 'PAGADA_PARCIAL' ? '#FEF3C7' : '#FEE2E2', 
+                            color: cpp.estado === 'PAGADA' ? '#065F46' : cpp.estado === 'PAGADA_PARCIAL' ? '#92400E' : '#991B1B',
+                            borderRadius: '4px', 
+                            fontWeight: 600 
+                          }}>
+                            {cpp.estado}
+                          </span>
+                          {cpp.saldoPendiente > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => handleAbonarCuentaPorPagar(cpp)}
+                              style={{
+                                border: 'none',
+                                backgroundColor: 'var(--primary-color)',
+                                color: 'white',
+                                borderRadius: '4px',
+                                padding: '4px 8px',
+                                fontSize: '11px',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}
+                            >
+                              <DollarSign size={12} />
+                              Abonar
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               {/* HISTORIAL DE RECEPCIONES / ENTRADAS */}
-              <div className="hr-table-card" style={{ padding: '24px', flex: 1 }}>
+              <div className="hr-table-card" style={{ padding: '24px' }}>
                 <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Box size={18} color="#10B981" /> Entradas a Bodega
                 </h3>

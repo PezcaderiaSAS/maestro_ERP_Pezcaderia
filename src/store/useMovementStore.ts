@@ -26,6 +26,7 @@ interface MovementState {
   movimientos: MovimientoInventario[];
   loadMovimientos: () => void;
   addMovimiento: (mov: MovimientoInventario) => void;
+  addMovimientoAsync: (mov: MovimientoInventario) => Promise<void>;
 }
 
 export const useMovementStore = create<MovementState>()(
@@ -45,6 +46,11 @@ export const useMovementStore = create<MovementState>()(
 
   addMovimiento: (mov) => {
     dataService.create('inventario_movimientos', mov);
-    set((state) => ({ movimientos: [...state.movimientos, mov] }));
+    set((state) => ({ movimientos: [mov, ...state.movimientos] }));
+  },
+
+  addMovimientoAsync: async (mov) => {
+    await dataService.create('inventario_movimientos', mov);
+    set((state) => ({ movimientos: [mov, ...state.movimientos] }));
   },
   })));

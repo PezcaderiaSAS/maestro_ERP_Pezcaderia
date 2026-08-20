@@ -2,17 +2,14 @@ import React, { useState } from 'react';
 import { Truck, Package, Clock, MapPin, CheckCircle, Search, User } from 'lucide-react';
 import { useOrderStore } from '../../store/useOrderStore';
 import { useClientStore } from '../../store/useClientStore';
-import { useInventoryStore } from '../../store/useInventoryStore';
-import { useMovementStore } from '../../store/useMovementStore';
 import { useAppStore } from '../../store/useAppStore';
 import { Pedido } from '../../types/orders.types';
+import { orderDispatchService } from '../../services/orderDispatchService';
 import Swal from 'sweetalert2';
 
 export const DispatchView: React.FC = () => {
-  const { ventas, updateVenta } = useOrderStore();
+  const { ventas } = useOrderStore();
   const { getClienteById } = useClientStore();
-  const { products, stock, setStock } = useInventoryStore();
-  const { addMovimiento } = useMovementStore();
   const userRole = useAppStore((s) => s.userRole);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -53,69 +50,19 @@ export const DispatchView: React.FC = () => {
       cancelButtonColor: '#94A3B8'
     }).then((result) => {
       if (result.isConfirmed) {
-        try {
-          // 1. Descontar Stock y generar Movimientos
-          const newStock = { ...stock };
-          const bodegaId = pedido.bodegaId || 'Bodega Principal'; // Fallback a una bodega por defecto
-          
-          if (!newStock[bodegaId]) {
-            newStock[bodegaId] = {};
-          }
-
-          pedido.lineas.forEach(linea => {
-            const producto = products.find(p => p.id === linea.productoId);
-            if (!producto) return;
-
-            const sku = producto.sku;
-            const cantidadADescontar = linea.pesoReal || linea.cantidadAlistada || linea.cantidadSolicitada;
-
-            // Actualizar Stock local
-            if (newStock[bodegaId][sku] === undefined) {
-              newStock[bodegaId][sku] = 0;
-            }
-            newStock[bodegaId][sku] -= cantidadADescontar;
-
-            // Generar Movimiento de Inventario
-            addMovimiento({
-              id: crypto.randomUUID(),
-              timestamp: new Date().toISOString(),
-              tipo: 'VENTA',
-              sku: sku,
-              nombreProducto: producto.nombre,
-              bodegaOrigen: bodegaId,
-              cantidad: cantidadADescontar,
-              lote: linea.loteSeleccionado || 'DESPACHO',
-              referenciaId: pedido.id,
-              referenciaTipo: 'DESPACHO_B2B',
-              actor: userRole,
-              notas: `Despacho de Pedido ${pedido.numeroPedido} (Conductor: ${conductor})`
-            });
-          });
-
-          // Actualizar Stock State
-          setStock(newStock);
-
-          // 2. Actualizar Estado del Pedido
-          const pedidoActualizado: Pedido = {
-            ...pedido,
-            estado: 'EN_DESPACHO',
-            inventarioDescontado: true,
-            observaciones: `${pedido.observaciones || ''}\nDespachado con: ${conductor}`
-          };
-
-          updateVenta(pedido.id, pedidoActualizado);
-
+        const dispatchResult = orderDispatchService.dispatchOrder(pedido, conductor, userRole);
+        
+        if (dispatchResult.success) {
           Swal.fire({
             title: 'Despacho Exitoso',
             text: 'El pedido está en ruta y el stock ha sido descontado correctamente.',
             icon: 'success',
             confirmButtonColor: '#10B981'
           });
-
-        } catch (error: any) {
+        } else {
           Swal.fire({
-            title: 'Error Crítico',
-            text: `Ocurrió un error al despachar: ${error.message}`,
+            title: 'Error al Despachar',
+            text: `Ocurrió un error al despachar: ${dispatchResult.error}`,
             icon: 'error',
             confirmButtonColor: '#EF4444'
           });

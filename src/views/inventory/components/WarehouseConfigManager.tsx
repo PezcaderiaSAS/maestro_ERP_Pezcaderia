@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Warehouse, PlusCircle, Edit2, Trash2, ShieldAlert } from 'lucide-react';
+import { Warehouse, PlusCircle, Edit2, Trash2, ShieldAlert, CheckCircle, X } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { Bodega, guardarBodega, eliminarBodega, desactivarBodega } from '../../../services/warehouseService';
 
@@ -24,11 +24,7 @@ export function WarehouseConfigManager({
     return products.map((p: any) => {
       const stockRecord: Record<string, number> = {};
       Object.keys(stock).forEach(bodegaNombre => {
-        const items = stock[bodegaNombre] || [];
-        const totalStock = items
-          .filter((item: any) => item.sku === p.sku)
-          .reduce((acc: number, curr: any) => acc + curr.stock, 0);
-        stockRecord[bodegaNombre] = totalStock;
+        stockRecord[bodegaNombre] = stock[bodegaNombre]?.[p.sku] || 0;
       });
       return {
         sku: p.sku,

@@ -58,31 +58,49 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
     const cantidad = valores[item.key as keyof DetalleArqueo] || 0;
     const subtotal = cantidad * item.valor;
     const colors = getThemeColors(item.theme);
-    
+    const inputId = `input-denom-${item.key}`;
+
+    const increment = () => onChange(item.key as keyof DetalleArqueo, cantidad + 1);
+    const decrement = () => onChange(item.key as keyof DetalleArqueo, Math.max(0, cantidad - 1));
+
     return (
-      <label
+      <div
         key={item.key}
-        className="flex flex-col justify-between h-full p-3 rounded-xl border-2 transition-transform hover:scale-[1.02] cursor-text shadow-sm"
+        className="flex flex-col justify-between p-3 rounded-xl border-2 shadow-sm transition-all hover:shadow-md"
         style={{
           backgroundColor: colors.bg,
           borderColor: colors.border,
           color: colors.text
         }}
       >
-        {/* Encabezado de tarjeta */}
-        <div className="flex flex-wrap justify-between items-start mb-2 gap-x-2 w-full">
+        {/* Header: Etiqueta de la Denominación y Subtotal */}
+        <div className="flex justify-between items-center mb-2 gap-2 w-full">
           <span className="font-extrabold text-base md:text-lg shrink-0">{item.label}</span>
-          <div className="flex flex-col items-end ml-auto min-w-0 flex-1">
-            <span className="text-[10px] uppercase tracking-wide font-bold opacity-60">Subtotal</span>
-            <span className="font-black text-sm truncate w-full text-right" title={`$${subtotal.toLocaleString()}`}>
+          <div className="text-right shrink-0">
+            <span className="text-[10px] uppercase tracking-wide font-bold opacity-60 block">Subtotal</span>
+            <span className="font-black text-sm text-slate-900" title={`$${subtotal.toLocaleString()}`}>
               ${subtotal.toLocaleString()}
             </span>
           </div>
         </div>
-        {/* Input de cantidad */}
-        <div className="flex items-center gap-2 mt-auto w-full">
-          <span className="opacity-70 font-semibold text-xs shrink-0">CANT.</span>
+
+        {/* Input de Cantidad con Botones de Incremento / Decremento */}
+        <div className="flex items-center gap-1.5 mt-auto w-full">
+          <label htmlFor={inputId} className="opacity-70 font-semibold text-xs shrink-0 mr-0.5">
+            CANT.
+          </label>
+          {!readOnly && (
+            <button
+              type="button"
+              onClick={decrement}
+              className="w-7 h-8 rounded-md bg-white border border-slate-300 flex items-center justify-center text-slate-700 font-bold hover:bg-slate-100 active:scale-95 transition-all shrink-0 select-none shadow-sm"
+              title="Disminuir"
+            >
+              -
+            </button>
+          )}
           <input
+            id={inputId}
             type="number"
             min="0"
             step="1"
@@ -93,10 +111,20 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
             onKeyDown={handleKeyDown}
             onFocus={(e) => e.target.select()}
             placeholder="0"
-            className="w-full flex-1 min-w-0 text-right py-1.5 px-3 bg-white/60 border border-black/10 rounded-lg font-bold text-lg text-slate-900 transition-all outline-none focus:bg-white focus:border-blue-400 focus:ring-2 focus:ring-blue-200/50 disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="w-full flex-1 min-w-[50px] h-8 text-center bg-white border-2 border-slate-300 rounded-md font-extrabold text-base text-slate-900 transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none shadow-inner"
           />
+          {!readOnly && (
+            <button
+              type="button"
+              onClick={increment}
+              className="w-7 h-8 rounded-md bg-white border border-slate-300 flex items-center justify-center text-slate-700 font-bold hover:bg-slate-100 active:scale-95 transition-all shrink-0 select-none shadow-sm"
+              title="Aumentar"
+            >
+              +
+            </button>
+          )}
         </div>
-      </label>
+      </div>
     );
   };
 
@@ -105,7 +133,7 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
       <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100">
 
         {/* Columna Billetes */}
-        <div className="p-4 md:p-6 flex flex-col gap-4">
+        <div className="p-4 md:p-5 flex flex-col gap-4">
           <div className="flex items-center gap-2 px-1">
             <div
               className="w-8 h-8 rounded-full flex items-center justify-center shadow-sm shrink-0"
@@ -117,13 +145,13 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
             </div>
             <h3 className="font-bold text-lg text-slate-800 m-0">Billetes</h3>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
             {DENOMINACIONES_BILLETES.map(renderCard)}
           </div>
         </div>
 
         {/* Columna Monedas */}
-        <div className="p-4 md:p-6 flex flex-col gap-4 bg-slate-50/50">
+        <div className="p-4 md:p-5 flex flex-col gap-4 bg-slate-50/50">
           <div className="flex items-center gap-2 px-1">
             <div
               className="w-8 h-8 rounded-full flex items-center justify-center shadow-sm shrink-0"
@@ -135,7 +163,7 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
             </div>
             <h3 className="font-bold text-lg text-slate-800 m-0">Monedas</h3>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
             {DENOMINACIONES_MONEDAS.map(renderCard)}
           </div>
         </div>

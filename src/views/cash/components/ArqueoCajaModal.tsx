@@ -2,8 +2,9 @@ import { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { TurnoCaja } from '../../../types/cash.types';
 import { cashService } from '../../../services/cashService';
+import { useCashStore } from '../../../store/useCashStore';
 import { useInventoryStore } from '../../../store/useInventoryStore';
-import { Lock, Unlock, AlertTriangle, CheckCircle, Search, X } from 'lucide-react';
+import { Lock, Unlock, AlertTriangle, CheckCircle, Search, X, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 interface ArqueoCajaModalProps {
@@ -15,6 +16,7 @@ interface ArqueoCajaModalProps {
 
 export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuccess }: ArqueoCajaModalProps) {
   const { products } = useInventoryStore();
+  const { isLoading } = useCashStore();
 
   const [efectivo, setEfectivo] = useState<string>('');
   const [datafono, setDatafono] = useState<string>(turnoActivo.totalDatafono.toString());
@@ -56,7 +58,9 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Sí, desbloquear',
-      cancelButtonText: 'Cancelar'
+      cancelButtonText: 'Cancelar',
+      target: 'body',
+      customClass: { container: 'z-[100000]' }
     }).then((result) => {
       if (result.isConfirmed) {
         if (tipo === 'DATAFONO') setLockDatafono(false);
@@ -67,11 +71,23 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
 
   const handleCierre = () => {
     if (efectivo === '') {
-      Swal.fire('Error', 'Debe ingresar el efectivo físico contado (puede ser 0).', 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Debe ingresar el efectivo físico contado (puede ser 0).',
+        target: 'body',
+        customClass: { container: 'z-[100000]' }
+      });
       return;
     }
     if (requiereJustificacion && justificacion.trim() === '') {
-      Swal.fire('Error', 'Debe justificar detalladamente la diferencia detectada en el cuadre de caja.', 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Debe justificar detalladamente la diferencia detectada en el cuadre de caja.',
+        target: 'body',
+        customClass: { container: 'z-[100000]' }
+      });
       return;
     }
 
@@ -87,7 +103,9 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Sí, cerrar caja',
-      cancelButtonText: 'Revisar nuevamente'
+      cancelButtonText: 'Revisar nuevamente',
+      target: 'body',
+      customClass: { container: 'z-[100000]' }
     }).then((result) => {
       if (result.isConfirmed) {
         const resultado = cashService.cerrarTurno(
@@ -98,10 +116,24 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
         );
 
         if (!resultado.error) {
-          Swal.fire('¡Caja Cerrada!', 'El arqueo fue exitoso y el turno ha concluido.', 'success');
+          Swal.fire({
+            icon: 'success',
+            title: '¡Caja Cerrada!',
+            text: 'El arqueo fue exitoso y el turno ha concluido.',
+            timer: 1500,
+            showConfirmButton: false,
+            target: 'body',
+            customClass: { container: 'z-[100000]' }
+          });
           onSuccess();
         } else {
-          Swal.fire('Error', resultado.error, 'error');
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: resultado.error,
+            target: 'body',
+            customClass: { container: 'z-[100000]' }
+          });
         }
       }
     });
@@ -120,7 +152,7 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
 
   return createPortal(
     // OVERLAY — fijo, sin cierre al clic externo
-    <div className="fixed inset-0 z-[99999] bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4">
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4">
 
       {/* CARD */}
       <div
@@ -332,9 +364,12 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
             data-testid="btn-confirmar-arqueo"
             type="button"
             onClick={handleCierre}
-            className="h-11 px-6 flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-md shadow-red-200 transition-all"
+            disabled={isLoading}
+            className="h-11 px-6 flex items-center gap-2 bg-red-600 hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-md shadow-red-200 transition-all"
           >
-            Confirmar Cierre de Caja
+            {isLoading
+              ? <><Loader2 size={18} className="animate-spin" /> Procesando...</>
+              : 'Confirmar Cierre de Caja'}
           </button>
         </div>
 

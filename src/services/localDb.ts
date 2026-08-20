@@ -39,7 +39,8 @@ export const DB_KEYS = {
   logsSiigo: 'pezcaderia_logs_siigo',
   rutas: 'pezcaderia_rutas',
   categoriasGastos: 'pezcaderia_categorias_gastos',
-  bodegas: 'pezcaderia_bodegas'
+  bodegas: 'pezcaderia_bodegas',
+  cuentasPorPagar: 'pezcaderia_cuentas_por_pagar'
 } as const;
 
 export type DbKey = keyof typeof DB_KEYS;

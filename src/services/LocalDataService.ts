@@ -28,6 +28,7 @@ const TABLE_TO_KEY: Record<string, localDb.DbKey> = {
   dynamicFields: 'dynamicFields',
   logIntegracion: 'logIntegracion',
   syncQueue: 'syncQueue',
+  cuentas_por_pagar: 'cuentasPorPagar',
 };
 
 function tableToKey(table: string): localDb.DbKey {

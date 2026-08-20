@@ -13,6 +13,7 @@
   --radius-lg: 0.75rem; /* 12px */
   --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
+
   /* Paleta Neutral Premium (Slate) */
   --bg-color: #f8fafc; /* slate-50 */
   --card-bg: #ffffff;
@@ -26,6 +27,7 @@
   --success-color: #10b981; /* emerald-500 */
   --warning-color: #f59e0b; /* amber-500 */
 }
+
 
 /* Super ADMINISTRADOR (Premium Indigo/Slate) */
 :root, [data-theme="admin"] {
@@ -173,6 +175,7 @@ body {
   overflow: hidden;
   height: calc(100vh - 64px);
   width: 100vw;
+  min-height: 0;
 }
 
 /* Navegación Lateral (Sidebar) */
@@ -325,6 +328,7 @@ body {
   flex-direction: column;
   overflow: hidden;
   height: 100%;
+  min-height: 0;
 }
 
 .top-navbar {

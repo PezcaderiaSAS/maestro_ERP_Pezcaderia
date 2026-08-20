@@ -87,6 +87,23 @@ services:
       timeout: 5s
       retries: 10
 
+  spring-backend:
+    build:
+      context: ./backend/maestro-pezcaderia-core
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${PG_DATABASE_NAME:-default}
+      SPRING_DATASOURCE_USERNAME: ${PG_DATABASE_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${PG_DATABASE_PASSWORD:-postgres}
+      SUPABASE_JWT_SECRET: ${SUPABASE_JWT_SECRET:-super-secret-jwt-token-key-for-supabase-auth-dev-32-chars-long!}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+
 volumes:
   db-data:
   server-local-data:
+

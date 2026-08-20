@@ -6,16 +6,16 @@ import {
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { twentyCompanies, twentyContacts, twentyOpportunities, hasTwentyApiKey } from '../services/twentyClient';
-import { useAppStore } from '../store/useAppStore.ts';
+import { useClientStore } from '../store/useClientStore';
 
 type TabType = 'COMPANIES' | 'CONTACTS' | 'OPPORTUNITIES';
 
 export default function CRMView() {
-  const userRole = useAppStore((s) => s.userRole);
+  const { clientes, loadClientes } = useClientStore();
 
   useEffect(() => {
-    if (userRole) console.debug('CRM View loaded for:', userRole);
-  }, [userRole]);
+    loadClientes();
+  }, [loadClientes]);
 
   const [activeTab, setActiveTab] = useState<TabType>('OPPORTUNITIES');
   const [searchTerm, setSearchTerm] = useState('');
@@ -46,11 +46,20 @@ export default function CRMView() {
 
   const fetchData = async () => {
     setLoading(true);
+    const erpCompanies = clientes.map(c => ({
+      id: c.id,
+      name: c.nombre,
+      domainName: c.email || `${c.nombre.toLowerCase().replace(/\s+/g, '')}.com`,
+      employees: 10,
+      city: c.ciudad || 'Bogotá'
+    }));
+    const defaultCompanies = erpCompanies.length ? erpCompanies : mockCompanies;
+
     try {
       if (hasTwentyApiKey()) {
         if (activeTab === 'COMPANIES') {
           const res = await twentyCompanies.list();
-          setCompanies(res.data?.companies?.edges?.map((e: any) => e.node) || mockCompanies);
+          setCompanies(res.data?.companies?.edges?.map((e: any) => e.node) || defaultCompanies);
         } else if (activeTab === 'CONTACTS') {
           const res = await twentyContacts.list();
           setContacts(res.data?.people?.edges?.map((e: any) => e.node) || mockContacts);
@@ -59,13 +68,13 @@ export default function CRMView() {
           setOpportunities(res.data?.opportunities?.edges?.map((e: any) => e.node) || mockOpportunities);
         }
       } else {
-        setCompanies(mockCompanies);
+        setCompanies(defaultCompanies);
         setContacts(mockContacts);
         setOpportunities(mockOpportunities);
       }
     } catch (error) {
       console.error("Error conectando con Twenty API", error);
-      setCompanies(mockCompanies);
+      setCompanies(defaultCompanies);
       setContacts(mockContacts);
       setOpportunities(mockOpportunities);
     } finally {

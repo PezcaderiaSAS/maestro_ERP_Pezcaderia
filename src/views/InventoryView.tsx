@@ -1,41 +1,53 @@
-// src/views/InventoryView.tsx
 import { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
-import { generateId, toTitleCase, Product, ProductCatalog, ProductPricing, MovimientoInventario, OrdenCompra } from '../App.tsx';
-import { ProductTable } from './inventory/components/ProductTable.tsx';
-import { ProductForm } from './inventory/components/ProductForm.tsx';
-import { CategoryManager } from './inventory/components/CategoryManager.tsx';
-import { PurchaseOrderForm } from './inventory/components/PurchaseOrderForm.tsx';
-import { TransferForm } from './inventory/components/TransferForm.tsx';
-import { ProductionForm } from './inventory/components/ProductionForm.tsx';
-import { ColdRoomPreparation } from './inventory/components/ColdRoomPreparation.tsx';
-import { ReturnsReceiver } from './inventory/components/ReturnsReceiver.tsx';
-import { PurchasesReport } from './inventory/components/PurchasesReport.tsx';
-import { useInventoryStore } from '../store/useInventoryStore.ts';
-import { useMovementStore } from '../store/useMovementStore.ts';
-import { usePurchaseStore } from '../store/usePurchaseStore.ts';
-import { useCategoryStore } from '../store/useCategoryStore.ts';
-import { useOrderStore } from '../store/useOrderStore.ts';
-import { useReturnStore } from '../store/useReturnStore.ts';
-import { useEventStore } from '../store/useEventStore.ts';
-import { useAppStore } from '../store/useAppStore.ts';
-import { useSupplierStore } from '../store/useSupplierStore.ts';
+import { Truck, PlusCircle, ShoppingBag } from 'lucide-react';
+import { ProductTable } from './inventory/components/ProductTable';
+import { ProductForm } from './inventory/components/ProductForm';
+import { CategoryManager } from './inventory/components/CategoryManager';
+import { PurchaseOrderForm } from './inventory/components/PurchaseOrderForm';
+import { TransferForm } from './inventory/components/TransferForm';
+import { ProductionForm } from './inventory/components/ProductionForm';
+import { ColdRoomPreparation } from './inventory/components/ColdRoomPreparation';
+import { ReturnsReceiver } from './inventory/components/ReturnsReceiver';
+import { PurchasesReport } from './inventory/components/PurchasesReport';
+import { AnalisisAbcWidget } from './inventory/components/AnalisisAbcWidget';
+import { StockMatrizTable } from './inventory/components/StockMatrizTable';
+import { useInventoryStore } from '../store/useInventoryStore';
+import { useMovementStore, MovimientoInventario } from '../store/useMovementStore';
+import { usePurchaseStore, OrdenCompra, CuentaPorPagar } from '../store/usePurchaseStore';
+import { cashService } from '../services/cashService';
+import { useCategoryStore } from '../store/useCategoryStore';
+import { useOrderStore } from '../store/useOrderStore';
+import { useReturnStore } from '../store/useReturnStore';
+import { useEventStore } from '../store/useEventStore';
+import { useAppStore } from '../store/useAppStore';
+import { useSupplierStore } from '../store/useSupplierStore';
+import { useWarehouseStore } from '../store/useWarehouseStore';
+import type { ProductCatalog, ProductPricing, Product } from '../types/erp.types';
+
+const generateId = (prefix: string) => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 5)}`;
+
+const toTitleCase = (str: string): string => {
+  if (!str) return '';
+  return str.toLowerCase().replace(/(?:^|\s|-)\S/g, (x) => x.toUpperCase());
+};
 
 
 export default function InventoryView() {
-  const { products, productsCatalog, setProductsCatalog, setProductPricings, setStock } = useInventoryStore();
+  const { products, productsCatalog, setProductsCatalog, setProductPricings, setStock, setStockAsync, loadInventory, loadStock } = useInventoryStore();
   const stock = useInventoryStore((s) => s.stock) as any;
-  const { movimientos, addMovimiento } = useMovementStore();
-  const { ordenesCompra, setOrdenesCompra } = usePurchaseStore();
+  const { movimientos, addMovimiento, addMovimientoAsync } = useMovementStore();
+  const { ordenesCompra, setOrdenesCompra, addOrdenCompraAsync, addCuentaPorPagarAsync } = usePurchaseStore();
   const { categorias, setCategorias } = useCategoryStore();
   const { quotations, setQuotations } = useOrderStore();
   const { devoluciones, setDevoluciones } = useReturnStore();
   const publishEvent = useEventStore((s) => s.publishEvent);
   const userRole = useAppStore((s) => s.userRole);
   const proveedores = useSupplierStore((s) => s.proveedores);
+  const bodegas = useWarehouseStore((s) => s.bodegas);
   const [activeBodega, setActiveBodega] = useState('Bodega Principal');
   const [historyTab, setHistoryTab] = useState<'movimientos' | 'compras'>('movimientos');
-  const [viewMode, setViewMode] = useState<'operaciones' | 'catalogo' | 'categorias' | 'cuarto_frio' | 'recepcion_devoluciones' | 'configuracion_bodegas' | 'reportes_compra'>('operaciones');
+  const [viewMode, setViewMode] = useState<'operaciones' | 'registrar_compra' | 'catalogo' | 'categorias' | 'cuarto_frio' | 'recepcion_devoluciones' | 'configuracion_bodegas' | 'reportes_compra' | 'analisis_abc'>('operaciones');
 
   // State de Catalogo de Productos
   const [searchTerm, setSearchTerm] = useState('');
@@ -131,9 +143,9 @@ export default function InventoryView() {
     // Auto-crear categoría si no existe
     let finalCategoriaId = '';
     const existsCat = categorias.find(
-      c => c.tipo.trim().toUpperCase() === finalTipo.toUpperCase() && 
-           c.linea.trim().toUpperCase() === finalLinea.toUpperCase() && 
-           c.clase.trim().toUpperCase() === finalClase.toUpperCase()
+      c => (c.tipo || '').trim().toUpperCase() === finalTipo.toUpperCase() && 
+           (c.linea || '').trim().toUpperCase() === finalLinea.toUpperCase() && 
+           (c.clase || '').trim().toUpperCase() === finalClase.toUpperCase()
     );
     if (!existsCat && finalTipo) {
       const newCatId = generateId('cat');
@@ -546,9 +558,9 @@ export default function InventoryView() {
       Swal.fire({ icon: 'success', title: 'Categoría actualizada', text: 'La categoría ha sido actualizada con éxito.', timer: 1500, showConfirmButton: false });
     } else {
       const exists = categorias.some(c => 
-        c.tipo.toUpperCase() === cleanTipo.toUpperCase() && 
-        c.linea.toUpperCase() === cleanLinea.toUpperCase() && 
-        c.clase.toUpperCase() === cleanClase.toUpperCase()
+        (c.tipo || '').toUpperCase() === cleanTipo.toUpperCase() && 
+        (c.linea || '').toUpperCase() === cleanLinea.toUpperCase() && 
+        (c.clase || '').toUpperCase() === cleanClase.toUpperCase()
       );
       if (exists) {
         Swal.fire({ icon: 'error', title: 'Duplicado', text: 'Esta combinación de Tipo > Línea > Clase ya existe.', confirmButtonColor: 'var(--primary-color)' });
@@ -594,20 +606,27 @@ export default function InventoryView() {
     bodega: 'Bodega Principal',
     formaPago: 'CONTADO' as 'CONTADO' | 'CREDITO',
     fletes: 0,
-    iva: 19
+    iva: 19,
+    items: [] as any[]
   });
 
   useEffect(() => {
-    if (products.length > 0 && !compra.sku) {
-      setCompra((prev: any) => ({ ...prev, sku: products[0].sku }));
-    }
+    setCompra((prev: any) => {
+      if (products.length > 0 && !prev.sku) {
+        return { ...prev, sku: products[0].sku };
+      }
+      return prev;
+    });
   }, [products]);
 
   useEffect(() => {
     const activeProv = proveedores.filter(p => p.activo);
-    if (activeProv.length > 0 && !compra.proveedorId) {
-      setCompra((prev: any) => ({ ...prev, proveedorId: activeProv[0].id }));
-    }
+    setCompra((prev: any) => {
+      if (activeProv.length > 0 && !prev.proveedorId) {
+        return { ...prev, proveedorId: activeProv[0].id };
+      }
+      return prev;
+    });
   }, [proveedores]);
 
   // State de Traslados
@@ -627,14 +646,20 @@ export default function InventoryView() {
 
   // Asegurar que los selectores de producción tengan valores iniciales válidos si cambia el catálogo
   useEffect(() => {
-    const materias = products.filter(p => p.activo && p.categoria === 'MATERIA PRIMA');
-    if (materias.length > 0 && !materias.some(m => m.sku === prodMateriaPrima)) {
-      setProdMateriaPrima(materias[0].sku);
-    }
-    const terminados = products.filter(p => p.activo && p.categoria !== 'MATERIA PRIMA');
-    if (terminados.length > 0 && !terminados.some(t => t.sku === prodTerminado)) {
-      setProdTerminado(terminados[0].sku);
-    }
+    setProdMateriaPrima(prev => {
+      const materias = products.filter(p => p.activo && p.categoria === 'MATERIA PRIMA');
+      if (materias.length > 0 && !materias.some(m => m.sku === prev)) {
+        return materias[0].sku;
+      }
+      return prev;
+    });
+    setProdTerminado(prev => {
+      const terminados = products.filter(p => p.activo && p.categoria !== 'MATERIA PRIMA');
+      if (terminados.length > 0 && !terminados.some(t => t.sku === prev)) {
+        return terminados[0].sku;
+      }
+      return prev;
+    });
   }, [products]);
 
   useEffect(() => {
@@ -648,111 +673,243 @@ export default function InventoryView() {
     }
   }, [prodMateriaCant, prodTerminadoCant]);
 
-  const handleProcesarCompra = (e: React.FormEvent) => {
+  const handleProductIvaUpdate = (sku: string, newIva: number) => {
+    setProductsCatalog((prev: any) => prev.map((p: any) => p.sku === sku ? { ...p, iva: newIva, ivaIncluido: newIva > 0 } : p));
+  };
+
+  const handleProcesarCompra = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!compra.proveedorId || !compra.sku || compra.cantidad <= 0) {
+    if (!compra.proveedorId) {
       Swal.fire({
         icon: 'warning',
-        title: 'Datos Incompletos',
-        text: 'Por favor complete todos los datos de la compra (Proveedor, Producto y Cantidad > 0).'
+        title: 'Proveedor Requerido',
+        text: 'Por favor seleccione el proveedor origen de la compra.'
       });
       return;
     }
 
-    const selectedProduct = products.find(p => p.sku === compra.sku);
+    const itemsAProcesar = (Array.isArray(compra.items) && compra.items.length > 0)
+      ? compra.items
+      : (compra.sku && compra.cantidad > 0)
+        ? [{
+            sku: compra.sku,
+            nombre: products.find(p => p.sku === compra.sku)?.nombre || compra.sku,
+            cantidad: compra.cantidad,
+            precioUnitario: compra.costoUnitario || products.find(p => p.sku === compra.sku)?.precio_compra || 0,
+            iva: products.find(p => p.sku === compra.sku)?.iva || 0,
+            lote: (compra.lote || `LT-${Date.now().toString().slice(-6)}`).toUpperCase()
+          }]
+        : [];
+
+    if (itemsAProcesar.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Lista de Ítems Vacía',
+        text: 'Por favor agregue al menos un producto a la compra.'
+      });
+      return;
+    }
+
     const selectedProveedor = proveedores.find(p => p.id === compra.proveedorId);
-    if (!selectedProduct || !selectedProveedor) return;
+    if (!selectedProveedor) return;
 
-    // Generar lote
-    const loteFinal = (compra.lote || `LT-${Date.now().toString().slice(-6)}`).toUpperCase();
+    const bodegaDestino = compra.bodega || 'Bodega Principal';
 
-    // Actualizar stock
-    setStock((prev: any) => {
-      const newStock = { ...prev };
-      if (!newStock[compra.bodega]) {
-        newStock[compra.bodega] = {};
-      }
-      const currentStock = newStock[compra.bodega][compra.sku] || 0;
-      newStock[compra.bodega][compra.sku] = currentStock + compra.cantidad;
-      return newStock;
-    });
-
-    // F2: Crear y registrar Orden de Compra
-    const ocId = generateId('oc');
-    const subtotal = compra.cantidad * (compra.costoUnitario || selectedProduct.precio_compra || 0);
-    const valorIva = Math.round(subtotal * (compra.iva / 100));
-    const totalOC = subtotal + valorIva + (compra.fletes || 0);
-
-    const newOC: OrdenCompra = {
-      id: ocId,
-      proveedorId: selectedProveedor.id,
-      proveedorNombre: selectedProveedor.nombre,
-      fecha: new Date().toISOString(),
-      estado: 'RECIBIDA',
-      items: [
-        {
-          sku: compra.sku,
-          nombre: selectedProduct.nombre,
-          cantidad: compra.cantidad,
-          precioUnitario: compra.costoUnitario || selectedProduct.precio_compra || 0,
-          lote: loteFinal
+    try {
+      Swal.fire({
+        title: 'Procesando Compra',
+        text: 'Guardando datos en el servidor, por favor espere...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
         }
-      ],
-      totalCompra: totalOC,
-      subtotal: subtotal,
-      iva: compra.iva,
-      valorIva: valorIva,
-      fletes: compra.fletes || 0,
-      formaPago: compra.formaPago || 'CONTADO',
-      saldo: (compra.formaPago || 'CONTADO') === 'CREDITO' ? totalOC : 0,
-      bodegaDestino: compra.bodega,
-      actor: userRole,
-      notas: `Lote recibido: ${loteFinal}. Forma de Pago: ${compra.formaPago || 'CONTADO'}. Flete: $${compra.fletes || 0}. IVA: ${compra.iva}%`
-    };
-    setOrdenesCompra((prev: any) => [newOC, ...prev]);
+      });
 
-    // F2: Registrar Movimiento de Inventario
-    const newMov: MovimientoInventario = {
-      id: generateId('mov'),
-      timestamp: new Date().toISOString(),
-      tipo: 'ENTRADA_COMPRA',
-      sku: compra.sku,
-      nombreProducto: selectedProduct.nombre,
-      bodegaDestino: compra.bodega,
-      cantidad: compra.cantidad,
-      lote: loteFinal,
-      referenciaId: ocId,
-      referenciaTipo: 'ORDEN_COMPRA',
-      actor: userRole,
-      notas: `Entrada por compra recibida de ${selectedProveedor.nombre}`
-    };
-    addMovimiento(newMov);
+      // 1. Calcular Totales Consolidados con IVA Individual por Producto
+      const subtotal = itemsAProcesar.reduce((acc: number, item: any) => acc + (Number(item.cantidad) * Number(item.precioUnitario)), 0);
+      const valorIva = itemsAProcesar.reduce((acc: number, item: any) => {
+        const sub = Number(item.cantidad) * Number(item.precioUnitario);
+        const itemIvaPct = item.iva !== undefined ? Number(item.iva) : 0;
+        return acc + Math.round(sub * (itemIvaPct / 100));
+      }, 0);
+      const totalOC = subtotal + valorIva + (compra.fletes || 0);
+      const ocId = generateId('oc');
 
-    // Publicar evento
-    publishEvent(
-      'METADATA_CONFIGURED',
-      userRole,
-      `Entrada de Compra: ${compra.cantidad} unidades de ${selectedProduct.nombre} ingresadas a ${compra.bodega} provenientes de ${selectedProveedor.nombre}. Lote: ${loteFinal}`,
-      { proveedor: selectedProveedor, producto: selectedProduct, cantidad: compra.cantidad, lote: loteFinal, bodega: compra.bodega }
-    );
+      const newOC: OrdenCompra = {
+        id: ocId,
+        proveedorId: selectedProveedor.id,
+        proveedorNombre: selectedProveedor.nombre,
+        fecha: new Date().toISOString(),
+        estado: 'RECIBIDA',
+        items: itemsAProcesar.map((item: any) => ({
+          sku: item.sku,
+          nombre: item.nombre || products.find(p => p.sku === item.sku)?.nombre || item.sku,
+          cantidad: Number(item.cantidad),
+          precioUnitario: Number(item.precioUnitario),
+          iva: item.iva !== undefined ? Number(item.iva) : 0,
+          lote: item.lote || `LT-${Date.now().toString().slice(-6)}`.toUpperCase()
+        })),
+        totalCompra: totalOC,
+        subtotal: subtotal,
+        iva: 0,
+        valorIva: valorIva,
+        fletes: compra.fletes || 0,
+        formaPago: compra.formaPago || 'CONTADO',
+        saldo: (compra.formaPago || 'CONTADO') === 'CREDITO' ? totalOC : 0,
+        bodegaDestino: bodegaDestino,
+        actor: userRole,
+        notas: `Entrada Multi-Producto (${itemsAProcesar.length} ítems). Pago: ${compra.formaPago || 'CONTADO'}. Fletes: $${compra.fletes || 0}. IVA Total: $${valorIva.toLocaleString('es-CO')}`
+      };
 
-    Swal.fire({
-      icon: 'success',
-      title: 'Entrada Registrada',
-      text: `Se registraron ${compra.cantidad} unidades en ${compra.bodega} con Lote ${loteFinal}.`,
-      confirmButtonColor: '#00B171'
-    });
+      // Guardar Orden de Compra asíncronamente
+      await addOrdenCompraAsync(newOC);
 
-    // Resetear formulario (manteniendo proveedor y bodega)
-    setCompra((prev: any) => ({
-      ...prev,
-      cantidad: 10,
-      costoUnitario: 0,
-      lote: '',
-      fletes: 0,
-      iva: 19,
-      formaPago: 'CONTADO'
-    }));
+      // Tarea 3.1: Instanciar CuentaPorPagar si es a CREDITO
+      if ((compra.formaPago || 'CONTADO') === 'CREDITO') {
+        const diasPlazo = selectedProveedor.plazoPagoDias || 30;
+        const fechaVenc = new Date();
+        fechaVenc.setDate(fechaVenc.getDate() + diasPlazo);
+
+        const nuevaCuentaPorPagar: CuentaPorPagar = {
+          id: generateId('cpp'),
+          ordenCompraId: ocId,
+          proveedorId: selectedProveedor.id,
+          proveedorNombre: selectedProveedor.nombre,
+          fechaEmision: new Date().toISOString(),
+          fechaVencimiento: fechaVenc.toISOString(),
+          montoTotal: totalOC,
+          saldoPendiente: totalOC,
+          estado: 'PENDIENTE',
+          notas: `Compra a crédito (${diasPlazo} días de plazo) - Orden ${ocId}`
+        };
+        await addCuentaPorPagarAsync(nuevaCuentaPorPagar);
+      }
+
+      // Tarea 3.2: Registrar egreso en caja si es CONTADO con resiliencia
+      if ((compra.formaPago || 'CONTADO') === 'CONTADO') {
+        try {
+          cashService.seedCajasParaBodegas();
+          const bodegaMatched = bodegas.find(b => b.nombre === bodegaDestino);
+          const bodegaId = bodegaMatched ? bodegaMatched.id : '1';
+          const cajasEnBodega = cashService.getCajasPorBodega(bodegaId);
+          let turnoActivo = null;
+          for (const c of cajasEnBodega) {
+            const t = cashService.getTurnoActivo(c.id);
+            if (t) {
+              turnoActivo = t;
+              break;
+            }
+          }
+          if (!turnoActivo) {
+            const todosTurnos = cashService.getTurnos();
+            turnoActivo = todosTurnos.find(t => t.estado === 'ABIERTO') || null;
+          }
+
+          if (turnoActivo) {
+            cashService.registrarMovimiento(
+              turnoActivo.id,
+              turnoActivo.cajaId,
+              'EGRESO_GASTO',
+              'EFECTIVO',
+              totalOC,
+              `Pago contado Compra ${ocId} a ${selectedProveedor.nombre}`,
+              ocId,
+              userRole
+            );
+          } else {
+            console.warn('No hay turno de caja abierto para registrar el egreso por compra de contado.');
+          }
+        } catch (cashErr) {
+          console.error('Error al registrar egreso en caja:', cashErr);
+        }
+      }
+
+      // Tarea 3.3: Actualizar precio_compra e IVA en catálogo de productos
+      setProductsCatalog((prevCatalog: ProductCatalog[]) => {
+        return prevCatalog.map(prod => {
+          const itemComprado = itemsAProcesar.find((item: any) => item.sku === prod.sku);
+          if (itemComprado) {
+            const nuevoPrecio = Number(itemComprado.precioUnitario);
+            const nuevoIva = itemComprado.iva !== undefined ? Number(itemComprado.iva) : (prod.iva ?? 0);
+            return {
+              ...prod,
+              precio_compra: nuevoPrecio > 0 ? nuevoPrecio : (prod.precio_compra ?? 0),
+              iva: nuevoIva,
+              ivaIncluido: nuevoIva > 0 ? true : Boolean(prod.ivaIncluido)
+            };
+          }
+          return prod;
+        });
+      });
+
+      // 2. Actualizar stock para cada producto recibido en la orden de compra asíncronamente
+      const newStock = { ...stock };
+      if (!newStock[bodegaDestino]) {
+        newStock[bodegaDestino] = {};
+      }
+      itemsAProcesar.forEach((item: any) => {
+        const currentStock = newStock[bodegaDestino][item.sku] || 0;
+        newStock[bodegaDestino][item.sku] = currentStock + Number(item.cantidad);
+      });
+      await setStockAsync(newStock);
+
+      // 3. Registrar Movimiento de Inventario (WMS Kardex) para cada producto asíncronamente
+      for (const item of itemsAProcesar) {
+        const loteItem = item.lote || `LT-${Date.now().toString().slice(-6)}`.toUpperCase();
+        const nombreItem = item.nombre || products.find(p => p.sku === item.sku)?.nombre || item.sku;
+        
+        const newMov: MovimientoInventario = {
+          id: generateId('mov'),
+          timestamp: new Date().toISOString(),
+          tipo: 'ENTRADA_COMPRA',
+          sku: item.sku,
+          nombreProducto: nombreItem,
+          bodegaDestino: bodegaDestino,
+          cantidad: Number(item.cantidad),
+          lote: loteItem,
+          referenciaId: ocId,
+          referenciaTipo: 'ORDEN_COMPRA',
+          actor: userRole,
+          notas: `Entrada por compra recibida de ${selectedProveedor.nombre}`
+        };
+        await addMovimientoAsync(newMov);
+      }
+
+      // Publicar evento
+      publishEvent('METADATA_CONFIGURED', userRole, `Entrada de Compra Multi-Producto: ${itemsAProcesar.length} ítems recibidos de ${selectedProveedor.nombre}`, { action: 'purchase', ocId, itemsCount: itemsAProcesar.length });
+
+      Swal.fire({
+        icon: 'success',
+        title: '¡Compra Registrada!',
+        text: `Se registraron ${itemsAProcesar.length} producto(s) en ${bodegaDestino} por $${totalOC.toLocaleString('es-CO')}.`,
+        timer: 2000,
+        showConfirmButton: false
+      });
+
+      // Limpiar Formulario de Compra
+      // NOTE: activeProducts should be mapped from products like the original code, but since the original had activeProducts[0]?.sku || '', we use products.filter(p => p.activo) as activeProducts
+      const activeProducts = products.filter(p => p.activo);
+      setCompra({
+        proveedorId: '',
+        bodega: 'Bodega Principal',
+        sku: activeProducts[0]?.sku || '',
+        cantidad: 1,
+        lote: '',
+        costoUnitario: 0,
+        formaPago: 'CONTADO',
+        iva: 19,
+        fletes: 0,
+        items: []
+      });
+    } catch (error: any) {
+      console.error('Error al procesar compra:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de Integridad',
+        text: 'Ocurrió un error al persistir los datos de la compra. ' + error.message,
+        confirmButtonColor: 'var(--primary-color)'
+      });
+    }
   };
 
   const handleTraslado = async (e: React.FormEvent) => {
@@ -769,9 +926,9 @@ export default function InventoryView() {
       return;
     }
 
-    const itemOrigen = stock[traslado.origen]?.find((i: any) => i.sku === traslado.sku);
-    if (!itemOrigen || itemOrigen.stock < tCant) {
-      Swal.fire({ icon: 'error', title: 'Stock Insuficiente', text: 'La bodega de origen no dispone de existencias del lote.' });
+    const stockDisponible = stock[traslado.origen]?.[traslado.sku] || 0;
+    if (stockDisponible < tCant) {
+      Swal.fire({ icon: 'error', title: 'Stock Insuficiente', text: 'La bodega de origen no dispone de existencias suficientes.' });
       return;
     }
 
@@ -826,16 +983,20 @@ export default function InventoryView() {
 
     // F2: Registrar los movimientos de traslado (Salida y Entrada)
     const refId = generateId('tras');
+    const prodInfo = products.find(p => p.sku === traslado.sku);
+    const prodNombre = prodInfo?.nombre || traslado.sku;
+    const prodLote = `LT-TR-${Date.now().toString().slice(-6)}`;
+
     const movSalida: MovimientoInventario = {
       id: generateId('mov'),
       timestamp: new Date().toISOString(),
       tipo: 'TRASLADO_SALIDA',
       sku: traslado.sku,
-      nombreProducto: itemOrigen.nombre,
+      nombreProducto: prodNombre,
       bodegaOrigen: traslado.origen,
       bodegaDestino: traslado.destino,
       cantidad: tCant,
-      lote: itemOrigen.lote,
+      lote: prodLote,
       referenciaId: refId,
       referenciaTipo: 'TRASLADO',
       actor: userRole,
@@ -846,11 +1007,11 @@ export default function InventoryView() {
       timestamp: new Date().toISOString(),
       tipo: 'TRASLADO_ENTRADA',
       sku: traslado.sku,
-      nombreProducto: itemOrigen.nombre,
+      nombreProducto: prodNombre,
       bodegaOrigen: traslado.origen,
       bodegaDestino: traslado.destino,
       cantidad: tCant,
-      lote: itemOrigen.lote,
+      lote: prodLote,
       referenciaId: refId,
       referenciaTipo: 'TRASLADO',
       actor: userRole,
@@ -1150,27 +1311,13 @@ export default function InventoryView() {
     if (Object.keys(stockChanges).length > 0) {
       setStock((prev: any) => {
         const newStock = { ...prev };
-        const mainList = [...(newStock['Bodega Principal'] || [])];
+        if (!newStock['Bodega Principal']) newStock['Bodega Principal'] = {};
         
         Object.entries(stockChanges).forEach(([sku, qty]) => {
-          const prodObj = products.find(p => p.sku === sku);
-          const index = mainList.findIndex(i => i.sku === sku && i.lote === 'LOTE-DEV');
-          if (index > -1) {
-            mainList[index] = {
-              ...mainList[index],
-              stock: mainList[index].stock + qty
-            };
-          } else {
-            mainList.push({
-              sku,
-              nombre: prodObj?.nombre || 'Producto de Devolución',
-              stock: qty,
-              lote: 'LOTE-DEV'
-            });
-          }
+          const currentQty = newStock['Bodega Principal'][sku] || 0;
+          newStock['Bodega Principal'][sku] = currentQty + qty;
         });
 
-        newStock['Bodega Principal'] = mainList;
         return newStock;
       });
     }
@@ -1221,12 +1368,18 @@ export default function InventoryView() {
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '32px', height: '100%', overflowY: 'auto', paddingRight: '8px' }}>
       
       {/* Top Tabs */}
-      <div style={{ display: 'flex', gap: '20px', borderBottom: '1px solid #E2E8F0', paddingBottom: '12px', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '20px', borderBottom: '1px solid #E2E8F0', paddingBottom: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
         <button 
           onClick={() => setViewMode('operaciones')}
           style={{ background: 'none', border: 'none', fontSize: '15px', fontWeight: viewMode === 'operaciones' ? 800 : 500, color: viewMode === 'operaciones' ? 'var(--primary-color)' : '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
         >
           Operaciones de Inventario
+        </button>
+        <button 
+          onClick={() => setViewMode('registrar_compra')}
+          style={{ background: viewMode === 'registrar_compra' ? '#ECFDF5' : 'none', border: viewMode === 'registrar_compra' ? '1px solid #A7F3D0' : 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '15px', fontWeight: viewMode === 'registrar_compra' ? 800 : 600, color: viewMode === 'registrar_compra' ? '#059669' : '#059669', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+        >
+          🛒 Registrar Compra (Entrada)
         </button>
         <button 
           onClick={() => setViewMode('catalogo')}
@@ -1273,57 +1426,35 @@ export default function InventoryView() {
             📊 Reporte de Compras
           </button>
         )}
+
+        <button 
+          onClick={() => setViewMode('analisis_abc')}
+          style={{ background: 'none', border: 'none', fontSize: '15px', fontWeight: viewMode === 'analisis_abc' ? 800 : 500, color: viewMode === 'analisis_abc' ? 'var(--primary-color)' : '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+        >
+          📈 Análisis Pareto ABC
+        </button>
       </div>
+
+      {viewMode === 'analisis_abc' && (
+        <AnalisisAbcWidget />
+      )}
 
       {viewMode === 'operaciones' && (
         <>
+          {/* Sección: Tabla de Stock por Bodega — Full Width */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '8px' }}>
+            <div>
+              <span style={{ fontSize: '14px', color: '#64748B', fontWeight: 500 }}>Inventario WMS</span>
+              <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px', letterSpacing: '-0.5px' }}>Stock por Bodegas</h2>
+            </div>
+            <StockMatrizTable products={products} stock={stock} bodegas={bodegas} />
+          </div>
+
           {/* Grid de Operaciones */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
         
-            {/* Columna Izquierda: Consulta de Stock e Inventario */}
+            {/* Columna Izquierda: Formularios de Compra y Traslado */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              <div>
-                <span style={{ fontSize: '14px', color: '#64748B', fontWeight: 500 }}>Inventario WMS</span>
-                <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px', letterSpacing: '-0.5px' }}>Stock por Bodegas</h2>
-              </div>
-
-              <div className="pos-categories" style={{ marginBottom: '0px' }}>
-                {Object.keys(stock).map(bod => (
-                  <button
-                    key={bod}
-                    className={`pos-category-tab ${activeBodega === bod ? 'active' : ''}`}
-                    onClick={() => setActiveBodega(bod)}
-                  >
-                    {bod}
-                  </button>
-                ))}
-              </div>
-
-              <div className="hr-table-card">
-                <table className="hr-table">
-                  <thead>
-                    <tr>
-                      <th>Lote</th>
-                      <th>SKU</th>
-                      <th>Nombre del Producto</th>
-                      <th>Stock Físico</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Object.entries(stock[activeBodega] || {}).map(([sku, cantidad]) => {
-                      const producto = products.find(p => p.sku === sku);
-                      return (
-                        <tr key={sku}>
-                          <td style={{ fontWeight: 700, color: '#00B171' }}>LOT-PRINCIPAL</td>
-                          <td>{sku}</td>
-                          <td style={{ fontWeight: 600 }}>{producto?.nombre || 'Producto Desconocido'}</td>
-                          <td style={{ fontWeight: 700, fontSize: '15px' }}>{cantidad as any} unidades</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
 
               <PurchaseOrderForm 
                 compra={compra} 
@@ -1331,6 +1462,9 @@ export default function InventoryView() {
                 proveedores={proveedores} 
                 activeProducts={activeProducts} 
                 handleProcesarCompra={handleProcesarCompra} 
+                bodegas={bodegas}
+                onProductCreated={(_newProd: any) => loadInventory()}
+                onProductIvaUpdate={handleProductIvaUpdate}
               />
 
               <TransferForm 
@@ -1581,6 +1715,48 @@ export default function InventoryView() {
         />
       )}
 
+      {viewMode === 'registrar_compra' && (
+        <div className="flex flex-col gap-4 animate-fade-in">
+          <div className="flex justify-between items-center bg-slate-900 text-white p-5 rounded-2xl shadow-sm flex-wrap gap-3">
+            <div>
+              <span className="text-xs font-extrabold text-emerald-400 uppercase tracking-widest block">Módulo WMS & Compras</span>
+              <h2 className="text-xl font-black text-white m-0 flex items-center gap-2 mt-0.5">
+                <Truck size={22} className="text-emerald-400" />
+                Entrada de Mercadería y Registro de Compras
+              </h2>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setViewMode('reportes_compra')}
+                className="px-3.5 py-2 text-xs font-bold text-slate-200 bg-slate-800 hover:bg-slate-700 rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                📊 Ver Historial / Reportes
+              </button>
+              <button
+                onClick={() => setViewMode('operaciones')}
+                className="px-3.5 py-2 text-xs font-bold text-slate-200 bg-slate-800 hover:bg-slate-700 rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                📦 Ver Stock Físico
+              </button>
+            </div>
+          </div>
+
+          <PurchaseOrderForm 
+            compra={compra} 
+            setCompra={setCompra} 
+            proveedores={proveedores} 
+            activeProducts={activeProducts} 
+            handleProcesarCompra={(e: any) => {
+              handleProcesarCompra(e);
+              setViewMode('reportes_compra');
+            }} 
+            bodegas={bodegas}
+            onProductCreated={(_newProd: any) => loadInventory()}
+            onProductIvaUpdate={handleProductIvaUpdate}
+          />
+        </div>
+      )}
+
       {viewMode === 'reportes_compra' && (
         <PurchasesReport 
           ordenesCompra={ordenesCompra}
@@ -1588,6 +1764,7 @@ export default function InventoryView() {
           productsCatalog={products}
           categorias={categorias}
           userRole={userRole}
+          onOpenNuevaCompra={() => setViewMode('registrar_compra')}
         />
       )}
 

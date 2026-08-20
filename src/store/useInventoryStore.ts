@@ -40,6 +40,7 @@ interface InventoryState {
   setProductsCatalog: (catalogOrUpdater: any) => void;
   setProductPricings: (pricingsOrUpdater: any) => void;
   setStock: (stockOrUpdater: any) => void;
+  setStockAsync: (stockOrUpdater: any) => Promise<void>;
   getProductoById: (id: string) => Producto | undefined;
 }
 
@@ -58,15 +59,23 @@ export const useInventoryStore = create<InventoryState>()(
       ]);
 
       const unifiedProducts: Producto[] = catalog.map((cat: any) => {
-        const productPricings = pricings.filter((pr: any) => pr.productoId === cat.id);
-        let currentPricing = productPricings[0];
-        if (productPricings.length > 1) {
-          currentPricing = productPricings.reduce((latest: any, current: any) =>
+        const productPricingsList = pricings.filter((pr: any) => pr.productoId === cat.id);
+        let currentPricing = productPricingsList[0];
+        if (productPricingsList.length > 1) {
+          currentPricing = productPricingsList.reduce((latest: any, current: any) =>
             new Date(current.vigenciaDesde) > new Date(latest.vigenciaDesde) ? current : latest
           );
         }
-        const fb = { precio_compra: 0, buffer_seguridad: 0, precio_venta_pos: 0, precio_venta_restaurante: 0, precio_venta_mayorista: 0 };
-        return { ...cat, ...(currentPricing || fb), categoriaABC: cat.categoriaABC || 'C' } as Producto;
+        return {
+          precio_compra: cat.precio_compra ?? 0,
+          buffer_seguridad: cat.buffer_seguridad ?? 5,
+          precio_venta_pos: cat.precio_venta_pos ?? 0,
+          precio_venta_restaurante: cat.precio_venta_restaurante ?? cat.precio_venta_pos ?? 0,
+          precio_venta_mayorista: cat.precio_venta_mayorista ?? cat.precio_venta_pos ?? 0,
+          ...cat,
+          ...(currentPricing || {}),
+          categoriaABC: cat.categoriaABC || 'C'
+        } as Producto;
       });
 
       set({ productsCatalog: catalog, productPricings: pricings, products: unifiedProducts });
@@ -120,16 +129,18 @@ export const useInventoryStore = create<InventoryState>()(
   })),
 
   setProductsCatalog: (catalogOrUpdater: any) => {
-    set((state) => ({
-      productsCatalog: typeof catalogOrUpdater === 'function' ? catalogOrUpdater(state.productsCatalog) : catalogOrUpdater,
-    }));
+    const current = get().productsCatalog;
+    const newCatalog = typeof catalogOrUpdater === 'function' ? catalogOrUpdater(current) : catalogOrUpdater;
+    localDb.save('productsCatalog', newCatalog);
+    set({ productsCatalog: newCatalog });
     get().loadInventory();
   },
 
   setProductPricings: (pricingsOrUpdater: any) => {
-    set((state) => ({
-      productPricings: typeof pricingsOrUpdater === 'function' ? pricingsOrUpdater(state.productPricings) : pricingsOrUpdater,
-    }));
+    const current = get().productPricings;
+    const newPricings = typeof pricingsOrUpdater === 'function' ? pricingsOrUpdater(current) : pricingsOrUpdater;
+    localDb.save('productPricings', newPricings);
+    set({ productPricings: newPricings });
     get().loadInventory();
   },
 
@@ -150,6 +161,23 @@ export const useInventoryStore = create<InventoryState>()(
 
     return { stock: newStock };
   }),
+
+  setStockAsync: async (stockOrUpdater: any) => {
+    const state = get();
+    const newStock = typeof stockOrUpdater === 'function' ? stockOrUpdater(state.stock) : stockOrUpdater;
+    
+    const raw = await dataService.getAll<any>('stock');
+    const id = (Array.isArray(raw) && raw.length > 0 && raw[0].id) ? raw[0].id : 'singleton';
+    const payload = { id, ...newStock };
+    
+    if (!Array.isArray(raw) || raw.length === 0) {
+      await dataService.create('stock', payload);
+    } else {
+      await dataService.update('stock', id, payload);
+    }
+    
+    set({ stock: newStock });
+  },
 
   getProductoById: (id) => get().products.find(p => p.id === id),
   })));

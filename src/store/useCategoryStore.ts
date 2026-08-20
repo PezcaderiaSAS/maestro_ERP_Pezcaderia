@@ -8,16 +8,39 @@ export const setCategoryDataService = (ds: IDataService) => { dataService = ds; 
 
 export interface CategoriaConfig {
   id: string;
-  tipo: string;
-  linea: string;
-  clase: string;
+  nombre: string;
+  parentId: string | null;
+  // Campos legacy opcionales para compatibilidad
+  tipo?: string;
+  linea?: string;
+  clase?: string;
 }
 
 const DEFAULT_CATEGORIAS: CategoriaConfig[] = [
-  { id: 'cat-1', tipo: 'Producto', linea: 'Pescados', clase: 'Filetes' },
-  { id: 'cat-2', tipo: 'Producto', linea: 'Mariscos', clase: 'Camarones' },
-  { id: 'cat-3', tipo: 'Materia Prima', linea: 'Pescados Enteros', clase: 'Corvina' },
+  { id: 'cat-root-1', nombre: 'Producto', parentId: null },
+  { id: 'cat-linea-1', nombre: 'Pescados', parentId: 'cat-root-1' },
+  { id: 'cat-1', nombre: 'Filetes', parentId: 'cat-linea-1' },
+  { id: 'cat-linea-2', nombre: 'Mariscos', parentId: 'cat-root-1' },
+  { id: 'cat-2', nombre: 'Camarones', parentId: 'cat-linea-2' },
+  { id: 'cat-root-2', nombre: 'Materia Prima', parentId: null },
+  { id: 'cat-linea-3', nombre: 'Pescados Enteros', parentId: 'cat-root-2' },
+  { id: 'cat-3', nombre: 'Corvina', parentId: 'cat-linea-3' },
 ];
+
+export const getCategoryPath = (id: string, categorias: CategoriaConfig[]): string => {
+  const cat = categorias.find(c => c.id === id);
+  if (!cat) return '';
+  
+  // Legacy fallback
+  if (!cat.nombre && cat.tipo) {
+    return `${cat.tipo.toUpperCase()} > ${cat.linea?.toUpperCase()} > ${cat.clase?.toUpperCase()}`;
+  }
+
+  if (!cat.parentId) return cat.nombre;
+  
+  const parentPath = getCategoryPath(cat.parentId, categorias);
+  return parentPath ? `${parentPath} > ${cat.nombre}` : cat.nombre;
+};
 
 interface CategoryState {
   categorias: CategoriaConfig[];

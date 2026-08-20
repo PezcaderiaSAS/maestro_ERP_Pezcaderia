@@ -9,15 +9,19 @@ import type { RealtimeChannel } from '@supabase/supabase-js';
 let dataService: IDataService = new LocalDataService();
 export const setOrderDataService = (ds: IDataService) => { dataService = ds; };
 
-interface Cotizacion {
+export interface Cotizacion {
   id: string;
   fecha: string;
   cliente: string;
   clienteId?: string;
   total: number;
   items?: any[];
+  lineas?: any[];
+  montoTotal?: number;
+  subtotal?: number;
   estado?: string;
   fechaActualizacion?: string;
+  [key: string]: any;
 }
 
 interface OrderState {

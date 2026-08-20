@@ -1,3 +1,4 @@
+// src/services/warehouseService.ts
 import { load, save } from './localDb';
 import type { IDataService } from '../types/services.types';
 import { LocalDataService } from './LocalDataService';

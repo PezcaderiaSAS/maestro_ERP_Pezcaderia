@@ -9,7 +9,7 @@ export const setEventDataService = (ds: IDataService) => { dataService = ds; };
 export interface DomainEvent {
   id: string;
   timestamp: string;
-  tipo: 'SALE_COMPLETED' | 'PRICE_CHANGED' | 'MERMA_ALERT' | 'QUOTE_STATUS_CHANGED' | 'METADATA_CONFIGURED';
+  tipo: 'SALE_COMPLETED' | 'PRICE_CHANGED' | 'MERMA_ALERT' | 'QUOTE_STATUS_CHANGED' | 'METADATA_CONFIGURED' | 'QUOTE_UPDATED';
   actor: string;
   descripcion: string;
   metadata?: any;

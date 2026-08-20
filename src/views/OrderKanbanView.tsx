@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Truck, CheckCircle, PackageSearch, Package, AlertCircle, FileText } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { b2bService } from '../services/b2bService';
@@ -16,21 +17,53 @@ interface OrderKanbanViewProps {
 type ColumnId = 'pausados' | 'creados' | 'listos' | 'en_despacho' | 'entregados' | 'facturados' | 'pagados';
 
 export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
-  const { ventas, setVentas, updateVenta } = useOrderStore();
+  const { ventas, setVentas, updateVenta, quotations, setQuotations, updateQuotation } = useOrderStore();
   const publishEvent = useEventStore((s) => s.publishEvent);
   const userRole = useAppStore((s) => s.userRole);
   const { products, stock, setStock } = useInventoryStore();
   const { addMovimiento } = useMovementStore();
 
+  const combinedOrders = useMemo(() => {
+    const map = new Map<string, any>();
+    (quotations || []).forEach((q: any) => {
+      if (q && q.id) {
+        map.set(q.id, { ...q, _source: 'quotation' });
+      }
+    });
+    (ventas || []).forEach((v: any) => {
+      if (v && v.id) {
+        const existing = map.get(v.id);
+        map.set(v.id, { ...existing, ...v, _source: 'venta' });
+      }
+    });
+    return Array.from(map.values());
+  }, [ventas, quotations]);
+
   const columns: { id: ColumnId; title: string; states: string[]; color: string; icon: React.ReactNode }[] = [
-    { id: 'pausados', title: 'Pausados', states: ['PAUSADO', 'PAUSADO_POR_CREDITO'], color: '#FEE2E2', icon: <AlertCircle size={20} color="#EF4444" /> },
-    { id: 'creados', title: 'Por Alistar', states: ['CREADO'], color: '#F1F5F9', icon: <PackageSearch size={20} color="#64748B" /> },
-    { id: 'listos', title: 'Listos para Despacho', states: ['LISTO'], color: '#FEF3C7', icon: <Package size={20} color="#D97706" /> },
-    { id: 'en_despacho', title: 'En Despacho', states: ['EN_DESPACHO'], color: '#EDE9FE', icon: <Truck size={20} color="#8B5CF6" /> },
-    { id: 'entregados', title: 'Entregados', states: ['ENTREGADO'], color: '#DCFCE7', icon: <CheckCircle size={20} color="#059669" /> },
-    { id: 'facturados', title: 'Facturados', states: ['FACTURADO'], color: '#E0F2FE', icon: <FileText size={20} color="#0284C7" /> },
-    { id: 'pagados', title: 'Pagados / Finalizados', states: ['PAGADO', 'ANULADO'], color: '#F3F4F6', icon: <CheckCircle size={20} color="#9CA3AF" /> },
+    { id: 'pausados', title: 'Pausados', states: ['PAUSADO', 'PAUSADO_POR_CREDITO', 'Pausado', 'pausado', 'Pausado por Crédito'], color: '#FEE2E2', icon: <AlertCircle size={20} color="#EF4444" /> },
+    { id: 'creados', title: 'Por Alistar', states: ['CREADO', 'Creado', 'creado', 'Approved', 'Approved (Pendiente Alistamiento)', 'Sent', 'Draft', 'EN_ALISTAMIENTO', 'Aprobado'], color: '#F1F5F9', icon: <PackageSearch size={20} color="#64748B" /> },
+    { id: 'listos', title: 'Listos para Despacho', states: ['LISTO', 'Listo', 'listo'], color: '#FEF3C7', icon: <Package size={20} color="#D97706" /> },
+    { id: 'en_despacho', title: 'En Despacho', states: ['EN_DESPACHO', 'En Despacho', 'en_despacho'], color: '#EDE9FE', icon: <Truck size={20} color="#8B5CF6" /> },
+    { id: 'entregados', title: 'Entregados', states: ['ENTREGADO', 'Entregado', 'entregado'], color: '#DCFCE7', icon: <CheckCircle size={20} color="#059669" /> },
+    { id: 'facturados', title: 'Facturados', states: ['FACTURADO', 'Facturado', 'facturado'], color: '#E0F2FE', icon: <FileText size={20} color="#0284C7" /> },
+    { id: 'pagados', title: 'Pagados / Finalizados', states: ['PAGADO', 'Pagado', 'pagado', 'ANULADO', 'Anulado', 'anulado', 'Sold', 'Vendida'], color: '#F3F4F6', icon: <CheckCircle size={20} color="#9CA3AF" /> },
   ];
+
+  const persistOrderUpdate = (quoteId: string, updatedFields: Record<string, any>) => {
+    if (updatedFields.estado) {
+      b2bService.cambiarEstadoPedido(quoteId, updatedFields.estado);
+    }
+    if (quotations && quotations.some((q: any) => q.id === quoteId)) {
+      updateQuotation(quoteId, updatedFields);
+    } else if (setQuotations) {
+      setQuotations((prev: any[]) => prev.map((q: any) => q.id === quoteId ? { ...q, ...updatedFields } : q));
+    }
+    if (ventas && ventas.some((v: any) => v.id === quoteId)) {
+      updateVenta(quoteId, updatedFields);
+    } else if (setVentas) {
+      setVentas((prev: any[]) => prev.map((v: any) => v.id === quoteId ? { ...v, ...updatedFields } : v));
+    }
+  };
 
   const handleDragStart = (e: React.DragEvent, quoteId: string) => {
     e.dataTransfer.setData('quoteId', quoteId);
@@ -78,7 +111,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
       }
     }
 
-    const currentQuote = ventas.find(q => q.id === quoteId);
+    const currentQuote = combinedOrders.find(q => q.id === quoteId);
     if (!currentQuote || currentQuote.estado === nuevoEstado) return;
 
     // Lógica para DESPACHO (Inventario)
@@ -123,12 +156,13 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
             
             if (!newStock[bodegaId]) newStock[bodegaId] = {};
 
-            currentQuote.lineas.forEach((linea: any) => {
-              const producto = products.find((p: any) => p.id === linea.productoId);
+            const lines = currentQuote.lineas || currentQuote.items || [];
+            lines.forEach((linea: any) => {
+              const producto = products.find((p: any) => p.id === (linea.productoId || linea.id) || p.sku === linea.sku);
               if (!producto) return;
 
-              const sku = producto.sku;
-              const cantidadADescontar = linea.pesoReal || linea.cantidadAlistada || linea.cantidadSolicitada;
+              const sku = producto.sku || linea.sku;
+              const cantidadADescontar = linea.pesoReal || linea.cantidadAlistada || linea.cantidadSolicitada || linea.cantidad_real || linea.cantidad || 0;
 
               if (newStock[bodegaId][sku] === undefined) newStock[bodegaId][sku] = 0;
               newStock[bodegaId][sku] -= cantidadADescontar;
@@ -145,7 +179,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                 referenciaId: currentQuote.id,
                 referenciaTipo: 'DESPACHO_B2B',
                 actor: userRole,
-                notas: `Despacho de Pedido ${currentQuote.numeroPedido} (Conductor: ${conductor})`
+                notas: `Despacho de Pedido ${currentQuote.numeroPedido || currentQuote.numeroCotizacion || currentQuote.id} (Conductor: ${conductor})`
               });
             });
 
@@ -159,7 +193,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
               observaciones: `${currentQuote.observaciones || ''}\nDespachado con: ${conductor}`
             };
 
-            updateVenta(currentQuote.id, pedidoActualizado);
+            persistOrderUpdate(currentQuote.id, pedidoActualizado);
             
             publishEvent('QUOTE_STATUS_CHANGED', userRole, `Pedido despachado con ${conductor}`, { quoteId, nuevoEstado });
             
@@ -186,7 +220,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
         return;
       }
 
-      const totalPedido = currentQuote.totalFinal || currentQuote.subtotal || 0;
+      const totalPedido = currentQuote.totalFinal || (currentQuote as any).total || currentQuote.subtotal || 0;
 
       Swal.fire({
         title: 'Registrar Pago B2B',
@@ -256,16 +290,9 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
           const { cash, card, transfer, turnoId, change } = result.value;
           
           try {
-            // Nota: Aquí se usará useOrderStore o b2bService dependiendo del modelo unificado
-            const resultado = b2bService.cambiarEstadoPedido(quoteId, nuevoEstado); // Podría requerir updateVenta
-            if (resultado.error) {
-              Swal.fire({ icon: 'error', title: 'Error de transición', text: resultado.error, confirmButtonColor: 'var(--primary-color)' });
-              return;
-            }
-
             const turnoDestino = cashService.getTurnos().find(t => t.id === turnoId);
             if (turnoDestino) {
-              const orderNoStr = currentQuote.numeroPedido || currentQuote.id;
+              const orderNoStr = currentQuote.numeroPedido || (currentQuote as any).numeroCotizacion || (currentQuote as any).no || currentQuote.id;
               const refId = currentQuote.id;
               
               const efectivoReal = Math.max(0, cash - change);
@@ -280,7 +307,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
               }
             }
 
-            setVentas((prev: any[]) => prev.map((q: any) => q.id === quoteId ? { ...q, estado: nuevoEstado, fechaActualizacionKanban: new Date().toISOString() } : q));
+            persistOrderUpdate(quoteId, { estado: nuevoEstado, fechaActualizacionKanban: new Date().toISOString() });
             publishEvent('QUOTE_STATUS_CHANGED', userRole, `Pedido pagado y registrado en Caja`, { quoteId, nuevoEstado });
             
             Swal.fire({ icon: 'success', title: 'Pago Registrado', text: 'El pedido ha sido marcado como pagado y el ingreso se registró en la caja.', confirmButtonColor: 'var(--primary-color)' });
@@ -295,15 +322,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
     }
 
     try {
-      // También podríamos querer unificar con Supabase update acá, por ahora update local state
-      const resultado = b2bService.cambiarEstadoPedido(quoteId, nuevoEstado);
-      if (resultado.error) {
-        Swal.fire({ icon: 'error', title: 'Error de transición', text: resultado.error, confirmButtonColor: 'var(--primary-color)' });
-        return;
-      }
-
-      setVentas((prev: any[]) => prev.map((q: any) => q.id === quoteId ? { ...q, estado: nuevoEstado, fechaActualizacionKanban: new Date().toISOString() } : q));
-      
+      persistOrderUpdate(quoteId, { estado: nuevoEstado, fechaActualizacionKanban: new Date().toISOString() });
       publishEvent('QUOTE_STATUS_CHANGED', userRole, `Pedido actualizado a estado ${nuevoEstado}`, { quoteId, nuevoEstado });
     } catch (e: any) {
       Swal.fire({ icon: 'error', title: 'Error interno', text: e.message, confirmButtonColor: 'var(--primary-color)' });
@@ -327,10 +346,10 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
           cutoffTime.setHours(6, 0, 0, 0);
           if (now.getHours() < 6) cutoffTime.setDate(cutoffTime.getDate() - 1);
 
-          const columnQuotes = ventas.filter(q => {
+          const columnQuotes = combinedOrders.filter(q => {
             if (!column.states.includes(q.estado)) return false;
             
-            if (['PAGADO', 'ANULADO'].includes(q.estado)) {
+            if (['PAGADO', 'Pagado', 'pagado', 'ANULADO', 'Anulado', 'anulado'].includes(q.estado)) {
               const updateTimeStr = (q as any).fechaActualizacionKanban || q.fecha;
               if (!updateTimeStr) return false;
               const updateTime = new Date(updateTimeStr);
@@ -400,15 +419,19 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div>
-                          <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary-color)' }}>{quote.numeroPedido || (quote as any).no}</div>
-                          <div style={{ fontSize: '14px', fontWeight: 700, color: '#1E293B', marginTop: '2px' }}>{(quote as any).clientName || quote.clienteId || 'Cliente No Identificado'}</div>
+                          <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary-color)' }}>
+                            {quote.numeroPedido || (quote as any).numeroCotizacion || (quote as any).no || quote.id}
+                          </div>
+                          <div style={{ fontSize: '14px', fontWeight: 700, color: '#1E293B', marginTop: '2px' }}>
+                            {quote.clientName || (quote as any).clienteNombre || (quote as any).clienteId || 'Cliente No Identificado'}
+                          </div>
                         </div>
-                        {quote.estado === 'PAUSADO' && (
+                        {['PAUSADO', 'Pausado', 'pausado'].includes(quote.estado) && (
                           <span style={{ backgroundColor: '#FEE2E2', color: '#EF4444', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
                             <AlertCircle size={10} /> Peso &gt; 5%
                           </span>
                         )}
-                        {quote.estado === 'PAUSADO_POR_CREDITO' && (
+                        {['PAUSADO_POR_CREDITO', 'Pausado por Crédito'].includes(quote.estado) && (
                           <span style={{ backgroundColor: '#FEE2E2', color: '#EF4444', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
                             <AlertCircle size={10} /> Cupo Lleno
                           </span>
@@ -417,7 +440,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
 
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#64748B' }}>
                         <FileText size={14} />
-                        <span>{quote.lineas?.length || 0} ítems</span>
+                        <span>{quote.lineas?.length || (quote as any).items?.length || 0} ítems</span>
                       </div>
 
                       {quote.tipoEntrega === 'EN_RUTA' && (
@@ -432,7 +455,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                       <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: '8px', marginTop: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ fontSize: '11px', color: '#94A3B8' }}>{quote.fecha}</div>
                         <div style={{ fontWeight: 800, color: '#1E293B', fontSize: '14px' }}>
-                          ${(quote.totalFinal || quote.subtotal || 0).toLocaleString('es-CO')}
+                          ${(quote.totalFinal || (quote as any).total || quote.subtotal || 0).toLocaleString('es-CO')}
                         </div>
                       </div>
                     </div>
@@ -446,3 +469,6 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
     </div>
   );
 }
+
+
+

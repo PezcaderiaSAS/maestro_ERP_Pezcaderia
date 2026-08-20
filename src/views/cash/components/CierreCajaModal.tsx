@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { TurnoCaja, DetalleArqueo } from '../../../types/cash.types';
 import { cashService } from '../../../services/cashService';
+import { useCashStore } from '../../../store/useCashStore';
 import Swal from 'sweetalert2';
-import { Wallet, CreditCard, Landmark, Check, X, AlertCircle } from 'lucide-react';
+import { Wallet, CreditCard, Landmark, Check, X, AlertCircle, Loader2 } from 'lucide-react';
 import { CalculadorDenominaciones } from './CalculadorDenominaciones';
 import { useActionLogger } from '../../../hooks/useActionLogger';
 
@@ -15,6 +16,7 @@ interface CierreCajaModalProps {
 }
 
 export default function CierreCajaModal({ turnoActivo, usuarioId, onClose, onSuccess }: CierreCajaModalProps) {
+  const { isLoading } = useCashStore();
   const [denominacionesCierre, setDenominacionesCierre] = useState<DetalleArqueo>({
     billetes100k: 0, billetes50k: 0, billetes20k: 0, billetes10k: 0, billetes5k: 0, billetes2k: 0,
     monedas1k: 0, monedas500: 0, monedas200: 0, monedas100: 0, monedas50: 0
@@ -115,7 +117,7 @@ export default function CierreCajaModal({ turnoActivo, usuarioId, onClose, onSuc
 
   return createPortal(
     // OVERLAY — fijo, cubre toda la pantalla, sin cierre al clic externo
-    <div className="fixed inset-0 z-[99999] bg-slate-900/65 backdrop-blur-sm flex justify-center items-center p-4">
+    <div className="fixed inset-0 z-50 bg-slate-900/65 backdrop-blur-sm flex justify-center items-center p-2 md:p-4 overflow-y-auto">
 
       {/* CARD — ancho máximo xl para acomodar calculador + saldos */}
       <div className="bg-white rounded-3xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.35)] w-full max-w-5xl max-h-[95vh] flex flex-col overflow-hidden animate-[modalFadeIn_0.3s_ease-out_forwards]">
@@ -282,9 +284,12 @@ export default function CierreCajaModal({ turnoActivo, usuarioId, onClose, onSuc
             data-testid="btn-confirmar-cierre"
             type="button"
             onClick={handleCierre}
-            className="h-12 px-6 flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-md shadow-red-200 transition-all"
+            disabled={isLoading}
+            className="h-12 px-6 flex items-center gap-2 bg-red-600 hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-md shadow-red-200 transition-all"
           >
-            Confirmar Cierre <Check size={18} />
+            {isLoading
+              ? <><Loader2 size={18} className="animate-spin" /> Cerrando...</>
+              : <>Confirmar Cierre <Check size={18} /></>}
           </button>
         </div>
 

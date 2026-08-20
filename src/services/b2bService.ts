@@ -25,6 +25,7 @@ export const b2bService = {
     return load<Pedido[]>(DB_KEY, []);
   },
 
+
   obtenerPedidoPorId(id: string): Pedido | null {
     const pedidos = this.obtenerPedidos();
     return pedidos.find(p => p.id === id) || null;
@@ -44,11 +45,13 @@ export const b2bService = {
 
       pedidos.push(nuevoPedido);
       save(DB_KEY, pedidos);
+
       return { data: nuevoPedido, error: null };
     } catch (error: any) {
       return { data: null, error: error.message };
     }
   },
+
 
   cambiarEstadoPedido(pedidoId: string, nuevoEstado: EstadoPedido): ResultadoOperacion<Pedido> {
     try {
@@ -63,11 +66,13 @@ export const b2bService = {
 
       pedido.estado = nuevoEstado;
       save(DB_KEY, pedidos);
+
       return { data: pedido, error: null };
     } catch (error: any) {
       return { data: null, error: error.message };
     }
   },
+
 
   confirmarAlistamiento(pedidoId: string, pesosReales: { productoId: string; cantidadAlistada: number }[]): ResultadoOperacion<Pedido> {
     try {

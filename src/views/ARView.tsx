@@ -8,6 +8,7 @@ import { useClientStore } from '../store/useClientStore.ts';
 import { useEventStore } from '../store/useEventStore.ts';
 import { useAppStore } from '../store/useAppStore.ts';
 import { useReturnStore } from '../store/useReturnStore.ts';
+import { cashService } from '../services/cashService.ts';
 
 export interface PaymentAR {
   id: string;
@@ -357,6 +358,55 @@ export default function ARView() {
         }
         return inv;
       }));
+
+      // Registrar sincronización con Flujo de Caja (cashService)
+      try {
+        cashService.seedCajasParaBodegas();
+        const todosTurnos = cashService.getTurnos();
+        const turnoActivo = todosTurnos.find(t => t.estado === 'ABIERTO');
+
+        if (turnoActivo) {
+          const clientName = resolveClienteName(invoice);
+          if (cash > 0) {
+            cashService.registrarMovimiento(
+              turnoActivo.id,
+              turnoActivo.cajaId,
+              'INGRESO_ABONO',
+              'EFECTIVO',
+              cash,
+              `Abono Cartera Factura ${invoice.id} (${clientName})`,
+              invoice.id,
+              userRole
+            );
+          }
+          if (card > 0) {
+            cashService.registrarMovimiento(
+              turnoActivo.id,
+              turnoActivo.cajaId,
+              'INGRESO_ABONO',
+              'DATAFONO',
+              card,
+              `Abono Cartera Factura ${invoice.id} (${clientName})`,
+              invoice.id,
+              userRole
+            );
+          }
+          if (transfer > 0) {
+            cashService.registrarMovimiento(
+              turnoActivo.id,
+              turnoActivo.cajaId,
+              'INGRESO_ABONO',
+              'TRANSFERENCIA',
+              transfer,
+              `Abono Cartera Factura ${invoice.id} (${clientName})`,
+              invoice.id,
+              userRole
+            );
+          }
+        }
+      } catch (cashErr) {
+        console.error('Error al sincronizar abono de cartera con flujo de caja:', cashErr);
+      }
 
       Swal.fire({
         icon: 'success',
