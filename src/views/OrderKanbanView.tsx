@@ -9,6 +9,8 @@ import { useEventStore } from '../store/useEventStore.ts';
 import { useAppStore } from '../store/useAppStore.ts';
 import { useInventoryStore } from '../store/useInventoryStore.ts';
 import { useMovementStore } from '../store/useMovementStore.ts';
+import { Card } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
 
 interface OrderKanbanViewProps {
   onEditOrder: (quote: any) => void;
@@ -360,26 +362,24 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
           });
 
           return (
-            <div
+            <Card
+              glass
               key={column.id}
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, column.id)}
               style={{
                 flex: '0 0 320px',
-                backgroundColor: column.color,
-                borderRadius: '12px',
                 display: 'flex',
                 flexDirection: 'column',
-                border: '1px solid #E2E8F0',
-                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
+                padding: 0
               }}
             >
-              <div style={{ padding: '16px', borderBottom: '1px solid rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ padding: '16px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'var(--surface-dark)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   {column.icon}
-                  <h3 style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: '#1E293B' }}>{column.title}</h3>
+                  <h3 style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>{column.title}</h3>
                 </div>
-                <div style={{ backgroundColor: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: 700, color: '#475569', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+                <div style={{ backgroundColor: 'var(--bg-color)', padding: '2px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', border: '1px solid var(--border-color)' }}>
                   {columnQuotes.length}
                 </div>
               </div>
@@ -397,24 +397,23 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                       onDragStart={(e) => handleDragStart(e, quote.id)}
                       onClick={() => onEditOrder(quote)}
                       style={{
-                        backgroundColor: 'white',
+                        backgroundColor: 'var(--bg-color)',
                         padding: '16px',
                         borderRadius: '8px',
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-                        border: '1px solid #E2E8F0',
+                        border: '1px solid var(--border-color)',
                         cursor: 'pointer',
                         display: 'flex',
                         flexDirection: 'column',
                         gap: '8px',
-                        transition: 'transform 0.2s, box-shadow 0.2s',
+                        transition: 'transform 0.2s',
                       }}
                       onMouseEnter={e => {
                         e.currentTarget.style.transform = 'translateY(-2px)';
-                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+                        e.currentTarget.style.borderColor = 'var(--primary-color)';
                       }}
                       onMouseLeave={e => {
                         e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+                        e.currentTarget.style.borderColor = 'var(--border-color)';
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -422,19 +421,19 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                           <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary-color)' }}>
                             {quote.numeroPedido || (quote as any).numeroCotizacion || (quote as any).no || quote.id}
                           </div>
-                          <div style={{ fontSize: '14px', fontWeight: 700, color: '#1E293B', marginTop: '2px' }}>
+                          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', marginTop: '2px' }}>
                             {quote.clientName || (quote as any).clienteNombre || (quote as any).clienteId || 'Cliente No Identificado'}
                           </div>
                         </div>
                         {['PAUSADO', 'Pausado', 'pausado'].includes(quote.estado) && (
-                          <span style={{ backgroundColor: '#FEE2E2', color: '#EF4444', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <AlertCircle size={10} /> Peso &gt; 5%
-                          </span>
+                          <Badge variant="danger" style={{ fontSize: '10px' }}>
+                            <AlertCircle size={10} style={{ marginRight: '4px' }} /> Peso &gt; 5%
+                          </Badge>
                         )}
                         {['PAUSADO_POR_CREDITO', 'Pausado por Crédito'].includes(quote.estado) && (
-                          <span style={{ backgroundColor: '#FEE2E2', color: '#EF4444', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <AlertCircle size={10} /> Cupo Lleno
-                          </span>
+                          <Badge variant="danger" style={{ fontSize: '10px' }}>
+                            <AlertCircle size={10} style={{ marginRight: '4px' }} /> Cupo Lleno
+                          </Badge>
                         )}
                       </div>
 
@@ -462,7 +461,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                   ))
                 )}
               </div>
-            </div>
+            </Card>
           );
         })}
       </div>

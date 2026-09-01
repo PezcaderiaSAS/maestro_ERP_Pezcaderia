@@ -3,6 +3,7 @@ import { useAccountingStore } from '../store/useAccountingStore';
 import { useWarehouseStore } from '../store/useWarehouseStore';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { Card } from '../components/ui/Card';
 import { BookOpen, Search, RefreshCw, AlertCircle, DollarSign } from 'lucide-react';
 export default function AccountingView() {
   const { summary, loading, error, fetchAccounts, fetchEntriesByDateRange } = useAccountingStore();
@@ -60,7 +61,7 @@ export default function AccountingView() {
   };
 
   return (
-    <div className="p-6 h-full flex flex-col bg-slate-50">
+    <div className="pos-layout flex animate-fade-in" style={{ flexDirection: 'column', gap: '20px', padding: '20px', overflowY: 'auto' }}>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
@@ -71,7 +72,7 @@ export default function AccountingView() {
         </div>
       </div>
 
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-wrap gap-4 items-end">
+      <Card glass className="flex flex-wrap gap-4 items-end mb-6" style={{ padding: '16px' }}>
         <div className="flex-1 min-w-[200px]">
           <label className="block text-sm font-medium text-slate-700 mb-1">Bodega (Sucursal)</label>
           <select 
@@ -110,7 +111,7 @@ export default function AccountingView() {
             Consultar
           </Button>
         </div>
-      </div>
+      </Card>
 
       {error && (
         <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-xl flex items-start gap-3 border border-red-200">
@@ -128,8 +129,8 @@ export default function AccountingView() {
         ) : (
           <div className="space-y-6 pb-6">
             {Object.entries(groupedSummary).map(([type, accounts]) => (
-              <div key={type} className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <div className="bg-slate-100 px-6 py-3 border-b border-slate-200">
+              <Card glass key={type} className="overflow-hidden" style={{ padding: 0 }}>
+                <div style={{ backgroundColor: 'var(--surface-dark)', padding: '12px 24px', borderBottom: '1px solid var(--border-color)' }}>
                   <h3 className="font-bold text-slate-700 uppercase tracking-wider text-sm">{getTypeName(type)}</h3>
                 </div>
                 <div className="overflow-x-auto">
@@ -158,7 +159,7 @@ export default function AccountingView() {
                     </tbody>
                   </table>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         )}

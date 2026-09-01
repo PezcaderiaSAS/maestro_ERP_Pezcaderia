@@ -1,16 +1,16 @@
-# Graph Report - MaestroPescaderia  (2026-08-20)
+# Graph Report - MaestroPescaderia  (2026-09-01)
 
 ## Corpus Check
-- 1022 files · ~687,392 words
+- 1085 files · ~721,621 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 8883 nodes · 9564 edges · 743 communities (706 shown, 37 thin omitted)
+- 9127 nodes · 9841 edges · 789 communities (733 shown, 56 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 2 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `fa33e487`
+- Built from commit: `e5e5986a`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -743,6 +743,52 @@
 - [[_COMMUNITY_Community 738|Community 738]]
 - [[_COMMUNITY_Community 739|Community 739]]
 - [[_COMMUNITY_Community 740|Community 740]]
+- [[_COMMUNITY_Community 743|Community 743]]
+- [[_COMMUNITY_Community 744|Community 744]]
+- [[_COMMUNITY_Community 745|Community 745]]
+- [[_COMMUNITY_Community 746|Community 746]]
+- [[_COMMUNITY_Community 747|Community 747]]
+- [[_COMMUNITY_Community 748|Community 748]]
+- [[_COMMUNITY_Community 749|Community 749]]
+- [[_COMMUNITY_Community 750|Community 750]]
+- [[_COMMUNITY_Community 751|Community 751]]
+- [[_COMMUNITY_Community 752|Community 752]]
+- [[_COMMUNITY_Community 753|Community 753]]
+- [[_COMMUNITY_Community 754|Community 754]]
+- [[_COMMUNITY_Community 755|Community 755]]
+- [[_COMMUNITY_Community 756|Community 756]]
+- [[_COMMUNITY_Community 757|Community 757]]
+- [[_COMMUNITY_Community 758|Community 758]]
+- [[_COMMUNITY_Community 759|Community 759]]
+- [[_COMMUNITY_Community 760|Community 760]]
+- [[_COMMUNITY_Community 761|Community 761]]
+- [[_COMMUNITY_Community 762|Community 762]]
+- [[_COMMUNITY_Community 763|Community 763]]
+- [[_COMMUNITY_Community 764|Community 764]]
+- [[_COMMUNITY_Community 765|Community 765]]
+- [[_COMMUNITY_Community 766|Community 766]]
+- [[_COMMUNITY_Community 767|Community 767]]
+- [[_COMMUNITY_Community 768|Community 768]]
+- [[_COMMUNITY_Community 769|Community 769]]
+- [[_COMMUNITY_Community 770|Community 770]]
+- [[_COMMUNITY_Community 771|Community 771]]
+- [[_COMMUNITY_Community 772|Community 772]]
+- [[_COMMUNITY_Community 773|Community 773]]
+- [[_COMMUNITY_Community 774|Community 774]]
+- [[_COMMUNITY_Community 775|Community 775]]
+- [[_COMMUNITY_Community 776|Community 776]]
+- [[_COMMUNITY_Community 777|Community 777]]
+- [[_COMMUNITY_Community 778|Community 778]]
+- [[_COMMUNITY_Community 779|Community 779]]
+- [[_COMMUNITY_Community 780|Community 780]]
+- [[_COMMUNITY_Community 781|Community 781]]
+- [[_COMMUNITY_Community 782|Community 782]]
+- [[_COMMUNITY_Community 783|Community 783]]
+- [[_COMMUNITY_Community 784|Community 784]]
+- [[_COMMUNITY_Community 785|Community 785]]
+- [[_COMMUNITY_Community 786|Community 786]]
+- [[_COMMUNITY_Community 787|Community 787]]
+- [[_COMMUNITY_Community 788|Community 788]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `IDataService` - 35 edges
@@ -771,23 +817,23 @@
 ## Import Cycles
 - 3-file cycle: `src/App.tsx -> src/views/PricingView.tsx -> src/hooks/usePricing.ts -> src/App.tsx`
 
-## Communities (743 total, 37 thin omitted)
+## Communities (789 total, 56 thin omitted)
 
 ### Community 0 - "Community 0"
-Cohesion: 0.07
-Nodes (61): FulfillmentChecklist(), usePricing(), AlistamientoBodegaView(), DispatchView(), generateId(), toTitleCase(), orderDispatchService, App() (+53 more)
+Cohesion: 0.06
+Nodes (72): FulfillmentChecklist(), usePricing(), AlistamientoBodegaView(), DispatchView(), generateId(), toTitleCase(), calculateDashboardMetrics(), DashboardMetrics (+64 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.04
-Nodes (72): COLORS, ICONS, initLogger(), LOG_LEVELS, LogFn, Logger, LogLevel, MODULE_LEVELS (+64 more)
+Cohesion: 0.03
+Nodes (76): COLORS, ICONS, initLogger(), LOG_LEVELS, LogFn, Logger, LogLevel, MODULE_LEVELS (+68 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.07
-Nodes (45): CashFlowView(), AperturaCajaModal(), AperturaCajaModalProps, ArqueoCajaModal(), ArqueoCajaModalProps, CalculadorDenominaciones(), DENOMINACIONES_BILLETES, DENOMINACIONES_MONEDAS (+37 more)
+Cohesion: 0.08
+Nodes (40): CashFlowView(), AperturaCajaModal(), AperturaCajaModalProps, ArqueoCajaModal(), ArqueoCajaModalProps, CalculadorDenominaciones(), DENOMINACIONES_BILLETES, DENOMINACIONES_MONEDAS (+32 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.08
-Nodes (33): BalanzaButton(), BalanzaButtonProps, CartPanel(), CartPanelProps, LineaVentaRow(), LineaVentaRowProps, PaymentPanel(), PaymentPanelProps (+25 more)
+Cohesion: 0.09
+Nodes (30): BalanzaButton(), BalanzaButtonProps, CartPanel(), CartPanelProps, LineaVentaRow(), LineaVentaRowProps, PaymentPanel(), PaymentPanelProps (+22 more)
 
 ### Community 4 - "Community 4"
 Cohesion: 0.10
@@ -806,12 +852,12 @@ Cohesion: 0.04
 Nodes (48): 10. Dependency Security, 1. Secrets Management, 2. Input Validation, 3. SQL Injection Prevention, 4. Authentication & Authorization, 5. XSS Prevention, 6. CSRF Protection, 7. Rate Limiting (+40 more)
 
 ### Community 8 - "Community 8"
-Cohesion: 0.04
-Nodes (48): 1. Cross-Repo Initialization, 1. Distributed Task Queue, 1. Eventually Consistent, 1. Microservices Coordination, 1. Repository Organization, 1. Webhook-Based Coordination, 2. Communication, 2. Cross-Repo Testing (+40 more)
+Cohesion: 0.08
+Nodes (24): 1. Distributed Task Queue, 1. Repository Organization, 2. Communication, 2. Cross-Repo Testing, 3. Monorepo Migration, 3. Security, Advanced Features, Best Practices (+16 more)
 
 ### Community 9 - "Community 9"
 Cohesion: 0.13
-Nodes (23): transicionesValidas, getSkuByProductoId(), getUnidadByProductoId(), InventoryService, MovimientoInventario, procesarProduccion(), registrarEntrada(), registrarSalida() (+15 more)
+Nodes (24): transicionesValidas, getSkuByProductoId(), getUnidadByProductoId(), InventoryService, MovimientoInventario, procesarProduccion(), registrarEntrada(), registrarSalida() (+16 more)
 
 ### Community 10 - "Community 10"
 Cohesion: 0.04
@@ -846,8 +892,8 @@ Cohesion: 0.05
 Nodes (41): 1. Long Functions, 1. Readability First, 2. Deep Nesting, 2. KISS (Keep It Simple, Stupid), 3. DRY (Don't Repeat Yourself), 3. Magic Numbers, 4. YAGNI (You Aren't Gonna Need It), API Design Standards (+33 more)
 
 ### Community 18 - "Community 18"
-Cohesion: 0.08
-Nodes (26): 1. Self-Healing CI/CD, 1. Swarm-Powered Actions, 2. Dynamic Workflow Generation, 2. Progressive Deployment, 3. Intelligent Test Selection, 3. Performance Regression Detection, Adaptive Security Scanning, Advanced Features (+18 more)
+Cohesion: 0.05
+Nodes (41): 1. PR Validation Swarm, 1. Self-Healing CI/CD, 1. Swarm-Powered Actions, 1. Workflow Organization, 2. Dynamic Workflow Generation, 2. Progressive Deployment, 2. Release Automation, 2. Security (+33 more)
 
 ### Community 19 - "Community 19"
 Cohesion: 0.05
@@ -1030,12 +1076,12 @@ Cohesion: 0.08
 Nodes (23): 1. Create Coordinated Issue with Swarm Tracking, 1. **Swarm-Coordinated Issue Management**, 2. **Automated Progress Tracking**, 2. Automated Progress Updates, 3. Multi-Issue Project Coordination, 3. **Smart Labeling and Organization**, 4. **Batch Issue Operations**, Automatic tracking of: (+15 more)
 
 ### Community 64 - "Community 64"
-Cohesion: 0.05
-Nodes (44): 1. Issue Dependencies, 1. Issue-PR Linking, 1. Issue Templates, 1. Issue-to-Swarm Conversion, 2. Epic Management, 2. Issue Comment Commands, 2. Label Strategy, 2. Milestone Coordination (+36 more)
+Cohesion: 0.06
+Nodes (32): 1. Issue Dependencies, 1. Issue-to-Swarm Conversion, 2. Epic Management, 2. Issue Comment Commands, 3. Issue Templates, 3. Issue Templates for Swarms, Advanced Features, Auto-Label Based on Content (+24 more)
 
 ### Community 65 - "Community 65"
-Cohesion: 0.08
-Nodes (24): 1. Multi-PR Swarm Coordination, 1. PR Templates, 2. PR Dependency Analysis, 2. Status Checks, 3. Automated PR Fixes, 3. PR Merge Automation, Advanced Features, Automatic Agent Assignment (+16 more)
+Cohesion: 0.07
+Nodes (28): 1. Multi-PR Swarm Coordination, 1. PR-Based Swarm Creation, 2. PR Comment Commands, 2. PR Dependency Analysis, 3. Automated PR Fixes, 3. Automated PR Workflows, Advanced Features, Automatic Agent Assignment (+20 more)
 
 ### Community 66 - "Community 66"
 Cohesion: 0.08
@@ -1287,7 +1333,7 @@ Nodes (9): DevTestDashboard(), applySeed(), SEED_DATA, applySeed(), SEED_DATA, a
 
 ### Community 128 - "Community 128"
 Cohesion: 0.08
-Nodes (24): 1. Multi-Board Sync, 2. Cross-Organization Sync, 3. External Tool Integration, Advanced Synchronization, Agile Development Board, Board Analytics, Board Mapping Configuration, Configuration (+16 more)
+Nodes (24): 1. Board Organization, 2. Data Integrity, 3. Team Adoption, Agile Development Board, Best Practices, Board Analytics, Board Commands, Board Mapping Configuration (+16 more)
 
 ### Community 129 - "Community 129"
 Cohesion: 0.12
@@ -1970,8 +2016,8 @@ Cohesion: 0.18
 Nodes (10): Error Handling, Formatting, Immutability, Iterators Over Loops, Module Organization, Naming, Ownership and Borrowing, References (+2 more)
 
 ### Community 299 - "Community 299"
-Cohesion: 0.11
-Nodes (13): getSupabaseClient(), accountingService, TRANSACTION_CATEGORIES, TransactionCategory, SupabaseDataService, AccountingState, AccountSummary, Account (+5 more)
+Cohesion: 0.16
+Nodes (13): getSupabaseClient(), accountingService, TRANSACTION_CATEGORIES, TransactionCategory, AccountingState, AccountSummary, useAccountingStore, Account (+5 more)
 
 ### Community 300 - "Community 300"
 Cohesion: 0.18
@@ -3242,16 +3288,16 @@ Cohesion: 0.27
 Nodes (8): Bodega, BODEGAS_DEFECTO, desactivarBodega(), eliminarBodega(), guardarBodega(), obtenerBodegas(), ServiceResponse, WarehouseService
 
 ### Community 620 - "Community 620"
-Cohesion: 0.32
-Nodes (5): calculateDashboardMetrics(), DashboardMetrics, TransaccionResumen, DashboardView(), MetricCardProps
+Cohesion: 0.12
+Nodes (15): 13.3. Explicit Locking, AI Tools, Capítulo 1: Column Level Security, Capítulo 2: Chapter 13. Concurrency Control, Capítulo 3: 13.3. Explicit Locking, Chapter 13. Concurrency Control, Column Level Security, Considerations when using column-level privileges# (+7 more)
 
 ### Community 621 - "Community 621"
 Cohesion: 0.29
 Nodes (6): 📋 1. Compleitud y Claridad de Requerimientos (Completeness & Clarity), 🏛️ 2. Cumplimiento de la Constitución del ERP (Architecture & Business Rules), ⚙️ 3. Mantenibilidad y Desacoplamiento (Maintainability & Decoupling), 🧪 4. Verificabilidad y Calidad de Código (Testability & QA Gates), 🔒 5. Gestión de Riesgos e Infraestructura (Risk & Infrastructure), Lista de Verificación de Calidad (Quality Assurance Checklist - SDD / ISO 25010)
 
 ### Community 622 - "Community 622"
-Cohesion: 0.07
-Nodes (29): CategoriaWizardModal(), Props, CrearProductoRapidoModal(), Props, CrearProveedorRapidoModal(), Props, ProductForm(), ProductionForm() (+21 more)
+Cohesion: 0.06
+Nodes (39): CategoriaWizardModal(), Props, CrearProductoRapidoModal(), Props, CrearProveedorRapidoModal(), Props, ProductForm(), ProductionForm() (+31 more)
 
 ### Community 623 - "Community 623"
 Cohesion: 0.25
@@ -3270,28 +3316,28 @@ Cohesion: 0.22
 Nodes (8): 🛠️ Comandos de Continuidad para Otros Equipos, Fase 1: Setup de Orquestación & Especificación SDD (Spec-Kit), Fase 2: Microservicio Backend Spring Boot 4 (Java 21+), Fase 3: Capa de Servicios React 18 & Front-End Decoupled, Fase 4: Motor de Promociones Odoo 18 & Optimización, 🗺️ Fases del Roadmap, 🎯 Objetivo General, Roadmap de Integración: Spring Boot 4 + OmniRouter + Spec-Kit
 
 ### Community 627 - "Community 627"
-Cohesion: 0.21
-Nodes (11): ABC_CONFIG, getStockStatus(), Props, SortDir, SortField, STATUS_CONFIG, StockCell(), StockMatrizTable() (+3 more)
+Cohesion: 0.13
+Nodes (14): 1. Tokens de Diseño y Filosofía Estética, 2. Componentes Atómicos y Patrones de Alta Densidad, 3. Responsive Breakpoints & Soporte de Impresión (@media print), 4. Checklist de Validación UI/UX, 4. Ejemplo de Componente KPI Card Reutilizable, A. Data Tables de Alta Densidad (WMS & Finanzas), A. Matriz de Breakpoints Operativos, B. Hoja de Estilos de Impresión (@media print) (+6 more)
 
 ### Community 628 - "Community 628"
-Cohesion: 0.50
-Nodes (4): 1. Auto-Assignment, 2. Progress Tracking, 3. Smart Card Movement, Automation Features
+Cohesion: 0.13
+Nodes (14): 1. Configuración de Conexión y Credenciales, 2. Integración con Context7 API, 3. Catálogo de Comandos y Herramientas Stitch MCP, 4. Flujos de Trabajo Recomendados (End-to-End Workflows), 5. Reglas de Calidad y Estilo Visual (Design Excellence), 6. Verificación Continuada, Credenciales de Context7:, Flujo 1: Text-to-UI → React + Tailwind Component Generation (+6 more)
 
 ### Community 629 - "Community 629"
-Cohesion: 0.50
-Nodes (4): 1. Board Initialization, 2. Task Synchronization, 3. Real-time Updates, Core Features
+Cohesion: 0.18
+Nodes (10): 1. Topología del Control de Concurrencia de Datos, 2. Mejores Prácticas Asíncronas (Async / Await) en Frontend, 3. Matriz de Comandos de Barra Disponibles, A. Cancelación Inmediata con `AbortController`, A. Estrategia 1: Optimistic Concurrency Control (OCC), B. Deduplicación de Peticiones en Vuelo (In-Flight Promise Sharing), B. Estrategia 2: Pessimistic Locking (`SELECT FOR UPDATE`), C. Concurrencia de React 18 (`useTransition` & `useDeferredValue`) (+2 more)
 
 ### Community 630 - "Community 630"
-Cohesion: 0.50
-Nodes (4): 1. Board Organization, 2. Data Integrity, 3. Team Adoption, Best Practices
+Cohesion: 0.18
+Nodes (10): 1. Patrones de Control de Concurrencia en Base de Datos, 2. Mejores Prácticas Asíncronas en Frontend (React 18 + TS), 3. Checklist de Concurrencia y Async, A. Cancelación de Peticiones con `AbortController`, A. Optimistic Concurrency Control (OCC) con Columna `version`, B. Deduplicación de Peticiones en Vuelo (Promise In-Flight Sharing), B. Pessimistic Locking en PostgreSQL (`SELECT ... FOR UPDATE`), C. Distributed Locks con Upstash Redis REST (+2 more)
 
 ### Community 631 - "Community 631"
-Cohesion: 0.50
-Nodes (4): Board Commands, Bulk Operations, Card Templates, Create Cards from Issues
+Cohesion: 0.18
+Nodes (10): 1. Principios de Diseño Editorial y Legibilidad Corporativa, 2. Catálogo de Plantillas Estandarizadas, 3. Arquitectura del Helper de Utilidades PDF, 4. Checklist para Nuevos Documentos, A. Factura Comercial / Facturación Electrónica (Formato Carta / A4), B. Remisión de Despacho & Picking WMS (Cuarto Frío), C. Desprendible de Nómina y Liquidación, D. Comprobante de Arqueo de Caja Ciega (Auditoría de Tesorería) (+2 more)
 
 ### Community 632 - "Community 632"
-Cohesion: 0.50
-Nodes (4): 1. PR-Based Swarm Creation, 2. PR Comment Commands, 3. Automated PR Workflows, Core Features
+Cohesion: 0.15
+Nodes (11): BatchProgress, BulkQueueOptions, processBulkProductsQueue(), ProcessedBatchResult, RawProductInput, classifyProductVisualTheme(), generateProductSVGAvatar(), getProductInitials() (+3 more)
 
 ### Community 633 - "Community 633"
 Cohesion: 0.50
@@ -3509,53 +3555,161 @@ Nodes (3): Agent Strategies, Core Concepts, Swarm Topologies
 Cohesion: 0.67
 Nodes (3): Basic Pattern, Prerequisites, Quick Start
 
-### Community 733 - "Community 733"
-Cohesion: 0.50
-Nodes (4): Data Recovery, Performance, Sync Issues, Troubleshooting
-
 ### Community 734 - "Community 734"
-Cohesion: 0.50
-Nodes (4): Milestone Tracking, Release Planning, Sprint Management, Workflow Integration
+Cohesion: 0.25
+Nodes (7): AI Tools, Column Level Security, Considerations when using column-level privileges#, Manage column privileges in migrations#, Manage column privileges in the Dashboard#, Policies at the row level#, Privileges at the column level#
 
 ### Community 736 - "Community 736"
-Cohesion: 0.50
-Nodes (4): 1. PR Validation Swarm, 2. Release Automation, 3. Documentation Updates, Integration Examples
+Cohesion: 0.29
+Nodes (6): 1. Topología del Flujo Visual Híbrido, 2. Compresión Client-Side WebP (Cero Desperdicio de Storage), 3. Carga Masiva y Brecha Dinámica de Tráfico (Chunks de 5), 4. Checklist de Creación de Producto, ERP Product Visual & Image Generation Engine Skill, Paleta Semántica por Familia de Producto:
 
 ### Community 737 - "Community 737"
-Cohesion: 0.50
-Nodes (4): 1. Workflow Organization, 2. Security, 3. Performance, Best Practices
+Cohesion: 0.29
+Nodes (6): 1. Clasificación Oficial del Stack, 2. Protocolo de Evaluación de Nuevas Dependencias, ERP Tech Stack Governance & Architectural Control Skill, 🟢 Stack Aprobado y Activo, 🔴 Stack Prohibido y Descartado, 🟡 Stack Requerido para Escalar
 
 ### Community 738 - "Community 738"
 Cohesion: 0.50
-Nodes (4): Action Commands, Failure Analysis, Pipeline Optimization, Resource Management
+Nodes (4): 1. Cross-Repo Initialization, 2. Repository Discovery, 3. Synchronized Operations, Core Features
 
 ### Community 739 - "Community 739"
-Cohesion: 0.67
-Nodes (3): Dynamic Test Matrix, Intelligent Parallelization, Matrix Strategies
+Cohesion: 0.29
+Nodes (6): entry_point_file, generated_at, sources_summary, topic, total_sources, total_words
 
 ### Community 740 - "Community 740"
+Cohesion: 0.29
+Nodes (6): 1. Fundamentos Arquitectónicos y Principios de Dominio, 2. Modelado de Datos (PostgreSQL + Supabase), 3. Lógica de Picking y Reserva Concurrente, 4. Checklist para Implementaciones WMS, Estructura de Lotes y Ubicaciones WMS:, WMS Cold Storage & Inventory Management Skill
+
+### Community 743 - "Community 743"
+Cohesion: 0.33
+Nodes (5): 1. System Design & Fundamentos de Sistemas Distribuidos, 2. Escalabilidad y Alta Disponibilidad, 3. Arquitectura de Software y Patrones, 4. Machine Learning Systems Design, Fuentes de Conocimiento Absoluto: Arquitectura y System Design
+
+### Community 744 - "Community 744"
+Cohesion: 0.33
+Nodes (5): 1. Matriz de Gobernanza del Stack Tecnológico, 2. Arquitectura de Expansión Multi-Tenant Lógico, 3. Arquitectura Offline-First con Patrón Outbox (IndexedDB), Evaluación Analítica del Stack Tecnológico, Expansión y Crecimiento SaaS, Tabla Comparativa de Tecnologías:
+
+### Community 745 - "Community 745"
+Cohesion: 0.33
+Nodes (5): 1. Topología del Patrón Outbox en el Navegador, 2. Reglas de Resolución de Conflictos, 3. Checklist para Implementaciones Offline, Estructura de la Cola Outbox en IndexedDB:, Offline-First Outbox Synchronization Skill
+
+### Community 746 - "Community 746"
+Cohesion: 0.33
+Nodes (5): 1. Topología del Sistema de Caché, 2. Patrón de Consumo Upstash Redis vía HTTP REST, 3. Estrategia de Invalidación de Caché (Stale-While-Revalidate), Capas y Responsabilidades:, SaaS Multi-Tier Caching & Concurrency Skill
+
+### Community 747 - "Community 747"
+Cohesion: 0.40
+Nodes (4): 1. Principios de Seguridad y Auditoría de Caja, 2. Modelado de Datos para Turnos y Arqueos, 3. Checklist de Implementación POS & Tesorería, ERP POS & Cash Treasury Engine Skill
+
+### Community 748 - "Community 748"
+Cohesion: 0.40
+Nodes (4): 1. Principios de Aislamiento Lógico (Multi-Tenancy), 2. Jerarquía de Roles RBAC, 3. Plantilla DDL de Seguridad RLS, SaaS Multi-Tenant Security & Isolation Skill
+
+### Community 749 - "Community 749"
+Cohesion: 0.40
+Nodes (4): 1. Mapa de Capacidades de la Capa Gratuita, 2. Emulación de Document Store NoSQL con PostgreSQL `JSONB`, 3. Optimización del Bundle Frontend SPA (Vite + React), SPA & Free Tier Cloud Architecture Skill
+
+### Community 750 - "Community 750"
 Cohesion: 0.50
-Nodes (4): Bug Fix PR, Documentation PR, Examples, Feature Development PR
+Nodes (4): 1. Eventually Consistent, 2. Strong Consistency, 3. Hybrid Approach, Synchronization Patterns
+
+### Community 751 - "Community 751"
+Cohesion: 0.50
+Nodes (4): 1. Issue-PR Linking, 2. Milestone Coordination, 3. Cross-Repo Issues, Integration Patterns
+
+### Community 752 - "Community 752"
+Cohesion: 0.50
+Nodes (4): 1. Issue Templates, 2. Label Strategy, 3. Comment Etiquette, Best Practices
+
+### Community 753 - "Community 753"
+Cohesion: 0.50
+Nodes (4): 1. Microservices Coordination, 2. Library Updates, 3. Organization-Wide Changes, Use Cases
+
+### Community 754 - "Community 754"
+Cohesion: 0.50
+Nodes (4): Auto-Close Stale Issues, Automation Examples, Duplicate Detection, Issue Triage
+
+### Community 755 - "Community 755"
+Cohesion: 0.50
+Nodes (4): 1. Webhook-Based Coordination, 2. GraphQL Federation, 3. Event Streaming, Communication Strategies
+
+### Community 756 - "Community 756"
+Cohesion: 0.50
+Nodes (4): Connectivity Issues, Memory Synchronization, Performance Bottlenecks, Troubleshooting
+
+### Community 757 - "Community 757"
+Cohesion: 0.50
+Nodes (4): 1. PR Templates, 2. Status Checks, 3. PR Merge Automation, Best Practices
+
+### Community 758 - "Community 758"
+Cohesion: 0.50
+Nodes (4): Dependency Graph, Health Monitoring, Monitoring & Visualization, Multi-Repo Dashboard
+
+### Community 759 - "Community 759"
+Cohesion: 0.50
+Nodes (4): 1. Auto-Assignment, 2. Progress Tracking, 3. Smart Card Movement, Automation Features
+
+### Community 760 - "Community 760"
+Cohesion: 0.50
+Nodes (3): Objetivo, Pasos de Ejecución, Workflow: /multi-tier-cache
+
+### Community 761 - "Community 761"
+Cohesion: 0.50
+Nodes (3): Objetivo, Pasos de Ejecución, Workflow: /pdf-docs
+
+### Community 762 - "Community 762"
+Cohesion: 0.50
+Nodes (3): Objetivo, Pasos de Ejecución, Workflow: /pos-cash
+
+### Community 763 - "Community 763"
+Cohesion: 0.50
+Nodes (3): Objetivo, Pasos de Ejecución, Workflow: /spa-architecture
+
+### Community 764 - "Community 764"
+Cohesion: 0.50
+Nodes (3): Objetivo, Pasos de Ejecución, Workflow: /ui-ux
+
+### Community 765 - "Community 765"
+Cohesion: 0.50
+Nodes (3): Objetivo, Pasos de Ejecución, Workflow: /wms-inventory
+
+### Community 782 - "Community 782"
+Cohesion: 0.50
+Nodes (4): 1. Board Initialization, 2. Task Synchronization, 3. Real-time Updates, Core Features
+
+### Community 783 - "Community 783"
+Cohesion: 0.50
+Nodes (4): 1. Multi-Board Sync, 2. Cross-Organization Sync, 3. External Tool Integration, Advanced Synchronization
+
+### Community 784 - "Community 784"
+Cohesion: 0.50
+Nodes (4): Data Recovery, Performance, Sync Issues, Troubleshooting
+
+### Community 785 - "Community 785"
+Cohesion: 0.50
+Nodes (4): Milestone Tracking, Release Planning, Sprint Management, Workflow Integration
+
+### Community 786 - "Community 786"
+Cohesion: 0.50
+Nodes (4): Review Coordination, Standup Automation, Team Collaboration, Work Distribution
 
 ## Knowledge Gaps
-- **6018 isolated node(s):** `Contexto y Dominio de Negocio`, `Reglas de Negocio e Invariantes (Inmutables)`, `Estructura de Datos (Contrato TypeScript)`, `1. Consolidación en Hook de Precios (`usePricing.ts`)`, `2. Manejo de Estado en Modal de Alistamiento B2B (`POSView.tsx`)` (+6013 more)
+- **6151 isolated node(s):** `Pasos de Ejecución`, `Workflow: /producto-foto`, `Paleta Semántica por Familia de Producto:`, `2. Compresión Client-Side WebP (Cero Desperdicio de Storage)`, `3. Carga Masiva y Brecha Dinámica de Tráfico (Chunks de 5)` (+6146 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **37 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **56 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Code Review Swarm - Automated Code Review with AI Agents` connect `Community 15` to `Community 468`?**
-  _High betweenness centrality (0.001) - this node is a cross-community bridge._
-- **Why does `Swarm Issue - Issue-Based Swarm Coordination` connect `Community 64` to `Community 468`?**
+- **Why does `Project Board Sync - GitHub Projects Integration` connect `Community 128` to `Community 782`, `Community 783`, `Community 784`, `Community 785`, `Community 786`, `Community 468`, `Community 759`?**
   _High betweenness centrality (0.000) - this node is a cross-community bridge._
-- **What connects `Contexto y Dominio de Negocio`, `Reglas de Negocio e Invariantes (Inmutables)`, `Estructura de Datos (Contrato TypeScript)` to the rest of the system?**
-  _6018 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Why does `Workflow Automation - GitHub Actions Integration` connect `Community 18` to `Community 468`?**
+  _High betweenness centrality (0.000) - this node is a cross-community bridge._
+- **What connects `Pasos de Ejecución`, `Workflow: /producto-foto`, `Paleta Semántica por Familia de Producto:` to the rest of the system?**
+  _6151 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.06930379746835443 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.061855670103092786 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.03902531886541024 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.03403279844824546 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
-  _Cohesion score 0.0717154331612163 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07792207792207792 - nodes in this community are weakly interconnected._
 - **Should `Community 3` be split into smaller, more focused modules?**
-  _Cohesion score 0.07918367346938776 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.08758503401360544 - nodes in this community are weakly interconnected._

@@ -12,6 +12,8 @@ import { TicketBuilder } from './pos/components/TicketBuilder.tsx';
 import { CartPanel } from './pos/components/CartPanel.tsx';
 import { ProductSearchPanel } from './pos/components/ProductSearchPanel.tsx';
 import { AperturaCajaModal } from './pos/components/AperturaCajaModal.tsx';
+import { Card } from '../components/ui/Card.tsx';
+import { Button } from '../components/ui/Button.tsx';
 import ArqueoCajaModal from './cash/components/ArqueoCajaModal.tsx';
 import { cashService } from '../services/cashService.ts';
 import { useWarehouseStore } from '../store/useWarehouseStore.ts';
@@ -1670,7 +1672,7 @@ export default function POSView({
         />
 
       {/* Carrito de Compras / Factura — delegado a CartPanel */}
-      <div className="pos-sidebar-cart flex flex-col bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden h-full min-h-0">
+      <Card glass className="pos-sidebar-cart flex flex-col h-full min-h-0">
         {ultimoTicket ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px', height: '100%', overflowY: 'auto' }}>
             <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: 0, textAlign: 'center' }}>Venta Realizada con Éxito</h3>
@@ -1678,25 +1680,13 @@ export default function POSView({
               venta={ultimoTicket!.venta}
               cliente={ultimoTicket!.cliente}
             />
-            <button
-              className="btn-primary"
+            <Button
+              variant="primary"
               onClick={() => setUltimoTicket(null)}
-              style={{
-                width: '100%',
-                padding: '12px',
-                borderRadius: '10px',
-                fontWeight: 700,
-                backgroundColor: 'var(--primary-color)',
-                color: 'white',
-                border: 'none',
-                cursor: 'pointer',
-                textAlign: 'center',
-                boxShadow: '0 4px 12px rgba(14, 116, 144, 0.2)',
-                marginTop: '8px'
-              }}
+              className="w-full mt-2"
             >
               Nueva Venta
-            </button>
+            </Button>
           </div>
         ) : (
           <CartPanel
@@ -1730,7 +1720,7 @@ export default function POSView({
             onCerrarTurnoClick={() => setShowArqueoModal(true)}
           />
         )}
-      </div>
+      </Card>
       </div>
       </>
       ) : activeSubView === 'consolidacion_b2b' ? (

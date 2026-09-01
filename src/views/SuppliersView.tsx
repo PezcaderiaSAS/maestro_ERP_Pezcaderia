@@ -6,6 +6,10 @@ import { useSupplierStore } from '../store/useSupplierStore.ts';
 import { usePurchaseStore, CuentaPorPagar } from '../store/usePurchaseStore.ts';
 import { useMovementStore } from '../store/useMovementStore.ts';
 import { useExpenseStore } from '../store/useExpenseStore.ts';
+import { Card } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { Badge } from '../components/ui/Badge';
+import { Input } from '../components/ui/Input';
 
 export default function SuppliersView() {
   const { proveedores, setProveedores } = useSupplierStore();
@@ -203,24 +207,23 @@ export default function SuppliersView() {
           <span style={{ fontSize: '14px', color: '#64748B' }}>Gestione el perfil, compras e historial de órdenes de sus proveedores.</span>
         </div>
         <div style={{ display: 'flex', gap: '16px' }}>
-          <button 
+          <Button 
+            variant={activeTab === 'PROVEEDORES' ? 'primary' : 'outline'}
             onClick={() => setActiveTab('PROVEEDORES')}
-            style={{ padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 600, backgroundColor: activeTab === 'PROVEEDORES' ? '#0F172A' : '#E2E8F0', color: activeTab === 'PROVEEDORES' ? 'white' : '#64748B' }}
           >
             Directorio Proveedores
-          </button>
-          <button 
+          </Button>
+          <Button 
+            variant={activeTab === 'GASTOS' ? 'primary' : 'outline'}
             onClick={() => setActiveTab('GASTOS')}
-            style={{ padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 600, backgroundColor: activeTab === 'GASTOS' ? '#0F172A' : '#E2E8F0', color: activeTab === 'GASTOS' ? 'white' : '#64748B' }}
           >
             Flujo de Caja (Gastos)
-          </button>
+          </Button>
         </div>
         {activeTab === 'PROVEEDORES' && (
-          <button className="btn-primary" onClick={startNewProveedor} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
-            <PlusCircle size={18} />
+          <Button variant="primary" onClick={startNewProveedor} icon={<PlusCircle size={18} />}>
             Nuevo Proveedor
-          </button>
+          </Button>
         )}
       </div>
 
@@ -230,13 +233,12 @@ export default function SuppliersView() {
         {/* COLUMNA IZQUIERDA: LISTA DE PROVEEDORES */}
         <div style={{ flex: '0 0 350px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div className="pos-search-bar" style={{ marginBottom: 0 }}>
-            <Search size={18} color="#64748B" />
-            <input
-              type="text"
-              className="pos-search-input"
+            <Input
+              leftIcon={<Search size={18} color="#64748B" />}
               placeholder="Buscar proveedor..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
+              fullWidth
             />
           </div>
           
@@ -253,16 +255,14 @@ export default function SuppliersView() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto', maxHeight: 'calc(100vh - 250px)' }}>
             {filteredProveedores.map(p => (
-              <div 
+              <Card 
+                glass
                 key={p.id} 
                 onClick={() => selectProveedor(p)}
                 style={{ 
                   padding: '16px', 
-                  backgroundColor: 'white', 
-                  border: `1px solid ${selectedProveedorId === p.id ? 'var(--primary-color)' : '#E2E8F0'}`, 
-                  borderRadius: '8px',
+                  border: `1px solid ${selectedProveedorId === p.id ? 'var(--primary-color)' : 'var(--border-color)'}`, 
                   cursor: 'pointer',
-                  boxShadow: selectedProveedorId === p.id ? '0 4px 12px rgba(0,0,0,0.05)' : 'none',
                   opacity: p.activo ? 1 : 0.6,
                   transition: 'all 0.2s'
                 }}
@@ -275,12 +275,12 @@ export default function SuppliersView() {
                   <span style={{ fontSize: '12px', color: '#64748B' }}>Plazo: {p.plazoPagoDias} días</span>
                   <span style={{ fontSize: '12px', color: '#64748B' }}>{p.ciudad}</span>
                 </div>
-              </div>
+              </Card>
             ))}
             {filteredProveedores.length === 0 && (
-              <div style={{ padding: '24px', textAlign: 'center', color: '#64748B', backgroundColor: 'white', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+              <Card glass style={{ padding: '24px', textAlign: 'center', color: '#64748B' }}>
                 No se encontraron proveedores.
-              </div>
+              </Card>
             )}
           </div>
         </div>
@@ -288,7 +288,7 @@ export default function SuppliersView() {
         {/* COLUMNA DERECHA: PERFIL DEL PROVEEDOR E HISTORIAL */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '24px' }}>
           
-          <div className="hr-table-card" style={{ padding: '24px' }}>
+          <Card glass style={{ padding: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 {selectedProveedorId && (
@@ -314,7 +314,7 @@ export default function SuppliersView() {
                     <ArrowLeft size={16} />
                   </button>
                 )}
-                <h3 style={{ fontSize: '18px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)' }}>
                   <Truck size={20} color="var(--primary-color)" /> 
                   {selectedProveedorId ? 'Perfil del Proveedor' : 'Registrar Nuevo Proveedor'}
                 </h3>
@@ -332,7 +332,7 @@ export default function SuppliersView() {
             </div>
 
             <form onSubmit={handleSaveProveedor} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div style={{ padding: '16px', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+              <div style={{ padding: '16px', backgroundColor: 'var(--surface-dark)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                 <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', color: '#0F172A', borderBottom: '1px solid #CBD5E1', paddingBottom: '8px' }}>Información Básica</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
@@ -353,7 +353,7 @@ export default function SuppliersView() {
                 </div>
               </div>
 
-              <div style={{ padding: '16px', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+              <div style={{ padding: '16px', backgroundColor: 'var(--surface-dark)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                 <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', color: '#0F172A', borderBottom: '1px solid #CBD5E1', paddingBottom: '8px' }}>Contacto y Ubicación</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
@@ -379,7 +379,7 @@ export default function SuppliersView() {
                 </div>
               </div>
 
-              <div style={{ padding: '16px', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+              <div style={{ padding: '16px', backgroundColor: 'var(--surface-dark)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                 <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', color: '#0F172A', borderBottom: '1px solid #CBD5E1', paddingBottom: '8px' }}>Condiciones Comerciales</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
@@ -390,19 +390,18 @@ export default function SuppliersView() {
               </div>
 
               <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
-                <button type="submit" className="btn-primary" style={{ border: 'none', flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '12px', backgroundColor: 'var(--primary-color)', color: 'white', borderRadius: '6px', cursor: 'pointer' }}>
-                  <Save size={16} />
-                  <span>{selectedProveedorId ? 'Guardar Cambios' : 'Registrar Proveedor'}</span>
-                </button>
+                <Button variant="primary" icon={<Save size={16} />} fullWidth>
+                  {selectedProveedorId ? 'Guardar Cambios' : 'Registrar Proveedor'}
+                </Button>
               </div>
             </form>
-          </div>
+          </Card>
 
           {selectedProveedorId && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
               
               {/* HISTORIAL DE ÓRDENES DE COMPRA */}
-              <div className="hr-table-card" style={{ padding: '24px' }}>
+              <Card glass style={{ padding: '24px' }}>
                 <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <ShoppingCart size={18} color="#0EA5E9" /> Órdenes de Compra
                 </h3>
@@ -436,10 +435,10 @@ export default function SuppliersView() {
                     ))}
                   </div>
                 )}
-              </div>
+              </Card>
 
               {/* CUENTAS POR PAGAR (AP) */}
-              <div className="hr-table-card" style={{ padding: '24px' }}>
+              <Card glass style={{ padding: '24px' }}>
                 <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <DollarSign size={18} color="#EF4444" /> Cuentas por Pagar (AP)
                 </h3>
@@ -495,10 +494,10 @@ export default function SuppliersView() {
                     ))}
                   </div>
                 )}
-              </div>
+              </Card>
 
               {/* HISTORIAL DE RECEPCIONES / ENTRADAS */}
-              <div className="hr-table-card" style={{ padding: '24px' }}>
+              <Card glass style={{ padding: '24px' }}>
                 <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Box size={18} color="#10B981" /> Entradas a Bodega
                 </h3>
@@ -523,7 +522,7 @@ export default function SuppliersView() {
                     ))}
                   </div>
                 )}
-              </div>
+              </Card>
 
             </div>
           )}
@@ -531,17 +530,17 @@ export default function SuppliersView() {
         </div>
       </div>
       ) : (
-        <div className="hr-table-card" style={{ padding: '24px' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '16px', color: '#0F172A' }}>Libro de Gastos / Salidas de Caja</h3>
+        <Card glass style={{ padding: '24px' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '16px', color: 'var(--text-primary)' }}>Libro de Gastos / Salidas de Caja</h3>
           
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
-              <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '2px solid #E2E8F0' }}>
-                <th style={{ padding: '12px', color: '#475569', fontSize: '13px' }}>Fecha</th>
-                <th style={{ padding: '12px', color: '#475569', fontSize: '13px' }}>ID Ref</th>
-                <th style={{ padding: '12px', color: '#475569', fontSize: '13px' }}>Categoría</th>
-                <th style={{ padding: '12px', color: '#475569', fontSize: '13px' }}>Concepto</th>
-                <th style={{ padding: '12px', color: '#475569', fontSize: '13px', textAlign: 'right' }}>Monto ($)</th>
+              <tr style={{ backgroundColor: 'var(--surface-dark)', borderBottom: '2px solid var(--border-color)' }}>
+                <th style={{ padding: '12px', color: 'var(--text-secondary)', fontSize: '13px' }}>Fecha</th>
+                <th style={{ padding: '12px', color: 'var(--text-secondary)', fontSize: '13px' }}>ID Ref</th>
+                <th style={{ padding: '12px', color: 'var(--text-secondary)', fontSize: '13px' }}>Categoría</th>
+                <th style={{ padding: '12px', color: 'var(--text-secondary)', fontSize: '13px' }}>Concepto</th>
+                <th style={{ padding: '12px', color: 'var(--text-secondary)', fontSize: '13px', textAlign: 'right' }}>Monto ($)</th>
               </tr>
             </thead>
             <tbody>
@@ -568,7 +567,7 @@ export default function SuppliersView() {
               )}
             </tbody>
           </table>
-        </div>
+        </Card>
       )}
 
     </div>

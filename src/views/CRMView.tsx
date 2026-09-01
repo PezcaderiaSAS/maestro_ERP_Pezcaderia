@@ -7,6 +7,10 @@ import {
 import Swal from 'sweetalert2';
 import { twentyCompanies, twentyContacts, twentyOpportunities, hasTwentyApiKey } from '../services/twentyClient';
 import { useClientStore } from '../store/useClientStore';
+import { Card } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { Badge } from '../components/ui/Badge';
+import { Input } from '../components/ui/Input';
 
 type TabType = 'COMPANIES' | 'CONTACTS' | 'OPPORTUNITIES';
 
@@ -93,43 +97,34 @@ export default function CRMView() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: '24px', width: '100%', height: '100%', overflowY: 'auto' }}>
+    <div className="pos-layout flex animate-fade-in" style={{ flexDirection: 'column', gap: '24px', padding: '24px', width: '100%', height: '100%', overflowY: 'auto' }}>
       {/* HEADER */}
-      <div style={{ 
+      <Card glass style={{ 
         display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
-        backgroundColor: 'white', padding: '24px', borderRadius: '16px', 
-        boxShadow: 'var(--shadow-sm)', border: '1px solid var(--border-color)',
+        padding: '24px', 
         flexWrap: 'wrap', gap: '16px'
       }}>
         <div>
           <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
             <PieChart color="#2563eb" size={28} />
             Gestión CRM 
-            <span style={{ fontSize: '12px', fontWeight: 500, backgroundColor: '#dbeafe', color: '#1d4ed8', padding: '4px 8px', borderRadius: '9999px', marginLeft: '8px' }}>
+            <Badge variant="primary" style={{ marginLeft: '8px' }}>
               Powered by Twenty
-            </span>
+            </Badge>
           </h1>
           <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '4px' }}>
             Administra empresas, contactos y el pipeline de ventas corporativas.
           </p>
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
-          <button 
-            onClick={handleCreate}
-            style={{ 
-              display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', 
-              backgroundColor: '#2563eb', color: 'white', borderRadius: '12px', 
-              fontWeight: 500, border: 'none', cursor: 'pointer', boxShadow: 'var(--shadow-sm)'
-            }}
-          >
-            <Plus size={20} />
+          <Button variant="primary" onClick={handleCreate} icon={<Plus size={20} />}>
             Crear Registro
-          </button>
+          </Button>
         </div>
-      </div>
+      </Card>
 
       {/* TABS */}
-      <div style={{ display: 'flex', gap: '4px', backgroundColor: '#f1f5f9', padding: '4px', borderRadius: '12px', width: 'max-content' }}>
+      <div style={{ display: 'flex', gap: '4px', backgroundColor: 'var(--surface-dark)', padding: '4px', borderRadius: '12px', width: 'max-content', border: '1px solid var(--border-color)' }}>
         {[
           { id: 'OPPORTUNITIES', icon: <KanbanSquare size={18} />, label: 'Oportunidades' },
           { id: 'COMPANIES', icon: <Building2 size={18} />, label: 'Empresas (B2B)' },
@@ -141,9 +136,8 @@ export default function CRMView() {
             style={{
               display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', 
               borderRadius: '8px', fontSize: '14px', fontWeight: 500, border: 'none', cursor: 'pointer',
-              backgroundColor: activeTab === tab.id ? 'white' : 'transparent',
-              color: activeTab === tab.id ? '#1d4ed8' : '#64748b',
-              boxShadow: activeTab === tab.id ? 'var(--shadow-sm)' : 'none',
+              backgroundColor: activeTab === tab.id ? 'var(--primary-color)' : 'transparent',
+              color: activeTab === tab.id ? 'white' : 'var(--text-secondary)',
               transition: 'all 0.2s'
             }}
           >
@@ -155,49 +149,40 @@ export default function CRMView() {
 
       {/* TOOLBAR */}
       <div style={{ display: 'flex', gap: '16px', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-        <div style={{ position: 'relative', width: '100%', maxWidth: '400px' }}>
-          <Search style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} size={20} />
-          <input 
-            type="text" 
+        <div style={{ width: '100%', maxWidth: '400px' }}>
+          <Input 
+            leftIcon={<Search color="#94a3b8" size={20} />}
             placeholder={`Buscar en ${activeTab.toLowerCase()}...`}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ 
-              width: '100%', padding: '10px 16px 10px 40px', backgroundColor: 'white', 
-              border: '1px solid #e2e8f0', borderRadius: '12px', outline: 'none', fontSize: '14px' 
-            }}
+            fullWidth
           />
         </div>
-        <button style={{ 
-          display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', 
-          backgroundColor: 'white', border: '1px solid #e2e8f0', color: '#334155', 
-          borderRadius: '12px', fontSize: '14px', fontWeight: 500, cursor: 'pointer' 
-        }}>
-          <Filter size={18} />
+        <Button variant="outline" icon={<Filter size={18} />}>
           Filtros Avanzados
-        </button>
+        </Button>
       </div>
 
       {/* CONTENT AREA */}
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '80px 0' }}>
-          <div style={{ width: '40px', height: '40px', border: '3px solid #f3f3f3', borderTop: '3px solid #2563eb', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+          <div style={{ width: '40px', height: '40px', border: '3px solid #f3f3f3', borderTop: '3px solid var(--primary-color)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
         </div>
       ) : (
-        <div style={{ backgroundColor: 'white', borderRadius: '16px', boxShadow: 'var(--shadow-sm)', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+        <Card glass style={{ overflow: 'hidden', padding: 0 }}>
           {activeTab === 'COMPANIES' && (
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
                 <thead>
-                  <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
-                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Empresa</th>
-                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Dominio</th>
-                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ubicación</th>
-                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Empleados</th>
-                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'right' }}>Acciones</th>
+                  <tr style={{ backgroundColor: 'var(--surface-dark)', borderBottom: '1px solid var(--border-color)' }}>
+                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Empresa</th>
+                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Dominio</th>
+                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ubicación</th>
+                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Empleados</th>
+                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'right' }}>Acciones</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody style={{ backgroundColor: 'transparent' }}>
                   {companies.map((c) => (
                     <tr 
                       key={c.id} 
@@ -249,15 +234,15 @@ export default function CRMView() {
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
                 <thead>
-                  <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
-                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Nombre</th>
-                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Cargo</th>
-                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Email</th>
-                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Teléfono</th>
-                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'right' }}>Acciones</th>
+                  <tr style={{ backgroundColor: 'var(--surface-dark)', borderBottom: '1px solid var(--border-color)' }}>
+                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Nombre</th>
+                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Cargo</th>
+                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Email</th>
+                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Teléfono</th>
+                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'right' }}>Acciones</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody style={{ backgroundColor: 'transparent' }}>
                   {contacts.map((c) => (
                     <tr 
                       key={c.id} 
@@ -322,7 +307,7 @@ export default function CRMView() {
                   };
 
                   return (
-                    <div key={stage} style={{ flex: '1', minWidth: '300px', backgroundColor: '#f1f5f9', borderRadius: '16px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div key={stage} style={{ flex: '1', minWidth: '300px', backgroundColor: 'var(--surface-dark)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 8px' }}>
                         <h3 style={{ fontWeight: 600, color: '#334155', display: 'flex', alignItems: 'center', gap: '8px', margin: 0, fontSize: '15px' }}>
                           <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: stageStyles[stage].bg, border: `1px solid ${stageStyles[stage].border}` }}></div>
@@ -347,7 +332,7 @@ export default function CRMView() {
                                 confirmButtonColor: '#2563eb'
                               });
                             }}
-                            style={{ backgroundColor: 'white', padding: '16px', borderRadius: '12px', boxShadow: 'var(--shadow-sm)', border: '1px solid #e2e8f0', cursor: 'pointer' }}
+                            style={{ backgroundColor: 'transparent', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-color)', cursor: 'pointer' }}
                           >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                               <h4 style={{ fontWeight: 500, color: '#1e293b', margin: 0, fontSize: '14px' }}>{op.name}</h4>
@@ -384,7 +369,7 @@ export default function CRMView() {
               </div>
             </div>
           )}
-        </div>
+        </Card>
       )}
     </div>
   );

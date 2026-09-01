@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { createLogger } from './lib/consoleLogger';
-import { Menu, LayoutDashboard, ShoppingBag, Box, Users, DollarSign, HelpCircle, Home, ShoppingCart, LogOut, FileText, PlusCircle, Wallet, Database, Truck, RefreshCw, PieChart, PackageCheck, BookOpen } from 'lucide-react';
+import { Menu, LayoutDashboard, ShoppingBag, Box, Users, DollarSign, HelpCircle, Home, ShoppingCart, LogOut, FileText, PlusCircle, Wallet, Database, Truck, RefreshCw, PieChart, PackageCheck, BookOpen, Moon, Sun, Terminal } from 'lucide-react';
 import DashboardView from './views/DashboardView';
 import POSView from './views/POSView';
 import InventoryView from './views/InventoryView';
@@ -639,7 +639,11 @@ export default function App() {
     };
   }, []);
 
-  const { userRole, setUserRole, currentView, setCurrentView, sidebarOpen, setSidebarOpen } = useAppStore();
+  const { userRole, setUserRole, currentView, setCurrentView, sidebarOpen, setSidebarOpen, theme, toggleTheme } = useAppStore();
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   const { productsCatalog, setProductsCatalog, productPricings, setProductPricings, products, loadInventory } = useInventoryStore();
 
@@ -934,9 +938,6 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [syncQueue]);
 
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', userRole);
-  }, [userRole]);
 
   useEffect(() => {
     log.info('navegacion', { vista: currentView });
@@ -1342,7 +1343,12 @@ export default function App() {
         </div>
 
         <div className="navbar-right">
-          <span className="navbar-company">PEZCADERIA S.A.S</span>
+          <span className="navbar-company" style={{ fontFamily: theme === 'obsidian' ? 'monospace' : 'inherit', color: theme === 'obsidian' ? 'var(--primary-color)' : 'inherit' }}>
+            {theme === 'obsidian' ? 'OBSIDIAN_OS V2.4' : 'PEZCADERIA S.A.S'}
+          </span>
+          <button className="navbar-icon-btn" title="Alternar Tema" onClick={toggleTheme} style={{ color: theme === 'obsidian' ? 'var(--primary-color)' : 'inherit' }}>
+            {theme === 'obsidian' ? <Terminal size={18} /> : <Moon size={18} />}
+          </button>
           <button className="navbar-icon-btn" title="Ayuda">
             <HelpCircle size={18} />
           </button>

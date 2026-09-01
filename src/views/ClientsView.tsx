@@ -1,10 +1,17 @@
 import { useState } from 'react';
 import { Cliente, generateId, toTitleCase } from '../App.tsx';
-import { Users, Search, Save, FileText, Wallet, PlusCircle } from 'lucide-react';
+import { Users, Search, Save, FileText, Wallet, PlusCircle, Sparkles } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useClientStore } from '../store/useClientStore.ts';
 import { useOrderStore } from '../store/useOrderStore.ts';
 import { useARStore } from '../store/useARStore.ts';
+import { Card } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { Badge } from '../components/ui/Badge';
+import { Input } from '../components/ui/Input';
+import { SmartAutofillModal } from '../components/clients/SmartAutofillModal';
+import { calcularDigitoVerificacion, determinarTipoPersonaPorNit } from '../utils/dianValidator';
+import type { ParsedClientData } from '../utils/smartContactParser';
 
 export default function ClientsView() {
   const { clientes, setClientes } = useClientStore();
@@ -13,6 +20,7 @@ export default function ClientsView() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'TODOS' | 'ACTIVOS' | 'INACTIVOS'>('TODOS');
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const [isAutofillOpen, setIsAutofillOpen] = useState(false);
 
   const [clienteForm, setClienteForm] = useState({
     nombre: '',
@@ -109,6 +117,21 @@ export default function ClientsView() {
     });
   };
 
+  const handleApplyAutofill = (data: ParsedClientData) => {
+    setClienteForm(prev => ({
+      ...prev,
+      nombre: data.nombre ? toTitleCase(data.nombre) : prev.nombre,
+      identificacion: data.identificacion || prev.identificacion,
+      tipoIdentificacion: data.tipoIdentificacion || prev.tipoIdentificacion,
+      tipoPersona: data.tipoPersona || prev.tipoPersona,
+      direccion: data.direccion ? toTitleCase(data.direccion) : prev.direccion,
+      telefono: data.telefono || prev.telefono,
+      email: data.email || prev.email,
+      ciudad: data.ciudad ? toTitleCase(data.ciudad) : prev.ciudad,
+      encargadoCompras: data.encargadoCompras ? toTitleCase(data.encargadoCompras) : prev.encargadoCompras,
+    }));
+  };
+
   const handleToggleCliente = (id: string) => {
     setClientes((prev: Cliente[]) => prev.map((c: Cliente) => c.id === id ? { ...c, activo: !c.activo } : c));
   };
@@ -126,31 +149,32 @@ export default function ClientsView() {
   const selectedClienteCartera = cartera.filter(inv => inv.clienteId === selectedClientId).sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
 
   return (
-    <div className="animate-fade-in" style={{ padding: '24px', height: '100%', overflowY: 'auto' }}>
+    <div className="pos-container" style={{ padding: '24px', maxWidth: '1600px', margin: '0 auto' }}>
       
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
-          <h2 className="view-title">Directorio de Clientes</h2>
-          <span style={{ fontSize: '14px', color: '#64748B' }}>Gestione el perfil, compras e historial crediticio de sus clientes.</span>
+          <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Users size={28} color="var(--primary-color)" /> Directorio de Clientes
+          </h2>
+          <p style={{ color: '#64748B', fontSize: '14px', marginTop: '4px' }}>
+            Administración de clientes, listas de precios, cupos de crédito y facturación.
+          </p>
         </div>
-        <button className="btn-primary" onClick={startNewCliente} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
-          <PlusCircle size={18} />
+        <Button variant="primary" onClick={startNewCliente} icon={<PlusCircle size={18} />}>
           Nuevo Cliente
-        </button>
+        </Button>
       </div>
 
       <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
         
-        {/* COLUMNA IZQUIERDA: LISTA DE CLIENTES */}
         <div style={{ flex: '0 0 350px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div className="pos-search-bar" style={{ marginBottom: 0 }}>
-            <Search size={18} color="#64748B" />
-            <input
-              type="text"
-              className="pos-search-input"
+            <Input
+              leftIcon={<Search size={18} color="#64748B" />}
               placeholder="Buscar cliente..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
+              fullWidth
             />
           </div>
           
@@ -169,14 +193,13 @@ export default function ClientsView() {
             {filteredClientes.map(c => {
               const deuda = getClienteDeuda(c.id);
               return (
-                <div 
+                <Card 
+                  glass
                   key={c.id} 
                   onClick={() => selectCliente(c)}
                   style={{ 
                     padding: '16px', 
-                    backgroundColor: 'white', 
-                    border: `1px solid ${selectedClientId === c.id ? 'var(--primary-color)' : '#E2E8F0'}`, 
-                    borderRadius: '8px',
+                    border: `1px solid ${selectedClientId === c.id ? 'var(--primary-color)' : 'var(--border-color)'}`, 
                     cursor: 'pointer',
                     boxShadow: selectedClientId === c.id ? '0 4px 12px rgba(0,0,0,0.05)' : 'none',
                     opacity: c.activo ? 1 : 0.6,
@@ -195,41 +218,47 @@ export default function ClientsView() {
                       {deuda > 0 ? `Deuda: $${deuda.toLocaleString()}` : 'Sin Deuda'}
                     </span>
                   </div>
-                </div>
+                </Card>
               )
             })}
             {filteredClientes.length === 0 && (
-              <div style={{ padding: '24px', textAlign: 'center', color: '#64748B', backgroundColor: 'white', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+              <Card glass style={{ padding: '24px', textAlign: 'center', color: '#64748B' }}>
                 No se encontraron clientes.
-              </div>
+              </Card>
             )}
           </div>
         </div>
 
-        {/* COLUMNA DERECHA: PERFIL DEL CLIENTE E HISTORIAL */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '24px' }}>
           
-          <div className="hr-table-card" style={{ padding: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <Card glass style={{ padding: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '8px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Users size={20} color="var(--primary-color)" /> 
                 {selectedClientId ? 'Perfil del Cliente' : 'Registrar Nuevo Cliente'}
               </h3>
-              {selectedClientId && selectedClienteObj && (
-                <button
-                  type="button"
-                  onClick={() => handleToggleCliente(selectedClientId)}
-                  className={`badge-status ${selectedClienteObj.activo ? 'activo' : 'inactivo'}`}
-                  style={{ border: 'none', cursor: 'pointer', fontSize: '12px', padding: '6px 12px' }}
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <Button
+                  variant="secondary"
+                  onClick={() => setIsAutofillOpen(true)}
+                  icon={<Sparkles size={16} color="#06B6D4" />}
                 >
-                  {selectedClienteObj.activo ? 'Desactivar Cliente' : 'Activar Cliente'}
-                </button>
-              )}
+                  Autocompletar IA / Smart Fill
+                </Button>
+                {selectedClientId && selectedClienteObj && (
+                  <Button
+                    variant={selectedClienteObj.activo ? 'danger' : 'primary'}
+                    onClick={() => handleToggleCliente(selectedClientId)}
+                  >
+                    {selectedClienteObj.activo ? 'Desactivar Cliente' : 'Activar Cliente'}
+                  </Button>
+                )}
+              </div>
             </div>
 
             <form onSubmit={handleSaveCliente} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               
-              <div style={{ padding: '16px', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+              <div style={{ padding: '16px', backgroundColor: 'var(--surface-dark)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                 <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', color: '#0F172A', borderBottom: '1px solid #CBD5E1', paddingBottom: '8px' }}>Información Básica</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
@@ -245,13 +274,30 @@ export default function ClientsView() {
                     </select>
                   </div>
                   <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label className="form-label">Número Identificación *</label>
-                    <input type="text" className="form-control" placeholder="Ej: 900123456-1" value={clienteForm.identificacion} onChange={e => setClienteForm({ ...clienteForm, identificacion: e.target.value })} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                      <label className="form-label" style={{ marginBottom: 0 }}>Número Identificación *</label>
+                      {clienteForm.tipoIdentificacion === 'NIT' && clienteForm.identificacion.trim() && (
+                        <span style={{ fontSize: '11px', fontWeight: 700, color: '#059669', backgroundColor: '#ECFDF5', padding: '1px 6px', borderRadius: '4px', border: '1px solid #A7F3D0' }}>
+                          DV: {calcularDigitoVerificacion(clienteForm.identificacion)}
+                        </span>
+                      )}
+                    </div>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Ej: 900123456"
+                      value={clienteForm.identificacion}
+                      onChange={e => {
+                        const val = e.target.value;
+                        const persona = clienteForm.tipoIdentificacion === 'NIT' ? determinarTipoPersonaPorNit(val) : clienteForm.tipoPersona;
+                        setClienteForm({ ...clienteForm, identificacion: val, tipoPersona: persona });
+                      }}
+                    />
                   </div>
                 </div>
               </div>
 
-              <div style={{ padding: '16px', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+              <div style={{ padding: '16px', backgroundColor: 'var(--surface-dark)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                 <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', color: '#0F172A', borderBottom: '1px solid #CBD5E1', paddingBottom: '8px' }}>Contacto y Ubicación</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
@@ -277,7 +323,7 @@ export default function ClientsView() {
                 </div>
               </div>
 
-              <div style={{ padding: '16px', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+              <div style={{ padding: '16px', backgroundColor: 'var(--surface-dark)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                 <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', color: '#0F172A', borderBottom: '1px solid #CBD5E1', paddingBottom: '8px' }}>Crédito y Facturación</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
@@ -295,20 +341,17 @@ export default function ClientsView() {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
-                <button type="submit" className="btn-primary" style={{ border: 'none', flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '12px', backgroundColor: 'var(--primary-color)', color: 'white', borderRadius: '6px', cursor: 'pointer' }}>
-                  <Save size={16} />
-                  <span>{selectedClientId ? 'Guardar Cambios' : 'Registrar Cliente'}</span>
-                </button>
-              </div>
+                <Button type="submit" variant="primary" icon={<Save size={18} />} fullWidth>
+                  {selectedClientId ? 'Guardar Cambios' : 'Registrar Cliente'}
+                </Button>
             </form>
-          </div>
+          </Card>
 
           {selectedClientId && (
             <div style={{ display: 'flex', gap: '24px' }}>
               
               {/* HISTORIAL DE VENTAS */}
-              <div className="hr-table-card" style={{ padding: '24px', flex: 1 }}>
+              <Card glass style={{ padding: '24px', flex: 1 }}>
                 <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <FileText size={18} color="#0EA5E9" /> Historial de Compras (POS)
                 </h3>
@@ -334,10 +377,10 @@ export default function ClientsView() {
                     ))}
                   </div>
                 )}
-              </div>
+              </Card>
 
               {/* HISTORIAL DE CARTERA */}
-              <div className="hr-table-card" style={{ padding: '24px', flex: 1 }}>
+              <Card glass style={{ padding: '24px', flex: 1 }}>
                 <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Wallet size={18} color="#EF4444" /> Estado de Cuenta (Cartera)
                 </h3>
@@ -363,7 +406,7 @@ export default function ClientsView() {
                     ))}
                   </div>
                 )}
-              </div>
+              </Card>
 
             </div>
           )}
@@ -371,6 +414,13 @@ export default function ClientsView() {
         </div>
 
       </div>
+
+      {/* MODAL DE AUTOCOMPLETAR INTELIGENTE (COSTO 0, 0ms, PRIVADO) */}
+      <SmartAutofillModal
+        isOpen={isAutofillOpen}
+        onClose={() => setIsAutofillOpen(false)}
+        onApply={handleApplyAutofill}
+      />
     </div>
   );
 }

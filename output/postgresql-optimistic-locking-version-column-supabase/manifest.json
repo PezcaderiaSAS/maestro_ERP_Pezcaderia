@@ -1,0 +1,36 @@
+{
+  "topic": "PostgreSQL optimistic locking version column Supabase",
+  "generated_at": "2026-09-01T15:11:37.632388Z",
+  "total_sources": 3,
+  "total_words": 3512,
+  "entry_point_file": "dossier_consolidado.md",
+  "sources_summary": [
+    {
+      "index": 1,
+      "filename": "01_column-level-security.md",
+      "relative_path": "sources\\01_column-level-security.md",
+      "title": "Column Level Security",
+      "url": "https://supabase.com/docs/guides/database/postgres/column-level-security",
+      "domain": "supabase.com",
+      "word_count": 594
+    },
+    {
+      "index": 2,
+      "filename": "02_chapter-13-concurrency-control.md",
+      "relative_path": "sources\\02_chapter-13-concurrency-control.md",
+      "title": "Chapter 13. Concurrency Control",
+      "url": "https://www.postgresql.org/docs/current/mvcc.html",
+      "domain": "www.postgresql.org",
+      "word_count": 91
+    },
+    {
+      "index": 3,
+      "filename": "03_133-explicit-locking.md",
+      "relative_path": "sources\\03_133-explicit-locking.md",
+      "title": "13.3. Explicit Locking",
+      "url": "https://www.postgresql.org/docs/current/explicit-locking.html",
+      "domain": "www.postgresql.org",
+      "word_count": 2827
+    }
+  ]
+}

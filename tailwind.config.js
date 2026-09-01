@@ -16,6 +16,11 @@ export default {
         border: 'var(--border-color)',
         background: 'var(--bg-color)',
         card: 'var(--card-bg)',
+        // Tokens de Google Stitch (Protegidos)
+        'marine-indigo': 'var(--color-marine-indigo)',
+        'cyan-wave': 'var(--color-cyan-wave)',
+        'emerald-a': 'var(--color-emerald-a)',
+        'slate-b': 'var(--color-slate-b)',
       },
       textColor: {
         primary: 'var(--text-primary)',
@@ -33,6 +38,16 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
+      animation: {
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'float': 'float 3s ease-in-out infinite',
+      },
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-5px)' },
+        }
       }
     },
   },

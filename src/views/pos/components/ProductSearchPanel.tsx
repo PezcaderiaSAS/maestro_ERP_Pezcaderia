@@ -3,6 +3,7 @@ import { Search, Barcode } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { Input } from '../../../components/ui/Input';
 import { Button } from '../../../components/ui/Button';
+import { Card } from '../../../components/ui/Card';
 
 interface ProductSearchPanelProps {
   activeProducts: any[];
@@ -143,15 +144,17 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
         </form>
       </div>
 
-      <div className="pos-categories">
+      <div className="pos-categories" style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '8px' }}>
         {CATEGORIAS.map(cat => (
-          <button
+          <Button
             key={cat}
-            className={`pos-category-tab ${selectedCategory === cat ? 'active' : ''}`}
+            variant={selectedCategory === cat ? 'primary' : 'secondary'}
             onClick={() => setSelectedCategory(cat)}
+            className="whitespace-nowrap rounded-full shadow-none"
+            size="sm"
           >
             {cat}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -175,7 +178,7 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
           const totalStock = stockPrincipal + stockSecundaria;
           const isOutOfStock = totalStock <= 0;
           return (
-            <div key={prod.id} className={`product-card border border-gray-300 shadow-sm hover:shadow-md transition-all ${isOutOfStock ? 'opacity-50 grayscale pointer-events-none' : ''}`} onClick={() => onAddProduct(prod)}>
+            <Card glass key={prod.id} className={`product-card flex flex-col p-0 overflow-hidden cursor-pointer ${isOutOfStock ? 'opacity-50 grayscale pointer-events-none' : ''}`} onClick={() => onAddProduct(prod)}>
               <div className="product-image-container" style={{ position: 'relative' }}>
                 {/* Semáforo de Stock usando buffer_seguridad dinámico */}
                 <div data-testid={stockPrincipal === 0 ? 'stock-badge-red' : stockPrincipal <= (prod.buffer_seguridad || 4) ? 'stock-badge-yellow' : 'stock-badge-green'} style={{ position: 'absolute', top: '8px', right: '8px', width: '12px', height: '12px', borderRadius: '50%', backgroundColor: stockPrincipal === 0 ? '#EF4444' : stockPrincipal <= (prod.buffer_seguridad || 4) ? '#F59E0B' : '#10B981', border: '2px solid white', zIndex: 10 }} />
@@ -185,7 +188,7 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
                   className="product-image"
                 />
               </div>
-              <div className="product-info-panel">
+              <div className="product-info-panel" style={{ padding: '12px', backgroundColor: 'transparent' }}>
                 <span className="product-card-name">{prod.nombre}</span>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '4px' }}>
                   <span className="product-card-price-tag">${(getProductPrice(prod) || 0).toLocaleString('es-CO')}</span>
@@ -230,7 +233,7 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
                   </div>
                 </div>
               </div>
-            </div>
+            </Card>
           );
         })}
       </div>

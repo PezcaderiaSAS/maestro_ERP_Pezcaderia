@@ -3,6 +3,9 @@ import { UserPlus, Lock, Calendar, Trash2, DollarSign, Calculator, FileText, Che
 import Swal from 'sweetalert2';
 import { useEmployeeStore, Empleado } from '../store/useEmployeeStore';
 import { useAppStore } from '../store/useAppStore';
+import { Card } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { Badge } from '../components/ui/Badge';
 
 const generateId = (prefix: string) => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 5)}`;
 
@@ -132,20 +135,19 @@ export default function HRView() {
     <div className="hr-layout animate-fade-in" style={{ padding: '24px' }}>
       <div className="hr-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
-          <span style={{ fontSize: '14px', color: '#64748B', fontWeight: 500 }}>Recursos Humanos</span>
-          <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px', letterSpacing: '-0.5px' }}>Directorio de Personal</h2>
+          <span style={{ fontSize: '14px', color: 'var(--text-secondary, #64748B)', fontWeight: 500 }}>Recursos Humanos</span>
+          <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px', letterSpacing: '-0.5px', color: 'var(--primary-color)' }}>Directorio de Personal</h2>
         </div>
-        <button 
-          className="hr-btn-new" 
+        <Button 
+          variant="primary" 
           onClick={() => setShowModal(true)}
-          style={{ backgroundColor: '#0F172A', color: 'white', padding: '10px 20px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', border: 'none', cursor: 'pointer', fontWeight: 600 }}
+          icon={<UserPlus size={16} />}
         >
-          <UserPlus size={16} />
-          <span>Registrar Empleado</span>
-        </button>
+          Registrar Empleado
+        </Button>
       </div>
 
-      <div className="hr-table-card" style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', overflow: 'hidden' }}>
+      <Card glass style={{ overflow: 'hidden', padding: 0 }}>
         <table className="hr-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
             <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '2px solid #E2E8F0' }}>
@@ -180,13 +182,9 @@ export default function HRView() {
                   </div>
                 </td>
                 <td style={{ padding: '16px' }}>
-                  <span style={{ 
-                    backgroundColor: emp.estado === 'ACTIVO' ? '#DCFCE7' : emp.estado === 'INACTIVO' ? '#FEE2E2' : '#FEF3C7', 
-                    color: emp.estado === 'ACTIVO' ? '#166534' : emp.estado === 'INACTIVO' ? '#991B1B' : '#92400E', 
-                    padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 700 
-                  }}>
+                  <Badge variant={emp.estado === 'ACTIVO' ? 'success' : emp.estado === 'INACTIVO' ? 'danger' : 'warning'}>
                     {emp.estado}
-                  </span>
+                  </Badge>
                 </td>
                 <td style={{ padding: '16px' }}>
                   <div style={{ display: 'flex', gap: '8px' }}>
@@ -245,17 +243,17 @@ export default function HRView() {
             )}
           </tbody>
         </table>
-      </div>
+      </Card>
 
       {showModal && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)',
+          backgroundColor: 'rgba(0, 0, 0, 0.7)', backdropFilter: 'blur(4px)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
         }}>
-          <div className="animate-fade-in" style={{
-            backgroundColor: 'white', padding: '32px', borderRadius: '16px',
-            width: '600px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+          <Card glass className="animate-fade-in" style={{
+            padding: '32px',
+            width: '600px',
             maxHeight: '90vh', overflowY: 'auto'
           }}>
             <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '20px', color: '#0F172A', borderBottom: '1px solid #E2E8F0', paddingBottom: '12px' }}>Registrar Nuevo Personal</h3>
@@ -417,48 +415,48 @@ export default function HRView() {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid #E2E8F0', paddingTop: '16px' }}>
-                <button
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid var(--border-color)', paddingTop: '16px' }}>
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => setShowModal(false)}
-                  style={{ padding: '10px 16px', border: '1px solid #CBD5E1', borderRadius: '8px', backgroundColor: 'white', color: '#475569', fontWeight: 600, cursor: 'pointer' }}
                 >
                   Cancelar
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
-                  style={{ padding: '10px 16px', border: 'none', borderRadius: '8px', backgroundColor: '#0F172A', color: 'white', fontWeight: 600, cursor: 'pointer' }}
+                  variant="primary"
                 >
                   Guardar Registro
-                </button>
+                </Button>
               </div>
             </form>
-          </div>
+          </Card>
         </div>
       )}
 
       {showHistoryModal && historyEmpleado && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)',
+          backgroundColor: 'rgba(0, 0, 0, 0.7)', backdropFilter: 'blur(4px)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
         }}>
-          <div className="animate-fade-in" style={{
-            backgroundColor: 'white', padding: '32px', borderRadius: '16px',
-            width: '700px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+          <Card glass className="animate-fade-in" style={{
+            padding: '32px',
+            width: '700px',
             maxHeight: '90vh', overflowY: 'auto'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #E2E8F0', paddingBottom: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
               <div>
-                <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0F172A' }}>Historial de Pagos</h3>
-                <div style={{ fontSize: '13px', color: '#64748B', marginTop: '4px' }}>{historyEmpleado.nombre} - Últimos 12 registros</div>
+                <h3 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)' }}>Historial de Pagos</h3>
+                <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>{historyEmpleado.nombre} - Últimos 12 registros</div>
               </div>
-              <button
+              <Button
+                variant="outline"
                 onClick={() => setShowHistoryModal(false)}
-                style={{ padding: '8px 16px', border: '1px solid #CBD5E1', borderRadius: '8px', backgroundColor: 'white', color: '#475569', fontWeight: 600, cursor: 'pointer' }}
               >
                 Cerrar
-              </button>
+              </Button>
             </div>
 
             {employeeNominas.length === 0 ? (
@@ -493,37 +491,37 @@ export default function HRView() {
                 ))}
               </div>
             )}
-          </div>
+          </Card>
         </div>
       )}
 
       {showDocModal && historyEmpleado && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)',
+          backgroundColor: 'rgba(0, 0, 0, 0.7)', backdropFilter: 'blur(4px)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
         }}>
-          <div className="animate-fade-in" style={{
-            backgroundColor: 'white', padding: '40px', borderRadius: '12px',
-            width: '800px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+          <Card glass className="animate-fade-in" style={{
+            padding: '40px',
+            width: '800px',
             maxHeight: '90vh', overflowY: 'auto', fontFamily: 'serif'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
-              <button
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px', gap: '8px' }}>
+              <Button
+                variant="primary"
                 onClick={() => {
                   navigator.clipboard.writeText(document.getElementById('doc-content')?.innerText || '');
                   Swal.fire('Copiado', 'El texto se ha copiado al portapapeles', 'success');
                 }}
-                style={{ padding: '8px 16px', border: 'none', borderRadius: '8px', backgroundColor: '#0F172A', color: 'white', fontWeight: 600, cursor: 'pointer', marginRight: '8px' }}
               >
                 Copiar Texto
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="outline"
                 onClick={() => setShowDocModal(null)}
-                style={{ padding: '8px 16px', border: '1px solid #CBD5E1', borderRadius: '8px', backgroundColor: 'white', color: '#475569', fontWeight: 600, cursor: 'pointer' }}
               >
                 Cerrar
-              </button>
+              </Button>
             </div>
 
             <div id="doc-content" style={{ padding: '20px', backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', lineHeight: '1.6', fontSize: '15px' }}>
@@ -574,7 +572,7 @@ export default function HRView() {
                 Tel: 300 123 4567
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       )}
 

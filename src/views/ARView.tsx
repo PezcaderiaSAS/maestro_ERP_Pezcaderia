@@ -9,6 +9,9 @@ import { useEventStore } from '../store/useEventStore.ts';
 import { useAppStore } from '../store/useAppStore.ts';
 import { useReturnStore } from '../store/useReturnStore.ts';
 import { cashService } from '../services/cashService.ts';
+import { Card } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { Badge } from '../components/ui/Badge';
 
 export interface PaymentAR {
   id: string;
@@ -421,55 +424,29 @@ export default function ARView() {
     <div className="pos-layout flex animate-fade-in" style={{ flexDirection: 'column', gap: '20px', padding: '20px', overflowY: 'auto' }}>
       
       {/* Pestañas Superiores de Cartera / Notas de Crédito */}
-      <div style={{ display: 'flex', gap: '10px', borderBottom: '2px solid #E2E8F0', paddingBottom: '10px', marginBottom: '-10px' }}>
-        <button
+      <div style={{ display: 'flex', gap: '10px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px', marginBottom: '-10px' }}>
+        <Button
+          variant={activeTab === 'facturas' ? 'primary' : 'outline'}
           onClick={() => {
             setActiveTab('facturas');
             setSelectedInvoice(null);
             setSelectedDev(null);
           }}
-          style={{
-            padding: '10px 20px',
-            fontSize: '14px',
-            fontWeight: 700,
-            color: activeTab === 'facturas' ? 'var(--primary-color)' : '#64748B',
-            backgroundColor: activeTab === 'facturas' ? '#EFF6FF' : 'transparent',
-            border: 'none',
-            borderBottom: activeTab === 'facturas' ? '2px solid var(--primary-color)' : 'none',
-            borderRadius: '6px 6px 0 0',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            transition: 'all 0.2s ease'
-          }}
+          icon={<FileText size={16} />}
         >
-          <FileText size={16} /> Cuentas por Cobrar (AR)
-        </button>
-        <button
+          Cuentas por Cobrar (AR)
+        </Button>
+        <Button
+          variant={activeTab === 'devoluciones' ? 'primary' : 'outline'}
           onClick={() => {
             setActiveTab('devoluciones');
             setSelectedInvoice(null);
             setSelectedDev(null);
           }}
-          style={{
-            padding: '10px 20px',
-            fontSize: '14px',
-            fontWeight: 700,
-            color: activeTab === 'devoluciones' ? 'var(--primary-color)' : '#64748B',
-            backgroundColor: activeTab === 'devoluciones' ? '#EFF6FF' : 'transparent',
-            border: 'none',
-            borderBottom: activeTab === 'devoluciones' ? '2px solid var(--primary-color)' : 'none',
-            borderRadius: '6px 6px 0 0',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            transition: 'all 0.2s ease'
-          }}
+          icon={<Undo2 size={16} />}
         >
-          <Undo2 size={16} /> Notas Crédito y Saldos a Favor B2B
-        </button>
+          Notas Crédito y Saldos a Favor B2B
+        </Button>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'row', gap: '20px', flex: 1, minHeight: 0 }}>
@@ -480,7 +457,7 @@ export default function ARView() {
           {/* Indicadores Consolidados */}
           {activeTab === 'facturas' ? (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
-              <div className="stat-card" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px', background: '#FEF2F2', border: '1px solid #FEE2E2', borderRadius: '12px' }}>
+              <Card glass className="stat-card" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{ padding: '10px', background: '#FEE2E2', color: '#EF4444', borderRadius: '50%' }}>
                   <DollarSign size={24} />
                 </div>
@@ -488,9 +465,9 @@ export default function ARView() {
                   <span style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>Saldo Pendiente</span>
                   <strong style={{ fontSize: '18px', color: '#EF4444' }}>${totalPorCobrar.toLocaleString('es-CO')}</strong>
                 </div>
-              </div>
+              </Card>
 
-              <div className="stat-card" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px', background: '#ECFDF5', border: '1px solid #D1FAE5', borderRadius: '12px' }}>
+              <Card glass className="stat-card" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{ padding: '10px', background: '#D1FAE5', color: '#10B981', borderRadius: '50%' }}>
                   <Wallet size={24} />
                 </div>
@@ -498,9 +475,9 @@ export default function ARView() {
                   <span style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>Total Recaudado</span>
                   <strong style={{ fontSize: '18px', color: '#10B981' }}>${totalRecaudado.toLocaleString('es-CO')}</strong>
                 </div>
-              </div>
+              </Card>
 
-              <div className="stat-card" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px', background: '#EFF6FF', border: '1px solid #DBEAFE', borderRadius: '12px' }}>
+              <Card glass className="stat-card" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{ padding: '10px', background: '#DBEAFE', color: '#3B82F6', borderRadius: '50%' }}>
                   <FileText size={24} />
                 </div>
@@ -508,11 +485,11 @@ export default function ARView() {
                   <span style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>Clientes con Deuda</span>
                   <strong style={{ fontSize: '18px', color: '#3B82F6' }}>{facturasPendientesCount} facturas</strong>
                 </div>
-              </div>
+              </Card>
             </div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
-              <div className="stat-card" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px', background: '#ECFDF5', border: '1px solid #D1FAE5', borderRadius: '12px' }}>
+              <Card glass className="stat-card" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{ padding: '10px', background: '#D1FAE5', color: '#10B981', borderRadius: '50%' }}>
                   <Wallet size={24} />
                 </div>
@@ -520,9 +497,9 @@ export default function ARView() {
                   <span style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>Saldos Disponibles B2B</span>
                   <strong style={{ fontSize: '18px', color: '#10B981' }}>${totalSaldosFavor.toLocaleString('es-CO')}</strong>
                 </div>
-              </div>
+              </Card>
 
-              <div className="stat-card" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px', background: '#EFF6FF', border: '1px solid #DBEAFE', borderRadius: '12px' }}>
+              <Card glass className="stat-card" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{ padding: '10px', background: '#DBEAFE', color: '#3B82F6', borderRadius: '50%' }}>
                   <FileText size={24} />
                 </div>
@@ -530,9 +507,9 @@ export default function ARView() {
                   <span style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>Notas de Crédito Aplicadas</span>
                   <strong style={{ fontSize: '18px', color: '#3B82F6' }}>${totalNotasAplicadas.toLocaleString('es-CO')}</strong>
                 </div>
-              </div>
+              </Card>
 
-              <div className="stat-card" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px' }}>
+              <Card glass className="stat-card" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{ padding: '10px', background: '#E2E8F0', color: '#64748B', borderRadius: '50%' }}>
                   <Undo2 size={24} />
                 </div>
@@ -540,12 +517,12 @@ export default function ARView() {
                   <span style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>Historial Devoluciones</span>
                   <strong style={{ fontSize: '18px', color: '#1E293B' }}>{totalDevsCount} registros</strong>
                 </div>
-              </div>
+              </Card>
             </div>
           )}
 
           {/* Buscador y Filtros */}
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', backgroundColor: 'white', padding: '12px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <Card glass style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '12px' }}>
             <div className="pos-search-bar" style={{ flex: 1, marginBottom: 0 }}>
               <Search size={18} color="#64748B" />
               <input
@@ -579,11 +556,11 @@ export default function ARView() {
                 Todas
               </button>
             </div>
-          </div>
+          </Card>
 
           {/* Tabla de Datos Principal */}
           {activeTab === 'facturas' ? (
-            <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
+            <Card glass style={{ padding: 0, overflow: 'hidden' }}>
               <table className="inventory-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
@@ -631,28 +608,16 @@ export default function ARView() {
                         </td>
                         <td style={{ padding: '12px', textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
                           {inv.saldo > 0 ? (
-                            <button
+                            <Button
+                              variant="primary"
                               onClick={() => handleRegistrarAbono(inv)}
-                              className="btn-primary"
-                              style={{
-                                fontSize: '11px',
-                                padding: '6px 12px',
-                                backgroundColor: 'var(--primary-color)',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '4px',
-                                borderRadius: '4px',
-                                border: 'none',
-                                color: 'white',
-                                cursor: 'pointer'
-                              }}
+                              icon={<Plus size={12} />}
+                              className="text-xs py-1 px-2"
                             >
-                              <Plus size={12} /> Abonar
-                            </button>
+                              Abonar
+                            </Button>
                           ) : (
-                            <span style={{ fontSize: '11px', color: '#10B981', backgroundColor: '#ECFDF5', padding: '3px 8px', borderRadius: '4px', fontWeight: 600 }}>
-                              PAGADO
-                            </span>
+                            <Badge variant="success">PAGADO</Badge>
                           )}
                         </td>
                       </tr>
@@ -660,9 +625,9 @@ export default function ARView() {
                   )}
                 </tbody>
               </table>
-            </div>
+            </Card>
           ) : (
-            <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
+            <Card glass style={{ padding: 0, overflow: 'hidden' }}>
               <table className="inventory-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
@@ -701,13 +666,9 @@ export default function ARView() {
                           </td>
                           <td style={{ padding: '12px', textAlign: 'center' }}>
                             {dev.estado === 'RECIBIDA_BODEGA' ? (
-                              <span style={{ fontSize: '11px', color: '#3B82F6', backgroundColor: '#EFF6FF', padding: '3px 8px', borderRadius: '4px', fontWeight: 600, border: '1px solid #DBEAFE' }}>
-                                Saldo Disponible
-                              </span>
+                              <Badge variant="primary">Saldo Disponible</Badge>
                             ) : (
-                              <span style={{ fontSize: '11px', color: '#64748B', backgroundColor: '#F1F5F9', padding: '3px 8px', borderRadius: '4px', fontWeight: 600 }}>
-                                Nota Crédito Aplicada
-                              </span>
+                              <Badge variant="outline">Nota Crédito Aplicada</Badge>
                             )}
                           </td>
                         </tr>
@@ -716,7 +677,7 @@ export default function ARView() {
                   )}
                 </tbody>
               </table>
-            </div>
+            </Card>
           )}
         </div>
 

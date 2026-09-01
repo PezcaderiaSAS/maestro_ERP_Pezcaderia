@@ -5,6 +5,9 @@ import { generateId, NominaRegistro, Gasto } from '../App.tsx';
 import { useEmployeeStore } from '../store/useEmployeeStore.ts';
 import { useExpenseStore } from '../store/useExpenseStore.ts';
 import { useAppStore } from '../store/useAppStore.ts';
+import { Card } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { Badge } from '../components/ui/Badge';
 
 const calcDiasComerciales = (inicio: string, fin: string) => {
   if (!inicio || !fin) return 0;
@@ -228,7 +231,7 @@ export default function PayrollView() {
       confirmButtonText: 'Sí, Pagar y Contabilizar',
       cancelButtonText: 'Cancelar',
       confirmButtonColor: '#00B171'
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
         let cat = 'NÓMINA';
         if (nom.tipoLiquidacion === 'LIQUIDACION_FINAL') cat = 'LIQUIDACIÓN';
@@ -244,7 +247,7 @@ export default function PayrollView() {
           metodoPago: 'TRANSFERENCIA'
         };
 
-        setGastos((prev: Gasto[]) => [nuevoGasto, ...prev]);
+        await addGastoAsync(nuevoGasto);
 
         setNominas((prev: NominaRegistro[]) => prev.map((n: NominaRegistro) => {
           if (n.id === id) {
@@ -266,34 +269,23 @@ export default function PayrollView() {
       <div className="hr-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {setView && (
-            <button 
+            <Button 
+              variant="outline"
               onClick={() => setView('rrhh')}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#64748B',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '8px',
-                borderRadius: '50%',
-                backgroundColor: '#F1F5F9',
-                transition: 'all 0.2s',
-                outline: 'none'
-              }}
+              icon={<ArrowLeft size={20} />}
               title="Volver a Personal"
+              className="p-2 border-none rounded-full"
             >
-              <ArrowLeft size={20} />
-            </button>
+            </Button>
           )}
           <div>
-            <span style={{ fontSize: '14px', color: '#64748B', fontWeight: 500 }}>Motor Contable</span>
-            <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px', letterSpacing: '-0.5px' }}>Liquidación de Nómina & Prestaciones</h2>
+            <span style={{ fontSize: '14px', color: 'var(--text-secondary, #64748B)', fontWeight: 500 }}>Motor Contable</span>
+            <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px', letterSpacing: '-0.5px', color: 'var(--primary-color)' }}>Liquidación de Nómina & Prestaciones</h2>
           </div>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
-          <button 
+          <Button 
+            variant="primary"
             onClick={() => {
               if (empleados.length === 0) {
                 Swal.fire('Error', 'No hay empleados', 'error');
@@ -302,11 +294,12 @@ export default function PayrollView() {
               setSelectedEmpleadoId(empleados[0].id);
               setWizardType('REGULAR');
             }}
-            style={{ backgroundColor: '#0F172A', color: 'white', padding: '10px 16px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', border: 'none', cursor: 'pointer', fontWeight: 600 }}
+            icon={<Calculator size={16} />}
           >
-            <Calculator size={16} /> Nómina Regular
-          </button>
-          <button 
+            Nómina Regular
+          </Button>
+          <Button 
+            variant="outline"
             onClick={() => {
               if (empleados.length === 0) {
                 Swal.fire('Error', 'No hay empleados', 'error');
@@ -315,11 +308,12 @@ export default function PayrollView() {
               setSelectedEmpleadoId(empleados[0].id);
               setWizardType('VACACIONES');
             }}
-            style={{ backgroundColor: '#F59E0B', color: 'white', padding: '10px 16px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', border: 'none', cursor: 'pointer', fontWeight: 600 }}
+            icon={<Sun size={16} />}
           >
-            <Sun size={16} /> Vacaciones
-          </button>
-          <button 
+            Vacaciones
+          </Button>
+          <Button 
+            variant="danger"
             onClick={() => {
               if (empleados.length === 0) {
                 Swal.fire('Error', 'No hay empleados', 'error');
@@ -328,14 +322,14 @@ export default function PayrollView() {
               setSelectedEmpleadoId(empleados[0].id);
               setWizardType('LIQUIDACION_FINAL');
             }}
-            style={{ backgroundColor: '#EF4444', color: 'white', padding: '10px 16px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', border: 'none', cursor: 'pointer', fontWeight: 600 }}
+            icon={<XOctagon size={16} />}
           >
-            <XOctagon size={16} /> Liq. Definitiva
-          </button>
+            Liq. Definitiva
+          </Button>
         </div>
       </div>
 
-      <div className="hr-table-card" style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', overflow: 'hidden' }}>
+      <Card glass style={{ overflow: 'hidden', padding: 0 }}>
         <table className="hr-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
             <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '2px solid #E2E8F0' }}>
@@ -376,19 +370,19 @@ export default function PayrollView() {
                   </div>
                 </td>
                 <td style={{ padding: '16px' }}>
-                  <span style={{ 
-                    backgroundColor: nom.estadoPago === 'PAGADO' ? '#DCFCE7' : '#FEF3C7', 
-                    color: nom.estadoPago === 'PAGADO' ? '#166534' : '#92400E', 
-                    padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 700 
-                  }}>
+                  <Badge variant={nom.estadoPago === 'PAGADO' ? 'success' : 'warning'}>
                     {nom.estadoPago}
-                  </span>
+                  </Badge>
                 </td>
                 <td style={{ padding: '16px' }}>
                   {nom.estadoPago === 'PENDIENTE' && (
-                    <button onClick={() => handlePagar(nom.id)} style={{ padding: '6px 12px', backgroundColor: '#00B171', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <CheckCircle size={14} /> Pagar Gasto
-                    </button>
+                    <Button 
+                      variant="primary" 
+                      onClick={() => handlePagar(nom.id)} 
+                      icon={<CheckCircle size={14} />}
+                    >
+                      Pagar Gasto
+                    </Button>
                   )}
                   {nom.estadoPago === 'PAGADO' && (
                     <div style={{ fontSize: '12px', color: '#64748B' }}>
@@ -403,29 +397,29 @@ export default function PayrollView() {
             )}
           </tbody>
         </table>
-      </div>
+      </Card>
 
       {/* WIZARD MODAL */}
       {wizardType && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)',
+          backgroundColor: 'rgba(0, 0, 0, 0.7)', backdropFilter: 'blur(4px)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
         }}>
-          <div className="animate-fade-in" style={{
-            backgroundColor: 'white', padding: '32px', borderRadius: '16px',
-            width: '800px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+          <Card glass className="animate-fade-in" style={{
+            padding: '32px',
+            width: '800px',
             maxHeight: '90vh', overflowY: 'auto'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #E2E8F0', paddingBottom: '12px' }}>
-              <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0F172A' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
+              <h3 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)' }}>
                 {wizardType === 'REGULAR' && 'Nómina Regular'}
                 {wizardType === 'VACACIONES' && 'Disfrute de Vacaciones'}
                 {wizardType === 'LIQUIDACION_FINAL' && 'Liquidación Definitiva'}
               </h3>
-              <button onClick={() => setWizardType(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
-                <ArrowLeft size={16} /> Regresar
-              </button>
+              <Button variant="outline" onClick={() => setWizardType(null)} icon={<ArrowLeft size={16} />}>
+                Regresar
+              </Button>
             </div>
 
             <form onSubmit={handleGeneratePayroll}>
@@ -611,7 +605,7 @@ export default function PayrollView() {
                 </button>
               </div>
             </form>
-          </div>
+          </Card>
         </div>
       )}
     </div>

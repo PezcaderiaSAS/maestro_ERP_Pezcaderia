@@ -1,6 +1,7 @@
 import { Package, Search, PlusCircle, Edit3, ShieldAlert } from 'lucide-react';
-
 import { useState } from 'react';
+import { Card } from '../../../components/ui/Card';
+import { Badge } from '../../../components/ui/Badge';
 
 export function ProductTable({
   products,
@@ -79,7 +80,7 @@ export function ProductTable({
         </button>
       </div>
 
-      <div className="hr-table-card" style={{ padding: '24px' }}>
+      <Card glass className="p-6">
         <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
           <div className="search-bar" style={{ flex: 1 }}>
             <Search size={18} color="#94A3B8" />
@@ -154,20 +155,11 @@ export function ProductTable({
                   <td>
                     {(() => {
                       const abc = p.categoriaABC;
-                      let bg = '#F1F5F9';
-                      let color = '#475569';
-                      let label = 'N/A';
-                      if (abc === 'A') { bg = '#FEE2E2'; color = '#DC2626'; label = 'A'; }
-                      else if (abc === 'B') { bg = '#FEF9C3'; color = '#CA8A04'; label = 'B'; }
-                      else if (abc === 'C') { bg = '#DCFCE7'; color = '#16A34A'; label = 'C'; }
-                      
+                      if (!abc) return <Badge variant="default">N/A</Badge>;
                       return (
-                        <span style={{ 
-                          backgroundColor: bg, color, padding: '4px 8px', borderRadius: '4px', 
-                          fontWeight: 700, fontSize: '12px', display: 'inline-block', textAlign: 'center', minWidth: '24px'
-                        }}>
-                          {label}
-                        </span>
+                        <Badge variant={abc as 'A' | 'B' | 'C'}>
+                          {abc}
+                        </Badge>
                       );
                     })()}
                   </td>
@@ -224,7 +216,7 @@ export function ProductTable({
             })}
           </tbody>
         </table>
-      </div>
+      </Card>
     </div>
   );
 }

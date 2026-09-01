@@ -3,6 +3,10 @@ import { Plus, Edit2, Save, Printer, Search, DollarSign, ShoppingCart, FileText,
 import Swal from 'sweetalert2';
 import { usePricing } from '../hooks/usePricing';
 import type { ProductPricing, DevolucionPedido } from '../types/erp.types';
+import { Card } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
+import { Badge } from '../components/ui/Badge';
 
 export default function PricingView() {
   const {
@@ -261,35 +265,32 @@ export default function PricingView() {
       {/* Cabecera / Pestañas */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div>
-          <span style={{ fontSize: '14px', color: '#64748B', fontWeight: 500 }}>Políticas de Venta</span>
-          <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px', letterSpacing: '-0.5px' }}>Precios y Cotizaciones</h2>
+          <span style={{ fontSize: '14px', color: 'var(--text-secondary)', fontWeight: 500 }}>Políticas de Venta</span>
+          <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px', letterSpacing: '-0.5px', color: 'var(--text-primary)' }}>Precios y Cotizaciones</h2>
         </div>
 
-        <div style={{ display: 'flex', gap: '8px', backgroundColor: '#E2E8F0', padding: '4px', borderRadius: '12px' }}>
-          <button
-            onClick={() => { setActiveTab('catalog'); }}
-            className={`pos-category-tab ${activeTab === 'catalog' ? 'active' : ''}`}
-            style={{ margin: 0, padding: '8px 16px', borderRadius: '8px' }}
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <Button
+            variant={activeTab === 'catalog' ? 'primary' : 'outline'}
+            onClick={() => setActiveTab('catalog')}
+            icon={<FileText size={16} />}
           >
-            <FileText size={16} style={{ marginRight: '6px', display: 'inline', verticalAlign: 'middle' }} />
             Catálogo
-          </button>
-          <button
-            onClick={() => { setActiveTab('pricing'); }}
-            className={`pos-category-tab ${activeTab === 'pricing' ? 'active' : ''}`}
-            style={{ margin: 0, padding: '8px 16px', borderRadius: '8px' }}
+          </Button>
+          <Button
+            variant={activeTab === 'pricing' ? 'primary' : 'outline'}
+            onClick={() => setActiveTab('pricing')}
+            icon={<DollarSign size={16} />}
           >
-            <DollarSign size={16} style={{ marginRight: '6px', display: 'inline', verticalAlign: 'middle' }} />
             Gestor de Precios
-          </button>
-          <button
-            onClick={() => { setActiveTab('quotes'); }}
-            className={`pos-category-tab ${activeTab === 'quotes' ? 'active' : ''}`}
-            style={{ margin: 0, padding: '8px 16px', borderRadius: '8px' }}
+          </Button>
+          <Button
+            variant={activeTab === 'quotes' ? 'primary' : 'outline'}
+            onClick={() => setActiveTab('quotes')}
+            icon={<ShoppingCart size={16} />}
           >
-            <ShoppingCart size={16} style={{ marginRight: '6px', display: 'inline', verticalAlign: 'middle' }} />
             Cotizador
-          </button>
+          </Button>
         </div>
       </div>
 

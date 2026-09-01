@@ -28,6 +28,72 @@
   --warning-color: #f59e0b; /* amber-500 */
 }
 
+/* --- TEMA OBSIDIAN OS (Cyberpunk Dark Mode) --- */
+[data-theme="obsidian"] {
+  --color-marine-indigo: #00ffd1;
+  --color-cyan-wave: #00ffd1;
+  --color-emerald-a: #00ffd1;
+  --color-slate-b: #64748B;
+  --shadow-glass: 0 0 10px rgba(0, 255, 209, 0.2);
+  --backdrop-blur-base: none;
+  
+  /* Sobrescribir semántica principal */
+  --bg-color: #060b0e;
+  --card-bg: #0d1217;
+  --border-color: #00ffd1;
+  --primary-color: #00ffd1;
+  --primary-hover: #00b396;
+  --primary-light: rgba(0, 255, 209, 0.1);
+  --accent-color: #00ffd1;
+  --text-primary: #00ffd1;
+  --text-secondary: #6b7a85;
+  --error-color: #ff003c;
+  --success-color: #00ffd1;
+  
+  --font-family: 'Courier New', Courier, monospace;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+}
+
+[data-theme="obsidian"] body {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  background-image: 
+    linear-gradient(rgba(0, 255, 209, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 209, 0.03) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+[data-theme="obsidian"] .glass-panel {
+  background: var(--card-bg) !important;
+  box-shadow: 0 0 8px rgba(0, 255, 209, 0.1) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="obsidian"] * {
+  border-radius: 0 !important;
+}
+
+[data-theme="obsidian"] button {
+  text-transform: uppercase;
+  font-family: var(--font-family);
+  letter-spacing: 0.05em;
+}
+
+/* --- TEMA STITCH / GLASS BASE --- */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
 
 /* Super ADMINISTRADOR (Premium Indigo/Slate) */
 :root, [data-theme="admin"] {
