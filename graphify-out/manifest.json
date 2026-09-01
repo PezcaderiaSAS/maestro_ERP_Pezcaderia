@@ -905,8 +905,8 @@
     "semantic_hash": ""
   },
   "src/views/PricingView.tsx": {
-    "mtime": 1787331881.3133936,
-    "ast_hash": "8a269f4b722dcbe618d13cb4e6faf994",
+    "mtime": 1788281129.5187862,
+    "ast_hash": "31772e71572dd2e38fec45c1334d517d",
     "semantic_hash": ""
   },
   "src/views/SuppliersView.tsx": {
@@ -6850,8 +6850,8 @@
     "semantic_hash": ""
   },
   "DOCS/auditoria_integral_codigo_2026.md": {
-    "mtime": 1788278549.6945777,
-    "ast_hash": "d742c7416618734103cb57bc1178aba3",
+    "mtime": 1788281222.2289531,
+    "ast_hash": "e72fd1b9b3f26e72014674ed3406bd07",
     "semantic_hash": ""
   },
   "src/views/pricing/components/CatalogTab.tsx": {
@@ -6872,6 +6872,36 @@
   "src/views/pricing/components/QuoteWizardStep2.tsx": {
     "mtime": 1788280918.2471719,
     "ast_hash": "f29faf08f947ef5548157745020d365c",
+    "semantic_hash": ""
+  },
+  "src/views/pricing/components/DevolucionesTab.tsx": {
+    "mtime": 1788280969.0315728,
+    "ast_hash": "e8aa916d529326c8c5e134ca5a65fbfe",
+    "semantic_hash": ""
+  },
+  "src/views/pricing/components/PriceHistoryModal.tsx": {
+    "mtime": 1788280992.4206238,
+    "ast_hash": "46736f430046fc28cb261e524e0397b2",
+    "semantic_hash": ""
+  },
+  "src/views/pricing/components/ProductLineModal.tsx": {
+    "mtime": 1788280937.6344085,
+    "ast_hash": "ca866eafd0b8df4e95cb808cdbd8fa34",
+    "semantic_hash": ""
+  },
+  "src/views/pricing/components/QuoteHistoryTab.tsx": {
+    "mtime": 1788280979.6051586,
+    "ast_hash": "5c4b1972c9264660b79899a8e53163c3",
+    "semantic_hash": ""
+  },
+  "src/views/pricing/components/QuotePrintModal.tsx": {
+    "mtime": 1788281003.8633912,
+    "ast_hash": "44a90ec9ce5ddc537abe398aac6605c2",
+    "semantic_hash": ""
+  },
+  "src/views/pricing/components/QuoteWizardStep3.tsx": {
+    "mtime": 1788281108.0667918,
+    "ast_hash": "455be9832fa1f41e7fb78b2113cf4d81",
     "semantic_hash": ""
   }
 }

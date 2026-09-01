@@ -1,16 +1,16 @@
 # Graph Report - MaestroPescaderia  (2026-09-01)
 
 ## Corpus Check
-- 1320 files · ~879,050 words
+- 1324 files · ~881,149 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 9147 nodes · 9884 edges · 788 communities (732 shown, 56 thin omitted)
+- 11750 nodes · 12477 edges · 1028 communities (862 shown, 166 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 2 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `604f45bf`
+- Built from commit: `35246e9f`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -349,7 +349,6 @@
 - [[_COMMUNITY_Community 331|Community 331]]
 - [[_COMMUNITY_Community 332|Community 332]]
 - [[_COMMUNITY_Community 333|Community 333]]
-- [[_COMMUNITY_Community 334|Community 334]]
 - [[_COMMUNITY_Community 335|Community 335]]
 - [[_COMMUNITY_Community 336|Community 336]]
 - [[_COMMUNITY_Community 337|Community 337]]
@@ -786,8 +785,245 @@
 - [[_COMMUNITY_Community 783|Community 783]]
 - [[_COMMUNITY_Community 784|Community 784]]
 - [[_COMMUNITY_Community 785|Community 785]]
+- [[_COMMUNITY_Community 786|Community 786]]
 - [[_COMMUNITY_Community 787|Community 787]]
 - [[_COMMUNITY_Community 788|Community 788]]
+- [[_COMMUNITY_Community 789|Community 789]]
+- [[_COMMUNITY_Community 790|Community 790]]
+- [[_COMMUNITY_Community 791|Community 791]]
+- [[_COMMUNITY_Community 792|Community 792]]
+- [[_COMMUNITY_Community 793|Community 793]]
+- [[_COMMUNITY_Community 794|Community 794]]
+- [[_COMMUNITY_Community 795|Community 795]]
+- [[_COMMUNITY_Community 796|Community 796]]
+- [[_COMMUNITY_Community 797|Community 797]]
+- [[_COMMUNITY_Community 798|Community 798]]
+- [[_COMMUNITY_Community 799|Community 799]]
+- [[_COMMUNITY_Community 800|Community 800]]
+- [[_COMMUNITY_Community 801|Community 801]]
+- [[_COMMUNITY_Community 802|Community 802]]
+- [[_COMMUNITY_Community 803|Community 803]]
+- [[_COMMUNITY_Community 804|Community 804]]
+- [[_COMMUNITY_Community 805|Community 805]]
+- [[_COMMUNITY_Community 806|Community 806]]
+- [[_COMMUNITY_Community 807|Community 807]]
+- [[_COMMUNITY_Community 808|Community 808]]
+- [[_COMMUNITY_Community 809|Community 809]]
+- [[_COMMUNITY_Community 810|Community 810]]
+- [[_COMMUNITY_Community 811|Community 811]]
+- [[_COMMUNITY_Community 812|Community 812]]
+- [[_COMMUNITY_Community 813|Community 813]]
+- [[_COMMUNITY_Community 814|Community 814]]
+- [[_COMMUNITY_Community 815|Community 815]]
+- [[_COMMUNITY_Community 816|Community 816]]
+- [[_COMMUNITY_Community 817|Community 817]]
+- [[_COMMUNITY_Community 818|Community 818]]
+- [[_COMMUNITY_Community 819|Community 819]]
+- [[_COMMUNITY_Community 820|Community 820]]
+- [[_COMMUNITY_Community 821|Community 821]]
+- [[_COMMUNITY_Community 822|Community 822]]
+- [[_COMMUNITY_Community 823|Community 823]]
+- [[_COMMUNITY_Community 824|Community 824]]
+- [[_COMMUNITY_Community 825|Community 825]]
+- [[_COMMUNITY_Community 826|Community 826]]
+- [[_COMMUNITY_Community 827|Community 827]]
+- [[_COMMUNITY_Community 828|Community 828]]
+- [[_COMMUNITY_Community 829|Community 829]]
+- [[_COMMUNITY_Community 830|Community 830]]
+- [[_COMMUNITY_Community 831|Community 831]]
+- [[_COMMUNITY_Community 832|Community 832]]
+- [[_COMMUNITY_Community 833|Community 833]]
+- [[_COMMUNITY_Community 834|Community 834]]
+- [[_COMMUNITY_Community 835|Community 835]]
+- [[_COMMUNITY_Community 836|Community 836]]
+- [[_COMMUNITY_Community 837|Community 837]]
+- [[_COMMUNITY_Community 838|Community 838]]
+- [[_COMMUNITY_Community 839|Community 839]]
+- [[_COMMUNITY_Community 840|Community 840]]
+- [[_COMMUNITY_Community 841|Community 841]]
+- [[_COMMUNITY_Community 842|Community 842]]
+- [[_COMMUNITY_Community 843|Community 843]]
+- [[_COMMUNITY_Community 844|Community 844]]
+- [[_COMMUNITY_Community 845|Community 845]]
+- [[_COMMUNITY_Community 846|Community 846]]
+- [[_COMMUNITY_Community 847|Community 847]]
+- [[_COMMUNITY_Community 848|Community 848]]
+- [[_COMMUNITY_Community 849|Community 849]]
+- [[_COMMUNITY_Community 850|Community 850]]
+- [[_COMMUNITY_Community 851|Community 851]]
+- [[_COMMUNITY_Community 852|Community 852]]
+- [[_COMMUNITY_Community 853|Community 853]]
+- [[_COMMUNITY_Community 854|Community 854]]
+- [[_COMMUNITY_Community 855|Community 855]]
+- [[_COMMUNITY_Community 856|Community 856]]
+- [[_COMMUNITY_Community 857|Community 857]]
+- [[_COMMUNITY_Community 858|Community 858]]
+- [[_COMMUNITY_Community 859|Community 859]]
+- [[_COMMUNITY_Community 860|Community 860]]
+- [[_COMMUNITY_Community 861|Community 861]]
+- [[_COMMUNITY_Community 862|Community 862]]
+- [[_COMMUNITY_Community 863|Community 863]]
+- [[_COMMUNITY_Community 864|Community 864]]
+- [[_COMMUNITY_Community 865|Community 865]]
+- [[_COMMUNITY_Community 866|Community 866]]
+- [[_COMMUNITY_Community 867|Community 867]]
+- [[_COMMUNITY_Community 868|Community 868]]
+- [[_COMMUNITY_Community 869|Community 869]]
+- [[_COMMUNITY_Community 870|Community 870]]
+- [[_COMMUNITY_Community 871|Community 871]]
+- [[_COMMUNITY_Community 872|Community 872]]
+- [[_COMMUNITY_Community 873|Community 873]]
+- [[_COMMUNITY_Community 874|Community 874]]
+- [[_COMMUNITY_Community 875|Community 875]]
+- [[_COMMUNITY_Community 876|Community 876]]
+- [[_COMMUNITY_Community 877|Community 877]]
+- [[_COMMUNITY_Community 878|Community 878]]
+- [[_COMMUNITY_Community 879|Community 879]]
+- [[_COMMUNITY_Community 880|Community 880]]
+- [[_COMMUNITY_Community 881|Community 881]]
+- [[_COMMUNITY_Community 882|Community 882]]
+- [[_COMMUNITY_Community 883|Community 883]]
+- [[_COMMUNITY_Community 884|Community 884]]
+- [[_COMMUNITY_Community 885|Community 885]]
+- [[_COMMUNITY_Community 886|Community 886]]
+- [[_COMMUNITY_Community 887|Community 887]]
+- [[_COMMUNITY_Community 888|Community 888]]
+- [[_COMMUNITY_Community 889|Community 889]]
+- [[_COMMUNITY_Community 890|Community 890]]
+- [[_COMMUNITY_Community 891|Community 891]]
+- [[_COMMUNITY_Community 892|Community 892]]
+- [[_COMMUNITY_Community 893|Community 893]]
+- [[_COMMUNITY_Community 894|Community 894]]
+- [[_COMMUNITY_Community 895|Community 895]]
+- [[_COMMUNITY_Community 896|Community 896]]
+- [[_COMMUNITY_Community 897|Community 897]]
+- [[_COMMUNITY_Community 898|Community 898]]
+- [[_COMMUNITY_Community 899|Community 899]]
+- [[_COMMUNITY_Community 900|Community 900]]
+- [[_COMMUNITY_Community 901|Community 901]]
+- [[_COMMUNITY_Community 902|Community 902]]
+- [[_COMMUNITY_Community 903|Community 903]]
+- [[_COMMUNITY_Community 904|Community 904]]
+- [[_COMMUNITY_Community 905|Community 905]]
+- [[_COMMUNITY_Community 906|Community 906]]
+- [[_COMMUNITY_Community 907|Community 907]]
+- [[_COMMUNITY_Community 908|Community 908]]
+- [[_COMMUNITY_Community 909|Community 909]]
+- [[_COMMUNITY_Community 910|Community 910]]
+- [[_COMMUNITY_Community 911|Community 911]]
+- [[_COMMUNITY_Community 913|Community 913]]
+- [[_COMMUNITY_Community 914|Community 914]]
+- [[_COMMUNITY_Community 915|Community 915]]
+- [[_COMMUNITY_Community 916|Community 916]]
+- [[_COMMUNITY_Community 917|Community 917]]
+- [[_COMMUNITY_Community 918|Community 918]]
+- [[_COMMUNITY_Community 919|Community 919]]
+- [[_COMMUNITY_Community 920|Community 920]]
+- [[_COMMUNITY_Community 921|Community 921]]
+- [[_COMMUNITY_Community 922|Community 922]]
+- [[_COMMUNITY_Community 923|Community 923]]
+- [[_COMMUNITY_Community 924|Community 924]]
+- [[_COMMUNITY_Community 925|Community 925]]
+- [[_COMMUNITY_Community 926|Community 926]]
+- [[_COMMUNITY_Community 927|Community 927]]
+- [[_COMMUNITY_Community 928|Community 928]]
+- [[_COMMUNITY_Community 929|Community 929]]
+- [[_COMMUNITY_Community 930|Community 930]]
+- [[_COMMUNITY_Community 931|Community 931]]
+- [[_COMMUNITY_Community 932|Community 932]]
+- [[_COMMUNITY_Community 933|Community 933]]
+- [[_COMMUNITY_Community 934|Community 934]]
+- [[_COMMUNITY_Community 935|Community 935]]
+- [[_COMMUNITY_Community 936|Community 936]]
+- [[_COMMUNITY_Community 937|Community 937]]
+- [[_COMMUNITY_Community 938|Community 938]]
+- [[_COMMUNITY_Community 939|Community 939]]
+- [[_COMMUNITY_Community 940|Community 940]]
+- [[_COMMUNITY_Community 941|Community 941]]
+- [[_COMMUNITY_Community 942|Community 942]]
+- [[_COMMUNITY_Community 943|Community 943]]
+- [[_COMMUNITY_Community 944|Community 944]]
+- [[_COMMUNITY_Community 945|Community 945]]
+- [[_COMMUNITY_Community 946|Community 946]]
+- [[_COMMUNITY_Community 947|Community 947]]
+- [[_COMMUNITY_Community 948|Community 948]]
+- [[_COMMUNITY_Community 949|Community 949]]
+- [[_COMMUNITY_Community 950|Community 950]]
+- [[_COMMUNITY_Community 951|Community 951]]
+- [[_COMMUNITY_Community 952|Community 952]]
+- [[_COMMUNITY_Community 953|Community 953]]
+- [[_COMMUNITY_Community 954|Community 954]]
+- [[_COMMUNITY_Community 955|Community 955]]
+- [[_COMMUNITY_Community 956|Community 956]]
+- [[_COMMUNITY_Community 957|Community 957]]
+- [[_COMMUNITY_Community 958|Community 958]]
+- [[_COMMUNITY_Community 959|Community 959]]
+- [[_COMMUNITY_Community 960|Community 960]]
+- [[_COMMUNITY_Community 961|Community 961]]
+- [[_COMMUNITY_Community 962|Community 962]]
+- [[_COMMUNITY_Community 963|Community 963]]
+- [[_COMMUNITY_Community 964|Community 964]]
+- [[_COMMUNITY_Community 965|Community 965]]
+- [[_COMMUNITY_Community 966|Community 966]]
+- [[_COMMUNITY_Community 967|Community 967]]
+- [[_COMMUNITY_Community 968|Community 968]]
+- [[_COMMUNITY_Community 969|Community 969]]
+- [[_COMMUNITY_Community 970|Community 970]]
+- [[_COMMUNITY_Community 971|Community 971]]
+- [[_COMMUNITY_Community 972|Community 972]]
+- [[_COMMUNITY_Community 973|Community 973]]
+- [[_COMMUNITY_Community 974|Community 974]]
+- [[_COMMUNITY_Community 975|Community 975]]
+- [[_COMMUNITY_Community 976|Community 976]]
+- [[_COMMUNITY_Community 977|Community 977]]
+- [[_COMMUNITY_Community 978|Community 978]]
+- [[_COMMUNITY_Community 979|Community 979]]
+- [[_COMMUNITY_Community 980|Community 980]]
+- [[_COMMUNITY_Community 981|Community 981]]
+- [[_COMMUNITY_Community 982|Community 982]]
+- [[_COMMUNITY_Community 983|Community 983]]
+- [[_COMMUNITY_Community 984|Community 984]]
+- [[_COMMUNITY_Community 985|Community 985]]
+- [[_COMMUNITY_Community 986|Community 986]]
+- [[_COMMUNITY_Community 987|Community 987]]
+- [[_COMMUNITY_Community 988|Community 988]]
+- [[_COMMUNITY_Community 989|Community 989]]
+- [[_COMMUNITY_Community 990|Community 990]]
+- [[_COMMUNITY_Community 991|Community 991]]
+- [[_COMMUNITY_Community 992|Community 992]]
+- [[_COMMUNITY_Community 993|Community 993]]
+- [[_COMMUNITY_Community 994|Community 994]]
+- [[_COMMUNITY_Community 995|Community 995]]
+- [[_COMMUNITY_Community 996|Community 996]]
+- [[_COMMUNITY_Community 997|Community 997]]
+- [[_COMMUNITY_Community 998|Community 998]]
+- [[_COMMUNITY_Community 999|Community 999]]
+- [[_COMMUNITY_Community 1000|Community 1000]]
+- [[_COMMUNITY_Community 1001|Community 1001]]
+- [[_COMMUNITY_Community 1002|Community 1002]]
+- [[_COMMUNITY_Community 1003|Community 1003]]
+- [[_COMMUNITY_Community 1004|Community 1004]]
+- [[_COMMUNITY_Community 1005|Community 1005]]
+- [[_COMMUNITY_Community 1006|Community 1006]]
+- [[_COMMUNITY_Community 1007|Community 1007]]
+- [[_COMMUNITY_Community 1008|Community 1008]]
+- [[_COMMUNITY_Community 1009|Community 1009]]
+- [[_COMMUNITY_Community 1010|Community 1010]]
+- [[_COMMUNITY_Community 1011|Community 1011]]
+- [[_COMMUNITY_Community 1012|Community 1012]]
+- [[_COMMUNITY_Community 1013|Community 1013]]
+- [[_COMMUNITY_Community 1014|Community 1014]]
+- [[_COMMUNITY_Community 1015|Community 1015]]
+- [[_COMMUNITY_Community 1016|Community 1016]]
+- [[_COMMUNITY_Community 1018|Community 1018]]
+- [[_COMMUNITY_Community 1019|Community 1019]]
+- [[_COMMUNITY_Community 1020|Community 1020]]
+- [[_COMMUNITY_Community 1021|Community 1021]]
+- [[_COMMUNITY_Community 1022|Community 1022]]
+- [[_COMMUNITY_Community 1023|Community 1023]]
+- [[_COMMUNITY_Community 1024|Community 1024]]
+- [[_COMMUNITY_Community 1025|Community 1025]]
+- [[_COMMUNITY_Community 1026|Community 1026]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `IDataService` - 35 edges
@@ -802,41 +1038,41 @@
 10. `TurnoCaja` - 20 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `CRMView()` --calls--> `useAppStore`  [EXTRACTED]
-  src/views/CRMView.tsx → src/store/useAppStore.ts
-- `LineaVentaRowProps` --references--> `LineaVenta`  [EXTRACTED]
-  src/views/pos/components/LineaVentaRow.tsx → src/types/pos.types.ts
 - `CartItem` --references--> `Product`  [EXTRACTED]
   src/views/POSView.tsx → src/types/erp.types.ts
 - `InventoryView()` --calls--> `useCategoryStore`  [EXTRACTED]
   src/views/InventoryView.tsx → src/store/useCategoryStore.ts
+- `InventoryView()` --calls--> `usePurchaseStore`  [EXTRACTED]
+  src/views/InventoryView.tsx → src/store/usePurchaseStore.ts
+- `InventoryView()` --calls--> `useSupplierStore`  [EXTRACTED]
+  src/views/InventoryView.tsx → src/store/useSupplierStore.ts
 - `InventoryView()` --calls--> `useWarehouseStore`  [EXTRACTED]
   src/views/InventoryView.tsx → src/store/useWarehouseStore.ts
 
 ## Import Cycles
 - 3-file cycle: `src/App.tsx -> src/views/PricingView.tsx -> src/hooks/usePricing.ts -> src/App.tsx`
 
-## Communities (788 total, 56 thin omitted)
+## Communities (1028 total, 166 thin omitted)
 
 ### Community 0 - "Community 0"
-Cohesion: 0.08
-Nodes (64): CartPanel(), FulfillmentChecklist(), usePricing(), AlistamientoBodegaView(), DispatchView(), generateId(), toTitleCase(), orderDispatchService (+56 more)
+Cohesion: 0.05
+Nodes (88): CartPanel(), FulfillmentChecklist(), PricingTabProps, ProductSearchPanel(), ProductSearchPanelProps, QuoteWizardStep1Props, usePricing(), AlistamientoBodegaView() (+80 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.04
-Nodes (69): COLORS, ICONS, initLogger(), LOG_LEVELS, LogFn, Logger, LogLevel, MODULE_LEVELS (+61 more)
+Cohesion: 0.03
+Nodes (73): COLORS, createLogger(), getModuleLevel(), ICONS, initLogger(), LOG_LEVELS, LogFn, LoggableDataService (+65 more)
 
 ### Community 2 - "Community 2"
 Cohesion: 0.08
-Nodes (39): CashFlowView(), AperturaCajaModal(), AperturaCajaModalProps, ArqueoCajaModal(), ArqueoCajaModalProps, CalculadorDenominaciones(), DENOMINACIONES_BILLETES, DENOMINACIONES_MONEDAS (+31 more)
+Nodes (40): CashFlowView(), AperturaCajaModal(), AperturaCajaModalProps, ArqueoCajaModal(), ArqueoCajaModalProps, CalculadorDenominaciones(), DENOMINACIONES_BILLETES, DENOMINACIONES_MONEDAS (+32 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.11
-Nodes (23): CartPanelProps, PaymentPanel(), PaymentPanelProps, ClientePOS, log, usePOSCart(), ClientePrinter, log (+15 more)
+Cohesion: 0.10
+Nodes (23): BalanzaButton(), BalanzaButtonProps, CartPanelProps, LineaVentaRow(), LineaVentaRowProps, PaymentPanel(), PaymentPanelProps, log (+15 more)
 
 ### Community 4 - "Community 4"
 Cohesion: 0.10
-Nodes (24): FulfillmentChecklistProps, QuantityModal(), QuantityModalProps, WeighingModal(), WeighingModalProps, B2bService, Cotizacion, dataService (+16 more)
+Nodes (22): FulfillmentChecklistProps, QuantityModal(), QuantityModalProps, WeighingModal(), WeighingModalProps, B2bService, transicionesValidas, OrderState (+14 more)
 
 ### Community 5 - "Community 5"
 Cohesion: 0.04
@@ -851,12 +1087,12 @@ Cohesion: 0.04
 Nodes (48): 10. Dependency Security, 1. Secrets Management, 2. Input Validation, 3. SQL Injection Prevention, 4. Authentication & Authorization, 5. XSS Prevention, 6. CSRF Protection, 7. Rate Limiting (+40 more)
 
 ### Community 8 - "Community 8"
-Cohesion: 0.07
-Nodes (28): 1. Cross-Repo Initialization, 1. Distributed Task Queue, 1. Repository Organization, 2. Communication, 2. Cross-Repo Testing, 2. Repository Discovery, 3. Monorepo Migration, 3. Security (+20 more)
+Cohesion: 0.04
+Nodes (48): 1. Cross-Repo Initialization, 1. Distributed Task Queue, 1. Eventually Consistent, 1. Microservices Coordination, 1. Repository Organization, 1. Webhook-Based Coordination, 2. Communication, 2. Cross-Repo Testing (+40 more)
 
 ### Community 9 - "Community 9"
-Cohesion: 0.11
-Nodes (25): transicionesValidas, getSkuByProductoId(), getUnidadByProductoId(), InventoryService, MovimientoInventario, procesarProduccion(), registrarEntrada(), registrarSalida() (+17 more)
+Cohesion: 0.10
+Nodes (28): getSkuByProductoId(), getUnidadByProductoId(), InventoryService, MovimientoInventario, procesarProduccion(), registrarEntrada(), registrarSalida(), registrarTraslado() (+20 more)
 
 ### Community 10 - "Community 10"
 Cohesion: 0.04
@@ -883,16 +1119,16 @@ Cohesion: 0.05
 Nodes (44): 1. AI Learning, 1. Context-Aware Reviews, 1. Multi-Agent Review System, 1. Review Configuration, 2. Comment Quality, 2. Custom Review Agents, 2. Learning from History, 2. Specialized Review Agents (+36 more)
 
 ### Community 16 - "Community 16"
-Cohesion: 0.07
-Nodes (29): 1. Progressive Deployment, 1. Release Planning, 2. Automation, 2. Multi-Repo Releases, 3. Documentation, 3. Hotfix Automation, Advanced Features, Auto-Generated Docs (+21 more)
+Cohesion: 0.05
+Nodes (43): 1. Progressive Deployment, 1. Release Planning, 1. Release Planning, 2. Automated Versioning, 2. Automation, 2. Multi-Repo Releases, 3. Documentation, 3. Hotfix Automation (+35 more)
 
 ### Community 17 - "Community 17"
 Cohesion: 0.05
 Nodes (41): 1. Long Functions, 1. Readability First, 2. Deep Nesting, 2. KISS (Keep It Simple, Stupid), 3. DRY (Don't Repeat Yourself), 3. Magic Numbers, 4. YAGNI (You Aren't Gonna Need It), API Design Standards (+33 more)
 
 ### Community 18 - "Community 18"
-Cohesion: 0.05
-Nodes (41): 1. PR Validation Swarm, 1. Self-Healing CI/CD, 1. Swarm-Powered Actions, 1. Workflow Organization, 2. Dynamic Workflow Generation, 2. Progressive Deployment, 2. Release Automation, 2. Security (+33 more)
+Cohesion: 0.06
+Nodes (33): 1. Swarm-Powered Actions, 1. Workflow Organization, 2. Dynamic Workflow Generation, 2. Security, 3. Intelligent Test Selection, 3. Performance, Action Commands, Adaptive Security Scanning (+25 more)
 
 ### Community 19 - "Community 19"
 Cohesion: 0.05
@@ -1075,12 +1311,12 @@ Cohesion: 0.08
 Nodes (23): 1. Create Coordinated Issue with Swarm Tracking, 1. **Swarm-Coordinated Issue Management**, 2. **Automated Progress Tracking**, 2. Automated Progress Updates, 3. Multi-Issue Project Coordination, 3. **Smart Labeling and Organization**, 4. **Batch Issue Operations**, Automatic tracking of: (+15 more)
 
 ### Community 64 - "Community 64"
-Cohesion: 0.05
-Nodes (44): 1. Issue Dependencies, 1. Issue-PR Linking, 1. Issue Templates, 1. Issue-to-Swarm Conversion, 2. Epic Management, 2. Issue Comment Commands, 2. Label Strategy, 2. Milestone Coordination (+36 more)
+Cohesion: 0.06
+Nodes (32): 1. Issue-to-Swarm Conversion, 2. Issue Comment Commands, 3. Issue Templates for Swarms, Auto-Close Stale Issues, Auto-Label Based on Content, Automation Examples, Bug Reports, Complex Bug Investigation (+24 more)
 
 ### Community 65 - "Community 65"
 Cohesion: 0.07
-Nodes (28): 1. PR-Based Swarm Creation, 1. PR Templates, 2. PR Comment Commands, 2. Status Checks, 3. Automated PR Workflows, 3. PR Merge Automation, Automatic Agent Assignment, Best Practices (+20 more)
+Nodes (28): 1. Multi-PR Swarm Coordination, 1. PR Templates, 2. PR Dependency Analysis, 2. Status Checks, 3. Automated PR Fixes, 3. PR Merge Automation, Advanced Features, Automatic Agent Assignment (+20 more)
 
 ### Community 66 - "Community 66"
 Cohesion: 0.08
@@ -1331,8 +1567,8 @@ Cohesion: 0.19
 Nodes (9): DevTestDashboard(), applySeed(), SEED_DATA, applySeed(), SEED_DATA, applySeed(), SEED_DATA, applySeed() (+1 more)
 
 ### Community 128 - "Community 128"
-Cohesion: 0.07
-Nodes (28): 1. Auto-Assignment, 1. Board Organization, 2. Data Integrity, 2. Progress Tracking, 3. Smart Card Movement, 3. Team Adoption, Automation Features, Best Practices (+20 more)
+Cohesion: 0.08
+Nodes (24): 1. Multi-Board Sync, 2. Cross-Organization Sync, 3. External Tool Integration, Advanced Synchronization, Agile Development Board, Board Mapping Configuration, Configuration, Data Recovery (+16 more)
 
 ### Community 129 - "Community 129"
 Cohesion: 0.12
@@ -2015,8 +2251,8 @@ Cohesion: 0.18
 Nodes (10): Error Handling, Formatting, Immutability, Iterators Over Loops, Module Organization, Naming, Ownership and Borrowing, References (+2 more)
 
 ### Community 299 - "Community 299"
-Cohesion: 0.19
-Nodes (11): getSupabaseClient(), accountingService, TRANSACTION_CATEGORIES, TransactionCategory, AccountingState, AccountSummary, Account, AccountType (+3 more)
+Cohesion: 0.10
+Nodes (15): getSupabaseClient(), accountingService, TRANSACTION_CATEGORIES, TransactionCategory, SupabaseDataService, AccountingState, AccountSummary, useAccountingStore (+7 more)
 
 ### Community 300 - "Community 300"
 Cohesion: 0.18
@@ -3271,8 +3507,8 @@ Cohesion: 0.50
 Nodes (4): Initialize Multi-Repo Coordination, Optimize Architecture, Quick Start, Synchronize Packages
 
 ### Community 616 - "Community 616"
-Cohesion: 0.13
-Nodes (18): AnalisisAbcWidget(), ABC_CONFIG, getStockStatus(), Props, SortDir, SortField, STATUS_CONFIG, StockCell() (+10 more)
+Cohesion: 0.12
+Nodes (19): AnalisisAbcWidget(), ABC_CONFIG, getStockStatus(), Props, SortDir, SortField, STATUS_CONFIG, StockCell() (+11 more)
 
 ### Community 617 - "Community 617"
 Cohesion: 0.25
@@ -3283,8 +3519,8 @@ Cohesion: 0.50
 Nodes (3): 🛠️ Comandos Disponibles (`package.json`), 📏 Estándares de Código y Arquitectura, Guía de Contribución y Despliegue (MaestroPescaderia ERP)
 
 ### Community 619 - "Community 619"
-Cohesion: 0.06
-Nodes (40): BalanzaButton(), BalanzaButtonProps, LineaVentaRow(), LineaVentaRowProps, ProductSearchPanel(), ProductSearchPanelProps, ProductTable(), log (+32 more)
+Cohesion: 0.22
+Nodes (4): WizardType, Empleado, NominaRegistro, Gasto
 
 ### Community 620 - "Community 620"
 Cohesion: 0.12
@@ -3295,8 +3531,8 @@ Cohesion: 0.29
 Nodes (6): 📋 1. Compleitud y Claridad de Requerimientos (Completeness & Clarity), 🏛️ 2. Cumplimiento de la Constitución del ERP (Architecture & Business Rules), ⚙️ 3. Mantenibilidad y Desacoplamiento (Maintainability & Decoupling), 🧪 4. Verificabilidad y Calidad de Código (Testability & QA Gates), 🔒 5. Gestión de Riesgos e Infraestructura (Risk & Infrastructure), Lista de Verificación de Calidad (Quality Assurance Checklist - SDD / ISO 25010)
 
 ### Community 622 - "Community 622"
-Cohesion: 0.08
-Nodes (24): CategoriaWizardModal(), Props, CrearProductoRapidoModal(), Props, CrearProveedorRapidoModal(), Props, ProductForm(), ProductionForm() (+16 more)
+Cohesion: 0.07
+Nodes (29): CategoriaWizardModal(), Props, CrearProductoRapidoModal(), Props, CrearProveedorRapidoModal(), Props, ProductForm(), ProductionForm() (+21 more)
 
 ### Community 623 - "Community 623"
 Cohesion: 0.25
@@ -3554,6 +3790,10 @@ Nodes (3): Agent Strategies, Core Concepts, Swarm Topologies
 Cohesion: 0.67
 Nodes (3): Basic Pattern, Prerequisites, Quick Start
 
+### Community 733 - "Community 733"
+Cohesion: 0.05
+Nodes (39): 10. Decision Checklist, 1. Framework Selection (2025), 2. Runtime Considerations (2025), 3. Architecture Principles, 4. Error Handling Principles, 5. Async Patterns Principles, 6. Validation Principles, 7. Security Principles (+31 more)
+
 ### Community 734 - "Community 734"
 Cohesion: 0.25
 Nodes (7): AI Tools, Column Level Security, Considerations when using column-level privileges#, Manage column privileges in migrations#, Manage column privileges in the Dashboard#, Policies at the row level#, Privileges at the column level#
@@ -3607,44 +3847,44 @@ Cohesion: 0.40
 Nodes (4): 1. Mapa de Capacidades de la Capa Gratuita, 2. Emulación de Document Store NoSQL con PostgreSQL `JSONB`, 3. Optimización del Bundle Frontend SPA (Vite + React), SPA & Free Tier Cloud Architecture Skill
 
 ### Community 750 - "Community 750"
-Cohesion: 0.50
-Nodes (4): 1. Eventually Consistent, 2. Strong Consistency, 3. Hybrid Approach, Synchronization Patterns
+Cohesion: 0.05
+Nodes (37): By Symptom, Capture Browser Console, CI-Specific Configuration, Common Issues, Compare Visual State, Custom Test Attachments, Debug CI Environment, Debug in Code (+29 more)
 
 ### Community 751 - "Community 751"
-Cohesion: 0.33
-Nodes (6): Build Agent, Changelog Agent, Deploy Agent, Release Agents, Test Agent, Version Agent
+Cohesion: 0.05
+Nodes (37): Anti-Patterns, API Routes, API Through UI, App Router Patterns, Auth Redirects, Auth Setup, Authenticated Tests, Catch-All Routes (+29 more)
 
 ### Community 752 - "Community 752"
-Cohesion: 0.50
-Nodes (4): Dependency Management, Orchestration Commands, Refactoring Operations, Security Updates
+Cohesion: 0.06
+Nodes (33): API Response Format, Architectural Patterns, Authentication & Authorization, Authentication Middleware, Best Practices, Caching Strategies, Core Frameworks, Custom Error Classes (+25 more)
 
 ### Community 753 - "Community 753"
-Cohesion: 0.50
-Nodes (4): 1. Microservices Coordination, 2. Library Updates, 3. Organization-Wide Changes, Use Cases
+Cohesion: 0.06
+Nodes (34): Article, Breadcrumbs, Crawlability, Critical, FAQ, Font sizes, Heading structure, High priority (+26 more)
 
 ### Community 754 - "Community 754"
-Cohesion: 0.50
-Nodes (4): Agile Development Board, Examples, Kanban Flow Board, Research Project Board
+Cohesion: 0.06
+Nodes (34): Avoiding state leak in parallel runs, Basic Sharding, Benchmarking, Block Resource Types, Block Unnecessary Resources, Browser Contexts, Cache API Responses, CI Sharding Pattern (+26 more)
 
 ### Community 755 - "Community 755"
-Cohesion: 0.50
-Nodes (4): 1. Webhook-Based Coordination, 2. GraphQL Federation, 3. Event Streaming, Communication Strategies
+Cohesion: 0.06
+Nodes (34): Anti-Patterns to Avoid, Basic Mount, Component Testing, Configuration, Events & Interactions, Framework-Specific Patterns, Installation, Mocking API Calls (+26 more)
 
 ### Community 756 - "Community 756"
-Cohesion: 0.50
-Nodes (4): Connectivity Issues, Memory Synchronization, Performance Bottlenecks, Troubleshooting
+Cohesion: 0.06
+Nodes (33): Annotation-Based Quarantine, Anti-Patterns to Avoid, Async/Timing Flakiness, Categories of Flakiness, CI-Specific Flakiness, Confirming Flakiness, Consistent Viewport and Scale, Data/Parallelism-Driven Flakiness (+25 more)
 
 ### Community 757 - "Community 757"
 Cohesion: 0.50
 Nodes (4): Board Commands, Bulk Operations, Card Templates, Create Cards from Issues
 
 ### Community 758 - "Community 758"
-Cohesion: 0.50
-Nodes (4): 1. Release Planning, 2. Automated Versioning, 3. Release Orchestration, Core Features
+Cohesion: 0.06
+Nodes (32): Basic Workflow, Best Practices, Cache Node Modules, Cache Playwright Browsers, Caching, CI/CD Integration, CI Configuration Reference, CI-Specific Reporter (+24 more)
 
 ### Community 759 - "Community 759"
-Cohesion: 0.50
-Nodes (4): Docker Image Release, Integration Examples, Mobile App Release, NPM Package Release
+Cohesion: 0.06
+Nodes (32): Access Electron APIs, Access Node.js in Renderer, Anti-Patterns to Avoid, Basic Configuration, BrowserWindow Properties, Clipboard, Context Isolation Testing, Development Mode (+24 more)
 
 ### Community 760 - "Community 760"
 Cohesion: 0.50
@@ -3675,36 +3915,536 @@ Cohesion: 0.50
 Nodes (4): 1. Board Initialization, 2. Task Synchronization, 3. Real-time Updates, Core Features
 
 ### Community 783 - "Community 783"
-Cohesion: 0.50
-Nodes (4): 1. Multi-Board Sync, 2. Cross-Organization Sync, 3. External Tool Integration, Advanced Synchronization
+Cohesion: 0.07
+Nodes (29): Alarms and Timers, Anti-Patterns to Avoid, Background Script Testing, Basic Configuration, Browser Extension Testing, Content Script Communication, Content Script Testing, Context Menus (+21 more)
 
 ### Community 784 - "Community 784"
-Cohesion: 0.50
-Nodes (4): Data Recovery, Performance, Sync Issues, Troubleshooting
+Cohesion: 0.07
+Nodes (29): Accept-Language Header, Anti-Patterns to Avoid, Checking for Missing Translations, Critical Element Screenshots, Date, Time & Number Formats, Detecting Text Overflow, Font Loading for i18n, Internationalization (i18n) Testing (+21 more)
 
 ### Community 785 - "Community 785"
+Cohesion: 0.07
+Nodes (28): Add Annotations, Annotation Fixture, Annotation Helper, Anti-Patterns to Avoid, Basic Skip, Basic Steps, Conditional Annotations, Conditional Skip (+20 more)
+
+### Community 786 - "Community 786"
+Cohesion: 0.07
+Nodes (28): Access Config in Global Setup, Anti-Patterns to Avoid, Basic Global Setup, Basic Global Teardown, Combining Both, Common Parallel Pitfall, Conditional Teardown, Configure Global Setup (+20 more)
+
+### Community 789 - "Community 789"
+Cohesion: 0.07
+Nodes (27): Accessing Cross-Origin Content, Accessing Nested Frames, Anti-Patterns to Avoid, Basic iFrame Access, Common Patterns, Cross-Origin iFrames, Debugging iFrame Issues, Dynamic iFrames (+19 more)
+
+### Community 790 - "Community 790"
+Cohesion: 0.07
+Nodes (27): Anti-Patterns to Avoid, Background Sync, Cache Testing, Getting Service Worker State, Mocking Push Subscription, Offline Testing, Push Notifications, Registration & Lifecycle (+19 more)
+
+### Community 791 - "Community 791"
+Cohesion: 0.07
+Nodes (27): Anti-Patterns to Avoid, Auth Fixture, Authentication Patterns, Automatic Fixtures, Basic Custom Fixture, beforeAll / afterAll, beforeEach / afterEach, Built-in Fixtures (+19 more)
+
+### Community 792 - "Community 792"
+Cohesion: 0.07
+Nodes (27): Advanced Patterns, Anti-Patterns to Avoid, Authentication Setup, Base Configuration, Basic Multi-Browser Setup, Chained Dependencies, Cleanup Setup, Conditional Projects (+19 more)
+
+### Community 793 - "Community 793"
+Cohesion: 0.07
+Nodes (27): Anti-Patterns, Artifact Directory Structure, CI Artifact Upload, CLI Commands, Custom Reporter, Decision Guide, Empty HTML Report, Empty Merged Report (+19 more)
+
+### Community 794 - "Community 794"
+Cohesion: 0.07
+Nodes (27): A11y as CI Gate, A11y Fixture, Accessibility Testing, Anti-Patterns to Avoid, ARIA States, ARIA Validation, Axe-Core Integration, Basic A11y Test (+19 more)
+
+### Community 795 - "Community 795"
+Cohesion: 0.07
+Nodes (27): Anti-Patterns to Avoid, Canvas Basics, Canvas Screenshot Testing, Canvas & WebGL Testing, Chart.js Testing, Chart Libraries, Checking WebGL Support, Click on Canvas (+19 more)
+
+### Community 796 - "Community 796"
+Cohesion: 0.08
+Nodes (26): Anti-Patterns to Avoid, Basic Tagging, By Feature Area, By Priority, By Test Type, Combine Group and Test Tags, Common Tag Categories, Complex Patterns (+18 more)
+
+### Community 797 - "Community 797"
+Cohesion: 0.08
+Nodes (25): Anti-Patterns, API-Based Login, Authentication Testing, Decision Guide, Different browsers get different cookies, Global Setup Authentication, Global setup fails with "Target page, context or browser has been closed", Login Page Object (+17 more)
+
+### Community 798 - "Community 798"
+Cohesion: 0.08
+Nodes (25): Advance Time Manually, Always Install Clock Before Navigation, Anti-Patterns to Avoid, Best Practices, Clock API Basics, Clock with Fixture, Date, Time & Clock Mocking, Fixed Time Testing (+17 more)
+
+### Community 799 - "Community 799"
+Cohesion: 0.08
+Nodes (25): Anti-Patterns to Avoid, Authentication Security, Authorization Testing, CSRF Protection, Input Validation, Monitor for XSS Execution, Related References, Security Headers (+17 more)
+
+### Community 800 - "Community 800"
+Cohesion: 0.08
+Nodes (24): Anti-Patterns to Avoid, Bottom Sheet, Custom Device Configuration, Device Emulation, Dynamic Viewport Changes, Hamburger Menu, Long Press, Mobile & Responsive Testing (+16 more)
+
+### Community 801 - "Community 801"
+Cohesion: 0.08
+Nodes (24): Advanced Network Interception, Anti-Patterns to Avoid, Conditional Mocking, GraphQL Mock Fixture, GraphQL Mocking, HAR Recording & Playback, HAR with Fallback, Mock Based on Request Body (+16 more)
+
+### Community 802 - "Community 802"
+Cohesion: 0.08
+Nodes (23): 1. Strict Mode, 2. Error Trapping and Cleanup, 3. Variable Safety, 4. Array Handling, 5. Conditional Safety, Advanced Defensive Techniques, Bash Defensive Patterns, Best Practices Summary (+15 more)
+
+### Community 803 - "Community 803"
+Cohesion: 0.08
+Nodes (24): Anti-Patterns to Avoid, Browser APIs: Geolocation, Permissions & More, Camera & Microphone, Clipboard, Clipboard Fixture, Geolocation, Geolocation Fixture, Grant Permissions (+16 more)
+
+### Community 804 - "Community 804"
+Cohesion: 0.08
+Nodes (23): Anti-Patterns to Avoid, Assertions & Waiting, Auto-Waiting (Default), Best Practices, Configure Timeouts, Custom Matchers, Generic Assertions, Locator Assertions (+15 more)
+
+### Community 805 - "Community 805"
+Cohesion: 0.08
+Nodes (24): Anti-Patterns, Artifact Collection Strategy, baseURL Not Working, CLI Quick Reference, Decision Guide, Environment-Specific Configuration, Environment Variables with .env, globalSetup / globalTeardown (+16 more)
+
+### Community 806 - "Community 806"
+Cohesion: 0.08
+Nodes (24): Anti-Patterns to Avoid, Error Boundaries, Error & Edge Case Testing, Form Validation, Go Offline During Session, Loading States, Network Failures, Offline Testing (+16 more)
+
+### Community 807 - "Community 807"
+Cohesion: 0.08
+Nodes (24): Advanced Patterns, Anti-Patterns to Avoid, Basic Configuration, CI Integration, Collecting Coverage, Converting to Istanbul Format, Coverage for Specific Files, Coverage Reports (+16 more)
+
+### Community 808 - "Community 808"
+Cohesion: 0.08
+Nodes (24): Authenticated Downloads, Capturing Downloads and Verifying Content, Checking Response Headers, Clearing Selection, Downloading Files, Drag-and-Drop Zones, Enforcing File Count Limits, Enforcing Size Limits (+16 more)
+
+### Community 809 - "Community 809"
+Cohesion: 0.08
+Nodes (23): 1. Generics, 1. Infer Keyword, 2. Conditional Types, 2. Type Guards, 3. Assertion Functions, 3. Mapped Types, 4. Template Literal Types, 5. Utility Types (+15 more)
+
+### Community 810 - "Community 810"
+Cohesion: 0.09
+Nodes (23): Anti-Patterns to Avoid, API Mocking Patterns, API Tests, Basic Visual Test, Best Practices, Component Tests, Configuration, Directory Structure (+15 more)
+
+### Community 811 - "Community 811"
+Cohesion: 0.09
+Nodes (23): Anti-Patterns to Avoid, Basic Download, Basic Upload, Clear and Re-upload, Download Fixture, Download with Custom Path, Drag and Drop, Drag and Drop Upload (+15 more)
+
+### Community 812 - "Community 812"
+Cohesion: 0.09
+Nodes (22): Animations cause random diff failures, Anti-Patterns, CI Configuration, Component Visual Testing, Configuring Thresholds, Cross-Browser Visual Testing, Decision Guide, Disabling Animations (+14 more)
+
+### Community 813 - "Community 813"
+Cohesion: 0.09
+Nodes (22): Anti-Patterns to Avoid, Capture Sent Messages, Collaborative Editing, Inject Messages via Page Evaluate, Live Data Updates, Live Notifications, Mock WebSocket with Route Handler, Mocking WebSocket Messages (+14 more)
+
+### Community 814 - "Community 814"
+Cohesion: 0.09
+Nodes (20): Anti-Patterns to Avoid, Chaining, Common Issues & Solutions, Debugging Locators, Dynamic Content, Filtering & Chaining, getByLabel, getByPlaceholder (+12 more)
+
+### Community 815 - "Community 815"
+Cohesion: 0.09
+Nodes (22): Anti-Patterns to Avoid, Attach Console to Report, Auto-Fail Fixture, Basic Console Capture, Browser Console & JavaScript Error Handling, Capture by Type, Capture Deprecation Warnings, Capture Error Details (+14 more)
+
+### Community 816 - "Community 816"
+Cohesion: 0.10
+Nodes (21): Capturing Verification Tokens, Complete Reset Flow, Complex Authentication Flow Patterns, Detecting Expired Sessions, Email Verification Flows, Expired Token Handling, Fully Mocked Verification, Logout from All Devices (+13 more)
+
+### Community 817 - "Community 817"
+Cohesion: 0.10
+Nodes (21): Anti-Patterns to Avoid, Basic Popup, Close All Tabs Except One, Different Users in Different Windows, Google OAuth Popup, Handle Blocked Popups, Intercept New Tab, Link Opens in New Tab (+13 more)
+
+### Community 818 - "Community 818"
+Cohesion: 0.10
+Nodes (21): Anti-Patterns to Avoid, API-Based Seeding, Basic Factory, CSV/JSON Data Source, Data-Driven Testing, Database Seeding, Factory Pattern, Factory with Relationships (+13 more)
+
+### Community 819 - "Community 819"
+Cohesion: 0.10
+Nodes (20): Anti-Patterns, Capturing Vue Warnings, Commands, Component Testing, Component Testing Dependencies, Component Testing with Experimental CT, Composition API Components, Configuration (+12 more)
+
+### Community 820 - "Community 820"
+Cohesion: 0.10
+Nodes (21): Anti-Patterns to Avoid, Budget Fixture, CI Performance Monitoring, Core Web Vitals, Define Budgets, Lighthouse Integration, Lighthouse with Config, Measure LCP, FID, CLS (+13 more)
+
+### Community 821 - "Community 821"
+Cohesion: 0.10
+Nodes (20): Analytics & Tracking, Anti-Patterns to Avoid, Block Analytics in Tests, Email Verification, Mock Analytics for Verification, Mock Email API, Mock Google OAuth, Mock PayPal (+12 more)
+
+### Community 822 - "Community 822"
+Cohesion: 0.10
+Nodes (20): Anti-Patterns, Azure DevOps, Azure DevOps: Test results not showing, Basic Pipeline, Basic Pipeline, CI: CircleCI, Azure DevOps, and Jenkins, CircleCI, CircleCI: "Executable doesn't exist" (+12 more)
+
+### Community 823 - "Community 823"
+Cohesion: 0.10
+Nodes (19): Async Tests, Basic Test, Concurrent Tests, Custom Test with Fixtures, Failing Tests, Focus Tests, Key Points, Parameterized Tests (+11 more)
+
+### Community 824 - "Community 824"
+Cohesion: 0.10
+Nodes (20): Anti-Patterns, Auto-Complete and Typeahead Fields, Date and Time Inputs, Date picker does not accept `fill()` value, Decision Guide, Dynamic Forms — Conditional Fields, `fill()` does nothing or clears but doesn't type, Filling Basic Form Fields (+12 more)
+
+### Community 825 - "Community 825"
+Cohesion: 0.11
+Nodes (19): Anti-Patterns to Avoid, Chat & Messaging, Collaborative Document, Concurrent Actions, Cursor Presence, Multi-User & Collaboration Testing, Multi-User Fixture, Multiple Browser Contexts (+11 more)
+
+### Community 826 - "Community 826"
+Cohesion: 0.11
+Nodes (19): Angular Material Components, Angular Testing with Playwright, Anti-Patterns, Build Configurations, CDK Overlay Container, Configuration, Lazy-Loaded Modules, Locator Strategies (+11 more)
+
+### Community 827 - "Community 827"
+Cohesion: 0.11
+Nodes (19): Anti-Patterns, Component Testing (Experimental), CRA vs Vite Differences, Detecting Memory Leaks, E2E Config (Vite), Error Boundaries, Form Libraries (React Hook Form, Formik), Framework Tips (+11 more)
+
+### Community 828 - "Community 828"
+Cohesion: 0.11
+Nodes (19): Basic Workflow, Browser launch fails: "Missing dependencies", CLI Commands, Common Mistakes, Container-Based Execution, Environment Secrets, GitHub Actions for Playwright, No PR annotations (+11 more)
+
+### Community 829 - "Community 829"
+Cohesion: 0.11
+Nodes (19): Best Practices, Classes Not Applying, Common Patterns, Constraints and Warnings, Dark Mode Issues, Dark Mode Toggle, Examples, External Resources (+11 more)
+
+### Community 830 - "Community 830"
+Cohesion: 0.11
+Nodes (19): "401 Unauthorized" when using `request` fixture, Anti-Patterns, API Data Seeding, API Testing, Chained API Calls, CRUD Operations, Decision Guide, Dedicated API Project Configuration (+11 more)
+
+### Community 831 - "Community 831"
+Cohesion: 0.11
+Nodes (18): Anti-Patterns, Blocking Unwanted Requests, Core Principle, Decision Flowchart, Decision Matrix, Environment-Based Test Projects, Full Mock (route.fulfill), Hybrid Approach: Fixture-Based Mock Control (+10 more)
+
+### Community 832 - "Community 832"
+Cohesion: 0.11
+Nodes (18): Anti-Patterns, Basic Pipeline Configuration, Browser launch fails: "Failed to launch browser", Decision Guide, Environment Variables and Secrets, GitLab CI/CD Configuration, Key Commands, Merged report is empty after sharded run (+10 more)
+
+### Community 833 - "Community 833"
+Cohesion: 0.11
+Nodes (18): Anti-Patterns, CLI Commands, Decision Guide, Dynamic Shard Count, Merged report missing results, Merging Shard Reports, More workers = Slower, "No tests found" in some shards (+10 more)
+
+### Community 834 - "Community 834"
+Cohesion: 0.11
+Nodes (17): Basic Usage, Concurrent Suites, Describe API, describe.each, describe.for, Focus Suites, Hooks in Suites, Key Points (+9 more)
+
+### Community 835 - "Community 835"
+Cohesion: 0.11
+Nodes (17): Bail on Failure, CI Example (GitHub Actions), Concurrency & Parallelism, Concurrent Tests, File Parallelism, Forks, Isolation, Key Points (+9 more)
+
+### Community 836 - "Community 836"
+Cohesion: 0.11
+Nodes (17): Async Timer Methods, Auto-mock with Spy, Clearing Mocks, Config Auto-Reset, Dynamic Mocking (vi.doMock), Hoisted Variables for Mocks, Key Points, Manual Mocks (__mocks__) (+9 more)
+
+### Community 837 - "Community 837"
+Cohesion: 0.12
+Nodes (16): 1.1 Avoid Boolean Prop Proliferation, 1.2 Use Compound Components, 1. Component Architecture, 2.1 Decouple State Management from UI, 2.2 Define Generic Context Interfaces for Dependency Injection, 2.3 Lift State into Provider Components, 2. State Management, 3.1 Create Explicit Component Variants (+8 more)
+
+### Community 838 - "Community 838"
+Cohesion: 0.12
+Nodes (17): Basic Structure, Best Practices, Component Objects, Composition Patterns, Directory Structure, Do, Don't, Factory Functions (+9 more)
+
+### Community 839 - "Community 839"
+Cohesion: 0.12
+Nodes (16): CI Integration, Code Coverage, Configuration, Coverage with Sharding, Ignoring Code, Istanbul, Istanbul, Key Points (+8 more)
+
+### Community 840 - "Community 840"
+Cohesion: 0.12
+Nodes (16): Background Colors, Colors, Container & Max Width, Flexbox Layouts, Font Size & Weight, Grid Layouts, Layout Utilities, Line Height & Letter Spacing (+8 more)
+
+### Community 841 - "Community 841"
+Cohesion: 0.12
+Nodes (17): Applying Variants in CSS, Arbitrary Values, Color System, Custom Theme Configuration, Custom Utilities, Custom Variants, Dark Mode, Functions and Directives (+9 more)
+
+### Community 842 - "Community 842"
+Cohesion: 0.12
+Nodes (16): 5.10 Subscribe to Derived State, 5.11 Use Functional setState Updates, 5.12 Use Lazy State Initialization, 5.13 Use Transitions for Non-Urgent Updates, 5.14 Use useDeferredValue for Expensive Derived Renders, 5.15 Use useRef for Transient Values, 5.1 Calculate Derived State During Rendering, 5.2 Defer State Reads to Usage Point (+8 more)
+
+### Community 843 - "Community 843"
+Cohesion: 0.12
+Nodes (15): Available Environments, Browser Mode (Separate from Environments), Configuration, CSS and Assets, Custom Environment, Environment with VM, Fixing External Dependencies, happy-dom Environment (+7 more)
+
+### Community 844 - "Community 844"
+Cohesion: 0.12
+Nodes (16): assertType, Branded Types, Configuration, Equality vs Matching, expectTypeOf API, Function Types, Generic Types, Key Points (+8 more)
+
+### Community 845 - "Community 845"
+Cohesion: 0.12
+Nodes (16): Dynamic Mocking, Fake Timers, Global/Env Mocking, Global Mock Management, Hoisted Code, Key Points, Mock Date/Time, Mock Functions (+8 more)
+
+### Community 846 - "Community 846"
+Cohesion: 0.12
+Nodes (15): 1. Concrete Transformation Patterns, 2. Error-First Structure, 3. Quantified Impact, 4. Self-Contained Examples, 5. Semantic Naming, Code Example Standards, Comments, Impact Level Guidelines (+7 more)
+
+### Community 847 - "Community 847"
+Cohesion: 0.12
+Nodes (16): By File Path, By Test Name, Changed Files, CLI Filtering, Combining Filters, Environment-based Filtering, Focus Tests (.only), Include/Exclude Patterns (+8 more)
+
+### Community 848 - "Community 848"
+Cohesion: 0.13
+Nodes (14): Anti-Patterns, Combined Project Structure, Custom Fixtures, Helper Functions, Helpers with side effects, Locator-only page objects, Monolithic fixtures, Organizing Reusable Test Code (+6 more)
+
+### Community 849 - "Community 849"
+Cohesion: 0.13
+Nodes (14): 📊 1. Resumen Ejecutivo del Estado del Sistema, 1. Vistas Monolíticas "God-Components", 2. Configuración ESLint Inexistente en Raíz, 🚨 2. Matriz de Hallazgos Clasificados por Severidad, 3. Dependencia Circular y Exportación de Tipos desde `App.tsx`, 🗺️ 3. Mapa de Estado de Flujos Transaccionales, 4. Falso Fallback Estático en Cálculo ABC Pareto 80/20, 🛠️ 4. Plan de Acción Recomendado (Fases SDD) (+6 more)
+
+### Community 850 - "Community 850"
+Cohesion: 0.13
+Nodes (15): Anti-Patterns, "browserType.launch: Executable doesn't exist", CI Container Jobs, Container-Based Testing, Custom Dockerfile, Decision Guide, Dev Container Setup, Docker Compose Stack (+7 more)
+
+### Community 851 - "Community 851"
+Cohesion: 0.13
+Nodes (15): Activity-Based Reference Guide, Advanced Patterns, Architecture Decisions, Debugging & Troubleshooting, Error & Edge Case Testing, Framework-Specific Testing, Infrastructure & Configuration, Mobile & Responsive Testing (+7 more)
+
+### Community 852 - "Community 852"
+Cohesion: 0.13
+Nodes (15): 7.10 Hoist RegExp Creation, 7.11 Use flatMap to Map and Filter in One Pass, 7.12 Use Loop for Min/Max Instead of Sort, 7.13 Use Set/Map for O(1) Lookups, 7.14 Use toSorted() Instead of sort() for Immutability, 7.1 Avoid Layout Thrashing, 7.2 Build Index Maps for Repeated Lookups, 7.3 Cache Property Access in Loops (+7 more)
+
+### Community 853 - "Community 853"
+Cohesion: 0.13
+Nodes (14): 1. Eliminating Waterfalls (CRITICAL), 2. Bundle Size Optimization (CRITICAL), 3. Server-Side Performance (HIGH), 4. Client-Side Data Fetching (MEDIUM-HIGH), 5. Re-render Optimization (MEDIUM), 6. Rendering Performance (MEDIUM), 7. JavaScript Performance (LOW-MEDIUM), 8. Advanced Patterns (LOW) (+6 more)
+
+### Community 854 - "Community 854"
+Cohesion: 0.13
+Nodes (14): Command Line Interface, Commands, Common Options, Key Points, Package.json Scripts, Sharding for CI, `vitest`, `vitest bench` (+6 more)
+
+### Community 855 - "Community 855"
+Cohesion: 0.13
+Nodes (14): Around Hooks, aroundAll, Basic Hooks, Cleanup Return Pattern, Concurrent Test Hooks, Extended Test Hooks, Hook Execution Order, Hook Timeout (+6 more)
+
+### Community 856 - "Community 856"
+Cohesion: 0.13
+Nodes (14): Auto Fixtures, Built-in Context, Composing Fixtures, Context Properties, Custom Fixtures with test.extend, Extended Test Hooks, File Scope, Fixture Initialization (+6 more)
+
+### Community 857 - "Community 857"
+Cohesion: 0.13
+Nodes (14): Canvas Coordinate-Based Dragging, Cross-Frame Dragging, Custom Drag Preview, Drag and Drop Testing, File Drop Zone, Incremental Mouse Movement for Custom Libraries, Kanban Board (Cross-Column Movement), Keyboard-Based Reordering (+6 more)
+
+### Community 858 - "Community 858"
+Cohesion: 0.13
+Nodes (14): Anti-Patterns, Authenticated GraphQL Fixture, Authorization Errors, Basic Query with Variables, "Cannot query field X on type Y", GraphQL Helper Function, GraphQL returns 200 but data is null, GraphQL Testing (+6 more)
+
+### Community 859 - "Community 859"
+Cohesion: 0.14
+Nodes (13): Advanced (`advanced/`), Architecture (`architecture/`), Browser APIs (`browser-apis/`), Core (`core/`), Debugging (`debugging/`), Frameworks (`frameworks/`), Infrastructure & CI/CD (`infrastructure-ci-cd/`), Installation (+5 more)
+
+### Community 860 - "Community 860"
+Cohesion: 0.14
+Nodes (13): Accessibility Checklist, Alert Dialog, ARIA Patterns with Tailwind, Color Contrast, Contrast Guidelines, Focus Management, Focus Visible vs Focus, Motion Preferences (+5 more)
+
+### Community 861 - "Community 861"
+Cohesion: 0.14
+Nodes (13): Basic Projects Setup, Browser + Node Projects, Different Environments, Global Setup per Project, Key Points, Monorepo Pattern, Project Isolation, Project-Specific Dependencies (+5 more)
+
+### Community 862 - "Community 862"
+Cohesion: 0.14
+Nodes (13): build, Build and SSR, createServer, JavaScript API, Library Mode, loadEnv, Multi-Page App, Multiple Entries (+5 more)
+
+### Community 863 - "Community 863"
+Cohesion: 0.14
+Nodes (13): Advanced v4.1 Features, Creating a Reusable Preset, CSS-First Configuration (v4.1+), Custom Plugin Example, Custom Utilities, Enhanced Arbitrary Values, JavaScript Configuration (Legacy), Native CSS Custom Properties (+5 more)
+
+### Community 864 - "Community 864"
+Cohesion: 0.14
+Nodes (13): Assertion Count, Asymmetric Matchers, Basic Assertions, Error Assertions, Expect API, Extending Matchers, Key Points, Negation (+5 more)
+
+### Community 865 - "Community 865"
+Cohesion: 0.14
+Nodes (13): Basic Snapshot, Concurrent Test Snapshots, Custom Serializers, Error Snapshots, File Snapshots, Inline Snapshots, Key Points, Object Shape Matching (+5 more)
+
+### Community 866 - "Community 866"
+Cohesion: 0.15
+Nodes (12): Basic Setup, Async Config, build.target, Conditional Config, define (Global Constants), Key Config Options, plugins, resolve.alias (+4 more)
+
+### Community 867 - "Community 867"
+Cohesion: 0.15
+Nodes (13): API Layer (60% of tests), API Tests, Choosing Test Types: E2E, Component, or API, Common Mistakes, Component Layer (30% of tests), Component Tests, Decision Matrix, E2E Layer (10% of tests) (+5 more)
+
+### Community 868 - "Community 868"
+Cohesion: 0.15
+Nodes (13): Basic Structure, Client-Server Communication, Conditional Application, config, configResolved, configureServer, handleHotUpdate, Plugin Ordering (+5 more)
+
+### Community 869 - "Community 869"
+Cohesion: 0.17
+Nodes (12): 6.10 Use React DOM Resource Hints, 6.11 Use useTransition Over Manual Loading States, 6.1 Animate SVG Wrapper Instead of SVG Element, 6.2 CSS content-visibility for Long Lists, 6.3 Hoist Static JSX Elements, 6.4 Optimize SVG Precision, 6.5 Prevent Hydration Mismatch Without Flickering, 6.6 Suppress Expected Hydration Mismatches (+4 more)
+
+### Community 870 - "Community 870"
+Cohesion: 0.17
+Nodes (12): Config Migration, Custom Transform Targets, esbuild → oxc, Gradual Migration, JSX Configuration, New Capabilities, Overriding Vite in Frameworks, Performance Impact (+4 more)
+
+### Community 871 - "Community 871"
+Cohesion: 0.18
+Nodes (8): Level A (minimum), Level AA (standard), Level AAA (enhanced), Sources, Success criteria by level, Testing tools, WCAG 2.2 Quick Reference, What changed from 2.1 to 2.2
+
+### Community 872 - "Community 872"
+Cohesion: 0.18
+Nodes (10): 1. Component Architecture (HIGH), 2. State Management (MEDIUM), 3. Implementation Patterns (MEDIUM), 4. React 19 APIs (MEDIUM), Full Compiled Document, How to Use, Quick Reference, React Composition Patterns (+2 more)
+
+### Community 873 - "Community 873"
+Cohesion: 0.18
+Nodes (10): 3.10 Use after() for Non-Blocking Operations, 3.1 Authenticate Server Actions Like API Routes, 3.2 Avoid Duplicate Serialization in RSC Props, 3.3 Avoid Shared Module State for Request Data, 3.4 Cross-Request LRU Caching, 3.5 Hoist Static I/O to Module Level, 3.6 Minimize Serialization at RSC Boundaries, 3.7 Parallel Data Fetching with Component Composition (+2 more)
+
+### Community 874 - "Community 874"
+Cohesion: 0.18
+Nodes (10): CSS Modules, Custom Queries, Eager Loading, Glob Import, HMR API, JSON Import, Multiple Patterns, Named Imports (+2 more)
+
+### Community 875 - "Community 875"
+Cohesion: 0.18
+Nodes (10): Basic Dark Mode Support, Container Queries (v4.1+), Dark Mode, Dark Mode Best Practices, Dark Mode Toggle (React), Mobile-First Responsive Layout, Responsive Card Component, Responsive Design Patterns (+2 more)
+
+### Community 876 - "Community 876"
+Cohesion: 0.20
+Nodes (10): Accessibility (a11y), ARIA usage (4.1.2), Automated testing, Conformance levels, Live regions (4.1.3), Manual testing, References, Robust (+2 more)
+
+### Community 877 - "Community 877"
+Cohesion: 0.20
+Nodes (9): Sections, 1. Eliminating Waterfalls (async), 2. Bundle Size Optimization (bundle), 3. Server-Side Performance (server), 4. Client-Side Data Fetching (client), 5. Re-render Optimization (rerender), 6. Rendering Performance (rendering), 7. JavaScript Performance (js) (+1 more)
+
+### Community 878 - "Community 878"
+Cohesion: 0.20
+Nodes (9): Component Architecture (CRITICAL), Core Principles, Creating a New Rule, Impact Levels, Implementation Patterns (MEDIUM), React Composition Patterns, Rules, State Management (HIGH) (+1 more)
+
+### Community 879 - "Community 879"
+Cohesion: 0.20
+Nodes (9): 4.1 Deduplicate Global Event Listeners, 4.2 Use Passive Event Listeners for Scrolling Performance, 4.3 Use SWR for Automatic Deduplication, 4.4 Version and Minimize localStorage Data, 4. Client-Side Data Fetching, Abstract, React Best Practices, References (+1 more)
+
+### Community 880 - "Community 880"
+Cohesion: 0.20
+Nodes (9): Basic Transitions, Built-in Animations, Common Use Cases, Custom Animations (v4.1+), Global Reduced Motion Support, Motion Preferences, Tailwind CSS Animations & Transitions, Transform Effects (+1 more)
+
+### Community 881 - "Community 881"
+Cohesion: 0.20
+Nodes (7): Card Component, Form Elements, Modal/Dialog, Navigation Bar, React Button Component with Variants, Responsive User Card, Tailwind CSS Component Patterns
+
+### Community 882 - "Community 882"
+Cohesion: 0.20
+Nodes (9): Best Practices for Performance, Bundle Size Optimization, Content Path Best Practices, CSS Optimization Techniques, Development Performance (v4.1+), Minification, Production Build Optimization, PurgeCSS Configuration (+1 more)
+
+### Community 883 - "Community 883"
+Cohesion: 0.20
+Nodes (9): 1. Query Performance (query), 2. Connection Management (conn), 3. Security & RLS (security), 4. Schema Design (schema), 5. Concurrency & Locking (lock), 6. Data Access Patterns (data), 7. Monitoring & Diagnostics (monitor), 8. Advanced Features (advanced) (+1 more)
+
+### Community 884 - "Community 884"
+Cohesion: 0.22
+Nodes (9): Dragging movements (2.5.7) — new in 2.2, Focus not obscured (2.4.11) — new in 2.2, Focus visible (2.4.7), Keyboard accessible (2.1), Motion (2.3), Operable, Skip links (2.4.1), Target size (2.5.8) — new in 2.2 (+1 more)
+
+### Community 885 - "Community 885"
+Cohesion: 0.22
+Nodes (8): Basic Setup, Common Options, Conditional Configuration, Configuration, Key Points, Merging Configs, Projects (Monorepos), Using with Existing Vite Config
+
+### Community 886 - "Community 886"
+Cohesion: 0.22
+Nodes (9): Accessibility Code Patterns, ARIA tabs, Dragging movements, Error handling, Form labels, Live regions and notifications, Modal focus trap, Screen reader commands (+1 more)
+
+### Community 887 - "Community 887"
+Cohesion: 0.22
+Nodes (9): Backward Compatibility, Basic Configuration, Concept, Custom Environment Instances, Environment API (Vite 6+), Environment Options, Multiple Environments, Plugin Environment Access (+1 more)
+
+### Community 888 - "Community 888"
+Cohesion: 0.22
+Nodes (9): Advanced, Build & SSR, CLI Commands, Common Config, Core, Official Plugins, Preferences, Quick Reference (+1 more)
+
+### Community 889 - "Community 889"
+Cohesion: 0.25
+Nodes (8): Accessible authentication (3.3.8) — new in 2.2, Consistent help (3.2.6) — new in 2.2, Consistent navigation (3.2.3), Error handling (3.3.1, 3.3.3), Form labels (3.3.2), Page language (3.1.1), Redundant entry (3.3.7) — new in 2.2, Understandable
+
+### Community 890 - "Community 890"
+Cohesion: 0.25
+Nodes (8): Buttons, Common ARIA patterns, Error states, Form fields, Links, Live regions, Modals, Navigation
+
+### Community 891 - "Community 891"
+Cohesion: 0.29
+Nodes (7): 1.1 Check Cheap Conditions Before Async Flags, 1.2 Defer Await Until Needed, 1.3 Dependency-Based Parallelization, 1.4 Prevent Waterfall Chains in API Routes, 1.5 Promise.all() for Independent Operations, 1.6 Strategic Suspense Boundaries, 1. Eliminating Waterfalls
+
+### Community 892 - "Community 892"
+Cohesion: 0.29
+Nodes (7): 2.1 Avoid Barrel File Imports, 2.2 Conditional Module Loading, 2.3 Defer Non-Critical Third-Party Libraries, 2.4 Dynamic Imports for Heavy Components, 2.5 Prefer Statically Analyzable Paths, 2.6 Preload Based on User Intent, 2. Bundle Size Optimization
+
+### Community 893 - "Community 893"
+Cohesion: 0.29
+Nodes (3): Advanced, Core, Features
+
+### Community 894 - "Community 894"
+Cohesion: 0.33
+Nodes (5): Sections, 1. Component Architecture (architecture), 2. State Management (state), 3. Implementation Patterns (patterns), 4. React 19 APIs (react19)
+
+### Community 895 - "Community 895"
+Cohesion: 0.33
+Nodes (5): Creating a New Rule, Getting Started, React Best Practices, Rule File Structure, Structure
+
+### Community 896 - "Community 896"
+Cohesion: 0.33
+Nodes (6): Asset Import Queries, Explicit URL, Inline/No-Inline, Raw String, URL Import, Web Workers
+
+### Community 897 - "Community 897"
+Cohesion: 0.33
+Nodes (6): Built-in Constants, Custom Variables, Environment Variables, HTML Replacement, Mode-specific Files, TypeScript Support
+
+### Community 898 - "Community 898"
+Cohesion: 0.33
+Nodes (5): How to Use, References, Rule Categories by Priority, Supabase Postgres Best Practices, When to Apply
+
+### Community 899 - "Community 899"
+Cohesion: 0.40
+Nodes (5): 8.1 Do Not Put Effect Events in Dependency Arrays, 8.2 Initialize App Once, Not Per Mount, 8.3 Store Event Handlers in Refs, 8.4 useEffectEvent for Stable Callback Refs, 8. Advanced Patterns
+
+### Community 900 - "Community 900"
 Cohesion: 0.50
-Nodes (4): 1. Multi-PR Swarm Coordination, 2. PR Dependency Analysis, 3. Automated PR Fixes, Advanced Features
+Nodes (4): Color contrast (1.4.3, 1.4.6), Media alternatives (1.2), Perceivable, Text alternatives (1.1)
+
+### Community 901 - "Community 901"
+Cohesion: 0.50
+Nodes (4): Common issues by impact, Critical (fix immediately), Moderate (fix soon), Serious (fix before launch)
+
+### Community 902 - "Community 902"
+Cohesion: 0.50
+Nodes (4): 1. Auto-Assignment, 2. Progress Tracking, 3. Smart Card Movement, Automation Features
+
+### Community 903 - "Community 903"
+Cohesion: 0.50
+Nodes (4): 1. Board Organization, 2. Data Integrity, 3. Team Adoption, Best Practices
+
+### Community 904 - "Community 904"
+Cohesion: 0.50
+Nodes (4): Board Analytics, Custom Dashboards, Reports, Visualization & Reporting
+
+### Community 905 - "Community 905"
+Cohesion: 0.50
+Nodes (4): Milestone Tracking, Release Planning, Sprint Management, Workflow Integration
+
+### Community 906 - "Community 906"
+Cohesion: 0.50
+Nodes (4): 1. Issue Dependencies, 2. Epic Management, 3. Issue Templates, Advanced Features
+
+### Community 907 - "Community 907"
+Cohesion: 0.50
+Nodes (4): 1. Issue-PR Linking, 2. Milestone Coordination, 3. Cross-Repo Issues, Integration Patterns
+
+### Community 908 - "Community 908"
+Cohesion: 0.50
+Nodes (4): 1. Issue Templates, 2. Label Strategy, 3. Comment Etiquette, Best Practices
+
+### Community 909 - "Community 909"
+Cohesion: 0.50
+Nodes (4): 1. PR-Based Swarm Creation, 2. PR Comment Commands, 3. Automated PR Workflows, Core Features
+
+### Community 910 - "Community 910"
+Cohesion: 0.50
+Nodes (4): 1. PR Validation Swarm, 2. Release Automation, 3. Documentation Updates, Integration Examples
+
+### Community 911 - "Community 911"
+Cohesion: 0.50
+Nodes (4): 1. Self-Healing CI/CD, 2. Progressive Deployment, 3. Performance Regression Detection, Advanced Workflows
+
+### Community 914 - "Community 914"
+Cohesion: 0.50
+Nodes (3): File-System Paths, Import Paths, Prefer Statically Analyzable Paths
 
 ## Knowledge Gaps
-- **6155 isolated node(s):** `name`, `private`, `version`, `type`, `dev` (+6150 more)
+- **8032 isolated node(s):** `WCAG Principles: POUR`, `Conformance levels`, `Text alternatives (1.1)`, `Color contrast (1.4.3, 1.4.6)`, `Media alternatives (1.2)` (+8027 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **56 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **166 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Workflow Automation - GitHub Actions Integration` connect `Community 18` to `Community 468`?**
-  _High betweenness centrality (0.001) - this node is a cross-community bridge._
-- **Why does `Swarm Issue - Issue-Based Swarm Coordination` connect `Community 64` to `Community 468`?**
-  _High betweenness centrality (0.000) - this node is a cross-community bridge._
-- **Why does `Swarm PR - Managing Swarms through Pull Requests` connect `Community 65` to `Community 785`, `Community 468`?**
-  _High betweenness centrality (0.000) - this node is a cross-community bridge._
-- **What connects `name`, `private`, `version` to the rest of the system?**
-  _6155 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Why does `Test Coverage` connect `Community 807` to `Community 334`?**
+  _High betweenness centrality (0.003) - this node is a cross-community bridge._
+- **Why does `Component Testing` connect `Community 755` to `Community 334`?**
+  _High betweenness centrality (0.002) - this node is a cross-community bridge._
+- **What connects `WCAG Principles: POUR`, `Conformance levels`, `Text alternatives (1.1)` to the rest of the system?**
+  _8032 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.07623456790123456 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05048518227117755 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.041616161616161614 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.03492414664981037 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
-  _Cohesion score 0.07578947368421053 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07792207792207792 - nodes in this community are weakly interconnected._
+- **Should `Community 3` be split into smaller, more focused modules?**
+  _Cohesion score 0.10384068278805121 - nodes in this community are weakly interconnected._

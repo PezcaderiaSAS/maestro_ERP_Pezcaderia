@@ -1,16 +1,16 @@
 # Graph Report - MaestroPescaderia  (2026-09-01)
 
 ## Corpus Check
-- 1324 files · ~881,149 words
+- 1330 files · ~880,036 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 11750 nodes · 12477 edges · 1028 communities (862 shown, 166 thin omitted)
+- 11773 nodes · 12519 edges · 1028 communities (863 shown, 165 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 2 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `35246e9f`
+- Built from commit: `fa5fba24`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -1038,41 +1038,41 @@
 10. `TurnoCaja` - 20 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `PricingView()` --calls--> `usePricing()`  [EXTRACTED]
+  src/views/PricingView.tsx → src/hooks/usePricing.ts
+- `OrderState` --references--> `Pedido`  [EXTRACTED]
+  src/store/useOrderStore.ts → src/types/orders.types.ts
 - `CartItem` --references--> `Product`  [EXTRACTED]
   src/views/POSView.tsx → src/types/erp.types.ts
 - `InventoryView()` --calls--> `useCategoryStore`  [EXTRACTED]
   src/views/InventoryView.tsx → src/store/useCategoryStore.ts
-- `InventoryView()` --calls--> `usePurchaseStore`  [EXTRACTED]
-  src/views/InventoryView.tsx → src/store/usePurchaseStore.ts
-- `InventoryView()` --calls--> `useSupplierStore`  [EXTRACTED]
-  src/views/InventoryView.tsx → src/store/useSupplierStore.ts
 - `InventoryView()` --calls--> `useWarehouseStore`  [EXTRACTED]
   src/views/InventoryView.tsx → src/store/useWarehouseStore.ts
 
 ## Import Cycles
 - 3-file cycle: `src/App.tsx -> src/views/PricingView.tsx -> src/hooks/usePricing.ts -> src/App.tsx`
 
-## Communities (1028 total, 166 thin omitted)
+## Communities (1028 total, 165 thin omitted)
 
 ### Community 0 - "Community 0"
-Cohesion: 0.05
-Nodes (88): CartPanel(), FulfillmentChecklist(), PricingTabProps, ProductSearchPanel(), ProductSearchPanelProps, QuoteWizardStep1Props, usePricing(), AlistamientoBodegaView() (+80 more)
+Cohesion: 0.06
+Nodes (80): FulfillmentChecklist(), ProductSearchPanel(), ProductSearchPanelProps, usePricing(), AlistamientoBodegaView(), DispatchView(), generateId(), toTitleCase() (+72 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.03
-Nodes (73): COLORS, createLogger(), getModuleLevel(), ICONS, initLogger(), LOG_LEVELS, LogFn, LoggableDataService (+65 more)
+Cohesion: 0.04
+Nodes (75): zustandConsoleMiddleware(), LocalDataService, TABLE_TO_KEY, tableToKey(), orderDispatchService, WizardType, ARState, dataService (+67 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.08
+Cohesion: 0.07
 Nodes (40): CashFlowView(), AperturaCajaModal(), AperturaCajaModalProps, ArqueoCajaModal(), ArqueoCajaModalProps, CalculadorDenominaciones(), DENOMINACIONES_BILLETES, DENOMINACIONES_MONEDAS (+32 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.10
-Nodes (23): BalanzaButton(), BalanzaButtonProps, CartPanelProps, LineaVentaRow(), LineaVentaRowProps, PaymentPanel(), PaymentPanelProps, log (+15 more)
+Cohesion: 0.06
+Nodes (27): BalanzaButton(), BalanzaButtonProps, CartPanel(), CartPanelProps, LineaVentaRow(), LineaVentaRowProps, PaymentPanel(), PaymentPanelProps (+19 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.10
-Nodes (22): FulfillmentChecklistProps, QuantityModal(), QuantityModalProps, WeighingModal(), WeighingModalProps, B2bService, transicionesValidas, OrderState (+14 more)
+Cohesion: 0.06
+Nodes (51): FulfillmentChecklistProps, QuantityModal(), QuantityModalProps, WeighingModal(), WeighingModalProps, log, usePOSCart(), B2bService (+43 more)
 
 ### Community 5 - "Community 5"
 Cohesion: 0.04
@@ -1091,8 +1091,8 @@ Cohesion: 0.04
 Nodes (48): 1. Cross-Repo Initialization, 1. Distributed Task Queue, 1. Eventually Consistent, 1. Microservices Coordination, 1. Repository Organization, 1. Webhook-Based Coordination, 2. Communication, 2. Cross-Repo Testing (+40 more)
 
 ### Community 9 - "Community 9"
-Cohesion: 0.10
-Nodes (28): getSkuByProductoId(), getUnidadByProductoId(), InventoryService, MovimientoInventario, procesarProduccion(), registrarEntrada(), registrarSalida(), registrarTraslado() (+20 more)
+Cohesion: 0.27
+Nodes (8): Bodega, BODEGAS_DEFECTO, desactivarBodega(), eliminarBodega(), guardarBodega(), obtenerBodegas(), ServiceResponse, WarehouseService
 
 ### Community 10 - "Community 10"
 Cohesion: 0.04
@@ -1119,16 +1119,16 @@ Cohesion: 0.05
 Nodes (44): 1. AI Learning, 1. Context-Aware Reviews, 1. Multi-Agent Review System, 1. Review Configuration, 2. Comment Quality, 2. Custom Review Agents, 2. Learning from History, 2. Specialized Review Agents (+36 more)
 
 ### Community 16 - "Community 16"
-Cohesion: 0.05
-Nodes (43): 1. Progressive Deployment, 1. Release Planning, 1. Release Planning, 2. Automated Versioning, 2. Automation, 2. Multi-Repo Releases, 3. Documentation, 3. Hotfix Automation (+35 more)
+Cohesion: 0.07
+Nodes (27): 1. Release Planning, 2. Automated Versioning, 3. Release Orchestration, Auto-Generated Docs, Build Agent, Changelog Agent, Compatibility Testing, Continuous Deployment (+19 more)
 
 ### Community 17 - "Community 17"
 Cohesion: 0.05
 Nodes (41): 1. Long Functions, 1. Readability First, 2. Deep Nesting, 2. KISS (Keep It Simple, Stupid), 3. DRY (Don't Repeat Yourself), 3. Magic Numbers, 4. YAGNI (You Aren't Gonna Need It), API Design Standards (+33 more)
 
 ### Community 18 - "Community 18"
-Cohesion: 0.06
-Nodes (33): 1. Swarm-Powered Actions, 1. Workflow Organization, 2. Dynamic Workflow Generation, 2. Security, 3. Intelligent Test Selection, 3. Performance, Action Commands, Adaptive Security Scanning (+25 more)
+Cohesion: 0.05
+Nodes (41): 1. PR Validation Swarm, 1. Self-Healing CI/CD, 1. Swarm-Powered Actions, 1. Workflow Organization, 2. Dynamic Workflow Generation, 2. Progressive Deployment, 2. Release Automation, 2. Security (+33 more)
 
 ### Community 19 - "Community 19"
 Cohesion: 0.05
@@ -1312,7 +1312,7 @@ Nodes (23): 1. Create Coordinated Issue with Swarm Tracking, 1. **Swarm-Coordina
 
 ### Community 64 - "Community 64"
 Cohesion: 0.06
-Nodes (32): 1. Issue-to-Swarm Conversion, 2. Issue Comment Commands, 3. Issue Templates for Swarms, Auto-Close Stale Issues, Auto-Label Based on Content, Automation Examples, Bug Reports, Complex Bug Investigation (+24 more)
+Nodes (32): 1. Issue Dependencies, 1. Issue-to-Swarm Conversion, 2. Epic Management, 2. Issue Comment Commands, 3. Issue Templates, 3. Issue Templates for Swarms, Advanced Features, Auto-Close Stale Issues (+24 more)
 
 ### Community 65 - "Community 65"
 Cohesion: 0.07
@@ -1567,8 +1567,8 @@ Cohesion: 0.19
 Nodes (9): DevTestDashboard(), applySeed(), SEED_DATA, applySeed(), SEED_DATA, applySeed(), SEED_DATA, applySeed() (+1 more)
 
 ### Community 128 - "Community 128"
-Cohesion: 0.08
-Nodes (24): 1. Multi-Board Sync, 2. Cross-Organization Sync, 3. External Tool Integration, Advanced Synchronization, Agile Development Board, Board Mapping Configuration, Configuration, Data Recovery (+16 more)
+Cohesion: 0.07
+Nodes (28): 1. Board Organization, 2. Data Integrity, 3. Team Adoption, Agile Development Board, Best Practices, Board Analytics, Board Commands, Board Mapping Configuration (+20 more)
 
 ### Community 129 - "Community 129"
 Cohesion: 0.12
@@ -2251,8 +2251,8 @@ Cohesion: 0.18
 Nodes (10): Error Handling, Formatting, Immutability, Iterators Over Loops, Module Organization, Naming, Ownership and Borrowing, References (+2 more)
 
 ### Community 299 - "Community 299"
-Cohesion: 0.10
-Nodes (15): getSupabaseClient(), accountingService, TRANSACTION_CATEGORIES, TransactionCategory, SupabaseDataService, AccountingState, AccountSummary, useAccountingStore (+7 more)
+Cohesion: 0.11
+Nodes (14): getSupabaseClient(), accountingService, TRANSACTION_CATEGORIES, TransactionCategory, SupabaseDataService, AccountingState, AccountSummary, useAccountingStore (+6 more)
 
 ### Community 300 - "Community 300"
 Cohesion: 0.18
@@ -2679,8 +2679,8 @@ Cohesion: 0.22
 Nodes (9): Basic Development Chain, Code Refactoring Chain, Custom Chains (`run`), Data Processing Pipeline, Examples, How Context Flows, Options, Security Audit Workflow (+1 more)
 
 ### Community 408 - "Community 408"
-Cohesion: 0.22
-Nodes (9): Comprehensive Optimization, Debug Test Generation, Extended Refactoring, Pipeline Examples, Pipeline Options, Pipeline Output, Predefined Pipelines (`pipeline`), Quick Analysis (+1 more)
+Cohesion: 0.40
+Nodes (5): Comprehensive Optimization, Debug Test Generation, Extended Refactoring, Pipeline Examples, Quick Analysis
 
 ### Community 409 - "Community 409"
 Cohesion: 0.22
@@ -3423,8 +3423,8 @@ Cohesion: 0.40
 Nodes (4): Fase 0: Correcciones de Artefactos (Pre-Implementación), Fase 1: Implementación de Clases Utilitarias (React/JSX), Fase 2: Verificación de Calidad y Testing, Lista de Tareas (Task Tracker) — v2.0
 
 ### Community 595 - "Community 595"
-Cohesion: 0.40
-Nodes (5): 1. Analysis Pipeline, 2. Refactor Pipeline, 3. Test Pipeline, 4. Optimize Pipeline, Available Pipelines
+Cohesion: 0.22
+Nodes (9): 1. Analysis Pipeline, 2. Refactor Pipeline, 3. Test Pipeline, 4. Optimize Pipeline, Available Pipelines, Pipeline Options, Pipeline Output, Predefined Pipelines (`pipeline`) (+1 more)
 
 ### Community 596 - "Community 596"
 Cohesion: 0.40
@@ -3507,8 +3507,8 @@ Cohesion: 0.50
 Nodes (4): Initialize Multi-Repo Coordination, Optimize Architecture, Quick Start, Synchronize Packages
 
 ### Community 616 - "Community 616"
-Cohesion: 0.12
-Nodes (19): AnalisisAbcWidget(), ABC_CONFIG, getStockStatus(), Props, SortDir, SortField, STATUS_CONFIG, StockCell() (+11 more)
+Cohesion: 0.08
+Nodes (24): AnalisisAbcWidget(), ProductForm(), ProductionForm(), ProductTable(), ReturnsReceiver(), ABC_CONFIG, getStockStatus(), Props (+16 more)
 
 ### Community 617 - "Community 617"
 Cohesion: 0.25
@@ -3519,8 +3519,8 @@ Cohesion: 0.50
 Nodes (3): 🛠️ Comandos Disponibles (`package.json`), 📏 Estándares de Código y Arquitectura, Guía de Contribución y Despliegue (MaestroPescaderia ERP)
 
 ### Community 619 - "Community 619"
-Cohesion: 0.22
-Nodes (4): WizardType, Empleado, NominaRegistro, Gasto
+Cohesion: 0.50
+Nodes (4): 1. Multi-Board Sync, 2. Cross-Organization Sync, 3. External Tool Integration, Advanced Synchronization
 
 ### Community 620 - "Community 620"
 Cohesion: 0.12
@@ -3531,8 +3531,8 @@ Cohesion: 0.29
 Nodes (6): 📋 1. Compleitud y Claridad de Requerimientos (Completeness & Clarity), 🏛️ 2. Cumplimiento de la Constitución del ERP (Architecture & Business Rules), ⚙️ 3. Mantenibilidad y Desacoplamiento (Maintainability & Decoupling), 🧪 4. Verificabilidad y Calidad de Código (Testability & QA Gates), 🔒 5. Gestión de Riesgos e Infraestructura (Risk & Infrastructure), Lista de Verificación de Calidad (Quality Assurance Checklist - SDD / ISO 25010)
 
 ### Community 622 - "Community 622"
-Cohesion: 0.07
-Nodes (29): CategoriaWizardModal(), Props, CrearProductoRapidoModal(), Props, CrearProveedorRapidoModal(), Props, ProductForm(), ProductionForm() (+21 more)
+Cohesion: 0.15
+Nodes (15): CategoriaWizardModal(), Props, CrearProductoRapidoModal(), Props, CrearProveedorRapidoModal(), Props, PurchaseOrderForm(), CategoriaConfig (+7 more)
 
 ### Community 623 - "Community 623"
 Cohesion: 0.25
@@ -3876,7 +3876,7 @@ Nodes (33): Annotation-Based Quarantine, Anti-Patterns to Avoid, Async/Timing Fl
 
 ### Community 757 - "Community 757"
 Cohesion: 0.50
-Nodes (4): Board Commands, Bulk Operations, Card Templates, Create Cards from Issues
+Nodes (4): Data Recovery, Performance, Sync Issues, Troubleshooting
 
 ### Community 758 - "Community 758"
 Cohesion: 0.06
@@ -4175,7 +4175,7 @@ Cohesion: 0.13
 Nodes (14): 📊 1. Resumen Ejecutivo del Estado del Sistema, 1. Vistas Monolíticas "God-Components", 2. Configuración ESLint Inexistente en Raíz, 🚨 2. Matriz de Hallazgos Clasificados por Severidad, 3. Dependencia Circular y Exportación de Tipos desde `App.tsx`, 🗺️ 3. Mapa de Estado de Flujos Transaccionales, 4. Falso Fallback Estático en Cálculo ABC Pareto 80/20, 🛠️ 4. Plan de Acción Recomendado (Fases SDD) (+6 more)
 
 ### Community 850 - "Community 850"
-Cohesion: 0.13
+Cohesion: 0.11
 Nodes (15): Anti-Patterns, "browserType.launch: Executable doesn't exist", CI Container Jobs, Container-Based Testing, Custom Dockerfile, Decision Guide, Dev Container Setup, Docker Compose Stack (+7 more)
 
 ### Community 851 - "Community 851"
@@ -4388,11 +4388,11 @@ Nodes (4): 1. Auto-Assignment, 2. Progress Tracking, 3. Smart Card Movement, Aut
 
 ### Community 903 - "Community 903"
 Cohesion: 0.50
-Nodes (4): 1. Board Organization, 2. Data Integrity, 3. Team Adoption, Best Practices
+Nodes (4): 1. Progressive Deployment, 2. Multi-Repo Releases, 3. Hotfix Automation, Advanced Features
 
 ### Community 904 - "Community 904"
 Cohesion: 0.50
-Nodes (4): Board Analytics, Custom Dashboards, Reports, Visualization & Reporting
+Nodes (4): 1. Release Planning, 2. Automation, 3. Documentation, Best Practices
 
 ### Community 905 - "Community 905"
 Cohesion: 0.50
@@ -4400,7 +4400,7 @@ Nodes (4): Milestone Tracking, Release Planning, Sprint Management, Workflow Int
 
 ### Community 906 - "Community 906"
 Cohesion: 0.50
-Nodes (4): 1. Issue Dependencies, 2. Epic Management, 3. Issue Templates, Advanced Features
+Nodes (4): Automated Rollback, Monitoring & Rollback, Release Analytics, Release Monitoring
 
 ### Community 907 - "Community 907"
 Cohesion: 0.50
@@ -4416,35 +4416,39 @@ Nodes (4): 1. PR-Based Swarm Creation, 2. PR Comment Commands, 3. Automated PR W
 
 ### Community 910 - "Community 910"
 Cohesion: 0.50
-Nodes (4): 1. PR Validation Swarm, 2. Release Automation, 3. Documentation Updates, Integration Examples
+Nodes (4): Docker Image Release, Integration Examples, Mobile App Release, NPM Package Release
 
 ### Community 911 - "Community 911"
 Cohesion: 0.50
-Nodes (4): 1. Self-Healing CI/CD, 2. Progressive Deployment, 3. Performance Regression Detection, Advanced Workflows
+Nodes (4): Initialize from Issue, Issue Swarm Commands, Progress Tracking, Task Decomposition
 
 ### Community 914 - "Community 914"
 Cohesion: 0.50
 Nodes (3): File-System Paths, Import Paths, Prefer Statically Analyzable Paths
 
+### Community 916 - "Community 916"
+Cohesion: 0.07
+Nodes (27): CatalogTab(), CatalogTabProps, DevolucionesTab(), DevolucionesTabProps, PriceHistoryModal(), PriceHistoryModalProps, PricingTab(), PricingTabProps (+19 more)
+
 ## Knowledge Gaps
-- **8032 isolated node(s):** `WCAG Principles: POUR`, `Conformance levels`, `Text alternatives (1.1)`, `Color contrast (1.4.3, 1.4.6)`, `Media alternatives (1.2)` (+8027 more)
+- **8041 isolated node(s):** `📊 1. Resumen Ejecutivo del Estado del Sistema`, `1. Vistas Monolíticas "God-Components"`, `2. Configuración ESLint Inexistente en Raíz`, `3. Dependencia Circular y Exportación de Tipos desde `App.tsx``, `4. Falso Fallback Estático en Cálculo ABC Pareto 80/20` (+8036 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **166 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **165 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Test Coverage` connect `Community 807` to `Community 334`?**
+- **Why does `Electron Testing` connect `Community 759` to `Community 334`?**
   _High betweenness centrality (0.003) - this node is a cross-community bridge._
-- **Why does `Component Testing` connect `Community 755` to `Community 334`?**
+- **Why does `Performance & Parallelization` connect `Community 754` to `Community 334`?**
   _High betweenness centrality (0.002) - this node is a cross-community bridge._
-- **What connects `WCAG Principles: POUR`, `Conformance levels`, `Text alternatives (1.1)` to the rest of the system?**
-  _8032 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Why does `CI/CD Integration` connect `Community 758` to `Community 334`?**
+  _High betweenness centrality (0.002) - this node is a cross-community bridge._
+- **What connects `📊 1. Resumen Ejecutivo del Estado del Sistema`, `1. Vistas Monolíticas "God-Components"`, `2. Configuración ESLint Inexistente en Raíz` to the rest of the system?**
+  _8041 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.05048518227117755 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05878355419639823 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.03492414664981037 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.03732303732303732 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
-  _Cohesion score 0.07792207792207792 - nodes in this community are weakly interconnected._
-- **Should `Community 3` be split into smaller, more focused modules?**
-  _Cohesion score 0.10384068278805121 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07347915242652085 - nodes in this community are weakly interconnected._
