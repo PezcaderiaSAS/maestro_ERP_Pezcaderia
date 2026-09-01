@@ -1258,8 +1258,8 @@ export default function InventoryView() {
       };
     });
 
-    let stockChanges: Record<string, number> = {};
-    let newMovements: MovimientoInventario[] = [];
+    const stockChanges: Record<string, number> = {};
+    const newMovements: MovimientoInventario[] = [];
 
     updatedItems.forEach((item: any) => {
       if (item.cantidadRecibida > 0) {

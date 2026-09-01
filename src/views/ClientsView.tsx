@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Cliente, generateId, toTitleCase } from '../App.tsx';
+import type { Cliente } from '../types/erp.types';
+import { generateId, toTitleCase } from '../lib/utils';
 import { Users, Search, Save, FileText, Wallet, PlusCircle, Sparkles } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useClientStore } from '../store/useClientStore.ts';

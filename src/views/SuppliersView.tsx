@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Proveedor, generateId, toTitleCase } from '../App.tsx';
+import type { Proveedor } from '../types/erp.types';
+import { generateId, toTitleCase } from '../lib/utils';
 import { Truck, Search, Save, ShoppingCart, Box, PlusCircle, ArrowLeft, DollarSign } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useSupplierStore } from '../store/useSupplierStore.ts';

@@ -1,7 +1,8 @@
 // src/services/payrollService.ts
 
 import { jsPDF } from 'jspdf';
-import type { Empleado, Gasto, NominaRegistro } from '../App.tsx';
+import type { Empleado, NominaRegistro } from '../store/useEmployeeStore';
+import type { Gasto } from '../store/useExpenseStore';
 
 export type WizardType = 'REGULAR' | 'VACACIONES' | 'LIQUIDACION_FINAL';
 
@@ -12,11 +13,11 @@ export const calcDiasComerciales = (inicio: string, fin: string): number => {
   const fFin = new Date(fin);
   if (fFin < fInicio) return 0;
   let d1 = fInicio.getUTCDate();
-  let m1 = fInicio.getUTCMonth();
-  let y1 = fInicio.getUTCFullYear();
+  const m1 = fInicio.getUTCMonth();
+  const y1 = fInicio.getUTCFullYear();
   let d2 = fFin.getUTCDate();
-  let m2 = fFin.getUTCMonth();
-  let y2 = fFin.getUTCFullYear();
+  const m2 = fFin.getUTCMonth();
+  const y2 = fFin.getUTCFullYear();
   if (d1 === 31) d1 = 30;
   if (d2 === 31) d2 = 30;
   if (m1 === 1 && d1 >= 28) d1 = 30;

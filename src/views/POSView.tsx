@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Plus, X, Check, CreditCard, FileText, Truck, RefreshCw, AlertTriangle, AlertCircle, Menu, Trash2, Edit2 } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { Product, DynamicField, Cliente, generateId, Venta, MovimientoInventario, Conductor, DevolucionPedido, toTitleCase } from '../App.tsx';
-import { InvoiceAR } from './ARView.tsx';
+import type { Product, Cliente, Venta, Conductor, DevolucionPedido } from '../types/erp.types';
+import type { DynamicField } from '../store/useDynamicFieldStore';
+import type { MovimientoInventario } from '../store/useMovementStore';
+import { generateId, toTitleCase } from '../lib/utils';
+import type { InvoiceAR } from './ARView';
 import OrderKanbanView from './OrderKanbanView.tsx';
 import { usePOSCart } from '../hooks/usePOSCart.ts';
 import { DiscountPanel } from './pos/components/DiscountPanel.tsx';
@@ -630,8 +633,8 @@ export default function POSView({
       });
     }
 
-    let multipleMethods = pagos.length > 1;
-    let paymentString = pagos.map(p => `${p.metodo}`).join(' + ');
+    const multipleMethods = pagos.length > 1;
+    const paymentString = pagos.map(p => `${p.metodo}`).join(' + ');
 
     const newVenta: Venta = {
       id: vtaId,
@@ -1032,7 +1035,7 @@ export default function POSView({
       item.sku === product.sku && (item.detalle || '').trim().toLowerCase() === normalizedDetail
     );
 
-    let updatedItems = [...itemsList];
+    const updatedItems = [...itemsList];
 
     if (existingIndex !== -1) {
       const existing = updatedItems[existingIndex];

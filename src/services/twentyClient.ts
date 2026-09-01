@@ -5,14 +5,16 @@
 
 const TWENTY_API_URL = 'http://localhost:3000/rest/v1';
 
-// API KEY configurada (Obtenida del panel de Twenty)
-const FALLBACK_API_KEY = 'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjNjNTE2MTZkLTdjMTEtNGFhYi1iODI2LTViOWUyYTA3YWNkZSJ9.eyJzdWIiOiI1MmE5N2E4Zi02MDc1LTQ2Y2ItYWFiZS1iMDY2YTI5OTViOTkiLCJ0eXBlIjoiQVBJX0tFWSIsIndvcmtzcGFjZUlkIjoiNTJhOTdhOGYtNjA3NS00NmNiLWFhYmUtYjA2NmEyOTk1Yjk5IiwiaWF0IjoxNzgxNzE5MDExLCJleHAiOjQ5MzUzMTkwMTAsImp0aSI6ImM1ZGNkMDZhLTRmMjQtNDYwNS1hN2EyLTU1ZGZkMDZiMThiOSJ9.o8HOg9DeCzrOOYNXWZhIjznp51Zx8XtdzqO_w1uqMMr4XGYykPzeQM_uS4BKAtHg72hp-dzLNdtPl78Aw5qdOw';
+// API KEY configurada (Obtenida del panel de Twenty o variable de entorno)
+const DEFAULT_API_KEY = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_TWENTY_API_KEY) || '';
 
-let TWENTY_API_KEY = localStorage.getItem('twenty_api_key') || FALLBACK_API_KEY;
+let TWENTY_API_KEY = (typeof localStorage !== 'undefined' ? localStorage.getItem('twenty_api_key') : null) || DEFAULT_API_KEY;
 
 export const setTwentyApiKey = (key: string) => {
   TWENTY_API_KEY = key;
-  localStorage.setItem('twenty_api_key', key);
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('twenty_api_key', key);
+  }
 };
 
 export const hasTwentyApiKey = () => {

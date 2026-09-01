@@ -38,7 +38,7 @@ describe('bulkProductQueue - Procesamiento de lotes de a 5 y Brecha Dinámica', 
       categoria: 'Pescados',
     }));
 
-    let delayApplied = false;
+    const delayApplied = false;
     const isUserActiveFn = () => true; // Usuario activo
 
     // Para el test simulamos el delay de 5 minutos con un valor pequeño de test

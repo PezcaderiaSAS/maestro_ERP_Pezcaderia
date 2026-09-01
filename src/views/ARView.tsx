@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Search, DollarSign, Wallet, FileText, Check, Plus, Calendar, Clock, AlertCircle, Undo2 } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { DevolucionPedido } from '../App.tsx';
+import type { DevolucionPedido } from '../types/erp.types';
 import { useARStore } from '../store/useARStore.ts';
 import { useClientStore } from '../store/useClientStore.ts';
 import { useEventStore } from '../store/useEventStore.ts';

@@ -109,3 +109,50 @@ export interface Product extends ProductCatalog {
   precio_venta_restaurante: number;
   precio_venta_mayorista: number;
 }
+
+/** Ítem vendido dentro de una Venta */
+export interface ItemVenta {
+  sku: string;
+  nombre: string;
+  cantidad: number;
+  precioUnitario: number;
+  descuento: number;
+}
+
+/** Registro permanente de toda venta (contado Y crédito) */
+export interface Venta {
+  id: string;
+  clienteId: string | null;   // null = consumidor final anónimo
+  clienteNombre: string;       // Desnormalizado para lectura histórica
+  fecha: string;
+  items: ItemVenta[];
+  subtotal: number;
+  total: number;
+  metodoPago: 'CONTADO' | 'CREDITO' | 'MIXTO';
+  facturaCarteraId?: string;   // Si hay crédito → referencia a InvoiceAR
+  actor: string;
+  metadata?: {
+    id_pedido_externo?: string;
+    canal?: string;
+    metodo_pago_codigo?: string;
+  };
+  clienteIdentificacion?: string;
+  descuento?: number;
+  montoPagadoEfectivo?: number;
+  montoPagadoTransferencia?: number;
+  montoPagadoTarjeta?: number;
+  montoPagadoCredito?: number;
+  cambioEntregado?: number;
+}
+
+export interface LogIntegracion {
+  id: string;
+  id_pedido_externo: string;
+  canal: string;
+  fecha_recepcion: string;
+  payload_json: string;
+  estado: 'PENDIENTE' | 'PROCESADO' | 'ERROR' | 'REVISION_MANUAL';
+  id_factura_pos?: string;
+  mensaje_error?: string;
+}
+

@@ -1,7 +1,9 @@
 import { useState, useMemo, useEffect } from 'react';
 import { FileText, Calculator, CheckCircle, Shield, Briefcase, ArrowLeft, Sun, XOctagon } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { generateId, NominaRegistro, Gasto } from '../App.tsx';
+import { generateId } from '../lib/utils';
+import type { NominaRegistro } from '../store/useEmployeeStore';
+import type { Gasto } from '../store/useExpenseStore';
 import { useEmployeeStore } from '../store/useEmployeeStore.ts';
 import { useExpenseStore } from '../store/useExpenseStore.ts';
 import { useAppStore } from '../store/useAppStore.ts';
@@ -16,12 +18,12 @@ const calcDiasComerciales = (inicio: string, fin: string) => {
   if (fFin < fInicio) return 0;
 
   let d1 = fInicio.getUTCDate();
-  let m1 = fInicio.getUTCMonth();
-  let y1 = fInicio.getUTCFullYear();
+  const m1 = fInicio.getUTCMonth();
+  const y1 = fInicio.getUTCFullYear();
 
   let d2 = fFin.getUTCDate();
-  let m2 = fFin.getUTCMonth();
-  let y2 = fFin.getUTCFullYear();
+  const m2 = fFin.getUTCMonth();
+  const y2 = fFin.getUTCFullYear();
 
   if (d1 === 31) d1 = 30;
   if (d2 === 31) d2 = 30;

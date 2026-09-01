@@ -14,12 +14,19 @@ import {
 import Swal from 'sweetalert2';
 import { springAnalisisAbcService } from '../../../services/inventario/SpringAnalisisAbcService';
 import { AnalisisAbcItemDTO, ClasificacionAbc } from '../../../types/inventarioAbc';
+import { useInventoryStore } from '../../../store/useInventoryStore';
+import { useMovementStore } from '../../../store/useMovementStore';
+import { calcularParetoAbcLocal } from '../../../utils/paretoAbcCalculator';
 
 export const AnalisisAbcWidget: React.FC = () => {
   const [items, setItems] = useState<readonly AnalisisAbcItemDTO[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [diasHistorial, setDiasHistorial] = useState<number>(30);
-  const [modoServidor, setModoServidor] = useState<'spring-boot' | 'fallback-local'>('spring-boot');
+  const [modoServidor, setModoServidor] = useState<'spring-boot' | 'fallback-local'>('fallback-local');
+
+  const products = useInventoryStore((s) => s.products);
+  const stock = useInventoryStore((s) => s.stock);
+  const movimientos = useMovementStore((s) => s.movimientos);
 
   const cargarAnalisisAbc = async (dias: number) => {
     setLoading(true);
@@ -27,62 +34,16 @@ export const AnalisisAbcWidget: React.FC = () => {
       const data = await springAnalisisAbcService.obtenerAnalisisPareto(dias);
       setItems(data);
       setModoServidor('spring-boot');
-    } catch (error) {
-      console.warn('Backend Spring Boot no alcanzable. Cargando analisis Pareto local de alta precision.', error);
+    } catch {
+      // Cálculo dinámico real en el cliente (100% Serverless y Determinista)
       setModoServidor('fallback-local');
-      
-      // Datos de respaldo con analisis Pareto 80/20 inmutable
-      const itemsFallback: readonly AnalisisAbcItemDTO[] = Object.freeze([
-        {
-          productoId: 'p1',
-          codigoSku: 'SKU-SALMON-01',
-          nombreProducto: 'Filete de Salmón Premium (Chile)',
-          valorTotalVentas: 15450000,
-          porcentajeAcumulado: 42.3,
-          clasificacion: ClasificacionAbc.A
-        },
-        {
-          productoId: 'p2',
-          codigoSku: 'SKU-ROBALO-02',
-          nombreProducto: 'Robalo Fresco Entero del Pacífico',
-          valorTotalVentas: 12200000,
-          porcentajeAcumulado: 75.8,
-          clasificacion: ClasificacionAbc.A
-        },
-        {
-          productoId: 'p3',
-          codigoSku: 'SKU-CAMARON-03',
-          nombreProducto: 'Camarón Tigre Gigante (16/20)',
-          valorTotalVentas: 4500000,
-          porcentajeAcumulado: 88.1,
-          clasificacion: ClasificacionAbc.B
-        },
-        {
-          productoId: 'p4',
-          codigoSku: 'SKU-ATUN-04',
-          nombreProducto: 'Lomo de Atún Rojo Grado Sashimi',
-          valorTotalVentas: 2800000,
-          porcentajeAcumulado: 95.8,
-          clasificacion: ClasificacionAbc.B
-        },
-        {
-          productoId: 'p5',
-          codigoSku: 'SKU-TILAPIA-05',
-          nombreProducto: 'Mojarra Roja Limpia de Criadero',
-          valorTotalVentas: 950000,
-          porcentajeAcumulado: 98.4,
-          clasificacion: ClasificacionAbc.C
-        },
-        {
-          productoId: 'p6',
-          codigoSku: 'SKU-TRUCHA-06',
-          nombreProducto: 'Trucha Arcoíris Deshuesada',
-          valorTotalVentas: 580000,
-          porcentajeAcumulado: 100.0,
-          clasificacion: ClasificacionAbc.C
-        }
-      ]);
-      setItems(itemsFallback);
+      const dataLocal = calcularParetoAbcLocal({
+        products,
+        movimientos,
+        stock: stock as any,
+        diasHistorial: dias,
+      });
+      setItems(dataLocal);
     } finally {
       setLoading(false);
     }
@@ -90,7 +51,7 @@ export const AnalisisAbcWidget: React.FC = () => {
 
   useEffect(() => {
     cargarAnalisisAbc(diasHistorial);
-  }, [diasHistorial]);
+  }, [diasHistorial, products, movimientos]);
 
   const handleRecalcular = async () => {
     await cargarAnalisisAbc(diasHistorial);
