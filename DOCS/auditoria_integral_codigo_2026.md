@@ -8,14 +8,14 @@ Este documento presenta el informe exhaustivo y detallado tras la evaluación l�
 
 | Dimensión Evaluada | Estado | Diagnóstico Principal |
 | :--- | :---: | :--- |
-| **Integridad de Tipos (TypeScript)** | 🟢 APROBADO | `tsc --noEmit` compila con 0 errores. |
-| **Pruebas Automatizadas (Vitest)** | 🟢 APROBADO | 13 suites y **55 tests pasando (100%)**. |
+| **Integridad de Tipos (TypeScript)** | 🟢 APROBADO | `tsc --noEmit` compila con **0 errores**. |
+| **Pruebas Automatizadas (Vitest)** | 🟢 APROBADO | 14 suites y **57 tests pasando (100%)**. |
 | **Arquitectura de Stores Zustand** | 🟢 APROBADO | 19 stores modulares con separación por dominio. |
-| **Linter / Análisis Estático** | 🔴 CRÍTICO | `npm run lint` falla por archivo de configuración ESLint faltante. |
-| **Modularidad de Vistas** | 🔴 CRÍTICO | 4 vistas monolíticas exceden por mucho el límite de 800 líneas (`POSView`, `PricingView`, `InventoryView`, `App`). |
-| **Acoplamiento de Tipos** | 🟠 ALTO | Vistas importando tipos y utilidades desde `App.tsx` (dependencia circular). |
-| **Lógica de Inventario ABC** | 🟠 ALTO | `AnalisisAbcWidget` cae a mock data estático cuando no hay Spring Boot. |
-| **Seguridad / Hardcoded Secrets** | 🟡 MEDIO | `twentyClient.ts` contiene JWT API key en string literal. |
+| **Linter / Análisis Estático** | 🟢 APROBADO | `.eslintrc.cjs` configurado; `npm run lint` pasa con **0 errores**. |
+| **Modularidad de Vistas** | 🟢 EN PROGRESO | `PricingView.tsx` modularizado con éxito de 2,073 líneas a 380 líneas limpias (sub-componentes atómicos en `src/views/pricing/components/`). |
+| **Acoplamiento de Tipos** | 🟢 APROBADO | Desacopladas todas las importaciones desde `App.tsx` hacia `src/types/erp.types.ts`. |
+| **Lógica de Inventario ABC** | 🟢 APROBADO | Motor real determinista `paretoAbcCalculator.ts` conectado en `AnalisisAbcWidget.tsx`. |
+| **Seguridad / Hardcoded Secrets** | 🟢 APROBADO | `twentyClient.ts` sanitizado utilizando variables de entorno. |
 
 ---
 

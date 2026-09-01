@@ -6853,5 +6853,25 @@
     "mtime": 1788278549.6945777,
     "ast_hash": "d742c7416618734103cb57bc1178aba3",
     "semantic_hash": ""
+  },
+  "src/views/pricing/components/CatalogTab.tsx": {
+    "mtime": 1788280874.1388896,
+    "ast_hash": "74dc46b7180848e33b1407a8c5f5ba4d",
+    "semantic_hash": ""
+  },
+  "src/views/pricing/components/PricingTab.tsx": {
+    "mtime": 1788280885.3612084,
+    "ast_hash": "47a32e823d61ef5a6aed1401363a68f2",
+    "semantic_hash": ""
+  },
+  "src/views/pricing/components/QuoteWizardStep1.tsx": {
+    "mtime": 1788280908.704293,
+    "ast_hash": "f7ff5f0cef43e2a607de8075082f7598",
+    "semantic_hash": ""
+  },
+  "src/views/pricing/components/QuoteWizardStep2.tsx": {
+    "mtime": 1788280918.2471719,
+    "ast_hash": "f29faf08f947ef5548157745020d365c",
+    "semantic_hash": ""
   }
 }
