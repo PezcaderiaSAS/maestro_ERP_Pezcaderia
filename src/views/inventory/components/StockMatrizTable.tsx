@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import type { Bodega } from '../../../store/useWarehouseStore';
 import type { Producto } from '../../../store/useInventoryStore';
+import { ProductDetailFinancialModal } from './ProductDetailFinancialModal';
 
 interface Props {
   products: Producto[];
@@ -65,6 +66,7 @@ export function StockMatrizTable({ products, stock, bodegas }: Props) {
   const [sortField, setSortField] = useState<SortField>('abc');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [showInactive, setShowInactive] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Producto | null>(null);
 
   // Include ALL bodegas that have stock data, even if not yet in the bodegas store
   const activeBodegas = useMemo(() => {
@@ -280,7 +282,8 @@ export function StockMatrizTable({ products, stock, bodegas }: Props) {
                     return (
                       <tr
                         key={p.sku}
-                        className={`border-b border-slate-100 transition-colors hover:bg-slate-50 ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/40'} ${isInactive ? 'opacity-50' : ''}`}
+                        onClick={() => setSelectedProduct(p)}
+                        className={`border-b border-slate-100 transition-all cursor-pointer hover:bg-slate-200 ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/40'} ${isInactive ? 'opacity-50' : ''}`}
                       >
                         <td className="px-4 py-3 sticky left-0 bg-inherit z-10">
                           <span className={`inline-flex items-center justify-center w-7 h-7 rounded-lg text-xs font-black ${abcCfg.bg} ${abcCfg.text}`}>
@@ -294,7 +297,12 @@ export function StockMatrizTable({ products, stock, bodegas }: Props) {
                         </td>
                         <td className="px-4 py-3 min-w-48">
                           <div className="flex flex-col gap-0.5">
-                            <span className="font-bold text-slate-800 text-sm leading-tight">{p.nombre}</span>
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-slate-800 text-sm leading-tight">{p.nombre}</span>
+                              <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded text-[10px] font-bold border border-blue-200 hover:bg-blue-100 transition-colors">
+                                <Eye size={10} /> Ficha 360°
+                              </span>
+                            </div>
                             <span className="text-xs text-slate-400 font-medium">{p.categoria || '—'} · {um}</span>
                           </div>
                         </td>
@@ -403,6 +411,18 @@ export function StockMatrizTable({ products, stock, bodegas }: Props) {
           </span>
         </div>
       </div>
+
+      {selectedProduct && (
+        <ProductDetailFinancialModal
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          onSave={() => {
+            // Callback para cuando se guarda un producto. No recargamos la página.
+            // Zustand ya despachará actualizaciones.
+            setSelectedProduct(null);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -41,6 +41,11 @@ export const DB_KEYS = {
   categoriasGastos: 'pezcaderia_categorias_gastos',
   bodegas: 'pezcaderia_bodegas',
   cuentasPorPagar: 'pezcaderia_cuentas_por_pagar',
+  kardex_movements: 'pezcaderia_kardex_movements',
+  erp_products: 'pezcaderia_erp_products',
+  processing_orders: 'pezcaderia_processing_orders',
+  warehouse_transfers: 'pezcaderia_warehouse_transfers',
+  inventory_batches: 'pezcaderia_inventory_batches',
   theme: 'pezcaderia_theme'
 } as const;
 

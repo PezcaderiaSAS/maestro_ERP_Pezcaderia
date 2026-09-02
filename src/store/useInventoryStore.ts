@@ -27,6 +27,8 @@ export interface Producto {
   activo: boolean;
   metadata?: Record<string, string>;
   categoriaABC?: 'A' | 'B' | 'C';
+  porcentaje_merma_esperada?: number;
+  promocion_activa?: any;
 }
 
 interface InventoryState {

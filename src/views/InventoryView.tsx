@@ -1,6 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Swal from 'sweetalert2';
-import { Truck, PlusCircle, ShoppingBag } from 'lucide-react';
+import {
+  Truck,
+  PlusCircle,
+  ShoppingBag,
+  Layers,
+  FileText,
+  Boxes,
+  ArrowRightLeft,
+  Scissors,
+  BarChart3,
+  Scale,
+  DollarSign,
+  Tag,
+  Settings,
+  RotateCcw,
+  Sparkles,
+  TrendingUp,
+  AlertTriangle,
+} from 'lucide-react';
 import { ProductTable } from './inventory/components/ProductTable';
 import { ProductForm } from './inventory/components/ProductForm';
 import { CategoryManager } from './inventory/components/CategoryManager';
@@ -12,6 +30,9 @@ import { ReturnsReceiver } from './inventory/components/ReturnsReceiver';
 import { PurchasesReport } from './inventory/components/PurchasesReport';
 import { AnalisisAbcWidget } from './inventory/components/AnalisisAbcWidget';
 import { StockMatrizTable } from './inventory/components/StockMatrizTable';
+import { KardexTable } from './inventory/components/KardexTable';
+import { WarehouseTransferPanel } from './inventory/components/WarehouseTransferPanel';
+import { WarehouseConfigManager } from './inventory/components/WarehouseConfigManager';
 import { useInventoryStore } from '../store/useInventoryStore';
 import { useMovementStore, MovimientoInventario } from '../store/useMovementStore';
 import { usePurchaseStore, OrdenCompra, CuentaPorPagar } from '../store/usePurchaseStore';
@@ -47,7 +68,21 @@ export default function InventoryView() {
   const bodegas = useWarehouseStore((s) => s.bodegas);
   const [activeBodega, setActiveBodega] = useState('Bodega Principal');
   const [historyTab, setHistoryTab] = useState<'movimientos' | 'compras'>('movimientos');
-  const [viewMode, setViewMode] = useState<'operaciones' | 'registrar_compra' | 'catalogo' | 'categorias' | 'cuarto_frio' | 'recepcion_devoluciones' | 'configuracion_bodegas' | 'reportes_compra' | 'analisis_abc'>('operaciones');
+  const [viewMode, setViewMode] = useState<
+    | 'operaciones'
+    | 'kardex'
+    | 'cuarto_frio'
+    | 'despiece'
+    | 'traslados'
+    | 'analisis_abc'
+    | 'compras'
+    | 'registrar_compra'
+    | 'catalogo'
+    | 'categorias'
+    | 'recepcion_devoluciones'
+    | 'configuracion_bodegas'
+    | 'reportes_compra'
+  >('operaciones');
 
   // State de Catalogo de Productos
   const [searchTerm, setSearchTerm] = useState('');
@@ -1364,274 +1399,325 @@ export default function InventoryView() {
   const pendingPrepCount = quotations.filter(q => q.estado === 'Approved' || q.estado === 'Pausado').length;
   const pendingDevCount = devoluciones.filter(d => d.estado === 'PROGRAMADA').length;
 
+  // Valor total del inventario en libros (Stock * CPP)
+  const valorTotalInventario = useMemo(() => {
+    return products.reduce((acc, p) => {
+      const totStock = getTotalStock(p.sku);
+      const cpp = (p as any).costo_promedio_ponderado || p.precio_compra || 0;
+      return acc + (totStock * cpp);
+    }, 0);
+  }, [products, stock]);
+
+  const totalSkusActivos = useMemo(() => {
+    return products.filter((p) => p.activo).length;
+  }, [products]);
+
   return (
-    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '32px', height: '100%', overflowY: 'auto', paddingRight: '8px' }}>
-      
-      {/* Top Tabs */}
-      <div style={{ display: 'flex', gap: '20px', borderBottom: '1px solid #E2E8F0', paddingBottom: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-        <button 
+    <div className="animate-fade-in space-y-6 h-full overflow-y-auto pr-2 pb-12">
+      {/* ── 1. Hero Header & Quick Action Bar ── */}
+      <div className="bg-slate-900/80 backdrop-blur-xl border border-white/10 p-5 rounded-3xl shadow-2xl space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                ERP Data-Driven
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                NIIF / NIC 2
+              </span>
+            </div>
+            <h1 className="text-2xl font-black text-white mt-1 tracking-tight flex items-center gap-2">
+              <Boxes className="w-7 h-7 text-emerald-400" />
+              Gestión de Inventario, WMS & Trazabilidad
+            </h1>
+          </div>
+
+          {/* Quick Action Bar Buttons */}
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => setViewMode('registrar_compra')}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all cursor-pointer"
+            >
+              <PlusCircle className="w-4 h-4" />
+              Recibir Compra
+            </button>
+
+            <button
+              onClick={() => setViewMode('despiece')}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold text-xs transition-all cursor-pointer"
+            >
+              <Scissors className="w-4 h-4" />
+              Nuevo Despiece
+            </button>
+
+            <button
+              onClick={() => setViewMode('traslados')}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold text-xs transition-all cursor-pointer"
+            >
+              <ArrowRightLeft className="w-4 h-4" />
+              Traslado Bodega
+            </button>
+
+            <button
+              onClick={() => setViewMode('kardex')}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 font-bold text-xs transition-all cursor-pointer"
+            >
+              <FileText className="w-4 h-4" />
+              Ver Kardex NIIF
+            </button>
+
+            <button
+              onClick={() => setViewMode('configuracion_bodegas')}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-white/5 transition-all cursor-pointer"
+              title="Configuración de Bodegas y Cuartos Fríos"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* ── 2. Tarjetas KPI Métricas de Alto Nivel ── */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-white/5">
+          <div className="bg-slate-950/40 p-3 rounded-2xl border border-white/5">
+            <span className="text-[11px] text-slate-400 font-semibold uppercase block">Valor Total en Libros</span>
+            <span className="text-lg font-black text-emerald-400 font-mono">
+              ${Math.round(valorTotalInventario).toLocaleString('es-CO')}
+            </span>
+            <span className="text-[10px] text-slate-500 block">Costo Promedio Ponderado</span>
+          </div>
+
+          <div className="bg-slate-950/40 p-3 rounded-2xl border border-white/5">
+            <span className="text-[11px] text-slate-400 font-semibold uppercase block">SKUs Activos</span>
+            <span className="text-lg font-black text-white font-mono">{totalSkusActivos}</span>
+            <span className="text-[10px] text-slate-500 block">Referencias en Catálogo</span>
+          </div>
+
+          <div className="bg-slate-950/40 p-3 rounded-2xl border border-white/5">
+            <span className="text-[11px] text-slate-400 font-semibold uppercase block">Alistamientos B2B</span>
+            <div className="flex items-center gap-2">
+              <span className="text-lg font-black text-cyan-400 font-mono">{pendingPrepCount}</span>
+              {pendingPrepCount > 0 && (
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-cyan-500/20 text-cyan-300">
+                  Pendientes
+                </span>
+              )}
+            </div>
+            <span className="text-[10px] text-slate-500 block">Cuarto Frío Picking</span>
+          </div>
+
+          <div className="bg-slate-950/40 p-3 rounded-2xl border border-white/5">
+            <span className="text-[11px] text-slate-400 font-semibold uppercase block">Devoluciones</span>
+            <div className="flex items-center gap-2">
+              <span className="text-lg font-black text-rose-400 font-mono">{pendingDevCount}</span>
+              {pendingDevCount > 0 && (
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300">
+                  Por Recibir
+                </span>
+              )}
+            </div>
+            <span className="text-[10px] text-slate-500 block">Control de Calidad B2B</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── 3. Navegación Modular por 7 Pestañas ── */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-white/10 scrollbar-none">
+        <button
           onClick={() => setViewMode('operaciones')}
-          style={{ background: 'none', border: 'none', fontSize: '15px', fontWeight: viewMode === 'operaciones' ? 800 : 500, color: viewMode === 'operaciones' ? 'var(--primary-color)' : '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            viewMode === 'operaciones'
+              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-lg shadow-emerald-500/10'
+              : 'bg-slate-900/60 text-slate-400 hover:text-white border border-white/5'
+          }`}
         >
-          Operaciones de Inventario
+          <Boxes className="w-4 h-4" />
+          1. Existencias Multibodega
         </button>
-        <button 
-          onClick={() => setViewMode('registrar_compra')}
-          style={{ background: viewMode === 'registrar_compra' ? '#ECFDF5' : 'none', border: viewMode === 'registrar_compra' ? '1px solid #A7F3D0' : 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '15px', fontWeight: viewMode === 'registrar_compra' ? 800 : 600, color: viewMode === 'registrar_compra' ? '#059669' : '#059669', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+
+        <button
+          onClick={() => setViewMode('kardex')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            viewMode === 'kardex'
+              ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40 shadow-lg shadow-purple-500/10'
+              : 'bg-slate-900/60 text-slate-400 hover:text-white border border-white/5'
+          }`}
         >
-          🛒 Registrar Compra (Entrada)
+          <FileText className="w-4 h-4" />
+          2. Kardex Contable NIIF
         </button>
-        <button 
-          onClick={() => setViewMode('catalogo')}
-          style={{ background: 'none', border: 'none', fontSize: '15px', fontWeight: viewMode === 'catalogo' ? 800 : 500, color: viewMode === 'catalogo' ? 'var(--primary-color)' : '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
-        >
-          Catálogo de Productos
-        </button>
-        <button 
-          onClick={() => setViewMode('categorias')}
-          style={{ background: 'none', border: 'none', fontSize: '15px', fontWeight: viewMode === 'categorias' ? 800 : 500, color: viewMode === 'categorias' ? 'var(--primary-color)' : '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
-        >
-          Gestión de Categorías
-        </button>
-        
-        <button 
+
+        <button
           onClick={() => setViewMode('cuarto_frio')}
-          style={{ background: 'none', border: 'none', fontSize: '15px', fontWeight: viewMode === 'cuarto_frio' ? 800 : 500, color: viewMode === 'cuarto_frio' ? 'var(--primary-color)' : '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            viewMode === 'cuarto_frio'
+              ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-lg shadow-cyan-500/10'
+              : 'bg-slate-900/60 text-slate-400 hover:text-white border border-white/5'
+          }`}
         >
-          ❄️ Alistamiento Cuarto Frío
+          <Scale className="w-4 h-4" />
+          3. Alistamiento Cuarto Frío
           {pendingPrepCount > 0 && (
-            <span style={{ fontSize: '10px', backgroundColor: '#EF4444', color: 'white', padding: '2px 6px', borderRadius: '10px', fontWeight: 800 }}>
+            <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-cyan-500 text-slate-950 font-black">
               {pendingPrepCount}
             </span>
           )}
         </button>
 
-        <button 
-          onClick={() => setViewMode('recepcion_devoluciones')}
-          style={{ background: 'none', border: 'none', fontSize: '15px', fontWeight: viewMode === 'recepcion_devoluciones' ? 800 : 500, color: viewMode === 'recepcion_devoluciones' ? 'var(--primary-color)' : '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+        <button
+          onClick={() => setViewMode('despiece')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            viewMode === 'despiece'
+              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-lg shadow-amber-500/10'
+              : 'bg-slate-900/60 text-slate-400 hover:text-white border border-white/5'
+          }`}
         >
-          🔄 Devoluciones Recibidas
-          {pendingDevCount > 0 && (
-            <span style={{ fontSize: '10px', backgroundColor: '#3B82F6', color: 'white', padding: '2px 6px', borderRadius: '10px', fontWeight: 800 }}>
-              {pendingDevCount}
-            </span>
-          )}
+          <Scissors className="w-4 h-4" />
+          4. Despiece & Comandas
         </button>
 
-        {(userRole === 'admin' || userRole === 'administrativo') && (
-          <button 
-            onClick={() => setViewMode('reportes_compra')}
-            style={{ background: 'none', border: 'none', fontSize: '15px', fontWeight: viewMode === 'reportes_compra' ? 800 : 500, color: viewMode === 'reportes_compra' ? 'var(--primary-color)' : '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
-          >
-            📊 Reporte de Compras
-          </button>
-        )}
-
-        <button 
-          onClick={() => setViewMode('analisis_abc')}
-          style={{ background: 'none', border: 'none', fontSize: '15px', fontWeight: viewMode === 'analisis_abc' ? 800 : 500, color: viewMode === 'analisis_abc' ? 'var(--primary-color)' : '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+        <button
+          onClick={() => setViewMode('traslados')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            viewMode === 'traslados'
+              ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40 shadow-lg shadow-blue-500/10'
+              : 'bg-slate-900/60 text-slate-400 hover:text-white border border-white/5'
+          }`}
         >
-          📈 Análisis Pareto ABC
+          <ArrowRightLeft className="w-4 h-4" />
+          5. Traslados Internos
+        </button>
+
+        <button
+          onClick={() => setViewMode('analisis_abc')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            viewMode === 'analisis_abc'
+              ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 shadow-lg shadow-indigo-500/10'
+              : 'bg-slate-900/60 text-slate-400 hover:text-white border border-white/5'
+          }`}
+        >
+          <BarChart3 className="w-4 h-4" />
+          6. Análisis Pareto ABC
+        </button>
+
+        <button
+          onClick={() => setViewMode('reportes_compra')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            viewMode === 'reportes_compra' || viewMode === 'registrar_compra'
+              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-lg shadow-emerald-500/10'
+              : 'bg-slate-900/60 text-slate-400 hover:text-white border border-white/5'
+          }`}
+        >
+          <Truck className="w-4 h-4" />
+          7. Compras & Entradas
+        </button>
+
+        <div className="h-4 w-px bg-white/10 mx-1 shrink-0" />
+
+        <button
+          onClick={() => setViewMode('catalogo')}
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+            viewMode === 'catalogo'
+              ? 'bg-slate-700 text-white border border-white/20'
+              : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Tag className="w-3.5 h-3.5" />
+          Catálogo
+        </button>
+
+        <button
+          onClick={() => setViewMode('categorias')}
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+            viewMode === 'categorias'
+              ? 'bg-slate-700 text-white border border-white/20'
+              : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Layers className="w-3.5 h-3.5" />
+          Categorías
+        </button>
+
+        <button
+          onClick={() => setViewMode('recepcion_devoluciones')}
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+            viewMode === 'recepcion_devoluciones'
+              ? 'bg-slate-700 text-white border border-white/20'
+              : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          Devoluciones ({pendingDevCount})
         </button>
       </div>
 
-      {viewMode === 'analisis_abc' && (
-        <AnalisisAbcWidget />
-      )}
+      {/* ── 4. RENDERIZADO CONDICIONAL DE VISTAS ── */}
 
+      {/* TAB 1: Matriz de Existencias Multibodega */}
       {viewMode === 'operaciones' && (
-        <>
-          {/* Sección: Tabla de Stock por Bodega — Full Width */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '8px' }}>
-            <div>
-              <span style={{ fontSize: '14px', color: '#64748B', fontWeight: 500 }}>Inventario WMS</span>
-              <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px', letterSpacing: '-0.5px' }}>Stock por Bodegas</h2>
+        <div className="space-y-6">
+          <StockMatrizTable products={products} stock={stock} bodegas={bodegas} />
+
+          {/* Panel de Trazabilidad Rápida */}
+          <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 p-5 rounded-2xl shadow-xl space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div>
+                <span className="text-[11px] text-slate-400 uppercase font-semibold">Trazabilidad Reciente</span>
+                <h3 className="text-base font-bold text-white">Últimos Movimientos Registrados</h3>
+              </div>
+              <button
+                onClick={() => setViewMode('kardex')}
+                className="text-xs text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1 cursor-pointer"
+              >
+                Abrir Kardex Completo <ArrowRightLeft className="w-3.5 h-3.5" />
+              </button>
             </div>
-            <StockMatrizTable products={products} stock={stock} bodegas={bodegas} />
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-white/10 bg-slate-950/60 text-slate-400 font-semibold uppercase">
+                    <th className="py-2.5 px-3">Fecha</th>
+                    <th className="py-2.5 px-3">Tipo</th>
+                    <th className="py-2.5 px-3">Producto</th>
+                    <th className="py-2.5 px-3">Origen $\to$ Destino</th>
+                    <th className="py-2.5 px-3 text-right">Cantidad</th>
+                    <th className="py-2.5 px-3">Lote</th>
+                    <th className="py-2.5 px-3">Responsable</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5 text-slate-200">
+                  {movimientos.slice(0, 10).map((m) => (
+                    <tr key={m.id} className="hover:bg-white/[0.02]">
+                      <td className="py-2 px-3 text-slate-400">{new Date(m.timestamp).toLocaleString('es-CO')}</td>
+                      <td className="py-2 px-3">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300 border border-white/5">
+                          {m.tipo}
+                        </span>
+                      </td>
+                      <td className="py-2 px-3 font-medium">{m.nombreProducto}</td>
+                      <td className="py-2 px-3 text-slate-400">
+                        {m.bodegaOrigen || '-'} $\to$ {m.bodegaDestino || '-'}
+                      </td>
+                      <td className="py-2 px-3 text-right font-bold text-cyan-300">{m.cantidad}</td>
+                      <td className="py-2 px-3 font-mono text-slate-400">{m.lote || '-'}</td>
+                      <td className="py-2 px-3 text-slate-400">{m.actor}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-
-          {/* Grid de Operaciones */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-        
-            {/* Columna Izquierda: Formularios de Compra y Traslado */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-
-              <PurchaseOrderForm 
-                compra={compra} 
-                setCompra={setCompra} 
-                proveedores={proveedores} 
-                activeProducts={activeProducts} 
-                handleProcesarCompra={handleProcesarCompra} 
-                bodegas={bodegas}
-                onProductCreated={(_newProd: any) => loadInventory()}
-                onProductIvaUpdate={handleProductIvaUpdate}
-              />
-
-              <TransferForm 
-                traslado={traslado} 
-                setTraslado={setTraslado} 
-                activeProducts={activeProducts} 
-                handleTraslado={handleTraslado} 
-              />
-            </div>
-
-            {/* Columna Derecha: Control de Producción */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              <div>
-                <span style={{ fontSize: '14px', color: '#64748B', fontWeight: 500 }}>Producción y Rendimiento</span>
-                <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px', letterSpacing: '-0.5px' }}>Transformación de Planta</h2>
-              </div>
-
-              <ProductionForm 
-                prodMateriaPrima={prodMateriaPrima} 
-                setProdMateriaPrima={setProdMateriaPrima} 
-                prodMateriaCant={prodMateriaCant} 
-                setProdMateriaCant={setProdMateriaCant} 
-                prodTerminado={prodTerminado} 
-                setProdTerminado={setProdTerminado} 
-                prodTerminadoCant={prodTerminadoCant} 
-                setProdTerminadoCant={setProdTerminadoCant} 
-                mermaPct={mermaPct} 
-                activeProducts={activeProducts} 
-                handleProcesarProduccion={handleProcesarProduccion} 
-              />
-            </div>
-          </div> {/* Fin del Grid de Operaciones */}
-
-          {/* Panel de Trazabilidad e Historial */}
-          <div className="hr-table-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '32px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #E2E8F0', paddingBottom: '12px' }}>
-              <div>
-                <span style={{ fontSize: '13px', color: '#64748B', fontWeight: 600, textTransform: 'uppercase' }}>Auditoría y Registro Operativo</span>
-                <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', marginTop: '2px' }}>Trazabilidad Transaccional</h3>
-              </div>
-              <div className="pos-categories" style={{ marginBottom: '0px', gap: '8px' }}>
-                <button
-                  className={`pos-category-tab ${historyTab === 'movimientos' ? 'active' : ''}`}
-                  onClick={() => setHistoryTab('movimientos')}
-                >
-                  Movimientos (Kardex)
-                </button>
-                <button
-                  className={`pos-category-tab ${historyTab === 'compras' ? 'active' : ''}`}
-                  onClick={() => setHistoryTab('compras')}
-                >
-                  Órdenes de Compra
-                </button>
-              </div>
-            </div>
-
-            {historyTab === 'movimientos' ? (
-              <div>
-                {movimientos.length === 0 ? (
-                  <p style={{ color: '#64748B', fontSize: '14px', textAlign: 'center', padding: '24px 0' }}>No se han registrado movimientos de inventario aún.</p>
-                ) : (
-                  <div style={{ overflowX: 'auto' }}>
-                    <table className="hr-table">
-                      <thead>
-                        <tr>
-                          <th>Fecha</th>
-                          <th>Tipo</th>
-                          <th>Producto</th>
-                          <th>Origen</th>
-                          <th>Destino</th>
-                          <th>Cant.</th>
-                          <th>Lote</th>
-                          <th>Referencia</th>
-                          <th>Usuario</th>
-                          <th>Notas</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {movimientos.map(m => (
-                          <tr key={m.id}>
-                            <td style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>{new Date(m.timestamp).toLocaleString()}</td>
-                            <td>
-                              <span style={{
-                                padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 700,
-                                backgroundColor: m.tipo.startsWith('ENTRADA') || m.tipo.includes('SALIDA_PRODUCCION') || m.tipo.includes('ENTRADA_TRASLADO') || m.tipo === 'PRODUCCION_SALIDA' || m.tipo === 'TRASLADO_ENTRADA' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                                color: m.tipo.startsWith('ENTRADA') || m.tipo.includes('SALIDA_PRODUCCION') || m.tipo.includes('ENTRADA_TRASLADO') || m.tipo === 'PRODUCCION_SALIDA' || m.tipo === 'TRASLADO_ENTRADA' ? '#10B981' : '#EF4444'
-                              }}>
-                                {m.tipo}
-                              </span>
-                            </td>
-                            <td style={{ fontWeight: 600 }}>{m.nombreProducto} <span style={{ fontSize: '11px', color: '#64748B' }}>({m.sku})</span></td>
-                            <td style={{ fontSize: '13px' }}>{m.bodegaOrigen || '-'}</td>
-                            <td style={{ fontSize: '13px' }}>{m.bodegaDestino || '-'}</td>
-                            <td style={{ fontWeight: 700 }}>{m.cantidad}</td>
-                            <td style={{ fontFamily: 'monospace', fontWeight: 700, color: '#3B82F6' }}>{m.lote || '-'}</td>
-                            <td style={{ fontSize: '11px', color: '#64748B' }}>
-                              {m.referenciaTipo ? `${m.referenciaTipo}: ${m.referenciaId}` : '-'}
-                            </td>
-                            <td style={{ fontSize: '13px', fontWeight: 500 }}>{m.actor}</td>
-                            <td style={{ fontSize: '12px', color: '#64748B', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={m.notas}>
-                              {m.notas}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div>
-                {ordenesCompra.length === 0 ? (
-                  <p style={{ color: '#64748B', fontSize: '14px', textAlign: 'center', padding: '24px 0' }}>No hay órdenes de compra registradas.</p>
-                ) : (
-                  <div style={{ overflowX: 'auto' }}>
-                    <table className="hr-table">
-                      <thead>
-                        <tr>
-                          <th>Fecha</th>
-                          <th>OC-ID</th>
-                          <th>Proveedor</th>
-                          <th>Destino</th>
-                          <th>Productos Recibidos</th>
-                          <th>Total</th>
-                          <th>Usuario</th>
-                          <th>Estado</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {ordenesCompra.map(oc => (
-                          <tr key={oc.id}>
-                            <td style={{ fontSize: '12px' }}>{new Date(oc.fecha).toLocaleString()}</td>
-                            <td style={{ fontWeight: 700 }}>{oc.id}</td>
-                            <td style={{ fontWeight: 600 }}>{oc.proveedorNombre}</td>
-                            <td>{oc.bodegaDestino}</td>
-                            <td>
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                {oc.items.map((item, idx) => (
-                                  <span key={idx} style={{ fontSize: '12px' }}>
-                                    {item.cantidad}x {item.nombre} ({item.sku}) - Lote: {item.lote}
-                                  </span>
-                                ))}
-                              </div>
-                            </td>
-                            <td style={{ fontWeight: 700, color: '#10B981' }}>
-                              ${oc.totalCompra.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                            </td>
-                            <td>{oc.actor}</td>
-                            <td>
-                              <span style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 700, backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}>
-                                {oc.estado}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </>
+        </div>
       )}
 
+      {/* TAB 2: Kardex Contable NIIF */}
+      {viewMode === 'kardex' && (
+        <KardexTable bodegas={bodegas} onSelectSku={(sku) => setSearchTerm(sku)} />
+      )}
+
+      {/* TAB 3: Alistamiento Cuarto Frío */}
       {viewMode === 'cuarto_frio' && (
-        <ColdRoomPreparation 
+        <ColdRoomPreparation
           quotations={quotations}
           selectedQuoteId={selectedQuoteId}
           setSelectedQuoteId={setSelectedQuoteId}
@@ -1641,22 +1727,105 @@ export default function InventoryView() {
         />
       )}
 
-      {viewMode === 'recepcion_devoluciones' && (
-        <ReturnsReceiver 
-          devoluciones={devoluciones}
-          selectedDevId={selectedDevId}
-          setSelectedDevId={setSelectedDevId}
-          receivedDevItems={receivedDevItems}
-          setReceivedDevItems={setReceivedDevItems}
-          handleProcesarRecepcionDevolucion={handleProcesarRecepcionDevolucion}
+      {/* TAB 4: Despiece & Comandas */}
+      {viewMode === 'despiece' && (
+        <ProductionForm
+          products={products as any}
+          bodegas={bodegas as any}
+          onProductionComplete={() => {
+            loadStock();
+            loadInventory();
+          }}
+          activeProducts={activeProducts}
+          prodMateriaPrima={prodMateriaPrima}
+          setProdMateriaPrima={setProdMateriaPrima}
+          prodMateriaCant={prodMateriaCant}
+          setProdMateriaCant={setProdMateriaCant}
+          prodTerminado={prodTerminado}
+          setProdTerminado={setProdTerminado}
+          prodTerminadoCant={prodTerminadoCant}
+          setProdTerminadoCant={setProdTerminadoCant}
+          mermaPct={mermaPct}
+          handleProcesarProduccion={handleProcesarProduccion}
         />
       )}
 
+      {/* TAB 5: Traslados Multibodega */}
+      {viewMode === 'traslados' && (
+        <WarehouseTransferPanel
+          bodegas={bodegas as any}
+          products={products as any}
+          onTransferComplete={() => {
+            loadStock();
+            loadInventory();
+          }}
+        />
+      )}
+
+      {/* TAB 6: Análisis Pareto ABC */}
+      {viewMode === 'analisis_abc' && <AnalisisAbcWidget />}
+
+      {/* TAB 7: Compras & Reportes */}
+      {viewMode === 'reportes_compra' && (
+        <PurchasesReport
+          ordenesCompra={ordenesCompra}
+          proveedores={proveedores}
+          productsCatalog={products}
+          categorias={categorias}
+          userRole={userRole}
+          onOpenNuevaCompra={() => setViewMode('registrar_compra')}
+        />
+      )}
+
+      {viewMode === 'registrar_compra' && (
+        <div className="space-y-4">
+          <div className="flex justify-between items-center bg-slate-900/80 backdrop-blur-xl border border-white/10 text-white p-5 rounded-2xl shadow-xl flex-wrap gap-3">
+            <div>
+              <span className="text-xs font-extrabold text-emerald-400 uppercase tracking-widest block">
+                Módulo WMS & Recepción de Mercancía
+              </span>
+              <h2 className="text-xl font-black text-white m-0 flex items-center gap-2 mt-0.5">
+                <Truck className="w-5 h-5 text-emerald-400" />
+                Entrada de Mercadería y Registro de Compras
+              </h2>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setViewMode('reportes_compra')}
+                className="px-3.5 py-2 text-xs font-bold text-slate-200 bg-slate-800 hover:bg-slate-700 rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                📊 Ver Historial / Reportes
+              </button>
+              <button
+                onClick={() => setViewMode('operaciones')}
+                className="px-3.5 py-2 text-xs font-bold text-slate-200 bg-slate-800 hover:bg-slate-700 rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                📦 Ver Stock Físico
+              </button>
+            </div>
+          </div>
+
+          <PurchaseOrderForm
+            compra={compra}
+            setCompra={setCompra}
+            proveedores={proveedores}
+            activeProducts={activeProducts}
+            handleProcesarCompra={(e: any) => {
+              handleProcesarCompra(e);
+              setViewMode('reportes_compra');
+            }}
+            bodegas={bodegas}
+            onProductCreated={(_newProd: any) => loadInventory()}
+            onProductIvaUpdate={handleProductIvaUpdate}
+          />
+        </div>
+      )}
+
+      {/* Vistas Secundarias */}
       {viewMode === 'catalogo' && (
         <div>
-          {/* SI SE ESTÁ EDITANDO O CREANDO */}
-          {(editingProductId || isCreating) ? (
-            <ProductForm 
+          {editingProductId || isCreating ? (
+            <ProductForm
               productForm={productForm}
               setProductForm={setProductForm}
               editingProductId={editingProductId}
@@ -1680,7 +1849,7 @@ export default function InventoryView() {
               getStockInBodega={getStockInBodega}
             />
           ) : (
-            <ProductTable 
+            <ProductTable
               products={products}
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
@@ -1702,7 +1871,7 @@ export default function InventoryView() {
       )}
 
       {viewMode === 'categorias' && (
-        <CategoryManager 
+        <CategoryManager
           categorias={categorias}
           categoryForm={categoryForm}
           setCategoryForm={setCategoryForm}
@@ -1715,59 +1884,25 @@ export default function InventoryView() {
         />
       )}
 
-      {viewMode === 'registrar_compra' && (
-        <div className="flex flex-col gap-4 animate-fade-in">
-          <div className="flex justify-between items-center bg-slate-900 text-white p-5 rounded-2xl shadow-sm flex-wrap gap-3">
-            <div>
-              <span className="text-xs font-extrabold text-emerald-400 uppercase tracking-widest block">Módulo WMS & Compras</span>
-              <h2 className="text-xl font-black text-white m-0 flex items-center gap-2 mt-0.5">
-                <Truck size={22} className="text-emerald-400" />
-                Entrada de Mercadería y Registro de Compras
-              </h2>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setViewMode('reportes_compra')}
-                className="px-3.5 py-2 text-xs font-bold text-slate-200 bg-slate-800 hover:bg-slate-700 rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
-              >
-                📊 Ver Historial / Reportes
-              </button>
-              <button
-                onClick={() => setViewMode('operaciones')}
-                className="px-3.5 py-2 text-xs font-bold text-slate-200 bg-slate-800 hover:bg-slate-700 rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
-              >
-                📦 Ver Stock Físico
-              </button>
-            </div>
-          </div>
-
-          <PurchaseOrderForm 
-            compra={compra} 
-            setCompra={setCompra} 
-            proveedores={proveedores} 
-            activeProducts={activeProducts} 
-            handleProcesarCompra={(e: any) => {
-              handleProcesarCompra(e);
-              setViewMode('reportes_compra');
-            }} 
-            bodegas={bodegas}
-            onProductCreated={(_newProd: any) => loadInventory()}
-            onProductIvaUpdate={handleProductIvaUpdate}
-          />
-        </div>
-      )}
-
-      {viewMode === 'reportes_compra' && (
-        <PurchasesReport 
-          ordenesCompra={ordenesCompra}
-          proveedores={proveedores}
-          productsCatalog={products}
-          categorias={categorias}
-          userRole={userRole}
-          onOpenNuevaCompra={() => setViewMode('registrar_compra')}
+      {viewMode === 'recepcion_devoluciones' && (
+        <ReturnsReceiver
+          devoluciones={devoluciones}
+          selectedDevId={selectedDevId}
+          setSelectedDevId={setSelectedDevId}
+          receivedDevItems={receivedDevItems}
+          setReceivedDevItems={setReceivedDevItems}
+          handleProcesarRecepcionDevolucion={handleProcesarRecepcionDevolucion}
         />
       )}
 
+      {viewMode === 'configuracion_bodegas' && (
+        <WarehouseConfigManager
+          bodegas={bodegas}
+          setBodegas={useWarehouseStore.getState().setBodegas}
+          stock={stock}
+          products={products}
+        />
+      )}
     </div>
   );
 }
