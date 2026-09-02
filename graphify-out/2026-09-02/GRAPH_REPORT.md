@@ -1,16 +1,16 @@
-# Graph Report - MaestroPescaderia  (2026-09-02)
+# Graph Report - MaestroPescaderia  (2026-09-01)
 
 ## Corpus Check
-- 1354 files · ~889,393 words
+- 1330 files · ~880,036 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 12115 nodes · 12947 edges · 1068 communities (901 shown, 167 thin omitted)
+- 11773 nodes · 12519 edges · 1028 communities (863 shown, 165 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 2 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `85342ee8`
+- Built from commit: `fa5fba24`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -1024,46 +1024,6 @@
 - [[_COMMUNITY_Community 1024|Community 1024]]
 - [[_COMMUNITY_Community 1025|Community 1025]]
 - [[_COMMUNITY_Community 1026|Community 1026]]
-- [[_COMMUNITY_Community 1028|Community 1028]]
-- [[_COMMUNITY_Community 1029|Community 1029]]
-- [[_COMMUNITY_Community 1030|Community 1030]]
-- [[_COMMUNITY_Community 1031|Community 1031]]
-- [[_COMMUNITY_Community 1032|Community 1032]]
-- [[_COMMUNITY_Community 1033|Community 1033]]
-- [[_COMMUNITY_Community 1034|Community 1034]]
-- [[_COMMUNITY_Community 1035|Community 1035]]
-- [[_COMMUNITY_Community 1036|Community 1036]]
-- [[_COMMUNITY_Community 1037|Community 1037]]
-- [[_COMMUNITY_Community 1038|Community 1038]]
-- [[_COMMUNITY_Community 1039|Community 1039]]
-- [[_COMMUNITY_Community 1040|Community 1040]]
-- [[_COMMUNITY_Community 1041|Community 1041]]
-- [[_COMMUNITY_Community 1042|Community 1042]]
-- [[_COMMUNITY_Community 1043|Community 1043]]
-- [[_COMMUNITY_Community 1044|Community 1044]]
-- [[_COMMUNITY_Community 1045|Community 1045]]
-- [[_COMMUNITY_Community 1046|Community 1046]]
-- [[_COMMUNITY_Community 1047|Community 1047]]
-- [[_COMMUNITY_Community 1048|Community 1048]]
-- [[_COMMUNITY_Community 1049|Community 1049]]
-- [[_COMMUNITY_Community 1050|Community 1050]]
-- [[_COMMUNITY_Community 1051|Community 1051]]
-- [[_COMMUNITY_Community 1052|Community 1052]]
-- [[_COMMUNITY_Community 1053|Community 1053]]
-- [[_COMMUNITY_Community 1054|Community 1054]]
-- [[_COMMUNITY_Community 1055|Community 1055]]
-- [[_COMMUNITY_Community 1056|Community 1056]]
-- [[_COMMUNITY_Community 1057|Community 1057]]
-- [[_COMMUNITY_Community 1058|Community 1058]]
-- [[_COMMUNITY_Community 1059|Community 1059]]
-- [[_COMMUNITY_Community 1060|Community 1060]]
-- [[_COMMUNITY_Community 1061|Community 1061]]
-- [[_COMMUNITY_Community 1062|Community 1062]]
-- [[_COMMUNITY_Community 1063|Community 1063]]
-- [[_COMMUNITY_Community 1064|Community 1064]]
-- [[_COMMUNITY_Community 1065|Community 1065]]
-- [[_COMMUNITY_Community 1066|Community 1066]]
-- [[_COMMUNITY_Community 1067|Community 1067]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `IDataService` - 35 edges
@@ -1092,7 +1052,7 @@
 ## Import Cycles
 - 3-file cycle: `src/App.tsx -> src/views/PricingView.tsx -> src/hooks/usePricing.ts -> src/App.tsx`
 
-## Communities (1068 total, 167 thin omitted)
+## Communities (1028 total, 165 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.06
@@ -1127,8 +1087,8 @@ Cohesion: 0.04
 Nodes (48): 10. Dependency Security, 1. Secrets Management, 2. Input Validation, 3. SQL Injection Prevention, 4. Authentication & Authorization, 5. XSS Prevention, 6. CSRF Protection, 7. Rate Limiting (+40 more)
 
 ### Community 8 - "Community 8"
-Cohesion: 0.06
-Nodes (32): 1. Cross-Repo Initialization, 1. Microservices Coordination, 1. Repository Organization, 1. Webhook-Based Coordination, 2. Communication, 2. GraphQL Federation, 2. Library Updates, 2. Repository Discovery (+24 more)
+Cohesion: 0.04
+Nodes (48): 1. Cross-Repo Initialization, 1. Distributed Task Queue, 1. Eventually Consistent, 1. Microservices Coordination, 1. Repository Organization, 1. Webhook-Based Coordination, 2. Communication, 2. Cross-Repo Testing (+40 more)
 
 ### Community 9 - "Community 9"
 Cohesion: 0.27
@@ -1159,16 +1119,16 @@ Cohesion: 0.05
 Nodes (44): 1. AI Learning, 1. Context-Aware Reviews, 1. Multi-Agent Review System, 1. Review Configuration, 2. Comment Quality, 2. Custom Review Agents, 2. Learning from History, 2. Specialized Review Agents (+36 more)
 
 ### Community 16 - "Community 16"
-Cohesion: 0.05
-Nodes (43): 1. Progressive Deployment, 1. Release Planning, 1. Release Planning, 2. Automated Versioning, 2. Automation, 2. Multi-Repo Releases, 3. Documentation, 3. Hotfix Automation (+35 more)
+Cohesion: 0.07
+Nodes (27): 1. Release Planning, 2. Automated Versioning, 3. Release Orchestration, Auto-Generated Docs, Build Agent, Changelog Agent, Compatibility Testing, Continuous Deployment (+19 more)
 
 ### Community 17 - "Community 17"
 Cohesion: 0.05
 Nodes (41): 1. Long Functions, 1. Readability First, 2. Deep Nesting, 2. KISS (Keep It Simple, Stupid), 3. DRY (Don't Repeat Yourself), 3. Magic Numbers, 4. YAGNI (You Aren't Gonna Need It), API Design Standards (+33 more)
 
 ### Community 18 - "Community 18"
-Cohesion: 0.06
-Nodes (33): 1. PR Validation Swarm, 1. Self-Healing CI/CD, 2. Progressive Deployment, 2. Release Automation, 3. Documentation Updates, 3. Performance Regression Detection, Action Commands, Adaptive Security Scanning (+25 more)
+Cohesion: 0.05
+Nodes (41): 1. PR Validation Swarm, 1. Self-Healing CI/CD, 1. Swarm-Powered Actions, 1. Workflow Organization, 2. Dynamic Workflow Generation, 2. Progressive Deployment, 2. Release Automation, 2. Security (+33 more)
 
 ### Community 19 - "Community 19"
 Cohesion: 0.05
@@ -1351,12 +1311,12 @@ Cohesion: 0.08
 Nodes (23): 1. Create Coordinated Issue with Swarm Tracking, 1. **Swarm-Coordinated Issue Management**, 2. **Automated Progress Tracking**, 2. Automated Progress Updates, 3. Multi-Issue Project Coordination, 3. **Smart Labeling and Organization**, 4. **Batch Issue Operations**, Automatic tracking of: (+15 more)
 
 ### Community 64 - "Community 64"
-Cohesion: 0.05
-Nodes (44): 1. Issue Dependencies, 1. Issue-PR Linking, 1. Issue Templates, 1. Issue-to-Swarm Conversion, 2. Epic Management, 2. Issue Comment Commands, 2. Label Strategy, 2. Milestone Coordination (+36 more)
+Cohesion: 0.06
+Nodes (32): 1. Issue Dependencies, 1. Issue-to-Swarm Conversion, 2. Epic Management, 2. Issue Comment Commands, 3. Issue Templates, 3. Issue Templates for Swarms, Advanced Features, Auto-Close Stale Issues (+24 more)
 
 ### Community 65 - "Community 65"
-Cohesion: 0.06
-Nodes (32): 1. Multi-PR Swarm Coordination, 1. PR-Based Swarm Creation, 1. PR Templates, 2. PR Comment Commands, 2. PR Dependency Analysis, 2. Status Checks, 3. Automated PR Fixes, 3. Automated PR Workflows (+24 more)
+Cohesion: 0.07
+Nodes (28): 1. Multi-PR Swarm Coordination, 1. PR Templates, 2. PR Dependency Analysis, 2. Status Checks, 3. Automated PR Fixes, 3. PR Merge Automation, Advanced Features, Automatic Agent Assignment (+20 more)
 
 ### Community 66 - "Community 66"
 Cohesion: 0.08
@@ -1607,8 +1567,8 @@ Cohesion: 0.19
 Nodes (9): DevTestDashboard(), applySeed(), SEED_DATA, applySeed(), SEED_DATA, applySeed(), SEED_DATA, applySeed() (+1 more)
 
 ### Community 128 - "Community 128"
-Cohesion: 0.06
-Nodes (32): 1. Board Initialization, 1. Board Organization, 1. Multi-Board Sync, 2. Cross-Organization Sync, 2. Data Integrity, 2. Task Synchronization, 3. External Tool Integration, 3. Real-time Updates (+24 more)
+Cohesion: 0.07
+Nodes (28): 1. Board Organization, 2. Data Integrity, 3. Team Adoption, Agile Development Board, Best Practices, Board Analytics, Board Commands, Board Mapping Configuration (+20 more)
 
 ### Community 129 - "Community 129"
 Cohesion: 0.12
@@ -2059,8 +2019,8 @@ Cohesion: 0.17
 Nodes (11): Core Quorum Management System, Core Responsibilities, Fault Tolerance Strategy, MCP Integration Hooks, Network-Based Quorum Strategy, Performance-Based Quorum Strategy, Performance Monitoring Integration, Quorum Manager (+3 more)
 
 ### Community 241 - "Community 241"
-Cohesion: 0.15
-Nodes (15): CLAUDE_FLOW_HOOKS_ENABLED, CLAUDE_FLOW_MAX_AGENTS, CLAUDE_FLOW_MEMORY_BACKEND, CLAUDE_FLOW_MODE, CLAUDE_FLOW_TOPOLOGY, NODE_ENV, npm_config_update_notifier, RICOUI_DEFAULT_BRAND (+7 more)
+Cohesion: 0.21
+Nodes (11): CLAUDE_FLOW_HOOKS_ENABLED, CLAUDE_FLOW_MAX_AGENTS, CLAUDE_FLOW_MEMORY_BACKEND, CLAUDE_FLOW_MODE, CLAUDE_FLOW_TOPOLOGY, npm_config_update_notifier, cmd, claude-flow (+3 more)
 
 ### Community 242 - "Community 242"
 Cohesion: 0.17
@@ -2719,8 +2679,8 @@ Cohesion: 0.22
 Nodes (9): Basic Development Chain, Code Refactoring Chain, Custom Chains (`run`), Data Processing Pipeline, Examples, How Context Flows, Options, Security Audit Workflow (+1 more)
 
 ### Community 408 - "Community 408"
-Cohesion: 0.22
-Nodes (9): Comprehensive Optimization, Debug Test Generation, Extended Refactoring, Pipeline Examples, Pipeline Options, Pipeline Output, Predefined Pipelines (`pipeline`), Quick Analysis (+1 more)
+Cohesion: 0.40
+Nodes (5): Comprehensive Optimization, Debug Test Generation, Extended Refactoring, Pipeline Examples, Quick Analysis
 
 ### Community 409 - "Community 409"
 Cohesion: 0.22
@@ -3103,8 +3063,8 @@ Cohesion: 0.29
 Nodes (6): Examples, Phase 1 — ASSESS, Phase 2 — INTERPRET & STAGE, Phase 3 — COMMIT, Phase 4 — OUTPUT, Smart Commit
 
 ### Community 505 - "Community 505"
-Cohesion: 0.22
-Nodes (8): Always Do, CLI, Design Protocol, Ecosistema de Herramientas de Agente, Comandos Slash (/) y Gobernanza, GitNexus — Code Intelligence, Never Do, Resources, Rico UI Brands & Google Stitch Frontend Design Capabilities
+Cohesion: 0.33
+Nodes (5): Always Do, CLI, GitNexus — Code Intelligence, Never Do, Resources
 
 ### Community 506 - "Community 506"
 Cohesion: 0.33
@@ -3463,8 +3423,8 @@ Cohesion: 0.40
 Nodes (4): Fase 0: Correcciones de Artefactos (Pre-Implementación), Fase 1: Implementación de Clases Utilitarias (React/JSX), Fase 2: Verificación de Calidad y Testing, Lista de Tareas (Task Tracker) — v2.0
 
 ### Community 595 - "Community 595"
-Cohesion: 0.40
-Nodes (5): 1. Analysis Pipeline, 2. Refactor Pipeline, 3. Test Pipeline, 4. Optimize Pipeline, Available Pipelines
+Cohesion: 0.22
+Nodes (9): 1. Analysis Pipeline, 2. Refactor Pipeline, 3. Test Pipeline, 4. Optimize Pipeline, Available Pipelines, Pipeline Options, Pipeline Output, Predefined Pipelines (`pipeline`) (+1 more)
 
 ### Community 596 - "Community 596"
 Cohesion: 0.40
@@ -3559,8 +3519,8 @@ Cohesion: 0.50
 Nodes (3): 🛠️ Comandos Disponibles (`package.json`), 📏 Estándares de Código y Arquitectura, Guía de Contribución y Despliegue (MaestroPescaderia ERP)
 
 ### Community 619 - "Community 619"
-Cohesion: 0.09
-Nodes (21): category, code, description, id, name, category, code, description (+13 more)
+Cohesion: 0.50
+Nodes (4): 1. Multi-Board Sync, 2. Cross-Organization Sync, 3. External Tool Integration, Advanced Synchronization
 
 ### Community 620 - "Community 620"
 Cohesion: 0.12
@@ -3915,8 +3875,8 @@ Cohesion: 0.06
 Nodes (33): Annotation-Based Quarantine, Anti-Patterns to Avoid, Async/Timing Flakiness, Categories of Flakiness, CI-Specific Flakiness, Confirming Flakiness, Consistent Viewport and Scale, Data/Parallelism-Driven Flakiness (+25 more)
 
 ### Community 757 - "Community 757"
-Cohesion: 0.21
-Nodes (17): typography, typography, typography, 2xl, 3xl, 4xl, base, lg (+9 more)
+Cohesion: 0.50
+Nodes (4): Data Recovery, Performance, Sync Issues, Troubleshooting
 
 ### Community 758 - "Community 758"
 Cohesion: 0.06
@@ -3951,8 +3911,8 @@ Cohesion: 0.50
 Nodes (3): Objetivo, Pasos de Ejecución, Workflow: /wms-inventory
 
 ### Community 782 - "Community 782"
-Cohesion: 0.29
-Nodes (16): surfaces, surfaces, full, lg, md, sm, xl, surfaces (+8 more)
+Cohesion: 0.50
+Nodes (4): 1. Board Initialization, 2. Task Synchronization, 3. Real-time Updates, Core Features
 
 ### Community 783 - "Community 783"
 Cohesion: 0.07
@@ -4215,7 +4175,7 @@ Cohesion: 0.13
 Nodes (14): 📊 1. Resumen Ejecutivo del Estado del Sistema, 1. Vistas Monolíticas "God-Components", 2. Configuración ESLint Inexistente en Raíz, 🚨 2. Matriz de Hallazgos Clasificados por Severidad, 3. Dependencia Circular y Exportación de Tipos desde `App.tsx`, 🗺️ 3. Mapa de Estado de Flujos Transaccionales, 4. Falso Fallback Estático en Cálculo ABC Pareto 80/20, 🛠️ 4. Plan de Acción Recomendado (Fases SDD) (+6 more)
 
 ### Community 850 - "Community 850"
-Cohesion: 0.10
+Cohesion: 0.11
 Nodes (15): Anti-Patterns, "browserType.launch: Executable doesn't exist", CI Container Jobs, Container-Based Testing, Custom Dockerfile, Decision Guide, Dev Container Setup, Docker Compose Stack (+7 more)
 
 ### Community 851 - "Community 851"
@@ -4427,40 +4387,40 @@ Cohesion: 0.50
 Nodes (4): 1. Auto-Assignment, 2. Progress Tracking, 3. Smart Card Movement, Automation Features
 
 ### Community 903 - "Community 903"
-Cohesion: 0.13
-Nodes (14): 1. Brand & Palette, 2. Typography, 3. Surfaces, Radii & Shadows, 4. Layout & Spacing, 5. Component Specifications & State Matrices, 6. Usage Guidelines & Best Practices, Botón Primario (`PrimaryButton`), Color Tokens (+6 more)
+Cohesion: 0.50
+Nodes (4): 1. Progressive Deployment, 2. Multi-Repo Releases, 3. Hotfix Automation, Advanced Features
 
 ### Community 904 - "Community 904"
-Cohesion: 0.14
-Nodes (13): 1. Arquitectura del Pipeline de Generación, 2. Herramientas MCP y Comandos CLI Disponibles, 3. Catálogo de Marcas y Arquetipos de Estilo, 4. Guía de Ejecución Paso a Paso, 5. Ejemplos de Implementación, 6. Verificación de Integración, Ejemplo: Tarjeta KPI con Acento Linear, Paso 1: Identificar el Requerimiento y Seleccionar la Marca (+5 more)
+Cohesion: 0.50
+Nodes (4): 1. Release Planning, 2. Automation, 3. Documentation, Best Practices
 
 ### Community 905 - "Community 905"
-Cohesion: 0.15
-Nodes (13): hex, hsl, token, pezcaderia-glass, accent, danger, hex, hsl (+5 more)
+Cohesion: 0.50
+Nodes (4): Milestone Tracking, Release Planning, Sprint Management, Workflow Integration
 
 ### Community 906 - "Community 906"
-Cohesion: 0.15
-Nodes (13): hex, hsl, token, linear, accent_hover, text_muted, archetype, colors (+5 more)
+Cohesion: 0.50
+Nodes (4): Automated Rollback, Monitoring & Rollback, Release Analytics, Release Monitoring
 
 ### Community 907 - "Community 907"
-Cohesion: 0.15
-Nodes (13): hex, hsl, token, vercel, background, primary, hex, hsl (+5 more)
+Cohesion: 0.50
+Nodes (4): 1. Issue-PR Linking, 2. Milestone Coordination, 3. Cross-Repo Issues, Integration Patterns
 
 ### Community 908 - "Community 908"
-Cohesion: 0.15
-Nodes (13): raycast, primary_hover, success, hex, hsl, token, archetype, colors (+5 more)
+Cohesion: 0.50
+Nodes (4): 1. Issue Templates, 2. Label Strategy, 3. Comment Etiquette, Best Practices
 
 ### Community 909 - "Community 909"
-Cohesion: 0.15
-Nodes (13): stripe, text_primary, text_secondary, archetype, colors, description, name, hex (+5 more)
+Cohesion: 0.50
+Nodes (4): 1. PR-Based Swarm Creation, 2. PR Comment Commands, 3. Automated PR Workflows, Core Features
 
 ### Community 910 - "Community 910"
-Cohesion: 0.15
-Nodes (13): accent_cyan, border_subtle, canvas_background, danger_rose, primary_indigo, success_emerald, surface_card, surface_card_alpha (+5 more)
+Cohesion: 0.50
+Nodes (4): Docker Image Release, Integration Examples, Mobile App Release, NPM Package Release
 
 ### Community 911 - "Community 911"
-Cohesion: 0.22
-Nodes (8): 1. Niveles del Modelo C4 Soportados, 2. Invocación y Parámetros, 3. Plantillas de Diagramas de Arquitectura, 4. Reglas de Validación Arquitectónica, Archify Architecture Analysis & C4 Modeling Skill, Plantilla C2: Contenedores y Datos en Pezcaderia ERP, Plantilla C4: Flujo de Transacción Atómica, Sintaxis CLI / Workflow:
+Cohesion: 0.50
+Nodes (4): Initialize from Issue, Issue Swarm Commands, Progress Tracking, Task Decomposition
 
 ### Community 914 - "Community 914"
 Cohesion: 0.50
@@ -4470,174 +4430,22 @@ Nodes (3): File-System Paths, Import Paths, Prefer Statically Analyzable Paths
 Cohesion: 0.07
 Nodes (27): CatalogTab(), CatalogTabProps, DevolucionesTab(), DevolucionesTabProps, PriceHistoryModal(), PriceHistoryModalProps, PricingTab(), PricingTabProps (+19 more)
 
-### Community 1028 - "Community 1028"
-Cohesion: 0.22
-Nodes (9): supabase, warning, archetype, colors, description, name, hex, hsl (+1 more)
-
-### Community 1029 - "Community 1029"
-Cohesion: 0.22
-Nodes (9): design_system, default_brand, mcp_server, source_specification, tokens, typography, display, mono (+1 more)
-
-### Community 1030 - "Community 1030"
-Cohesion: 0.22
-Nodes (9): quality_gates, accessibility_standard, anti_patterns, minimum_contrast_ratio, responsive_breakpoints, desktop, mobile, tablet (+1 more)
-
-### Community 1031 - "Community 1031"
-Cohesion: 0.22
-Nodes (8): 1. Argumentos del Comando, 2. Fases de Ejecución, Fase 1: Extracción de Tokens de Marca (Rico UI MCP), Fase 2: Formateo de Prompt para Google Stitch, Fase 3: Generación Visual y Estructura, Fase 4: Construcción de Código en Producción, Fase 5: Verificación de Calidad y Accesibilidad, Workflow: /stitch-design
-
-### Community 1032 - "Community 1032"
-Cohesion: 0.25
-Nodes (7): 1. Principios de Humanización de Texto y Copy, 2. Catálogo de Clichés Prohibidos vs. Alternativas Naturales, 3. Guía de Aplicación en Código y Commits, 4. Invocación, Comentarios de Código:, Humanizer Refinement Skill, Mensajes de Commit Convencionales Claros:
-
-### Community 1033 - "Community 1033"
-Cohesion: 0.29
-Nodes (6): prompt_templates, wms_inventory, $schema, components_required, instruction, title
-
-### Community 1034 - "Community 1034"
-Cohesion: 0.29
-Nodes (7): project, framework, icon_library, name, styling, theme_mode, version
-
-### Community 1035 - "Community 1035"
-Cohesion: 0.33
-Nodes (5): 1. Mapeo de Layout Nativo de Penpot a Tailwind CSS, 2. Manejo de Tokens de Diseño y Exportación SVG, 3. Plantilla de Layout: Dashboard Penpot en Tailwind, 4. Invocación, Penpot Design System & Layout Engine Skill
-
-### Community 1036 - "Community 1036"
-Cohesion: 0.33
-Nodes (5): 1. Gobernanza de Diseño UI/UX (Penpot & DESIGN.md), 2. Gobernanza de Arquitectura y Refactorizaciones (Archify C4), 3. Humanización de Textos y Comunicación (Humanizer), 4. Rigor Matemático y Conversión de Unidades (Scientific Analytics), Gobernanza de Diseño UI/UX, Arquitectura e Integridad de Código
-
-### Community 1037 - "Community 1037"
-Cohesion: 0.33
-Nodes (6): backdrop_blur, border_glass, glass_overlay, shadow_ambient, shadow_glow, glassmorphism
-
-### Community 1038 - "Community 1038"
-Cohesion: 0.40
-Nodes (4): brands, $schema, updated_at, version
-
-### Community 1039 - "Community 1039"
-Cohesion: 0.40
-Nodes (5): alpha, hex, hsl, token, border
-
-### Community 1040 - "Community 1040"
-Cohesion: 0.40
-Nodes (5): surface, alpha, hex, hsl, token
-
-### Community 1041 - "Community 1041"
-Cohesion: 0.40
-Nodes (5): surface_hover, alpha, hex, hsl, token
-
-### Community 1042 - "Community 1042"
-Cohesion: 0.40
-Nodes (4): 1. Matriz de Comandos de Barra ('/') y Habilidades, 2. Protocolo de Ejecución de Tareas de Desarrollo, 3. Síntesis de las Colecciones de UI/UX Integradas, Manual del Ecosistema de Herramientas de Agentes, Comandos Slash (/) y Estándares UI/UX
-
-### Community 1043 - "Community 1043"
-Cohesion: 0.40
-Nodes (4): 1. Generador de Avatares Vectoriales SVG (Costo 0), 2. Micro-Animaciones CSS Abiertas y Efectos de Brillo, 3. Invocación, Open Design Assets & Visual Library Skill
-
-### Community 1044 - "Community 1044"
-Cohesion: 0.40
-Nodes (4): 1. Algoritmo Canónico Pareto ABC (80/20), 2. Regla Crítica de Conversión de Peso (Gramos vs. Kilogramos), 3. Invocación, Scientific Agent Analytics & Calculations Skill
-
-### Community 1045 - "Community 1045"
-Cohesion: 0.50
-Nodes (4): 1. Distributed Task Queue, 2. Cross-Repo Testing, 3. Monorepo Migration, Advanced Features
-
-### Community 1046 - "Community 1046"
-Cohesion: 0.50
-Nodes (4): 1. Eventually Consistent, 2. Strong Consistency, 3. Hybrid Approach, Synchronization Patterns
-
-### Community 1047 - "Community 1047"
-Cohesion: 0.50
-Nodes (4): Caching Strategy, Parallel Execution, Performance Optimization, Resource Pooling
-
-### Community 1048 - "Community 1048"
-Cohesion: 0.50
-Nodes (4): Dependency Graph, Health Monitoring, Monitoring & Visualization, Multi-Repo Dashboard
-
-### Community 1049 - "Community 1049"
-Cohesion: 0.50
-Nodes (4): Board Analytics, Custom Dashboards, Reports, Visualization & Reporting
-
-### Community 1050 - "Community 1050"
-Cohesion: 0.50
-Nodes (4): Board Commands, Bulk Operations, Card Templates, Create Cards from Issues
-
-### Community 1051 - "Community 1051"
-Cohesion: 0.50
-Nodes (4): Review Coordination, Standup Automation, Team Collaboration, Work Distribution
-
-### Community 1052 - "Community 1052"
-Cohesion: 0.50
-Nodes (4): 1. Swarm-Powered Actions, 2. Dynamic Workflow Generation, 3. Intelligent Test Selection, Core Features
-
-### Community 1053 - "Community 1053"
-Cohesion: 0.50
-Nodes (4): 1. Workflow Organization, 2. Security, 3. Performance, Best Practices
-
-### Community 1054 - "Community 1054"
-Cohesion: 0.50
-Nodes (3): 1. Estructura de Pipeline de Tareas, 2. Invocación, Ponytail Task Harness & Pipeline Runner Skill
-
-### Community 1055 - "Community 1055"
-Cohesion: 0.50
-Nodes (4): components_required, instruction, title, b2b_pricing
-
-### Community 1056 - "Community 1056"
-Cohesion: 0.50
-Nodes (4): components_required, instruction, title, dashboard_kpi
-
-### Community 1057 - "Community 1057"
-Cohesion: 0.50
-Nodes (4): components_required, instruction, title, pos_cash
-
-### Community 1058 - "Community 1058"
-Cohesion: 0.50
-Nodes (3): 1. Matriz de Colecciones de Recursos Integradas, 2. Invocación, UI/UX Ecosystem & Curated Resources Skill
-
-### Community 1059 - "Community 1059"
-Cohesion: 0.50
-Nodes (3): Argumentos:, Fases de Ejecución:, Workflow: /archify
-
-### Community 1060 - "Community 1060"
-Cohesion: 0.50
-Nodes (3): Argumentos:, Fases de Ejecución:, Workflow: /humanize
-
-### Community 1061 - "Community 1061"
-Cohesion: 0.50
-Nodes (3): Argumentos:, Fases de Ejecución:, Workflow: /open-design
-
-### Community 1062 - "Community 1062"
-Cohesion: 0.50
-Nodes (3): Argumentos:, Fases de Ejecución:, Workflow: /penpot-ui
-
-### Community 1063 - "Community 1063"
-Cohesion: 0.50
-Nodes (3): Argumentos:, Fases de Ejecución:, Workflow: /ponytail
-
-### Community 1064 - "Community 1064"
-Cohesion: 0.50
-Nodes (3): Argumentos:, Fases de Ejecución:, Workflow: /scientific-skills
-
-### Community 1065 - "Community 1065"
-Cohesion: 0.50
-Nodes (3): Argumentos:, Fases de Ejecución:, Workflow: /ui-tools
-
 ## Knowledge Gaps
-- **8265 isolated node(s):** `1. Gobernanza de Diseño UI/UX (Penpot & DESIGN.md)`, `2. Gobernanza de Arquitectura y Refactorizaciones (Archify C4)`, `3. Humanización de Textos y Comunicación (Humanizer)`, `4. Rigor Matemático y Conversión de Unidades (Scientific Analytics)`, `Argumentos:` (+8260 more)
+- **8041 isolated node(s):** `📊 1. Resumen Ejecutivo del Estado del Sistema`, `1. Vistas Monolíticas "God-Components"`, `2. Configuración ESLint Inexistente en Raíz`, `3. Dependencia Circular y Exportación de Tipos desde `App.tsx``, `4. Falso Fallback Estático en Cálculo ABC Pareto 80/20` (+8036 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **167 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **165 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Test Reports & Artifacts` connect `Community 793` to `Community 850`?**
+- **Why does `Electron Testing` connect `Community 759` to `Community 334`?**
   _High betweenness centrality (0.003) - this node is a cross-community bridge._
-- **Why does `Next.js Testing Patterns` connect `Community 751` to `Community 334`?**
+- **Why does `Performance & Parallelization` connect `Community 754` to `Community 334`?**
   _High betweenness centrality (0.002) - this node is a cross-community bridge._
-- **Why does `Debugging & Troubleshooting` connect `Community 750` to `Community 334`?**
+- **Why does `CI/CD Integration` connect `Community 758` to `Community 334`?**
   _High betweenness centrality (0.002) - this node is a cross-community bridge._
-- **What connects `1. Gobernanza de Diseño UI/UX (Penpot & DESIGN.md)`, `2. Gobernanza de Arquitectura y Refactorizaciones (Archify C4)`, `3. Humanización de Textos y Comunicación (Humanizer)` to the rest of the system?**
-  _8265 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **What connects `📊 1. Resumen Ejecutivo del Estado del Sistema`, `1. Vistas Monolíticas "God-Components"`, `2. Configuración ESLint Inexistente en Raíz` to the rest of the system?**
+  _8041 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
   _Cohesion score 0.05878355419639823 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**

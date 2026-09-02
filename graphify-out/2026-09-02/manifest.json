@@ -230,8 +230,8 @@
     "semantic_hash": ""
   },
   ".mcp.json": {
-    "mtime": 1788358845.600181,
-    "ast_hash": "b9f4d33b03f16857392dc3e7a33edcbe",
+    "mtime": 1784123572.965381,
+    "ast_hash": "20e2c6da2dca74409401b8c90c2e9066",
     "semantic_hash": ""
   },
   "DOCS/SKILLS/pezcaderia-prompt-optimizer/scripts/optimize.js": {
@@ -4100,8 +4100,8 @@
     "semantic_hash": ""
   },
   "AGENTS.md": {
-    "mtime": 1788359237.004146,
-    "ast_hash": "eeec946082bdfbe2102ead3abc29b36d",
+    "mtime": 1784123572.972895,
+    "ast_hash": "bf49d860b18d54ce5d346d254a8cb69f",
     "semantic_hash": ""
   },
   "CLAUDE.md": {
@@ -6902,126 +6902,6 @@
   "src/views/pricing/components/QuoteWizardStep3.tsx": {
     "mtime": 1788281108.0667918,
     "ast_hash": "455be9832fa1f41e7fb78b2113cf4d81",
-    "semantic_hash": ""
-  },
-  "stitch.json": {
-    "mtime": 1788358855.448678,
-    "ast_hash": "b4771881010a837ce85473ac86262dd6",
-    "semantic_hash": ""
-  },
-  "tools/ricoui-mcp/catalog/brands.json": {
-    "mtime": 1788358728.959512,
-    "ast_hash": "2826cf71debf9f8f22872aad4e0be29e",
-    "semantic_hash": ""
-  },
-  "tools/ricoui-mcp/catalog/templates.json": {
-    "mtime": 1788358741.5157855,
-    "ast_hash": "934054f2ce92aa18ce5604695b3bfbb5",
-    "semantic_hash": ""
-  },
-  "tools/ricoui-mcp/server.js": {
-    "mtime": 1788358782.3343644,
-    "ast_hash": "bbf56846a9dccae6fffd0adf4fd0038d",
-    "semantic_hash": ""
-  },
-  ".agent/rules/design-governance.md": {
-    "mtime": 1788359213.1079707,
-    "ast_hash": "dbf9c4e03c57a639136c65f31ac699da",
-    "semantic_hash": ""
-  },
-  ".agent/workflows/archify.md": {
-    "mtime": 1788359160.8054094,
-    "ast_hash": "b1a8fcb1384015adb7f0e2a45661412e",
-    "semantic_hash": ""
-  },
-  ".agent/workflows/humanize.md": {
-    "mtime": 1788359166.9452262,
-    "ast_hash": "1d2514ecb16a214a0c3abc894620b750",
-    "semantic_hash": ""
-  },
-  ".agent/workflows/open-design.md": {
-    "mtime": 1788359179.3545873,
-    "ast_hash": "376cbc448f1bf5e5cf8aa336f1a8f101",
-    "semantic_hash": ""
-  },
-  ".agent/workflows/penpot-ui.md": {
-    "mtime": 1788359173.281802,
-    "ast_hash": "0ef0c3ca22d66e364a93ffffbe88aea8",
-    "semantic_hash": ""
-  },
-  ".agent/workflows/ponytail.md": {
-    "mtime": 1788359196.7622507,
-    "ast_hash": "0d9c0df10955aa695e30e0aada405d5c",
-    "semantic_hash": ""
-  },
-  ".agent/workflows/ricoui.md": {
-    "mtime": 1788358904.7616067,
-    "ast_hash": "05db0c871a68b0209285f9af75025b6b",
-    "semantic_hash": ""
-  },
-  ".agent/workflows/scientific-skills.md": {
-    "mtime": 1788359190.3137877,
-    "ast_hash": "0fd343f870334b24063117e6a3b38690",
-    "semantic_hash": ""
-  },
-  ".agent/workflows/stitch-design.md": {
-    "mtime": 1788358899.5859973,
-    "ast_hash": "07aa86c82e777fbd53e7d73607e7a961",
-    "semantic_hash": ""
-  },
-  ".agent/workflows/ui-tools.md": {
-    "mtime": 1788359203.333193,
-    "ast_hash": "0f3d0dc67bb7caabe851a751311e1d60",
-    "semantic_hash": ""
-  },
-  ".agents/skills/archify-architecture/SKILL.md": {
-    "mtime": 1788359097.9657567,
-    "ast_hash": "324f7f6304b6baabd0b922670d70f7bb",
-    "semantic_hash": ""
-  },
-  ".agents/skills/humanizer-refinement/SKILL.md": {
-    "mtime": 1788359107.1867654,
-    "ast_hash": "c1342ca689fcf9c11e9c3872dab034b1",
-    "semantic_hash": ""
-  },
-  ".agents/skills/open-design-assets/SKILL.md": {
-    "mtime": 1788359124.8430748,
-    "ast_hash": "2e010a34775a3b9d682b38cc5df33ea3",
-    "semantic_hash": ""
-  },
-  ".agents/skills/penpot-design-system/SKILL.md": {
-    "mtime": 1788359116.2420633,
-    "ast_hash": "97f98792d8c188d829088b0d4741f336",
-    "semantic_hash": ""
-  },
-  ".agents/skills/ponytail-harness/SKILL.md": {
-    "mtime": 1788359143.8906374,
-    "ast_hash": "02127e48a8a072e80a8f020b0f5f4a95",
-    "semantic_hash": ""
-  },
-  ".agents/skills/scientific-agent-analytics/SKILL.md": {
-    "mtime": 1788359134.421259,
-    "ast_hash": "1c6c165db22bae3278f36a2051e4f51b",
-    "semantic_hash": ""
-  },
-  ".agents/skills/stitch-ricoui-design/SKILL.md": {
-    "mtime": 1788358885.9681404,
-    "ast_hash": "53ebd9954247940d4acf91e190796227",
-    "semantic_hash": ""
-  },
-  ".agents/skills/ui-ux-ecosystem/SKILL.md": {
-    "mtime": 1788359152.5739038,
-    "ast_hash": "1dd156ae332e6eccd46f7b4099b3cafb",
-    "semantic_hash": ""
-  },
-  "DESIGN.md": {
-    "mtime": 1788358872.3371272,
-    "ast_hash": "99658a72a53713fddff07379ad9b5d04",
-    "semantic_hash": ""
-  },
-  "DOCS/ecosistema_herramientas_agentes_uiux.md": {
-    "mtime": 1788359223.4901466,
-    "ast_hash": "01141c07834e796c7e0d308685364ba6",
     "semantic_hash": ""
   }
 }
