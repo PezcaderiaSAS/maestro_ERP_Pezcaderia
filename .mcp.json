@@ -34,6 +34,18 @@
       "command": "cmd",
       "args": ["/c", "echo", "Kimi-Code MCP is managed by Antigravity Host"],
       "autoStart": true
+    },
+    "ricoui-design-mcp": {
+      "command": "node",
+      "args": [
+        "tools/ricoui-mcp/server.cjs",
+        "--mcp"
+      ],
+      "env": {
+        "NODE_ENV": "development",
+        "RICOUI_DEFAULT_BRAND": "pezcaderia-glass"
+      },
+      "autoStart": true
     }
   }
 }

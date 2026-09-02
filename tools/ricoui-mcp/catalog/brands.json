@@ -1,0 +1,357 @@
+{
+  "$schema": "https://design.ricoui.com/schema/brands.json",
+  "version": "1.0.0",
+  "updated_at": "2026-09-02",
+  "brands": {
+    "pezcaderia-glass": {
+      "name": "Pezcaderia / FerreOn Dark Glass (ERP Default)",
+      "archetype": "Dark Glassmorphism",
+      "description": "Sistema de diseño corporativo para La Pezcaderia ERP / FerreOn. Paneles de vidrio esmerilado con acentos Marine Indigo, Cyan Wave y Emerald.",
+      "colors": {
+        "background": { "hex": "#0a0f1d", "hsl": "hsl(222, 47%, 8%)", "token": "--bg-color" },
+        "surface": { "hex": "#111827", "hsl": "hsl(222, 47%, 11%)", "token": "--card-bg", "alpha": 0.75 },
+        "surface_hover": { "hex": "#1f2937", "hsl": "hsl(215, 28%, 17%)", "token": "--card-hover", "alpha": 0.85 },
+        "border": { "hex": "#374151", "hsl": "hsl(217, 19%, 27%)", "token": "--border-color", "alpha": 0.4 },
+        "primary": { "hex": "#4f46e5", "hsl": "hsl(244, 75%, 59%)", "token": "--primary-color" },
+        "primary_hover": { "hex": "#4338ca", "hsl": "hsl(244, 57%, 50%)", "token": "--primary-hover" },
+        "accent": { "hex": "#06b6d4", "hsl": "hsl(189, 94%, 43%)", "token": "--color-cyan-wave" },
+        "accent_hover": { "hex": "#0891b2", "hsl": "hsl(192, 91%, 36%)", "token": "--accent-hover" },
+        "success": { "hex": "#10b981", "hsl": "hsl(160, 84%, 39%)", "token": "--color-emerald-a" },
+        "warning": { "hex": "#f59e0b", "hsl": "hsl(38, 92%, 50%)", "token": "--color-warning" },
+        "danger": { "hex": "#ef4444", "hsl": "hsl(0, 84%, 60%)", "token": "--btn-exit-bg" },
+        "text_primary": { "hex": "#f9fafb", "hsl": "hsl(210, 40%, 98%)", "token": "--text-primary" },
+        "text_secondary": { "hex": "#9ca3af", "hsl": "hsl(218, 11%, 65%)", "token": "--text-secondary" },
+        "text_muted": { "hex": "#6b7280", "hsl": "hsl(220, 9%, 46%)", "token": "--text-muted" }
+      },
+      "typography": {
+        "font_family_sans": "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        "font_family_display": "'Outfit', 'Inter', sans-serif",
+        "font_family_mono": "'JetBrains Mono', 'Fira Code', monospace",
+        "scale": {
+          "xs": "0.75rem",
+          "sm": "0.875rem",
+          "base": "1rem",
+          "lg": "1.125rem",
+          "xl": "1.25rem",
+          "2xl": "1.5rem",
+          "3xl": "1.875rem",
+          "4xl": "2.25rem"
+        }
+      },
+      "surfaces": {
+        "backdrop_blur": "blur(16px)",
+        "glass_overlay": "linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%)",
+        "border_subtle": "1px solid rgba(255, 255, 255, 0.12)",
+        "shadow_ambient": "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
+        "shadow_glow": "0 0 20px rgba(6, 182, 212, 0.15)",
+        "radii": {
+          "sm": "0.375rem",
+          "md": "0.5rem",
+          "lg": "0.75rem",
+          "xl": "1rem",
+          "full": "9999px"
+        }
+      }
+    },
+    "linear": {
+      "name": "Linear",
+      "archetype": "Modern Dark Minimalist",
+      "description": "Estética refinada inspirada en Linear App. Grises ultra oscuros, acento índigo saturado, bordes sutiles con micro-contrastes y tipografía compacta.",
+      "colors": {
+        "background": { "hex": "#08090a", "hsl": "hsl(210, 11%, 4%)", "token": "--linear-bg" },
+        "surface": { "hex": "#121417", "hsl": "hsl(216, 11%, 8%)", "token": "--linear-surface", "alpha": 0.8 },
+        "surface_hover": { "hex": "#1b1e22", "hsl": "hsl(214, 11%, 12%)", "token": "--linear-surface-hover" },
+        "border": { "hex": "#272a30", "hsl": "hsl(222, 10%, 17%)", "token": "--linear-border", "alpha": 0.6 },
+        "primary": { "hex": "#5e6ad2", "hsl": "hsl(234, 57%, 60%)", "token": "--linear-primary" },
+        "primary_hover": { "hex": "#6f7be0", "hsl": "hsl(234, 66%, 66%)", "token": "--linear-primary-hover" },
+        "accent": { "hex": "#8a99ad", "hsl": "hsl(215, 17%, 61%)", "token": "--linear-accent" },
+        "accent_hover": { "hex": "#adbacf", "hsl": "hsl(217, 26%, 75%)", "token": "--linear-accent-hover" },
+        "success": { "hex": "#4cb782", "hsl": "hsl(150, 44%, 51%)", "token": "--linear-success" },
+        "warning": { "hex": "#f2994a", "hsl": "hsl(28, 87%, 62%)", "token": "--linear-warning" },
+        "danger": { "hex": "#eb5757", "hsl": "hsl(0, 79%, 63%)", "token": "--linear-danger" },
+        "text_primary": { "hex": "#f7f8f8", "hsl": "hsl(180, 7%, 97%)", "token": "--linear-text-primary" },
+        "text_secondary": { "hex": "#8a8f98", "hsl": "hsl(219, 7%, 57%)", "token": "--linear-text-secondary" },
+        "text_muted": { "hex": "#62666d", "hsl": "hsl(220, 6%, 41%)", "token": "--linear-text-muted" }
+      },
+      "typography": {
+        "font_family_sans": "'Inter', system-ui, sans-serif",
+        "font_family_display": "'Inter', system-ui, sans-serif",
+        "font_family_mono": "'JetBrains Mono', monospace",
+        "scale": {
+          "xs": "0.6875rem",
+          "sm": "0.8125rem",
+          "base": "0.9375rem",
+          "lg": "1.0625rem",
+          "xl": "1.25rem",
+          "2xl": "1.5rem",
+          "3xl": "1.875rem",
+          "4xl": "2.25rem"
+        }
+      },
+      "surfaces": {
+        "backdrop_blur": "blur(20px)",
+        "glass_overlay": "linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%)",
+        "border_subtle": "1px solid rgba(255, 255, 255, 0.08)",
+        "shadow_ambient": "0 4px 20px rgba(0, 0, 0, 0.5)",
+        "shadow_glow": "0 0 24px rgba(94, 106, 210, 0.2)",
+        "radii": {
+          "sm": "0.25rem",
+          "md": "0.375rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        }
+      }
+    },
+    "stripe": {
+      "name": "Stripe",
+      "archetype": "Fintech Dynamic Mesh",
+      "description": "Sistema de alta confianza con degradados vibrantes, tipografía nítida y elevaciones multicapa orientadas a finanzas.",
+      "colors": {
+        "background": { "hex": "#0c1024", "hsl": "hsl(230, 50%, 9%)", "token": "--stripe-bg" },
+        "surface": { "hex": "#1a1f36", "hsl": "hsl(229, 35%, 16%)", "token": "--stripe-surface" },
+        "surface_hover": { "hex": "#252b48", "hsl": "hsl(230, 32%, 22%)", "token": "--stripe-surface-hover" },
+        "border": { "hex": "#3c4257", "hsl": "hsl(227, 18%, 29%)", "token": "--stripe-border" },
+        "primary": { "hex": "#635bff", "hsl": "hsl(243, 100%, 68%)", "token": "--stripe-primary" },
+        "primary_hover": { "hex": "#7a73ff", "hsl": "hsl(243, 100%, 73%)", "token": "--stripe-primary-hover" },
+        "accent": { "hex": "#00d4aa", "hsl": "hsl(168, 100%, 42%)", "token": "--stripe-accent" },
+        "accent_hover": { "hex": "#00f0c0", "hsl": "hsl(168, 100%, 47%)", "token": "--stripe-accent-hover" },
+        "success": { "hex": "#00d4aa", "hsl": "hsl(168, 100%, 42%)", "token": "--stripe-success" },
+        "warning": { "hex": "#f5a623", "hsl": "hsl(37, 91%, 55%)", "token": "--stripe-warning" },
+        "danger": { "hex": "#df1b41", "hsl": "hsl(349, 78%, 49%)", "token": "--stripe-danger" },
+        "text_primary": { "hex": "#ffffff", "hsl": "hsl(0, 0%, 100%)", "token": "--stripe-text-primary" },
+        "text_secondary": { "hex": "#a3acb9", "hsl": "hsl(216, 15%, 68%)", "token": "--stripe-text-secondary" },
+        "text_muted": { "hex": "#697386", "hsl": "hsl(220, 12%, 47%)", "token": "--stripe-text-muted" }
+      },
+      "typography": {
+        "font_family_sans": "'-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif",
+        "font_family_display": "'Outfit', sans-serif",
+        "font_family_mono": "'JetBrains Mono', monospace",
+        "scale": {
+          "xs": "0.75rem",
+          "sm": "0.875rem",
+          "base": "1rem",
+          "lg": "1.125rem",
+          "xl": "1.25rem",
+          "2xl": "1.5rem",
+          "3xl": "2rem",
+          "4xl": "2.5rem"
+        }
+      },
+      "surfaces": {
+        "backdrop_blur": "blur(12px)",
+        "glass_overlay": "linear-gradient(135deg, rgba(99, 91, 255, 0.1) 0%, rgba(0, 212, 170, 0.05) 100%)",
+        "border_subtle": "1px solid rgba(255, 255, 255, 0.14)",
+        "shadow_ambient": "0 13px 27px -5px rgba(50, 50, 93, 0.25), 0 8px 16px -8px rgba(0, 0, 0, 0.3)",
+        "shadow_glow": "0 0 30px rgba(99, 91, 255, 0.25)",
+        "radii": {
+          "sm": "0.375rem",
+          "md": "0.5rem",
+          "lg": "0.75rem",
+          "xl": "1rem",
+          "full": "9999px"
+        }
+      }
+    },
+    "raycast": {
+      "name": "Raycast",
+      "archetype": "Pro Launcher Dark",
+      "description": "Sistema diseñado para productividad de élite con fondo Obsidian `#0f0f10`, acento escarlata/coral `#ff6363` y altísima densidad de datos.",
+      "colors": {
+        "background": { "hex": "#0f0f10", "hsl": "hsl(240, 3%, 6%)", "token": "--raycast-bg" },
+        "surface": { "hex": "#18181a", "hsl": "hsl(240, 4%, 10%)", "token": "--raycast-surface" },
+        "surface_hover": { "hex": "#222225", "hsl": "hsl(240, 4%, 14%)", "token": "--raycast-surface-hover" },
+        "border": { "hex": "#2e2e32", "hsl": "hsl(240, 4%, 19%)", "token": "--raycast-border" },
+        "primary": { "hex": "#ff6363", "hsl": "hsl(0, 100%, 69%)", "token": "--raycast-primary" },
+        "primary_hover": { "hex": "#ff7a7a", "hsl": "hsl(0, 100%, 74%)", "token": "--raycast-primary-hover" },
+        "accent": { "hex": "#ff9b57", "hsl": "hsl(24, 100%, 67%)", "token": "--raycast-accent" },
+        "accent_hover": { "hex": "#ffad75", "hsl": "hsl(24, 100%, 73%)", "token": "--raycast-accent-hover" },
+        "success": { "hex": "#30d158", "hsl": "hsl(135, 65%, 50%)", "token": "--raycast-success" },
+        "warning": { "hex": "#ffd60a", "hsl": "hsl(50, 100%, 52%)", "token": "--raycast-warning" },
+        "danger": { "hex": "#ff453a", "hsl": "hsl(3, 100%, 61%)", "token": "--raycast-danger" },
+        "text_primary": { "hex": "#ffffff", "hsl": "hsl(0, 0%, 100%)", "token": "--raycast-text-primary" },
+        "text_secondary": { "hex": "#8c8c93", "hsl": "hsl(240, 3%, 56%)", "token": "--raycast-text-secondary" },
+        "text_muted": { "hex": "#56565c", "hsl": "hsl(240, 3%, 35%)", "token": "--raycast-text-muted" }
+      },
+      "typography": {
+        "font_family_sans": "'Inter', system-ui, sans-serif",
+        "font_family_display": "'Inter', system-ui, sans-serif",
+        "font_family_mono": "'JetBrains Mono', monospace",
+        "scale": {
+          "xs": "0.6875rem",
+          "sm": "0.75rem",
+          "base": "0.875rem",
+          "lg": "1rem",
+          "xl": "1.125rem",
+          "2xl": "1.375rem",
+          "3xl": "1.75rem",
+          "4xl": "2.25rem"
+        }
+      },
+      "surfaces": {
+        "backdrop_blur": "blur(24px)",
+        "glass_overlay": "linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%)",
+        "border_subtle": "1px solid rgba(255, 255, 255, 0.09)",
+        "shadow_ambient": "0 20px 40px -15px rgba(0, 0, 0, 0.7)",
+        "shadow_glow": "0 0 20px rgba(255, 99, 99, 0.25)",
+        "radii": {
+          "sm": "0.375rem",
+          "md": "0.5rem",
+          "lg": "0.625rem",
+          "xl": "0.875rem",
+          "full": "9999px"
+        }
+      }
+    },
+    "supabase": {
+      "name": "Supabase",
+      "archetype": "Developer Cloud Green",
+      "description": "Estilo moderno centrado en bases de datos con contrastes en verde esmeralda y paneles oscuros.",
+      "colors": {
+        "background": { "hex": "#121212", "hsl": "hsl(0, 0%, 7%)", "token": "--sb-bg" },
+        "surface": { "hex": "#1c1c1c", "hsl": "hsl(0, 0%, 11%)", "token": "--sb-surface" },
+        "surface_hover": { "hex": "#282828", "hsl": "hsl(0, 0%, 16%)", "token": "--sb-surface-hover" },
+        "border": { "hex": "#2e2e2e", "hsl": "hsl(0, 0%, 18%)", "token": "--sb-border" },
+        "primary": { "hex": "#3ecf8e", "hsl": "hsl(153, 60%, 53%)", "token": "--sb-primary" },
+        "primary_hover": { "hex": "#34b27b", "hsl": "hsl(154, 55%, 45%)", "token": "--sb-primary-hover" },
+        "accent": { "hex": "#70e1a5", "hsl": "hsl(148, 66%, 66%)", "token": "--sb-accent" },
+        "accent_hover": { "hex": "#8bf0bd", "hsl": "hsl(150, 78%, 74%)", "token": "--sb-accent-hover" },
+        "success": { "hex": "#3ecf8e", "hsl": "hsl(153, 60%, 53%)", "token": "--sb-success" },
+        "warning": { "hex": "#f59e0b", "hsl": "hsl(38, 92%, 50%)", "token": "--sb-warning" },
+        "danger": { "hex": "#f43f5e", "hsl": "hsl(350, 89%, 60%)", "token": "--sb-danger" },
+        "text_primary": { "hex": "#ededed", "hsl": "hsl(0, 0%, 93%)", "token": "--sb-text-primary" },
+        "text_secondary": { "hex": "#9e9e9e", "hsl": "hsl(0, 0%, 62%)", "token": "--sb-text-secondary" },
+        "text_muted": { "hex": "#616161", "hsl": "hsl(0, 0%, 38%)", "token": "--sb-text-muted" }
+      },
+      "typography": {
+        "font_family_sans": "'Circular', 'Inter', system-ui, sans-serif",
+        "font_family_display": "'Outfit', sans-serif",
+        "font_family_mono": "'Source Code Pro', monospace",
+        "scale": {
+          "xs": "0.75rem",
+          "sm": "0.875rem",
+          "base": "1rem",
+          "lg": "1.125rem",
+          "xl": "1.25rem",
+          "2xl": "1.5rem",
+          "3xl": "1.875rem",
+          "4xl": "2.25rem"
+        }
+      },
+      "surfaces": {
+        "backdrop_blur": "blur(14px)",
+        "glass_overlay": "linear-gradient(180deg, rgba(62, 207, 142, 0.04) 0%, rgba(0, 0, 0, 0) 100%)",
+        "border_subtle": "1px solid rgba(255, 255, 255, 0.08)",
+        "shadow_ambient": "0 10px 30px rgba(0, 0, 0, 0.5)",
+        "shadow_glow": "0 0 20px rgba(62, 207, 142, 0.2)",
+        "radii": {
+          "sm": "0.25rem",
+          "md": "0.375rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        }
+      }
+    },
+    "vercel": {
+      "name": "Vercel",
+      "archetype": "Geist Monochrome Precision",
+      "description": "Contraste extremo, negro absoluto, bordes afilados y acento azul eléctrico.",
+      "colors": {
+        "background": { "hex": "#000000", "hsl": "hsl(0, 0%, 0%)", "token": "--vercel-bg" },
+        "surface": { "hex": "#0a0a0a", "hsl": "hsl(0, 0%, 4%)", "token": "--vercel-surface" },
+        "surface_hover": { "hex": "#171717", "hsl": "hsl(0, 0%, 9%)", "token": "--vercel-surface-hover" },
+        "border": { "hex": "#333333", "hsl": "hsl(0, 0%, 20%)", "token": "--vercel-border" },
+        "primary": { "hex": "#ffffff", "hsl": "hsl(0, 0%, 100%)", "token": "--vercel-primary" },
+        "primary_hover": { "hex": "#cccccc", "hsl": "hsl(0, 0%, 80%)", "token": "--vercel-primary-hover" },
+        "accent": { "hex": "#0070f3", "hsl": "hsl(212, 100%, 48%)", "token": "--vercel-accent" },
+        "accent_hover": { "hex": "#3291ff", "hsl": "hsl(212, 100%, 60%)", "token": "--vercel-accent-hover" },
+        "success": { "hex": "#0070f3", "hsl": "hsl(212, 100%, 48%)", "token": "--vercel-success" },
+        "warning": { "hex": "#f5a623", "hsl": "hsl(37, 91%, 55%)", "token": "--vercel-warning" },
+        "danger": { "hex": "#ee0000", "hsl": "hsl(0, 100%, 47%)", "token": "--vercel-danger" },
+        "text_primary": { "hex": "#ededed", "hsl": "hsl(0, 0%, 93%)", "token": "--vercel-text-primary" },
+        "text_secondary": { "hex": "#888888", "hsl": "hsl(0, 0%, 53%)", "token": "--vercel-text-secondary" },
+        "text_muted": { "hex": "#444444", "hsl": "hsl(0, 0%, 27%)", "token": "--vercel-text-muted" }
+      },
+      "typography": {
+        "font_family_sans": "'Geist Sans', 'Inter', system-ui, sans-serif",
+        "font_family_display": "'Geist Sans', sans-serif",
+        "font_family_mono": "'Geist Mono', monospace",
+        "scale": {
+          "xs": "0.75rem",
+          "sm": "0.875rem",
+          "base": "1rem",
+          "lg": "1.125rem",
+          "xl": "1.25rem",
+          "2xl": "1.5rem",
+          "3xl": "1.875rem",
+          "4xl": "2.25rem"
+        }
+      },
+      "surfaces": {
+        "backdrop_blur": "blur(16px)",
+        "glass_overlay": "linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(0, 0, 0, 0) 100%)",
+        "border_subtle": "1px solid rgba(255, 255, 255, 0.14)",
+        "shadow_ambient": "0 8px 30px rgba(0, 0, 0, 0.6)",
+        "shadow_glow": "0 0 20px rgba(0, 112, 243, 0.3)",
+        "radii": {
+          "sm": "0.375rem",
+          "md": "0.5rem",
+          "lg": "0.625rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        }
+      }
+    },
+    "apple": {
+      "name": "Apple Pro UI",
+      "archetype": "Frosted Glass Elegance",
+      "description": "Vidrio esmerilado translúcido, esquinas redondeadas continuas (squircle), sutil luz de borde y espaciado generoso.",
+      "colors": {
+        "background": { "hex": "#000000", "hsl": "hsl(0, 0%, 0%)", "token": "--apple-bg" },
+        "surface": { "hex": "#1d1d1f", "hsl": "hsl(240, 3%, 12%)", "token": "--apple-surface", "alpha": 0.8 },
+        "surface_hover": { "hex": "#2c2c2e", "hsl": "hsl(240, 2%, 18%)", "token": "--apple-surface-hover" },
+        "border": { "hex": "#3a3a3c", "hsl": "hsl(240, 2%, 23%)", "token": "--apple-border", "alpha": 0.5 },
+        "primary": { "hex": "#2997ff", "hsl": "hsl(209, 100%, 58%)", "token": "--apple-primary" },
+        "primary_hover": { "hex": "#47a7ff", "hsl": "hsl(209, 100%, 64%)", "token": "--apple-primary-hover" },
+        "accent": { "hex": "#bf5af2", "hsl": "hsl(280, 87%, 65%)", "token": "--apple-accent" },
+        "accent_hover": { "hex": "#cb76f4", "hsl": "hsl(280, 87%, 71%)", "token": "--apple-accent-hover" },
+        "success": { "hex": "#30d158", "hsl": "hsl(135, 65%, 50%)", "token": "--apple-success" },
+        "warning": { "hex": "#ffd60a", "hsl": "hsl(50, 100%, 52%)", "token": "--apple-warning" },
+        "danger": { "hex": "#ff453a", "hsl": "hsl(3, 100%, 61%)", "token": "--apple-danger" },
+        "text_primary": { "hex": "#f5f5f7", "hsl": "hsl(240, 6%, 97%)", "token": "--apple-text-primary" },
+        "text_secondary": { "hex": "#86868b", "hsl": "hsl(240, 2%, 54%)", "token": "--apple-text-secondary" },
+        "text_muted": { "hex": "#6e6e73", "hsl": "hsl(240, 2%, 44%)", "token": "--apple-text-muted" }
+      },
+      "typography": {
+        "font_family_sans": "'-apple-system', 'BlinkMacSystemFont', 'SF Pro Text', 'Inter', sans-serif",
+        "font_family_display": "'SF Pro Display', 'Outfit', sans-serif",
+        "font_family_mono": "'SF Mono', 'JetBrains Mono', monospace",
+        "scale": {
+          "xs": "0.75rem",
+          "sm": "0.875rem",
+          "base": "1rem",
+          "lg": "1.125rem",
+          "xl": "1.25rem",
+          "2xl": "1.5rem",
+          "3xl": "2rem",
+          "4xl": "2.75rem"
+        }
+      },
+      "surfaces": {
+        "backdrop_blur": "blur(25px)",
+        "glass_overlay": "linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%)",
+        "border_subtle": "1px solid rgba(255, 255, 255, 0.15)",
+        "shadow_ambient": "0 20px 40px rgba(0, 0, 0, 0.4)",
+        "shadow_glow": "0 0 25px rgba(41, 151, 255, 0.2)",
+        "radii": {
+          "sm": "0.5rem",
+          "md": "0.75rem",
+          "lg": "1rem",
+          "xl": "1.25rem",
+          "full": "9999px"
+        }
+      }
+    }
+  }
+}

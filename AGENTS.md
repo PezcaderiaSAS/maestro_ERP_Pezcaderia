@@ -42,3 +42,34 @@ This project is indexed by GitNexus as **maestro_ERP_Pezcaderia** (80129 symbols
 | Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
 
 <!-- gitnexus:end -->
+
+---
+
+# Rico UI Brands & Google Stitch Frontend Design Capabilities
+
+This repository is equipped with the **Rico UI Brands MCP server** (`ricoui-design-mcp`) and **Google Stitch** design pipeline.
+
+## Design Protocol
+- **Source of Truth:** Always consult [`DESIGN.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/DESIGN.md) and [`stitch.json`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/stitch.json) before building or refactoring UI components.
+- **Brand Tokens (Rico UI):** Query brand tokens at runtime via MCP tool `ricoui_get_brand_tokens` or CLI `node tools/ricoui-mcp/server.cjs tokens <brand>` (supported: `linear`, `stripe`, `raycast`, `supabase`, `vercel`, `apple`, `pezcaderia-glass`).
+- **Generation Workflow:** Use the workflow [`/stitch-design`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agent/workflows/stitch-design.md) or skill [`.agents/skills/stitch-ricoui-design/SKILL.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agents/skills/stitch-ricoui-design/SKILL.md).
+- **Aesthetic Standard:** Strict Dark Mode Glassmorphism (`backdrop-blur-xl`, `border-white/10`, `bg-slate-900/60`, vibrant HSL accents, high data density, zero generic placeholders).
+
+---
+
+# Ecosistema de Herramientas de Agente, Comandos Slash (/) y Gobernanza
+
+El proyecto cuenta con un ecosistema formal de habilidades y comandos slash de uso preceptivo:
+
+| Comando | Skill | Propósito & Obligatoriedad |
+| :--- | :--- | :--- |
+| `/archify` | [`.agents/skills/archify-architecture/SKILL.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agents/skills/archify-architecture/SKILL.md) | **Obligatorio:** Diagramas C4 y análisis estructural antes de refactorizaciones o nuevos módulos. |
+| `/humanize` | [`.agents/skills/humanizer-refinement/SKILL.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agents/skills/humanizer-refinement/SKILL.md) | **Obligatorio:** Filtro de naturalidad anti-robótico para copy, PRs, errores y documentación. |
+| `/penpot-ui` | [`.agents/skills/penpot-design-system/SKILL.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agents/skills/penpot-design-system/SKILL.md) | **Obligatorio:** Maquetación con estándares Flexbox/Grid y diseño vectorial de Penpot. |
+| `/open-design` | [`.agents/skills/open-design-assets/SKILL.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agents/skills/open-design-assets/SKILL.md) | Catálogo de avatares SVG, micro-componentes y paletas abiertas a costo cero. |
+| `/scientific-skills` | [`.agents/skills/scientific-agent-analytics/SKILL.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agents/skills/scientific-agent-analytics/SKILL.md) | **Obligatorio:** Algoritmos Pareto ABC (80/20), mermas de despiece y conversión gramos/kilos. |
+| `/ponytail` | [`.agents/skills/ponytail-harness/SKILL.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agents/skills/ponytail-harness/SKILL.md) | Harness de pipelines de tareas encadenadas con checkpoints de verificación. |
+| `/ui-tools` | [`.agents/skills/ui-ux-ecosystem/SKILL.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agents/skills/ui-ux-ecosystem/SKILL.md) | Hub consolidado de Awesome-Design-Tools, Awesome-UI y Awesome-Styleguides. |
+
+**Reglas de Gobernanza Preceptiva:** Ver [`.agent/rules/design-governance.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agent/rules/design-governance.md) y [`DOCS/ecosistema_herramientas_agentes_uiux.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/DOCS/ecosistema_herramientas_agentes_uiux.md).
+
