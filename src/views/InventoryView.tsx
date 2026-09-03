@@ -5,6 +5,7 @@ import {
   PlusCircle,
   ShoppingBag,
   Package,
+  UploadCloud,
   Layers,
   FileText,
   Boxes,
@@ -34,6 +35,7 @@ import { StockMatrizTable } from './inventory/components/StockMatrizTable';
 import { KardexTable } from './inventory/components/KardexTable';
 import { WarehouseTransferPanel } from './inventory/components/WarehouseTransferPanel';
 import { WarehouseConfigManager } from './inventory/components/WarehouseConfigManager';
+import { BulkUploadModal } from '../components/BulkUploadModal';
 import { useInventoryStore } from '../store/useInventoryStore';
 import { useMovementStore, MovimientoInventario } from '../store/useMovementStore';
 import { usePurchaseStore, OrdenCompra, CuentaPorPagar } from '../store/usePurchaseStore';
@@ -84,6 +86,7 @@ export default function InventoryView() {
     | 'configuracion_bodegas'
     | 'reportes_compra'
   >('operaciones');
+  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
 
   // State de Catalogo de Productos
   const [searchTerm, setSearchTerm] = useState('');
@@ -1436,6 +1439,14 @@ export default function InventoryView() {
           {/* Quick Action Bar Buttons */}
           <div className="flex flex-wrap items-center gap-2">
             <button
+              onClick={() => setIsBulkUploadOpen(true)}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 font-bold text-xs transition-all cursor-pointer"
+            >
+              <UploadCloud className="w-4 h-4" />
+              Importar CSV
+            </button>
+
+            <button
               onClick={() => {
                 setViewMode('catalogo');
                 setEditingProductId(null);
@@ -1924,6 +1935,12 @@ export default function InventoryView() {
           products={products}
         />
       )}
+      {/* MODALES GLOBALES DE INVENTARIO */}
+      <BulkUploadModal 
+        isOpen={isBulkUploadOpen}
+        onClose={() => setIsBulkUploadOpen(false)}
+        type="productos"
+      />
     </div>
   );
 }

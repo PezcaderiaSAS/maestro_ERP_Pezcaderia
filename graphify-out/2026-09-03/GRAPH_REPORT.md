@@ -1,16 +1,16 @@
-# Graph Report - MaestroPescaderia  (2026-09-03)
+# Graph Report - MaestroPescaderia  (2026-09-02)
 
 ## Corpus Check
-- 1378 files · ~908,219 words
+- 1354 files · ~889,393 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 12115 nodes · 12948 edges · 1069 communities (902 shown, 167 thin omitted)
+- 12115 nodes · 12947 edges · 1068 communities (901 shown, 167 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 2 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `4376ed0f`
+- Built from commit: `85342ee8`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -1064,7 +1064,6 @@
 - [[_COMMUNITY_Community 1065|Community 1065]]
 - [[_COMMUNITY_Community 1066|Community 1066]]
 - [[_COMMUNITY_Community 1067|Community 1067]]
-- [[_COMMUNITY_Community 1068|Community 1068]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `IDataService` - 35 edges
@@ -1083,17 +1082,17 @@
   src/views/PricingView.tsx → src/hooks/usePricing.ts
 - `OrderState` --references--> `Pedido`  [EXTRACTED]
   src/store/useOrderStore.ts → src/types/orders.types.ts
+- `CartItem` --references--> `Product`  [EXTRACTED]
+  src/views/POSView.tsx → src/types/erp.types.ts
 - `InventoryView()` --calls--> `useCategoryStore`  [EXTRACTED]
   src/views/InventoryView.tsx → src/store/useCategoryStore.ts
 - `InventoryView()` --calls--> `useWarehouseStore`  [EXTRACTED]
   src/views/InventoryView.tsx → src/store/useWarehouseStore.ts
-- `CartItem` --references--> `Product`  [EXTRACTED]
-  src/views/POSView.tsx → src/types/erp.types.ts
 
 ## Import Cycles
 - 3-file cycle: `src/App.tsx -> src/views/PricingView.tsx -> src/hooks/usePricing.ts -> src/App.tsx`
 
-## Communities (1069 total, 167 thin omitted)
+## Communities (1068 total, 167 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.06
@@ -1128,12 +1127,12 @@ Cohesion: 0.04
 Nodes (48): 10. Dependency Security, 1. Secrets Management, 2. Input Validation, 3. SQL Injection Prevention, 4. Authentication & Authorization, 5. XSS Prevention, 6. CSRF Protection, 7. Rate Limiting (+40 more)
 
 ### Community 8 - "Community 8"
-Cohesion: 0.07
-Nodes (28): 1. Eventually Consistent, 1. Microservices Coordination, 1. Webhook-Based Coordination, 2. GraphQL Federation, 2. Library Updates, 2. Strong Consistency, 3. Event Streaming, 3. Hybrid Approach (+20 more)
+Cohesion: 0.06
+Nodes (32): 1. Cross-Repo Initialization, 1. Microservices Coordination, 1. Repository Organization, 1. Webhook-Based Coordination, 2. Communication, 2. GraphQL Federation, 2. Library Updates, 2. Repository Discovery (+24 more)
 
 ### Community 9 - "Community 9"
 Cohesion: 0.27
-Nodes (9): WarehouseConfigManager(), Bodega, BODEGAS_DEFECTO, desactivarBodega(), eliminarBodega(), guardarBodega(), obtenerBodegas(), ServiceResponse (+1 more)
+Nodes (8): Bodega, BODEGAS_DEFECTO, desactivarBodega(), eliminarBodega(), guardarBodega(), obtenerBodegas(), ServiceResponse, WarehouseService
 
 ### Community 10 - "Community 10"
 Cohesion: 0.04
@@ -1169,7 +1168,7 @@ Nodes (41): 1. Long Functions, 1. Readability First, 2. Deep Nesting, 2. KISS (K
 
 ### Community 18 - "Community 18"
 Cohesion: 0.06
-Nodes (33): 1. Swarm-Powered Actions, 1. Workflow Organization, 2. Dynamic Workflow Generation, 2. Security, 3. Intelligent Test Selection, 3. Performance, Action Commands, Adaptive Security Scanning (+25 more)
+Nodes (33): 1. PR Validation Swarm, 1. Self-Healing CI/CD, 2. Progressive Deployment, 2. Release Automation, 3. Documentation Updates, 3. Performance Regression Detection, Action Commands, Adaptive Security Scanning (+25 more)
 
 ### Community 19 - "Community 19"
 Cohesion: 0.05
@@ -1352,12 +1351,12 @@ Cohesion: 0.08
 Nodes (23): 1. Create Coordinated Issue with Swarm Tracking, 1. **Swarm-Coordinated Issue Management**, 2. **Automated Progress Tracking**, 2. Automated Progress Updates, 3. Multi-Issue Project Coordination, 3. **Smart Labeling and Organization**, 4. **Batch Issue Operations**, Automatic tracking of: (+15 more)
 
 ### Community 64 - "Community 64"
-Cohesion: 0.06
-Nodes (32): 1. Issue-to-Swarm Conversion, 2. Issue Comment Commands, 3. Issue Templates for Swarms, Auto-Close Stale Issues, Auto-Label Based on Content, Automation Examples, Bug Reports, Complex Bug Investigation (+24 more)
+Cohesion: 0.05
+Nodes (44): 1. Issue Dependencies, 1. Issue-PR Linking, 1. Issue Templates, 1. Issue-to-Swarm Conversion, 2. Epic Management, 2. Issue Comment Commands, 2. Label Strategy, 2. Milestone Coordination (+36 more)
 
 ### Community 65 - "Community 65"
-Cohesion: 0.07
-Nodes (28): 1. Multi-PR Swarm Coordination, 1. PR Templates, 2. PR Dependency Analysis, 2. Status Checks, 3. Automated PR Fixes, 3. PR Merge Automation, Advanced Features, Automatic Agent Assignment (+20 more)
+Cohesion: 0.06
+Nodes (32): 1. Multi-PR Swarm Coordination, 1. PR-Based Swarm Creation, 1. PR Templates, 2. PR Comment Commands, 2. PR Dependency Analysis, 2. Status Checks, 3. Automated PR Fixes, 3. Automated PR Workflows (+24 more)
 
 ### Community 66 - "Community 66"
 Cohesion: 0.08
@@ -1608,8 +1607,8 @@ Cohesion: 0.19
 Nodes (9): DevTestDashboard(), applySeed(), SEED_DATA, applySeed(), SEED_DATA, applySeed(), SEED_DATA, applySeed() (+1 more)
 
 ### Community 128 - "Community 128"
-Cohesion: 0.04
-Nodes (48): 1. Auto-Assignment, 1. Board Initialization, 1. Board Organization, 1. Multi-Board Sync, 2. Cross-Organization Sync, 2. Data Integrity, 2. Progress Tracking, 2. Task Synchronization (+40 more)
+Cohesion: 0.06
+Nodes (32): 1. Board Initialization, 1. Board Organization, 1. Multi-Board Sync, 2. Cross-Organization Sync, 2. Data Integrity, 2. Task Synchronization, 3. External Tool Integration, 3. Real-time Updates (+24 more)
 
 ### Community 129 - "Community 129"
 Cohesion: 0.12
@@ -2720,8 +2719,8 @@ Cohesion: 0.22
 Nodes (9): Basic Development Chain, Code Refactoring Chain, Custom Chains (`run`), Data Processing Pipeline, Examples, How Context Flows, Options, Security Audit Workflow (+1 more)
 
 ### Community 408 - "Community 408"
-Cohesion: 0.40
-Nodes (5): Comprehensive Optimization, Debug Test Generation, Extended Refactoring, Pipeline Examples, Quick Analysis
+Cohesion: 0.22
+Nodes (9): Comprehensive Optimization, Debug Test Generation, Extended Refactoring, Pipeline Examples, Pipeline Options, Pipeline Output, Predefined Pipelines (`pipeline`), Quick Analysis (+1 more)
 
 ### Community 409 - "Community 409"
 Cohesion: 0.22
@@ -3464,8 +3463,8 @@ Cohesion: 0.40
 Nodes (4): Fase 0: Correcciones de Artefactos (Pre-Implementación), Fase 1: Implementación de Clases Utilitarias (React/JSX), Fase 2: Verificación de Calidad y Testing, Lista de Tareas (Task Tracker) — v2.0
 
 ### Community 595 - "Community 595"
-Cohesion: 0.22
-Nodes (9): 1. Analysis Pipeline, 2. Refactor Pipeline, 3. Test Pipeline, 4. Optimize Pipeline, Available Pipelines, Pipeline Options, Pipeline Output, Predefined Pipelines (`pipeline`) (+1 more)
+Cohesion: 0.40
+Nodes (5): 1. Analysis Pipeline, 2. Refactor Pipeline, 3. Test Pipeline, 4. Optimize Pipeline, Available Pipelines
 
 ### Community 596 - "Community 596"
 Cohesion: 0.40
@@ -4425,7 +4424,7 @@ Nodes (4): Common issues by impact, Critical (fix immediately), Moderate (fix so
 
 ### Community 902 - "Community 902"
 Cohesion: 0.50
-Nodes (4): 1. Cross-Repo Initialization, 2. Repository Discovery, 3. Synchronized Operations, Core Features
+Nodes (4): 1. Auto-Assignment, 2. Progress Tracking, 3. Smart Card Movement, Automation Features
 
 ### Community 903 - "Community 903"
 Cohesion: 0.13
@@ -4545,7 +4544,7 @@ Nodes (4): 1. Distributed Task Queue, 2. Cross-Repo Testing, 3. Monorepo Migrati
 
 ### Community 1046 - "Community 1046"
 Cohesion: 0.50
-Nodes (4): 1. Repository Organization, 2. Communication, 3. Security, Best Practices
+Nodes (4): 1. Eventually Consistent, 2. Strong Consistency, 3. Hybrid Approach, Synchronization Patterns
 
 ### Community 1047 - "Community 1047"
 Cohesion: 0.50
@@ -4553,27 +4552,27 @@ Nodes (4): Caching Strategy, Parallel Execution, Performance Optimization, Resou
 
 ### Community 1048 - "Community 1048"
 Cohesion: 0.50
-Nodes (4): Dependency Management, Orchestration Commands, Refactoring Operations, Security Updates
+Nodes (4): Dependency Graph, Health Monitoring, Monitoring & Visualization, Multi-Repo Dashboard
 
 ### Community 1049 - "Community 1049"
 Cohesion: 0.50
-Nodes (4): 1. Issue Dependencies, 2. Epic Management, 3. Issue Templates, Advanced Features
+Nodes (4): Board Analytics, Custom Dashboards, Reports, Visualization & Reporting
 
 ### Community 1050 - "Community 1050"
 Cohesion: 0.50
-Nodes (4): 1. Issue-PR Linking, 2. Milestone Coordination, 3. Cross-Repo Issues, Integration Patterns
+Nodes (4): Board Commands, Bulk Operations, Card Templates, Create Cards from Issues
 
 ### Community 1051 - "Community 1051"
 Cohesion: 0.50
-Nodes (4): 1. Issue Templates, 2. Label Strategy, 3. Comment Etiquette, Best Practices
+Nodes (4): Review Coordination, Standup Automation, Team Collaboration, Work Distribution
 
 ### Community 1052 - "Community 1052"
 Cohesion: 0.50
-Nodes (4): 1. PR-Based Swarm Creation, 2. PR Comment Commands, 3. Automated PR Workflows, Core Features
+Nodes (4): 1. Swarm-Powered Actions, 2. Dynamic Workflow Generation, 3. Intelligent Test Selection, Core Features
 
 ### Community 1053 - "Community 1053"
 Cohesion: 0.50
-Nodes (4): 1. PR Validation Swarm, 2. Release Automation, 3. Documentation Updates, Integration Examples
+Nodes (4): 1. Workflow Organization, 2. Security, 3. Performance, Best Practices
 
 ### Community 1054 - "Community 1054"
 Cohesion: 0.50
@@ -4622,10 +4621,6 @@ Nodes (3): Argumentos:, Fases de Ejecución:, Workflow: /scientific-skills
 ### Community 1065 - "Community 1065"
 Cohesion: 0.50
 Nodes (3): Argumentos:, Fases de Ejecución:, Workflow: /ui-tools
-
-### Community 1068 - "Community 1068"
-Cohesion: 0.50
-Nodes (4): 1. Self-Healing CI/CD, 2. Progressive Deployment, 3. Performance Regression Detection, Advanced Workflows
 
 ## Knowledge Gaps
 - **8265 isolated node(s):** `1. Gobernanza de Diseño UI/UX (Penpot & DESIGN.md)`, `2. Gobernanza de Arquitectura y Refactorizaciones (Archify C4)`, `3. Humanización de Textos y Comunicación (Humanizer)`, `4. Rigor Matemático y Conversión de Unidades (Scientific Analytics)`, `Argumentos:` (+8260 more)

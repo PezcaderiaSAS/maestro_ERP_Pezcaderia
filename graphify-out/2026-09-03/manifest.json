@@ -615,13 +615,13 @@
     "semantic_hash": ""
   },
   "src/services/inventoryService.ts": {
-    "mtime": 1788364821.7242773,
-    "ast_hash": "e0a814d217a91fe2463db666d3070c9e",
+    "mtime": 1784123573.8225203,
+    "ast_hash": "247e6b243c5042368c662e6adc213112",
     "semantic_hash": ""
   },
   "src/services/localDb.ts": {
-    "mtime": 1788364815.5506105,
-    "ast_hash": "ed81c780a42bb47e6379d61abd56a146",
+    "mtime": 1787329104.6368227,
+    "ast_hash": "af8294ffddd80ecfc14be1161ca90205",
     "semantic_hash": ""
   },
   "src/services/orderDispatchService.ts": {
@@ -675,8 +675,8 @@
     "semantic_hash": ""
   },
   "src/store/useClientStore.ts": {
-    "mtime": 1788453043.4200416,
-    "ast_hash": "7ac348cb507436860cce11d577223509",
+    "mtime": 1784123573.8275268,
+    "ast_hash": "f4382c2702f09aa02939c435ee42db34",
     "semantic_hash": ""
   },
   "src/store/useDriverStore.ts": {
@@ -710,8 +710,8 @@
     "semantic_hash": ""
   },
   "src/store/useInventoryStore.ts": {
-    "mtime": 1788452844.667586,
-    "ast_hash": "4c660fdda35fa3d023ad06c8dec2cd53",
+    "mtime": 1785776648.737822,
+    "ast_hash": "2b5f1e73eaf0ceafc89e1ee5679ca1f6",
     "semantic_hash": ""
   },
   "src/store/useMovementStore.ts": {
@@ -830,8 +830,8 @@
     "semantic_hash": ""
   },
   "src/types/erp.types.ts": {
-    "mtime": 1788453091.5048223,
-    "ast_hash": "8e30077faee639e337f38b308e342040",
+    "mtime": 1788279991.6216981,
+    "ast_hash": "4d4ff12e747298a2a1c548850fa0dccf",
     "semantic_hash": ""
   },
   "src/types/inventory.types.ts": {
@@ -870,8 +870,8 @@
     "semantic_hash": ""
   },
   "src/views/ClientsView.tsx": {
-    "mtime": 1788454531.9880111,
-    "ast_hash": "2f7f0a859616c62234876e0077509cff",
+    "mtime": 1788280016.8462486,
+    "ast_hash": "0b01a367f50c019f0a543d445d90c068",
     "semantic_hash": ""
   },
   "src/views/DashboardView.tsx": {
@@ -885,8 +885,8 @@
     "semantic_hash": ""
   },
   "src/views/InventoryView.tsx": {
-    "mtime": 1788455254.160645,
-    "ast_hash": "73bf25fdf49bda1548ebd0cdca6ffd9d",
+    "mtime": 1788279929.8356538,
+    "ast_hash": "79a8680affe7424f53a11efd3851e44a",
     "semantic_hash": ""
   },
   "src/views/OrderKanbanView.tsx": {
@@ -970,13 +970,13 @@
     "semantic_hash": ""
   },
   "src/views/inventory/components/ProductTable.tsx": {
-    "mtime": 1788454627.0170677,
-    "ast_hash": "88a8b1f8670d3d9c843950785e4692a1",
+    "mtime": 1787329606.0380292,
+    "ast_hash": "734a504d8afda69c6b01387102968cf6",
     "semantic_hash": ""
   },
   "src/views/inventory/components/ProductionForm.tsx": {
-    "mtime": 1788366316.5831416,
-    "ast_hash": "d81c188cc0ebf97c6213bb250c078f2a",
+    "mtime": 1784123573.8953,
+    "ast_hash": "0dc75529adc4d2eeb682888e10ec629a",
     "semantic_hash": ""
   },
   "src/views/inventory/components/PurchaseOrderForm.tsx": {
@@ -4485,13 +4485,13 @@
     "semantic_hash": ""
   },
   "agent-skills/CONTRIBUTING.md": {
-    "mtime": 1788455226.7051086,
-    "ast_hash": "3e9fc6cdf6b4f42d581ffa2cd293a7fd",
+    "mtime": 1784737298.8312407,
+    "ast_hash": "313500771b2781e6f23450c7304478cf",
     "semantic_hash": ""
   },
   "agent-skills/README.md": {
-    "mtime": 1788455226.7081082,
-    "ast_hash": "25d5c4adfb1f46cb640d90230837d88f",
+    "mtime": 1788276372.483482,
+    "ast_hash": "d3ea6816b0e4211568383f05a4cb1453",
     "semantic_hash": ""
   },
   "agent-skills/agents/code-reviewer.md": {
@@ -4520,8 +4520,8 @@
     "semantic_hash": ""
   },
   "agent-skills/docs/antigravity-setup.md": {
-    "mtime": 1788455226.7131085,
-    "ast_hash": "47f8e69edb534547784fd391f0d0cc35",
+    "mtime": 1787240297.6114645,
+    "ast_hash": "9f1993d7e6b5b90776b095fcd07e1706",
     "semantic_hash": ""
   },
   "agent-skills/docs/comparison.md": {
@@ -4645,8 +4645,8 @@
     "semantic_hash": ""
   },
   "agent-skills/skills/deprecation-and-migration/SKILL.md": {
-    "mtime": 1788455226.7191072,
-    "ast_hash": "bd2d9a567b78d26c3c3044261e06f11d",
+    "mtime": 1784737299.072709,
+    "ast_hash": "9469f95c323f34e3ef4784b20fb85c9f",
     "semantic_hash": ""
   },
   "agent-skills/skills/documentation-and-adrs/SKILL.md": {
@@ -4715,8 +4715,8 @@
     "semantic_hash": ""
   },
   "agent-skills/skills/security-and-hardening/SKILL.md": {
-    "mtime": 1788455226.7211058,
-    "ast_hash": "a6fff7278daedb1cf8d14d0e23b3c79d",
+    "mtime": 1787240297.6284628,
+    "ast_hash": "85c4ca37a63a6167f90e27b3f06ace9d",
     "semantic_hash": ""
   },
   "agent-skills/skills/shipping-and-launch/SKILL.md": {
@@ -4875,8 +4875,8 @@
     "semantic_hash": ""
   },
   "agent-skills/evals/cases/deprecation-and-migration.json": {
-    "mtime": 1788455226.7151065,
-    "ast_hash": "3cfc52d2a2996180e7ea57f49a8a2f53",
+    "mtime": 1784737298.8907783,
+    "ast_hash": "b054228a72b716fecf759ea8e79820f9",
     "semantic_hash": ""
   },
   "agent-skills/evals/cases/documentation-and-adrs.json": {
@@ -4930,8 +4930,8 @@
     "semantic_hash": ""
   },
   "agent-skills/evals/cases/security-and-hardening.json": {
-    "mtime": 1788455226.7161083,
-    "ast_hash": "ac2a833997c230a0610e35a044b89187",
+    "mtime": 1784737298.8957777,
+    "ast_hash": "1f185fedb3b1dfa88c956d3491874520",
     "semantic_hash": ""
   },
   "agent-skills/evals/cases/shipping-and-launch.json": {
@@ -5270,8 +5270,8 @@
     "semantic_hash": ""
   },
   "src/views/inventory/components/StockMatrizTable.tsx": {
-    "mtime": 1788369732.2361243,
-    "ast_hash": "a6d012f7b9aeb4ee8965b68952451f5b",
+    "mtime": 1785002771.9475176,
+    "ast_hash": "00d7b3151ee124a7186f116c29fd866f",
     "semantic_hash": ""
   },
   ".claude/plans/runbook.md": {
@@ -7022,126 +7022,6 @@
   "DOCS/ecosistema_herramientas_agentes_uiux.md": {
     "mtime": 1788359223.4901466,
     "ast_hash": "01141c07834e796c7e0d308685364ba6",
-    "semantic_hash": ""
-  },
-  "src/components/BulkUploadModal.tsx": {
-    "mtime": 1788454652.1307857,
-    "ast_hash": "7284269c235891630b74d3558b1f0d71",
-    "semantic_hash": ""
-  },
-  "src/services/b2bSalesService.ts": {
-    "mtime": 1788453139.2970862,
-    "ast_hash": "0284ece7f2f8ba9f6d5470776af68e6d",
-    "semantic_hash": ""
-  },
-  "src/services/billingService.ts": {
-    "mtime": 1788453683.0457983,
-    "ast_hash": "c3295047994ce5effaae91470e7360ac",
-    "semantic_hash": ""
-  },
-  "src/services/bulkUploadService.ts": {
-    "mtime": 1788453772.5138369,
-    "ast_hash": "4dc06fb7e791f57190caaba3508b0a7d",
-    "semantic_hash": ""
-  },
-  "src/services/financialAdvisorService.ts": {
-    "mtime": 1788369523.7685509,
-    "ast_hash": "3012b2de88ff9d015c9bf73afb55822a",
-    "semantic_hash": ""
-  },
-  "src/services/offlineSyncService.ts": {
-    "mtime": 1788453655.3841393,
-    "ast_hash": "9f4968845cd29341d4693a739484449a",
-    "semantic_hash": ""
-  },
-  "src/services/posTransactionCore.ts": {
-    "mtime": 1788452810.9538352,
-    "ast_hash": "02283c2637ad1e7183d08eeb5ab9d278",
-    "semantic_hash": ""
-  },
-  "src/services/scientificAnalytics.ts": {
-    "mtime": 1788453627.638996,
-    "ast_hash": "c686840ad5d6ffbfe34811a897328ddb",
-    "semantic_hash": ""
-  },
-  "src/tests/b2bSalesService.test.ts": {
-    "mtime": 1788452924.4341888,
-    "ast_hash": "0c5a731dfe0d4fc4de22b18ebd6b02dd",
-    "semantic_hash": ""
-  },
-  "src/tests/billingService.test.ts": {
-    "mtime": 1788453703.6501665,
-    "ast_hash": "e75775529a17c2568d6a1e890d130c26",
-    "semantic_hash": ""
-  },
-  "src/tests/financialAdvisorService.test.ts": {
-    "mtime": 1788369808.5404003,
-    "ast_hash": "d1b2acaeaf67271621ae2fd4a15cd72d",
-    "semantic_hash": ""
-  },
-  "src/tests/inventoryTransactionCore.test.ts": {
-    "mtime": 1788364728.6444354,
-    "ast_hash": "f5ba5c43b290c5df09d2fc32db2fc4d5",
-    "semantic_hash": ""
-  },
-  "src/tests/inventoryView7Tabs.test.tsx": {
-    "mtime": 1788366568.9329002,
-    "ast_hash": "ea95b203ac12806380266cf073a26762",
-    "semantic_hash": ""
-  },
-  "src/tests/kardexTable.test.tsx": {
-    "mtime": 1788365659.7955716,
-    "ast_hash": "aa3b2d2e213c6fd8c828a9411f33b7ce",
-    "semantic_hash": ""
-  },
-  "src/tests/productDetailFinancialModal.test.tsx": {
-    "mtime": 1788369923.7043562,
-    "ast_hash": "c36af653cbde35b7eb26d0e971e95652",
-    "semantic_hash": ""
-  },
-  "src/tests/productionForm.test.tsx": {
-    "mtime": 1788366324.6371024,
-    "ast_hash": "67ed621dbe23307580dc3b30fbdc12bf",
-    "semantic_hash": ""
-  },
-  "src/tests/warehouseTransferPanel.test.tsx": {
-    "mtime": 1788366200.2336671,
-    "ast_hash": "174b0a863c0fd6436bc124e97356a5da",
-    "semantic_hash": ""
-  },
-  "src/views/inventory/components/KardexTable.tsx": {
-    "mtime": 1788365572.308159,
-    "ast_hash": "7088ad28e3954eea53524cc4ef65ab17",
-    "semantic_hash": ""
-  },
-  "src/views/inventory/components/ProductDetailFinancialModal.tsx": {
-    "mtime": 1788369669.5883558,
-    "ast_hash": "7e0b0a5abe1c115ef68434ff06579490",
-    "semantic_hash": ""
-  },
-  "src/views/inventory/components/WarehouseTransferPanel.tsx": {
-    "mtime": 1788366191.6793168,
-    "ast_hash": "62b0a2334213d5d80e82caaa819eaf7d",
-    "semantic_hash": ""
-  },
-  "src/views/pos/B2BOrderManager.tsx": {
-    "mtime": 1788452895.9221723,
-    "ast_hash": "28acf0cce65d6c3bf9e1b131a9757fc9",
-    "semantic_hash": ""
-  },
-  "src/views/pos/ScientificDashboard.tsx": {
-    "mtime": 1788453744.9834516,
-    "ast_hash": "78745925f3370180ed6490c71b97a3c0",
-    "semantic_hash": ""
-  },
-  ".specify/tasks.md": {
-    "mtime": 1788453806.0658941,
-    "ast_hash": "7a458740ebb2922220ab24f8d7d133c9",
-    "semantic_hash": ""
-  },
-  "agent-skills/evals/skill-impact.md": {
-    "mtime": 1788455226.7171068,
-    "ast_hash": "55790842f3d18d36a2fe60ba53a60e90",
     "semantic_hash": ""
   }
 }
