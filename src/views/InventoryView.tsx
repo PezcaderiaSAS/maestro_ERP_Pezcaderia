@@ -4,6 +4,7 @@ import {
   Truck,
   PlusCircle,
   ShoppingBag,
+  Package,
   Layers,
   FileText,
   Boxes,
@@ -1434,6 +1435,26 @@ export default function InventoryView() {
 
           {/* Quick Action Bar Buttons */}
           <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => {
+                setViewMode('catalogo');
+                setEditingProductId(null);
+                setIsCreating(true);
+                setProductForm({ 
+                  sku: '', nombre: '', categoria: '', unidadMedida: 'kg', precio_compra: 0, buffer_seguridad: 5, 
+                  codigo_barras: '', iva: 0, ivaIncluido: true, control_inventario: true, produccion: false, 
+                  tipoCategoria: '', lineaCategoria: '', claseCategoria: '', imagen: ''
+                });
+                setCustomTipo('');
+                setCustomLinea('');
+                setCustomClase('');
+              }}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-500 hover:bg-blue-400 text-slate-950 font-bold text-xs shadow-lg shadow-blue-500/20 transition-all cursor-pointer"
+            >
+              <Package className="w-4 h-4" />
+              Nuevo Producto
+            </button>
+
             <button
               onClick={() => setViewMode('registrar_compra')}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all cursor-pointer"
