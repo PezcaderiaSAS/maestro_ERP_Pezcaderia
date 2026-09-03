@@ -9,26 +9,33 @@ export interface BulkUploadResult<T> {
 
 export class BulkUploadService {
   /**
-   * Procesa un CSV de clientes y lo mapea al formato estricto de la base de datos.
-   * Valida campos requeridos y tipos.
+   * Procesa un Excel de clientes (convertido a JSON) y lo mapea al formato estricto de la base de datos.
    */
-  static parseClientesCSV(csvText: string): BulkUploadResult<Cliente> {
-    const lines = csvText.split('\n').filter(l => l.trim() !== '');
+  static parseClientesExcel(rows: any[]): BulkUploadResult<Cliente> {
     const imported: Cliente[] = [];
     const errors: string[] = [];
 
-    // Asumimos formato CSV: nombre,identificacion,tipoIdentificacion,tipoPersona,direccion,telefono,email,ciudad,tipoPrecio,cupoCredito
-    for (let i = 1; i < lines.length; i++) { // Salta header
-      const cols = lines[i].split(',').map(c => c.trim());
-      if (cols.length < 10) {
-        errors.push(`Línea ${i + 1}: Faltan columnas. Se esperaban al menos 10.`);
-        continue;
-      }
+    if (!Array.isArray(rows) || rows.length === 0) {
+      errors.push("El archivo está vacío o no tiene un formato válido.");
+      return { success: false, imported: [], errors };
+    }
 
-      const [nombre, identificacion, tipoId, tipoPer, direccion, telefono, email, ciudad, tipoPrecio, cupoStr] = cols;
-      
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      // Claves esperadas (insensibles a mayúsculas idealmente, pero asumimos nombres limpios)
+      const nombre = row['Nombre'] || row['nombre'];
+      const identificacion = row['Identificacion'] || row['Identificación'] || row['identificacion'] || row['identificación'];
+      const tipoId = row['TipoIdentificacion'] || row['Tipo Identificacion'] || row['tipoIdentificacion'] || 'NIT';
+      const tipoPer = row['TipoPersona'] || row['Tipo Persona'] || row['tipoPersona'] || 'JURIDICA';
+      const direccion = row['Direccion'] || row['Dirección'] || row['direccion'];
+      const telefono = row['Telefono'] || row['Teléfono'] || row['telefono'];
+      const email = row['Email'] || row['Correo'] || row['email'];
+      const ciudad = row['Ciudad'] || row['ciudad'] || 'Bogotá';
+      const tipoPrecio = row['TipoPrecio'] || row['Tipo Precio'] || row['tipoPrecio'] || 'POS';
+      const cupoStr = row['CupoCredito'] || row['Cupo Credito'] || row['cupoCredito'] || 0;
+
       if (!nombre || !identificacion) {
-        errors.push(`Línea ${i + 1}: Nombre o Identificación no pueden estar vacíos.`);
+        errors.push(`Fila ${i + 1}: Nombre o Identificación faltantes.`);
         continue;
       }
 
@@ -36,15 +43,15 @@ export class BulkUploadService {
 
       imported.push({
         id: generateId('c'),
-        nombre,
-        identificacion,
-        tipoIdentificacion: (tipoId as any) || 'NIT',
-        tipoPersona: (tipoPer as any) || 'JURIDICA',
-        direccion,
-        telefono,
-        email,
-        ciudad,
-        tipoPrecio: (tipoPrecio as any) || 'POS',
+        nombre: String(nombre).trim(),
+        identificacion: String(identificacion).trim(),
+        tipoIdentificacion: String(tipoId).trim().toUpperCase() as any,
+        tipoPersona: String(tipoPer).trim().toUpperCase() as any,
+        direccion: direccion ? String(direccion).trim() : '',
+        telefono: telefono ? String(telefono).trim() : '',
+        email: email ? String(email).trim() : '',
+        ciudad: ciudad ? String(ciudad).trim() : '',
+        tipoPrecio: String(tipoPrecio).trim().toUpperCase() as any,
         cupoCredito: cupo,
         cupoCreditoUsado: 0,
         isGranContribuyente: false,
@@ -61,42 +68,47 @@ export class BulkUploadService {
   }
 
   /**
-   * Procesa un CSV de productos y lo mapea al formato estricto de la base de datos.
+   * Procesa un Excel de productos (convertido a JSON) y lo mapea al formato estricto de la base de datos.
    */
-  static parseProductsCSV(csvText: string): BulkUploadResult<Product> {
-    const lines = csvText.split('\n').filter(l => l.trim() !== '');
+  static parseProductsExcel(rows: any[]): BulkUploadResult<Product> {
     const imported: Product[] = [];
     const errors: string[] = [];
 
-    // Asumimos formato CSV: sku,nombre,categoria,unidad,precio_compra,precio_venta_pos
-    for (let i = 1; i < lines.length; i++) {
-      const cols = lines[i].split(',').map(c => c.trim());
-      if (cols.length < 6) {
-        errors.push(`Línea ${i + 1}: Faltan columnas. Se esperaban 6.`);
-        continue;
-      }
+    if (!Array.isArray(rows) || rows.length === 0) {
+      errors.push("El archivo está vacío o no tiene un formato válido.");
+      return { success: false, imported: [], errors };
+    }
 
-      const [sku, nombre, categoria, unidad, pCompra, pVenta] = cols;
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const sku = row['SKU'] || row['sku'];
+      const nombre = row['Nombre'] || row['nombre'];
+      const categoria = row['Categoria'] || row['Categoría'] || row['categoria'];
+      const unidad = row['Unidad'] || row['unidad'] || 'kg';
+      const pCompra = row['PrecioCompra'] || row['Precio Compra'] || row['precio_compra'] || 0;
+      const pVenta = row['PrecioVenta'] || row['Precio Venta'] || row['precio_venta_pos'] || 0;
+      const buffer = row['BufferSeguridad'] || row['Buffer'] || row['buffer_seguridad'] || 5;
 
       if (!sku || !nombre) {
-        errors.push(`Línea ${i + 1}: SKU o Nombre no pueden estar vacíos.`);
+        errors.push(`Fila ${i + 1}: SKU o Nombre faltantes.`);
         continue;
       }
 
       const compra = parseFloat(pCompra) || 0;
       const venta = parseFloat(pVenta) || 0;
+      const bufferSeguridad = parseFloat(buffer) || 5;
 
       imported.push({
         id: generateId('p'),
-        sku,
-        nombre,
-        categoria,
-        unidadMedida: (unidad as any) || 'kg',
+        sku: String(sku).trim().toUpperCase(),
+        nombre: String(nombre).trim(),
+        categoria: categoria ? String(categoria).trim().toUpperCase() : 'GENERAL',
+        unidadMedida: String(unidad).trim().toLowerCase() as any,
         precio_compra: compra,
         precio_venta_pos: venta,
         precio_venta_restaurante: venta,
         precio_venta_mayorista: venta,
-        buffer_seguridad: 0,
+        buffer_seguridad: bufferSeguridad,
         activo: true
       });
     }
