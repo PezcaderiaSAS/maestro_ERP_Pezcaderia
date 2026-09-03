@@ -7,22 +7,7 @@ import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
 let dataService: IDataService = new LocalDataService();
 export const setClientDataService = (ds: IDataService) => { dataService = ds; };
 
-export interface Cliente {
-  id: string;
-  nombre: string;
-  identificacion: string;
-  tipoIdentificacion: 'NIT' | 'CC' | 'CE';
-  tipoPersona: 'NATURAL' | 'JURIDICA';
-  direccion: string;
-  telefono: string;
-  email: string;
-  ciudad: string;
-  tipoPrecio: 'POS' | 'RESTAURANTE' | 'MAYORISTA';
-  encargadoCompras?: string;
-  cupoCredito: number;
-  activo: boolean;
-}
-
+import { Cliente } from '../types/erp.types';
 interface ClientState {
   clientes: Cliente[];
   lastClientPrices: Record<string, Record<string, number>>;

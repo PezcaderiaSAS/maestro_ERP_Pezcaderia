@@ -36,6 +36,7 @@ interface InventoryState {
   productPricings: any[];
   products: Producto[];
   stock: Record<string, Record<string, number>>;
+  stockReserved: Record<string, Record<string, number>>;
   loadInventory: () => void;
   loadStock: () => void;
   setProducts: (productsOrUpdater: any) => void;
@@ -44,6 +45,8 @@ interface InventoryState {
   setStock: (stockOrUpdater: any) => void;
   setStockAsync: (stockOrUpdater: any) => Promise<void>;
   getProductoById: (id: string) => Producto | undefined;
+  reservarStock: (sku: string, bodega: string, qty: number) => Promise<void>;
+  confirmarDespacho: (sku: string, bodega: string, qtyTeorica: number, qtyReal: number) => Promise<void>;
 }
 
 export const useInventoryStore = create<InventoryState>()(
@@ -52,6 +55,7 @@ export const useInventoryStore = create<InventoryState>()(
   productPricings: [],
   products: [],
   stock: {},
+  stockReserved: {},
 
   loadInventory: async () => {
     try {
@@ -182,4 +186,36 @@ export const useInventoryStore = create<InventoryState>()(
   },
 
   getProductoById: (id) => get().products.find(p => p.id === id),
+
+  reservarStock: async (sku, bodega, qty) => {
+    const state = get();
+    const newStockReserved = { ...state.stockReserved };
+    if (!newStockReserved[bodega]) newStockReserved[bodega] = {};
+    const currentReserved = newStockReserved[bodega][sku] || 0;
+    newStockReserved[bodega][sku] = currentReserved + qty;
+
+    set({ stockReserved: newStockReserved });
+    // Aquí persistiríamos async (e.g. dataService.update)
+  },
+
+  confirmarDespacho: async (sku, bodega, qtyTeorica, qtyReal) => {
+    const state = get();
+    // 1. Liberar la reserva teórica
+    const newStockReserved = { ...state.stockReserved };
+    if (!newStockReserved[bodega]) newStockReserved[bodega] = {};
+    const currentReserved = newStockReserved[bodega][sku] || 0;
+    newStockReserved[bodega][sku] = Math.max(0, currentReserved - qtyTeorica);
+
+    // 2. Descontar el stock real de la bodega usando qtyReal (procesando mermas si hubo)
+    const newStock = { ...state.stock };
+    if (!newStock[bodega]) newStock[bodega] = {};
+    const currentReal = newStock[bodega][sku] || 0;
+    newStock[bodega][sku] = Math.max(0, currentReal - qtyReal);
+
+    // Actualizar estados
+    set({ stockReserved: newStockReserved, stock: newStock });
+    
+    // Persistir stock real asíncronamente
+    await state.setStockAsync(newStock);
+  },
   })));

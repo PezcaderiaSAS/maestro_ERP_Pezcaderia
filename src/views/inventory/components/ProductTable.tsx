@@ -1,7 +1,8 @@
-import { Package, Search, PlusCircle, Edit3, ShieldAlert } from 'lucide-react';
+import { Package, Search, PlusCircle, Edit3, ShieldAlert, UploadCloud } from 'lucide-react';
 import { useState } from 'react';
 import { Card } from '../../../components/ui/Card';
 import { Badge } from '../../../components/ui/Badge';
+import { BulkUploadModal } from '../../../components/BulkUploadModal';
 
 export function ProductTable({
   products,
@@ -19,6 +20,7 @@ export function ProductTable({
   productsCatalog
 }: any) {
   const [sortBy, setSortBy] = useState<'nombre' | 'pareto'>('nombre');
+  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
 
   const getTotalStock = (sku: string) => {
     let total = 0;
@@ -60,24 +62,37 @@ export function ProductTable({
           <span style={{ fontSize: '14px', color: '#64748B', fontWeight: 500 }}>Gestión de Catálogo</span>
           <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px', letterSpacing: '-0.5px' }}>Productos y Referencias</h2>
         </div>
-        <button
-          onClick={() => {
-            setEditingProductId(null);
-            setIsCreating(true);
-            setProductForm({ 
-              sku: '', nombre: '', categoria: '', unidadMedida: 'kg', precio_compra: 0, buffer_seguridad: 5, 
-              codigo_barras: '', iva: 0, ivaIncluido: true, control_inventario: true, produccion: false, 
-              tipoCategoria: '', lineaCategoria: '', claseCategoria: '', imagen: '', categoriaABC: undefined
-            });
-            setCustomTipo('');
-            setCustomLinea('');
-            setCustomClase('');
-          }}
-          className="hr-btn-new"
-        >
-          <PlusCircle size={18} />
-          <span>Nuevo Producto</span>
-        </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            onClick={() => setIsBulkUploadOpen(true)}
+            style={{ 
+              display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', 
+              borderRadius: '8px', border: '1px solid #0EA5E9', backgroundColor: 'transparent', 
+              color: '#0EA5E9', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' 
+            }}
+          >
+            <UploadCloud size={18} />
+            <span>Importar Excel/CSV</span>
+          </button>
+          <button
+            onClick={() => {
+              setEditingProductId(null);
+              setIsCreating(true);
+              setProductForm({ 
+                sku: '', nombre: '', categoria: '', unidadMedida: 'kg', precio_compra: 0, buffer_seguridad: 5, 
+                codigo_barras: '', iva: 0, ivaIncluido: true, control_inventario: true, produccion: false, 
+                tipoCategoria: '', lineaCategoria: '', claseCategoria: '', imagen: '', categoriaABC: undefined
+              });
+              setCustomTipo('');
+              setCustomLinea('');
+              setCustomClase('');
+            }}
+            className="hr-btn-new"
+          >
+            <PlusCircle size={18} />
+            <span>Nuevo Producto</span>
+          </button>
+        </div>
       </div>
 
       <Card glass className="p-6">
@@ -217,6 +232,12 @@ export function ProductTable({
           </tbody>
         </table>
       </Card>
+
+      <BulkUploadModal 
+        isOpen={isBulkUploadOpen}
+        onClose={() => setIsBulkUploadOpen(false)}
+        type="productos"
+      />
     </div>
   );
 }

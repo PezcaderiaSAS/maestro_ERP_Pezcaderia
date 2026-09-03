@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { Cliente } from '../types/erp.types';
 import { generateId, toTitleCase } from '../lib/utils';
-import { Users, Search, Save, FileText, Wallet, PlusCircle, Sparkles } from 'lucide-react';
+import { Users, Search, Save, FileText, Wallet, PlusCircle, Sparkles, UploadCloud } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useClientStore } from '../store/useClientStore.ts';
 import { useOrderStore } from '../store/useOrderStore.ts';
@@ -11,6 +11,7 @@ import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Input } from '../components/ui/Input';
 import { SmartAutofillModal } from '../components/clients/SmartAutofillModal';
+import { BulkUploadModal } from '../components/BulkUploadModal';
 import { calcularDigitoVerificacion, determinarTipoPersonaPorNit } from '../utils/dianValidator';
 import type { ParsedClientData } from '../utils/smartContactParser';
 
@@ -22,6 +23,7 @@ export default function ClientsView() {
   const [statusFilter, setStatusFilter] = useState<'TODOS' | 'ACTIVOS' | 'INACTIVOS'>('TODOS');
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [isAutofillOpen, setIsAutofillOpen] = useState(false);
+  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
 
   const [clienteForm, setClienteForm] = useState({
     nombre: '',
@@ -161,9 +163,19 @@ export default function ClientsView() {
             Administración de clientes, listas de precios, cupos de crédito y facturación.
           </p>
         </div>
-        <Button variant="primary" onClick={startNewCliente} icon={<PlusCircle size={18} />}>
-          Nuevo Cliente
-        </Button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <Button 
+            variant="secondary" 
+            onClick={() => setIsBulkUploadOpen(true)} 
+            icon={<UploadCloud size={18} color="#0EA5E9" />}
+            style={{ borderColor: '#0EA5E9', color: '#0EA5E9' }}
+          >
+            Importar CSV/Excel
+          </Button>
+          <Button variant="primary" onClick={startNewCliente} icon={<PlusCircle size={18} />}>
+            Nuevo Cliente
+          </Button>
+        </div>
       </div>
 
       <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
@@ -421,6 +433,12 @@ export default function ClientsView() {
         isOpen={isAutofillOpen}
         onClose={() => setIsAutofillOpen(false)}
         onApply={handleApplyAutofill}
+      />
+
+      <BulkUploadModal 
+        isOpen={isBulkUploadOpen}
+        onClose={() => setIsBulkUploadOpen(false)}
+        type="clientes"
       />
     </div>
   );

@@ -21,6 +21,9 @@ export interface Cliente {
   tipoPrecio: 'POS' | 'RESTAURANTE' | 'MAYORISTA';
   encargadoCompras?: string;
   cupoCredito: number;
+  cupoCreditoUsado?: number;
+  isGranContribuyente?: boolean;
+  isAutoretenedor?: boolean;
   activo: boolean;
 }
 
@@ -71,6 +74,8 @@ export interface DevolucionPedido {
     loteInventario?: string;
   }>;
 }
+
+export type B2BOrderState = 'QUOTATION' | 'PENDING_APPROVAL' | 'PICKING' | 'INVOICED' | 'DISPATCHED';
 
 export type TipoPromocion = 'PORCENTAJE' | 'PRECIO_FIJO' | '2X1' | '12_MAS_1' | 'VOLUMEN';
 
