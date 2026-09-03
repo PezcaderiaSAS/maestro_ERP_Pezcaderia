@@ -72,17 +72,84 @@ export const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClos
     reader.readAsBinaryString(file);
   };
 
-  const handleDownloadTemplate = () => {
-    let data = [];
-    if (type === 'clientes') {
-      data = [{ Nombre: 'Juan Perez', Identificacion: '123456789', TipoIdentificacion: 'CC', TipoPersona: 'NATURAL', Direccion: 'Calle 1', Telefono: '555-0000', Email: 'juan@test.com', Ciudad: 'Bogota', TipoPrecio: 'POS', CupoCredito: 0 }];
-    } else {
-      data = [{ SKU: 'SKU-001', Nombre: 'Pescado Fresco', Categoria: 'PESCADOS', Unidad: 'kg', PrecioCompra: 15000, PrecioVenta: 22000, BufferSeguridad: 5 }];
+  const handleDownloadTemplate = async () => {
+    try {
+      const ExcelJS = (await import('exceljs')).default || await import('exceljs');
+      const { saveAs } = (await import('file-saver')).default || await import('file-saver');
+
+      const workbook = new ExcelJS.Workbook();
+      const sheet = workbook.addWorksheet('Plantilla');
+
+      if (type === 'clientes') {
+        sheet.columns = [
+          { header: 'Nombre', key: 'nombre', width: 30 },
+          { header: 'Identificacion', key: 'identificacion', width: 20 },
+          { header: 'TipoIdentificacion', key: 'tipoIdentificacion', width: 20 },
+          { header: 'TipoPersona', key: 'tipoPersona', width: 20 },
+          { header: 'Direccion', key: 'direccion', width: 30 },
+          { header: 'Telefono', key: 'telefono', width: 15 },
+          { header: 'Email', key: 'email', width: 25 },
+          { header: 'Ciudad', key: 'ciudad', width: 15 },
+          { header: 'TipoPrecio', key: 'tipoPrecio', width: 15 },
+          { header: 'CupoCredito', key: 'cupoCredito', width: 15 }
+        ];
+        
+        sheet.addRow({ nombre: 'Juan Perez', identificacion: '123456789', tipoIdentificacion: 'CC', tipoPersona: 'NATURAL', direccion: 'Calle 1', telefono: '555-0000', email: 'juan@test.com', ciudad: 'Bogota', tipoPrecio: 'POS', cupoCredito: 0 });
+
+        for (let i = 2; i <= 1000; i++) {
+          sheet.getCell(`C${i}`).dataValidation = {
+            type: 'list',
+            allowBlank: true,
+            formulae: ['"NIT,CC,CE,PASAPORTE"']
+          };
+          sheet.getCell(`D${i}`).dataValidation = {
+            type: 'list',
+            allowBlank: true,
+            formulae: ['"NATURAL,JURIDICA"']
+          };
+          sheet.getCell(`I${i}`).dataValidation = {
+            type: 'list',
+            allowBlank: true,
+            formulae: ['"POS,MAYORISTA,RESTAURANTE,ESPECIAL"']
+          };
+        }
+      } else {
+        sheet.columns = [
+          { header: 'SKU', key: 'sku', width: 15 },
+          { header: 'Nombre', key: 'nombre', width: 30 },
+          { header: 'Categoria', key: 'categoria', width: 20 },
+          { header: 'Unidad', key: 'unidad', width: 15 },
+          { header: 'PrecioCompra', key: 'precioCompra', width: 15 },
+          { header: 'PrecioVenta', key: 'precioVenta', width: 15 },
+          { header: 'BufferSeguridad', key: 'bufferSeguridad', width: 15 }
+        ];
+
+        sheet.addRow({ sku: 'SKU-001', nombre: 'Pescado Fresco', categoria: 'PESCADOS', unidad: 'kg', precioCompra: 15000, precioVenta: 22000, bufferSeguridad: 5 });
+
+        for (let i = 2; i <= 1000; i++) {
+          sheet.getCell(`D${i}`).dataValidation = {
+            type: 'list',
+            allowBlank: true,
+            formulae: ['"kg,und,gr"']
+          };
+          sheet.getCell(`C${i}`).dataValidation = {
+            type: 'list',
+            allowBlank: true,
+            formulae: ['"PESCADOS,MARISCOS,INSUMOS,OTROS,GENERAL"']
+          };
+        }
+      }
+
+      sheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      sheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0EA5E9' } };
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      saveAs(blob, `plantilla_${type}.xlsx`);
+    } catch (error) {
+      console.error('Error generando plantilla:', error);
+      Swal.fire({ title: 'Error', text: 'No se pudo generar la plantilla.', icon: 'error', background: '#1e293b', color: '#fff' });
     }
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Plantilla");
-    XLSX.writeFile(wb, `plantilla_${type}.xlsx`);
   };
 
   return (
