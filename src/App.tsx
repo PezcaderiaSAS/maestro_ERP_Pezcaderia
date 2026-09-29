@@ -647,16 +647,18 @@ export default function App() {
   const { userRole, setUserRole, currentView, setCurrentView, sidebarOpen, setSidebarOpen, toggleSidebar, theme, toggleTheme } = useAppStore();
   const [isOmniboxOpen, setIsOmniboxOpen] = useState(false);
 
-  // Atajo de teclado global: Ctrl + K (o Cmd + K) para Omnibox
+  // Atajo de teclado global: Ctrl + K (o Cmd + K) para Omnibox con captura prioritaria
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'k' || e.code === 'KeyK')) {
         e.preventDefault();
+        e.stopPropagation();
         setIsOmniboxOpen((prev) => !prev);
       }
     };
-    window.addEventListener('keydown', handleGlobalKeyDown);
-    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+    // Registrar con capture: true para interceptar antes que el navegador o inputs locales
+    window.addEventListener('keydown', handleGlobalKeyDown, { capture: true });
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown, { capture: true });
   }, []);
 
   useEffect(() => {
@@ -1264,6 +1266,10 @@ export default function App() {
         );
       case 'inventario':
         return <InventoryView />;
+      case 'configuracion_bodegas':
+        return <InventoryView initialViewMode="configuracion_bodegas" />;
+      case 'kardex':
+        return <InventoryView initialViewMode="kardex" />;
       case 'compras_muelle':
         return <InventoryView initialViewMode="compras_muelle" />;
       case 'despiece':
@@ -1318,7 +1324,11 @@ export default function App() {
       case 'pos':
         return { cat: 'Comercial', sub: 'Punto de Venta (POS)' };
       case 'inventario':
-        return { cat: 'Inventario y Planta', sub: 'Bodegas y Producción' };
+        return { cat: 'Inventario y Planta', sub: 'Bodegas & WMS' };
+      case 'configuracion_bodegas':
+        return { cat: 'Inventario y Planta', sub: 'Gestión y Creación de Bodegas' };
+      case 'kardex':
+        return { cat: 'Inventario y Planta', sub: 'Kardex Contable Multibodega' };
       case 'alistamiento':
         return { cat: 'Inventario y Planta', sub: 'Alistamiento de Bodega' };
       case 'despachos':

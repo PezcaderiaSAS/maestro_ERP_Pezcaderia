@@ -1,5 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Compass, Package, ArrowRight, CornerDownLeft, Sparkles, X, ShoppingCart, Truck, Fish, Snowflake, ShieldCheck, type LucideIcon } from 'lucide-react';
+import {
+  Search,
+  Compass,
+  Package,
+  ArrowRight,
+  CornerDownLeft,
+  Sparkles,
+  X,
+  ShoppingCart,
+  Truck,
+  Fish,
+  Snowflake,
+  Warehouse,
+  Building2,
+  FileText,
+  Wallet,
+  Users,
+  type LucideIcon
+} from 'lucide-react';
 import { useInventoryStore } from '../../store/useInventoryStore';
 import { useAppStore } from '../../store/useAppStore';
 import type { ERPViewKey } from './EnterpriseSidebar';
@@ -30,11 +48,17 @@ export const GlobalOmniboxModal: React.FC<GlobalOmniboxModalProps> = ({
   const products = useInventoryStore((s) => s.products);
 
   useEffect(() => {
-    if (isOpen) {
-      setQuery('');
-      setSelectedIndex(0);
-      setTimeout(() => inputRef.current?.focus(), 50);
-    }
+    if (!isOpen) return;
+
+    setQuery('');
+    setSelectedIndex(0);
+    const timer = setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+        inputRef.current.select();
+      }
+    }, 30);
+    return () => clearTimeout(timer);
   }, [isOpen]);
 
   // Construcción de la lista de acciones dinámicas
@@ -46,8 +70,32 @@ export const GlobalOmniboxModal: React.FC<GlobalOmniboxModalProps> = ({
         title: 'Punto de Venta (POS)',
         category: 'Navegación',
         icon: ShoppingCart,
-        detail: 'Caja rápida, balanza digital y cobro',
+        detail: 'Caja rápida, balanza digital, teclado numérico y cobro',
         onSelect: () => { onNavigate('pos'); onClose(); }
+      },
+      {
+        id: 'nav-inventario',
+        title: 'Bodegas & WMS',
+        category: 'Navegación',
+        icon: Warehouse,
+        detail: 'Existencias multibodega, Kardex NIIF, lotes perecederos FEFO y stock',
+        onSelect: () => { onNavigate('inventario'); onClose(); }
+      },
+      {
+        id: 'nav-config-bodegas',
+        title: 'Gestión y Creación de Bodegas (Cuartos Fríos)',
+        category: 'Navegación',
+        icon: Building2,
+        detail: 'Crear nueva bodega, configurar cuartos fríos y capacidades',
+        onSelect: () => { onNavigate('configuracion_bodegas'); onClose(); }
+      },
+      {
+        id: 'nav-kardex',
+        title: 'Kardex Contable Multibodega (NIIF / NIC 2)',
+        category: 'Navegación',
+        icon: FileText,
+        detail: 'Movimientos contables, entradas, salidas y costo promedio',
+        onSelect: () => { onNavigate('kardex'); onClose(); }
       },
       {
         id: 'nav-muelle',
@@ -66,20 +114,28 @@ export const GlobalOmniboxModal: React.FC<GlobalOmniboxModalProps> = ({
         onSelect: () => { onNavigate('despiece' as any); onClose(); }
       },
       {
-        id: 'nav-inventario',
-        title: 'Bodegas & WMS',
-        category: 'Navegación',
-        icon: Package,
-        detail: 'Kardex, lotes perecederos FEFO y cuartos fríos',
-        onSelect: () => { onNavigate('inventario'); onClose(); }
-      },
-      {
         id: 'nav-despachos',
         title: 'Despachos & Logística',
         category: 'Navegación',
         icon: Truck,
         detail: 'Control de rutas y entregas a clientes',
         onSelect: () => { onNavigate('despachos'); onClose(); }
+      },
+      {
+        id: 'nav-caja',
+        title: 'Control de Cajas & Arqueo Ciego',
+        category: 'Navegación',
+        icon: Wallet,
+        detail: 'Turnos de cajeros, entradas, salidas y arqueo ciego',
+        onSelect: () => { onNavigate('caja'); onClose(); }
+      },
+      {
+        id: 'nav-clientes',
+        title: 'Directorio de Clientes & CRM',
+        category: 'Navegación',
+        icon: Users,
+        detail: 'Base de clientes B2B, historial y cartera',
+        onSelect: () => { onNavigate('clientes'); onClose(); }
       },
       {
         id: 'nav-3pl',
@@ -91,27 +147,28 @@ export const GlobalOmniboxModal: React.FC<GlobalOmniboxModalProps> = ({
       },
     ];
 
-    // Búsqueda en productos si hay query
+    // Búsqueda en catálogo completo de productos
     if (query.trim()) {
       const q = query.toLowerCase();
-      (products || []).slice(0, 8).forEach((prod: any) => {
-        if (
-          prod.nombre.toLowerCase().includes(q) ||
-          prod.sku.toLowerCase().includes(q) ||
-          prod.categoria?.toLowerCase().includes(q)
-        ) {
-          list.push({
-            id: `prod-${prod.id || prod.sku}`,
-            title: prod.nombre,
-            category: 'Productos',
-            icon: Package,
-            detail: `SKU: ${prod.sku} • Stock: ${prod.stock || 0} ${prod.unidadMedida || 'kg'} • $${(prod.precioVenta || 0).toLocaleString('es-CO')}`,
-            onSelect: () => {
-              onNavigate('pos');
-              onClose();
-            }
-          });
-        }
+      const matchedProducts = (products || []).filter((prod: any) =>
+        (prod.nombre && prod.nombre.toLowerCase().includes(q)) ||
+        (prod.sku && prod.sku.toLowerCase().includes(q)) ||
+        (prod.categoria && prod.categoria.toLowerCase().includes(q))
+      ).slice(0, 10);
+
+      matchedProducts.forEach((prod: any) => {
+        const precio = prod.precio_venta_pos || prod.precioVenta || 0;
+        list.push({
+          id: `prod-${prod.id || prod.sku}`,
+          title: prod.nombre,
+          category: 'Productos',
+          icon: Package,
+          detail: `SKU: ${prod.sku} • Stock: ${prod.stock || 0} ${prod.unidadMedida || 'kg'} • $${precio.toLocaleString('es-CO')}`,
+          onSelect: () => {
+            onNavigate('pos');
+            onClose();
+          }
+        });
       });
     }
 
@@ -131,7 +188,11 @@ export const GlobalOmniboxModal: React.FC<GlobalOmniboxModalProps> = ({
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowDown') {
+      if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'k' || e.code === 'KeyK')) {
+        e.preventDefault();
+        e.stopPropagation();
+        onClose();
+      } else if (e.key === 'ArrowDown') {
         e.preventDefault();
         setSelectedIndex((prev) => (prev + 1) % Math.max(1, actions.length));
       } else if (e.key === 'ArrowUp') {
@@ -148,14 +209,17 @@ export const GlobalOmniboxModal: React.FC<GlobalOmniboxModalProps> = ({
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
   }, [isOpen, actions, selectedIndex, onClose]);
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+    <div
+      className="fixed inset-0 z-[100] flex items-start justify-center pt-16 sm:pt-24 px-4 bg-slate-950/80 backdrop-blur-md animate-fade-in"
+      onClick={onClose}
+    >
       <div
         className="w-full max-w-xl bg-slate-900 border border-white/15 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh] ring-1 ring-white/10"
         onClick={(e) => e.stopPropagation()}

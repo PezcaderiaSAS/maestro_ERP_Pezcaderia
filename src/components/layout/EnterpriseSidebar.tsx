@@ -22,6 +22,8 @@ import {
   PanelLeftClose,
   PanelLeft,
   Sparkles,
+  Warehouse,
+  Building2,
 } from 'lucide-react';
 
 export type ERPViewKey =
@@ -40,7 +42,9 @@ export type ERPViewKey =
   | 'contabilidad'
   | 'rrhh'
   | 'compras_muelle'
-  | 'despiece';
+  | 'despiece'
+  | 'configuracion_bodegas'
+  | 'kardex';
 
 interface NavItem {
   key: ERPViewKey;
@@ -115,9 +119,15 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
       items: [
         {
           key: 'inventario',
-          label: 'Existencias & Kardex',
-          icon: Boxes,
+          label: 'Bodegas & WMS',
+          icon: Warehouse,
           testId: 'nav-inventario',
+        },
+        {
+          key: 'configuracion_bodegas',
+          label: 'Gestión de Bodegas',
+          icon: Building2,
+          testId: 'nav-config-bodegas',
         },
         {
           key: 'alistamiento',

@@ -162,4 +162,58 @@ describe('GlobalOmniboxModal Component Suite', () => {
     expect(screen.getByText('Compras de Muelle & Pescadores')).toBeInTheDocument();
     expect(screen.queryByText('Alquiler Cuarto Frío (3PL)')).not.toBeInTheDocument();
   });
+
+  it('debe permitir buscar y navegar a Gestión de Bodegas desde el Omnibox', () => {
+    const onNavigate = vi.fn();
+    const onClose = vi.fn();
+
+    render(
+      <GlobalOmniboxModal isOpen={true} onClose={onClose} onNavigate={onNavigate} />
+    );
+
+    const input = screen.getByPlaceholderText(/buscar módulo, producto/i);
+    fireEvent.change(input, { target: { value: 'bodega' } });
+
+    expect(screen.getByText('Bodegas & WMS')).toBeInTheDocument();
+    expect(screen.getByText('Gestión y Creación de Bodegas (Cuartos Fríos)')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('Gestión y Creación de Bodegas (Cuartos Fríos)'));
+    expect(onNavigate).toHaveBeenCalledWith('configuracion_bodegas');
+    expect(onClose).toHaveBeenCalled();
+  });
+});
+
+import { EnterpriseSidebar } from '../components/layout/EnterpriseSidebar';
+
+describe('EnterpriseSidebar Bodegas & WMS Navigation Suite', () => {
+  it('debe mostrar visiblemente los accesos a "Bodegas & WMS" y "Gestión de Bodegas"', () => {
+    const onSelectView = vi.fn();
+
+    render(
+      <EnterpriseSidebar
+        currentView="pos"
+        onSelectView={onSelectView}
+        isOpen={true}
+        onToggleOpen={() => {}}
+        userRole="admin"
+        onChangeRole={() => {}}
+      />
+    );
+
+    // Los botones de Bodegas & WMS deben ser visibles en el DOM
+    const btnBodegasWMS = screen.getByTestId('nav-inventario');
+    expect(btnBodegasWMS).toBeInTheDocument();
+    expect(screen.getByText('Bodegas & WMS')).toBeInTheDocument();
+
+    const btnConfigBodegas = screen.getByTestId('nav-config-bodegas');
+    expect(btnConfigBodegas).toBeInTheDocument();
+    expect(screen.getByText('Gestión de Bodegas')).toBeInTheDocument();
+
+    // Al hacer click, deben llamar onSelectView
+    fireEvent.click(btnBodegasWMS);
+    expect(onSelectView).toHaveBeenCalledWith('inventario');
+
+    fireEvent.click(btnConfigBodegas);
+    expect(onSelectView).toHaveBeenCalledWith('configuracion_bodegas');
+  });
 });

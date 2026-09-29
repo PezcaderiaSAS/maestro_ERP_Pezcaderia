@@ -42,7 +42,11 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
   const getBreadcrumb = (): { domain: string; sub: string } => {
     switch (currentView) {
       case 'inventario':
-        return { domain: 'Operaciones & WMS', sub: 'Existencias & Kardex Multibodega' };
+        return { domain: 'Operaciones & WMS', sub: 'Bodegas & WMS (Inventario Multibodega)' };
+      case 'configuracion_bodegas':
+        return { domain: 'Operaciones & WMS', sub: 'Gestión de Bodegas & Cuartos Fríos' };
+      case 'kardex':
+        return { domain: 'Operaciones & WMS', sub: 'Kardex Contable Multibodega (NIIF)' };
       case 'alistamiento':
         return { domain: 'Operaciones & WMS', sub: 'Alistamiento de Pedidos B2B' };
       case 'despachos':

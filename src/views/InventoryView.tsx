@@ -22,6 +22,8 @@ import {
   AlertTriangle,
   Anchor,
   Ship,
+  Warehouse,
+  Building2,
 } from 'lucide-react';
 import { ProductTable } from './inventory/components/ProductTable';
 import { ProductForm } from './inventory/components/ProductForm';
@@ -1539,11 +1541,17 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
             </button>
 
             <button
+              id="btn-quick-config-bodegas"
               onClick={() => setViewMode('configuracion_bodegas')}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-white/5 transition-all cursor-pointer"
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm ${
+                viewMode === 'configuracion_bodegas'
+                  ? 'bg-cyan-500/30 text-cyan-200 border border-cyan-400 ring-2 ring-cyan-500/20'
+                  : 'bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30'
+              }`}
               title="Configuración de Bodegas y Cuartos Fríos"
             >
-              <Settings className="w-4 h-4" />
+              <Warehouse className="w-4 h-4 text-cyan-400" />
+              Gestión de Bodegas ({bodegas.length})
             </button>
           </div>
         </div>
@@ -1732,6 +1740,19 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
         >
           <RotateCcw className="w-3.5 h-3.5" />
           Devoluciones ({pendingDevCount})
+        </button>
+
+        <button
+          id="tab-configuracion-bodegas"
+          onClick={() => setViewMode('configuracion_bodegas')}
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+            viewMode === 'configuracion_bodegas'
+              ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-lg shadow-cyan-500/10'
+              : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Building2 className="w-3.5 h-3.5 text-cyan-400" />
+          Bodegas & Cuartos Fríos ({bodegas.length})
         </button>
       </div>
 
