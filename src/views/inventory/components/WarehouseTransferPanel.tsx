@@ -13,7 +13,9 @@ import {
   User,
   AlertTriangle,
   RotateCcw,
+  Sparkles,
 } from 'lucide-react';
+import { InternalTransferKanban } from './InternalTransferKanban';
 import Swal from 'sweetalert2';
 import {
   crearGuiaTraslado,
@@ -36,7 +38,7 @@ export const WarehouseTransferPanel: React.FC<WarehouseTransferPanelProps> = ({
   products = [],
   onTransferComplete,
 }) => {
-  const [activeTab, setActiveTab] = useState<'TRANSITO' | 'NUEVO' | 'HISTORIAL'>('TRANSITO');
+  const [activeTab, setActiveTab] = useState<'KANBAN' | 'TRANSITO' | 'NUEVO' | 'HISTORIAL'>('TRANSITO');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -298,6 +300,18 @@ export const WarehouseTransferPanel: React.FC<WarehouseTransferPanelProps> = ({
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
         <div className="flex items-center gap-2">
           <button
+            onClick={() => setActiveTab('KANBAN')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
+              activeTab === 'KANBAN'
+                ? 'bg-gradient-to-r from-cyan-500/30 to-blue-500/30 text-cyan-300 border border-cyan-500/50 shadow-lg shadow-cyan-500/20'
+                : 'bg-slate-800/60 text-slate-400 hover:text-white border border-white/5'
+            }`}
+          >
+            <Sparkles className="w-4 h-4 text-cyan-400" />
+            Flujo Kanban (Bodega ➔ POS)
+          </button>
+
+          <button
             onClick={() => setActiveTab('TRANSITO')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
               activeTab === 'TRANSITO'
@@ -339,6 +353,15 @@ export const WarehouseTransferPanel: React.FC<WarehouseTransferPanelProps> = ({
           <span>Control Logístico Multibodega</span>
         </div>
       </div>
+
+      {/* ── TAB 0: Flujo Kanban Bodega ➔ POS ── */}
+      {activeTab === 'KANBAN' && (
+        <InternalTransferKanban
+          products={products}
+          bodegaDestinoId="bodega-pos"
+          bodegaDestinoNombre="Punto de Venta Mostrador"
+        />
+      )}
 
       {/* ── TAB 1: En Tránsito ── */}
       {activeTab === 'TRANSITO' && (

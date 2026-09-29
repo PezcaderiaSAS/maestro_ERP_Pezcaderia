@@ -46,6 +46,7 @@ export const DB_KEYS = {
   processing_orders: 'pezcaderia_processing_orders',
   warehouse_transfers: 'pezcaderia_warehouse_transfers',
   inventory_batches: 'pezcaderia_inventory_batches',
+  internal_transfers_v2: 'pezcaderia_internal_transfers_v2',
   theme: 'pezcaderia_theme'
 } as const;
 

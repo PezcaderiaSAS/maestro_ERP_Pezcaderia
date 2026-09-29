@@ -16,6 +16,7 @@ import { CartPanel } from './pos/components/CartPanel.tsx';
 import { ProductSearchPanel } from './pos/components/ProductSearchPanel.tsx';
 import { AperturaCajaModal } from './pos/components/AperturaCajaModal.tsx';
 import { RetiroParcialModal } from './pos/components/RetiroParcialModal.tsx';
+import { RestockRequestModal } from './inventory/components/RestockRequestModal.tsx';
 import { Card } from '../components/ui/Card.tsx';
 import { Button } from '../components/ui/Button.tsx';
 import ArqueoCajaModal from './cash/components/ArqueoCajaModal.tsx';
@@ -71,6 +72,7 @@ export default function POSView({
   const [drafts, setDrafts] = useState<any[]>([]);
   const [activeDraftId, setActiveDraftId] = useState<string | null>(null);
   const [ultimoTicket, setUltimoTicket] = useState<{ venta: any; cliente: any } | null>(null);
+  const [showRestockModal, setShowRestockModal] = useState(false);
   
   // B2B Consolidation State
   const [activeSubView, setActiveSubView] = useState<'venta_pos' | 'consolidacion_b2b' | 'canales_digitales' | 'gestion_kanban'>('venta_pos');
@@ -1618,6 +1620,28 @@ export default function POSView({
         </div>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <button
+            onClick={() => setShowRestockModal(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 14px',
+              borderRadius: '10px',
+              border: '1px solid rgba(245, 158, 11, 0.4)',
+              background: 'rgba(245, 158, 11, 0.15)',
+              color: '#FCD34D',
+              fontSize: '12px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+            title="Solicitar Reabastecimiento a Bodega Principal"
+          >
+            <Truck size={14} color="#F59E0B" />
+            <span>Reabastecer POS</span>
+          </button>
+
           <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', fontWeight: 500 }}>
             Rol: <span style={{ color: '#38BDF8', fontWeight: 700, textTransform: 'uppercase' }}>{userRole}</span>
           </div>
@@ -2621,6 +2645,15 @@ export default function POSView({
           }}
         />
       )}
+
+      {/* Modal de Solicitud de Reabastecimiento a Bodega Principal */}
+      <RestockRequestModal
+        isOpen={showRestockModal}
+        onClose={() => setShowRestockModal(false)}
+        products={products}
+        bodegaDestinoId="bodega-pos"
+        bodegaDestinoNombre="Punto de Venta Mostrador"
+      />
     </div>
   );
 }
