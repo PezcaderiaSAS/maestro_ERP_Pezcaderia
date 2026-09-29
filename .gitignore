@@ -42,3 +42,13 @@ gemini_api_info.txt
 
 # Swarm Temp directories
 .swarm/
+.venv/
+tools/agency-swarm/.venv/
+__pycache__/
+*.pyc
+
+# Test & Playwright artifacts
+playwright-report/
+test-results/
+*.pdf
+*.png

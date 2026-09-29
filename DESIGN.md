@@ -97,9 +97,241 @@
 
 ---
 
-## 6. Usage Guidelines & Best Practices
+## 7. El Tridecálogo Canónico del CSS Moderno & Frontend (Absolute Ground Truth)
+
+> **NORMA PRECEPTIVA:** Las siguientes trece directivas de ingeniería visual y CSS moderno constituyen la **fuente de verdad absoluta** para la maquetación, control de flujo, transiciones y componentes en todo el sistema ERP.
+
+
+### 🏛️ Regla 1: Control de Especificidad con `@layer` (No More `!important` Fights)
+- **Principio:** Declarar y organizar siempre las capas de estilo en `@layer base, components, utilities;`.
+- **Efecto:** Elimina de raíz las guerras de especificidad y el uso de `!important`. Las utilidades siempre prevalecen sobre los componentes y estos sobre la base de forma determinista.
+- **Sintaxis Estándar:**
+  ```css
+  @layer base, components, utilities;
+
+  @layer base {
+    a { color: blue; }
+  }
+
+  @layer utilities {
+    .text-red { color: red; } /* always wins over base */
+  }
+  ```
+
+### 🛡️ Regla 2: Aislamiento con `isolation: isolate` vs la Trampa de `z-index: 9999`
+- **Principio:** El problema real de las capas no es la magnitud del número, sino el contexto de apilamiento (*stacking context*).
+- **❌ DON'T (Guerra de Escalación):**
+  ```css
+  .modal { z-index: 9999; }
+  .tooltip { z-index: 99999; } /* escalation war */
+  ```
+- **✅ DO (Clean Slate Stacking Context):**
+  ```css
+  .modal {
+    isolation: isolate;
+    z-index: 1; /* contexto limpio */
+  }
+  ```
+- **Equivalencia Tailwind:** `isolate z-10`, `isolate z-50`. Prohibido inventar valores arbitrarios desbordados (`z-[999999]`).
+
+### 📐 Regla 3: Erradicación de Márgenes en Hijos (`Margins Everywhere`)
+- **Principio:** Detener la batalla contra márgenes colapsados y la fragilidad de `:last-child`. El espaciado pertenece al contenedor padre que orquesta el layout, nunca a los elementos hijos.
+- **❌ DON'T:**
+  ```css
+  .card { margin-bottom: 24px; }
+  .card:last-child { margin-bottom: 0; }
+  ```
+- **✅ DO:**
+  ```css
+  .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  ```
+- **Equivalencia Tailwind:** `flex flex-col gap-6` o `grid gap-6`. Prohibido usar `mb-6 last:mb-0` en componentes de listas o tarjetas repetidas.
+
+### 📱 Regla 4: La Trampa de `height: 100%` vs `min-height: 100dvh`
+- **Principio:** `height: 100%` solo funciona si absolutamente todos los ancestros tienen una altura fija o explícita. En vistas raíz o modales, produce contenedores colapsados.
+- **❌ DON'T:**
+  ```css
+  .container {
+    height: 100%; /* Si el padre no tiene altura explícita, esto no hace nada */
+  }
+  ```
+- **✅ DO:**
+  ```css
+  .container {
+    min-height: 100dvh; /* dynamic viewport height: funciona en todo viewport móvil/desktop sin depender de ancestros */
+  }
+  ```
+- **Equivalencia Tailwind:** `min-h-dvh` (o `min-h-screen` con fallback dvh). Impide los desajustes de la barra de navegación en navegadores móviles (iOS Safari / Android Chrome).
+
+### 🎯 Regla 5: Centrado Moderno de Una Línea (No Centering Like It's 2015)
+- **Principio:** Descartar definitivamente el posicionamiento absoluto con `top: 50%` y transformaciones negativas para centrar elementos.
+- **❌ DON'T (Patrón anticuado de 2015):**
+  ```css
+  .center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  ```
+- **✅ DO (CSS Moderno en una sola línea):**
+  ```css
+  .center {
+    display: grid;
+    place-items: center;
+  }
+  /* O aún más simple en el contenedor: */
+  .parent {
+    align-content: center;
+  }
+  ```
+- **Equivalencia Tailwind:** `grid place-items-center` o `flex items-center justify-center`.
+
+### 📏 Regla 6: Dimensiones y Tipografía Fluida con `clamp()` (Fixed Widths Break)
+- **Principio:** Responsivo no significa llenar el código de `@media queries` para cada breakpoint. Usar funciones matemáticas nativas de CSS para escalar fluidamente.
+- **❌ DON'T (Cascada infinita de Media Queries):**
+  ```css
+  h1 { font-size: 48px; }
+  @media (max-width: 768px) { h1 { font-size: 32px; } }
+  @media (max-width: 480px) { h1 { font-size: 24px; } }
+  ```
+- **✅ DO (Escala fluida en 1 sola línea para todas las pantallas):**
+  ```css
+  h1 {
+    font-size: clamp(1.5rem, 4vw, 3rem);
+  }
+  ```
+- **Equivalencia Tailwind:** Clases de tipografía fluida o valores arbitrarios `text-[clamp(1.5rem,4vw,3rem)]` en títulos principales.
+
+### ⚓ Regla 7: Posicionamiento Ancla Declarativo (`Anchor Positioning`)
+- **Principio:** Posicionar tooltips, popovers y dropdowns directamente vinculados al disparador con CSS nativo puro, erradicando scripts pesados de cálculo de coordenadas JS (`getBoundingClientRect`).
+- **Sintaxis Estándar:**
+  ```css
+  .trigger {
+    anchor-name: --tooltip;
+  }
+
+  .tooltip {
+    position: fixed;
+    position-anchor: --tooltip;
+    top: anchor(bottom);
+    left: anchor(center);
+  }
+  ```
+
+### 🧬 Regla 8: Selector Relacional de Padre `:has()` (Parent Selector)
+- **Principio:** Estilizar contenedores padres basándose en el estado o presencia de sus hijos, resolviendo lógica de UI y validaciones sin sobrecargar JavaScript.
+- **Ejemplos de Aplicación:**
+  ```css
+  /* Estilar una tarjeta SOLO si contiene una imagen */
+  .card:has(img) {
+    grid-template-rows: 200px 1fr;
+  }
+
+  /* Validación visual de formulario reactiva sin JS */
+  form:has(:invalid) button[type="submit"] {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  ```
+- **Equivalencia Tailwind:** Modificadores `has-[img]:grid-rows-[200px_1fr]` y `has-[:invalid]:opacity-50 has-[:invalid]:pointer-events-none`.
+
+### 🎬 Regla 9: View Transitions API Declarativa
+- **Principio:** Transiciones y morphing suave entre estados de página o vistas de datos con 3 líneas de CSS nativo a nivel de plataforma.
+- **Sintaxis Estándar:**
+  ```css
+  @view-transition {
+    navigation: auto;
+  }
+
+  .hero-image {
+    view-transition-name: hero;
+  }
+  ```
+- **Beneficio:** Experiencia de usuario idéntica a una aplicación nativa sin librerías de animación complejas.
+
+### 📦 Regla 10: Container Queries (`@container`)
+- **Principio:** Estilar los componentes en base al tamaño de su contenedor padre inmediato, no al viewport general de la pantalla. Permite crear componentes verdaderamente modulares y reutilizables en sidebars, modales o áreas de contenido principal.
+- **Sintaxis Estándar:**
+  ```css
+  .card-container {
+    container-type: inline-size;
+  }
+
+  @container (min-width: 400px) {
+    .card {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  ```
+- **Equivalencia Tailwind:** Clases `@container` en el padre y `@md:grid-cols-2` en el hijo.
+
+### 🖋️ Regla 11: Tipografía Balanceada y Anti-Huérfanas (`text-wrap: balance` & `text-wrap: pretty`)
+- **Principio:** No más líneas finales antiestéticas de una sola palabra (*widows* o líneas huérfanas).
+- **Sintaxis Estándar:**
+  ```css
+  /* Encabezados y títulos: balance armónico de caracteres */
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+
+  /* Cuerpos de texto y párrafos: prevención de huérfanas con alta performance */
+  p {
+    text-wrap: pretty;
+  }
+  ```
+- **Equivalencia Tailwind:** Clases nativas `text-balance` (en encabezados y modales) y `text-pretty` (en descripciones y párrafos del ERP).
+
+### 🪆 Regla 12: CSS Nesting Nativo (Sass-like Nesting Built Into CSS)
+- **Principio:** Anidamiento jerárquico nativo sin necesidad de preprocesadores (Sass/SCSS). Permite encapsular selectores hijos, pseudoclases y media queries dentro del bloque del componente padre.
+- **Sintaxis Estándar:**
+  ```css
+  .card {
+    background: #12121a;
+
+    & h2 {
+      font-size: 2rem;
+    }
+
+    &:hover {
+      transform: scale(1.02);
+    }
+
+    @media (width < 768px) {
+      padding: 1rem;
+    }
+  }
+  ```
+
+### 📐 Regla 13: CSS Subgrid (`subgrid`) — Alineación Perfecta de Cuadrículas
+- **Principio:** Los elementos hijos pueden heredar y alinearse directamente a las pistas de la cuadrícula padre (`grid tracks`), resolviendo de raíz el desalineamiento vertical en tarjetas que poseen contenidos dinámicos de longitud dispar.
+- **Sintaxis Estándar:**
+  ```css
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .card {
+    display: grid;
+    grid-template-rows: subgrid;
+    grid-row: span 3;
+  }
+  ```
+- **Equivalencia Tailwind:** Clases de Tailwind v3.4+ / v4: `grid-rows-subgrid` y `grid-cols-subgrid`.
+
+
+---
+
+
+## 8. Usage Guidelines & Best Practices
 
 1. **Cero Placeholders:** Prohibido usar texto ficticio sin contexto comercial (como "Lorem Ipsum"). Utilizar siempre terminología del ERP (ej: *Filete de Tilapia Fresco*, *Lote F-2026*, *Margen 24.5%*, *Arqueo de Turno*).
 2. **Contraste de Accesibilidad:** Todo texto secundario debe cumplir con ratio mínimo 4.5:1 (WCAG 2.1 AA) sobre superficies oscuras.
 3. **Inmutabilidad:** En código React/TypeScript, jamás mutar objetos directamente. Siempre devolver copias inmutables con spread operators o reducers.
 4. **Multi-Marca Rico UI:** Cuando se requiera un look específico (Linear, Stripe, Raycast, Supabase, Vercel), consultar el servidor MCP `ricoui-design-mcp` para inyectar sus tokens específicos preservando la estructura Glassmorphism.
+

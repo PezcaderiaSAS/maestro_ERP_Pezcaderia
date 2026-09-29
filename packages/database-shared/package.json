@@ -1,0 +1,17 @@
+{
+  "name": "@la-pezcaderia/database-shared",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Enterprise database schemas, Prisma models, and PostgreSQL migrations for La Pezcadería ERP",
+  "main": "index.js",
+  "scripts": {
+    "prisma:generate": "prisma generate",
+    "prisma:validate": "prisma validate"
+  },
+  "devDependencies": {
+    "prisma": "^5.10.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.10.0"
+  }
+}

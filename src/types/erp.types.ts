@@ -75,7 +75,7 @@ export interface DevolucionPedido {
   }>;
 }
 
-export type B2BOrderState = 'QUOTATION' | 'PENDING_APPROVAL' | 'PICKING' | 'INVOICED' | 'DISPATCHED';
+export type B2BOrderState = 'QUOTATION' | 'PENDING_APPROVAL' | 'PICKING' | 'INVOICED' | 'DISPATCHED' | 'ENTREGADO_CON_ACEPTACION';
 
 export type TipoPromocion = 'PORCENTAJE' | 'PRECIO_FIJO' | '2X1' | '12_MAS_1' | 'VOLUMEN';
 

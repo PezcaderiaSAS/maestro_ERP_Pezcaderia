@@ -77,7 +77,7 @@ export function CrearProveedorRapidoModal({ isOpen, onClose, onSupplierCreated }
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4 animate-fade-in">
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm isolate z-50 flex items-center justify-center p-4 animate-fade-in min-h-dvh">
       <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden flex flex-col">
         {/* Cabecera Modal */}
         <div className="bg-slate-900 text-white p-5 flex justify-between items-center">
@@ -86,8 +86,9 @@ export function CrearProveedorRapidoModal({ isOpen, onClose, onSupplierCreated }
               <UserPlus size={20} />
             </div>
             <div>
-              <h3 className="font-extrabold text-base text-white m-0">Creación Rápida de Proveedor</h3>
-              <p className="text-xs text-slate-400 m-0">Registra un nuevo proveedor sin salir de la orden de compra</p>
+              <h3 className="font-extrabold text-base text-white m-0 text-balance">Creación Rápida de Proveedor</h3>
+              <p className="text-xs text-slate-400 m-0 text-pretty">Registra un nuevo proveedor sin salir de la orden de compra</p>
+
             </div>
           </div>
           <button

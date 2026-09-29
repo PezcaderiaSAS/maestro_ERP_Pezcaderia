@@ -54,7 +54,7 @@ export const Modal: React.FC<ModalProps> = ({
   }[maxWidth];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+    <div className="fixed inset-0 isolate z-50 flex items-center justify-center p-4 sm:p-6 min-h-dvh">
       {/* Overlay oscuro */}
       <div 
         className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300"
@@ -64,7 +64,7 @@ export const Modal: React.FC<ModalProps> = ({
 
       {/* Contenedor principal del modal */}
       <div 
-        className={`relative z-50 w-full ${maxWidthClass} bg-white rounded-2xl shadow-2xl flex flex-col max-h-[90vh] transition-all transform duration-300`}
+        className={`relative z-10 w-full ${maxWidthClass} bg-white rounded-2xl shadow-2xl flex flex-col max-h-[90vh] transition-all transform duration-300`}
         role="dialog"
         aria-modal="true"
       >
@@ -72,7 +72,8 @@ export const Modal: React.FC<ModalProps> = ({
         {(title || !!onClose) && (
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
             {title && (
-              <h2 className="text-xl font-bold text-[var(--text-primary)]">
+              <h2 className="text-xl font-bold text-[var(--text-primary)] text-balance">
+
                 {title}
               </h2>
             )}

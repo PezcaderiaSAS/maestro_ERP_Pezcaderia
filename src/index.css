@@ -1,7 +1,22 @@
 /* src/index.css */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@layer base, components, utilities;
+
+@view-transition {
+  navigation: auto;
+}
+
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+}
 
 :root {
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -247,10 +262,14 @@ body {
 /* Navegación Lateral (Sidebar) */
 .sidebar {
   width: 64px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   background-color: #f8fafc;
   color: var(--text-primary);
   border-right: 1px solid #e2e8f0;
   transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  isolation: isolate;
   z-index: 100;
   overflow: hidden;
   white-space: nowrap;
@@ -313,15 +332,29 @@ body {
 }
 
 .sidebar-menu {
-  flex: 1;
+  flex: 1 1 0%;
+  min-height: 0;
   padding: 16px 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
   overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
+}
+
+.sidebar-menu::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.3);
+  border-radius: 4px;
 }
 
 .sidebar-item {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -550,6 +583,7 @@ body {
 
 /* Exit button */
 .sidebar-btn-exit {
+  flex-shrink: 0;
   background-color: var(--btn-exit-bg);
   color: white;
   border: none;
@@ -581,13 +615,16 @@ body {
   border: 2px solid transparent;
   cursor: pointer;
   color: var(--text-primary);
-  display: none; /* Se muestra en mobile */
-  padding: 4px;
+  display: flex; /* Habilitado universalmente para alternar o fijar el sidebar */
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
   border-radius: var(--radius-sm);
   transition: var(--transition);
 }
 
 .menu-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.3);
   box-shadow: var(--shadow-md);
 }
@@ -609,10 +646,7 @@ body {
 }
 
 /* --- INTERFAZ DEL PUNTO DE VENTA (POS) --- */
-.pos-layout {
-  /* Layout estructural gestionado por Tailwind CSS en el JSX */
-  /* display, flex, overflow y height son definidos por clases utilitarias */
-}
+/* (El layout estructural de .pos-layout se gestiona mediante clases utilitarias de Tailwind en el JSX) */
 
 /* Columna Izquierda: Catálogo de Productos */
 .pos-catalog {
@@ -680,11 +714,7 @@ body {
   box-shadow: 0 4px 10px rgba(0, 177, 113, 0.2);
 }
 
-/* Grid de Productos */
-.pos-products-grid {
-  /* Columnas y overflow gestionados por Tailwind CSS en el JSX */
-  /* grid-template-columns, gap y overflow-y son definidos por clases utilitarias */
-}
+/* Grid de Productos (gestionado por clases utilitarias de Tailwind en el JSX) */
 
 .product-card {
   background-color: white;
@@ -1207,8 +1237,9 @@ body {
 @media (max-width: 768px) {
   .sidebar {
     position: absolute;
-    height: 100%;
-    z-index: 1000;
+    min-height: 100dvh;
+    isolation: isolate;
+    z-index: 40;
     transform: translateX(-100%);
     width: 260px !important;
   }
@@ -1223,7 +1254,33 @@ body {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 999;
+    isolation: isolate;
+    z-index: 30;
     backdrop-filter: blur(2px);
   }
 }
+
+@layer utilities {
+  .subgrid-rows {
+    grid-template-rows: subgrid;
+  }
+  .subgrid-cols {
+    grid-template-columns: subgrid;
+  }
+  .text-fluid-h1 {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+  }
+  .text-fluid-h2 {
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
+  }
+  .anchor-tooltip-target {
+    anchor-name: --tooltip-target;
+  }
+  .anchor-tooltip-popover {
+    position: fixed;
+    position-anchor: --tooltip-target;
+    top: anchor(bottom);
+    left: anchor(center);
+  }
+}
+

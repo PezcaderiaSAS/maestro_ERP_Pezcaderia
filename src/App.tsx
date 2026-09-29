@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { createLogger } from './lib/consoleLogger';
-import { Menu, LayoutDashboard, ShoppingBag, Box, Users, DollarSign, HelpCircle, Home, ShoppingCart, LogOut, FileText, PlusCircle, Wallet, Database, Truck, RefreshCw, PieChart, PackageCheck, BookOpen, Moon, Sun, Terminal } from 'lucide-react';
+import { Menu, LayoutDashboard, ShoppingBag, Box, Users, DollarSign, HelpCircle, Home, ShoppingCart, LogOut, FileText, PlusCircle, Wallet, Database, Truck, RefreshCw, PieChart, PackageCheck, BookOpen, Moon, Sun, Terminal, Snowflake } from 'lucide-react';
 import DashboardView from './views/DashboardView';
 import POSView from './views/POSView';
 import InventoryView from './views/InventoryView';
@@ -17,6 +17,7 @@ import { AlistamientoBodegaView } from './views/inventory/AlistamientoBodegaView
 import { DispatchView } from './views/inventory/DispatchView';
 import { DevTestDashboard } from './dev/DevTestDashboard';
 import AccountingView from './views/AccountingView';
+import { ColdStorageRentalView } from './views/coldStorageRental/ColdStorageRentalView';
 import * as localDb from './services/localDb';
 // Stores de Zustand
 import { useInventoryStore } from './store/useInventoryStore';
@@ -36,6 +37,7 @@ import { usePurchaseStore } from './store/usePurchaseStore';
 import { useMovementStore } from './store/useMovementStore';
 import { useEventStore } from './store/useEventStore';
 import { useAppStore } from './store/useAppStore';
+import { ConsentGateModal } from './components/legal/ConsentGateModal';
 
 import { generateId, toTitleCase } from './lib/utils';
 export { generateId, toTitleCase };
@@ -1280,6 +1282,8 @@ export default function App() {
         return <CashFlowView />;
       case 'contabilidad':
         return <AccountingView />;
+      case 'alquiler_cf':
+        return <ColdStorageRentalView />;
       default:
         return <DashboardView />;
     }
@@ -1287,6 +1291,8 @@ export default function App() {
 
   const getBreadcrumbs = () => {
     switch (currentView) {
+      case 'alquiler_cf':
+        return { cat: 'WMS & Logística', sub: 'Alquiler Cuarto Frío (3PL)' };
       case 'dashboard':
         return { cat: 'Administrativo', sub: 'Panel de Control' };
       case 'pos':
@@ -1491,6 +1497,15 @@ export default function App() {
               <span>Despachos y Rutas</span>
             </div>
 
+            <div
+              className={`sidebar-item ${currentView === 'alquiler_cf' ? 'active' : ''}`}
+              onClick={() => { setCurrentView('alquiler_cf'); setSidebarOpen(false); }}
+              data-testid="nav-alquiler-cf"
+            >
+              <Snowflake size={16} />
+              <span>Alquiler Cuarto Frío</span>
+            </div>
+
             <div className={`sidebar-item`} style={{ opacity: 0.5 }}>
               <Truck size={16} />
               <span>Traslados</span>
@@ -1581,6 +1596,7 @@ export default function App() {
           </main>
         </div>
       </div>
+      <ConsentGateModal />
       {import.meta.env.DEV && <DevTestDashboard />}
     </div>
   );

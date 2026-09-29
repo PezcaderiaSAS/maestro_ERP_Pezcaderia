@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { UploadCloud, X, CheckCircle, AlertCircle, FileSpreadsheet, Download, Upload } from 'lucide-react';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { BulkUploadService } from '../services/bulkUploadService';
 import { useClientStore } from '../store/useClientStore';
 import { useInventoryStore } from '../store/useInventoryStore';
@@ -28,48 +28,70 @@ export const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClos
     }
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     setErrors([]);
     if (!file) {
       Swal.fire({ title: 'Error', text: 'Por favor selecciona un archivo Excel (.xlsx).', icon: 'error', background: '#1e293b', color: '#fff' });
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      try {
-        const bstr = evt.target?.result;
-        const wb = XLSX.read(bstr, { type: 'binary' });
-        const wsname = wb.SheetNames[0];
-        const ws = wb.Sheets[wsname];
-        const data = XLSX.utils.sheet_to_json(ws);
-
-        if (type === 'clientes') {
-          const result = BulkUploadService.parseClientesExcel(data);
-          if (result.errors.length > 0) {
-            setErrors(result.errors);
-          }
-          if (result.success) {
-            result.imported.forEach(c => addCliente(c));
-            Swal.fire({ title: 'Éxito', text: `Se importaron ${result.imported.length} clientes correctamente.`, icon: 'success', background: '#1e293b', color: '#fff' });
-            onClose();
-          }
-        } else {
-          const result = BulkUploadService.parseProductsExcel(data);
-          if (result.errors.length > 0) {
-            setErrors(result.errors);
-          }
-          if (result.success) {
-            setProductsCatalog([...productsCatalog, ...result.imported]);
-            Swal.fire({ title: 'Éxito', text: `Se importaron ${result.imported.length} productos correctamente.`, icon: 'success', background: '#1e293b', color: '#fff' });
-            onClose();
-          }
-        }
-      } catch (err) {
-        setErrors(['Hubo un error al procesar el archivo. Asegúrate de que es un archivo Excel válido.']);
+    try {
+      const buffer = await file.arrayBuffer();
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(buffer);
+      const worksheet = workbook.worksheets[0];
+      if (!worksheet) {
+        setErrors(['El archivo Excel no contiene hojas de cálculo.']);
+        return;
       }
-    };
-    reader.readAsBinaryString(file);
+
+      const rows: any[] = [];
+      const headerRow = worksheet.getRow(1);
+      const headers: string[] = [];
+      headerRow.eachCell((cell, colNumber) => {
+        headers[colNumber] = String(cell.value || '').trim();
+      });
+
+      worksheet.eachRow((row, rowNumber) => {
+        if (rowNumber === 1) return;
+        const rowData: Record<string, any> = {};
+        row.eachCell((cell, colNumber) => {
+          const key = headers[colNumber];
+          if (key) {
+            rowData[key] = cell.value;
+          }
+        });
+        if (Object.keys(rowData).length > 0) {
+          rows.push(rowData);
+        }
+      });
+
+      const data = rows;
+
+      if (type === 'clientes') {
+        const result = BulkUploadService.parseClientesExcel(data);
+        if (result.errors.length > 0) {
+          setErrors(result.errors);
+        }
+        if (result.success) {
+          result.imported.forEach(c => addCliente(c));
+          Swal.fire({ title: 'Éxito', text: `Se importaron ${result.imported.length} clientes correctamente.`, icon: 'success', background: '#1e293b', color: '#fff' });
+          onClose();
+        }
+      } else {
+        const result = BulkUploadService.parseProductsExcel(data);
+        if (result.errors.length > 0) {
+          setErrors(result.errors);
+        }
+        if (result.success) {
+          setProductsCatalog([...productsCatalog, ...result.imported]);
+          Swal.fire({ title: 'Éxito', text: `Se importaron ${result.imported.length} productos correctamente.`, icon: 'success', background: '#1e293b', color: '#fff' });
+          onClose();
+        }
+      }
+    } catch (err) {
+      setErrors(['Hubo un error al procesar el archivo. Asegúrate de que es un archivo Excel válido.']);
+    }
   };
 
   const handleDownloadTemplate = async () => {

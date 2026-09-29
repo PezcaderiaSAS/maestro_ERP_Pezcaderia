@@ -7,6 +7,9 @@ export default defineConfig({
   server: {
     port: 3000,
     open: true,
+    watch: {
+      ignored: ['**/playwright-report/**', '**/test-results/**', '**/.git/**']
+    },
     proxy: {
       '/api/pollinations': {
         target: 'https://image.pollinations.ai',
@@ -21,6 +24,7 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/tests/setup.ts',
-    exclude: ['node_modules', 'dist', '.idea', '.git', '.cache', 'tests/e2e/**', 'agent-skills/**'],
+    include: ['src/tests/**/*.{test,spec}.{ts,tsx}'],
+    exclude: ['**/node_modules/**', 'dist', '.idea', '.git', '.cache', 'tests/e2e/**', 'agent-skills/**'],
   },
 });

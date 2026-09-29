@@ -1,0 +1,220 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum RolUsuario {
+  ADMIN
+  SUPERVISOR
+  VENDEDOR
+  CAJERO
+  BODEGUERO
+  CONDUCTOR
+}
+
+enum TipoIdentificacion {
+  NIT
+  CC
+  CE
+  PASAPORTE
+}
+
+enum TipoPersona {
+  NATURAL
+  JURIDICA
+}
+
+enum EstadoCotizacion {
+  BORRADOR
+  ENVIADA
+  APROBADA
+  VENDIDA
+  CANCELADA
+}
+
+enum ClasificacionAbc {
+  A
+  B
+  C
+}
+
+model Empresa {
+  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nit             String         @unique @db.VarChar(20)
+  razonSocial     String         @map("razon_social") @db.VarChar(255)
+  nombreComercial String?        @map("nombre_comercial") @db.VarChar(255)
+  direccion       String?        @db.VarChar(255)
+  telefono        String?        @db.VarChar(50)
+  email           String?        @db.VarChar(150)
+  activo          Boolean        @default(true)
+  creadoEn        DateTime       @default(now()) @map("creado_en") @db.Timestamptz(6)
+  actualizadoEn   DateTime       @default(now()) @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+
+  // Relaciones Multi-Tenant
+  usuarios        Usuario[]
+  terceros        Tercero[]
+  productos       Producto[]
+  bodegas         Bodega[]
+  pedidos         Pedido[]
+  cotizaciones    Cotizacion[]
+  cajas           Caja[]
+  empleados       Empleado[]
+
+  @@map("empresas")
+}
+
+model Usuario {
+  id           String      @id @db.Uuid
+  empresaId    String      @map("empresa_id") @db.Uuid
+  email        String      @unique @db.VarChar(150)
+  nombre       String      @db.VarChar(150)
+  rol          RolUsuario  @default(VENDEDOR)
+  activo       Boolean     @default(true)
+  creadoEn     DateTime    @default(now()) @map("creado_en") @db.Timestamptz(6)
+
+  empresa      Empresa     @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  pedidos      Pedido[]    @relation("VendedorPedidos")
+  cotizaciones Cotizacion[]
+
+  @@index([empresaId], name: "idx_usuarios_empresa")
+  @@map("usuarios")
+}
+
+model Tercero {
+  id                 String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  empresaId          String             @map("empresa_id") @db.Uuid
+  tipoIdentificacion TipoIdentificacion @map("tipo_identificacion")
+  identificacion     String             @db.VarChar(50)
+  tipoPersona        TipoPersona        @default(NATURAL) @map("tipo_persona")
+  nombre             String             @db.VarChar(255)
+  direccion          String?            @db.VarChar(255)
+  telefono           String?            @db.VarChar(50)
+  email              String?            @db.VarChar(150)
+  ciudad             String?            @db.VarChar(100)
+  cupoCredito        Decimal            @default(0.00) @map("cupo_credito") @db.Decimal(14, 2)
+  creadoEn           DateTime           @default(now()) @map("creado_en") @db.Timestamptz(6)
+
+  empresa            Empresa            @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  pedidos            Pedido[]
+  cotizaciones       Cotizacion[]
+  empleado           Empleado?
+
+  @@unique([empresaId, identificacion], name: "uq_tercero_empresa_identificacion")
+  @@index([empresaId], name: "idx_terceros_empresa")
+  @@map("terceros")
+}
+
+model Empleado {
+  id                 String    @id @db.Uuid
+  empresaId          String    @map("empresa_id") @db.Uuid
+  cargo              String    @db.VarChar(100)
+  salarioBase        Decimal   @default(0.00) @map("salario_base") @db.Decimal(12, 2)
+  fechaIngreso       DateTime  @map("fecha_ingreso") @db.Date
+  fechaEgreso        DateTime? @map("fecha_egreso") @db.Date
+  urlHojaVida        String?   @map("url_hoja_vida") @db.VarChar(500)
+  estado             String    @default("ACTIVO") @db.VarChar(20)
+  observaciones      String?   @db.Text
+  consentimientoFirmado Boolean @default(false) @map("consentimiento_firmado")
+  consentimientoFecha DateTime? @map("consentimiento_fecha") @db.Timestamptz(6)
+  creadoEn           DateTime  @default(now()) @map("creado_en") @db.Timestamptz(6)
+
+  empresa            Empresa   @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  tercero            Tercero   @relation(fields: [id], references: [id], onDelete: Restrict)
+
+  @@index([empresaId], name: "idx_empleados_empresa")
+  @@map("empleados")
+}
+
+model Producto {
+  id               String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  empresaId        String            @map("empresa_id") @db.Uuid
+  sku              String            @db.VarChar(50)
+  nombre           String            @db.VarChar(255)
+  categoria        String            @db.VarChar(100)
+  unidadMedida     String            @default("KG") @map("unidad_medida") @db.VarChar(20)
+  precioBase       Decimal           @map("precio_base") @db.Decimal(12, 2)
+  costoPromedio    Decimal           @default(0.00) @map("costo_promedio") @db.Decimal(12, 2)
+  clasificacionAbc ClasificacionAbc  @default(C) @map("clasificacion_abc")
+  activo           Boolean           @default(true)
+  creadoEn         DateTime          @default(now()) @map("creado_en") @db.Timestamptz(6)
+
+  empresa          Empresa           @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+
+  @@unique([empresaId, sku], name: "uq_producto_empresa_sku")
+  @@index([empresaId], name: "idx_productos_empresa")
+  @@map("productos")
+}
+
+model Bodega {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  empresaId String   @map("empresa_id") @db.Uuid
+  nombre    String   @db.VarChar(100)
+  tipo      String   @default("PRINCIPAL") @db.VarChar(50) // PRINCIPAL, SECUNDARIA, AVERIAS
+  ubicacion String?  @db.VarChar(255)
+  activo    Boolean  @default(true)
+
+  empresa   Empresa  @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+
+  @@index([empresaId], name: "idx_bodegas_empresa")
+  @@map("bodegas")
+}
+
+model Cotizacion {
+  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  empresaId      String           @map("empresa_id") @db.Uuid
+  clienteId      String           @map("cliente_id") @db.Uuid
+  vendedorId     String           @map("vendedor_id") @db.Uuid
+  consecutivo    Int              @default(autoincrement())
+  estado         EstadoCotizacion @default(BORRADOR)
+  subtotal       Decimal          @default(0.00) @db.Decimal(14, 2)
+  descuento      Decimal          @default(0.00) @db.Decimal(14, 2)
+  impuestos      Decimal          @default(0.00) @db.Decimal(14, 2)
+  total          Decimal          @default(0.00) @db.Decimal(14, 2)
+  observaciones  String?          @db.Text
+  fechaExpiracion DateTime?       @map("fecha_expiracion") @db.Date
+  creadoEn       DateTime         @default(now()) @map("creado_en") @db.Timestamptz(6)
+  actualizadoEn  DateTime         @default(now()) @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+
+  empresa        Empresa          @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  cliente        Tercero          @relation(fields: [clienteId], references: [id], onDelete: Restrict)
+  vendedor       Usuario          @relation(fields: [vendedorId], references: [id], onDelete: Restrict)
+
+  @@index([empresaId], name: "idx_cotizaciones_empresa")
+  @@index([clienteId], name: "idx_cotizaciones_cliente")
+  @@map("cotizaciones")
+}
+
+model Pedido {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  empresaId   String   @map("empresa_id") @db.Uuid
+  clienteId   String   @map("cliente_id") @db.Uuid
+  vendedorId  String   @map("vendedor_id") @db.Uuid
+  consecutivo Int      @default(autoincrement())
+  estado      String   @default("PENDIENTE") @db.VarChar(50)
+  total       Decimal  @default(0.00) @db.Decimal(14, 2)
+  creadoEn    DateTime @default(now()) @map("creado_en") @db.Timestamptz(6)
+
+  empresa     Empresa  @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  cliente     Tercero  @relation(fields: [clienteId], references: [id], onDelete: Restrict)
+  vendedor    Usuario  @relation("VendedorPedidos", fields: [vendedorId], references: [id], onDelete: Restrict)
+
+  @@index([empresaId], name: "idx_pedidos_empresa")
+  @@map("pedidos")
+}
+
+model Caja {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  empresaId String   @map("empresa_id") @db.Uuid
+  nombre    String   @db.VarChar(100)
+  estado    String   @default("CERRADA") @db.VarChar(20)
+  saldoBase Decimal  @default(0.00) @map("saldo_base") @db.Decimal(12, 2)
+
+  empresa   Empresa  @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+
+  @@index([empresaId], name: "idx_cajas_empresa")
+  @@map("cajas")
+}

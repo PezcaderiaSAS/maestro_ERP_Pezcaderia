@@ -160,9 +160,33 @@ export const KPICard: React.FC<KPICardProps> = ({
 
 ---
 
-## 4. Checklist de Validación UI/UX
+---
+
+## 5. El Tridecálogo Canónico del CSS Moderno (Verdades Absolutas de Diseño)
+
+Las siguientes directivas constituyen la **fuente de verdad absoluta** para maquetación, arquitectura visual y control de componentes en MaestroPescaderia ERP:
+
+1. **Control de Especificidad con `@layer`**: Declarar capas en `@layer base, components, utilities;`. Elimina las guerras de especificidad y prohíbe el uso de `!important`.
+2. **Aislamiento de Stacking Context (`isolation: isolate`)**: Jamás recurrir a `z-index: 9999` o `99999`. Utilizar `isolation: isolate` (clase `isolate`) para generar un nuevo contexto de apilamiento limpio con índices controlados (`z-1`, `z-10`, `z-50`).
+3. **Erradicación de Márgenes en Hijos (`Margins Everywhere`)**: Prohibido aplicar `margin-bottom: 24px; :last-child { margin-bottom: 0 }`. El espaciado pertenece al contenedor padre mediante `display: flex; flex-direction: column; gap: 24px;` o `display: grid; gap: 24px;` (`gap-6` en Tailwind).
+4. **La Trampa de `height: 100%` vs `min-height: 100dvh`**: `height: 100%` no surte efecto si los ancestros carecen de altura fija. En vistas raíz, modales y sidebars emplear `min-height: 100dvh` o flex con `min-height: 0` en hijos con scroll.
+5. **Centrado Moderno de Una Línea**: Prohibido centrar con `position: absolute; top: 50%; transform: translate(-50%, -50%)`. Usar `display: grid; place-items: center;` (`grid place-items-center`) o `align-content: center;` en el contenedor.
+6. **Dimensiones y Tipografía Fluida con `clamp()`**: Prohibido saturar el código con `@media queries` para cada breakpoint. Escalar tipografías y anchos con una sola línea: `font-size: clamp(1.5rem, 4vw, 3rem);`.
+7. **Posicionamiento Ancla Declarativo (`Anchor Positioning`)**: Vincular tooltips, popovers y menús flotantes a sus disparadores nativamente con `anchor-name: --tooltip` y `position-anchor: --tooltip; top: anchor(bottom); left: anchor(center);` sin scripts pesados de cálculo de coordenadas en JS.
+8. **Selector Relacional de Padre `:has()`**: Estilizar contenedores padres según la presencia o validez de hijos (`.card:has(img)` o `form:has(:invalid) button { pointer-events: none; opacity: 0.5; }`).
+9. **View Transitions API**: Transiciones y morphing suave entre estados o rutas con `@view-transition { navigation: auto; }` y `view-transition-name`.
+10. **Container Queries (`@container`)**: Estilar componentes en función del tamaño de su contenedor inmediato (`container-type: inline-size; @container (min-width: 400px)`), permitiendo componentes 100% modulares y portables.
+11. **Tipografía Balanceada y Anti-Huérfanas**: Aplicar `text-wrap: balance` (`text-balance`) a encabezados (`h1, h2, h3`) y `text-wrap: pretty` (`text-pretty`) a párrafos (`p`) para evitar palabras aisladas al final de línea.
+12. **CSS Nesting Nativo**: Anidar selectores jerárquicos de forma nativa sin herramientas de preprocesado (`& h2`, `&:hover`, `@media` anidado).
+13. **CSS Subgrid (`subgrid`)**: Heredar las pistas de cuadrícula del contenedor padre en los hijos con `grid-template-rows: subgrid; grid-row: span 3;` para alineación vertical idéntica en tarjetas de catálogo y dashboards.
+
+---
+
+## 6. Checklist de Validación UI/UX
 
 - [ ] ¿Los elementos interactivos cuentan con estados `hover`, `active` y `focus-visible` accesibles?
 - [ ] ¿Los valores monetarios y de pesaje utilizan alineación numérica tabular?
 - [ ] ¿Los estados vacíos (*Empty States*) muestran ilustraciones amigables y un botón de acción principal?
 - [ ] ¿El contraste de color cumple con las pautas WCAG AA para legibilidad en pantallas de baja luminosidad?
+- [ ] ¿Se aplican las 13 verdades absolutas de CSS moderno (cero `!important`, cero `z-index: 9999`, flex gap, `clamp()`, `text-balance`)?
+
