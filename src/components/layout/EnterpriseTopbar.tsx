@@ -11,6 +11,7 @@ import {
   HelpCircle,
   Sparkles,
   Store,
+  Search,
 } from 'lucide-react';
 import type { ERPViewKey } from './EnterpriseSidebar';
 
@@ -23,6 +24,7 @@ interface EnterpriseTopbarProps {
   onToggleTheme: () => void;
   activeBodega?: string;
   onSelectBodega?: (bodega: string) => void;
+  onOpenOmnibox?: () => void;
 }
 
 export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
@@ -34,6 +36,7 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
   onToggleTheme,
   activeBodega = 'Bodega Principal',
   onSelectBodega,
+  onOpenOmnibox,
 }) => {
   // Breadcrumb dinámico por dominio
   const getBreadcrumb = (): { domain: string; sub: string } => {
@@ -105,8 +108,21 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
         </div>
       </div>
 
-      {/* Sección Derecha: Selector de Bodega, Botón POS, Tema y Perfil */}
+      {/* Sección Derecha: Omnibox, Selector de Bodega, Botón POS, Tema y Perfil */}
       <div className="flex items-center gap-2.5">
+        {/* Buscador Rápido Omnibox (Ctrl + K) */}
+        <button
+          onClick={onOpenOmnibox}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-white/10 text-xs text-slate-300 hover:text-white transition-all cursor-pointer shadow-sm"
+          title="Buscador Universal (Ctrl + K)"
+        >
+          <Search size={14} className="text-cyan-400" />
+          <span className="hidden md:inline font-medium">Buscar...</span>
+          <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-white/10 rounded border border-white/15 text-slate-300">
+            Ctrl+K
+          </kbd>
+        </button>
+
         {/* Selector de Bodega / Sucursal Activa */}
         <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/40 border border-white/5 text-xs text-slate-300">
           <Store size={14} className="text-cyan-400" />

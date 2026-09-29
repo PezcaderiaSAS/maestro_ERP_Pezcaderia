@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { createLogger } from './lib/consoleLogger';
 import { Menu, LayoutDashboard, ShoppingBag, Box, Users, DollarSign, HelpCircle, Home, ShoppingCart, LogOut, FileText, PlusCircle, Wallet, Database, Truck, RefreshCw, PieChart, PackageCheck, BookOpen, Moon, Sun, Terminal, Snowflake } from 'lucide-react';
 import DashboardView from './views/DashboardView';
@@ -20,6 +20,7 @@ import AccountingView from './views/AccountingView';
 import { ColdStorageRentalView } from './views/coldStorageRental/ColdStorageRentalView';
 import { EnterpriseSidebar, type ERPViewKey } from './components/layout/EnterpriseSidebar';
 import { EnterpriseTopbar } from './components/layout/EnterpriseTopbar';
+import { GlobalOmniboxModal } from './components/layout/GlobalOmniboxModal';
 import * as localDb from './services/localDb';
 // Stores de Zustand
 import { useInventoryStore } from './store/useInventoryStore';
@@ -644,6 +645,19 @@ export default function App() {
   }, []);
 
   const { userRole, setUserRole, currentView, setCurrentView, sidebarOpen, setSidebarOpen, toggleSidebar, theme, toggleTheme } = useAppStore();
+  const [isOmniboxOpen, setIsOmniboxOpen] = useState(false);
+
+  // Atajo de teclado global: Ctrl + K (o Cmd + K) para Omnibox
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsOmniboxOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -1356,6 +1370,7 @@ export default function App() {
           theme={theme}
           onToggleTheme={toggleTheme}
           activeBodega="Bodega Principal"
+          onOpenOmnibox={() => setIsOmniboxOpen(true)}
         />
 
         <main className="flex-1 overflow-y-auto p-4 lg:p-6 bg-gradient-to-b from-[#090D16] via-[#0D1322] to-[#090D16]">
@@ -1363,6 +1378,11 @@ export default function App() {
         </main>
       </div>
 
+      <GlobalOmniboxModal
+        isOpen={isOmniboxOpen}
+        onClose={() => setIsOmniboxOpen(false)}
+        onNavigate={(v) => setCurrentView(v as any)}
+      />
       <ConsentGateModal />
       {import.meta.env.DEV && <DevTestDashboard />}
     </div>

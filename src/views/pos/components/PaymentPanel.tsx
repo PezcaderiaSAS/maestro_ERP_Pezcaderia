@@ -97,7 +97,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
       // Si el foco está en un textarea o modal abierto, ignorar
       if (['TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
 
-      if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) {
+      if ((e.key === 'Enter' || e.key === 'F4') && !e.shiftKey && !e.ctrlKey) {
         if (!isDisabled && isTurnoAbierto && totalFinal > 0) {
           e.preventDefault();
           handleCobrarClick();
@@ -105,6 +105,17 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
       } else if (e.code === 'Space' && (e.target as HTMLElement)?.tagName !== 'INPUT') {
         e.preventDefault();
         setEfectivoRecibido(totalFinal);
+      } else if (e.altKey && ['1', '2', '3', '4', '5', '6'].includes(e.key)) {
+        e.preventDefault();
+        const map: Record<string, MetodoCobroPos> = {
+          '1': 'EFECTIVO',
+          '2': 'NEQUI',
+          '3': 'DAVIPLATA',
+          '4': 'QR_BANCOLOMBIA',
+          '5': 'DATAFONO',
+          '6': 'CREDITO',
+        };
+        if (map[e.key]) setMetodoPago(map[e.key]);
       }
     };
 
@@ -254,8 +265,9 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
 
       {/* Selector de Modo: Único vs Mixto */}
       <div className="flex justify-between items-center px-1">
-        <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-          Medio de Pago
+        <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+          <span>Medio de Pago</span>
+          <kbd className="hidden sm:inline-block px-1 py-0.2 bg-white/10 text-[9px] rounded text-slate-300 font-mono">F1-F6</kbd>
         </label>
         <button
           onClick={() => {
@@ -271,29 +283,29 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
               });
             }
           }}
-          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+          className={`flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all ${
             isModoMixto
               ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
               : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'
           }`}
           disabled={isDisabled}
         >
-          <Calculator size={14} />
-          {isModoMixto ? 'Cobro Único' : '+ Pago Mixto / Split'}
+          <Calculator size={13} />
+          {isModoMixto ? 'Cobro Único' : '+ Split'}
         </button>
       </div>
 
       {!isModoMixto ? (
         <>
-          {/* Grilla de Medios de Pago Colombianos */}
-          <div className="grid grid-cols-3 gap-2">
+          {/* Fila Horizontal Compacta de Medios de Pago (Estilo Tabs / Pills AntD) */}
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-1">
             {[
-              { id: 'EFECTIVO' as const, label: 'Efectivo', icon: Banknote, color: 'hover:border-emerald-500/50' },
-              { id: 'NEQUI' as const, label: 'Nequi', icon: Phone, color: 'hover:border-purple-500/50' },
-              { id: 'DAVIPLATA' as const, label: 'Daviplata', icon: Phone, color: 'hover:border-red-500/50' },
-              { id: 'QR_BANCOLOMBIA' as const, label: 'QR Bancolombia', icon: QrCode, color: 'hover:border-yellow-500/50' },
-              { id: 'DATAFONO' as const, label: 'Datáfono / Tarjeta', icon: CreditCard, color: 'hover:border-blue-500/50' },
-              { id: 'CREDITO' as const, label: 'Crédito / Fiar', icon: Landmark, color: 'hover:border-amber-500/50' },
+              { id: 'EFECTIVO' as const, label: 'Efectivo', icon: Banknote, keyNum: '1' },
+              { id: 'NEQUI' as const, label: 'Nequi', icon: Phone, keyNum: '2' },
+              { id: 'DAVIPLATA' as const, label: 'Daviplata', icon: Phone, keyNum: '3' },
+              { id: 'QR_BANCOLOMBIA' as const, label: 'QR Banc.', icon: QrCode, keyNum: '4' },
+              { id: 'DATAFONO' as const, label: 'Datáfono', icon: CreditCard, keyNum: '5' },
+              { id: 'CREDITO' as const, label: 'Crédito', icon: Landmark, keyNum: '6' },
             ].map((m) => {
               const Icon = m.icon;
               const isSelected = metodoPago === m.id;
@@ -301,93 +313,92 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
                 <button
                   key={m.id}
                   onClick={() => setMetodoPago(m.id)}
-                  className={`flex items-center gap-2 p-2.5 rounded-xl border transition-all text-left ${
+                  title={`Seleccionar ${m.label} (Alt+${m.keyNum})`}
+                  className={`flex flex-col sm:flex-row items-center justify-center gap-1 py-1.5 px-2 rounded-lg border text-center transition-all ${
                     isSelected
-                      ? 'border-cyan-500 bg-cyan-500/10 text-cyan-300 shadow-md ring-1 ring-cyan-500/30'
-                      : 'border-white/10 bg-slate-900/60 text-slate-300 hover:bg-slate-800 ' + m.color
+                      ? 'border-cyan-400 bg-cyan-500/20 text-cyan-200 shadow-sm ring-1 ring-cyan-400/40'
+                      : 'border-white/10 bg-slate-900/60 text-slate-400 hover:bg-slate-800 hover:text-slate-200'
                   }`}
                 >
-                  <Icon size={18} className={isSelected ? 'text-cyan-400 shrink-0' : 'text-slate-400 shrink-0'} />
-                  <span className="text-xs font-bold truncate">{m.label}</span>
+                  <Icon size={14} className={isSelected ? 'text-cyan-400 shrink-0' : 'text-slate-400 shrink-0'} />
+                  <span className="text-[11px] font-bold truncate leading-tight">{m.label}</span>
                 </button>
               );
             })}
           </div>
 
-          {/* Panel de Efectivo y Cambio Gigante */}
+          {/* Panel de Efectivo y Cambio Compacto para Laptops */}
           {metodoPago === 'EFECTIVO' && (
-            <div className="flex flex-col gap-2.5 p-3.5 bg-slate-900/80 border border-white/10 rounded-2xl">
+            <div className="flex flex-col gap-2 p-2.5 bg-slate-900/90 border border-white/10 rounded-xl">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
                   Efectivo Recibido
                 </span>
-                <span className="text-[11px] text-slate-500">
-                  Total: <b className="text-white">${totalFinal.toLocaleString('es-CO')}</b>
+                <span className="text-[11px] text-slate-400">
+                  Cobro: <b className="text-white">${totalFinal.toLocaleString('es-CO')}</b>
                 </span>
               </div>
 
-              {/* Input de Efectivo Recibido */}
-              <div className="relative">
-                <NumericFormat
-                  getInputRef={efectivoInputRef}
-                  value={efectivoRecibido || ''}
-                  onValueChange={(values) => setEfectivoRecibido(values.floatValue || 0)}
-                  thousandSeparator="."
-                  decimalSeparator=","
-                  decimalScale={0}
-                  allowNegative={false}
-                  prefix="$ "
-                  placeholder="$ 0"
-                  className="w-full h-12 px-4 rounded-xl border border-white/15 bg-slate-950 text-xl font-bold text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all tabular-nums"
-                />
+              {/* Input de Efectivo + Botón Exacto en Línea */}
+              <div className="flex gap-1.5">
+                <div className="relative flex-1">
+                  <NumericFormat
+                    getInputRef={efectivoInputRef}
+                    value={efectivoRecibido || ''}
+                    onValueChange={(values) => setEfectivoRecibido(values.floatValue || 0)}
+                    thousandSeparator="."
+                    decimalSeparator=","
+                    decimalScale={0}
+                    allowNegative={false}
+                    prefix="$ "
+                    placeholder="$ 0"
+                    className="w-full h-9 px-3 rounded-lg border border-white/15 bg-slate-950 text-base font-bold text-white focus:border-cyan-400 focus:ring-1 focus:ring-cyan-500/30 outline-none transition-all tabular-nums"
+                  />
+                </div>
                 <button
                   type="button"
                   onClick={() => setEfectivoRecibido(totalFinal)}
-                  className="absolute right-2 top-2 px-2.5 py-1 text-xs font-bold bg-white/10 hover:bg-white/20 text-cyan-300 rounded-lg transition-colors"
+                  className="px-2.5 h-9 text-[11px] font-bold bg-white/10 hover:bg-white/20 text-cyan-300 rounded-lg transition-colors whitespace-nowrap flex items-center gap-1"
+                  title="Pagar con monto exacto (Espacio)"
                 >
-                  Exacto (Espacio)
+                  <span>Exacto</span>
+                  <kbd className="px-1 py-0.2 bg-black/30 rounded text-[9px] font-mono text-cyan-400">Space</kbd>
                 </button>
               </div>
 
-              {/* Botones de Denominación Rápida */}
-              <div className="grid grid-cols-4 gap-1.5">
+              {/* Botones de Denominación Rápida Compactos */}
+              <div className="grid grid-cols-4 gap-1">
                 {BILLETES_RAPIDOS_SUGERIDOS.map((denom) => (
                   <button
                     key={denom}
                     type="button"
                     onClick={() => setEfectivoRecibido(denom)}
-                    className="py-1.5 px-1 text-xs font-semibold rounded-lg border border-white/10 bg-slate-800/80 hover:bg-slate-700 text-slate-200 transition-colors tabular-nums"
+                    className="py-1 px-1 text-[11px] font-semibold rounded-md border border-white/10 bg-slate-800/80 hover:bg-slate-700 text-slate-200 transition-colors tabular-nums text-center"
                   >
                     ${(denom / 1000).toLocaleString('es-CO')}k
                   </button>
                 ))}
               </div>
 
-              {/* Visor Gigante de Cambio (Vuelto) */}
+              {/* Visor de Cambio (Vuelto) Compacto en 1 sola franja horizontal */}
               <div
-                className={`p-3 rounded-xl border flex flex-col items-center justify-center transition-all ${
+                className={`py-1.5 px-3 rounded-lg border flex items-center justify-between transition-all ${
                   calculoCambio.valido && calculoCambio.cambio > 0
-                    ? 'bg-emerald-500/10 border-emerald-500/30'
+                    ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
                     : calculoCambio.valido && calculoCambio.cambio === 0
-                    ? 'bg-slate-800/60 border-white/10'
-                    : 'bg-rose-500/10 border-rose-500/30'
+                    ? 'bg-slate-800/60 border-white/10 text-cyan-300'
+                    : 'bg-rose-500/15 border-rose-500/40 text-rose-300'
                 }`}
               >
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                <span className="text-[11px] font-bold uppercase tracking-wider">
                   {calculoCambio.valido
                     ? calculoCambio.cambio === 0
-                      ? 'Pago Exacto'
-                      : 'Cambio / Vuelto a Entregar'
-                    : 'Faltante de Efectivo'}
+                      ? '✓ Pago Exacto'
+                      : 'Cambio / Vuelto:'
+                    : '⚠ Faltante:'}
                 </span>
                 <span
-                  className={`text-3xl font-black tracking-tight tabular-nums mt-0.5 ${
-                    calculoCambio.valido && calculoCambio.cambio > 0
-                      ? 'text-emerald-400 drop-shadow-[0_0_12px_rgba(16,185,129,0.3)]'
-                      : calculoCambio.valido && calculoCambio.cambio === 0
-                      ? 'text-cyan-400'
-                      : 'text-rose-400'
-                  }`}
+                  className="text-lg font-black tracking-tight tabular-nums"
                 >
                   ${(calculoCambio.valido ? calculoCambio.cambio : calculoCambio.faltante).toLocaleString('es-CO')}
                 </span>
@@ -460,35 +471,37 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
         </div>
       )}
 
-      {/* Botones de Acción */}
+      {/* Botones de Acción Compactos con Hints de Atajos */}
       <div className="flex gap-2">
         <Button
           variant="outline"
           onClick={onGuardarBorrador}
           disabled={isDisabled}
-          leftIcon={<Save size={18} />}
-          className="flex-1 min-h-[3.25rem] bg-slate-900 border-white/15 text-slate-300 hover:bg-slate-800"
+          leftIcon={<Save size={16} />}
+          className="flex-1 h-11 bg-slate-900 border-white/15 text-slate-300 hover:bg-slate-800 text-xs font-semibold"
         >
-          Borrador
+          <span>Borrador</span>
         </Button>
 
         {!isTurnoAbierto ? (
           <Button
             variant="primary"
             onClick={handleCobrarClick}
-            className="flex-[2] min-h-[3.25rem] text-base font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 border-0"
+            className="flex-[2] h-11 text-sm font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 border-0 flex items-center justify-center gap-1.5"
           >
-            Abrir Caja Primero
+            <span>Abrir Turno Caja</span>
+            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-black/20 rounded text-slate-950">Enter</kbd>
           </Button>
         ) : (
           <Button
             variant="primary"
             onClick={handleCobrarClick}
             disabled={isDisabled || (metodoPago === 'EFECTIVO' && !isModoMixto && !calculoCambio.valido)}
-            className="flex-[2] min-h-[3.25rem] text-base font-bold bg-gradient-to-r from-indigo-600 to-cyan-600 hover:brightness-110 shadow-lg text-white"
+            className="flex-[2] h-11 text-sm font-bold bg-gradient-to-r from-indigo-600 to-cyan-600 hover:brightness-110 shadow-md text-white flex items-center justify-center gap-1.5"
             data-testid="btn-cobrar"
           >
-            Cobrar: ${totalFinal.toLocaleString('es-CO')} (Enter)
+            <span>Cobrar: ${totalFinal.toLocaleString('es-CO')}</span>
+            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-black/30 rounded text-cyan-200">Enter</kbd>
           </Button>
         )}
       </div>

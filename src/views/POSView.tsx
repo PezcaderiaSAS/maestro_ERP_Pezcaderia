@@ -19,6 +19,7 @@ import { RetiroParcialModal } from './pos/components/RetiroParcialModal.tsx';
 import { RestockRequestModal } from './inventory/components/RestockRequestModal.tsx';
 import { Card } from '../components/ui/Card.tsx';
 import { Button } from '../components/ui/Button.tsx';
+import { EnterpriseDataTable, type EnterpriseColumn } from '../components/ui/EnterpriseDataTable.tsx';
 import ArqueoCajaModal from './cash/components/ArqueoCajaModal.tsx';
 import { cashService } from '../services/cashService.ts';
 import { useWarehouseStore } from '../store/useWarehouseStore.ts';
@@ -1475,76 +1476,40 @@ export default function POSView({
 
   // Cálculos financieros delegados al hook usePOSCart
   return (
-    <div className="pos-layout w-full h-full flex flex-col gap-4 animate-fade-in relative min-h-0 overflow-y-auto p-1 lg:p-2">
+    <div className="pos-layout w-full min-h-full flex flex-col gap-2.5 animate-fade-in relative p-1 lg:p-2 pb-8">
       {!isTurnoAbierto && activeSubView === 'venta_pos' && (
-        <div className="w-full bg-red-600 text-white text-center py-2 text-xs font-bold flex items-center justify-center gap-2 rounded-lg shadow-lg animate-pulse">
-          <AlertCircle size={15} /> ⚠ CAJA CERRADA — Debes abrir un turno antes de cobrar
+        <div className="w-full bg-red-600/90 text-white text-center py-1.5 px-3 text-xs font-bold flex items-center justify-center gap-2 rounded-lg shadow-md animate-pulse shrink-0">
+          <AlertCircle size={14} /> ⚠ CAJA CERRADA — Debes abrir un turno antes de cobrar
         </div>
       )}
-      {/* Selector de Vistas / Pestañas de POS */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '12px 24px',
-        backgroundColor: '#0f172a',
-        borderRadius: '16px',
-        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-        border: '1px solid rgba(255,255,255,0.05)',
-        width: '100%',
-        boxSizing: 'border-box'
-      }}>
-        <div style={{ display: 'flex', gap: '12px' }}>
+
+      {/* Selector de Vistas / Pestañas de POS Compactas (Estilo Atlassian/Carbon) */}
+      <div className="flex flex-wrap items-center justify-between gap-2 py-1.5 px-3 bg-slate-900/80 border border-white/10 rounded-xl shrink-0">
+        <div className="flex items-center gap-1.5 overflow-x-auto">
           <button
             onClick={() => setActiveSubView('venta_pos')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '10px 20px',
-              borderRadius: '10px',
-              border: 'none',
-              backgroundColor: activeSubView === 'venta_pos' ? 'var(--primary-color)' : 'transparent',
-              color: 'white',
-              fontWeight: 700,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: activeSubView === 'venta_pos' ? '0 4px 12px rgba(14, 116, 144, 0.3)' : 'none'
-            }}
+            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${
+              activeSubView === 'venta_pos'
+                ? 'bg-cyan-600 text-white shadow-sm ring-1 ring-cyan-400/40'
+                : 'bg-transparent text-slate-300 hover:bg-slate-800'
+            }`}
           >
-            <CreditCard size={18} />
+            <CreditCard size={15} />
             <span>Venta Rápida (POS)</span>
           </button>
           
           <button
             onClick={() => setActiveSubView('consolidacion_b2b')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '10px 20px',
-              borderRadius: '10px',
-              border: 'none',
-              backgroundColor: activeSubView === 'consolidacion_b2b' ? '#3B82F6' : 'transparent',
-              color: 'white',
-              fontWeight: 700,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: activeSubView === 'consolidacion_b2b' ? '0 4px 12px rgba(59, 130, 246, 0.3)' : 'none'
-            }}
+            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${
+              activeSubView === 'consolidacion_b2b'
+                ? 'bg-blue-600 text-white shadow-sm ring-1 ring-blue-400/40'
+                : 'bg-transparent text-slate-300 hover:bg-slate-800'
+            }`}
           >
-            <Truck size={18} />
-            <span>Consolidación y Facturación B2B</span>
+            <Truck size={15} />
+            <span>Consolidación B2B</span>
             {(quotations || []).filter((q: any) => q.estado === 'Listo').length > 0 && (
-              <span style={{
-                backgroundColor: '#EF4444',
-                color: 'white',
-                fontSize: '11px',
-                fontWeight: 'bold',
-                padding: '2px 6px',
-                borderRadius: '9999px',
-                marginLeft: '4px'
-              }}>
+              <span className="bg-red-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">
                 {(quotations || []).filter((q: any) => q.estado === 'Listo').length}
               </span>
             )}
@@ -1552,134 +1517,73 @@ export default function POSView({
           
           <button
             onClick={() => setActiveSubView('canales_digitales')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '10px 20px',
-              borderRadius: '10px',
-              border: 'none',
-              backgroundColor: activeSubView === 'canales_digitales' ? '#8B5CF6' : 'transparent',
-              color: 'white',
-              fontWeight: 700,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: activeSubView === 'canales_digitales' ? '0 4px 12px rgba(139, 92, 246, 0.3)' : 'none'
-            }}
+            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${
+              activeSubView === 'canales_digitales'
+                ? 'bg-purple-600 text-white shadow-sm ring-1 ring-purple-400/40'
+                : 'bg-transparent text-slate-300 hover:bg-slate-800'
+            }`}
           >
-            <RefreshCw size={18} />
-            <span>Monitoreo Canales Digitales</span>
-            {logIntegracion.filter(l => l.estado === 'PENDIENTE').length > 0 && (
-              <span style={{
-                backgroundColor: '#EF4444',
-                color: 'white',
-                fontSize: '11px',
-                fontWeight: 'bold',
-                padding: '2px 6px',
-                borderRadius: '9999px',
-                marginLeft: '4px'
-              }}>
-                {logIntegracion.filter(l => l.estado === 'PENDIENTE').length}
-              </span>
-            )}
-            {logIntegracion.filter(l => l.estado === 'REVISION_MANUAL').length > 0 && (
-              <span style={{
-                backgroundColor: '#F59E0B',
-                color: 'white',
-                fontSize: '11px',
-                fontWeight: 'bold',
-                padding: '2px 6px',
-                borderRadius: '9999px',
-                marginLeft: '4px'
-              }}>
-                {logIntegracion.filter(l => l.estado === 'REVISION_MANUAL').length}
+            <RefreshCw size={15} />
+            <span>Canales Digitales</span>
+            {logIntegracion.filter((l: any) => l.estado === 'PENDIENTE').length > 0 && (
+              <span className="bg-red-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">
+                {logIntegracion.filter((l: any) => l.estado === 'PENDIENTE').length}
               </span>
             )}
           </button>
           
           <button
             onClick={() => setActiveSubView('gestion_kanban')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '10px 20px',
-              borderRadius: '10px',
-              border: 'none',
-              backgroundColor: activeSubView === 'gestion_kanban' ? '#F59E0B' : 'transparent',
-              color: 'white',
-              fontWeight: 700,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: activeSubView === 'gestion_kanban' ? '0 4px 12px rgba(245, 158, 11, 0.3)' : 'none'
-            }}
+            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${
+              activeSubView === 'gestion_kanban'
+                ? 'bg-amber-600 text-white shadow-sm ring-1 ring-amber-400/40'
+                : 'bg-transparent text-slate-300 hover:bg-slate-800'
+            }`}
           >
-            <span style={{ fontSize: '18px' }}>KB</span>
-            <span>Gestión Kanban</span>
+            <span className="text-xs font-mono font-bold">KB</span>
+            <span>Kanban</span>
           </button>
         </div>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div className="flex items-center gap-2">
           <button
             onClick={() => setShowRestockModal(true)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '8px 14px',
-              borderRadius: '10px',
-              border: '1px solid rgba(245, 158, 11, 0.4)',
-              background: 'rgba(245, 158, 11, 0.15)',
-              color: '#FCD34D',
-              fontSize: '12px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
+            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg border border-amber-500/40 bg-amber-500/10 text-amber-300 text-xs font-bold hover:bg-amber-500/20 transition-all"
             title="Solicitar Reabastecimiento a Bodega Principal"
           >
-            <Truck size={14} color="#F59E0B" />
-            <span>Reabastecer POS</span>
+            <Truck size={13} className="text-amber-400" />
+            <span className="hidden sm:inline">Reabastecer POS</span>
           </button>
 
-          <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', fontWeight: 500 }}>
-            Rol: <span style={{ color: '#38BDF8', fontWeight: 700, textTransform: 'uppercase' }}>{userRole}</span>
+          <div className="text-xs text-slate-400 hidden md:block">
+            Rol: <span className="text-cyan-400 font-bold uppercase">{userRole}</span>
           </div>
+
           <div className="relative">
             <button
               onClick={() => setShowHamburger(!showHamburger)}
-              style={{
-                background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                color: 'white',
-                padding: '6px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
+              className="p-1.5 rounded-lg border border-white/10 bg-slate-800/80 hover:bg-slate-700 text-slate-200 transition-colors"
             >
-              <Menu size={20} />
+              <Menu size={16} />
             </button>
             {showHamburger && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden">
+              <div className="absolute right-0 mt-2 w-48 bg-slate-900 border border-white/15 rounded-xl shadow-2xl z-50 overflow-hidden text-slate-200">
                 {!isTurnoAbierto ? (
-                  <button onClick={() => { setShowAperturaModal(true); setShowHamburger(false); }} className="w-full text-left px-4 py-3 hover:bg-slate-50 text-sm font-semibold text-slate-700 border-b border-gray-100 flex items-center gap-2">
-                    <Plus size={16} /> Abrir Turno
+                  <button onClick={() => { setShowAperturaModal(true); setShowHamburger(false); }} className="w-full text-left px-4 py-2.5 hover:bg-slate-800 text-xs font-semibold border-b border-white/10 flex items-center gap-2">
+                    <Plus size={14} className="text-cyan-400" /> Abrir Turno
                   </button>
                 ) : (
                   <>
-                    <button onClick={() => { setShowArqueoModal(true); setShowHamburger(false); }} className="w-full text-left px-4 py-3 hover:bg-slate-50 text-sm font-semibold text-red-600 border-b border-gray-100 flex items-center gap-2">
-                      <X size={16} /> Cerrar Turno
+                    <button onClick={() => { setShowArqueoModal(true); setShowHamburger(false); }} className="w-full text-left px-4 py-2.5 hover:bg-slate-800 text-xs font-semibold text-rose-400 border-b border-white/10 flex items-center gap-2">
+                      <X size={14} /> Cerrar Turno
                     </button>
-                    <button onClick={() => { setShowHamburger(false); }} className="w-full text-left px-4 py-3 hover:bg-slate-50 text-sm font-medium text-slate-600 border-b border-gray-100 flex items-center gap-2">
-                      <AlertTriangle size={16} /> Retiros / Egresos
+                    <button onClick={() => { setShowHamburger(false); }} className="w-full text-left px-4 py-2.5 hover:bg-slate-800 text-xs font-medium border-b border-white/10 flex items-center gap-2">
+                      <AlertTriangle size={14} className="text-amber-400" /> Retiros / Egresos
                     </button>
                   </>
                 )}
-                <button onClick={() => { setShowHamburger(false); }} className="w-full text-left px-4 py-3 hover:bg-slate-50 text-sm font-medium text-slate-600 flex items-center gap-2">
-                  <FileText size={16} /> Historial
+                <button onClick={() => { setShowHamburger(false); }} className="w-full text-left px-4 py-2.5 hover:bg-slate-800 text-xs font-medium flex items-center gap-2">
+                  <FileText size={14} className="text-slate-400" /> Historial
                 </button>
               </div>
             )}
@@ -1689,19 +1593,23 @@ export default function POSView({
 
       {activeSubView === 'venta_pos' ? (
         <>
-          <div className="flex-1 min-h-0 w-full flex flex-col lg:grid lg:grid-cols-[7fr_3fr] gap-4 overflow-y-auto pt-2">
-            {/* Catálogo de Productos */}
-        <ProductSearchPanel 
-          activeProducts={activeProducts} 
-          dynamicFields={dynamicFields} 
-          cliente={cliente} 
-          getProductPrice={getProductPrice} 
-          getProductStock={getProductStock} 
-          onAddProduct={handleAddProduct} 
-        />
+          {/* Grilla Desacoplada: Catálogo y Carrito con Scroll Fluido en Laptop */}
+          <div className="flex-1 min-h-0 w-full flex flex-col lg:grid lg:grid-cols-[7fr_3fr] gap-3 pt-1">
+            {/* Columna Izquierda: Catálogo de Productos con su propio scroll */}
+            <div className="flex flex-col min-h-0 flex-1 overflow-y-auto pr-1">
+              <ProductSearchPanel 
+                activeProducts={activeProducts} 
+                dynamicFields={dynamicFields} 
+                cliente={cliente} 
+                getProductPrice={getProductPrice} 
+                getProductStock={getProductStock} 
+                onAddProduct={handleAddProduct} 
+              />
+            </div>
 
-      {/* Carrito de Compras / Factura — delegado a CartPanel */}
-      <Card glass className="pos-sidebar-cart flex flex-col h-full min-h-0">
+            {/* Columna Derecha: Carrito de Compras / Factura con scroll desacoplado */}
+            <div className="flex flex-col min-h-0 h-full">
+              <Card glass className="pos-sidebar-cart flex flex-col h-full min-h-0 p-0 overflow-hidden border border-white/10 shadow-xl">
         {ultimoTicket ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px', height: '100%', overflowY: 'auto' }}>
             <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: 0, textAlign: 'center' }}>Venta Realizada con Éxito</h3>
@@ -1753,60 +1661,46 @@ export default function POSView({
           />
         )}
       </Card>
-      </div>
-      </>
+    </div>
+  </div>
+</>
       ) : activeSubView === 'consolidacion_b2b' ? (
-        <div className="animate-fade-in flex flex-col lg:grid lg:grid-cols-[1fr_2fr] gap-6 w-full box-border">
+        <div className="animate-fade-in flex flex-col lg:grid lg:grid-cols-[1fr_2fr] gap-4 w-full box-border">
            {/* COLUMNA IZQUIERDA: LISTADO DE PEDIDOS */}
-           <div className="hr-table-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', backgroundColor: 'white', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
-             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+           <div className="flex flex-col gap-3 p-4 bg-slate-900/80 border border-white/10 rounded-2xl shadow-xl backdrop-blur-xl">
+             <div className="flex justify-between items-center">
                <div>
-                 <span style={{ fontSize: '12px', color: '#3B82F6', fontWeight: 600, textTransform: 'uppercase' }}>Consolidación</span>
-                 <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', marginTop: '2px' }}>Pedidos B2B</h3>
+                 <span className="text-[10px] text-blue-400 font-bold uppercase tracking-wider">Consolidación</span>
+                 <h3 className="text-base font-extrabold text-white mt-0.5">Pedidos B2B</h3>
                </div>
                <button
                  onClick={() => setCurrentView('precios')}
-                 className="btn-primary"
-                 style={{ padding: '8px 12px', borderRadius: '8px', fontSize: '12px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                 className="flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold bg-cyan-600 hover:bg-cyan-500 text-white transition-all shadow-md"
                >
-                 <Plus size={14} />
+                 <Plus size={13} />
                  <span>Crear Pedido</span>
                </button>
              </div>
 
              {/* Filter Toggle */}
-             <div style={{ display: 'flex', backgroundColor: '#F1F5F9', padding: '4px', borderRadius: '8px', gap: '4px' }}>
+             <div className="flex bg-slate-950/60 p-1 rounded-xl border border-white/10 gap-1">
                <button
                  onClick={() => setB2bFilter('Listo')}
-                 style={{
-                   flex: 1,
-                   padding: '6px',
-                   borderRadius: '6px',
-                   border: 'none',
-                   fontSize: '12px',
-                   fontWeight: 700,
-                   backgroundColor: b2bFilter === 'Listo' ? 'white' : 'transparent',
-                   color: b2bFilter === 'Listo' ? '#0F172A' : '#64748B',
-                   cursor: 'pointer',
-                   boxShadow: b2bFilter === 'Listo' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
-                 }}
+                 className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition-all ${
+                   b2bFilter === 'Listo'
+                     ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
+                     : 'text-slate-400 hover:text-white'
+                 }`}
                >
                  Listos ({ (quotations || []).filter((q: any) => q.estado === 'Listo').length })
                </button>
                <button
                  onClick={() => setB2bFilter('Todos')}
-                 style={{
-                   flex: 1,
-                   padding: '6px',
-                   borderRadius: '6px',
-                   border: 'none',
-                   fontSize: '12px',
-                   fontWeight: 700,
-                   backgroundColor: b2bFilter === 'Todos' ? 'white' : 'transparent',
-                   color: b2bFilter === 'Todos' ? '#0F172A' : '#64748B',
-                   cursor: 'pointer',
-                   boxShadow: b2bFilter === 'Todos' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
-                 }}
+                 className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition-all ${
+                   b2bFilter === 'Todos'
+                     ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
+                     : 'text-slate-400 hover:text-white'
+                 }`}
                >
                  Todos ({ (quotations || []).filter((q: any) => q.estado !== 'Sold' && q.estado !== 'Facturado' && q.estado !== 'Expired').length })
                </button>
@@ -2460,149 +2354,151 @@ export default function POSView({
             </div>
           </div>
 
-          {/* Tabla de payloads */}
-          <div className="hr-table-card" style={{ padding: '24px', backgroundColor: 'white', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '16px', color: '#0F172A' }}>Cola de payloads JSON recibidos</h3>
+          {/* Tabla de payloads con EnterpriseDataTable estilo AntD / Shadcn */}
+          <div className="flex flex-col gap-3">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-300">
+              Cola de Payloads JSON Recibidos
+            </h3>
             
-            <table className="hr-table" style={{ width: '100%' }}>
-              <thead>
-                <tr>
-                  <th style={{ padding: '12px 16px' }}>Recepción</th>
-                  <th style={{ padding: '12px 16px' }}>Canal</th>
-                  <th style={{ padding: '12px 16px' }}>ID Externo</th>
-                  <th style={{ padding: '12px 16px' }}>Estado</th>
-                  <th style={{ padding: '12px 16px' }}>Factura POS</th>
-                  <th style={{ padding: '12px 16px' }}>Detalles / Error</th>
-                  <th style={{ padding: '12px 16px', textAlign: 'center' }}>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {logIntegracion.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} style={{ padding: '32px', textAlign: 'center', color: '#64748B' }}>
-                      No se han recibido eventos de canales digitales. Use los simuladores de arriba.
-                    </td>
-                  </tr>
-                ) : (
-                  logIntegracion.map((log: any) => {
+            <EnterpriseDataTable
+              data={logIntegracion}
+              rowKey={(l) => l.id}
+              searchPlaceholder="Filtrar por canal, ID externo o estado..."
+              emptyMessage="No se han recibido eventos de canales digitales. Use los simuladores de arriba."
+              columns={[
+                {
+                  key: 'fecha_recepcion',
+                  header: 'Recepción',
+                  render: (l) => (
+                    <span className="text-slate-400 font-mono text-[11px]">
+                      {new Date(l.fecha_recepcion).toLocaleString('es-CO')}
+                    </span>
+                  )
+                },
+                {
+                  key: 'canal',
+                  header: 'Canal',
+                  render: (l) => (
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${
+                      l.canal.toLowerCase() === 'shopify'
+                        ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                        : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                    }`}>
+                      {l.canal}
+                    </span>
+                  )
+                },
+                {
+                  key: 'id_pedido_externo',
+                  header: 'ID Externo',
+                  render: (l) => <span className="font-mono font-bold text-white">{l.id_pedido_externo}</span>
+                },
+                {
+                  key: 'estado',
+                  header: 'Estado',
+                  render: (l) => (
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      l.estado === 'PROCESADO' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :
+                      l.estado === 'PENDIENTE' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30' :
+                      l.estado === 'REVISION_MANUAL' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' :
+                      'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                    }`}>
+                      {l.estado}
+                    </span>
+                  )
+                },
+                {
+                  key: 'id_factura_pos',
+                  header: 'Factura POS',
+                  render: (l) => <span className="font-mono text-cyan-300 font-semibold">{l.id_factura_pos ? l.id_factura_pos.toUpperCase() : '—'}</span>
+                },
+                {
+                  key: 'detalles',
+                  header: 'Detalles / Total',
+                  render: (l) => {
                     let itemsCount = 0;
                     let totalVal = 0;
                     try {
-                      const data = JSON.parse(log.payload_json);
+                      const data = JSON.parse(l.payload_json);
                       itemsCount = data.items?.length || 0;
                       totalVal = data.total || 0;
                     } catch(e) {}
 
-                    return (
-                      <tr key={log.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                        <td style={{ padding: '12px 16px', fontSize: '12px', color: '#64748B' }}>
-                          {new Date(log.fecha_recepcion).toLocaleString('es-CO')}
-                        </td>
-                        <td style={{ padding: '12px 16px' }}>
-                          <span style={{
-                            padding: '4px 8px',
-                            borderRadius: '6px',
-                            fontSize: '11px',
-                            fontWeight: 700,
-                            backgroundColor: log.canal.toLowerCase() === 'shopify' ? '#EEF2F6' : '#FEF2F2',
-                            color: log.canal.toLowerCase() === 'shopify' ? '#2563EB' : '#DC2626'
-                          }}>
-                            {log.canal.toUpperCase()}
-                          </span>
-                        </td>
-                        <td style={{ padding: '12px 16px', fontWeight: 600 }}>{log.id_pedido_externo}</td>
-                        <td style={{ padding: '12px 16px' }}>
-                          <span className={`badge-status ${
-                            log.estado === 'PROCESADO' ? 'activo' :
-                            log.estado === 'PENDIENTE' ? 'despachado' :
-                            log.estado === 'REVISION_MANUAL' ? 'programado' : 'inactivo'
-                          }`} style={{
-                            backgroundColor: log.estado === 'REVISION_MANUAL' ? '#FEF3C7' : undefined,
-                            color: log.estado === 'REVISION_MANUAL' ? '#D97706' : undefined,
-                          }}>
-                            {log.estado}
-                          </span>
-                        </td>
-                        <td style={{ padding: '12px 16px', fontWeight: 700 }}>
-                          {log.id_factura_pos ? log.id_factura_pos.toUpperCase() : 'N/A'}
-                        </td>
-                        <td style={{ padding: '12px 16px', fontSize: '13px', maxWidth: '250px', wordBreak: 'break-all' }}>
-                          {log.mensaje_error ? (
-                            <span style={{ color: '#EF4444', fontWeight: 500 }}>{log.mensaje_error}</span>
-                          ) : (
-                            <span style={{ color: '#64748B' }}>
-                              {itemsCount} artículo(s) • Total: ${totalVal.toLocaleString('es-CO')}
-                            </span>
-                          )}
-                        </td>
-                        <td style={{ padding: '12px 16px', display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                          {log.estado === 'REVISION_MANUAL' && (
-                            <>
-                              <button
-                                onClick={() => handleAprobarPedidoManual(log.id, 'parcial')}
-                                className="btn-secondary"
-                                style={{ padding: '6px 10px', fontSize: '12px', borderRadius: '6px', cursor: 'pointer' }}
-                              >
-                                Stock Parcial
-                              </button>
-                              <button
-                                onClick={() => handleAprobarPedidoManual(log.id, 'forzar')}
-                                className="btn-primary"
-                                style={{ padding: '6px 10px', fontSize: '12px', borderRadius: '6px', backgroundColor: '#F59E0B', color: 'white', border: 'none', cursor: 'pointer' }}
-                              >
-                                Forzar Venta
-                              </button>
-                            </>
-                          )}
-                          {log.estado === 'PROCESADO' && (
-                            <button
-                              onClick={() => {
-                                Swal.fire({
-                                  title: '¿Confirmar cancelación?',
-                                  text: `Esta acción emitirá una Nota de Crédito/Devolución y reintegrará el stock al inventario (RN-04).`,
-                                  icon: 'warning',
-                                  showCancelButton: true,
-                                  confirmButtonColor: '#EF4444',
-                                  confirmButtonText: 'Sí, cancelar y reversar stock',
-                                  cancelButtonText: 'No, mantener activo'
-                                }).then((res) => {
-                                  if (res.isConfirmed) {
-                                    handleCancelarPedidoDigital(log.id);
-                                    Swal.fire('Pedido Reversado', 'Se generó la devolución y el stock regresó a bodega.', 'success');
-                                  }
-                                });
-                              }}
-                              className="btn-secondary"
-                              style={{ padding: '6px 10px', fontSize: '12px', borderRadius: '6px', color: '#EF4444', borderColor: '#FCA5A5', cursor: 'pointer' }}
-                            >
-                              Cancelar Pedido
-                            </button>
-                          )}
-                          {log.estado === 'PENDIENTE' && (
-                            <span style={{ fontSize: '12px', color: '#94A3B8', fontStyle: 'italic' }}>
-                              Procesando...
-                            </span>
-                          )}
-                          {log.estado === 'ERROR' && (
-                            <button
-                              onClick={() => {
-                                setLogIntegracion((prev: any) =>
-                                  prev.map((l: any) => l.id === log.id ? { ...l, estado: 'PENDIENTE', mensaje_error: undefined } : l)
-                                );
-                              }}
-                              className="btn-secondary"
-                              style={{ padding: '6px 10px', fontSize: '12px', borderRadius: '6px', cursor: 'pointer' }}
-                            >
-                              Reprocesar
-                            </button>
-                          )}
-                        </td>
-                      </tr>
+                    return l.mensaje_error ? (
+                      <span className="text-rose-400 font-medium text-xs">{l.mensaje_error}</span>
+                    ) : (
+                      <span className="text-slate-400 text-xs">
+                        {itemsCount} art. • <b className="text-white">${totalVal.toLocaleString('es-CO')}</b>
+                      </span>
                     );
-                  })
-                )}
-              </tbody>
-            </table>
+                  }
+                },
+                {
+                  key: 'acciones',
+                  header: 'Acciones',
+                  align: 'center',
+                  sortable: false,
+                  render: (l) => (
+                    <div className="flex items-center gap-1.5 justify-center">
+                      {l.estado === 'REVISION_MANUAL' && (
+                        <>
+                          <button
+                            onClick={() => handleAprobarPedidoManual(l.id, 'parcial')}
+                            className="px-2 py-1 text-[11px] rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10"
+                          >
+                            Parcial
+                          </button>
+                          <button
+                            onClick={() => handleAprobarPedidoManual(l.id, 'forzar')}
+                            className="px-2 py-1 text-[11px] rounded bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold"
+                          >
+                            Forzar
+                          </button>
+                        </>
+                      )}
+                      {l.estado === 'PROCESADO' && (
+                        <button
+                          onClick={() => {
+                            Swal.fire({
+                              title: '¿Confirmar cancelación?',
+                              text: 'Esta acción emitirá una Nota de Crédito/Devolución y reintegrará el stock.',
+                              icon: 'warning',
+                              showCancelButton: true,
+                              confirmButtonColor: '#EF4444',
+                              confirmButtonText: 'Sí, cancelar pedido',
+                              cancelButtonText: 'No'
+                            }).then((res) => {
+                              if (res.isConfirmed) {
+                                handleCancelarPedidoDigital(l.id);
+                                Swal.fire('Pedido Reversado', 'Stock reintegrado.', 'success');
+                              }
+                            });
+                          }}
+                          className="px-2 py-1 text-[11px] rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30"
+                        >
+                          Cancelar
+                        </button>
+                      )}
+                      {l.estado === 'PENDIENTE' && (
+                        <span className="text-[11px] text-slate-500 italic">Procesando...</span>
+                      )}
+                      {l.estado === 'ERROR' && (
+                        <button
+                          onClick={() => {
+                            setLogIntegracion((prev: any) =>
+                              prev.map((item: any) => item.id === l.id ? { ...item, estado: 'PENDIENTE', mensaje_error: undefined } : item)
+                            );
+                          }}
+                          className="px-2 py-1 text-[11px] rounded bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-white/10"
+                        >
+                          Reprocesar
+                        </button>
+                      )}
+                    </div>
+                  )
+                }
+              ]}
+            />
           </div>
         </div>
       )}

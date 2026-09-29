@@ -255,19 +255,10 @@ export const CartPanel: React.FC<CartPanelProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="pos-cart-panel flex flex-col h-full min-h-0 overflow-y-auto pr-1">
       {/* ── HEADER: Selector de cliente + Borradores ── */}
       <div
-        className="pos-cart-header"
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          minHeight: '56px',
-          padding: '8px 12px',
-          borderBottom: '1px solid #F1F5F9',
-          flexShrink: 0,
-        }}
+        className="pos-cart-header flex justify-between items-center py-2 px-3 border-b border-white/10 bg-slate-900/60 shrink-0 rounded-t-xl"
       >
         {/* Selector de cliente */}
         {cliente ? (
@@ -394,47 +385,20 @@ export const CartPanel: React.FC<CartPanelProps> = ({
 
       {/* ── FOOTER STICKY: Total + Descuento + Pago ── */}
       <div
-        className="pos-cart-footer"
-        style={{
-          flexShrink: 0,
-          position: 'sticky',
-          bottom: 0,
-          background: 'white',
-          padding: '12px',
-          borderTop: '2px solid #E2E8F0',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '8px',
-        }}
+        className="pos-cart-footer shrink-0 sticky bottom-0 bg-slate-900/95 backdrop-blur-md p-2.5 border-t border-white/10 flex flex-col gap-2 rounded-b-xl"
       >
-
         {/* Total prominente táctil */}
         {lineas.length > 0 && (
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '8px 4px',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '13px', color: '#64748B', fontWeight: 600 }}>TOTAL</span>
+          <div className="flex justify-between items-center py-1 px-1">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">TOTAL</span>
               <span 
-                className={`bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded ${isBouncing ? 'animate-bounce' : ''}`}
-                style={{ display: 'inline-block' }}
+                className={`bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-[11px] font-bold px-2 py-0.5 rounded-full ${isBouncing ? 'animate-bounce' : ''}`}
               >
                 {totalItems} ítems
               </span>
             </div>
-            <strong
-              style={{
-                fontSize: '24px',
-                fontWeight: 900,
-                color: 'var(--primary-color)',
-                textAlign: 'right',
-              }}
-            >
+            <strong className="text-2xl font-black text-cyan-400 tabular-nums">
               ${totales.totalFinal.toLocaleString('es-CO')}
             </strong>
           </div>
