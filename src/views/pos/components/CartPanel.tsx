@@ -5,7 +5,7 @@ import type { LineaVenta } from '../../../types/pos.types';
 import type { ClientePOS } from '../../../hooks/usePOSCart';
 import { LineaVentaRow } from './LineaVentaRow';
 import { DiscountPanel } from './DiscountPanel';
-import { PaymentPanel } from './PaymentPanel';
+import { PaymentPanel, type MetodoCobroPos } from './PaymentPanel';
 import Swal from 'sweetalert2';
 
 interface CartPanelProps {
@@ -35,7 +35,7 @@ interface CartPanelProps {
   onSelectCliente: () => void;
   onClearCliente: () => void;
   onDescuentoClick: () => void;
-  onPagar: (pagos: { metodo: 'EFECTIVO' | 'TRANSFERENCIA' | 'DATAFONO' | 'CREDITO'; monto: number }[]) => Promise<any> | void;
+  onPagar: (pagos: { metodo: MetodoCobroPos; monto: number }[]) => Promise<any> | void;
   onGuardarBorrador: () => void;
   onSetActiveDraftId: (id: string | null) => void;
   onSetDrafts: (fn: (prev: any[]) => any[]) => void;
@@ -45,6 +45,9 @@ interface CartPanelProps {
   isTurnoAbierto: boolean;
   onAbrirTurnoRequest?: () => void;
   onCerrarTurnoClick?: () => void;
+  saldoEfectivoGaveta?: number;
+  topeMaximoGaveta?: number;
+  onRetiroParcialRequest?: () => void;
 }
 
 export const CartPanel: React.FC<CartPanelProps> = ({
@@ -76,6 +79,9 @@ export const CartPanel: React.FC<CartPanelProps> = ({
   isTurnoAbierto,
   onAbrirTurnoRequest,
   onCerrarTurnoClick,
+  saldoEfectivoGaveta,
+  topeMaximoGaveta,
+  onRetiroParcialRequest,
 }) => {
   const [isBouncing, setIsBouncing] = useState(false);
   const totalItems = lineas.reduce((sum, l) => sum + Number(l.cantidad), 0);
@@ -455,6 +461,9 @@ export const CartPanel: React.FC<CartPanelProps> = ({
           isDisabled={lineas.length === 0}
           isTurnoAbierto={isTurnoAbierto}
           onAbrirTurnoRequest={onAbrirTurnoRequest}
+          onRetiroParcialRequest={onRetiroParcialRequest}
+          saldoEfectivoGaveta={saldoEfectivoGaveta}
+          topeMaximoGaveta={topeMaximoGaveta}
         />
       </div>
     </div>

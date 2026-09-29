@@ -1,11 +1,28 @@
-import React, { useState } from 'react';
-import { Save, CreditCard, Banknote, Landmark, Unlock, Lock, Calculator, AlertCircle, Phone } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  Save,
+  CreditCard,
+  Banknote,
+  Landmark,
+  Calculator,
+  AlertCircle,
+  Phone,
+  QrCode,
+  CheckCircle,
+  Coins,
+} from 'lucide-react';
 import { NumericFormat } from 'react-number-format';
 import { Button } from '../../../components/ui/Button';
 import Swal from 'sweetalert2';
 import { usePOSPrinter } from '../../../hooks/usePOSPrinter';
 import type { LineaVenta } from '../../../types/pos.types';
 import type { ClientePOS } from '../../../hooks/usePOSCart';
+import {
+  calcularCambioEfectivo,
+  BILLETES_RAPIDOS_SUGERIDOS,
+} from '../../../../packages/validation-schemas/src/posCashEngine.schema';
+
+export type MetodoCobroPos = 'EFECTIVO' | 'NEQUI' | 'DAVIPLATA' | 'QR_BANCOLOMBIA' | 'DATAFONO' | 'CREDITO';
 
 export interface PaymentPanelProps {
   totalFinal: number;
@@ -15,11 +32,14 @@ export interface PaymentPanelProps {
   bodegaActivaId: string;
   bodegaActivaNombre: string;
   onGuardarBorrador: () => void;
-  onPagar: (pagos: { metodo: 'EFECTIVO' | 'TRANSFERENCIA' | 'DATAFONO' | 'CREDITO'; monto: number }[]) => Promise<any> | void;
+  onPagar: (pagos: { metodo: MetodoCobroPos; monto: number }[]) => Promise<any> | void;
   onLimpiarCarrito: () => void;
   isDisabled: boolean;
   isTurnoAbierto: boolean;
   onAbrirTurnoRequest?: () => void;
+  onRetiroParcialRequest?: () => void;
+  saldoEfectivoGaveta?: number;
+  topeMaximoGaveta?: number;
 }
 
 export const PaymentPanel: React.FC<PaymentPanelProps> = ({
@@ -34,25 +54,63 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
   onLimpiarCarrito,
   isDisabled,
   isTurnoAbierto,
-  onAbrirTurnoRequest
+  onAbrirTurnoRequest,
+  onRetiroParcialRequest,
+  saldoEfectivoGaveta = 0,
+  topeMaximoGaveta = 1500000,
 }) => {
   const { imprimirTicket } = usePOSPrinter();
-  const [metodoPago, setMetodoPago] = useState<'EFECTIVO' | 'TRANSFERENCIA' | 'DATAFONO' | 'CREDITO'>('EFECTIVO');
-  
+  const [metodoPago, setMetodoPago] = useState<MetodoCobroPos>('EFECTIVO');
+  const [efectivoRecibido, setEfectivoRecibido] = useState<number>(0);
+
   const [isModoMixto, setIsModoMixto] = useState(false);
-  const [pagosMixtos, setPagosMixtos] = useState({
+  const [pagosMixtos, setPagosMixtos] = useState<Record<MetodoCobroPos, number>>({
     EFECTIVO: 0,
-    TRANSFERENCIA: 0,
+    NEQUI: 0,
+    DAVIPLATA: 0,
+    QR_BANCOLOMBIA: 0,
     DATAFONO: 0,
-    CREDITO: 0
+    CREDITO: 0,
   });
 
-  const totalPagosMixtos = pagosMixtos.EFECTIVO + pagosMixtos.TRANSFERENCIA + pagosMixtos.DATAFONO + pagosMixtos.CREDITO;
-  const faltantePagoMixto = totalFinal - totalPagosMixtos;
+  const efectivoInputRef = useRef<HTMLInputElement>(null);
 
-  const handleUpdatePagoMixto = (metodo: keyof typeof pagosMixtos, value: number) => {
-    setPagosMixtos(prev => ({ ...prev, [metodo]: value }));
+  // Al cambiar totalFinal o método a EFECTIVO, sugerir monto exacto si está en cero
+  useEffect(() => {
+    if (metodoPago === 'EFECTIVO' && efectivoRecibido === 0 && totalFinal > 0) {
+      setEfectivoRecibido(totalFinal);
+    }
+  }, [totalFinal, metodoPago]);
+
+  const calculoCambio = calcularCambioEfectivo(totalFinal, efectivoRecibido);
+
+  const totalPagosMixtos = Object.values(pagosMixtos).reduce((acc, v) => acc + (v || 0), 0);
+  const faltantePagoMixto = Math.round((totalFinal - totalPagosMixtos) * 100) / 100;
+
+  const handleUpdatePagoMixto = (metodo: MetodoCobroPos, value: number) => {
+    setPagosMixtos((prev) => ({ ...prev, [metodo]: value }));
   };
+
+  // Atajos de teclado físico
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Si el foco está en un textarea o modal abierto, ignorar
+      if (['TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
+
+      if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) {
+        if (!isDisabled && isTurnoAbierto && totalFinal > 0) {
+          e.preventDefault();
+          handleCobrarClick();
+        }
+      } else if (e.code === 'Space' && (e.target as HTMLElement)?.tagName !== 'INPUT') {
+        e.preventDefault();
+        setEfectivoRecibido(totalFinal);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [totalFinal, efectivoRecibido, isTurnoAbierto, isDisabled, isModoMixto, pagosMixtos, metodoPago]);
 
   const handleCobrarClick = async () => {
     if (!isTurnoAbierto) {
@@ -60,13 +118,13 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
       return;
     }
 
-    // RN-06: Validar totalFinal mayor a 0
     if (totalFinal <= 0) {
       Swal.fire({
         icon: 'error',
         title: 'Error de Cobro',
         text: 'El total final debe ser mayor a $0 para procesar el pago.',
-        confirmButtonColor: 'var(--primary-color)'
+        background: '#0f172a',
+        color: '#f8fafc',
       });
       return;
     }
@@ -74,11 +132,9 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
     // RN-01: Validar stock suficiente
     let stockSuficiente = true;
     const itemsFaltantes: string[] = [];
-    
-    // Usar nombre de bodega si el ID no existe en el registro de stock (legacy fallback)
     const targetWarehouseKey = stock[bodegaActivaId] ? bodegaActivaId : bodegaActivaNombre;
 
-    lineas.forEach(item => {
+    lineas.forEach((item) => {
       const stockDisponible = stock[targetWarehouseKey]?.[item.sku] || 0;
       if (stockDisponible < item.cantidad) {
         stockSuficiente = false;
@@ -94,239 +150,349 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
           <div style="text-align: left; font-size: 14px;">
             <p>No se puede liquidar la venta porque el stock en <strong>${bodegaActivaNombre}</strong> es insuficiente:</p>
             <ul style="color: #EF4444; font-weight: 600; list-style-type: none; padding-left: 0;">
-              ${itemsFaltantes.map(msg => `<li style="margin-bottom: 6px;">${msg}</li>`).join('')}
+              ${itemsFaltantes.map((msg) => `<li style="margin-bottom: 6px;">${msg}</li>`).join('')}
             </ul>
-            <p style="margin-top: 12px; font-size: 13px; color: #64748B;">Ajuste las cantidades en el carrito antes de reintentar.</p>
           </div>
         `,
-        confirmButtonColor: 'var(--primary-color)'
+        background: '#0f172a',
+        color: '#f8fafc',
       });
       return;
     }
 
-    let pagosFinales: { metodo: 'EFECTIVO' | 'TRANSFERENCIA' | 'DATAFONO' | 'CREDITO'; monto: number }[] = [];
+    let pagosFinales: { metodo: MetodoCobroPos; monto: number }[] = [];
 
     if (isModoMixto) {
       if (faltantePagoMixto !== 0) {
         Swal.fire({
           icon: 'error',
-          title: 'Error de Cuadre',
-          text: `La suma de pagos debe coincidir exactamente con el total ($${totalFinal.toLocaleString('es-CO')}). ${faltantePagoMixto > 0 ? `Faltan $${faltantePagoMixto.toLocaleString('es-CO')}` : `Sobran $${Math.abs(faltantePagoMixto).toLocaleString('es-CO')}`}`,
-          confirmButtonColor: 'var(--primary-color)'
-        });
-        return;
-      }
-      
-      if (pagosMixtos.CREDITO > 0 && !cliente) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Cliente Requerido',
-          text: 'Debe vincular un cliente registrado para poder procesar la porción a crédito.',
-          confirmButtonColor: 'var(--primary-color)'
+          title: 'Error de Cuadre Mixto',
+          text: `La suma de pagos debe coincidir exactamente con el total ($${totalFinal.toLocaleString('es-CO')}). ${
+            faltantePagoMixto > 0
+              ? `Faltan $${faltantePagoMixto.toLocaleString('es-CO')}`
+              : `Sobran $${Math.abs(faltantePagoMixto).toLocaleString('es-CO')}`
+          }`,
+          background: '#0f172a',
+          color: '#f8fafc',
         });
         return;
       }
 
-      pagosFinales = (Object.entries(pagosMixtos) as ['EFECTIVO' | 'TRANSFERENCIA' | 'DATAFONO' | 'CREDITO', number][])
+      if (pagosMixtos.CREDITO > 0 && !cliente) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Cliente Requerido',
+          text: 'Debe vincular un cliente registrado para procesar la venta a crédito.',
+          background: '#0f172a',
+          color: '#f8fafc',
+        });
+        return;
+      }
+
+      pagosFinales = (Object.entries(pagosMixtos) as [MetodoCobroPos, number][])
         .filter(([, monto]) => monto > 0)
         .map(([metodo, monto]) => ({ metodo, monto }));
-        
     } else {
       if (metodoPago === 'CREDITO' && !cliente) {
         Swal.fire({
           icon: 'warning',
           title: 'Cliente Requerido',
-          text: 'Debe vincular un cliente registrado para poder procesar una venta a crédito.',
-          confirmButtonColor: 'var(--primary-color)'
+          text: 'Debe vincular un cliente registrado para procesar una venta a crédito.',
+          background: '#0f172a',
+          color: '#f8fafc',
         });
         return;
       }
-      pagosFinales = [{ metodo: metodoPago, monto: totalFinal }];
-    }
 
-    if (pagosFinales.some(p => p.metodo === 'EFECTIVO' || p.metodo === 'TRANSFERENCIA')) {
-      console.log('RN-12: Enviando comando ESC/POS para abrir gaveta de dinero...');
+      if (metodoPago === 'EFECTIVO' && !calculoCambio.valido) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Efectivo Insuficiente',
+          text: `El efectivo recibido ($${efectivoRecibido.toLocaleString('es-CO')}) es menor al total a cobrar ($${totalFinal.toLocaleString('es-CO')}). Faltan $${calculoCambio.faltante.toLocaleString('es-CO')}.`,
+          background: '#0f172a',
+          color: '#f8fafc',
+        });
+        return;
+      }
+
+      pagosFinales = [{ metodo: metodoPago, monto: totalFinal }];
     }
 
     try {
       const ventaProcesada = await onPagar(pagosFinales);
-      
-      // Si onPagar devuelve la venta (en el futuro de la Fase 4), imprimimos el ticket y limpiamos el carrito
       if (ventaProcesada) {
         await imprimirTicket(ventaProcesada, cliente);
         onLimpiarCarrito();
+        setEfectivoRecibido(0);
       }
     } catch (err) {
       console.error('Error durante el cobro:', err);
-      // El error probablemente ya fue manejado por el orquestador
     }
   };
 
-
+  const superaTopeGaveta = saldoEfectivoGaveta >= topeMaximoGaveta;
 
   return (
-    <div className="flex flex-col gap-3 mt-4">
-      {/* Toggle Modo Mixto */}
+    <div className="flex flex-col gap-3 mt-3">
+      {/* Alerta Preventiva de Tope de Gaveta */}
+      {superaTopeGaveta && onRetiroParcialRequest && (
+        <div className="flex items-center justify-between p-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl animate-pulse">
+          <div className="flex items-center gap-2">
+            <Coins className="h-4 w-4 text-amber-500 shrink-0" />
+            <span className="text-xs font-semibold text-amber-300">
+              Efectivo en gaveta: <b>${saldoEfectivoGaveta.toLocaleString('es-CO')}</b> (Tope: ${topeMaximoGaveta.toLocaleString('es-CO')})
+            </span>
+          </div>
+          <button
+            onClick={onRetiroParcialRequest}
+            className="px-2.5 py-1 text-[11px] font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-lg transition-colors"
+          >
+            Alivio de Caja
+          </button>
+        </div>
+      )}
+
+      {/* Selector de Modo: Único vs Mixto */}
       <div className="flex justify-between items-center px-1">
-        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-          Método de Pago
+        <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+          Medio de Pago
         </label>
         <button
           onClick={() => {
             setIsModoMixto(!isModoMixto);
             if (!isModoMixto) {
-              setPagosMixtos({ EFECTIVO: 0, TRANSFERENCIA: 0, DATAFONO: 0, CREDITO: 0 });
+              setPagosMixtos({
+                EFECTIVO: 0,
+                NEQUI: 0,
+                DAVIPLATA: 0,
+                QR_BANCOLOMBIA: 0,
+                DATAFONO: 0,
+                CREDITO: 0,
+              });
             }
           }}
           className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
-            isModoMixto 
-              ? 'bg-blue-100 text-blue-700 border border-blue-200 shadow-sm' 
-              : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
+            isModoMixto
+              ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
+              : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'
           }`}
           disabled={isDisabled}
         >
           <Calculator size={14} />
-          {isModoMixto ? 'Volver a Único' : '+ Pago Mixto'}
+          {isModoMixto ? 'Cobro Único' : '+ Pago Mixto / Split'}
         </button>
       </div>
 
       {!isModoMixto ? (
-        <div className="grid grid-cols-4 gap-2">
-          <button
-            onClick={() => setMetodoPago('EFECTIVO')}
-            disabled={isDisabled}
-            className={`flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all min-h-[4rem] ${
-              metodoPago === 'EFECTIVO' 
-                ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm' 
-                : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'
-            } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            <Banknote size={20} className="mb-1" />
-            <span className="text-[10px] font-bold uppercase text-center leading-tight">Efectivo</span>
-          </button>
-          <button
-            onClick={() => setMetodoPago('TRANSFERENCIA')}
-            disabled={isDisabled}
-            className={`flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all min-h-[4rem] ${
-              metodoPago === 'TRANSFERENCIA' 
-                ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm' 
-                : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'
-            } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            <Landmark size={20} className="mb-1" />
-            <span className="text-[10px] font-bold uppercase text-center leading-tight">Transf.</span>
-          </button>
-          <button
-            onClick={() => setMetodoPago('DATAFONO')}
-            disabled={isDisabled}
-            className={`flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all min-h-[4rem] ${
-              metodoPago === 'DATAFONO' 
-                ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm' 
-                : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'
-            } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            <Phone size={20} className="mb-1" />
-            <span className="text-[10px] font-bold uppercase text-center leading-tight">Datáfono</span>
-          </button>
-          <button
-            onClick={() => setMetodoPago('CREDITO')}
-            disabled={isDisabled}
-            className={`flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all min-h-[4rem] ${
-              metodoPago === 'CREDITO' 
-                ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm' 
-                : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'
-            } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            <CreditCard size={20} className="mb-1" />
-            <span className="text-[10px] font-bold uppercase text-center leading-tight">Crédito</span>
-          </button>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl">
-          <div className="flex justify-between items-center text-xs font-bold mb-1">
-            <span className="text-slate-600">
-              Total a repartir: <span className="text-blue-700">${totalFinal.toLocaleString('es-CO')}</span>
-            </span>
-            <span className={faltantePagoMixto === 0 ? 'text-green-600' : faltantePagoMixto < 0 ? 'text-red-600' : 'text-amber-600'}>
-              {faltantePagoMixto === 0 ? (
-                <span className="flex items-center gap-1">✓ Cuadrado</span>
-              ) : faltantePagoMixto > 0 ? (
-                `Faltan: $${faltantePagoMixto.toLocaleString('es-CO')}`
-              ) : (
-                `Sobran: $${Math.abs(faltantePagoMixto).toLocaleString('es-CO')}`
-              )}
-            </span>
+        <>
+          {/* Grilla de Medios de Pago Colombianos */}
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { id: 'EFECTIVO' as const, label: 'Efectivo', icon: Banknote, color: 'hover:border-emerald-500/50' },
+              { id: 'NEQUI' as const, label: 'Nequi', icon: Phone, color: 'hover:border-purple-500/50' },
+              { id: 'DAVIPLATA' as const, label: 'Daviplata', icon: Phone, color: 'hover:border-red-500/50' },
+              { id: 'QR_BANCOLOMBIA' as const, label: 'QR Bancolombia', icon: QrCode, color: 'hover:border-yellow-500/50' },
+              { id: 'DATAFONO' as const, label: 'Datáfono / Tarjeta', icon: CreditCard, color: 'hover:border-blue-500/50' },
+              { id: 'CREDITO' as const, label: 'Crédito / Fiar', icon: Landmark, color: 'hover:border-amber-500/50' },
+            ].map((m) => {
+              const Icon = m.icon;
+              const isSelected = metodoPago === m.id;
+              return (
+                <button
+                  key={m.id}
+                  onClick={() => setMetodoPago(m.id)}
+                  className={`flex items-center gap-2 p-2.5 rounded-xl border transition-all text-left ${
+                    isSelected
+                      ? 'border-cyan-500 bg-cyan-500/10 text-cyan-300 shadow-md ring-1 ring-cyan-500/30'
+                      : 'border-white/10 bg-slate-900/60 text-slate-300 hover:bg-slate-800 ' + m.color
+                  }`}
+                >
+                  <Icon size={18} className={isSelected ? 'text-cyan-400 shrink-0' : 'text-slate-400 shrink-0'} />
+                  <span className="text-xs font-bold truncate">{m.label}</span>
+                </button>
+              );
+            })}
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { id: 'EFECTIVO', icon: Banknote, label: 'Efectivo' },
-              { id: 'TRANSFERENCIA', icon: Landmark, label: 'Transf.' },
-              { id: 'DATAFONO', icon: Phone, label: 'Datáfono' },
-              { id: 'CREDITO', icon: CreditCard, label: 'Crédito' }
-            ].map(metodo => (
-              <div key={metodo.id} className="flex flex-col gap-1">
-                <label className="flex items-center gap-1 text-[11px] font-bold text-slate-500 uppercase">
-                  <metodo.icon size={12} /> {metodo.label}
-                </label>
+          {/* Panel de Efectivo y Cambio Gigante */}
+          {metodoPago === 'EFECTIVO' && (
+            <div className="flex flex-col gap-2.5 p-3.5 bg-slate-900/80 border border-white/10 rounded-2xl">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  Efectivo Recibido
+                </span>
+                <span className="text-[11px] text-slate-500">
+                  Total: <b className="text-white">${totalFinal.toLocaleString('es-CO')}</b>
+                </span>
+              </div>
+
+              {/* Input de Efectivo Recibido */}
+              <div className="relative">
                 <NumericFormat
-                  value={pagosMixtos[metodo.id as keyof typeof pagosMixtos] || ''}
-                  onValueChange={(values) => handleUpdatePagoMixto(metodo.id as keyof typeof pagosMixtos, values.floatValue || 0)}
+                  getInputRef={efectivoInputRef}
+                  value={efectivoRecibido || ''}
+                  onValueChange={(values) => setEfectivoRecibido(values.floatValue || 0)}
                   thousandSeparator="."
                   decimalSeparator=","
                   decimalScale={0}
                   allowNegative={false}
                   prefix="$ "
                   placeholder="$ 0"
-                  className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-white focus:border-blue-400 text-sm font-bold text-slate-800 outline-none transition-colors"
-                  disabled={isDisabled}
+                  className="w-full h-12 px-4 rounded-xl border border-white/15 bg-slate-950 text-xl font-bold text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all tabular-nums"
                 />
+                <button
+                  type="button"
+                  onClick={() => setEfectivoRecibido(totalFinal)}
+                  className="absolute right-2 top-2 px-2.5 py-1 text-xs font-bold bg-white/10 hover:bg-white/20 text-cyan-300 rounded-lg transition-colors"
+                >
+                  Exacto (Espacio)
+                </button>
               </div>
-            ))}
+
+              {/* Botones de Denominación Rápida */}
+              <div className="grid grid-cols-4 gap-1.5">
+                {BILLETES_RAPIDOS_SUGERIDOS.map((denom) => (
+                  <button
+                    key={denom}
+                    type="button"
+                    onClick={() => setEfectivoRecibido(denom)}
+                    className="py-1.5 px-1 text-xs font-semibold rounded-lg border border-white/10 bg-slate-800/80 hover:bg-slate-700 text-slate-200 transition-colors tabular-nums"
+                  >
+                    ${(denom / 1000).toLocaleString('es-CO')}k
+                  </button>
+                ))}
+              </div>
+
+              {/* Visor Gigante de Cambio (Vuelto) */}
+              <div
+                className={`p-3 rounded-xl border flex flex-col items-center justify-center transition-all ${
+                  calculoCambio.valido && calculoCambio.cambio > 0
+                    ? 'bg-emerald-500/10 border-emerald-500/30'
+                    : calculoCambio.valido && calculoCambio.cambio === 0
+                    ? 'bg-slate-800/60 border-white/10'
+                    : 'bg-rose-500/10 border-rose-500/30'
+                }`}
+              >
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  {calculoCambio.valido
+                    ? calculoCambio.cambio === 0
+                      ? 'Pago Exacto'
+                      : 'Cambio / Vuelto a Entregar'
+                    : 'Faltante de Efectivo'}
+                </span>
+                <span
+                  className={`text-3xl font-black tracking-tight tabular-nums mt-0.5 ${
+                    calculoCambio.valido && calculoCambio.cambio > 0
+                      ? 'text-emerald-400 drop-shadow-[0_0_12px_rgba(16,185,129,0.3)]'
+                      : calculoCambio.valido && calculoCambio.cambio === 0
+                      ? 'text-cyan-400'
+                      : 'text-rose-400'
+                  }`}
+                >
+                  ${(calculoCambio.valido ? calculoCambio.cambio : calculoCambio.faltante).toLocaleString('es-CO')}
+                </span>
+              </div>
+            </div>
+          )}
+        </>
+      ) : (
+        /* Modo Mixto / Split Payment */
+        <div className="flex flex-col gap-2.5 p-3.5 bg-slate-900/80 border border-white/10 rounded-2xl">
+          <div className="flex justify-between items-center text-xs font-bold">
+            <span className="text-slate-400">
+              Total venta: <b className="text-white">${totalFinal.toLocaleString('es-CO')}</b>
+            </span>
+            <span
+              className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                faltantePagoMixto === 0
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                  : faltantePagoMixto > 0
+                  ? 'bg-amber-500/20 text-amber-300'
+                  : 'bg-rose-500/20 text-rose-300'
+              }`}
+            >
+              {faltantePagoMixto === 0
+                ? '✓ Cuadrado Exacto'
+                : faltantePagoMixto > 0
+                ? `Faltan: $${faltantePagoMixto.toLocaleString('es-CO')}`
+                : `Sobran: $${Math.abs(faltantePagoMixto).toLocaleString('es-CO')}`}
+            </span>
           </div>
-          
+
+          <div className="grid grid-cols-2 gap-2.5">
+            {[
+              { id: 'EFECTIVO' as const, label: 'Efectivo', icon: Banknote },
+              { id: 'NEQUI' as const, label: 'Nequi', icon: Phone },
+              { id: 'DAVIPLATA' as const, label: 'Daviplata', icon: Phone },
+              { id: 'QR_BANCOLOMBIA' as const, label: 'QR Bancolombia', icon: QrCode },
+              { id: 'DATAFONO' as const, label: 'Datáfono', icon: CreditCard },
+              { id: 'CREDITO' as const, label: 'Crédito', icon: Landmark },
+            ].map((m) => {
+              const Icon = m.icon;
+              return (
+                <div key={m.id} className="flex flex-col gap-1">
+                  <label className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase">
+                    <Icon size={12} className="text-cyan-400" /> {m.label}
+                  </label>
+                  <NumericFormat
+                    value={pagosMixtos[m.id] || ''}
+                    onValueChange={(values) => handleUpdatePagoMixto(m.id, values.floatValue || 0)}
+                    thousandSeparator="."
+                    decimalSeparator=","
+                    decimalScale={0}
+                    allowNegative={false}
+                    prefix="$ "
+                    placeholder="$ 0"
+                    className="w-full h-10 px-3 rounded-xl border border-white/10 bg-slate-950 text-sm font-bold text-white focus:border-cyan-400 outline-none tabular-nums"
+                    disabled={isDisabled}
+                  />
+                </div>
+              );
+            })}
+          </div>
+
           {pagosMixtos.CREDITO > 0 && !cliente && (
-            <div className="flex items-center gap-2 mt-2 p-2 bg-red-50 border border-red-100 rounded-lg text-red-600 text-xs font-medium">
+            <div className="flex items-center gap-2 p-2 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-300 text-xs font-medium">
               <AlertCircle size={14} className="shrink-0" />
-              <span>Debe asignar un cliente para fiar (Crédito).</span>
+              <span>Debe asignar un cliente para procesar la porción a crédito.</span>
             </div>
           )}
         </div>
       )}
 
-      {/* Botones de Acción Principales */}
+      {/* Botones de Acción */}
       <div className="flex gap-2">
         <Button
           variant="outline"
           onClick={onGuardarBorrador}
           disabled={isDisabled}
-          leftIcon={<Save size={20} />}
-          className="flex-1 min-h-[3.5rem] bg-slate-100"
+          leftIcon={<Save size={18} />}
+          className="flex-1 min-h-[3.25rem] bg-slate-900 border-white/15 text-slate-300 hover:bg-slate-800"
         >
           Borrador
         </Button>
-        
+
         {!isTurnoAbierto ? (
           <Button
             variant="primary"
             onClick={handleCobrarClick}
-            className="flex-[2] min-h-[3.5rem] text-lg border-0"
-            style={{ backgroundColor: '#F59E0B', color: 'white' }}
+            className="flex-[2] min-h-[3.25rem] text-base font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 border-0"
           >
-            Abrir Caja
+            Abrir Caja Primero
           </Button>
         ) : (
           <Button
             variant="primary"
             onClick={handleCobrarClick}
-            disabled={isDisabled}
-            className="flex-[2] min-h-[3.5rem] text-lg"
+            disabled={isDisabled || (metodoPago === 'EFECTIVO' && !isModoMixto && !calculoCambio.valido)}
+            className="flex-[2] min-h-[3.25rem] text-base font-bold bg-gradient-to-r from-indigo-600 to-cyan-600 hover:brightness-110 shadow-lg text-white"
             data-testid="btn-cobrar"
           >
-            Cobrar: ${totalFinal.toLocaleString('es-CO')}
+            Cobrar: ${totalFinal.toLocaleString('es-CO')} (Enter)
           </Button>
         )}
       </div>
     </div>
   );
 };
+

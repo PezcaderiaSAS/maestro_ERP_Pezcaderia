@@ -9,12 +9,13 @@ import type { InvoiceAR } from './ARView';
 import OrderKanbanView from './OrderKanbanView.tsx';
 import { usePOSCart } from '../hooks/usePOSCart.ts';
 import { DiscountPanel } from './pos/components/DiscountPanel.tsx';
-import { PaymentPanel } from './pos/components/PaymentPanel.tsx';
+import { PaymentPanel, type MetodoCobroPos } from './pos/components/PaymentPanel.tsx';
 import { BalanzaButton } from './pos/components/BalanzaButton.tsx';
 import { TicketBuilder } from './pos/components/TicketBuilder.tsx';
 import { CartPanel } from './pos/components/CartPanel.tsx';
 import { ProductSearchPanel } from './pos/components/ProductSearchPanel.tsx';
 import { AperturaCajaModal } from './pos/components/AperturaCajaModal.tsx';
+import { RetiroParcialModal } from './pos/components/RetiroParcialModal.tsx';
 import { Card } from '../components/ui/Card.tsx';
 import { Button } from '../components/ui/Button.tsx';
 import ArqueoCajaModal from './cash/components/ArqueoCajaModal.tsx';
@@ -87,6 +88,7 @@ export default function POSView({
   
   const [showAperturaModal, setShowAperturaModal] = useState<boolean>(false);
   const [showArqueoModal, setShowArqueoModal] = useState<boolean>(false);
+  const [showRetiroModal, setShowRetiroModal] = useState<boolean>(false);
   const [showHamburger, setShowHamburger] = useState<boolean>(false);
 
   useEffect(() => {
@@ -550,7 +552,7 @@ export default function POSView({
     return stock[targetKey]?.[sku] || stock[bodegaKey]?.[sku] || 0;
   };
 
-  const handlePagar = async (pagos: { metodo: 'EFECTIVO' | 'TRANSFERENCIA' | 'DATAFONO' | 'CREDITO', monto: number }[]): Promise<Venta | void> => {
+  const handlePagar = async (pagos: { metodo: MetodoCobroPos, monto: number }[]): Promise<Venta | void> => {
     // RN-57: Validacion estricta de Turno de Caja Abierto
     if (!isTurnoAbierto || !turnoActivo) {
       Swal.fire({
@@ -574,9 +576,9 @@ export default function POSView({
 
     pagos.forEach(p => {
       if (p.metodo === 'EFECTIVO') cash += p.monto;
-      if (p.metodo === 'TRANSFERENCIA') transfer += p.monto;
-      if (p.metodo === 'DATAFONO') card += p.monto;
-      if (p.metodo === 'CREDITO') credit += p.monto;
+      else if (p.metodo === 'NEQUI' || p.metodo === 'DAVIPLATA' || p.metodo === 'QR_BANCOLOMBIA' || (p.metodo as any) === 'TRANSFERENCIA') transfer += p.monto;
+      else if (p.metodo === 'DATAFONO') card += p.monto;
+      else if (p.metodo === 'CREDITO') credit += p.monto;
     });
 
     if (credit > 0) {
@@ -1721,6 +1723,9 @@ export default function POSView({
             isTurnoAbierto={isTurnoAbierto}
             onAbrirTurnoRequest={() => setShowAperturaModal(true)}
             onCerrarTurnoClick={() => setShowArqueoModal(true)}
+            saldoEfectivoGaveta={turnoActivo?.totalEfectivo ?? 0}
+            topeMaximoGaveta={1500000}
+            onRetiroParcialRequest={() => setShowRetiroModal(true)}
           />
         )}
       </Card>
@@ -2599,6 +2604,21 @@ export default function POSView({
             setCurrentView('dashboard');
           }}
           onClose={() => setShowArqueoModal(false)}
+        />
+      )}
+
+      {/* Modal de Alivio de Caja (Retiro Parcial / Drop) */}
+      {showRetiroModal && turnoActivo && (
+        <RetiroParcialModal
+          turnoId={turnoActivo.id}
+          cajeroNombre={(turnoActivo as any).cajeroNombre || turnoActivo.cajeroId || userRole}
+          saldoEfectivoGaveta={turnoActivo.totalEfectivo ?? 0}
+          topeMaximoGaveta={1500000}
+          onClose={() => setShowRetiroModal(false)}
+          onSuccess={(res) => {
+            setShowRetiroModal(false);
+            loadTurnoActivoPorCajero(userRole);
+          }}
         />
       )}
     </div>
