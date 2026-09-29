@@ -18,6 +18,8 @@ import { DispatchView } from './views/inventory/DispatchView';
 import { DevTestDashboard } from './dev/DevTestDashboard';
 import AccountingView from './views/AccountingView';
 import { ColdStorageRentalView } from './views/coldStorageRental/ColdStorageRentalView';
+import { EnterpriseSidebar, type ERPViewKey } from './components/layout/EnterpriseSidebar';
+import { EnterpriseTopbar } from './components/layout/EnterpriseTopbar';
 import * as localDb from './services/localDb';
 // Stores de Zustand
 import { useInventoryStore } from './store/useInventoryStore';
@@ -641,7 +643,7 @@ export default function App() {
     };
   }, []);
 
-  const { userRole, setUserRole, currentView, setCurrentView, sidebarOpen, setSidebarOpen, theme, toggleTheme } = useAppStore();
+  const { userRole, setUserRole, currentView, setCurrentView, sidebarOpen, setSidebarOpen, toggleSidebar, theme, toggleTheme } = useAppStore();
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -1248,6 +1250,10 @@ export default function App() {
         );
       case 'inventario':
         return <InventoryView />;
+      case 'compras_muelle':
+        return <InventoryView initialViewMode="compras_muelle" />;
+      case 'despiece':
+        return <InventoryView initialViewMode="despiece" />;
       case 'alistamiento':
         return <AlistamientoBodegaView />;
       case 'despachos':
@@ -1327,275 +1333,36 @@ export default function App() {
   };
 
   return (
-    <div className="spa-container">
-      {/* Top Navbar */}
-      <header className="top-navbar">
-        <div className="navbar-left">
-          <button className="menu-toggle" onClick={() => setSidebarOpen(!sidebarOpen)} style={{ color: 'white', marginRight: '10px' }}>
-            <Menu size={22} />
-          </button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '18px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>🐟 La Pezcadería</span>
-            <button className="navbar-icon-btn" onClick={() => setCurrentView('pos')}>
-              <PlusCircle size={18} />
-            </button>
-          </div>
-          
-          <div className="breadcrumbs" style={{ marginLeft: '24px' }}>
-            <span>{getBreadcrumbs().cat}</span>
-            <span>&gt;</span>
-            <span className="breadcrumbs-current">{getBreadcrumbs().sub}</span>
-          </div>
-        </div>
+    <div className="flex h-screen w-screen overflow-hidden bg-[#090D16] text-slate-100 font-sans select-none">
+      {/* Enterprise Sidebar unificado (4 dominios clave estilo Carbon/Atlassian) */}
+      <EnterpriseSidebar
+        currentView={currentView as ERPViewKey}
+        onSelectView={(v) => setCurrentView(v)}
+        isOpen={sidebarOpen}
+        onToggleOpen={toggleSidebar}
+        userRole={userRole}
+        onChangeRole={(r) => setUserRole(r as any)}
+        pendingPrepCount={quotations.filter((q) => q.estado === 'Approved' || q.estado === 'Pausado').length}
+        activeRoutesCount={0}
+      />
 
-        <div className="navbar-right">
-          <span className="navbar-company" style={{ fontFamily: theme === 'obsidian' ? 'monospace' : 'inherit', color: theme === 'obsidian' ? 'var(--primary-color)' : 'inherit' }}>
-            {theme === 'obsidian' ? 'OBSIDIAN_OS V2.4' : 'PEZCADERIA S.A.S'}
-          </span>
-          <button className="navbar-icon-btn" title="Alternar Tema" onClick={toggleTheme} style={{ color: theme === 'obsidian' ? 'var(--primary-color)' : 'inherit' }}>
-            {theme === 'obsidian' ? <Terminal size={18} /> : <Moon size={18} />}
-          </button>
-          <button className="navbar-icon-btn" title="Ayuda">
-            <HelpCircle size={18} />
-          </button>
-          <button className="navbar-icon-btn" title="Inicio" onClick={() => setCurrentView('dashboard')}>
-            <Home size={18} />
-          </button>
-          <button className="navbar-cart-btn" onClick={() => setCurrentView('pos')}>
-            <ShoppingCart size={16} />
-            <span>Facturar</span>
-          </button>
-          <div style={{
-            width: '32px', height: '32px', borderRadius: '50%',
-            backgroundColor: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontWeight: 'bold', fontSize: '14px', border: '1px solid rgba(255,255,255,0.4)'
-          }}>
-            Yu
-          </div>
-        </div>
-      </header>
+      {/* Área de Contenido Principal con Topbar Ejecutivo */}
+      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${sidebarOpen ? 'lg:pl-64' : 'lg:pl-20'}`}>
+        <EnterpriseTopbar
+          currentView={currentView as ERPViewKey}
+          onNavigateHome={() => setCurrentView('dashboard')}
+          onNavigatePOS={() => setCurrentView('pos')}
+          onToggleSidebar={toggleSidebar}
+          theme={theme}
+          onToggleTheme={toggleTheme}
+          activeBodega="Bodega Principal"
+        />
 
-      {/* Main Body */}
-      <div className="spa-body">
-        {/* Overlay for mobile sidebar */}
-        <div 
-          className={`mobile-overlay ${sidebarOpen ? 'open' : ''}`} 
-          onClick={() => setSidebarOpen(false)}
-        ></div>
-
-        {/* Sidebar Navigation */}
-        <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-          {/* User Profile Card */}
-          <div className="sidebar-profile-card">
-            <div className="orange-avatar">Yu</div>
-            <div className="sidebar-profile-info">
-              <span className="sidebar-profile-name">Yurgen Moreno</span>
-              <select 
-                className="sidebar-profile-role-select" 
-                value={userRole} 
-                onChange={(e) => setUserRole(e.target.value as any)}
-              >
-                <option value="admin">Super administrador</option>
-                <option value="vendedor">Vendedor</option>
-                <option value="bodega">Jefe de bodega</option>
-                <option value="administrativo">Administrativo</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Quick billing button */}
-          <button className="sidebar-btn-facturar" onClick={() => setCurrentView('pos')}>
-            <FileText size={18} />
-            <span>Facturar</span>
-          </button>
-
-          {/* Categories and links */}
-          <nav className="sidebar-menu">
-            <div
-              className={`sidebar-item ${currentView === 'pos' ? 'active' : ''}`}
-              onClick={() => { setCurrentView('pos'); setSidebarOpen(false); }}
-              data-testid="nav-pos"
-            >
-              <ShoppingBag size={16} />
-              <span>POS</span>
-            </div>
-
-            <div
-              className={`sidebar-item ${currentView === 'precios' ? 'active' : ''}`}
-              onClick={() => { setCurrentView('precios'); setSidebarOpen(false); }}
-              data-testid="nav-precios"
-            >
-              <DollarSign size={16} />
-              <span>Cotizacion</span>
-            </div>
-
-            <div
-              className={`sidebar-item ${currentView === 'clientes' ? 'active' : ''}`}
-              onClick={() => { setCurrentView('clientes'); setSidebarOpen(false); }}
-              data-testid="nav-clientes"
-            >
-              <Users size={16} />
-              <span>Clientes</span>
-            </div>
-
-            <div
-              className={`sidebar-item ${currentView === 'crm' ? 'active' : ''}`}
-              onClick={() => { setCurrentView('crm'); setSidebarOpen(false); }}
-              data-testid="nav-crm"
-            >
-              <PieChart size={16} />
-              <span>CRM (Twenty)</span>
-            </div>
-
-            <div className={`sidebar-item`} style={{ opacity: 0.5 }}>
-              <FileText size={16} />
-              <span>Documentos</span>
-            </div>
-
-            <div
-              className={`sidebar-item ${currentView === 'compras' ? 'active' : ''}`}
-              onClick={() => { setCurrentView('compras'); setSidebarOpen(false); }}
-              data-testid="nav-compras"
-            >
-              <ShoppingCart size={16} />
-              <span>Compras y Gastos</span>
-            </div>
-
-            <div
-              className={`sidebar-item ${currentView === 'cartera' ? 'active' : ''}`}
-              onClick={() => { setCurrentView('cartera'); setSidebarOpen(false); }}
-              data-testid="nav-cartera"
-            >
-              <Wallet size={16} />
-              <span>Cartera</span>
-            </div>
-
-            <div
-              className={`sidebar-item ${currentView === 'inventario' ? 'active' : ''}`}
-              onClick={() => { setCurrentView('inventario'); setSidebarOpen(false); }}
-              data-testid="nav-inventario"
-            >
-              <Box size={16} />
-              <span>Inventario</span>
-            </div>
-
-            <div
-              className={`sidebar-item ${currentView === 'alistamiento' ? 'active' : ''}`}
-              onClick={() => { setCurrentView('alistamiento'); setSidebarOpen(false); }}
-              data-testid="nav-alistamiento"
-            >
-              <PackageCheck size={16} />
-              <span>Alistamiento Bodega</span>
-            </div>
-
-            <div
-              className={`sidebar-item ${currentView === 'despachos' ? 'active' : ''}`}
-              onClick={() => { setCurrentView('despachos'); setSidebarOpen(false); }}
-              data-testid="nav-despachos"
-            >
-              <Truck size={16} />
-              <span>Despachos y Rutas</span>
-            </div>
-
-            <div
-              className={`sidebar-item ${currentView === 'alquiler_cf' ? 'active' : ''}`}
-              onClick={() => { setCurrentView('alquiler_cf'); setSidebarOpen(false); }}
-              data-testid="nav-alquiler-cf"
-            >
-              <Snowflake size={16} />
-              <span>Alquiler Cuarto Frío</span>
-            </div>
-
-            <div className={`sidebar-item`} style={{ opacity: 0.5 }}>
-              <Truck size={16} />
-              <span>Traslados</span>
-            </div>
-
-            <div className={`sidebar-item`} style={{ opacity: 0.5 }}>
-              <RefreshCw size={16} />
-              <span>Ajuste</span>
-            </div>
-
-            <div
-              className={`sidebar-item ${currentView === 'caja' ? 'active' : ''}`}
-              onClick={() => { setCurrentView('caja'); setSidebarOpen(false); }}
-              data-testid="nav-caja"
-            >
-              <Database size={16} />
-              <span>Caja</span>
-            </div>
-
-            <div
-              className={`sidebar-item ${currentView === 'contabilidad' ? 'active' : ''}`}
-              onClick={() => { setCurrentView('contabilidad'); setSidebarOpen(false); }}
-              data-testid="nav-contabilidad"
-            >
-              <BookOpen size={16} />
-              <span>Contabilidad</span>
-            </div>
-
-            <div className={`sidebar-item`} style={{ opacity: 0.5 }}>
-              <FileText size={16} />
-              <span>Cuentas</span>
-            </div>
-
-            <div
-              className={`sidebar-item ${currentView === 'rrhh' ? 'active' : ''}`}
-              onClick={() => { setCurrentView('rrhh'); setSidebarOpen(false); }}
-              data-testid="nav-rrhh"
-            >
-              <Users size={16} />
-              <span>Personal (RRHH)</span>
-            </div>
-
-            <div
-              className={`sidebar-item ${currentView === 'nomina' ? 'active' : ''}`}
-              onClick={() => { setCurrentView('nomina'); setSidebarOpen(false); }}
-              data-testid="nav-nomina"
-            >
-              <FileText size={16} />
-              <span>Nómina</span>
-            </div>
-
-            <div
-              className={`sidebar-item ${currentView === 'kanban' ? 'active' : ''}`}
-              onClick={() => { setCurrentView('kanban'); setSidebarOpen(false); }}
-              data-testid="nav-kanban"
-            >
-              <Truck size={16} />
-              <span>Despachos / Kanban</span>
-            </div>
-
-            <div className={`sidebar-item`} style={{ opacity: 0.5 }}>
-              <RefreshCw size={16} />
-              <span>Produccion</span>
-            </div>
-            
-            <div
-              className={`sidebar-item ${currentView === 'dashboard' ? 'active' : ''}`}
-              onClick={() => { setCurrentView('dashboard'); setSidebarOpen(false); }}
-              style={{ marginTop: 'auto' }}
-              data-testid="nav-dashboard"
-            >
-              <LayoutDashboard size={16} />
-              <span>Panel de Control</span>
-            </div>
-          </nav>
-
-          {/* Log out */}
-          <button className="sidebar-btn-exit" onClick={() => alert('Cerrando sesión...')}>
-            <LogOut size={16} />
-            <span>Salir</span>
-          </button>
-        </aside>
-
-        {/* View Content */}
-        <div className="main-content">
-          <main style={{ flex: 1, overflowY: 'auto', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-            {renderView()}
-          </main>
-        </div>
+        <main className="flex-1 overflow-y-auto p-4 lg:p-6 bg-gradient-to-b from-[#090D16] via-[#0D1322] to-[#090D16]">
+          {renderView()}
+        </main>
       </div>
+
       <ConsentGateModal />
       {import.meta.env.DEV && <DevTestDashboard />}
     </div>

@@ -20,6 +20,8 @@ import {
   Sparkles,
   TrendingUp,
   AlertTriangle,
+  Anchor,
+  Ship,
 } from 'lucide-react';
 import { ProductTable } from './inventory/components/ProductTable';
 import { ProductForm } from './inventory/components/ProductForm';
@@ -27,6 +29,8 @@ import { CategoryManager } from './inventory/components/CategoryManager';
 import { PurchaseOrderForm } from './inventory/components/PurchaseOrderForm';
 import { TransferForm } from './inventory/components/TransferForm';
 import { ProductionForm } from './inventory/components/ProductionForm';
+import { DockReceivingTab } from './inventory/components/DockReceivingTab';
+import { FishYieldProductionTab } from './inventory/components/FishYieldProductionTab';
 import { ColdRoomPreparation } from './inventory/components/ColdRoomPreparation';
 import { ReturnsReceiver } from './inventory/components/ReturnsReceiver';
 import { PurchasesReport } from './inventory/components/PurchasesReport';
@@ -57,7 +61,25 @@ const toTitleCase = (str: string): string => {
 };
 
 
-export default function InventoryView() {
+export interface InventoryViewProps {
+  initialViewMode?:
+    | 'operaciones'
+    | 'compras_muelle'
+    | 'kardex'
+    | 'cuarto_frio'
+    | 'despiece'
+    | 'traslados'
+    | 'analisis_abc'
+    | 'compras'
+    | 'registrar_compra'
+    | 'catalogo'
+    | 'categorias'
+    | 'recepcion_devoluciones'
+    | 'configuracion_bodegas'
+    | 'reportes_compra';
+}
+
+export default function InventoryView({ initialViewMode = 'operaciones' }: InventoryViewProps = {}) {
   const { products, productsCatalog, setProductsCatalog, setProductPricings, setStock, setStockAsync, loadInventory, loadStock } = useInventoryStore();
   const stock = useInventoryStore((s) => s.stock) as any;
   const { movimientos, addMovimiento, addMovimientoAsync } = useMovementStore();
@@ -73,6 +95,7 @@ export default function InventoryView() {
   const [historyTab, setHistoryTab] = useState<'movimientos' | 'compras'>('movimientos');
   const [viewMode, setViewMode] = useState<
     | 'operaciones'
+    | 'compras_muelle'
     | 'kardex'
     | 'cuarto_frio'
     | 'despiece'
@@ -85,7 +108,15 @@ export default function InventoryView() {
     | 'recepcion_devoluciones'
     | 'configuracion_bodegas'
     | 'reportes_compra'
-  >('operaciones');
+  >(initialViewMode);
+
+  useEffect(() => {
+    if (initialViewMode) {
+      setViewMode(initialViewMode);
+    }
+  }, [initialViewMode]);
+
+  const [yieldSubTab, setYieldSubTab] = useState<'yield_kpi' | 'comandas_tradicional'>('yield_kpi');
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
 
   // State de Catalogo de Productos
@@ -1467,6 +1498,15 @@ export default function InventoryView() {
             </button>
 
             <button
+              id="btn-quick-recepcion-muelle"
+              onClick={() => setViewMode('compras_muelle')}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-lg shadow-cyan-600/20 transition-all cursor-pointer"
+            >
+              <Anchor className="w-4 h-4" />
+              Recepción Muelle
+            </button>
+
+            <button
               onClick={() => setViewMode('registrar_compra')}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all cursor-pointer"
             >
@@ -1552,7 +1592,7 @@ export default function InventoryView() {
         </div>
       </div>
 
-      {/* ── 3. Navegación Modular por 7 Pestañas ── */}
+      {/* ── 3. Navegación Modular por Pestañas ── */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-white/10 scrollbar-none">
         <button
           onClick={() => setViewMode('operaciones')}
@@ -1564,6 +1604,19 @@ export default function InventoryView() {
         >
           <Boxes className="w-4 h-4" />
           1. Existencias Multibodega
+        </button>
+
+        <button
+          id="tab-compras-muelle"
+          onClick={() => setViewMode('compras_muelle')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            viewMode === 'compras_muelle'
+              ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-lg shadow-cyan-500/10'
+              : 'bg-slate-900/60 text-slate-400 hover:text-white border border-white/5'
+          }`}
+        >
+          <Anchor className="w-4 h-4" />
+          Muelle & Pescadores
         </button>
 
         <button
@@ -1742,6 +1795,17 @@ export default function InventoryView() {
         </div>
       )}
 
+      {/* TAB Muelle & Pescadores */}
+      {viewMode === 'compras_muelle' && (
+        <DockReceivingTab
+          bodegas={bodegas as any}
+          onLoteCreado={() => {
+            loadStock();
+            loadInventory();
+          }}
+        />
+      )}
+
       {/* TAB 2: Kardex Contable NIIF */}
       {viewMode === 'kardex' && (
         <KardexTable bodegas={bodegas} onSelectSku={(sku) => setSearchTerm(sku)} />
@@ -1759,27 +1823,67 @@ export default function InventoryView() {
         />
       )}
 
-      {/* TAB 4: Despiece & Comandas */}
+      {/* TAB 4: Despiece & Rendimiento (Yield KPI) */}
       {viewMode === 'despiece' && (
-        <ProductionForm
-          products={products as any}
-          bodegas={bodegas as any}
-          onProductionComplete={() => {
-            loadStock();
-            loadInventory();
-          }}
-          activeProducts={activeProducts}
-          prodMateriaPrima={prodMateriaPrima}
-          setProdMateriaPrima={setProdMateriaPrima}
-          prodMateriaCant={prodMateriaCant}
-          setProdMateriaCant={setProdMateriaCant}
-          prodTerminado={prodTerminado}
-          setProdTerminado={setProdTerminado}
-          prodTerminadoCant={prodTerminadoCant}
-          setProdTerminadoCant={setProdTerminadoCant}
-          mermaPct={mermaPct}
-          handleProcesarProduccion={handleProcesarProduccion}
-        />
+        <div className="space-y-4">
+          {/* Sub-selector de módulo de despiece */}
+          <div className="flex items-center gap-2 p-1.5 rounded-xl bg-slate-900/60 border border-white/5 w-fit">
+            <button
+              id="subtab-yield-kpi"
+              type="button"
+              onClick={() => setYieldSubTab('yield_kpi')}
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                yieldSubTab === 'yield_kpi'
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Transformación & Yield KPI (Estándares Invima & Costeo)
+            </button>
+            <button
+              id="subtab-comandas-tradicional"
+              type="button"
+              onClick={() => setYieldSubTab('comandas_tradicional')}
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                yieldSubTab === 'comandas_tradicional'
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Comandas de Producción Tradicional
+            </button>
+          </div>
+
+          {yieldSubTab === 'yield_kpi' ? (
+            <FishYieldProductionTab
+              bodegas={bodegas as any}
+              onOrdenCompletada={() => {
+                loadStock();
+                loadInventory();
+              }}
+            />
+          ) : (
+            <ProductionForm
+              products={products as any}
+              bodegas={bodegas as any}
+              onProductionComplete={() => {
+                loadStock();
+                loadInventory();
+              }}
+              activeProducts={activeProducts}
+              prodMateriaPrima={prodMateriaPrima}
+              setProdMateriaPrima={setProdMateriaPrima}
+              prodMateriaCant={prodMateriaCant}
+              setProdMateriaCant={setProdMateriaCant}
+              prodTerminado={prodTerminado}
+              setProdTerminado={setProdTerminado}
+              prodTerminadoCant={prodTerminadoCant}
+              setProdTerminadoCant={setProdTerminadoCant}
+              mermaPct={mermaPct}
+              handleProcesarProduccion={handleProcesarProduccion}
+            />
+          )}
+        </div>
       )}
 
       {/* TAB 5: Traslados Multibodega */}

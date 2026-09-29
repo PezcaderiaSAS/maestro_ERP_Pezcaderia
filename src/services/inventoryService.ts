@@ -639,6 +639,7 @@ export function registrarEntrada(params: {
   productoId: string;
   cantidad: number;
   referenciaId?: string;
+  costoUnitario?: number;
 }): ResultadoOperacion<{ cantidadNueva: number }> {
   const { bodegaId, productoId, cantidad, referenciaId = null } = params;
   if (cantidad <= 0) return { data: null, error: 'La cantidad debe ser mayor a cero' };

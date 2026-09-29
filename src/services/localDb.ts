@@ -48,6 +48,8 @@ export const DB_KEYS = {
   inventory_batches: 'pezcaderia_inventory_batches',
   internal_transfers_v2: 'pezcaderia_internal_transfers_v2',
   delivery_route_manifests: 'pezcaderia_delivery_route_manifests',
+  dock_purchases: 'pezcaderia_dock_purchases',
+  fish_yield_orders: 'pezcaderia_fish_yield_orders',
   theme: 'pezcaderia_theme'
 } as const;
 
