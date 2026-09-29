@@ -95,7 +95,7 @@ def main():
         type=str,
         choices=["architect", "data", "ui", "quality"],
         default=None,
-        help="Agente directo destinatario (architect, data, ui, quality). Ahorra hasta 70% de llamadas."
+        help="Agente directo destinatario (architect, data, ui, quality). Ahorra hasta 70%% de llamadas."
     )
     parser.add_argument(
         "--model", "-m",

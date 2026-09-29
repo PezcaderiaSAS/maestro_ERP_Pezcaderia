@@ -1,6 +1,8 @@
 export type EstadoPedido = 
   | 'CREADO' 
   | 'EN_ALISTAMIENTO'
+  | 'EN_FILETEO'
+  | 'EN_PESAJE'
   | 'LISTO' 
   | 'EN_DESPACHO' 
   | 'ENTREGADO' 
@@ -23,6 +25,15 @@ export interface LineaPedido {
   loteSeleccionado?: string; // Lote asignado para trazabilidad (FIFO)
   precioPactado: number;
   totalLinea: number;
+  // Campos Catch Weight Dual y Especificaciones
+  modalidadVenta?: 'PESO_DIRECTO' | 'CATCH_WEIGHT_PIEZAS' | 'UNIDADES_FIJAS';
+  piezasSolicitadas?: number;
+  piezasAlistadas?: number;
+  calibreMinGramos?: number;
+  calibreMaxGramos?: number;
+  corte?: string;
+  empaque?: string;
+  temperaturaC?: number;
 }
 
 export interface Pedido {

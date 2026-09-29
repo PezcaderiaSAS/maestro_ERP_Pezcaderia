@@ -1,8 +1,22 @@
-import { useMemo } from 'react';
-import { Truck, CheckCircle, PackageSearch, Package, AlertCircle, FileText } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import {
+  Truck,
+  CheckCircle,
+  PackageSearch,
+  Package,
+  AlertCircle,
+  FileText,
+  Scale,
+  Scissors,
+  QrCode,
+  Thermometer,
+  Layers,
+  Sparkles
+} from 'lucide-react';
 import Swal from 'sweetalert2';
 import { b2bService } from '../services/b2bService';
 import { cashService } from '../services/cashService';
+import { b2bDispatchService } from '../services/b2bDispatchService';
 import { EstadoPedido } from '../types/orders.types';
 import { useOrderStore } from '../store/useOrderStore.ts';
 import { useEventStore } from '../store/useEventStore.ts';
@@ -11,12 +25,23 @@ import { useInventoryStore } from '../store/useInventoryStore.ts';
 import { useMovementStore } from '../store/useMovementStore.ts';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
+import { WeightPackingModal } from './inventory/components/WeightPackingModal';
+import { WmsRemisionModal } from './inventory/components/WmsRemisionModal';
 
 interface OrderKanbanViewProps {
   onEditOrder: (quote: any) => void;
 }
 
-type ColumnId = 'pausados' | 'creados' | 'listos' | 'en_despacho' | 'entregados' | 'facturados' | 'pagados';
+type ColumnId =
+  | 'pausados'
+  | 'creados'
+  | 'en_fileteo'
+  | 'en_pesaje'
+  | 'listos'
+  | 'en_despacho'
+  | 'entregados'
+  | 'facturados'
+  | 'pagados';
 
 export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
   const { ventas, setVentas, updateVenta, quotations, setQuotations, updateQuotation } = useOrderStore();
@@ -24,6 +49,16 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
   const userRole = useAppStore((s) => s.userRole);
   const { products, stock, setStock } = useInventoryStore();
   const { addMovimiento } = useMovementStore();
+
+  // Pestañas activas: 'bodega' vs 'despacho'
+  const [activeTab, setActiveTab] = useState<'bodega' | 'despacho'>('bodega');
+
+  // Modales interactivos
+  const [packingModalItem, setPackingModalItem] = useState<{
+    orderId: string;
+    item: any;
+  } | null>(null);
+  const [dispatchModalOrder, setDispatchModalOrder] = useState<any | null>(null);
 
   const combinedOrders = useMemo(() => {
     const map = new Map<string, any>();
@@ -41,15 +76,77 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
     return Array.from(map.values());
   }, [ventas, quotations]);
 
-  const columns: { id: ColumnId; title: string; states: string[]; color: string; icon: React.ReactNode }[] = [
-    { id: 'pausados', title: 'Pausados', states: ['PAUSADO', 'PAUSADO_POR_CREDITO', 'Pausado', 'pausado', 'Pausado por Crédito'], color: '#FEE2E2', icon: <AlertCircle size={20} color="#EF4444" /> },
-    { id: 'creados', title: 'Por Alistar', states: ['CREADO', 'Creado', 'creado', 'Approved', 'Approved (Pendiente Alistamiento)', 'Sent', 'Draft', 'EN_ALISTAMIENTO', 'Aprobado'], color: '#F1F5F9', icon: <PackageSearch size={20} color="#64748B" /> },
-    { id: 'listos', title: 'Listos para Despacho', states: ['LISTO', 'Listo', 'listo'], color: '#FEF3C7', icon: <Package size={20} color="#D97706" /> },
-    { id: 'en_despacho', title: 'En Despacho', states: ['EN_DESPACHO', 'En Despacho', 'en_despacho'], color: '#EDE9FE', icon: <Truck size={20} color="#8B5CF6" /> },
-    { id: 'entregados', title: 'Entregados', states: ['ENTREGADO', 'Entregado', 'entregado'], color: '#DCFCE7', icon: <CheckCircle size={20} color="#059669" /> },
-    { id: 'facturados', title: 'Facturados', states: ['FACTURADO', 'Facturado', 'facturado'], color: '#E0F2FE', icon: <FileText size={20} color="#0284C7" /> },
-    { id: 'pagados', title: 'Pagados / Finalizados', states: ['PAGADO', 'Pagado', 'pagado', 'ANULADO', 'Anulado', 'anulado', 'Sold', 'Vendida'], color: '#F3F4F6', icon: <CheckCircle size={20} color="#9CA3AF" /> },
+  // Definición de Columnas para ambas pestañas
+  const bodegaColumns: { id: ColumnId; title: string; states: string[]; color: string; icon: React.ReactNode }[] = [
+    {
+      id: 'pausados',
+      title: 'Pausados',
+      states: ['PAUSADO', 'PAUSADO_POR_CREDITO', 'Pausado', 'pausado', 'Pausado por Crédito'],
+      color: '#FEE2E2',
+      icon: <AlertCircle size={18} color="#EF4444" />
+    },
+    {
+      id: 'creados',
+      title: 'Por Alistar',
+      states: ['CREADO', 'Creado', 'creado', 'Approved', 'Approved (Pendiente Alistamiento)', 'Sent', 'Draft', 'Aprobado'],
+      color: '#F1F5F9',
+      icon: <PackageSearch size={18} color="#64748B" />
+    },
+    {
+      id: 'en_fileteo',
+      title: 'En Fileteo & Corte',
+      states: ['EN_FILETEO', 'EN_ALISTAMIENTO', 'En Fileteo', 'Alistamiento'],
+      color: '#E0F2FE',
+      icon: <Scissors size={18} color="#0284C7" />
+    },
+    {
+      id: 'en_pesaje',
+      title: 'Pesaje & Packing Báscula',
+      states: ['EN_PESAJE', 'En Pesaje', 'Pesaje'],
+      color: '#FEF3C7',
+      icon: <Scale size={18} color="#D97706" />
+    },
   ];
+
+  const despachoColumns: { id: ColumnId; title: string; states: string[]; color: string; icon: React.ReactNode }[] = [
+    {
+      id: 'listos',
+      title: 'Listos para Despacho',
+      states: ['LISTO', 'Listo', 'listo'],
+      color: '#FEF3C7',
+      icon: <Package size={18} color="#D97706" />
+    },
+    {
+      id: 'en_despacho',
+      title: 'En Ruta / Despachados',
+      states: ['EN_DESPACHO', 'En Despacho', 'en_despacho'],
+      color: '#EDE9FE',
+      icon: <Truck size={18} color="#8B5CF6" />
+    },
+    {
+      id: 'entregados',
+      title: 'Entregados en Destino',
+      states: ['ENTREGADO', 'Entregado', 'entregado'],
+      color: '#DCFCE7',
+      icon: <CheckCircle size={18} color="#059669" />
+    },
+    {
+      id: 'facturados',
+      title: 'Facturados',
+      states: ['FACTURADO', 'Facturado', 'facturado'],
+      color: '#E0F2FE',
+      icon: <FileText size={18} color="#0284C7" />
+    },
+    {
+      id: 'pagados',
+      title: 'Pagados / Finalizados',
+      states: ['PAGADO', 'Pagado', 'pagado', 'ANULADO', 'Anulado', 'anulado', 'Sold', 'Vendida'],
+      color: '#F3F4F6',
+      icon: <CheckCircle size={18} color="#9CA3AF" />
+    },
+  ];
+
+  const currentColumns = activeTab === 'bodega' ? bodegaColumns : despachoColumns;
 
   const persistOrderUpdate = (quoteId: string, updatedFields: Record<string, any>) => {
     if (updatedFields.estado) {
@@ -72,7 +169,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
   };
 
   const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault(); // Necesario para permitir el drop
+    e.preventDefault();
   };
 
   const handleDrop = async (e: React.DragEvent, targetColumnId: ColumnId) => {
@@ -92,235 +189,46 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
 
     let nuevoEstado: EstadoPedido = 'CREADO';
     if (targetColumnId === 'creados') nuevoEstado = 'CREADO';
+    if (targetColumnId === 'en_fileteo') nuevoEstado = 'EN_FILETEO';
+    if (targetColumnId === 'en_pesaje') nuevoEstado = 'EN_PESAJE';
     if (targetColumnId === 'listos') nuevoEstado = 'LISTO';
     if (targetColumnId === 'en_despacho') nuevoEstado = 'EN_DESPACHO';
     if (targetColumnId === 'entregados') nuevoEstado = 'ENTREGADO';
     if (targetColumnId === 'facturados') nuevoEstado = 'FACTURADO';
     if (targetColumnId === 'pagados') nuevoEstado = 'PAGADO';
 
-    // Validación de permisos
-    if (['listos', 'en_despacho'].includes(targetColumnId)) {
-      if (!['admin', 'administrativo', 'vendedor', 'Jefe de Bodega'].includes(userRole)) {
-        Swal.fire({ icon: 'error', title: 'Acceso Denegado', text: 'No tienes permisos para avanzar pedidos a este estado.', confirmButtonColor: 'var(--primary-color)' });
-        return;
-      }
-    }
-
-    if (['entregados', 'facturados', 'pagados'].includes(targetColumnId)) {
-      if (!['admin', 'administrativo'].includes(userRole)) {
-        Swal.fire({ icon: 'error', title: 'Acceso Denegado', text: 'No tienes permisos para facturar o liquidar pedidos.', confirmButtonColor: 'var(--primary-color)' });
-        return;
-      }
-    }
-
     const currentQuote = combinedOrders.find(q => q.id === quoteId);
-    if (!currentQuote || currentQuote.estado === nuevoEstado) return;
+    if (!currentQuote) return;
 
-    // Lógica para DESPACHO (Inventario)
-    if (nuevoEstado === 'EN_DESPACHO') {
-      if (currentQuote.inventarioDescontado) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Stock ya descontado',
-          text: 'Este pedido ya generó una salida de inventario previamente.',
-          confirmButtonColor: 'var(--primary-color)'
+    // Si se arrastra a pesaje, abrimos el modal de báscula para la primera línea que requiera pesaje
+    if (targetColumnId === 'en_pesaje') {
+      const lines = currentQuote.lineas || currentQuote.items || [];
+      const unweighedLine = lines.find((l: any) => !l.pesoReal) || lines[0];
+      if (unweighedLine) {
+        setPackingModalItem({
+          orderId: currentQuote.id,
+          item: {
+            lineaPedidoId: unweighedLine.id || unweighedLine.productoId || 'line-1',
+            productoId: unweighedLine.productoId || unweighedLine.id,
+            productoNombre: unweighedLine.nombre || unweighedLine.nombreProducto || 'Producto Pesquero',
+            sku: unweighedLine.sku,
+            modalidad: unweighedLine.modalidadVenta || (unweighedLine.piezasSolicitadas ? 'CATCH_WEIGHT_PIEZAS' : 'PESO_DIRECTO'),
+            pesoNominalKg: Number(unweighedLine.cantidadSolicitada || unweighedLine.pesoEstimado || 2.0),
+            piezasSolicitadas: unweighedLine.piezasSolicitadas,
+            calibreMinGramos: unweighedLine.calibreMinGramos,
+            calibreMaxGramos: unweighedLine.calibreMaxGramos,
+            precioUnitarioPactado: Number(unweighedLine.precioPactado || unweighedLine.precio || 30000),
+            loteSugerido: unweighedLine.loteSeleccionado,
+          }
         });
         return;
       }
-
-      Swal.fire({
-        title: 'Despachar y Descontar Stock',
-        html: `
-          <div style="text-align: left; font-size: 14px;">
-            <p>Se descontará el stock de bodega y el pedido pasará a EN_DESPACHO.</p>
-            <label style="display: block; font-weight: 600; margin-top: 10px;">Seleccionar Conductor:</label>
-            <select id="dispatch-driver" class="swal2-select" style="margin-top: 5px; width: 100%; font-size: 14px;">
-              <option value="Conductor Interno 1">Conductor Interno 1</option>
-              <option value="Conductor Interno 2">Conductor Interno 2</option>
-              <option value="Servicio Tercerizado">Servicio Tercerizado</option>
-            </select>
-          </div>
-        `,
-        showCancelButton: true,
-        confirmButtonText: 'Confirmar y Descontar',
-        cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#3B82F6',
-        preConfirm: () => {
-          const select = document.getElementById('dispatch-driver') as HTMLSelectElement;
-          return select.value;
-        }
-      }).then((result) => {
-        if (result.isConfirmed) {
-          const conductor = result.value || 'Conductor Predeterminado';
-          try {
-            const newStock = { ...stock };
-            const bodegaId = currentQuote.bodegaId || 'Bodega Principal';
-            
-            if (!newStock[bodegaId]) newStock[bodegaId] = {};
-
-            const lines = currentQuote.lineas || currentQuote.items || [];
-            lines.forEach((linea: any) => {
-              const producto = products.find((p: any) => p.id === (linea.productoId || linea.id) || p.sku === linea.sku);
-              if (!producto) return;
-
-              const sku = producto.sku || linea.sku;
-              const cantidadADescontar = linea.pesoReal || linea.cantidadAlistada || linea.cantidadSolicitada || linea.cantidad_real || linea.cantidad || 0;
-
-              if (newStock[bodegaId][sku] === undefined) newStock[bodegaId][sku] = 0;
-              newStock[bodegaId][sku] -= cantidadADescontar;
-
-              addMovimiento({
-                id: crypto.randomUUID(),
-                timestamp: new Date().toISOString(),
-                tipo: 'VENTA',
-                sku: sku,
-                nombreProducto: producto.nombre,
-                bodegaOrigen: bodegaId,
-                cantidad: cantidadADescontar,
-                lote: linea.loteSeleccionado || 'DESPACHO',
-                referenciaId: currentQuote.id,
-                referenciaTipo: 'DESPACHO_B2B',
-                actor: userRole,
-                notas: `Despacho de Pedido ${currentQuote.numeroPedido || currentQuote.numeroCotizacion || currentQuote.id} (Conductor: ${conductor})`
-              });
-            });
-
-            setStock(newStock);
-
-            const pedidoActualizado: any = {
-              ...currentQuote,
-              estado: 'EN_DESPACHO',
-              inventarioDescontado: true,
-              fechaActualizacionKanban: new Date().toISOString(),
-              observaciones: `${currentQuote.observaciones || ''}\nDespachado con: ${conductor}`
-            };
-
-            persistOrderUpdate(currentQuote.id, pedidoActualizado);
-            
-            publishEvent('QUOTE_STATUS_CHANGED', userRole, `Pedido despachado con ${conductor}`, { quoteId, nuevoEstado });
-            
-            Swal.fire({ icon: 'success', title: 'Despacho Exitoso', text: 'El pedido está en ruta y el stock ha sido descontado.', confirmButtonColor: '#10B981' });
-          } catch (e: any) {
-            Swal.fire({ icon: 'error', title: 'Error interno', text: e.message, confirmButtonColor: 'var(--primary-color)' });
-          }
-        }
-      });
-      return;
     }
 
-    // Lógica especial para cuando el pedido se mueve a 'PAGADO' (RN-58 y RN-57)
-    if (nuevoEstado === 'PAGADO') {
-      const turnosAbiertos = cashService.getTurnos().filter(t => t.estado === 'ABIERTO');
-      
-      if (turnosAbiertos.length === 0) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Operación Bloqueada',
-          text: 'Debe haber al menos un Turno de Caja abierto para poder registrar el pago de un pedido B2B.',
-          confirmButtonColor: 'var(--primary-color)'
-        });
-        return;
-      }
-
-      const totalPedido = currentQuote.totalFinal || (currentQuote as any).total || currentQuote.subtotal || 0;
-
-      Swal.fire({
-        title: 'Registrar Pago B2B',
-        html: `
-          <div style="text-align: left; font-size: 14px; color: var(--text-primary);">
-            <div style="margin-bottom: 12px; display: flex; justify-content: space-between; font-size: 16px; border-bottom: 2px solid #E2E8F0; padding-bottom: 8px;">
-              <strong>Total a Pagar:</strong> <strong style="color: var(--primary-color);">$ ${totalPedido.toLocaleString('es-CO')}</strong>
-            </div>
-
-            <!-- Selección de Caja Destino -->
-            <div style="margin-bottom: 16px; padding: 12px; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px;">
-              <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #0F172A;">Caja Destino (Ingreso):</label>
-              <select id="pay-b2b-caja" class="swal2-select" style="margin: 0; width: 100%; height: 38px; padding: 4px; font-size: 13px;">
-                ${turnosAbiertos.map(t => {
-                  const cajaInfo = cashService.getCajas().find(c => c.id === t.cajaId);
-                  const isMiTurno = t.cajeroId === userRole ? ' (Mi Turno)' : '';
-                  const isSelected = t.cajeroId === userRole ? 'selected' : '';
-                  return `<option value="${t.id}" ${isSelected}>${cajaInfo?.nombre || 'Caja Desconocida'} - ${t.cajeroId}${isMiTurno}</option>`;
-                }).join('')}
-              </select>
-            </div>
-
-            <p style="margin-bottom: 12px; font-weight: 600;">Desglose de Pago:</p>
-            
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <label>Efectivo:</label>
-                <input type="number" id="pay-b2b-cash" class="swal2-input" value="${totalPedido}" style="width: 150px; margin: 0; height: 36px; font-size: 14px;" />
-              </div>
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <label>Datáfono (Tarjeta):</label>
-                <input type="number" id="pay-b2b-card" class="swal2-input" value="0" style="width: 150px; margin: 0; height: 36px; font-size: 14px;" />
-              </div>
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <label>Transferencia:</label>
-                <input type="number" id="pay-b2b-transfer" class="swal2-input" value="0" style="width: 150px; margin: 0; height: 36px; font-size: 14px;" />
-              </div>
-            </div>
-          </div>
-        `,
-        showCancelButton: true,
-        confirmButtonText: 'Registrar Pago',
-        cancelButtonText: 'Cancelar',
-        confirmButtonColor: 'var(--primary-color)',
-        preConfirm: () => {
-          const cash = parseFloat((document.getElementById('pay-b2b-cash') as HTMLInputElement).value) || 0;
-          const card = parseFloat((document.getElementById('pay-b2b-card') as HTMLInputElement).value) || 0;
-          const transfer = parseFloat((document.getElementById('pay-b2b-transfer') as HTMLInputElement).value) || 0;
-          const turnoId = (document.getElementById('pay-b2b-caja') as HTMLSelectElement).value;
-
-          const totalIngresado = cash + card + transfer;
-
-          if (totalIngresado < totalPedido) {
-            Swal.showValidationMessage(`El pago desglosado ($${totalIngresado.toLocaleString('es-CO')}) no cubre el total del pedido ($${totalPedido.toLocaleString('es-CO')}). Faltan $${(totalPedido - totalIngresado).toLocaleString('es-CO')}`);
-            return false;
-          }
-
-          if (!turnoId) {
-            Swal.showValidationMessage('Debe seleccionar una Caja Destino.');
-            return false;
-          }
-
-          return { cash, card, transfer, turnoId, change: totalIngresado - totalPedido };
-        }
-      }).then(async (result) => {
-        if (result.isConfirmed && result.value) {
-          const { cash, card, transfer, turnoId, change } = result.value;
-          
-          try {
-            const turnoDestino = cashService.getTurnos().find(t => t.id === turnoId);
-            if (turnoDestino) {
-              const orderNoStr = currentQuote.numeroPedido || (currentQuote as any).numeroCotizacion || (currentQuote as any).no || currentQuote.id;
-              const refId = currentQuote.id;
-              
-              const efectivoReal = Math.max(0, cash - change);
-              if (efectivoReal > 0) {
-                cashService.registrarMovimiento(turnoDestino.id, turnoDestino.cajaId, 'INGRESO_VENTA', 'EFECTIVO', efectivoReal, `Pago B2B (Pedido: ${orderNoStr})`, refId, userRole);
-              }
-              if (card > 0) {
-                cashService.registrarMovimiento(turnoDestino.id, turnoDestino.cajaId, 'INGRESO_VENTA', 'DATAFONO', card, `Pago B2B (Pedido: ${orderNoStr})`, refId, userRole);
-              }
-              if (transfer > 0) {
-                cashService.registrarMovimiento(turnoDestino.id, turnoDestino.cajaId, 'INGRESO_VENTA', 'TRANSFERENCIA', transfer, `Pago B2B (Pedido: ${orderNoStr})`, refId, userRole);
-              }
-            }
-
-            persistOrderUpdate(quoteId, { estado: nuevoEstado, fechaActualizacionKanban: new Date().toISOString() });
-            publishEvent('QUOTE_STATUS_CHANGED', userRole, `Pedido pagado y registrado en Caja`, { quoteId, nuevoEstado });
-            
-            Swal.fire({ icon: 'success', title: 'Pago Registrado', text: 'El pedido ha sido marcado como pagado y el ingreso se registró en la caja.', confirmButtonColor: 'var(--primary-color)' });
-
-          } catch (e: any) {
-            Swal.fire({ icon: 'error', title: 'Error interno', text: e.message, confirmButtonColor: 'var(--primary-color)' });
-          }
-        }
-      });
-      
-      return; // Detenemos la ejecución síncrona aquí porque dependemos de la promesa del Swal
+    // Si se arrastra a despacho, abrimos el modal de remisión WMS
+    if (targetColumnId === 'en_despacho') {
+      setDispatchModalOrder(currentQuote);
+      return;
     }
 
     try {
@@ -331,18 +239,182 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
     }
   };
 
+  // Manejador tras confirmar pesaje en báscula
+  const handleWeighingConfirmed = async (data: {
+    lineaPedidoId: string;
+    pesoRealKg: number;
+    piezasAlistadas?: number;
+    subtotalAjustado: number;
+    temperaturaC: number;
+    loteFefo: string;
+    observaciones?: string;
+  }) => {
+    if (!packingModalItem) return;
+
+    const order = combinedOrders.find(o => o.id === packingModalItem.orderId);
+    if (!order) return;
+
+    const lines = [...(order.lineas || order.items || [])];
+    const lineIndex = lines.findIndex((l: any) => (l.id || l.productoId) === data.lineaPedidoId);
+
+    if (lineIndex >= 0) {
+      lines[lineIndex] = {
+        ...lines[lineIndex],
+        pesoReal: data.pesoRealKg,
+        piezasAlistadas: data.piezasAlistadas,
+        totalLinea: data.subtotalAjustado,
+        loteSeleccionado: data.loteFefo,
+        temperaturaC: data.temperaturaC,
+        estadoLinea: 'COMPLETO'
+      };
+    }
+
+    const nuevoTotal = lines.reduce((acc, l: any) => acc + (l.totalLinea || (l.pesoReal || l.cantidadSolicitada || 1) * (l.precioPactado || 0)), 0);
+
+    const todasPesadas = lines.every((l: any) => !!l.pesoReal);
+    const nuevoEstado: EstadoPedido = todasPesadas ? 'LISTO' : 'EN_PESAJE';
+
+    persistOrderUpdate(order.id, {
+      lineas: lines,
+      items: lines,
+      totalFinal: nuevoTotal,
+      subtotal: nuevoTotal,
+      estado: nuevoEstado,
+      temperaturaCava: data.temperaturaC,
+      fechaActualizacionKanban: new Date().toISOString()
+    });
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Pesaje Conciliado',
+      text: `Se registraron ${data.pesoRealKg} kg en báscula (Subtotal: $${data.subtotalAjustado.toLocaleString('es-CO')}).`,
+      timer: 2000,
+      showConfirmButton: false
+    });
+
+    setPackingModalItem(null);
+  };
+
+  // Manejador tras confirmar despacho en remisión WMS
+  const handleDispatchConfirmed = (remision: any) => {
+    if (!dispatchModalOrder) return;
+
+    try {
+      const newStock = { ...stock };
+      const bodegaId = dispatchModalOrder.bodegaId || 'Bodega Principal';
+      if (!newStock[bodegaId]) newStock[bodegaId] = {};
+
+      const lines = dispatchModalOrder.lineas || dispatchModalOrder.items || [];
+      lines.forEach((linea: any) => {
+        const producto = products.find((p: any) => p.id === (linea.productoId || linea.id) || p.sku === linea.sku);
+        if (!producto) return;
+
+        const sku = producto.sku || linea.sku;
+        const cantidadADescontar = linea.pesoReal || linea.cantidadAlistada || linea.cantidadSolicitada || 1;
+
+        if (newStock[bodegaId][sku] === undefined) newStock[bodegaId][sku] = 0;
+        newStock[bodegaId][sku] -= cantidadADescontar;
+
+        addMovimiento({
+          id: crypto.randomUUID(),
+          timestamp: new Date().toISOString(),
+          tipo: 'VENTA',
+          sku: sku,
+          nombreProducto: producto.nombre,
+          bodegaOrigen: bodegaId,
+          cantidad: cantidadADescontar,
+          lote: linea.loteSeleccionado || remision.items?.[0]?.loteFefo || 'DESPACHO',
+          referenciaId: dispatchModalOrder.id,
+          referenciaTipo: 'DESPACHO_B2B',
+          actor: userRole,
+          notas: `Despacho WMS Remisión ${remision.numeroRemision} (Conductor: ${remision.transportistaNombre})`
+        });
+      });
+
+      setStock(newStock);
+
+      persistOrderUpdate(dispatchModalOrder.id, {
+        estado: 'EN_DESPACHO',
+        inventarioDescontado: true,
+        remisionWmsNumero: remision.numeroRemision,
+        remisionTokenQr: remision.tokenQr,
+        temperaturaSalida: remision.temperaturaSalidaC,
+        conductor: remision.transportistaNombre,
+        placaVehiculo: remision.placaVehiculo,
+        fechaActualizacionKanban: new Date().toISOString()
+      });
+
+      publishEvent('QUOTE_STATUS_CHANGED', userRole, `Pedido despachado con remisión ${remision.numeroRemision}`, { quoteId: dispatchModalOrder.id, nuevoEstado: 'EN_DESPACHO' });
+    } catch (e: any) {
+      console.error('Error al actualizar stock de despacho:', e);
+    }
+  };
+
+  // Contadores para pestañas
+  const countBodega = combinedOrders.filter(o =>
+    ['PAUSADO', 'PAUSADO_POR_CREDITO', 'CREADO', 'Approved', 'Sent', 'Draft', 'EN_FILETEO', 'EN_ALISTAMIENTO', 'EN_PESAJE'].includes(o.estado)
+  ).length;
+
+  const countDespacho = combinedOrders.filter(o =>
+    ['LISTO', 'EN_DESPACHO', 'ENTREGADO', 'FACTURADO', 'PAGADO'].includes(o.estado)
+  ).length;
+
   return (
-    <div className="animate-fade-in" style={{ padding: '24px', height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div className="animate-fade-in flex flex-col h-full p-6 space-y-6">
       
-      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      {/* Header y Selector de Pestañas Bifásicas */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-2 border-b border-white/10">
         <div>
-          <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#1E293B', margin: 0 }}>Kanban B2B</h2>
-          <p style={{ color: '#64748B', margin: '4px 0 0 0', fontSize: '14px' }}>Flujo logístico: Creado → Listo → En Despacho → Entregado → Facturado → Pagado.</p>
+          <div className="flex items-center gap-2">
+            <h2 className="text-2xl font-black text-white tracking-tight">Picking, Packing & Despachos B2B</h2>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center gap-1">
+              <Sparkles className="w-3 h-3" /> Catch Weight & QR
+            </span>
+          </div>
+          <p className="text-sm text-slate-400 mt-1">
+            Gestión integral de pesaje en báscula, trazabilidad FEFO, cadena de frío y remisiones WMS.
+          </p>
+        </div>
+
+        {/* Botones de Pestaña Dual */}
+        <div className="flex items-center p-1.5 rounded-2xl bg-slate-900 border border-white/10 shadow-lg">
+          <button
+            type="button"
+            onClick={() => setActiveTab('bodega')}
+            className={`flex items-center gap-2.5 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              activeTab === 'bodega'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Scissors className="w-4 h-4" />
+            <span>1. Logística de Bodega (Fileteo & Pesaje)</span>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] ${activeTab === 'bodega' ? 'bg-blue-700 text-white' : 'bg-slate-800 text-slate-400'}`}>
+              {countBodega}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('despacho')}
+            className={`flex items-center gap-2.5 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              activeTab === 'despacho'
+                ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Truck className="w-4 h-4" />
+            <span>2. Despachos & Remisiones WMS</span>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] ${activeTab === 'despacho' ? 'bg-purple-700 text-white' : 'bg-slate-800 text-slate-400'}`}>
+              {countDespacho}
+            </span>
+          </button>
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '20px', flex: 1, overflowX: 'auto', paddingBottom: '16px' }}>
-        {columns.map(column => {
+      {/* Tablero Kanban */}
+      <div className="flex gap-5 flex-1 overflow-x-auto pb-4">
+        {currentColumns.map(column => {
           const now = new Date();
           const cutoffTime = new Date(now);
           cutoffTime.setHours(6, 0, 0, 0);
@@ -350,12 +422,11 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
 
           const columnQuotes = combinedOrders.filter(q => {
             if (!column.states.includes(q.estado)) return false;
-            
             if (['PAGADO', 'Pagado', 'pagado', 'ANULADO', 'Anulado', 'anulado'].includes(q.estado)) {
               const updateTimeStr = (q as any).fechaActualizacionKanban || q.fecha;
               if (!updateTimeStr) return false;
               const updateTime = new Date(updateTimeStr);
-              if (isNaN(updateTime.getTime())) return true; 
+              if (isNaN(updateTime.getTime())) return true;
               if (updateTime < cutoffTime) return false;
             }
             return true;
@@ -367,107 +438,196 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
               key={column.id}
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, column.id)}
-              style={{
-                flex: '0 0 320px',
-                display: 'flex',
-                flexDirection: 'column',
-                padding: 0
-              }}
+              className="flex-shrink-0 w-80 flex flex-col p-0 bg-slate-900/60 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-xl"
             >
-              <div style={{ padding: '16px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'var(--surface-dark)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  {column.icon}
-                  <h3 style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>{column.title}</h3>
+              {/* Encabezado de Columna */}
+              <div className="p-4 border-b border-white/10 flex items-center justify-between bg-slate-900/80">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 rounded-lg bg-slate-800 text-white border border-white/5">
+                    {column.icon}
+                  </div>
+                  <h3 className="text-sm font-bold text-white tracking-wide">{column.title}</h3>
                 </div>
-                <div style={{ backgroundColor: 'var(--bg-color)', padding: '2px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', border: '1px solid var(--border-color)' }}>
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-800 border border-white/10 text-slate-300 font-mono">
                   {columnQuotes.length}
-                </div>
+                </span>
               </div>
 
-              <div style={{ flex: 1, padding: '16px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {/* Lista de Tarjetas */}
+              <div className="flex-1 p-3.5 overflow-y-auto flex flex-col gap-3 min-h-[300px]">
                 {columnQuotes.length === 0 ? (
-                  <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: '13px', padding: '24px 0', fontStyle: 'italic' }}>
-                    Sin pedidos
+                  <div className="text-center text-slate-500 text-xs py-12 italic">
+                    Sin pedidos en esta estación
                   </div>
                 ) : (
-                  columnQuotes.map(quote => (
-                    <div
-                      key={quote.id}
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, quote.id)}
-                      onClick={() => onEditOrder(quote)}
-                      style={{
-                        backgroundColor: 'var(--bg-color)',
-                        padding: '16px',
-                        borderRadius: '8px',
-                        border: '1px solid var(--border-color)',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '8px',
-                        transition: 'transform 0.2s',
-                      }}
-                      onMouseEnter={e => {
-                        e.currentTarget.style.transform = 'translateY(-2px)';
-                        e.currentTarget.style.borderColor = 'var(--primary-color)';
-                      }}
-                      onMouseLeave={e => {
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.borderColor = 'var(--border-color)';
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <div>
-                          <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary-color)' }}>
-                            {quote.numeroPedido || (quote as any).numeroCotizacion || (quote as any).no || quote.id}
+                  columnQuotes.map(quote => {
+                    const lines = quote.lineas || quote.items || [];
+                    const hasCatchWeight = lines.some((l: any) => l.modalidadVenta === 'CATCH_WEIGHT_PIEZAS' || l.piezasSolicitadas);
+                    const totalKg = lines.reduce((acc: number, l: any) => acc + (Number(l.pesoReal || l.cantidadAlistada || l.cantidadSolicitada) || 0), 0);
+                    const hasWeight = lines.some((l: any) => !!l.pesoReal);
+
+                    return (
+                      <div
+                        key={quote.id}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, quote.id)}
+                        onClick={() => onEditOrder(quote)}
+                        className="p-4 rounded-xl bg-slate-950/80 border border-white/10 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/10 transition-all cursor-pointer flex flex-col gap-2.5 group"
+                      >
+                        {/* Cabecera Tarjeta */}
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <div className="text-xs font-mono font-bold text-cyan-400">
+                              {quote.numeroPedido || quote.numeroCotizacion || quote.id}
+                            </div>
+                            <div className="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">
+                              {quote.clientName || quote.clienteNombre || quote.clienteId || 'Cliente B2B'}
+                            </div>
                           </div>
-                          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', marginTop: '2px' }}>
-                            {quote.clientName || (quote as any).clienteNombre || (quote as any).clienteId || 'Cliente No Identificado'}
-                          </div>
+
+                          {['PAUSADO', 'Pausado', 'pausado'].includes(quote.estado) && (
+                            <Badge variant="danger" className="text-[10px]">
+                              <AlertCircle size={10} className="mr-1" /> Variación &gt; 10%
+                            </Badge>
+                          )}
+                          {['PAUSADO_POR_CREDITO', 'Pausado por Crédito'].includes(quote.estado) && (
+                            <Badge variant="danger" className="text-[10px]">
+                              <AlertCircle size={10} className="mr-1" /> Cupo Lleno
+                            </Badge>
+                          )}
                         </div>
-                        {['PAUSADO', 'Pausado', 'pausado'].includes(quote.estado) && (
-                          <Badge variant="danger" style={{ fontSize: '10px' }}>
-                            <AlertCircle size={10} style={{ marginRight: '4px' }} /> Peso &gt; 5%
-                          </Badge>
-                        )}
-                        {['PAUSADO_POR_CREDITO', 'Pausado por Crédito'].includes(quote.estado) && (
-                          <Badge variant="danger" style={{ fontSize: '10px' }}>
-                            <AlertCircle size={10} style={{ marginRight: '4px' }} /> Cupo Lleno
-                          </Badge>
-                        )}
-                      </div>
 
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#64748B' }}>
-                        <FileText size={14} />
-                        <span>{quote.lineas?.length || (quote as any).items?.length || 0} ítems</span>
-                      </div>
-
-                      {quote.tipoEntrega === 'EN_RUTA' && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#64748B' }}>
-                          <Truck size={14} />
-                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            En Ruta Asignada
+                        {/* Metadatos de Productos y Catch Weight */}
+                        <div className="flex flex-wrap gap-1.5 text-[11px]">
+                          <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-white/5 flex items-center gap-1">
+                            <FileText size={12} className="text-slate-400" />
+                            {lines.length} ítems
                           </span>
-                        </div>
-                      )}
 
-                      <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: '8px', marginTop: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ fontSize: '11px', color: '#94A3B8' }}>{quote.fecha}</div>
-                        <div style={{ fontWeight: 800, color: '#1E293B', fontSize: '14px' }}>
-                          ${(quote.totalFinal || (quote as any).total || quote.subtotal || 0).toLocaleString('es-CO')}
+                          {hasCatchWeight && (
+                            <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                              <Layers size={12} />
+                              Catch Weight
+                            </span>
+                          )}
+
+                          {quote.temperaturaCava && (
+                            <span className="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 flex items-center gap-1 font-mono">
+                              <Thermometer size={12} />
+                              {quote.temperaturaCava}°C
+                            </span>
+                          )}
                         </div>
+
+                        {/* Estado de Pesaje / Botón de Acción Rápida */}
+                        {activeTab === 'bodega' && (
+                          <div className="pt-2 border-t border-white/5 flex items-center justify-between">
+                            <span className="text-xs text-slate-400 font-mono">
+                              {hasWeight ? (
+                                <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                                  <Scale size={12} /> {totalKg.toFixed(2)} KG pesados
+                                </span>
+                              ) : (
+                                <span className="text-slate-500">Pendiente báscula</span>
+                              )}
+                            </span>
+
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const unweighed = lines.find((l: any) => !l.pesoReal) || lines[0];
+                                if (unweighed) {
+                                  setPackingModalItem({
+                                    orderId: quote.id,
+                                    item: {
+                                      lineaPedidoId: unweighed.id || unweighed.productoId || 'line-1',
+                                      productoId: unweighed.productoId || unweighed.id,
+                                      productoNombre: unweighed.nombre || unweighed.nombreProducto || 'Producto Pesquero',
+                                      sku: unweighed.sku,
+                                      modalidad: unweighed.modalidadVenta || (unweighed.piezasSolicitadas ? 'CATCH_WEIGHT_PIEZAS' : 'PESO_DIRECTO'),
+                                      pesoNominalKg: Number(unweighed.cantidadSolicitada || unweighed.pesoEstimado || 2.0),
+                                      piezasSolicitadas: unweighed.piezasSolicitadas,
+                                      calibreMinGramos: unweighed.calibreMinGramos,
+                                      calibreMaxGramos: unweighed.calibreMaxGramos,
+                                      precioUnitarioPactado: Number(unweighed.precioPactado || unweighed.precio || 30000),
+                                      loteSugerido: unweighed.loteSeleccionado,
+                                    }
+                                  });
+                                }
+                              }}
+                              className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-600/30 hover:bg-blue-600 text-blue-300 hover:text-white border border-blue-500/30 transition-all flex items-center gap-1"
+                            >
+                              <Scale size={12} /> Pesar
+                            </button>
+                          </div>
+                        )}
+
+                        {activeTab === 'despacho' && (
+                          <div className="pt-2 border-t border-white/5 flex items-center justify-between">
+                            {quote.remisionWmsNumero ? (
+                              <span className="text-[11px] font-mono font-semibold text-purple-400 flex items-center gap-1">
+                                <QrCode size={12} /> {quote.remisionWmsNumero}
+                              </span>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setDispatchModalOrder(quote);
+                                }}
+                                className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-purple-600/30 hover:bg-purple-600 text-purple-300 hover:text-white border border-purple-500/30 transition-all flex items-center gap-1"
+                              >
+                                <Truck size={12} /> Despachar WMS
+                              </button>
+                            )}
+
+                            <span className="text-xs font-mono font-bold text-white">
+                              ${(quote.totalFinal || quote.total || 0).toLocaleString('es-CO')}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Footer con Fecha y Total si es Bodega */}
+                        {activeTab === 'bodega' && (
+                          <div className="pt-1.5 flex justify-between items-center text-xs">
+                            <span className="text-[11px] text-slate-500">{quote.fecha}</span>
+                            <span className="font-mono font-bold text-white">
+                              ${(quote.totalFinal || quote.total || 0).toLocaleString('es-CO')}
+                            </span>
+                          </div>
+                        )}
+
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </Card>
           );
         })}
       </div>
+
+      {/* Modal de Báscula y Conciliación Catch Weight */}
+      {packingModalItem && (
+        <WeightPackingModal
+          isOpen={!!packingModalItem}
+          onClose={() => setPackingModalItem(null)}
+          item={packingModalItem.item}
+          onConfirm={handleWeighingConfirmed}
+        />
+      )}
+
+      {/* Modal de Emisión de Remisión WMS con QR */}
+      {dispatchModalOrder && (
+        <WmsRemisionModal
+          isOpen={!!dispatchModalOrder}
+          onClose={() => setDispatchModalOrder(null)}
+          pedido={dispatchModalOrder}
+          onDispatchConfirmed={handleDispatchConfirmed}
+        />
+      )}
+
     </div>
   );
 }
-
-
-

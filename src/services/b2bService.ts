@@ -8,14 +8,16 @@ const DB_KEY = 'quotations';
 
 // ── Legacy sync API (preservada) ──
 export const transicionesValidas: Record<EstadoPedido, EstadoPedido[]> = {
-  'CREADO': ['EN_ALISTAMIENTO', 'ANULADO', 'PAUSADO_POR_CREDITO'],
-  'EN_ALISTAMIENTO': ['LISTO', 'PAUSADO', 'ANULADO'],
+  'CREADO': ['EN_ALISTAMIENTO', 'EN_FILETEO', 'EN_PESAJE', 'ANULADO', 'PAUSADO_POR_CREDITO'],
+  'EN_ALISTAMIENTO': ['EN_FILETEO', 'EN_PESAJE', 'LISTO', 'PAUSADO', 'ANULADO'],
+  'EN_FILETEO': ['EN_PESAJE', 'LISTO', 'PAUSADO', 'ANULADO'],
+  'EN_PESAJE': ['LISTO', 'EN_FILETEO', 'PAUSADO', 'ANULADO'],
   'LISTO': ['EN_DESPACHO', 'ANULADO'],
   'EN_DESPACHO': ['ENTREGADO'],
   'ENTREGADO': ['FACTURADO', 'PAGADO'],
   'FACTURADO': ['PAGADO'],
   'PAGADO': [],
-  'PAUSADO': ['LISTO', 'ANULADO'],
+  'PAUSADO': ['LISTO', 'EN_PESAJE', 'ANULADO'],
   'PAUSADO_POR_CREDITO': ['CREADO', 'ANULADO'],
   'ANULADO': [],
 };
