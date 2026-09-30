@@ -68,21 +68,15 @@ export const BalanzaButton: React.FC<BalanzaButtonProps> = ({
       variant="secondary"
       onClick={handleRead}
       disabled={reading}
-      className={reading ? 'bg-slate-100 cursor-not-allowed text-slate-500' : 'text-slate-600 hover:bg-slate-50'}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '6px',
-        fontSize: '11px',
-        padding: '4px 8px',
-        height: '36px',
-        border: '1px solid #CBD5E1',
-        boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-      }}
-      title="Obtener peso desde balanza USB/Serial"
+      className={`min-h-[44px] h-11 px-3 inline-flex items-center gap-2 text-xs font-semibold rounded-lg transition-all active:scale-95 cursor-pointer shadow-sm ${
+        reading
+          ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-300 dark:border-slate-700'
+          : 'bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30'
+      }`}
+      title="Obtener peso desde balanza USB/Serial (44px touch ergonomics)"
     >
-      <RefreshCw size={12} className={reading ? 'animate-spin' : ''} />
-      <span>{reading ? 'Pesando...' : 'Balanza'}</span>
+      <RefreshCw size={15} className={reading ? 'animate-spin' : ''} />
+      <span className="font-bold">{reading ? 'Pesando...' : 'Balanza'}</span>
     </Button>
   );
 };

@@ -42,6 +42,8 @@ import { KardexTable } from './inventory/components/KardexTable';
 import { WarehouseTransferPanel } from './inventory/components/WarehouseTransferPanel';
 import { WarehouseConfigManager } from './inventory/components/WarehouseConfigManager';
 import { BulkUploadModal } from '../components/BulkUploadModal';
+import { TableSkeleton } from '../components/ui/ShimmerSkeleton';
+import { useProductsQuery } from '../hooks/useInventoryQueries';
 import { useInventoryStore } from '../store/useInventoryStore';
 import { useMovementStore, MovimientoInventario } from '../store/useMovementStore';
 import { usePurchaseStore, OrdenCompra, CuentaPorPagar } from '../store/usePurchaseStore';
@@ -91,6 +93,7 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
   const { devoluciones, setDevoluciones } = useReturnStore();
   const publishEvent = useEventStore((s) => s.publishEvent);
   const userRole = useAppStore((s) => s.userRole);
+  const { isLoading: isProductsLoading } = useProductsQuery();
   const proveedores = useSupplierStore((s) => s.proveedores);
   const bodegas = useWarehouseStore((s) => s.bodegas);
   const [activeBodega, setActiveBodega] = useState('Bodega Principal');
@@ -1022,16 +1025,26 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
     });
 
     if (result.dismiss === Swal.DismissReason.cancel) {
-       const pinResult = await Swal.fire({
-         title: 'Autorización de Supervisor',
-         text: 'Ingrese el PIN para omitir la regla FEFO. (PIN: 1234)',
-         input: 'password',
+       if (userRole !== 'admin' && userRole !== 'bodega') {
+         Swal.fire({
+           icon: 'error',
+           title: 'Autorización Denegada',
+           text: 'Omitir la regla FEFO requiere permisos de Jefe de Bodega o Administrador.',
+         });
+         return;
+       }
+
+       const confirmBypass = await Swal.fire({
+         title: 'Confirmar Excepción FEFO',
+         text: '¿Confirma como supervisor o administrador la omisión de la regla FEFO para este traslado?',
+         icon: 'warning',
          showCancelButton: true,
-         confirmButtonColor: 'var(--primary-color)'
+         confirmButtonText: 'Sí, autorizar omisión',
+         cancelButtonText: 'Cancelar',
+         confirmButtonColor: '#EF4444',
        });
 
-       if (!pinResult.isConfirmed || pinResult.value !== '1234') {
-         Swal.fire('Denegado', 'PIN incorrecto o acción cancelada.', 'error');
+       if (!confirmBypass.isConfirmed) {
          return;
        }
     } else if (!result.isConfirmed) {
@@ -1121,36 +1134,39 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
     let justificacionText = '';
 
     if (mermaPct > 35) {
-      // Pedir PIN y justificación
+      if (userRole !== 'admin' && userRole !== 'bodega') {
+        Swal.fire({
+          icon: 'error',
+          title: 'Autorización Denegada (Merma > 35%)',
+          text: `La merma calculada (${mermaPct}%) excede el límite permitido del 35%. Solo un Jefe de Bodega o Administrador puede autorizar esta operación.`,
+        });
+        return;
+      }
+
+      // Pedir justificación obligatoria al supervisor/administrador
       const { value: formValues } = await Swal.fire({
-        title: 'Autorización Requerida (Merma > 35%)',
+        title: 'Autorización de Supervisor (Merma > 35%)',
         html:
-          '<p style="font-size: 13px; color: #EF4444; margin-bottom: 12px;">Se requiere autorización firmada para una merma del ' + mermaPct + '%.</p>' +
-          '<input id="pin-input" class="swal2-input" type="password" placeholder="PIN de 4 dígitos" maxlength="4">' +
-          '<textarea id="just-input" class="swal2-textarea" placeholder="Justificación de la merma alta (Ej. Pescado con mucha víscera)..."></textarea>',
+          '<p style="font-size: 13px; color: #EF4444; margin-bottom: 12px;">Se requiere justificación obligatoria para autorizar una merma crítica del ' + mermaPct + '%.</p>' +
+          '<textarea id="just-input" class="swal2-textarea" placeholder="Justificación técnica de la merma alta (Ej. Lote con exceso de víscera o degradación térmica)..."></textarea>',
         focusConfirm: false,
         showCancelButton: true,
         confirmButtonText: 'Autorizar y Guardar',
         cancelButtonText: 'Cancelar',
         confirmButtonColor: '#EF4444',
         preConfirm: () => {
+          const justInput = document.getElementById('just-input') as HTMLTextAreaElement;
           return {
-            pin: (document.getElementById('pin-input') as HTMLInputElement).value,
-            justificacion: (document.getElementById('just-input') as HTMLTextAreaElement).value
+            justificacion: justInput ? justInput.value.trim() : '',
           };
         }
       });
 
-      if (!formValues || !formValues.pin || !formValues.justificacion) {
-        Swal.fire({ icon: 'error', title: 'Denegado', text: 'Debe ingresar el PIN y la justificación.' });
+      if (!formValues || !formValues.justificacion || formValues.justificacion.length < 5) {
+        Swal.fire({ icon: 'error', title: 'Justificación Requerida', text: 'Debe ingresar una justificación detallada para registrar una merma superior al 35%.' });
         return;
       }
 
-      // Validar PIN (Simulado, ej: 1234 o 4321)
-      if (formValues.pin !== '1234' && formValues.pin !== '4321') {
-        Swal.fire({ icon: 'error', title: 'PIN Inválido', text: 'El código ingresado no corresponde a un Jefe de Bodega autorizado.' });
-        return;
-      }
       justificacionText = formValues.justificacion;
     }
 
@@ -1761,7 +1777,11 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
       {/* TAB 1: Matriz de Existencias Multibodega */}
       {viewMode === 'operaciones' && (
         <div className="space-y-6">
-          <StockMatrizTable products={products} stock={stock} bodegas={bodegas} />
+          {isProductsLoading && (!products || products.length === 0) ? (
+            <TableSkeleton rows={6} columns={6} />
+          ) : (
+            <StockMatrizTable products={products} stock={stock} bodegas={bodegas} />
+          )}
 
           {/* Panel de Trazabilidad Rápida */}
           <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 p-5 rounded-2xl shadow-xl space-y-4">
@@ -2005,6 +2025,13 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
               getTotalStock={getTotalStock}
               getStockInBodega={getStockInBodega}
             />
+          ) : isProductsLoading && (!products || products.length === 0) ? (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Sincronizando Catálogo de Productos...</span>
+              </div>
+              <TableSkeleton rows={8} columns={7} />
+            </div>
           ) : (
             <ProductTable
               products={products}
@@ -2017,11 +2044,13 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
               getStockInBodega={getStockInBodega}
               handleEditProduct={handleEditProduct}
               handleToggleProduct={handleToggleProduct}
+              setEditingProductId={setEditingProductId}
               setIsCreating={setIsCreating}
               setProductForm={setProductForm}
               setCustomTipo={setCustomTipo}
               setCustomLinea={setCustomLinea}
               setCustomClase={setCustomClase}
+              productsCatalog={productsCatalog}
             />
           )}
         </div>

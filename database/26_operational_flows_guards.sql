@@ -55,17 +55,26 @@ BEGIN
         'FACTURADO', p_total, p_total, 'POS', 'CONTADO'
     ) RETURNING id INTO v_pedido_id;
 
-    -- D. Recorrer y descontar existencias atómicamente de la Bodega Principal
+    -- D. Bloqueo atómico ordenado por producto_id para prevenir deadlocks
+    PERFORM 1 
+    FROM public.stock_bodegas
+    WHERE bodega_id = v_bodega_p_id 
+      AND producto_id IN (
+          SELECT (x ->> 'producto_id')::UUID 
+          FROM jsonb_array_elements(p_items) x
+      )
+    ORDER BY producto_id
+    FOR UPDATE;
+
+    -- Recorrer y descontar existencias atómicamente de la Bodega Principal
     FOR v_item IN SELECT * FROM jsonb_array_elements(p_items)
     LOOP
         v_producto_id := (v_item ->> 'producto_id')::UUID;
         v_cantidad := (v_item ->> 'cantidad')::NUMERIC;
 
-        -- Bloqueo pesimista para evitar condiciones de carrera (Race Conditions)
         SELECT cantidad INTO v_stock_actual
         FROM public.stock_bodegas
-        WHERE bodega_id = v_bodega_p_id AND producto_id = v_producto_id
-        FOR UPDATE;
+        WHERE bodega_id = v_bodega_p_id AND producto_id = v_producto_id;
 
         IF v_stock_actual IS NULL OR v_stock_actual < v_cantidad THEN
             RAISE EXCEPTION 'STOCK_INSUFICIENTE_P: Existencias insuficientes en Bodega Principal (P). Stock disponible: %, Solicitado: %',
@@ -137,16 +146,19 @@ BEGIN
                 USING ERRCODE = 'P0001';
         END IF;
 
-        -- Validar PIN contra usuarios con rol ADMIN o SUPERVISOR
+        -- Validar autorización contra usuarios con rol ADMIN o SUPERVISOR
         SELECT EXISTS (
             SELECT 1 FROM public.usuarios
             WHERE empresa_id = p_tenant_id 
               AND rol IN ('ADMIN', 'SUPERVISOR')
-              AND (pin_acceso = p_pin_supervisor OR pin_acceso = '1234')
+              AND (
+                  (p_pin_supervisor IS NOT NULL AND pin_acceso = p_pin_supervisor)
+                  OR id = auth.uid()
+              )
         ) INTO v_es_supervisor;
 
         IF NOT v_es_supervisor THEN
-            RAISE EXCEPTION 'PIN_SUPERVISOR_INVALIDO: El PIN ingresado no corresponde a un supervisor o administrador autorizado.'
+            RAISE EXCEPTION 'PIN_SUPERVISOR_INVALIDO: La merma (%) supera el 35%% permitido. Se requiere autorización de un supervisor o administrador.', ROUND(v_merma_pct, 2)
                 USING ERRCODE = 'P0001';
         END IF;
     END IF;

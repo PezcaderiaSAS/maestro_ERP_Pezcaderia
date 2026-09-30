@@ -6,6 +6,7 @@ import { posCashEngineService } from '../../../services/posCashEngineService';
 import { evaluarDescuadreArqueo } from '../../../../packages/validation-schemas/src/posCashEngine.schema';
 import { useCashStore } from '../../../store/useCashStore';
 import { useInventoryStore } from '../../../store/useInventoryStore';
+import { useAppStore } from '../../../store/useAppStore';
 import {
   Lock,
   Unlock,
@@ -135,27 +136,30 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
   };
 
   const handleToggleModoCiego = () => {
+    const currentRole = useAppStore.getState().userRole;
+    const tienePermisosAdmin = esAdmin || currentRole === 'admin';
+
     if (esModoArqueoCiego) {
-      if (!esAdmin) {
+      if (!tienePermisosAdmin) {
         Swal.fire({
-          title: 'Autorización de Supervisor',
-          text: 'Ingrese el PIN o autorización para desactivar el arqueo ciego.',
-          input: 'password',
-          inputPlaceholder: 'PIN de Supervisor...',
-          showCancelButton: true,
-          confirmButtonText: 'Verificar',
-          cancelButtonText: 'Cancelar',
-        }).then((res) => {
-          if (res.isConfirmed && (res.value === '1234' || res.value === 'admin' || res.value === 'super')) {
-            setEsModoArqueoCiego(false);
-            Swal.fire({ icon: 'success', title: 'Modo Asistido Activado', timer: 1200, showConfirmButton: false });
-          } else if (res.isConfirmed) {
-            Swal.fire({ icon: 'error', title: 'PIN Incorrecto' });
-          }
+          icon: 'error',
+          title: 'Acceso Restringido',
+          text: 'La desactivación del arqueo ciego requiere perfil de Supervisor o Administrador.',
+          target: 'body',
+          customClass: { container: 'z-50 isolate' },
         });
-      } else {
-        setEsModoArqueoCiego(false);
+        return;
       }
+      setEsModoArqueoCiego(false);
+      Swal.fire({
+        icon: 'success',
+        title: 'Modo Asistido Activado',
+        text: 'Autorizado por rol activo de Supervisor/Administrador.',
+        timer: 1500,
+        showConfirmButton: false,
+        target: 'body',
+        customClass: { container: 'z-50 isolate' },
+      });
     } else {
       setEsModoArqueoCiego(true);
     }
@@ -170,7 +174,7 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
       confirmButtonText: 'Sí, desbloquear',
       cancelButtonText: 'Cancelar',
       target: 'body',
-      customClass: { container: 'z-[100000]' },
+      customClass: { container: 'z-50 isolate' },
     }).then((result) => {
       if (result.isConfirmed) {
         if (tipo === 'DATAFONO') setLockDatafono(false);
@@ -186,7 +190,7 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
         title: 'Efectivo requerido',
         text: 'Debe ingresar el efectivo físico contado (puede ser 0).',
         target: 'body',
-        customClass: { container: 'z-[100000]' },
+        customClass: { container: 'z-50 isolate' },
       });
       return;
     }
@@ -197,7 +201,7 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
         title: 'Justificación Obligatoria',
         text: `Existe un descuadre fuera de la tolerancia ($${Math.abs(diffTotal).toLocaleString('es-CO')}). Debe detallar el motivo antes de cerrar.`,
         target: 'body',
-        customClass: { container: 'z-[100000]' },
+        customClass: { container: 'z-50 isolate' },
       });
       return;
     }
@@ -226,7 +230,7 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
       cancelButtonText: 'Revisar nuevamente',
       confirmButtonColor: '#ef4444',
       target: 'body',
-      customClass: { container: 'z-[100000]' },
+      customClass: { container: 'z-50 isolate' },
     });
 
     if (!confirmar.isConfirmed) return;
@@ -292,7 +296,7 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
           timer: 2000,
           showConfirmButton: false,
           target: 'body',
-          customClass: { container: 'z-[100000]' },
+          customClass: { container: 'z-50 isolate' },
         });
 
         onSuccess();
@@ -302,7 +306,7 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
           title: 'Error al cerrar',
           text: resultado.error,
           target: 'body',
-          customClass: { container: 'z-[100000]' },
+          customClass: { container: 'z-50 isolate' },
         });
       }
     } catch (err: any) {

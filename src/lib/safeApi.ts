@@ -15,33 +15,57 @@ export interface SafeExecuteOptions {
 }
 
 /**
+ * Mapeo exhaustivo de códigos estándar SQLSTATE (PostgreSQL) y excepciones de dominio
+ */
+const SQLSTATE_ERROR_MAP: Record<string, string> = {
+  '23503': 'El registro relacionado no existe o fue desvinculado previamente (referencia foránea inválida).',
+  '23505': 'Ya existe un registro con la misma identificación o código SKU en la empresa.',
+  '23514': 'Los valores numéricos ingresados no cumplen con las reglas de negocio (ej. valores negativos o fechas inválidas).',
+  '42501': 'Permisos insuficientes: La política de seguridad multi-empresa ha bloqueado el acceso a este registro.',
+  '40001': 'Conflicto de serialización por concurrencia. Intente la operación nuevamente.',
+  '55P03': 'El registro está bloqueado por otra transacción activa. Reintente en un momento.',
+  '08000': 'Error de conexión con la base de datos.',
+  '08003': 'La conexión con la base de datos se cerró inesperadamente.',
+  '08006': 'Fallo en la comunicación con el servidor de base de datos.',
+};
+
+/**
  * Sanitiza los mensajes de error técnicos de PostgreSQL / PostgREST
- * eliminando detalles de infraestructura, rutas de archivos o stack traces.
+ * evaluando códigos SQLSTATE y códigos de dominio estructurados.
  */
 export function sanitizeErrorMessage(rawError: any, fallbackMessage = 'Error al procesar la operación'): string {
   if (!rawError) return fallbackMessage;
 
-  const raw = typeof rawError === 'string' 
+  // 1. Evaluar por código SQLSTATE directo
+  const code = String(rawError?.code || rawError?.status || '').trim();
+  if (code && SQLSTATE_ERROR_MAP[code]) {
+    return SQLSTATE_ERROR_MAP[code];
+  }
+
+  // 2. Extraer detalles o mensaje para excepciones de dominio personalizadas (P0001)
+  const detail = String(rawError?.details || rawError?.hint || '').trim();
+  const rawMsg = typeof rawError === 'string' 
     ? rawError 
     : (rawError.message || rawError.error_description || JSON.stringify(rawError));
 
-  if (raw.includes('MERMA_EXCESIVA_SIN_PIN')) {
-    return 'La merma del despiece supera el 35% permitido. Se requiere PIN de autorización de un supervisor.';
+  if (code === 'P0001' || rawMsg.includes('P0001') || detail) {
+    if (detail.includes('ERR_MERMA_EXCESIVA') || rawMsg.includes('MERMA_CRITICA') || rawMsg.includes('MERMA_EXCESIVA')) {
+      return 'La merma del despiece supera el 35% permitido. Se requiere autorización de un supervisor o administrador.';
+    }
+    if (detail.includes('PIN_SUPERVISOR_INVALIDO') || rawMsg.includes('PIN_SUPERVISOR_INVALIDO')) {
+      return 'La acción requiere autorización activa de un supervisor o administrador.';
+    }
+    if (detail.includes('STOCK_INSUFICIENTE') || rawMsg.includes('STOCK_INSUFICIENTE')) {
+      return 'Existencias insuficientes en la bodega seleccionada para completar la operación.';
+    }
+    if (detail.includes('CAJA_CERRADA') || rawMsg.includes('TURNO_YA_ABIERTO')) {
+      return 'El estado de la caja o del turno no permite procesar transacciones en este momento.';
+    }
   }
-  if (raw.includes('violates foreign key')) {
-    return 'El registro relacionado no existe o fue desvinculado previamente.';
-  }
-  if (raw.includes('violates row-level security policy') || raw.includes('42501')) {
-    return 'Permisos insuficientes: La política de seguridad multi-empresa ha bloqueado el acceso a este registro.';
-  }
-  if (raw.includes('duplicate key value') || raw.includes('23505')) {
-    return 'Ya existe un registro con la misma identificación o código SKU en la empresa.';
-  }
-  if (raw.includes('violates check constraint') || raw.includes('23514')) {
-    return 'Los valores numéricos ingresados no cumplen con las reglas de negocio (ej. valores negativos o fechas inválidas).';
-  }
-  if (raw.includes('NetworkError') || raw.includes('Failed to fetch')) {
-    return 'No se pudo establecer conexión con el servidor. Verifique su conexión de red o modo offline.';
+
+  // 3. Fallo de red en el cliente
+  if (rawMsg.includes('NetworkError') || rawMsg.includes('Failed to fetch') || rawMsg.includes('Load failed')) {
+    return 'No se pudo establecer conexión con el servidor. Verifique su conexión de red o continúe en modo offline.';
   }
 
   return fallbackMessage;

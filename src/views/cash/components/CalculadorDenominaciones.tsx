@@ -66,35 +66,36 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
     return (
       <div
         key={item.key}
-        className="flex flex-col justify-between p-3 rounded-xl border-2 shadow-sm transition-all hover:shadow-md"
+        className="isolate flex flex-col justify-between p-3.5 rounded-xl border-2 shadow-sm transition-all hover:shadow-md dark:bg-slate-900/80 dark:border-slate-800"
         style={{
           backgroundColor: colors.bg,
           borderColor: colors.border,
-          color: colors.text
+          color: colors.text,
         }}
       >
         {/* Header: Etiqueta de la Denominación y Subtotal */}
-        <div className="flex justify-between items-center mb-2 gap-2 w-full">
-          <span className="font-extrabold text-base md:text-lg shrink-0">{item.label}</span>
+        <div className="flex justify-between items-center mb-2.5 gap-2 w-full">
+          <span className="font-extrabold text-base md:text-lg shrink-0 tracking-tight">{item.label}</span>
           <div className="text-right shrink-0">
-            <span className="text-[10px] uppercase tracking-wide font-bold opacity-60 block">Subtotal</span>
-            <span className="font-black text-sm text-slate-900" title={`$${subtotal.toLocaleString()}`}>
+            <span className="text-[10px] uppercase tracking-wider font-bold opacity-70 block">Subtotal</span>
+            <span className="font-black text-sm md:text-base text-slate-900 dark:text-slate-100 tabular-nums" title={`$${subtotal.toLocaleString()}`}>
               ${subtotal.toLocaleString()}
             </span>
           </div>
         </div>
 
-        {/* Input de Cantidad con Botones de Incremento / Decremento */}
-        <div className="flex items-center gap-1.5 mt-auto w-full">
-          <label htmlFor={inputId} className="opacity-70 font-semibold text-xs shrink-0 mr-0.5">
+        {/* Input de Cantidad con Botones Táctiles de 44x44px (WCAG 2.2 AA / Apple HIG) */}
+        <div className="flex items-center gap-2 mt-auto w-full">
+          <label htmlFor={inputId} className="opacity-75 font-bold text-xs shrink-0 mr-0.5">
             CANT.
           </label>
           {!readOnly && (
             <button
               type="button"
               onClick={decrement}
-              className="w-7 h-8 rounded-md bg-white border border-slate-300 flex items-center justify-center text-slate-700 font-bold hover:bg-slate-100 active:scale-95 transition-all shrink-0 select-none shadow-sm"
-              title="Disminuir"
+              className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-lg bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-800 dark:text-slate-100 font-extrabold text-xl hover:bg-slate-100 dark:hover:bg-slate-700 active:scale-95 transition-all shrink-0 select-none shadow-sm cursor-pointer"
+              title="Disminuir (Táctil)"
+              aria-label={`Disminuir ${item.label}`}
             >
               -
             </button>
@@ -111,14 +112,15 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
             onKeyDown={handleKeyDown}
             onFocus={(e) => e.target.select()}
             placeholder="0"
-            className="w-full flex-1 min-w-[50px] h-8 text-center bg-white border-2 border-slate-300 rounded-md font-extrabold text-base text-slate-900 transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none shadow-inner"
+            className="w-full flex-1 min-w-[55px] h-11 text-center bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-lg font-extrabold text-lg text-slate-900 dark:text-slate-100 tabular-nums transition-all outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 dark:focus:ring-cyan-900/50 disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none shadow-inner"
           />
           {!readOnly && (
             <button
               type="button"
               onClick={increment}
-              className="w-7 h-8 rounded-md bg-white border border-slate-300 flex items-center justify-center text-slate-700 font-bold hover:bg-slate-100 active:scale-95 transition-all shrink-0 select-none shadow-sm"
-              title="Aumentar"
+              className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-lg bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-800 dark:text-slate-100 font-extrabold text-xl hover:bg-slate-100 dark:hover:bg-slate-700 active:scale-95 transition-all shrink-0 select-none shadow-sm cursor-pointer"
+              title="Aumentar (Táctil)"
+              aria-label={`Aumentar ${item.label}`}
             >
               +
             </button>

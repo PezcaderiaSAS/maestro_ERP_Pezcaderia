@@ -58,7 +58,7 @@ export function CategoriaWizardModal({ isOpen, onClose, onCategoryCreated }: Pro
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[1000] flex items-center justify-center p-4 animate-fade-in">
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 isolate flex items-center justify-center p-4 animate-fade-in">
       <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full overflow-hidden flex flex-col">
         {/* Cabecera */}
         <div className="bg-emerald-900 text-white p-5 flex justify-between items-center">

@@ -17,10 +17,24 @@ export function ProductTable({
   setCustomTipo,
   setCustomLinea,
   setCustomClase,
-  productsCatalog
+  productsCatalog = [],
+  handleEditProduct,
 }: any) {
   const [sortBy, setSortBy] = useState<'nombre' | 'pareto'>('nombre');
+  const [density, setDensity] = useState<'compact' | 'regular' | 'comfortable'>('regular');
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
+
+  const getDensityCellClass = () => {
+    switch (density) {
+      case 'compact':
+        return 'py-1.5 px-3 text-xs';
+      case 'comfortable':
+        return 'py-3.5 px-4 text-sm';
+      case 'regular':
+      default:
+        return 'py-2.5 px-3.5 text-xs';
+    }
+  };
 
   const getTotalStock = (sku: string) => {
     let total = 0;
@@ -95,9 +109,9 @@ export function ProductTable({
         </div>
       </div>
 
-      <Card glass className="p-6">
-        <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
-          <div className="search-bar" style={{ flex: 1 }}>
+      <Card glass className="p-4 sm:p-6">
+        <div className="flex flex-col md:flex-row flex-wrap items-stretch md:items-center gap-3 mb-5">
+          <div className="search-bar flex-1 min-w-[240px]">
             <Search size={18} color="#94A3B8" />
             <input
               type="text"
@@ -109,7 +123,7 @@ export function ProductTable({
           </div>
           <select 
             className="form-control" 
-            style={{ width: '200px' }}
+            style={{ width: 'auto', minWidth: '180px' }}
             value={sortBy}
             onChange={e => setSortBy(e.target.value as any)}
           >
@@ -118,7 +132,7 @@ export function ProductTable({
           </select>
           <select 
             className="form-control" 
-            style={{ width: '200px' }}
+            style={{ width: 'auto', minWidth: '160px' }}
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value)}
           >
@@ -126,111 +140,169 @@ export function ProductTable({
             <option value="ACTIVOS">Solo Activos</option>
             <option value="INACTIVOS">Solo Inactivos</option>
           </select>
+
+          {/* Selector de Densidad Adaptativa */}
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200 dark:border-white/10 text-xs self-start md:self-auto">
+            <button
+              type="button"
+              onClick={() => setDensity('compact')}
+              className={`px-2.5 py-1.5 rounded-lg transition-all cursor-pointer ${
+                density === 'compact'
+                  ? 'bg-white dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-300 shadow-sm font-bold'
+                  : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'
+              }`}
+              title="Densidad Compacta (Mayor cantidad de registros)"
+            >
+              Compacto
+            </button>
+            <button
+              type="button"
+              onClick={() => setDensity('regular')}
+              className={`px-2.5 py-1.5 rounded-lg transition-all cursor-pointer ${
+                density === 'regular'
+                  ? 'bg-white dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-300 shadow-sm font-bold'
+                  : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'
+              }`}
+              title="Densidad Estándar"
+            >
+              Normal
+            </button>
+            <button
+              type="button"
+              onClick={() => setDensity('comfortable')}
+              className={`px-2.5 py-1.5 rounded-lg transition-all cursor-pointer ${
+                density === 'comfortable'
+                  ? 'bg-white dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-300 shadow-sm font-bold'
+                  : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'
+              }`}
+              title="Densidad Táctil Confortable (Pantallas táctiles y cuartos fríos)"
+            >
+              Táctil
+            </button>
+          </div>
         </div>
 
-        <table className="hr-table">
-          <thead>
-            <tr>
-              <th>Imagen</th>
-              <th>SKU</th>
-              <th>Nombre y Categoría</th>
-              <th>Clasificación ABC</th>
-              <th>Stock Total</th>
-              <th>Precio Venta (POS)</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredProducts.map((p: any) => {
-              const catData = productsCatalog.find((c: any) => c.sku === p.sku);
-              const totalStock = getTotalStock(p.sku);
-              const isLowStock = totalStock <= (p.buffer_seguridad || 5);
+        <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800/80 max-h-[70vh]">
+          <table className="w-full text-left border-collapse">
+            <thead className="sticky top-0 bg-slate-100/95 dark:bg-slate-900/95 backdrop-blur-md z-10 shadow-sm">
+              <tr className="border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                <th className={getDensityCellClass()}>Imagen</th>
+                <th className={getDensityCellClass()}>SKU</th>
+                <th className={getDensityCellClass()}>Nombre y Categoría</th>
+                <th className={getDensityCellClass()}>Clasificación ABC</th>
+                <th className={getDensityCellClass()}>Stock Total</th>
+                <th className={getDensityCellClass()}>Precio Venta (POS)</th>
+                <th className={getDensityCellClass()}>Estado</th>
+                <th className={getDensityCellClass()}>Acciones</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+              {filteredProducts.map((p: any) => {
+                const catData = productsCatalog.find((c: any) => c.sku === p.sku);
+                const totalStock = getTotalStock(p.sku);
+                const isLowStock = totalStock <= (p.buffer_seguridad || 5);
 
-              return (
-                <tr key={p.sku} style={{ opacity: p.activo ? 1 : 0.6 }}>
-                  <td>
-                    <div style={{ width: '40px', height: '40px', borderRadius: '8px', overflow: 'hidden', backgroundColor: '#F1F5F9', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {p.imagen ? (
-                        <img src={p.imagen} alt={p.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        <Package size={20} color="#94A3B8" />
-                      )}
-                    </div>
-                  </td>
-                  <td style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--primary-color)' }}>{p.sku}</td>
-                  <td>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <span style={{ fontWeight: 700 }}>{p.nombre}</span>
-                      <span style={{ fontSize: '11px', color: '#64748B' }}>
-                        {catData ? `${catData.tipo} > ${catData.linea} > ${catData.clase}` : p.categoria}
+                return (
+                  <tr 
+                    key={p.sku} 
+                    className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
+                    style={{ opacity: p.activo ? 1 : 0.6 }}
+                  >
+                    <td className={getDensityCellClass()}>
+                      <div className="w-10 h-10 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 flex items-center justify-center shrink-0">
+                        {p.imagen ? (
+                          <img src={p.imagen} alt={p.nombre} className="w-full h-full object-cover" />
+                        ) : (
+                          <Package size={20} className="text-slate-400 dark:text-slate-500" />
+                        )}
+                      </div>
+                    </td>
+                    <td className={`${getDensityCellClass()} font-mono font-bold text-cyan-600 dark:text-cyan-400`}>
+                      {p.sku}
+                    </td>
+                    <td className={getDensityCellClass()}>
+                      <div className="flex flex-col">
+                        <span className="font-bold text-slate-900 dark:text-slate-100">{p.nombre}</span>
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                          {catData ? `${catData.tipo} > ${catData.linea} > ${catData.clase}` : p.categoria}
+                        </span>
+                      </div>
+                    </td>
+                    <td className={getDensityCellClass()}>
+                      {(() => {
+                        const abc = p.categoriaABC;
+                        if (!abc) return <Badge variant="default">N/A</Badge>;
+                        return (
+                          <Badge variant={abc as 'A' | 'B' | 'C'}>
+                            {abc}
+                          </Badge>
+                        );
+                      })()}
+                    </td>
+                    <td className={getDensityCellClass()}>
+                      <div className="flex items-center gap-1.5">
+                        <span className={`font-bold tabular-nums ${isLowStock ? 'text-rose-500 font-extrabold' : 'text-slate-900 dark:text-white'}`}>
+                          {totalStock} {p.unidadMedida || 'kg'}
+                        </span>
+                        {isLowStock && p.control_inventario && (
+                          <span title="Stock bajo buffer de seguridad"><ShieldAlert size={14} className="text-rose-500" /></span>
+                        )}
+                      </div>
+                    </td>
+                    <td className={`${getDensityCellClass()} font-semibold text-slate-800 dark:text-slate-200 tabular-nums`}>
+                      ${(p.precio_venta || 0).toLocaleString()}
+                    </td>
+                    <td className={getDensityCellClass()}>
+                      <span className={p.activo ? 'badge-vigente' : 'badge-terminado'}>
+                        {p.activo ? 'Activo' : 'Inactivo'}
                       </span>
-                    </div>
-                  </td>
-                  <td>
-                    {(() => {
-                      const abc = p.categoriaABC;
-                      if (!abc) return <Badge variant="default">N/A</Badge>;
-                      return (
-                        <Badge variant={abc as 'A' | 'B' | 'C'}>
-                          {abc}
-                        </Badge>
-                      );
-                    })()}
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ fontWeight: 700, fontSize: '14px', color: isLowStock ? '#EF4444' : '#0F172A' }}>
-                        {totalStock} {p.unidadMedida || 'kg'}
-                      </span>
-                      {isLowStock && p.control_inventario && (
-                        <span title="Stock bajo buffer de seguridad"><ShieldAlert size={14} color="#EF4444" /></span>
-                      )}
-                    </div>
-                  </td>
-                  <td style={{ fontWeight: 600 }}>${(p.precio_venta || 0).toLocaleString()}</td>
-                  <td>
-                    <span className={p.activo ? 'badge-vigente' : 'badge-terminado'}>
-                      {p.activo ? 'Activo' : 'Inactivo'}
-                    </span>
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button
-                        onClick={() => {
-                          setEditingProductId(p.id);
-                          setProductForm({
-                            sku: p.sku,
-                            nombre: p.nombre,
-                            categoria: p.categoria,
-                            unidadMedida: p.unidadMedida || 'kg',
-                            precio_compra: p.precio_compra || 0,
-                            buffer_seguridad: p.buffer_seguridad || 5,
-                            codigo_barras: p.codigo_barras || '',
-                            iva: p.iva || 0,
-                            ivaIncluido: p.ivaIncluido !== false,
-                            control_inventario: p.control_inventario !== false,
-                            produccion: p.produccion || false,
-                            tipoCategoria: catData?.tipo || '',
-                            lineaCategoria: catData?.linea || '',
-                            claseCategoria: catData?.clase || '',
-                            imagen: p.imagen || '',
-                            categoriaABC: p.categoriaABC
-                          });
-                          setIsCreating(false);
-                        }}
-                        style={{ padding: '6px', backgroundColor: '#F1F5F9', border: 'none', borderRadius: '6px', cursor: 'pointer', color: '#334155' }}
-                        title="Editar"
-                      >
-                        <Edit3 size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                    </td>
+                    <td className={getDensityCellClass()}>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            if (handleEditProduct) {
+                              handleEditProduct(p);
+                              return;
+                            }
+                            if (setEditingProductId) setEditingProductId(p.id);
+                            if (setProductForm) {
+                              setProductForm({
+                                sku: p.sku,
+                                nombre: p.nombre,
+                                categoria: p.categoria,
+                                unidadMedida: p.unidadMedida || 'kg',
+                                precio_compra: p.precio_compra || 0,
+                                buffer_seguridad: p.buffer_seguridad || 5,
+                                codigo_barras: p.codigo_barras || '',
+                                iva: p.iva || 0,
+                                ivaIncluido: p.ivaIncluido !== false,
+                                control_inventario: p.control_inventario !== false,
+                                produccion: p.produccion || false,
+                                tipoCategoria: catData?.tipo || '',
+                                lineaCategoria: catData?.linea || '',
+                                claseCategoria: catData?.clase || '',
+                                imagen: p.imagen || '',
+                                categoriaABC: p.categoriaABC
+                              });
+                            }
+                            if (setIsCreating) setIsCreating(false);
+                          }}
+                          className={`p-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10 active:scale-95 transition-all cursor-pointer flex items-center justify-center ${
+                            density === 'comfortable' ? 'min-w-[44px] min-h-[44px]' : 'min-w-[32px] min-h-[32px]'
+                          }`}
+                          title="Editar Producto"
+                        >
+                          <Edit3 size={density === 'comfortable' ? 18 : 15} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </Card>
 
       <BulkUploadModal 

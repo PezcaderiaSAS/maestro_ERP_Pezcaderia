@@ -216,7 +216,7 @@ describe('Suite de Aseguramiento de Calidad: 5 Flujos Operativos Críticos', () 
       }
     });
 
-    it('debe autorizar el despacho con merma >35% si se inyecta PIN válido y justificación', () => {
+    it('debe autorizar el despacho con merma >35% si se inyecta PIN/token de supervisor y justificación', () => {
       const despachoMermaAutorizada = {
         rutaId: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
         tenantId: '00000000-0000-0000-0000-000000000001',
@@ -226,7 +226,7 @@ describe('Suite de Aseguramiento de Calidad: 5 Flujos Operativos Críticos', () 
         pesoEntregadoKg: 60.0,
         mermaDeclaradaKg: 40.0,
         mermaPorcentaje: 40.0,
-        pinSupervisorAutorizacion: '1234',
+        pinSupervisorAutorizacion: '8899',
         justificacionMerma: 'Deshielo imprevisto por falla eléctrica temporal de compresor en furgón refrigerado.',
       };
 

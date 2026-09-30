@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Check, X, Plus } from 'lucide-react';
+import { Check, X, Plus, PauseCircle, Clock, Trash2, Archive } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import type { LineaVenta } from '../../../types/pos.types';
 import type { ClientePOS } from '../../../hooks/usePOSCart';
@@ -178,75 +178,187 @@ export const CartPanel: React.FC<CartPanelProps> = ({
         toast: true,
         position: 'top-end',
         icon: 'info',
-        title: 'No hay borradores',
+        title: 'No hay pedidos en espera',
+        text: 'Puedes poner compras en espera con el botón "En Espera" (F6).',
         showConfirmButton: false,
-        timer: 1500,
+        timer: 2000,
       });
       return;
     }
 
-    let html = '<div style="display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto;">';
+    let html = `
+      <div style="display:flex; flex-direction:column; gap:10px; max-height:360px; overflow-y:auto; padding:4px 2px; text-align:left;">
+    `;
+
     drafts.forEach((d) => {
       const isSelected = activeDraftId === d.id;
-      html += `<div style="display:flex; align-items:stretch; background-color: white; border: 1px solid ${isSelected ? 'var(--primary-color)' : '#CBD5E1'}; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-        <div id="draft-select-${d.id}" style="flex: 1; padding: 10px; cursor: pointer; text-align: left; background-color: ${isSelected ? 'var(--primary-light)' : 'transparent'};">
-          <div style="font-weight:bold;color:#0F172A; display:flex; justify-content:space-between;">
-            <span>${d.cliente ? d.cliente.nombre : 'Consumidor Final'}</span>
-            ${isSelected ? '<span style="font-size:10px; background:var(--primary-color); color:white; padding:2px 6px; border-radius:4px; font-weight:bold;">ACTIVO</span>' : ''}
+      const alias = d.alias || (d.cliente ? d.cliente.nombre : 'Consumidor Final');
+      const itemsCount = (d.lineas ? d.lineas.length : (d.cart ? d.cart.length : 0));
+      const formattedTotal = Number(d.totalFinal || 0).toLocaleString('es-CO');
+      const timeStr = new Date(d.fecha).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+
+      html += `
+        <div style="display:flex; align-items:stretch; background: #0f172a; border: 1px solid ${isSelected ? '#0ea5e9' : 'rgba(255,255,255,0.12)'}; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);">
+          <div style="flex: 1; padding: 12px 14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
+              <span style="font-weight: 800; font-size: 14px; color: #f8fafc; letter-spacing: -0.2px;">${alias}</span>
+              <span style="font-size: 10px; font-family: monospace; color: #94a3b8; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;">⏰ ${timeStr}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 6px;">
+              <span style="font-size: 12px; color: #94a3b8;">${itemsCount} productos</span>
+              <span style="font-size: 16px; font-weight: 800; color: #38bdf8; font-family: monospace;">$${formattedTotal}</span>
+            </div>
           </div>
-          <div style="font-size:11px;color:#64748B;">${new Date(d.fecha).toLocaleTimeString()} - $${d.totalFinal.toLocaleString('es-CO')} (${d.cart.length} ítems)</div>
+          <div style="display:flex; flex-direction:column; border-left: 1px solid rgba(255,255,255,0.1);">
+            <button 
+              id="draft-select-${d.id}" 
+              title="Recuperar Pedido al Carrito" 
+              style="flex: 1; min-height: 44px; padding: 0 16px; background: rgba(16, 185, 129, 0.15); border: none; cursor: pointer; color: #34d399; font-weight: bold; font-size: 12px; display: flex; align-items: center; gap: 4px; transition: background 0.2s;"
+            >
+              <span>Recuperar</span>
+            </button>
+            <button 
+              id="draft-delete-${d.id}" 
+              title="Descartar Pedido en Espera" 
+              style="height: 38px; padding: 0 16px; background: rgba(239, 68, 68, 0.1); border: none; border-top: 1px solid rgba(255,255,255,0.08); cursor: pointer; color: #f87171; display: flex; align-items: center; justify-content: center; transition: background 0.2s;"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+            </button>
+          </div>
         </div>
-        <button id="draft-delete-${d.id}" title="Eliminar Borrador" style="width: 44px; display: flex; align-items: center; justify-content: center; background: #FEF2F2; border: none; border-left: 1px solid #FEE2E2; cursor: pointer; color: #EF4444; transition: background 0.2s;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
-        </button>
-      </div>`;
+      `;
     });
+
     html += '</div>';
 
     Swal.fire({
-      title: 'Facturas en Borrador',
+      title: 'Pedidos en Espera (Borradores)',
       html,
+      background: '#090d16',
+      color: '#f8fafc',
       showConfirmButton: false,
       showCloseButton: true,
+      customClass: {
+        container: 'z-50 isolate',
+        popup: 'border border-white/10 rounded-2xl shadow-2xl',
+      },
       didOpen: () => {
         drafts.forEach((d) => {
           const selectBtn = document.getElementById(`draft-select-${d.id}`);
           if (selectBtn) {
-            selectBtn.onclick = () => {
-              // Restaurar carrito desde borrador
-              const mappedLineas: LineaVenta[] = (d.cart || []).map((item: any) => {
-                if (item.productoId) return item as LineaVenta;
-                // Compatibilidad con formato legacy (item.product)
-                const prod = item.product;
-                const precio = item.precioOverride !== undefined ? item.precioOverride : (prod.precioVentaPOS || 0);
-                return {
-                  productoId: prod.id,
-                  sku: prod.sku,
-                  nombre: prod.nombre,
-                  cantidad: Number(item.cantidad),
-                  unidad: (prod.unidadMedida === 'KG' ? 'KG' : 'UNIDAD') as 'KG' | 'UNIDAD',
-                  precioLista: prod.precioVentaPOS || 0,
-                  descuentoPct: item.precioOverride !== undefined
-                    ? Math.round(((prod.precioVentaPOS - item.precioOverride) / prod.precioVentaPOS) * 100)
-                    : 0,
-                  precioFinal: precio,
-                  totalLinea: Number(item.cantidad) * precio,
-                  precioCompra: prod.precioCompra || 0,
-                  esPesoManual: false,
-                } satisfies LineaVenta;
-              });
+            selectBtn.onclick = async () => {
+              // 1. Si el carrito actual tiene productos, ofrecer resguardarlo
+              if (lineas.length > 0) {
+                const promptRes = await Swal.fire({
+                  title: '¿Guardar Carrito Actual?',
+                  text: 'Actualmente hay productos en mostrador. ¿Deseas ponerlos en espera para no perderlos?',
+                  icon: 'question',
+                  showCancelButton: true,
+                  showDenyButton: true,
+                  confirmButtonText: 'Sí, poner en espera y recuperar',
+                  denyButtonText: 'Reemplazar sin guardar',
+                  cancelButtonText: 'Cancelar',
+                  confirmButtonColor: '#0EA5E9',
+                  denyButtonColor: '#EF4444',
+                  background: '#090d16',
+                  color: '#f8fafc',
+                });
+
+                if (promptRes.isDismissed) return;
+                if (promptRes.isConfirmed) {
+                  onGuardarBorrador();
+                }
+              }
+
+              // 2. Mapear líneas del borrador seleccionado
+              let mappedLineas: LineaVenta[] = [];
+              if (Array.isArray(d.lineas) && d.lineas.length > 0) {
+                mappedLineas = d.lineas;
+              } else if (Array.isArray(d.cart) && d.cart.length > 0) {
+                mappedLineas = d.cart.map((item: any) => {
+                  if (item.productoId) return item as LineaVenta;
+                  const prod = item.product || {};
+                  const precio = item.precioOverride !== undefined ? item.precioOverride : (prod.precioVentaPOS || 0);
+                  return {
+                    productoId: prod.id || `p-${Date.now()}`,
+                    sku: prod.sku || '',
+                    nombre: prod.nombre || 'Producto',
+                    cantidad: Number(item.cantidad) || 1,
+                    unidad: (prod.unidadMedida === 'KG' ? 'KG' : 'UNIDAD') as 'KG' | 'UNIDAD',
+                    precioLista: prod.precioVentaPOS || 0,
+                    descuentoPct: item.precioOverride !== undefined
+                      ? Math.round(((prod.precioVentaPOS - item.precioOverride) / prod.precioVentaPOS) * 100)
+                      : 0,
+                    precioFinal: precio,
+                    totalLinea: Number(item.cantidad || 1) * precio,
+                    precioCompra: prod.precioCompra || 0,
+                    esPesoManual: false,
+                  } satisfies LineaVenta;
+                });
+              }
+
               onSetLineas(mappedLineas);
               onSetActiveDraftId(d.id);
               onSetDescuentoGlobal(d.descuentoGlobal || 0);
+
+              // 3. Validar stock Just-in-Time
+              const sinStock = mappedLineas.filter(l => getStockDisponible(l.sku) < l.cantidad);
+              if (sinStock.length > 0) {
+                Swal.fire({
+                  toast: true,
+                  position: 'top-end',
+                  icon: 'warning',
+                  title: 'Aviso de Inventario',
+                  text: `${sinStock.length} producto(s) del pedido tienen stock inferior a la cantidad registrada.`,
+                  timer: 3500,
+                  showConfirmButton: false,
+                });
+              }
+
+              // 4. Remover el borrador retomado de la lista
+              onSetDrafts((prev) => prev.filter((x) => x.id !== d.id));
+
               Swal.close();
+              Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Pedido Retomado',
+                text: `"${d.alias || 'Borrador'}" cargado al carrito.`,
+                timer: 2000,
+                showConfirmButton: false,
+              });
             };
           }
+
           const deleteBtn = document.getElementById(`draft-delete-${d.id}`);
           if (deleteBtn) {
-            deleteBtn.onclick = () => {
-              onSetDrafts((prev) => prev.filter((x) => x.id !== d.id));
-              if (activeDraftId === d.id) onSetActiveDraftId(null);
-              Swal.close();
+            deleteBtn.onclick = async () => {
+              const confirmRes = await Swal.fire({
+                title: '¿Descartar este pedido en espera?',
+                text: 'Esta acción no se puede deshacer.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, descartar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#EF4444',
+                background: '#090d16',
+                color: '#f8fafc',
+              });
+
+              if (confirmRes.isConfirmed) {
+                onSetDrafts((prev) => prev.filter((x) => x.id !== d.id));
+                if (activeDraftId === d.id) onSetActiveDraftId(null);
+                Swal.close();
+                Swal.fire({
+                  toast: true,
+                  position: 'top-end',
+                  icon: 'info',
+                  title: 'Pedido descartado',
+                  timer: 1500,
+                  showConfirmButton: false,
+                });
+              }
             };
           }
         });
@@ -256,9 +368,9 @@ export const CartPanel: React.FC<CartPanelProps> = ({
 
   return (
     <div className="pos-cart-panel flex flex-col h-full min-h-0 overflow-y-auto pr-1">
-      {/* ── HEADER: Selector de cliente + Borradores ── */}
+      {/* ── HEADER: Selector de cliente + Borradores + En Espera ── */}
       <div
-        className="pos-cart-header flex justify-between items-center py-2 px-3 border-b border-white/10 bg-slate-900/60 shrink-0 rounded-t-xl"
+        className="pos-cart-header flex flex-wrap justify-between items-center gap-2 py-2 px-3 border-b border-white/10 bg-slate-900/60 shrink-0 rounded-t-xl"
       >
         {/* Selector de cliente */}
         {cliente ? (
@@ -276,8 +388,9 @@ export const CartPanel: React.FC<CartPanelProps> = ({
                 }}
               />
             }
+            className="text-xs h-9 py-1 px-2.5 max-w-[200px]"
           >
-            <span style={{ fontSize: '12px' }}>
+            <span className="truncate">
               {cliente.nombre.slice(0, 18)} ({cliente.identificacion})
             </span>
           </Button>
@@ -286,53 +399,55 @@ export const CartPanel: React.FC<CartPanelProps> = ({
             variant="outline" 
             onClick={onSelectCliente} 
             rightIcon={<Plus size={16} />}
+            className="text-xs h-9 py-1 px-2.5"
           >
             Agregar Cliente
           </Button>
         )}
 
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+        <div className="flex items-center gap-2">
           {/* Botón Cerrar Turno (solo si está abierto) */}
           {isTurnoAbierto && onCerrarTurnoClick && (
             <Button
               variant="danger"
               onClick={onCerrarTurnoClick}
-              className="text-xs py-1.5 px-3"
+              className="text-xs py-1 px-2.5 h-9"
             >
               Cerrar Turno
             </Button>
           )}
 
-          {/* Botón Borradores */}
-          <div className="relative">
-            <Button
-              variant="outline"
-              onClick={handleOpenBorradores}
-              className="text-xs py-1.5 px-3 bg-slate-50"
-            >
-              Borradores
-            </Button>
+          {/* Botón Poner en Espera Rápido */}
+          <button
+            type="button"
+            onClick={onGuardarBorrador}
+            disabled={lineas.length === 0}
+            className="flex items-center gap-1.5 px-3 py-1.5 h-9 rounded-xl border border-cyan-500/30 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95"
+            title="Poner pedido actual en espera (Atajo: F6)"
+          >
+            <PauseCircle size={15} />
+            <span className="hidden sm:inline">En Espera</span>
+          </button>
+
+          {/* Badge / Botón Ver Pedidos en Espera */}
+          <button
+            type="button"
+            onClick={handleOpenBorradores}
+            className={`relative flex items-center gap-1.5 px-3 py-1.5 h-9 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+              drafts.length > 0
+                ? 'bg-amber-500/15 border-amber-500/30 text-amber-300 hover:bg-amber-500/25 shadow-md shadow-amber-500/10'
+                : 'bg-slate-800/80 border-white/10 text-slate-400 hover:text-white'
+            }`}
+            title="Ver pedidos guardados en espera"
+          >
+            <Archive size={14} className={drafts.length > 0 ? 'text-amber-400' : 'text-slate-400'} />
+            <span>Borradores</span>
             {drafts.length > 0 && (
-              <span
-                style={{
-                  position: 'absolute',
-                  top: '-6px',
-                  right: '-6px',
-                  background: '#EF4444',
-                  color: 'white',
-                  borderRadius: '50%',
-                  width: '16px',
-                  height: '16px',
-                  fontSize: '10px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
+              <span className="flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-amber-500 text-slate-950 font-black rounded-full text-[10px] animate-pulse">
                 {drafts.length}
               </span>
             )}
-          </div>
+          </button>
         </div>
       </div>
 

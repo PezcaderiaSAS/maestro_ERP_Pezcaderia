@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Menu,
   ChevronRight,
@@ -12,6 +12,8 @@ import {
   Sparkles,
   Store,
   Search,
+  Wifi,
+  WifiOff,
 } from 'lucide-react';
 import type { ERPViewKey } from './EnterpriseSidebar';
 
@@ -38,6 +40,22 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
   onSelectBodega,
   onOpenOmnibox,
 }) => {
+  const [isOnline, setIsOnline] = useState<boolean>(() => 
+    typeof navigator !== 'undefined' ? navigator.onLine : true
+  );
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
   // Breadcrumb dinámico por dominio
   const getBreadcrumb = (): { domain: string; sub: string } => {
     switch (currentView) {
@@ -131,6 +149,29 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
         <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/40 border border-white/5 text-xs text-slate-300">
           <Store size={14} className="text-cyan-400" />
           <span className="font-semibold text-white">{activeBodega}</span>
+        </div>
+
+        {/* Indicador de Conectividad Outbox / Red */}
+        <div
+          className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border transition-all ${
+            isOnline
+              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25'
+              : 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+          }`}
+          title={isOnline ? 'Conexión a Servidor Estable (Supabase Online)' : 'Modo Offline: Transacciones encoladas en Outbox local'}
+        >
+          {isOnline ? (
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+          ) : (
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+            </span>
+          )}
+          <span className="font-mono text-[10px] tracking-wider">{isOnline ? 'ONLINE' : 'OFFLINE'}</span>
         </div>
 
         {/* Nombre de Empresa / Sistema */}

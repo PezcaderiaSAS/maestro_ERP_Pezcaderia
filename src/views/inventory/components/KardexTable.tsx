@@ -35,7 +35,20 @@ export const KardexTable: React.FC<KardexTableProps> = ({
   const [fechaInicio, setFechaInicio] = useState<string>('');
   const [fechaFin, setFechaFin] = useState<string>('');
   const [page, setPage] = useState(1);
-  const itemsPerPage = 15;
+  const [density, setDensity] = useState<'compact' | 'regular' | 'comfortable'>('regular');
+  const itemsPerPage = density === 'compact' ? 25 : density === 'comfortable' ? 10 : 15;
+
+  const getDensityClass = () => {
+    switch (density) {
+      case 'compact':
+        return 'py-1.5 px-2.5 text-xs';
+      case 'comfortable':
+        return 'py-3.5 px-4 text-sm';
+      case 'regular':
+      default:
+        return 'py-2.5 px-3 text-xs';
+    }
+  };
 
   // Cargar movimientos desde el servicio
   const allMovements = useMemo(() => {
@@ -431,8 +444,48 @@ export const KardexTable: React.FC<KardexTableProps> = ({
           </div>
         </div>
 
-        {/* Botones de Exportación */}
-        <div className="flex items-center gap-2">
+        {/* Botones de Exportación & Selector de Densidad */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Selector de Densidad Tri-Modo */}
+          <div className="flex items-center gap-1 bg-slate-800/80 p-1 rounded-xl border border-white/10 text-xs">
+            <button
+              type="button"
+              onClick={() => setDensity('compact')}
+              className={`px-2.5 py-1.5 rounded-lg transition-all cursor-pointer ${
+                density === 'compact'
+                  ? 'bg-cyan-500/20 text-cyan-300 shadow-sm font-bold border border-cyan-500/30'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+              title="Densidad Compacta (25 filas, máxima densidad)"
+            >
+              Compacto
+            </button>
+            <button
+              type="button"
+              onClick={() => setDensity('regular')}
+              className={`px-2.5 py-1.5 rounded-lg transition-all cursor-pointer ${
+                density === 'regular'
+                  ? 'bg-cyan-500/20 text-cyan-300 shadow-sm font-bold border border-cyan-500/30'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+              title="Densidad Estándar (15 filas)"
+            >
+              Normal
+            </button>
+            <button
+              type="button"
+              onClick={() => setDensity('comfortable')}
+              className={`px-2.5 py-1.5 rounded-lg transition-all cursor-pointer ${
+                density === 'comfortable'
+                  ? 'bg-cyan-500/20 text-cyan-300 shadow-sm font-bold border border-cyan-500/30'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+              title="Densidad Táctil Confortable (10 filas grandes)"
+            >
+              Táctil
+            </button>
+          </div>
+
           <button
             onClick={handleExportPDF}
             disabled={filteredMovements.length === 0}
@@ -457,18 +510,18 @@ export const KardexTable: React.FC<KardexTableProps> = ({
       <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="border-b border-white/10 bg-slate-950/80 text-slate-400 font-semibold uppercase tracking-wider">
-                <th className="py-3 px-4">Fecha / Hora</th>
-                <th className="py-3 px-3">Documento</th>
-                <th className="py-3 px-3">SKU / Producto</th>
-                <th className="py-3 px-3">Tipo Movimiento</th>
-                <th className="py-3 px-3 text-right">Entrada</th>
-                <th className="py-3 px-3 text-right">Salida</th>
-                <th className="py-3 px-3 text-right">Costo Mov.</th>
-                <th className="py-3 px-3 text-right bg-slate-950/40 text-cyan-400">Saldo Kg</th>
-                <th className="py-3 px-3 text-right bg-slate-950/40 text-purple-400">CPP Vigente</th>
-                <th className="py-3 px-4 text-right bg-slate-950/40 text-indigo-400">Valor Total</th>
+            <thead className="sticky top-0 bg-slate-950/95 backdrop-blur-md z-10">
+              <tr className="border-b border-white/10 text-slate-400 font-semibold uppercase tracking-wider">
+                <th className={getDensityClass()}>Fecha / Hora</th>
+                <th className={getDensityClass()}>Documento</th>
+                <th className={getDensityClass()}>SKU / Producto</th>
+                <th className={getDensityClass()}>Tipo Movimiento</th>
+                <th className={`${getDensityClass()} text-right`}>Entrada</th>
+                <th className={`${getDensityClass()} text-right`}>Salida</th>
+                <th className={`${getDensityClass()} text-right`}>Costo Mov.</th>
+                <th className={`${getDensityClass()} text-right bg-slate-950/40 text-cyan-400`}>Saldo Kg</th>
+                <th className={`${getDensityClass()} text-right bg-slate-950/40 text-purple-400`}>CPP Vigente</th>
+                <th className={`${getDensityClass()} text-right bg-slate-950/40 text-indigo-400`}>Valor Total</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 text-slate-200">
@@ -489,7 +542,7 @@ export const KardexTable: React.FC<KardexTableProps> = ({
                       key={m.id}
                       className="hover:bg-white/[0.03] transition-colors group cursor-default font-mono"
                     >
-                      <td className="py-2.5 px-4 font-sans text-slate-400 whitespace-nowrap">
+                      <td className={`${getDensityClass()} font-sans text-slate-400 whitespace-nowrap`}>
                         {new Date(m.fecha).toLocaleString('es-CO', {
                           day: '2-digit',
                           month: '2-digit',
@@ -499,11 +552,11 @@ export const KardexTable: React.FC<KardexTableProps> = ({
                         })}
                       </td>
 
-                      <td className="py-2.5 px-3 font-semibold text-slate-300">
+                      <td className={`${getDensityClass()} font-semibold text-slate-300`}>
                         {m.documento_referencia}
                       </td>
 
-                      <td className="py-2.5 px-3">
+                      <td className={getDensityClass()}>
                         <button
                           onClick={() => onSelectSku?.(m.sku)}
                           className="text-left group-hover:text-cyan-300 transition-colors cursor-pointer"
@@ -515,7 +568,7 @@ export const KardexTable: React.FC<KardexTableProps> = ({
                         </button>
                       </td>
 
-                      <td className="py-2.5 px-3">
+                      <td className={getDensityClass()}>
                         <span
                           className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold border ${getTipoBadge(
                             m.tipo_movimiento
@@ -525,27 +578,27 @@ export const KardexTable: React.FC<KardexTableProps> = ({
                         </span>
                       </td>
 
-                      <td className="py-2.5 px-3 text-right text-emerald-400 font-bold">
+                      <td className={`${getDensityClass()} text-right text-emerald-400 font-bold`}>
                         {esEntrada ? `${m.cantidad_kg.toLocaleString()} kg` : '-'}
                       </td>
 
-                      <td className="py-2.5 px-3 text-right text-blue-400 font-bold">
+                      <td className={`${getDensityClass()} text-right text-blue-400 font-bold`}>
                         {!esEntrada ? `${m.cantidad_kg.toLocaleString()} kg` : '-'}
                       </td>
 
-                      <td className="py-2.5 px-3 text-right text-slate-300">
+                      <td className={`${getDensityClass()} text-right text-slate-300`}>
                         ${m.costo_unitario.toLocaleString('es-CO')}
                       </td>
 
-                      <td className="py-2.5 px-3 text-right bg-slate-950/20 font-bold text-cyan-300">
+                      <td className={`${getDensityClass()} text-right bg-slate-950/20 font-bold text-cyan-300`}>
                         {m.saldo_cantidad_kg.toLocaleString()} kg
                       </td>
 
-                      <td className="py-2.5 px-3 text-right bg-slate-950/20 text-purple-300">
+                      <td className={`${getDensityClass()} text-right bg-slate-950/20 text-purple-300`}>
                         ${m.saldo_costo_promedio.toLocaleString('es-CO')}
                       </td>
 
-                      <td className="py-2.5 px-4 text-right bg-slate-950/20 font-bold text-indigo-300">
+                      <td className={`${getDensityClass()} text-right bg-slate-950/20 font-bold text-indigo-300`}>
                         ${m.saldo_valor_total.toLocaleString('es-CO')}
                       </td>
                     </tr>

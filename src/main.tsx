@@ -23,6 +23,9 @@ import { setIntegrationDataService } from './store/useIntegrationStore';
 import { setCashDataService } from './store/useCashStore';
 import { setMovementDataService } from './store/useMovementStore';
 
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './lib/queryClient';
+
 initLogger();
 
 if (import.meta.env.DEV || localStorage.getItem('debug')) {
@@ -48,6 +51,8 @@ if (import.meta.env.DEV || localStorage.getItem('debug')) {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
   </React.StrictMode>,
 );

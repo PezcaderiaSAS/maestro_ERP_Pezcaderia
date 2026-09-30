@@ -208,16 +208,9 @@ export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
         )}
       </div>
 
-      {/* Columna derecha: controles táctiles */}
+      {/* Columna derecha: controles táctiles (44x44px ergonomics) */}
       <div
-        className="cart-item-controls"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '4px',
-          alignSelf: 'center',
-          flexShrink: 0,
-        }}
+        className="cart-item-controls flex items-center gap-1.5 sm:gap-2 self-center shrink-0"
       >
         {/* Botón balanza — solo para productos KG (RN-13) */}
         <BalanzaButton
@@ -228,29 +221,21 @@ export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
         {/* Botón decrementar */}
         <Button
           variant="secondary"
-          className="qty-btn"
+          className="qty-btn min-w-[44px] min-h-[44px] w-11 h-11 p-0 flex items-center justify-center rounded-lg active:scale-95 transition-all text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-white/10 cursor-pointer"
           onClick={() => handleQtyDelta(-1)}
-          style={{ width: '36px', height: '36px', padding: 0 }}
+          title="Disminuir cantidad"
         >
-          <Minus size={14} />
+          <Minus size={16} />
         </Button>
 
         {/* Input cantidad */}
-        <div style={{ width: '60px' }}>
+        <div className="w-16">
           <Input
             type="number"
             value={linea.cantidad}
             onChange={handleInputChange}
             onBlur={handleInputBlur}
-            style={{
-              textAlign: 'center',
-              border: '1px solid #CBD5E1',
-              borderRadius: '6px',
-              fontSize: '15px',
-              fontWeight: 'bold',
-              height: '36px',
-              padding: '0 4px',
-            }}
+            className="w-full text-center border border-slate-300 dark:border-white/15 rounded-lg text-base font-bold h-11 px-1 bg-white dark:bg-slate-900 text-slate-900 dark:text-white tabular-nums shadow-inner"
             step="any"
             min="0"
           />
@@ -259,28 +244,21 @@ export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
         {/* Botón incrementar */}
         <Button
           variant="secondary"
-          className="qty-btn"
+          className="qty-btn min-w-[44px] min-h-[44px] w-11 h-11 p-0 flex items-center justify-center rounded-lg active:scale-95 transition-all text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-white/10 cursor-pointer"
           onClick={() => handleQtyDelta(1)}
-          style={{ width: '36px', height: '36px', padding: 0 }}
+          title="Aumentar cantidad"
         >
-          <Plus size={14} />
+          <Plus size={16} />
         </Button>
 
         {/* Botón eliminar */}
         <Button
           variant="danger"
-          className="delete-cart-item-btn"
+          className="delete-cart-item-btn min-w-[44px] min-h-[44px] w-11 h-11 p-0 flex items-center justify-center rounded-lg active:scale-95 transition-all bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/30 cursor-pointer shadow-none"
           onClick={() => onRemove(linea.productoId)}
-          style={{
-            width: '36px',
-            height: '36px',
-            backgroundColor: '#FEE2E2',
-            color: '#EF4444',
-            padding: 0,
-            boxShadow: 'none',
-          }}
+          title="Eliminar producto del carrito"
         >
-          <X size={14} />
+          <X size={16} />
         </Button>
       </div>
     </div>

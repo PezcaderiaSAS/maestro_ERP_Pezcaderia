@@ -1,24 +1,106 @@
 import React, { useState, useEffect } from 'react';
 import { ShieldCheck, Lock, AlertTriangle, X } from 'lucide-react';
+import { getSupabaseClient } from '../../lib/supabase';
+import type { ConsentRecordLocal } from '../../types/legal.types';
 
 export const ConsentGateModal: React.FC = () => {
   const [hasConsented, setHasConsented] = useState<boolean>(true);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
   useEffect(() => {
-    const consent = localStorage.getItem('erp_habeas_data_consent');
-    if (!consent) {
+    const checkConsent = async () => {
+      const stored = localStorage.getItem('erp_habeas_data_consent');
+      if (stored) {
+        try {
+          const parsed: ConsentRecordLocal = JSON.parse(stored);
+          if (parsed.status === 'ACEPTADO' && parsed.version === '1.0.0-enterprise') {
+            setHasConsented(true);
+            return;
+          }
+        } catch {
+          // JSON malformado, continuar a comprobación en base de datos
+        }
+      }
+
+      // Si no está en caché local, verificar si el usuario autenticado ya aceptó en la base de datos
+      try {
+        const supabase = getSupabaseClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          const { data, error } = await supabase
+            .from('legal_consents_audit')
+            .select('id, version_politica, status')
+            .eq('user_id', session.user.id)
+            .eq('version_politica', '1.0.0-enterprise')
+            .eq('status', 'ACEPTADO')
+            .limit(1);
+
+          if (!error && data && data.length > 0) {
+            const consentRecord: ConsentRecordLocal = {
+              timestamp: new Date().toISOString(),
+              regulation: 'Ley 1581 de 2012 (Colombia) / RGPD',
+              version: '1.0.0-enterprise',
+              status: 'ACEPTADO',
+              persistedInDb: true,
+            };
+            localStorage.setItem('erp_habeas_data_consent', JSON.stringify(consentRecord));
+            setHasConsented(true);
+            return;
+          }
+        }
+      } catch {
+        // En caso de entorno local sin Supabase configurado o modo offline
+      }
+
       setHasConsented(false);
-    }
+    };
+
+    checkConsent();
   }, []);
 
-  const handleAccept = () => {
+  const handleAccept = async () => {
     setIsProcessing(true);
-    const consentRecord = {
+    let persistedInDb = false;
+
+    try {
+      const supabase = getSupabaseClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const empresaId =
+          session.user.user_metadata?.empresa_id ||
+          localStorage.getItem('erp_empresa_id') ||
+          '00000000-0000-0000-0000-000000000001';
+
+        const { error } = await supabase.from('legal_consents_audit').insert({
+          empresa_id: empresaId,
+          user_id: session.user.id,
+          regulation: 'Ley 1581 de 2012 (Colombia) / RGPD',
+          version_politica: '1.0.0-enterprise',
+          status: 'ACEPTADO',
+          user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : 'Web Browser',
+          metadata: {
+            accepted_at: new Date().toISOString(),
+            platform: typeof navigator !== 'undefined' ? navigator.platform : 'unknown',
+            screen_resolution: typeof window !== 'undefined' ? `${window.innerWidth}x${window.innerHeight}` : 'unknown',
+            compliance_officer: 'Oficial de Protección de Datos La Pezcadería SAS',
+          },
+        });
+
+        if (!error) {
+          persistedInDb = true;
+        }
+      }
+    } catch {
+      // Fallback resiliente offline / modo local
+      persistedInDb = false;
+    }
+
+    const consentRecord: ConsentRecordLocal = {
       timestamp: new Date().toISOString(),
       regulation: 'Ley 1581 de 2012 (Colombia) / RGPD',
       version: '1.0.0-enterprise',
       status: 'ACEPTADO',
+      persistedInDb,
     };
 
     localStorage.setItem('erp_habeas_data_consent', JSON.stringify(consentRecord));

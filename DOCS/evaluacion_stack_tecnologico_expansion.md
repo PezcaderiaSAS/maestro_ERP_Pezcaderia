@@ -89,3 +89,11 @@ sequenceDiagram
         Sync->>IDB: Marcar evento como 'synced' o eliminar
     end
 ```
+
+---
+
+## 4. Fuentes de Verdad en Google NotebookLM
+
+Todo el conocimiento técnico oficial, manuales de arquitectura y documentación de soporte del stack activo (Vite, Zustand, Supabase, Vitest, jsPDF) y del roadmap de expansión se encuentra centralizado y disponible para consulta en el catálogo oficial:
+- Ver [DOCS/NOTEBOOKS_NOTEBOOKLM_OFICIALES.md](file:///c:/Users/USUARIO/Documents/Aplicaciones/maestr_pezca/DOCS/NOTEBOOKS_NOTEBOOKLM_OFICIALES.md).
+

@@ -70,8 +70,23 @@ export default function POSView({
   const { quotations, setQuotations, setVentas } = useOrderStore();
   const { logIntegracion, setLogIntegracion } = useIntegrationStore();
   const dynamicFields = useDynamicFieldStore((s) => s.dynamicFields);
-  const [drafts, setDrafts] = useState<any[]>([]);
+  const [drafts, setDrafts] = useState<any[]>(() => {
+    try {
+      const saved = localStorage.getItem('pezca_pos_drafts_v1');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [activeDraftId, setActiveDraftId] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('pezca_pos_drafts_v1', JSON.stringify(drafts));
+    } catch (e) {
+      console.warn('Error al guardar borradores en localStorage:', e);
+    }
+  }, [drafts]);
   const [ultimoTicket, setUltimoTicket] = useState<{ venta: any; cliente: any } | null>(null);
   const [showRestockModal, setShowRestockModal] = useState(false);
   
@@ -492,56 +507,73 @@ export default function POSView({
     }
   };
 
-  const handleGuardarBorrador = () => {
-    if (cart.length === 0) {
+  const handleGuardarBorrador = async (aliasParam?: string) => {
+    if (cartLineas.length === 0 && cart.length === 0) {
       Swal.fire({
         icon: 'warning',
         title: 'Carrito vacío',
-        text: 'Agrega productos al pedido antes de guardarlo.',
+        text: 'Agrega productos al pedido antes de ponerlo en espera.',
         confirmButtonColor: 'var(--primary-color)'
       });
       return;
     }
+
+    let finalAlias = typeof aliasParam === 'string' && aliasParam.trim() ? aliasParam.trim() : '';
+    if (!finalAlias) {
+      const defaultAlias = `${cliente ? cliente.nombre : 'Consumidor Final'} - ${new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}`;
+      const { value: inputAlias, isDismissed } = await Swal.fire({
+        title: 'Poner Pedido en Espera',
+        input: 'text',
+        inputLabel: 'Identificador / Alias del cliente:',
+        inputValue: defaultAlias,
+        showCancelButton: true,
+        confirmButtonText: 'Poner en Espera',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#0EA5E9',
+        inputPlaceholder: 'Ej. Cliente camisa azul / Mesa 2',
+      });
+
+      if (isDismissed) return;
+      finalAlias = (inputAlias || defaultAlias).trim();
+    }
     
+    const newDraft = {
+      id: activeDraftId || `BOR-${Date.now()}`,
+      alias: finalAlias,
+      fecha: new Date().toISOString(),
+      cliente,
+      lineas: [...cartLineas],
+      cart: [...cart],
+      descuentoGlobal,
+      descuentoGlobalValor,
+      totalFinal
+    };
+
     if (activeDraftId) {
-      setDrafts(prev => prev.map(d => d.id === activeDraftId ? {
-        ...d,
-        cart: [...cart],
-        cliente,
-        descuentoGlobal,
-        totalFinal,
-        fecha: new Date().toISOString()
-      } : d));
+      setDrafts(prev => prev.map(d => d.id === activeDraftId ? newDraft : d));
       setActiveDraftId(null);
     } else {
-      const newDraft = {
-        id: `BOR-${Date.now()}`,
-        fecha: new Date().toISOString(),
-        cart: [...cart],
-        cliente,
-        descuentoGlobal,
-        totalFinal
-      };
       setDrafts(prev => [newDraft, ...prev]);
     }
     
     publishEvent(
       'SALE_COMPLETED',
       userRole,
-      `Pedido guardado en borrador por valor de $${totalFinal.toLocaleString('es-CO')}`,
-      { itemsCount: cart.length, total: totalFinal, draft: true },
+      `Pedido "${finalAlias}" puesto en espera por $${totalFinal.toLocaleString('es-CO')}`,
+      { itemsCount: cartLineas.length, total: totalFinal, draft: true, alias: finalAlias },
       false
     );
     
     limpiarCarrito();
-    setCliente(defaultClient);
+    if (defaultClient) setCliente(defaultClient as any);
     setDescuentoGlobal(0);
     
     Swal.fire({
       toast: true,
       position: 'top-end',
       icon: 'success',
-      title: 'Borrador Guardado',
+      title: 'Pedido en Espera Guardado',
+      text: `"${finalAlias}" listo para ser retomado.`,
       showConfirmButton: false,
       timer: 2000
     });
@@ -1462,6 +1494,9 @@ export default function POSView({
         e.preventDefault();
         const searchInput = document.querySelector('.pos-search-input') as HTMLInputElement;
         if (searchInput) searchInput.focus();
+      } else if (e.key === 'F6') {
+        e.preventDefault();
+        handleGuardarBorrador();
       } else if (e.key === 'Escape') {
         e.preventDefault();
         if (showAperturaModal) setShowAperturaModal(false);
