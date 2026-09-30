@@ -36,6 +36,8 @@ import { useReturnStore } from '../store/useReturnStore.ts';
 import { useIntegrationStore } from '../store/useIntegrationStore.ts';
 import { useDynamicFieldStore } from '../store/useDynamicFieldStore.ts';
 import * as localDb from '../services/localDb.ts';
+import { PosDraftService } from '../services/posDraftService.ts';
+import type { CartDraft } from '../types/pos.types.ts';
 
 interface CartItem {
   product: Product;
@@ -70,23 +72,19 @@ export default function POSView({
   const { quotations, setQuotations, setVentas } = useOrderStore();
   const { logIntegracion, setLogIntegracion } = useIntegrationStore();
   const dynamicFields = useDynamicFieldStore((s) => s.dynamicFields);
-  const [drafts, setDrafts] = useState<any[]>(() => {
-    try {
-      const saved = localStorage.getItem('pezca_pos_drafts_v1');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
+  const [drafts, setDrafts] = useState<CartDraft[]>(() => {
+    return PosDraftService.getLocalDrafts();
   });
   const [activeDraftId, setActiveDraftId] = useState<string | null>(null);
 
+  // Sincronización remota inicial de pedidos en espera (Multi-Terminal POS)
   useEffect(() => {
-    try {
-      localStorage.setItem('pezca_pos_drafts_v1', JSON.stringify(drafts));
-    } catch (e) {
-      console.warn('Error al guardar borradores en localStorage:', e);
-    }
-  }, [drafts]);
+    PosDraftService.fetchRemoteDrafts().then((remote) => {
+      if (remote && remote.length > 0) {
+        setDrafts(remote);
+      }
+    });
+  }, []);
   const [ultimoTicket, setUltimoTicket] = useState<{ venta: any; cliente: any } | null>(null);
   const [showRestockModal, setShowRestockModal] = useState(false);
   
@@ -537,24 +535,20 @@ export default function POSView({
       finalAlias = (inputAlias || defaultAlias).trim();
     }
     
-    const newDraft = {
+    const newDraft: CartDraft = {
       id: activeDraftId || `BOR-${Date.now()}`,
       alias: finalAlias,
-      fecha: new Date().toISOString(),
+      fechaGuardado: new Date().toISOString(),
       cliente,
       lineas: [...cartLineas],
       cart: [...cart],
       descuentoGlobal,
-      descuentoGlobalValor,
-      totalFinal
+      total: totalFinal,
     };
 
-    if (activeDraftId) {
-      setDrafts(prev => prev.map(d => d.id === activeDraftId ? newDraft : d));
-      setActiveDraftId(null);
-    } else {
-      setDrafts(prev => [newDraft, ...prev]);
-    }
+    await PosDraftService.saveDraft(newDraft);
+    setDrafts(PosDraftService.getLocalDrafts());
+    setActiveDraftId(null);
     
     publishEvent(
       'SALE_COMPLETED',

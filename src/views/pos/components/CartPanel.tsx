@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Check, X, Plus, PauseCircle, Clock, Trash2, Archive } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
-import type { LineaVenta } from '../../../types/pos.types';
+import type { LineaVenta, CartDraft } from '../../../types/pos.types';
 import type { ClientePOS } from '../../../hooks/usePOSCart';
+import { PosDraftService } from '../../../services/posDraftService';
 import { LineaVentaRow } from './LineaVentaRow';
 import { DiscountPanel } from './DiscountPanel';
 import { PaymentPanel, type MetodoCobroPos } from './PaymentPanel';
+import { ParkedOrdersBar } from './ParkedOrdersBar';
 import Swal from 'sweetalert2';
 
 interface CartPanelProps {
@@ -15,7 +17,7 @@ interface CartPanelProps {
   descuentoGlobalPct: number;
   descuentoGlobalValor: number;
   totales: { subtotal: number; descuento: number; totalFinal: number };
-  drafts: any[];
+  drafts: CartDraft[];
   activeDraftId: string | null;
 
   stock: any;
@@ -194,8 +196,8 @@ export const CartPanel: React.FC<CartPanelProps> = ({
       const isSelected = activeDraftId === d.id;
       const alias = d.alias || (d.cliente ? d.cliente.nombre : 'Consumidor Final');
       const itemsCount = (d.lineas ? d.lineas.length : (d.cart ? d.cart.length : 0));
-      const formattedTotal = Number(d.totalFinal || 0).toLocaleString('es-CO');
-      const timeStr = new Date(d.fecha).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+      const formattedTotal = Number(d.total ?? d.totalFinal ?? 0).toLocaleString('es-CO');
+      const timeStr = new Date(d.fechaGuardado || d.fecha || new Date()).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
 
       html += `
         <div style="display:flex; align-items:stretch; background: #0f172a; border: 1px solid ${isSelected ? '#0ea5e9' : 'rgba(255,255,255,0.12)'}; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);">
@@ -315,8 +317,9 @@ export const CartPanel: React.FC<CartPanelProps> = ({
                 });
               }
 
-              // 4. Remover el borrador retomado de la lista
+              // 4. Remover el borrador retomado de la lista y marcar como RECUPERADO en base de datos
               onSetDrafts((prev) => prev.filter((x) => x.id !== d.id));
+              await PosDraftService.resolveDraft(d.id, 'RECUPERADO');
 
               Swal.close();
               Swal.fire({
@@ -349,6 +352,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
               if (confirmRes.isConfirmed) {
                 onSetDrafts((prev) => prev.filter((x) => x.id !== d.id));
                 if (activeDraftId === d.id) onSetActiveDraftId(null);
+                await PosDraftService.resolveDraft(d.id, 'DESCARTADO');
                 Swal.close();
                 Swal.fire({
                   toast: true,
@@ -364,6 +368,103 @@ export const CartPanel: React.FC<CartPanelProps> = ({
         });
       },
     });
+  };
+
+  const handleSelectDraftDirectly = async (d: CartDraft) => {
+    // Si el carrito actual tiene productos, ofrecer resguardarlo
+    if (lineas.length > 0) {
+      const promptRes = await Swal.fire({
+        title: '¿Guardar Carrito Actual?',
+        text: 'Actualmente hay productos en el mostrador. ¿Deseas ponerlos en espera para atender este pedido?',
+        icon: 'question',
+        showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonText: 'Sí, poner en espera y recuperar',
+        denyButtonText: 'Reemplazar sin guardar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#0EA5E9',
+        denyButtonColor: '#EF4444',
+        background: '#090d16',
+        color: '#f8fafc',
+      });
+
+      if (promptRes.isDismissed) return;
+      if (promptRes.isConfirmed) {
+        onGuardarBorrador();
+      }
+    }
+
+    let mappedLineas: LineaVenta[] = [];
+    if (Array.isArray(d.lineas) && d.lineas.length > 0) {
+      mappedLineas = d.lineas;
+    } else if (Array.isArray(d.cart) && d.cart.length > 0) {
+      mappedLineas = d.cart.map((item: any) => {
+        if (item.productoId) return item as LineaVenta;
+        const prod = item.product || {};
+        const precio = item.precioOverride !== undefined ? item.precioOverride : (prod.precioVentaPOS || 0);
+        return {
+          productoId: prod.id || `p-${Date.now()}`,
+          sku: prod.sku || '',
+          nombre: prod.nombre || 'Producto',
+          cantidad: Number(item.cantidad) || 1,
+          unidad: (prod.unidadMedida === 'KG' ? 'KG' : 'UNIDAD') as 'KG' | 'UNIDAD',
+          precioLista: prod.precioVentaPOS || 0,
+          descuentoPct: item.precioOverride !== undefined
+            ? Math.round(((prod.precioVentaPOS - item.precioOverride) / prod.precioVentaPOS) * 100)
+            : 0,
+          precioFinal: precio,
+          totalLinea: Number(item.cantidad || 1) * precio,
+          precioCompra: prod.precioCompra || 0,
+          esPesoManual: false,
+        } satisfies LineaVenta;
+      });
+    }
+
+    onSetLineas(mappedLineas);
+    onSetActiveDraftId(d.id);
+    onSetDescuentoGlobal(d.descuentoGlobal || 0);
+
+    onSetDrafts((prev) => prev.filter((x) => x.id !== d.id));
+    await PosDraftService.resolveDraft(d.id, 'RECUPERADO');
+
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Pedido Retomado',
+      text: `"${d.alias || 'Borrador'}" cargado al carrito.`,
+      timer: 2000,
+      showConfirmButton: false,
+    });
+  };
+
+  const handleDeleteDraftDirectly = async (draftId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const confirmRes = await Swal.fire({
+      title: '¿Descartar este pedido en espera?',
+      text: 'Esta acción no se puede deshacer.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, descartar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#EF4444',
+      background: '#090d16',
+      color: '#f8fafc',
+    });
+
+    if (confirmRes.isConfirmed) {
+      onSetDrafts((prev) => prev.filter((x) => x.id !== draftId));
+      if (activeDraftId === draftId) onSetActiveDraftId(null);
+      await PosDraftService.resolveDraft(draftId, 'DESCARTADO');
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'info',
+        title: 'Pedido descartado',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    }
   };
 
   return (
@@ -422,8 +523,9 @@ export const CartPanel: React.FC<CartPanelProps> = ({
             type="button"
             onClick={onGuardarBorrador}
             disabled={lineas.length === 0}
-            className="flex items-center gap-1.5 px-3 py-1.5 h-9 rounded-xl border border-cyan-500/30 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95"
+            className="flex items-center gap-1.5 px-3 py-1.5 h-9 rounded-xl border border-cyan-500/30 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
             title="Poner pedido actual en espera (Atajo: F6)"
+            aria-label="Poner pedido actual en espera (Atajo F6)"
           >
             <PauseCircle size={15} />
             <span className="hidden sm:inline">En Espera</span>
@@ -433,23 +535,38 @@ export const CartPanel: React.FC<CartPanelProps> = ({
           <button
             type="button"
             onClick={handleOpenBorradores}
-            className={`relative flex items-center gap-1.5 px-3 py-1.5 h-9 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+            className={`relative flex items-center gap-1.5 px-3 py-1.5 h-9 rounded-xl border text-xs font-bold transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
               drafts.length > 0
                 ? 'bg-amber-500/15 border-amber-500/30 text-amber-300 hover:bg-amber-500/25 shadow-md shadow-amber-500/10'
                 : 'bg-slate-800/80 border-white/10 text-slate-400 hover:text-white'
             }`}
             title="Ver pedidos guardados en espera"
+            aria-label={`Ver ${drafts.length} pedidos guardados en espera`}
           >
             <Archive size={14} className={drafts.length > 0 ? 'text-amber-400' : 'text-slate-400'} />
             <span>Borradores</span>
             {drafts.length > 0 && (
-              <span className="flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-amber-500 text-slate-950 font-black rounded-full text-[10px] animate-pulse">
+              <span 
+                className="flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-amber-500 text-slate-950 font-black rounded-full text-[10px] animate-pulse"
+                aria-live="polite"
+              >
                 {drafts.length}
               </span>
             )}
           </button>
         </div>
       </div>
+
+      {/* ── BARRA MULTI-CLIENTE: Carritos en Espera / Conmutación Rápida ── */}
+      <ParkedOrdersBar
+        drafts={drafts}
+        activeDraftId={activeDraftId}
+        currentItemsCount={lineas.length}
+        currentTotal={totales.totalFinal}
+        onSelectDraft={handleSelectDraftDirectly}
+        onDeleteDraft={handleDeleteDraftDirectly}
+        onNewParkedSale={onGuardarBorrador}
+      />
 
       {/* ── LISTA DE ÍTEMS: scroll táctil vertical ── */}
       <div

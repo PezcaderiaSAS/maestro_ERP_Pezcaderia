@@ -478,16 +478,21 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
           onClick={onGuardarBorrador}
           disabled={isDisabled}
           leftIcon={<Save size={16} />}
-          className="flex-1 h-11 bg-slate-900 border-white/15 text-slate-300 hover:bg-slate-800 text-xs font-semibold"
+          className="flex-1 h-11 bg-slate-900 border-white/15 text-slate-300 hover:bg-slate-800 text-xs font-semibold flex items-center justify-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
+          title="Guardar pedido como borrador / en espera (Atajo: F6)"
+          aria-label="Poner pedido actual en espera (Atajo F6)"
         >
           <span>Borrador</span>
+          <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-white/10 rounded text-slate-300">F6</kbd>
         </Button>
 
         {!isTurnoAbierto ? (
           <Button
             variant="primary"
             onClick={handleCobrarClick}
-            className="flex-[2] h-11 text-sm font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 border-0 flex items-center justify-center gap-1.5"
+            className="flex-[2] h-11 text-sm font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 border-0 flex items-center justify-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+            title="Abrir turno de caja (Atajo: Enter)"
+            aria-label="Abrir turno de caja (Atajo Enter)"
           >
             <span>Abrir Turno Caja</span>
             <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-black/20 rounded text-slate-950">Enter</kbd>
@@ -497,11 +502,13 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
             variant="primary"
             onClick={handleCobrarClick}
             disabled={isDisabled || (metodoPago === 'EFECTIVO' && !isModoMixto && !calculoCambio.valido)}
-            className="flex-[2] h-11 text-sm font-bold bg-gradient-to-r from-indigo-600 to-cyan-600 hover:brightness-110 shadow-md text-white flex items-center justify-center gap-1.5"
+            className="flex-[2] h-11 text-sm font-bold bg-gradient-to-r from-indigo-600 to-cyan-600 hover:brightness-110 shadow-md text-white flex items-center justify-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-cyan-400"
             data-testid="btn-cobrar"
+            title="Procesar cobro del pedido (Atajo: F2 o Enter)"
+            aria-label={`Cobrar pedido por valor de ${totalFinal.toLocaleString('es-CO')} pesos (Atajo F2 o Enter)`}
           >
             <span>Cobrar: ${totalFinal.toLocaleString('es-CO')}</span>
-            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-black/30 rounded text-cyan-200">Enter</kbd>
+            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-black/30 rounded text-cyan-200">F2 / ↵</kbd>
           </Button>
         )}
       </div>

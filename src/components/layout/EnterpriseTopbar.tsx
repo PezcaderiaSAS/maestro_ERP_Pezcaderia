@@ -12,10 +12,9 @@ import {
   Sparkles,
   Store,
   Search,
-  Wifi,
-  WifiOff,
 } from 'lucide-react';
 import type { ERPViewKey } from './EnterpriseSidebar';
+import { NetworkSyncStatusBadge } from './NetworkSyncStatusBadge';
 
 interface EnterpriseTopbarProps {
   currentView: ERPViewKey;
@@ -40,22 +39,6 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
   onSelectBodega,
   onOpenOmnibox,
 }) => {
-  const [isOnline, setIsOnline] = useState<boolean>(() => 
-    typeof navigator !== 'undefined' ? navigator.onLine : true
-  );
-
-  useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
   // Breadcrumb dinámico por dominio
   const getBreadcrumb = (): { domain: string; sub: string } => {
     switch (currentView) {
@@ -151,28 +134,8 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
           <span className="font-semibold text-white">{activeBodega}</span>
         </div>
 
-        {/* Indicador de Conectividad Outbox / Red */}
-        <div
-          className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border transition-all ${
-            isOnline
-              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25'
-              : 'bg-amber-500/15 text-amber-300 border-amber-500/30'
-          }`}
-          title={isOnline ? 'Conexión a Servidor Estable (Supabase Online)' : 'Modo Offline: Transacciones encoladas en Outbox local'}
-        >
-          {isOnline ? (
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-          ) : (
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-            </span>
-          )}
-          <span className="font-mono text-[10px] tracking-wider">{isOnline ? 'ONLINE' : 'OFFLINE'}</span>
-        </div>
+        {/* Indicador de Conectividad Outbox / Red con Sincronización en Tiempo Real */}
+        <NetworkSyncStatusBadge className="hidden sm:inline-flex" />
 
         {/* Nombre de Empresa / Sistema */}
         <span className="hidden xl:inline-block px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 font-mono">

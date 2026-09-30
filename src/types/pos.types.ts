@@ -51,3 +51,16 @@ export interface ConfiguracionPOS {
   puertoBalanza: string | null;
   puertoImpresora: string | null;
 }
+
+export interface CartDraft {
+  id: string;
+  alias: string;
+  cliente?: { id?: string; nombre?: string; identificacion?: string } | null;
+  lineas: LineaVenta[];
+  descuentoGlobal: number;
+  total: number;
+  totalFinal?: number;
+  fechaGuardado: string;
+  fecha?: string;
+  cart?: any[];
+}

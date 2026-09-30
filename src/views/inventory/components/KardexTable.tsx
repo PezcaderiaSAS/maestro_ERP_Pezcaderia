@@ -447,11 +447,16 @@ export const KardexTable: React.FC<KardexTableProps> = ({
         {/* Botones de Exportación & Selector de Densidad */}
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Selector de Densidad Tri-Modo */}
-          <div className="flex items-center gap-1 bg-slate-800/80 p-1 rounded-xl border border-white/10 text-xs">
+          <div 
+            className="flex items-center gap-1 bg-slate-800/80 p-1 rounded-xl border border-white/10 text-xs"
+            role="group"
+            aria-label="Selector de densidad de visualización"
+          >
             <button
               type="button"
               onClick={() => setDensity('compact')}
-              className={`px-2.5 py-1.5 rounded-lg transition-all cursor-pointer ${
+              aria-pressed={density === 'compact'}
+              className={`px-2.5 py-1.5 rounded-lg transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-cyan-500/50 ${
                 density === 'compact'
                   ? 'bg-cyan-500/20 text-cyan-300 shadow-sm font-bold border border-cyan-500/30'
                   : 'text-slate-400 hover:text-white'
@@ -463,7 +468,8 @@ export const KardexTable: React.FC<KardexTableProps> = ({
             <button
               type="button"
               onClick={() => setDensity('regular')}
-              className={`px-2.5 py-1.5 rounded-lg transition-all cursor-pointer ${
+              aria-pressed={density === 'regular'}
+              className={`px-2.5 py-1.5 rounded-lg transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-cyan-500/50 ${
                 density === 'regular'
                   ? 'bg-cyan-500/20 text-cyan-300 shadow-sm font-bold border border-cyan-500/30'
                   : 'text-slate-400 hover:text-white'
@@ -475,7 +481,8 @@ export const KardexTable: React.FC<KardexTableProps> = ({
             <button
               type="button"
               onClick={() => setDensity('comfortable')}
-              className={`px-2.5 py-1.5 rounded-lg transition-all cursor-pointer ${
+              aria-pressed={density === 'comfortable'}
+              className={`px-2.5 py-1.5 rounded-lg transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-cyan-500/50 ${
                 density === 'comfortable'
                   ? 'bg-cyan-500/20 text-cyan-300 shadow-sm font-bold border border-cyan-500/30'
                   : 'text-slate-400 hover:text-white'
@@ -512,16 +519,16 @@ export const KardexTable: React.FC<KardexTableProps> = ({
           <table className="w-full text-left text-xs border-collapse">
             <thead className="sticky top-0 bg-slate-950/95 backdrop-blur-md z-10">
               <tr className="border-b border-white/10 text-slate-400 font-semibold uppercase tracking-wider">
-                <th className={getDensityClass()}>Fecha / Hora</th>
-                <th className={getDensityClass()}>Documento</th>
-                <th className={getDensityClass()}>SKU / Producto</th>
-                <th className={getDensityClass()}>Tipo Movimiento</th>
-                <th className={`${getDensityClass()} text-right`}>Entrada</th>
-                <th className={`${getDensityClass()} text-right`}>Salida</th>
-                <th className={`${getDensityClass()} text-right`}>Costo Mov.</th>
-                <th className={`${getDensityClass()} text-right bg-slate-950/40 text-cyan-400`}>Saldo Kg</th>
-                <th className={`${getDensityClass()} text-right bg-slate-950/40 text-purple-400`}>CPP Vigente</th>
-                <th className={`${getDensityClass()} text-right bg-slate-950/40 text-indigo-400`}>Valor Total</th>
+                <th scope="col" className={getDensityClass()}>Fecha / Hora</th>
+                <th scope="col" className={getDensityClass()}>Documento</th>
+                <th scope="col" className={getDensityClass()}>SKU / Producto</th>
+                <th scope="col" className={getDensityClass()}>Tipo Movimiento</th>
+                <th scope="col" className={`${getDensityClass()} text-right`}>Entrada</th>
+                <th scope="col" className={`${getDensityClass()} text-right`}>Salida</th>
+                <th scope="col" className={`${getDensityClass()} text-right`}>Costo Mov.</th>
+                <th scope="col" className={`${getDensityClass()} text-right bg-slate-950/40 text-cyan-400`}>Saldo Kg</th>
+                <th scope="col" className={`${getDensityClass()} text-right bg-slate-950/40 text-purple-400`}>CPP Vigente</th>
+                <th scope="col" className={`${getDensityClass()} text-right bg-slate-950/40 text-indigo-400`}>Valor Total</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 text-slate-200">
