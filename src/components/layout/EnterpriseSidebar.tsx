@@ -285,7 +285,7 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
 
           <button
             onClick={onToggleOpen}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors hidden lg:flex items-center justify-center"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-card border-white/5/5 transition-colors hidden lg:flex items-center justify-center"
             title={isOpen ? 'Colapsar menú (Ctrl+B)' : 'Expandir menú (Ctrl+B)'}
           >
             {isOpen ? <PanelLeftClose size={18} /> : <PanelLeft size={18} />}
@@ -353,7 +353,7 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
                     {isCollapsed ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
                   </button>
                 ) : (
-                  <div className="h-px bg-white/10 my-2 mx-1" />
+                  <div className="h-px bg-card border-white/5/10 my-2 mx-1" />
                 )}
 
                 {/* Ítems del Dominio (Filas densas Carbon de 36px) */}
@@ -370,7 +370,7 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
                           className={`w-full h-9 flex items-center gap-2.5 px-3 rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer relative group ${
                             isActive
                               ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/10 text-cyan-300 border border-cyan-500/30 shadow-md shadow-cyan-500/5'
-                              : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+                              : 'text-slate-400 hover:text-white hover:bg-card border-white/5/[0.04]'
                           }`}
                           title={!isOpen ? item.label : undefined}
                         >

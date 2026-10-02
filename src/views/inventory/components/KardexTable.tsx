@@ -547,7 +547,7 @@ export const KardexTable: React.FC<KardexTableProps> = ({
                   return (
                     <tr
                       key={m.id}
-                      className="hover:bg-white/[0.03] transition-colors group cursor-default font-mono"
+                      className="hover:bg-card border-white/5/[0.03] transition-colors group cursor-default font-mono"
                     >
                       <td className={`${getDensityClass()} font-sans text-slate-400 whitespace-nowrap`}>
                         {new Date(m.fecha).toLocaleString('es-CO', {

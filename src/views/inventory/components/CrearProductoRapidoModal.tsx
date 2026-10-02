@@ -104,7 +104,7 @@ export function CrearProductoRapidoModal({ isOpen, onClose, onProductCreated, ca
 
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm isolate z-50 flex items-center justify-center p-4 animate-fade-in min-h-dvh">
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden flex flex-col">
+      <div className="bg-card border-white/5 rounded-2xl border border-border shadow-2xl max-w-lg w-full overflow-hidden flex flex-col">
         {/* Cabecera Modal */}
         <div className="bg-slate-900 text-white p-5 flex justify-between items-center">
           <div className="flex items-center gap-2.5">
@@ -130,11 +130,11 @@ export function CrearProductoRapidoModal({ isOpen, onClose, onProductCreated, ca
         <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">SKU / Código *</label>
+              <label className="block text-xs font-bold text-secondary uppercase mb-1">SKU / Código *</label>
               <input
                 type="text"
                 required
-                className="w-full h-10 px-3 border border-slate-300 rounded-xl text-xs font-mono font-bold uppercase text-slate-800 focus:ring-2 focus:ring-emerald-500"
+                className="w-full h-10 px-3 border border-white/10 rounded-xl text-xs font-mono font-bold uppercase text-primary focus:ring-2 focus:ring-emerald-500"
                 placeholder="Ej. PES-001"
                 value={sku}
                 onChange={e => setSku(e.target.value)}
@@ -142,11 +142,11 @@ export function CrearProductoRapidoModal({ isOpen, onClose, onProductCreated, ca
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Nombre del Producto *</label>
+              <label className="block text-xs font-bold text-secondary uppercase mb-1">Nombre del Producto *</label>
               <input
                 type="text"
                 required
-                className="w-full h-10 px-3 border border-slate-300 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500"
+                className="w-full h-10 px-3 border border-white/10 rounded-xl text-sm font-bold text-primary focus:ring-2 focus:ring-emerald-500"
                 placeholder="Ej. Robalo Entero Limpio"
                 value={nombre}
                 onChange={e => setNombre(e.target.value)}
@@ -157,7 +157,7 @@ export function CrearProductoRapidoModal({ isOpen, onClose, onProductCreated, ca
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <div className="flex justify-between items-center mb-1">
-                <label className="block text-xs font-bold text-slate-700 uppercase">Categoría</label>
+                <label className="block text-xs font-bold text-secondary uppercase">Categoría</label>
                 <button
                   type="button"
                   onClick={() => setShowWizard(true)}
@@ -168,7 +168,7 @@ export function CrearProductoRapidoModal({ isOpen, onClose, onProductCreated, ca
                 </button>
               </div>
               <select
-                className="w-full h-10 px-3 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500"
+                className="w-full h-10 px-3 border border-white/10 rounded-xl text-sm font-semibold text-primary focus:ring-2 focus:ring-emerald-500"
                 value={categoria}
                 onChange={e => {
                   if (e.target.value === '_NEW_') {
@@ -199,9 +199,9 @@ export function CrearProductoRapidoModal({ isOpen, onClose, onProductCreated, ca
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Unidad de Medida</label>
+              <label className="block text-xs font-bold text-secondary uppercase mb-1">Unidad de Medida</label>
               <select
-                className="w-full h-10 px-3 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800"
+                className="w-full h-10 px-3 border border-white/10 rounded-xl text-sm font-semibold text-primary"
                 value={unidadMedida}
                 onChange={e => setUnidadMedida(e.target.value as any)}
               >
@@ -217,7 +217,7 @@ export function CrearProductoRapidoModal({ isOpen, onClose, onProductCreated, ca
           <div className="p-3 bg-emerald-50/60 rounded-xl border border-emerald-200">
             <label className="block text-xs font-black text-emerald-800 uppercase mb-1">Configurar IVA del Producto (Compra y Venta) *</label>
             <select
-              className="w-full h-10 px-3 border border-emerald-300 bg-white rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500"
+              className="w-full h-10 px-3 border border-emerald-300 bg-card border-white/5 rounded-xl text-sm font-bold text-primary focus:ring-2 focus:ring-emerald-500"
               value={ivaPct}
               onChange={e => setIvaPct(parseInt(e.target.value) || 0)}
             >
@@ -232,11 +232,11 @@ export function CrearProductoRapidoModal({ isOpen, onClose, onProductCreated, ca
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Costo Compra ($ COP)</label>
+              <label className="block text-xs font-bold text-secondary uppercase mb-1">Costo Compra ($ COP)</label>
               <input
                 type="number"
                 min="0"
-                className="w-full h-10 px-3 border border-slate-300 rounded-xl text-sm font-bold text-slate-800"
+                className="w-full h-10 px-3 border border-white/10 rounded-xl text-sm font-bold text-primary"
                 placeholder="Ej. 18000"
                 value={precioCompra || ''}
                 onChange={e => setPrecioCompra(parseInt(e.target.value) || 0)}
@@ -244,11 +244,11 @@ export function CrearProductoRapidoModal({ isOpen, onClose, onProductCreated, ca
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Precio Venta ($ COP)</label>
+              <label className="block text-xs font-bold text-secondary uppercase mb-1">Precio Venta ($ COP)</label>
               <input
                 type="number"
                 min="0"
-                className="w-full h-10 px-3 border border-slate-300 rounded-xl text-sm font-bold text-slate-800"
+                className="w-full h-10 px-3 border border-white/10 rounded-xl text-sm font-bold text-primary"
                 placeholder="Ej. 28000"
                 value={precioVentaPos || ''}
                 onChange={e => setPrecioVentaPos(parseInt(e.target.value) || 0)}
@@ -256,11 +256,11 @@ export function CrearProductoRapidoModal({ isOpen, onClose, onProductCreated, ca
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Stock Mínimo (Buffer)</label>
+              <label className="block text-xs font-bold text-secondary uppercase mb-1">Stock Mínimo (Buffer)</label>
               <input
                 type="number"
                 min="1"
-                className="w-full h-10 px-3 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800"
+                className="w-full h-10 px-3 border border-white/10 rounded-xl text-sm font-semibold text-primary"
                 value={bufferSeguridad}
                 onChange={e => setBufferSeguridad(parseInt(e.target.value) || 5)}
               />
@@ -271,7 +271,7 @@ export function CrearProductoRapidoModal({ isOpen, onClose, onProductCreated, ca
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm transition-colors cursor-pointer"
+              className="px-4 py-2.5 bg-slate-800/60 hover:bg-slate-700/60 text-secondary font-bold rounded-xl text-sm transition-colors cursor-pointer"
             >
               Cancelar
             </button>

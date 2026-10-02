@@ -74,7 +74,7 @@ export const SmartAutofillModal: React.FC<SmartAutofillModalProps> = ({ isOpen, 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-slate-900">
+      <div className="relative w-full max-w-2xl rounded-2xl border border-border bg-card border-white/5 p-6 shadow-2xl dark:border-slate-800 dark:bg-slate-900">
         
         {/* Encabezado */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800">
@@ -83,7 +83,7 @@ export const SmartAutofillModal: React.FC<SmartAutofillModalProps> = ({ isOpen, 
               <Sparkles className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+              <h3 className="text-lg font-bold text-primary dark:text-white">
                 Autocompletar Inteligente de Cliente
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -93,7 +93,7 @@ export const SmartAutofillModal: React.FC<SmartAutofillModalProps> = ({ isOpen, 
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300"
+            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800/60 hover:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-300"
           >
             <X className="h-5 w-5" />
           </button>
@@ -124,7 +124,7 @@ export const SmartAutofillModal: React.FC<SmartAutofillModalProps> = ({ isOpen, 
               }
             }}
             placeholder="Ejemplo: Buenas tardes, facturar a Inversiones La Bahía SAS, NIT 901.456.789-2, Calle 50 # 40-20 Medellín, Cel 3109876543, facturas@labahia.co"
-            className="w-full rounded-xl border border-slate-300 bg-slate-50/50 p-3 text-sm text-slate-800 focus:border-blue-500 focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-200"
+            className="w-full rounded-xl border border-white/10 bg-slate-800/40/50 p-3 text-sm text-primary focus:border-blue-500 focus:bg-card border-white/5 focus:outline-none dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-200"
           />
 
           <div className="flex justify-end">
@@ -140,9 +140,9 @@ export const SmartAutofillModal: React.FC<SmartAutofillModalProps> = ({ isOpen, 
 
         {/* Vista Previa de Datos Detectados */}
         {parsedData && (
-          <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/60">
-            <div className="flex items-center justify-between mb-3 border-b border-slate-200 pb-2 dark:border-slate-700">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
+          <div className="mt-5 rounded-xl border border-border bg-slate-800/40 p-4 dark:border-slate-800 dark:bg-slate-800/60">
+            <div className="flex items-center justify-between mb-3 border-b border-border pb-2 dark:border-slate-700">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-300">
                 Datos Extraídos
               </span>
               {parsedData.identificacion && (
@@ -153,31 +153,31 @@ export const SmartAutofillModal: React.FC<SmartAutofillModalProps> = ({ isOpen, 
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs">
-              <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+              <div className="flex items-center gap-2 text-secondary dark:text-slate-300">
                 <Building2 className="h-4 w-4 text-blue-500 shrink-0" />
                 <span className="font-semibold">Nombre:</span>
                 <span className="truncate">{parsedData.nombre || <span className="text-slate-400 italic">No detectado</span>}</span>
               </div>
 
-              <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+              <div className="flex items-center gap-2 text-secondary dark:text-slate-300">
                 <Hash className="h-4 w-4 text-purple-500 shrink-0" />
                 <span className="font-semibold">Identificación:</span>
                 <span>{parsedData.identificacion ? `${parsedData.identificacion}-${parsedData.dv}` : <span className="text-slate-400 italic">No detectado</span>}</span>
               </div>
 
-              <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+              <div className="flex items-center gap-2 text-secondary dark:text-slate-300">
                 <Phone className="h-4 w-4 text-emerald-500 shrink-0" />
                 <span className="font-semibold">Teléfono:</span>
                 <span>{parsedData.telefono || <span className="text-slate-400 italic">No detectado</span>}</span>
               </div>
 
-              <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+              <div className="flex items-center gap-2 text-secondary dark:text-slate-300">
                 <Mail className="h-4 w-4 text-amber-500 shrink-0" />
                 <span className="font-semibold">Email:</span>
                 <span className="truncate">{parsedData.email || <span className="text-slate-400 italic">No detectado</span>}</span>
               </div>
 
-              <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300 md:col-span-2">
+              <div className="flex items-center gap-2 text-secondary dark:text-slate-300 md:col-span-2">
                 <MapPin className="h-4 w-4 text-rose-500 shrink-0" />
                 <span className="font-semibold">Dirección:</span>
                 <span className="truncate">{parsedData.direccion ? `${parsedData.direccion} (${parsedData.ciudad || 'Bogotá'})` : <span className="text-slate-400 italic">No detectado</span>}</span>
@@ -191,7 +191,7 @@ export const SmartAutofillModal: React.FC<SmartAutofillModalProps> = ({ isOpen, 
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl border border-slate-300 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition"
+            className="rounded-xl border border-white/10 px-4 py-2 text-xs font-medium text-secondary hover:bg-slate-800/60 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition"
           >
             Cancelar
           </button>

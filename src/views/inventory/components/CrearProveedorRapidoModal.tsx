@@ -78,7 +78,7 @@ export function CrearProveedorRapidoModal({ isOpen, onClose, onSupplierCreated }
 
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm isolate z-50 flex items-center justify-center p-4 animate-fade-in min-h-dvh">
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden flex flex-col">
+      <div className="bg-card border-white/5 rounded-2xl border border-border shadow-2xl max-w-lg w-full overflow-hidden flex flex-col">
         {/* Cabecera Modal */}
         <div className="bg-slate-900 text-white p-5 flex justify-between items-center">
           <div className="flex items-center gap-2.5">
@@ -104,9 +104,9 @@ export function CrearProveedorRapidoModal({ isOpen, onClose, onSupplierCreated }
         <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="md:col-span-1">
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Tipo Doc. *</label>
+              <label className="block text-xs font-bold text-secondary uppercase mb-1">Tipo Doc. *</label>
               <select
-                className="w-full h-10 px-3 border border-slate-300 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
+                className="w-full h-10 px-3 border border-white/10 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
                 value={form.tipoIdentificacion}
                 onChange={e => setForm({ ...form, tipoIdentificacion: e.target.value as any })}
               >
@@ -116,11 +116,11 @@ export function CrearProveedorRapidoModal({ isOpen, onClose, onSupplierCreated }
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">NIT / Cédula *</label>
+              <label className="block text-xs font-bold text-secondary uppercase mb-1">NIT / Cédula *</label>
               <input
                 type="text"
                 required
-                className="w-full h-10 px-3 border border-slate-300 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500"
+                className="w-full h-10 px-3 border border-white/10 rounded-xl text-sm font-bold text-primary focus:ring-2 focus:ring-emerald-500"
                 placeholder="Ej. 900.123.456-7"
                 value={form.nit}
                 onChange={e => setForm({ ...form, nit: e.target.value })}
@@ -129,11 +129,11 @@ export function CrearProveedorRapidoModal({ isOpen, onClose, onSupplierCreated }
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Razón Social / Nombre Completo *</label>
+            <label className="block text-xs font-bold text-secondary uppercase mb-1">Razón Social / Nombre Completo *</label>
             <input
               type="text"
               required
-              className="w-full h-10 px-3 border border-slate-300 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500"
+              className="w-full h-10 px-3 border border-white/10 rounded-xl text-sm font-bold text-primary focus:ring-2 focus:ring-emerald-500"
               placeholder="Ej. Distribuidora del Pacífico S.A.S."
               value={form.nombre}
               onChange={e => setForm({ ...form, nombre: e.target.value })}
@@ -142,10 +142,10 @@ export function CrearProveedorRapidoModal({ isOpen, onClose, onSupplierCreated }
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Teléfono / Celular</label>
+              <label className="block text-xs font-bold text-secondary uppercase mb-1">Teléfono / Celular</label>
               <input
                 type="text"
-                className="w-full h-10 px-3 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800"
+                className="w-full h-10 px-3 border border-white/10 rounded-xl text-sm font-semibold text-primary"
                 placeholder="Ej. 310 123 4567"
                 value={form.telefono}
                 onChange={e => setForm({ ...form, telefono: e.target.value })}
@@ -153,10 +153,10 @@ export function CrearProveedorRapidoModal({ isOpen, onClose, onSupplierCreated }
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Correo Electrónico</label>
+              <label className="block text-xs font-bold text-secondary uppercase mb-1">Correo Electrónico</label>
               <input
                 type="email"
-                className="w-full h-10 px-3 border border-slate-300 rounded-xl text-sm text-slate-800"
+                className="w-full h-10 px-3 border border-white/10 rounded-xl text-sm text-primary"
                 placeholder="compras@proveedor.com"
                 value={form.email}
                 onChange={e => setForm({ ...form, email: e.target.value })}
@@ -166,10 +166,10 @@ export function CrearProveedorRapidoModal({ isOpen, onClose, onSupplierCreated }
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Ciudad</label>
+              <label className="block text-xs font-bold text-secondary uppercase mb-1">Ciudad</label>
               <input
                 type="text"
-                className="w-full h-10 px-3 border border-slate-300 rounded-xl text-sm text-slate-800"
+                className="w-full h-10 px-3 border border-white/10 rounded-xl text-sm text-primary"
                 placeholder="Bogotá"
                 value={form.ciudad}
                 onChange={e => setForm({ ...form, ciudad: e.target.value })}
@@ -177,11 +177,11 @@ export function CrearProveedorRapidoModal({ isOpen, onClose, onSupplierCreated }
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Plazo de Pago (Días)</label>
+              <label className="block text-xs font-bold text-secondary uppercase mb-1">Plazo de Pago (Días)</label>
               <input
                 type="number"
                 min="0"
-                className="w-full h-10 px-3 border border-slate-300 rounded-xl text-sm font-bold text-slate-800"
+                className="w-full h-10 px-3 border border-white/10 rounded-xl text-sm font-bold text-primary"
                 placeholder="Ej. 30"
                 value={form.plazoPagoDias}
                 onChange={e => setForm({ ...form, plazoPagoDias: parseInt(e.target.value) || 0 })}
@@ -193,7 +193,7 @@ export function CrearProveedorRapidoModal({ isOpen, onClose, onSupplierCreated }
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm transition-colors cursor-pointer"
+              className="px-4 py-2.5 bg-slate-800/60 hover:bg-slate-700/60 text-secondary font-bold rounded-xl text-sm transition-colors cursor-pointer"
             >
               Cancelar
             </button>

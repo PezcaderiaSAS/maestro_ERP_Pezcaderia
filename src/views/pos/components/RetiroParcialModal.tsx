@@ -178,7 +178,7 @@ export const RetiroParcialModal: React.FC<RetiroParcialModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-card border-white/5/5 transition-colors"
           >
             <X size={20} />
           </button>
@@ -296,21 +296,21 @@ export const RetiroParcialModal: React.FC<RetiroParcialModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setMonto(200000)}
-                    className="p-2.5 rounded-xl bg-slate-800/60 border border-white/10 hover:bg-white/10 text-white text-xs font-bold transition-all"
+                    className="p-2.5 rounded-xl bg-slate-800/60 border border-white/10 hover:bg-card border-white/5/10 text-white text-xs font-bold transition-all"
                   >
                     $200.000
                   </button>
                   <button
                     type="button"
                     onClick={() => setMonto(500000)}
-                    className="p-2.5 rounded-xl bg-slate-800/60 border border-white/10 hover:bg-white/10 text-white text-xs font-bold transition-all"
+                    className="p-2.5 rounded-xl bg-slate-800/60 border border-white/10 hover:bg-card border-white/5/10 text-white text-xs font-bold transition-all"
                   >
                     $500.000
                   </button>
                   <button
                     type="button"
                     onClick={() => setMonto(1000000)}
-                    className="p-2.5 rounded-xl bg-slate-800/60 border border-white/10 hover:bg-white/10 text-white text-xs font-bold transition-all"
+                    className="p-2.5 rounded-xl bg-slate-800/60 border border-white/10 hover:bg-card border-white/5/10 text-white text-xs font-bold transition-all"
                   >
                     $1.000.000
                   </button>

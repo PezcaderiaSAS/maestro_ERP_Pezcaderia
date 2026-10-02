@@ -213,7 +213,7 @@ export const ProductDetailFinancialModal: React.FC<ProductDetailFinancialModalPr
               </div>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors text-slate-400 hover:text-white">
+          <button onClick={onClose} className="p-2 hover:bg-card border-white/5/10 rounded-full transition-colors text-slate-400 hover:text-white">
             <X size={24} />
           </button>
         </div>
@@ -233,7 +233,7 @@ export const ProductDetailFinancialModal: React.FC<ProductDetailFinancialModalPr
               className={`flex items-center gap-2 px-4 py-3 border-b-2 font-medium text-sm whitespace-nowrap transition-colors ${
                 activeTab === tab.id 
                   ? 'border-blue-500 text-blue-400 bg-blue-500/5' 
-                  : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                  : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-card border-white/5/5'
               }`}
             >
               <tab.icon size={16} />

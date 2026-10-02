@@ -1,0 +1,263 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "protocol": "BROWNFIELD_PROJECT_RESTRUCTURING_AND_SOFTWARE_FACTORY",
+  "version": "2.2-DEFINITIVE-DEVTOOLS-MANDATORY-LOOP",
+  "context": {
+    "project_type": "PROYECTO_EN_MARCHA",
+    "objective": "Auditar, reevaluar y reestructurar el proyecto existente sin romper la aplicación actual, configurando los servidores MCP esenciales, el arnés de contexto profesional y la orquestación multiagente con verificación obligatoria por DevTools en cada bucle.",
+    "core_principles": [
+      "Criterio y control humano innegociable sobre la ejecución del agente",
+      "Garantizar la estabilidad de la lógica y datos existentes (persistencia local)",
+      "Desarrollo dirigido por especificaciones (SDD) para cualquier nueva iteración",
+      "Inspección obligatoria con Chrome DevTools MCP tras CADA actualización de código",
+      "Mantenimiento estricto de memoria viva entre sesiones (~50 líneas)"
+    ]
+  },
+  "mcp_installation_and_setup": {
+    "description": "Instrucciones de instalación y configuración de servidores MCP en la raíz de configuración del IDE (opencode.json, mcp.json o settings de Antigravity/Cursor).",
+    "config_file_target": "opencode.json",
+    "required_mcps": [
+      {
+        "name": "chrome-devtools",
+        "purpose": "Inspección de navegador en vivo obligatoria en cada iteración del bucle: verificación de consola JS, pruebas de interfaz (vista móvil 375 px), simulación de interacciones y renderizado de nuevas actualizaciones.",
+        "install_command": "npx -y @mcp/chrome-devtools",
+        "config_json": {
+          "command": "npx",
+          "args": ["-y", "@mcp/chrome-devtools"]
+        },
+        "verification_step": "Ejecutar /audit-project y verificar que el agente abre la app, navega por la interfaz y captura pantallas en resolución móvil de 375 px."
+      },
+      {
+        "name": "context7",
+        "purpose": "Consulta de documentación técnica actualizada en tiempo real para librerías, APIs y dependencias.",
+        "install_command": "npx -y @context7/mcp",
+        "config_json": {
+          "command": "npx",
+          "args": ["-y", "@context7/mcp"]
+        },
+        "verification_step": "Solicitar al agente que consulte la última versión de una librería para validar la conexión."
+      },
+      {
+        "name": "figma",
+        "purpose": "Extracción de especificaciones visuales, colores, tipografías y layouts desde los diseños de referencia.",
+        "install_command": "npx -y @figma/mcp-server",
+        "config_json": {
+          "command": "npx",
+          "args": ["-y", "@figma/mcp-server"],
+          "env": {
+            "FIGMA_ACCESS_TOKEN": "<TU_FIGMA_PERSONAL_ACCESS_TOKEN>"
+          }
+        },
+        "verification_step": "Pasar un enlace de un marco en Figma y pedir extracción de tokens de diseño."
+      },
+      {
+        "name": "github",
+        "purpose": "Gestión de repositorios, auditoría de diffs, creación de Pull Requests y control de versiones agéntico (AgentOps).",
+        "install_command": "npx -y @modelcontextprotocol/server-github",
+        "config_json": {
+          "command": "npx",
+          "args": ["-y", "@modelcontextprotocol/server-github"],
+          "env": {
+            "GITHUB_PERSONAL_ACCESS_TOKEN": "<TU_GITHUB_TOKEN>"
+          }
+        },
+        "verification_step": "Comprobar estado del repositorio local y ramas remotas."
+      }
+    ]
+  },
+  "guardrails_and_loops": {
+    "test_runner": "node --test",
+    "mandatory_devtools_inspection_rule": "REGLA INNEGOCIABLE EN LOOP: Tras CADA cambio o actualización de código realizada por @implementer, es OBLIGATORIO invocar inmediatamente el MCP de chrome-devtools para abrir la app, comprobar que no existan errores en la consola JS, verificar el renderizado en vista móvil (375 px) y validar la funcionalidad interactiva antes de dar por completada la iteración.",
+    "mcp_servers": ["chrome-devtools", "context7", "figma", "github"],
+    "max_retries_per_loop": 2,
+    "human_in_the_loop_checkpoints": [
+      "Aprobación de la Constitución (docs/constitution.md)",
+      "Aprobación de la Especificación activa (specs/NNN-*/spec.md)",
+      "Aprobación del Plan Técnico y Desglose de Tareas (plan.md y tasks.md)"
+    ]
+  },
+  "harness_infrastructure": {
+    "entry_point": "AGENTS.md",
+    "persistent_memory": "MEMORY.md",
+    "constitution": "docs/constitution.md",
+    "specs_directory": "specs/NNN-nombre/"
+  },
+  "skills_depuration": {
+    "strategy": "Depuración y consolidación en habilidades esenciales del ecosistema.",
+    "active_skills": [
+      {
+        "name": "sdd",
+        "directory": ".agents/skills/sdd/SKILL.md",
+        "description": "Enseña al agente la metodología Spec-Driven Development: redactar, revisar o cambiar specs (notación EARS), planes técnicos y tareas."
+      },
+      {
+        "name": "local-dates",
+        "directory": ".agents/skills/local-dates/SKILL.md",
+        "description": "Checklist estricto para operar siempre con fechas locales y nunca UTC al calcular rachas, semanas e historiales."
+      },
+      {
+        "name": "frontend-design",
+        "directory": ".agents/skills/frontend-design/SKILL.md",
+        "description": "Reglas de maquetación UI/UX accesible, responsive y limpia."
+      },
+      {
+        "name": "systematic-debugging",
+        "directory": ".agents/skills/systematic-debugging/SKILL.md",
+        "description": "Metodología rigurosa de depuración: reproducir el fallo, aislar causa raíz, formular hipótesis y verificar."
+      }
+    ],
+    "deprecated_or_merged_skills": [
+      "sdd-helpers (Fusionada dentro de /sdd principal)",
+      "date-utils (Redundante; reemplazada por local-dates)",
+      "quick-patch (Eliminada para evitar cambios sin especificación ni test)"
+    ]
+  },
+  "workflows_slash_commands": [
+    {
+      "command": "/setup-mcps",
+      "file": ".opencode/commands/setup-mcps.md",
+      "description": "Inspecciona e instala los servidores MCP requeridos en el archivo de configuración del IDE.",
+      "agent_target": "@coordinator",
+      "prompt": "Verifica si opencode.json o mcp.json contiene los servidores chrome-devtools, context7, figma y github. Si falta alguno, genera el fragmento de configuración e indica los pasos para activarlo."
+    },
+    {
+      "command": "/audit-project",
+      "file": ".opencode/commands/audit-project.md",
+      "description": "Inspecciona el proyecto en marcha, analiza la estructura existente, sincroniza AGENTS.md y genera el borrador inicial de MEMORY.md utilizando Chrome DevTools.",
+      "agent_target": "@coordinator",
+      "prompt": "Lee el código actual de la aplicación. Usa chrome-devtools MCP para abrir index.html, tomar una captura inicial y revisar errores de consola. Genera specs/000-base-audit/spec.md junto a la memoria inicial en MEMORY.md."
+    },
+    {
+      "command": "/feature",
+      "file": ".opencode/commands/feature.md",
+      "description": "Planifica e implementa cambios menores o parches rápidos obligando la inspección de DevTools tras modificar código.",
+      "agent_target": "@planner",
+      "prompt": "Analiza la petición $ARGUMENTS en modo Plan. Consulta AGENTS.md, MEMORY.md y las skills activas. Propón los cambios exactos y exige que en la fase Build se ejecute obligatoriamente chrome-devtools MCP para validar cada actualización."
+    },
+    {
+      "command": "/sdd-flow",
+      "file": ".opencode/commands/sdd-flow.md",
+      "description": "Orquesta la secuencia SDD completa garantizando que cada ciclo de construcción (@implementer) finalice con inspección de Chrome DevTools.",
+      "agent_target": "@coordinator",
+      "prompt": "Inicia la orquestación SDD para la funcionalidad: $ARGUMENTS. Coordina a @planner, @implementer y @reviewer. Exige a @implementer y @reviewer ejecutar chrome-devtools MCP en cada iteración del bucle."
+    },
+    {
+      "command": "/sdd-change",
+      "file": ".opencode/commands/sdd-change.md",
+      "description": "Gestiona modificaciones sobre funcionalidades existentes actualizando spec, plan y validando visualmente en DevTools cada cambio.",
+      "agent_target": "@planner",
+      "prompt": "Registra el nuevo requisito sobre la spec specs/$1/: $ARGUMENTS. Genera el diff en spec.md, indica impactos en plan.md e incluye la prueba obligatoria con chrome-devtools MCP tras actualizar el código."
+    },
+    {
+      "command": "/session-sync",
+      "file": ".opencode/commands/session-sync.md",
+      "description": "Audita y condensa la memoria persistente MEMORY.md a un máximo de ~50 líneas al finalizar la sesión.",
+      "agent_target": "@coordinator",
+      "prompt": "Revisa las tareas completadas en la sesión. Condensa MEMORY.md eliminando información obsoleta, manteniendo el estado actual, las decisiones técnicas y los errores a evitar."
+    }
+  ],
+  "agents_at_architecture": {
+    "coordinator": {
+      "file": ".opencode/agents/coordinator.md",
+      "mode": "primary",
+      "role": "Director de Orquesta y Administrador de Contexto",
+      "description": "Agente principal que habla con el usuario, transmite el contexto entre subagentes y exige aprobaciones en cada hito.",
+      "permissions": {
+        "edit_code": false,
+        "shell_execution": false,
+        "subagent_delegation": ["planner", "implementer", "reviewer"]
+      },
+      "instructions": [
+        "1. No edites archivos de código directamente.",
+        "2. Transmite el contexto completo a cada subagente.",
+        "3. Exige la aprobación explícita del usuario tras las fases de Spec y Plan antes de permitir la construcción.",
+        "4. Garantiza que NINGUNA actualización de código sea aceptada sin la verificación previa de @implementer o @reviewer mediante chrome-devtools MCP.",
+        "5. Gestiona el bucle de corrección con un máximo de 2 reintentos si @reviewer detecta errores."
+      ]
+    },
+    "planner": {
+      "file": ".opencode/agents/planner.md",
+      "mode": "subagent",
+      "role": "Especialista en Especificaciones y Arquitectura (SDD)",
+      "description": "Subagente encargado de redactar specs (notación EARS), planes técnicos y tareas atómicas.",
+      "permissions": {
+        "edit_code": false,
+        "edit_specs_dir": "specs/**",
+        "shell_execution": false
+      },
+      "instructions": [
+        "1. Escribe únicamente dentro de specs/NNN-nombre/.",
+        "2. Define el QUÉ y POR QUÉ en spec.md usando la plantilla SDD (notación EARS) sin mencionar clases ni librerías.",
+        "3. Genera plan.md con funciones puras, algoritmos y estrategia de tests.",
+        "4. Incluye explícitamente en tasks.md el criterio de aceptación 'Verificado con chrome-devtools MCP (consola limpia + vista móvil 375 px)' para cada tarea."
+      ]
+    },
+    "implementer": {
+      "file": ".opencode/agents/implementer.md",
+      "mode": "subagent",
+      "role": "Desarrollador TDD y Ejecutor con Validación Continua DevTools",
+      "description": "Subagente con permisos de edición que ejecuta tarea por tarea aplicando TDD y validación obligatoria con DevTools.",
+      "permissions": {
+        "edit_code": true,
+        "shell_execution": "node --test*",
+        "mcp_tools": ["chrome-devtools"]
+      },
+      "instructions": [
+        "1. Implementa SOLO la tarea indicada por el coordinador.",
+        "2. Aplica TDD: escribe primero los tests en rojo y luego el código hasta que pasen con 'node --test'.",
+        "3. OBLIGATORIO EN CADA BUCLE/ACTUALIZACIÓN: Invocación inmediata a chrome-devtools MCP para: a) Abrir la app en el navegador, b) Verificar 0 errores/warnings en la consola de JS, c) Capturar pantalla en vista móvil (375 px), d) Probar la interacción del flujo modificado.",
+        "4. Si DevTools muestra errores o fallos visuales, corrige inmediatamente el código en bucle antes de marcar la tarea.",
+        "5. Marca la tarea como hecha en tasks.md solo tras superar la inspección de DevTools y detente inmediatamente."
+      ]
+    },
+    "reviewer": {
+      "file": ".opencode/agents/reviewer.md",
+      "mode": "subagent",
+      "role": "Auditor de Código, QA e Interfaz",
+      "description": "Subagente de control de calidad que valida especificaciones e implementaciones re-inspeccionando con DevTools.",
+      "permissions": {
+        "edit_code": false,
+        "shell_execution": ["node --test*", "git diff*"],
+        "mcp_tools": ["chrome-devtools", "figma"]
+      },
+      "instructions": [
+        "1. Audita specs en busca de ambigüedades o incumplimientos de docs/constitution.md.",
+        "2. Valida las implementaciones requisito por requisito (RF-x).",
+        "3. Realiza una segunda comprobación autónoma con chrome-devtools MCP para re-verificar la consola y el diseño comparándolo contra Figma MCP.",
+        "4. Permite la ejecución en paralelo (Graph Engineering) para dividir revisiones de UI, lógica y tests."
+      ]
+    }
+  },
+  "execution_pipeline_brownfield": [
+    {
+      "phase": "0. CONFIGURACIÓN DE MCPS",
+      "command": "/setup-mcps",
+      "actor": "@coordinator",
+      "deliverable": "Validación e instalación de chrome-devtools, context7, figma y github."
+    },
+    {
+      "phase": "1. AUDITORÍA INICIAL DE PROYECTO",
+      "command": "/audit-project",
+      "actor": "@coordinator + @planner",
+      "deliverable": "AGENTS.md actualizado, MEMORY.md inicializado, captura DevTools y mapa de la app existente."
+    },
+    {
+      "phase": "2. ESTABLECIMIENTO DE CONSTITUCIÓN",
+      "command": "/feature Crear la constitución del proyecto",
+      "actor": "@planner",
+      "deliverable": "docs/constitution.md con principios innegociables de código y arquitectura."
+    },
+    {
+      "phase": "3. ITERACIÓN SDD CON BUCLE DEVTOOLS MANDATORIO",
+      "command": "/sdd-flow <nombre-funcionalidad>",
+      "actor": "Sistema Multiagente (@coordinator -> @planner -> @implementer -> @reviewer)",
+      "deliverable": "Nueva spec en specs/NNN-/, código probado con 'node --test' y verificado OBLIGATORIAMENTE tras cada actualización con chrome-devtools MCP."
+    },
+    {
+      "phase": "4. CIERRE Y SINCRONIZACIÓN DE MEMORIA",
+      "command": "/session-sync",
+      "actor": "@coordinator",
+      "deliverable": "MEMORY.md depurado y sintetizado a ~50 líneas."
+    }
+  ]
+}

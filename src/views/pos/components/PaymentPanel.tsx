@@ -267,7 +267,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
       <div className="flex justify-between items-center px-1">
         <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
           <span>Medio de Pago</span>
-          <kbd className="hidden sm:inline-block px-1 py-0.2 bg-white/10 text-[9px] rounded text-slate-300 font-mono">F1-F6</kbd>
+          <kbd className="hidden sm:inline-block px-1 py-0.2 bg-card border-white/5/10 text-[9px] rounded text-slate-300 font-mono">F1-F6</kbd>
         </label>
         <button
           onClick={() => {
@@ -358,7 +358,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
                 <button
                   type="button"
                   onClick={() => setEfectivoRecibido(totalFinal)}
-                  className="px-2.5 h-9 text-[11px] font-bold bg-white/10 hover:bg-white/20 text-cyan-300 rounded-lg transition-colors whitespace-nowrap flex items-center gap-1"
+                  className="px-2.5 h-9 text-[11px] font-bold bg-card border-white/5/10 hover:bg-card border-white/5/20 text-cyan-300 rounded-lg transition-colors whitespace-nowrap flex items-center gap-1"
                   title="Pagar con monto exacto (Espacio)"
                 >
                   <span>Exacto</span>
@@ -483,7 +483,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
           aria-label="Poner pedido actual en espera (Atajo F6)"
         >
           <span>Borrador</span>
-          <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-white/10 rounded text-slate-300">F6</kbd>
+          <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-card border-white/5/10 rounded text-slate-300">F6</kbd>
         </Button>
 
         {!isTurnoAbierto ? (

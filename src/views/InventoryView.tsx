@@ -1720,7 +1720,7 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
           7. Compras & Entradas
         </button>
 
-        <div className="h-4 w-px bg-white/10 mx-1 shrink-0" />
+        <div className="h-4 w-px bg-card border-white/5/10 mx-1 shrink-0" />
 
         <button
           onClick={() => setViewMode('catalogo')}
@@ -1813,7 +1813,7 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
                 </thead>
                 <tbody className="divide-y divide-white/5 text-slate-200">
                   {movimientos.slice(0, 10).map((m) => (
-                    <tr key={m.id} className="hover:bg-white/[0.02]">
+                    <tr key={m.id} className="hover:bg-card border-white/5/[0.02]">
                       <td className="py-2 px-3 text-slate-400">{new Date(m.timestamp).toLocaleString('es-CO')}</td>
                       <td className="py-2 px-3">
                         <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300 border border-white/5">

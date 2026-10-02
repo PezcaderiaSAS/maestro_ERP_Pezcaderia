@@ -221,7 +221,7 @@ export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
         {/* Botón decrementar */}
         <Button
           variant="secondary"
-          className="qty-btn min-w-[44px] min-h-[44px] w-11 h-11 p-0 flex items-center justify-center rounded-lg active:scale-95 transition-all text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-white/10 cursor-pointer"
+          className="qty-btn min-w-[44px] min-h-[44px] w-11 h-11 p-0 flex items-center justify-center rounded-lg active:scale-95 transition-all text-secondary dark:text-slate-200 bg-slate-800/60 hover:bg-slate-700/60 dark:bg-slate-800 dark:hover:bg-slate-700 border border-white/10 dark:border-white/10 cursor-pointer"
           onClick={() => handleQtyDelta(-1)}
           title="Disminuir cantidad"
           aria-label="Disminuir cantidad"
@@ -236,7 +236,7 @@ export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
             value={linea.cantidad}
             onChange={handleInputChange}
             onBlur={handleInputBlur}
-            className="w-full text-center border border-slate-300 dark:border-white/15 rounded-lg text-base font-bold h-11 px-1 bg-white dark:bg-slate-900 text-slate-900 dark:text-white tabular-nums shadow-inner"
+            className="w-full text-center border border-white/10 dark:border-white/15 rounded-lg text-base font-bold h-11 px-1 bg-card border-white/5 dark:bg-slate-900 text-primary dark:text-white tabular-nums shadow-inner"
             step="any"
             min="0"
             inputMode="decimal"
@@ -247,7 +247,7 @@ export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
         {/* Botón incrementar */}
         <Button
           variant="secondary"
-          className="qty-btn min-w-[44px] min-h-[44px] w-11 h-11 p-0 flex items-center justify-center rounded-lg active:scale-95 transition-all text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-white/10 cursor-pointer"
+          className="qty-btn min-w-[44px] min-h-[44px] w-11 h-11 p-0 flex items-center justify-center rounded-lg active:scale-95 transition-all text-secondary dark:text-slate-200 bg-slate-800/60 hover:bg-slate-700/60 dark:bg-slate-800 dark:hover:bg-slate-700 border border-white/10 dark:border-white/10 cursor-pointer"
           onClick={() => handleQtyDelta(1)}
           title="Aumentar cantidad"
           aria-label="Aumentar cantidad"

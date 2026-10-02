@@ -72,8 +72,8 @@ export default function TrasladoDineroModal({ turnoOrigen, usuarioId, onClose, o
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-center items-center p-2 md:p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl transition-all flex flex-col max-h-[90vh]">
-        <h2 className="text-xl font-bold text-gray-800 mb-4 border-b pb-2 shrink-0">Traslado de Dinero</h2>
+      <div className="bg-card border-white/5 rounded-2xl p-6 w-full max-w-md shadow-2xl transition-all flex flex-col max-h-[90vh]">
+        <h2 className="text-xl font-bold text-primary mb-4 border-b pb-2 shrink-0">Traslado de Dinero</h2>
         
         <div className="overflow-y-auto flex-1 pr-1 flex flex-col gap-4">
           <div className="bg-blue-50 p-3 rounded border border-blue-100">
@@ -83,7 +83,7 @@ export default function TrasladoDineroModal({ turnoOrigen, usuarioId, onClose, o
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Medio de Pago a Trasladar *</label>
+            <label className="block text-sm font-medium text-secondary mb-1">Medio de Pago a Trasladar *</label>
             <select 
               data-testid="select-metodo-traslado"
               className="w-full border rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
@@ -97,7 +97,7 @@ export default function TrasladoDineroModal({ turnoOrigen, usuarioId, onClose, o
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Caja Destino *</label>
+            <label className="block text-sm font-medium text-secondary mb-1">Caja Destino *</label>
             <select 
               data-testid="select-caja-destino"
               className="w-full border rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
@@ -117,11 +117,11 @@ export default function TrasladoDineroModal({ turnoOrigen, usuarioId, onClose, o
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Monto a Trasladar *</label>
+            <label className="block text-sm font-medium text-secondary mb-1">Monto a Trasladar *</label>
             <input 
               data-testid="input-monto-traslado"
               type="number" 
-              className="w-full border rounded p-2 text-lg font-bold text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full border rounded p-2 text-lg font-bold text-primary focus:ring-2 focus:ring-blue-500 outline-none"
               value={monto}
               onChange={(e) => setMonto(e.target.value !== '' ? Number(e.target.value) : '')}
               placeholder="0"
@@ -129,7 +129,7 @@ export default function TrasladoDineroModal({ turnoOrigen, usuarioId, onClose, o
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Concepto *</label>
+            <label className="block text-sm font-medium text-secondary mb-1">Concepto *</label>
             <input 
               data-testid="input-concepto-traslado"
               type="text" 
@@ -144,7 +144,7 @@ export default function TrasladoDineroModal({ turnoOrigen, usuarioId, onClose, o
         <div className="flex justify-end gap-2 mt-4 pt-3 border-t shrink-0">
           <button 
             onClick={onClose}
-            className="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded font-medium transition-colors"
+            className="px-4 py-2 text-slate-400 bg-slate-800/60 hover:bg-slate-700/60 rounded font-medium transition-colors"
           >
             Cancelar
           </button>

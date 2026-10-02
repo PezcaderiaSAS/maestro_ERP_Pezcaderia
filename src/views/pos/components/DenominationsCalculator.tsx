@@ -57,14 +57,14 @@ export const DenominationsCalculator: React.FC<DenominationsCalculatorProps> = (
     const qty = value[denom.toString()] || 0;
     return (
       <div key={denom} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
-        <span className="text-gray-700 font-medium w-24">
+        <span className="text-secondary font-medium w-24">
           ${denom.toLocaleString()}
         </span>
         <div className="flex items-center space-x-2">
           <button
             type="button"
             onClick={() => handleDecrement(denom)}
-            className="p-1 rounded bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-200"
+            className="p-1 rounded bg-slate-800/60 text-slate-400 hover:bg-slate-700/60 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-200"
           >
             <Minus size={16} />
           </button>
@@ -73,12 +73,12 @@ export const DenominationsCalculator: React.FC<DenominationsCalculatorProps> = (
             min="0"
             value={qty || ''}
             onChange={(e) => handleUpdate(denom, parseInt(e.target.value, 10))}
-            className="w-16 text-center border border-gray-300 rounded py-1 px-2 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 hide-arrows"
+            className="w-16 text-center border border-white/10 rounded py-1 px-2 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 hide-arrows"
           />
           <button
             type="button"
             onClick={() => handleIncrement(denom)}
-            className="p-1 rounded bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-200"
+            className="p-1 rounded bg-slate-800/60 text-slate-400 hover:bg-slate-700/60 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-200"
           >
             <Plus size={16} />
           </button>
@@ -88,11 +88,11 @@ export const DenominationsCalculator: React.FC<DenominationsCalculatorProps> = (
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex flex-col">
+    <div className="bg-card border-white/5 rounded-lg shadow-sm border border-border overflow-hidden flex flex-col">
       <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[400px] overflow-y-auto">
         {/* Billetes */}
         <div>
-          <h3 className="text-sm font-bold text-gray-800 mb-3 uppercase tracking-wider">Billetes</h3>
+          <h3 className="text-sm font-bold text-primary mb-3 uppercase tracking-wider">Billetes</h3>
           <div className="flex flex-col">
             {BILLETES.map(renderRow)}
           </div>
@@ -100,7 +100,7 @@ export const DenominationsCalculator: React.FC<DenominationsCalculatorProps> = (
 
         {/* Monedas */}
         <div>
-          <h3 className="text-sm font-bold text-gray-800 mb-3 uppercase tracking-wider">Monedas</h3>
+          <h3 className="text-sm font-bold text-primary mb-3 uppercase tracking-wider">Monedas</h3>
           <div className="flex flex-col">
             {MONEDAS.map(renderRow)}
           </div>
@@ -108,16 +108,16 @@ export const DenominationsCalculator: React.FC<DenominationsCalculatorProps> = (
       </div>
 
       {/* Sticky Footer */}
-      <div className="bg-gray-50 p-4 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4 sticky bottom-0">
+      <div className="bg-slate-800/40 p-4 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4 sticky bottom-0">
         <div className="flex items-center space-x-3">
           <input
             type="checkbox"
             id="confirm-arqueo"
             checked={confirmed}
             onChange={handleCheckboxChange}
-            className="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+            className="w-5 h-5 text-blue-600 rounded border-white/10 focus:ring-blue-500"
           />
-          <label htmlFor="confirm-arqueo" className="text-sm text-gray-700 cursor-pointer select-none">
+          <label htmlFor="confirm-arqueo" className="text-sm text-secondary cursor-pointer select-none">
             Confirmo que el conteo es exacto
           </label>
         </div>

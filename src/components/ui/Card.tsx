@@ -12,7 +12,7 @@ export const Card: React.FC<CardProps> = ({
 }) => {
   const baseClasses = 'rounded-xl overflow-hidden transition-all duration-300';
   // If glass is true, we apply the global utility .glass-panel created in index.css
-  const themeClasses = glass ? 'glass-panel' : 'bg-white shadow-md border border-[var(--border-color)]';
+  const themeClasses = glass ? 'glass-panel' : 'bg-card border-white/5 shadow-md border border-[var(--border-color)]';
   
   return (
     <div className={`${baseClasses} ${themeClasses} ${className}`} {...props}>

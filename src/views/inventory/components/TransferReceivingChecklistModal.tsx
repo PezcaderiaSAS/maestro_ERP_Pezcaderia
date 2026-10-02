@@ -196,7 +196,7 @@ export const TransferReceivingChecklistModal: React.FC<TransferReceivingChecklis
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
+            className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-card border-white/5/5 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -401,7 +401,7 @@ export const TransferReceivingChecklistModal: React.FC<TransferReceivingChecklis
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-white/10 text-slate-300 hover:bg-white/5 text-sm font-semibold transition-colors"
+              className="px-4 py-2 rounded-xl border border-white/10 text-slate-300 hover:bg-card border-white/5/5 text-sm font-semibold transition-colors"
             >
               Cancelar
             </button>

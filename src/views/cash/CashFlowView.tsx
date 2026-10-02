@@ -130,17 +130,17 @@ export default function CashFlowView() {
   };
 
   return (
-    <div className="p-4 md:p-6 bg-gray-50 min-h-full flex-1 overflow-y-auto">
+    <div className="p-4 md:p-6 bg-slate-800/40 min-h-full flex-1 overflow-y-auto">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Gestión de Cajas</h1>
+          <h1 className="text-3xl font-extrabold text-primary tracking-tight">Gestión de Cajas</h1>
           <p className="text-gray-500 mt-1">Control de flujo de efectivo por bodega</p>
         </div>
         
-        <div className="flex items-center gap-4 bg-white p-2 rounded-lg shadow-sm border">
-          <span className="text-sm font-medium text-gray-600">Bodega:</span>
+        <div className="flex items-center gap-4 bg-card border-white/5 p-2 rounded-lg shadow-sm border">
+          <span className="text-sm font-medium text-slate-400">Bodega:</span>
           <select 
-            className="border-gray-300 rounded text-sm focus:ring-blue-500 font-semibold"
+            className="border-white/10 rounded text-sm focus:ring-blue-500 font-semibold"
             value={bodegaSeleccionada}
             onChange={(e) => setBodegaSeleccionada(e.target.value)}
           >
@@ -149,9 +149,9 @@ export default function CashFlowView() {
             ))}
           </select>
 
-          <span className="text-sm font-medium text-gray-600 ml-4">Caja:</span>
+          <span className="text-sm font-medium text-slate-400 ml-4">Caja:</span>
           <select 
-            className="border-gray-300 rounded text-sm focus:ring-blue-500 font-semibold"
+            className="border-white/10 rounded text-sm focus:ring-blue-500 font-semibold"
             value={cajaSeleccionada}
             onChange={(e) => setCajaSeleccionada(e.target.value)}
           >
@@ -163,11 +163,11 @@ export default function CashFlowView() {
       </div>
 
       {!turnoActivo ? (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-12 text-center max-w-2xl mx-auto mt-10">
+        <div className="bg-card border-white/5 rounded-2xl shadow-sm border border-border p-12 text-center max-w-2xl mx-auto mt-10">
           <div className="w-20 h-20 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
             <Wallet size={40} />
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">La caja está cerrada</h2>
+          <h2 className="text-2xl font-bold text-primary mb-2">La caja está cerrada</h2>
           <p className="text-gray-500 mb-8">Debe abrir un turno para procesar ventas y registrar movimientos de efectivo en esta caja.</p>
           <button 
             data-testid="btn-abrir-turno"
@@ -182,7 +182,7 @@ export default function CashFlowView() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Panel Izquierdo: Resumen y Acciones */}
           <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white rounded-2xl shadow-sm border border-blue-100 overflow-hidden mb-6">
+            <div className="bg-card border-white/5 rounded-2xl shadow-sm border border-blue-100 overflow-hidden mb-6">
               <div className="bg-blue-600 p-6 text-white text-center relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-20">
                   <Wallet size={80} />
@@ -196,12 +196,12 @@ export default function CashFlowView() {
               </div>
               
               {/* Desglose por Medio de Pago (Control de Cuadre) */}
-              <div className="grid grid-cols-3 bg-gray-50 border-b border-gray-200">
-                <div className="p-3 text-center border-r border-gray-200">
+              <div className="grid grid-cols-3 bg-slate-800/40 border-b border-border">
+                <div className="p-3 text-center border-r border-border">
                   <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Efectivo</p>
                   <p className="text-sm font-bold text-green-700">${turnoActivo.totalEfectivo.toLocaleString()}</p>
                 </div>
-                <div className="p-3 text-center border-r border-gray-200">
+                <div className="p-3 text-center border-r border-border">
                   <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Datáfono</p>
                   <p className="text-sm font-bold text-blue-700">${turnoActivo.totalDatafono.toLocaleString()}</p>
                 </div>
@@ -215,7 +215,7 @@ export default function CashFlowView() {
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-500">Base Inicial:</span>
-                    <span className="font-semibold text-gray-800">${turnoActivo.baseInicial.toLocaleString()}</span>
+                    <span className="font-semibold text-primary">${turnoActivo.baseInicial.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-500">Total Ingresos:</span>
@@ -235,7 +235,7 @@ export default function CashFlowView() {
                   <button 
                     data-testid="btn-egreso-rapido"
                     onClick={handleEgresoRapido}
-                    className="w-full bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
+                    className="w-full bg-card border-white/5 border border-white/10 hover:bg-slate-800/40 text-secondary font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
                   >
                     <Upload size={18} className="text-red-500" />
                     Registrar Egreso (Gasto)
@@ -243,7 +243,7 @@ export default function CashFlowView() {
                   <button 
                     data-testid="btn-traslado-dinero"
                     onClick={() => setShowTrasladoModal(true)}
-                    className="w-full bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
+                    className="w-full bg-card border-white/5 border border-white/10 hover:bg-slate-800/40 text-secondary font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
                   >
                     <ArrowRightLeft size={18} className="text-blue-500" />
                     Trasladar Dinero
@@ -263,10 +263,10 @@ export default function CashFlowView() {
 
           {/* Panel Derecho: Historial de Movimientos */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 h-full flex flex-col">
+            <div className="bg-card border-white/5 rounded-2xl shadow-sm border border-border h-full flex flex-col">
               <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-                <h3 className="text-lg font-bold text-gray-800">Historial de Movimientos</h3>
-                <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded font-medium">
+                <h3 className="text-lg font-bold text-primary">Historial de Movimientos</h3>
+                <span className="bg-slate-800/60 text-slate-400 text-xs px-2 py-1 rounded font-medium">
                   {movimientos.length} transacciones
                 </span>
               </div>
@@ -278,7 +278,7 @@ export default function CashFlowView() {
                   </div>
                 ) : (
                   <table className="w-full text-left border-collapse">
-                    <thead className="bg-gray-50 sticky top-0">
+                    <thead className="bg-slate-800/40 sticky top-0">
                       <tr>
                         <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Hora</th>
                         <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Tipo</th>
@@ -290,7 +290,7 @@ export default function CashFlowView() {
                       {movimientos.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(mov => {
                         const esIngreso = mov.tipo.startsWith('INGRESO');
                         return (
-                          <tr key={mov.id} className="hover:bg-gray-50">
+                          <tr key={mov.id} className="hover:bg-slate-800/40">
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                               <div className="flex flex-col">
                                 <span>{new Date(mov.createdAt).toLocaleDateString()}</span>
@@ -306,7 +306,7 @@ export default function CashFlowView() {
                                 {mov.metodoPago}
                               </span>
                             </td>
-                            <td className="px-6 py-4 text-sm text-gray-700">
+                            <td className="px-6 py-4 text-sm text-secondary">
                               {mov.concepto}
                             </td>
                             <td className={`px-6 py-4 whitespace-nowrap text-sm font-bold text-right ${esIngreso ? 'text-green-600' : 'text-red-600'}`}>

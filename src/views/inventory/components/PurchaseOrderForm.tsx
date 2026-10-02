@@ -148,7 +148,7 @@ export function PurchaseOrderForm({
   const totalGeneralOC = subtotalItems + valorIvaCalculado + fletesCalculado;
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 flex flex-col gap-6">
+    <div className="bg-card border-white/5 rounded-2xl border border-border/80 shadow-sm p-6 flex flex-col gap-6">
       {/* Modales de Creación Rápida */}
       <CrearProveedorRapidoModal
         isOpen={showModalProveedor}
@@ -169,7 +169,7 @@ export function PurchaseOrderForm({
             <Truck size={22} />
           </div>
           <div>
-            <h3 className="text-lg font-black text-slate-800 m-0">Entrada de Mercadería a Proveedores</h3>
+            <h3 className="text-lg font-black text-primary m-0">Entrada de Mercadería a Proveedores</h3>
             <p className="text-xs text-slate-500 m-0 mt-0.5">Ingresa los productos recibidos para aumentar el inventario físico y actualizar saldos</p>
           </div>
         </div>
@@ -184,10 +184,10 @@ export function PurchaseOrderForm({
       <form onSubmit={handleProcesarCompra} className="flex flex-col gap-6">
         
         {/* 1. SECCIÓN: PROVEEDOR, BODEGA Y FORMA DE PAGO */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4.5 bg-slate-50/80 rounded-xl border border-slate-200/80 shadow-xs">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4.5 bg-slate-800/40/80 rounded-xl border border-border/80 shadow-xs">
           <div>
             <div className="flex justify-between items-center mb-1.5">
-              <label className="text-xs font-bold text-slate-700 uppercase m-0">Proveedor Origen *</label>
+              <label className="text-xs font-bold text-secondary uppercase m-0">Proveedor Origen *</label>
               <button
                 type="button"
                 onClick={() => setShowModalProveedor(true)}
@@ -199,7 +199,7 @@ export function PurchaseOrderForm({
             </div>
             <select
               required
-              className="w-full h-10 px-3 border-2 border-emerald-200 bg-white rounded-xl text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 shadow-xs"
+              className="w-full h-10 px-3 border-2 border-emerald-200 bg-card border-white/5 rounded-xl text-sm font-semibold text-primary focus:ring-2 focus:ring-emerald-500 shadow-xs"
               value={compra.proveedorId}
               onChange={e => {
                 if (e.target.value === '_NEW_') {
@@ -218,9 +218,9 @@ export function PurchaseOrderForm({
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-700 uppercase mb-1.5 block">Bodega Destino *</label>
+            <label className="text-xs font-bold text-secondary uppercase mb-1.5 block">Bodega Destino *</label>
             <select
-              className="w-full h-10 px-3 border border-slate-300 bg-white rounded-xl text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 shadow-xs"
+              className="w-full h-10 px-3 border border-white/10 bg-card border-white/5 rounded-xl text-sm font-semibold text-primary focus:ring-2 focus:ring-emerald-500 shadow-xs"
               value={compra.bodega || 'Bodega Principal'}
               onChange={e => setCompra({ ...compra, bodega: e.target.value })}
             >
@@ -231,9 +231,9 @@ export function PurchaseOrderForm({
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-700 uppercase mb-1.5 block">Forma de Pago *</label>
+            <label className="text-xs font-bold text-secondary uppercase mb-1.5 block">Forma de Pago *</label>
             <select
-              className="w-full h-10 px-3 border border-slate-300 bg-white rounded-xl text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 shadow-xs"
+              className="w-full h-10 px-3 border border-white/10 bg-card border-white/5 rounded-xl text-sm font-semibold text-primary focus:ring-2 focus:ring-emerald-500 shadow-xs"
               value={compra.formaPago || 'CONTADO'}
               onChange={e => setCompra({ ...compra, formaPago: e.target.value })}
             >
@@ -260,7 +260,7 @@ export function PurchaseOrderForm({
           <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
             <div className="md:col-span-8">
               <div className="flex justify-between items-center mb-1">
-                <label className="text-xs font-bold text-slate-700 m-0">Producto a Recibir</label>
+                <label className="text-xs font-bold text-secondary m-0">Producto a Recibir</label>
                 <button
                   type="button"
                   onClick={() => setShowModalProducto(true)}
@@ -271,7 +271,7 @@ export function PurchaseOrderForm({
                 </button>
               </div>
               <select
-                className="w-full h-10 px-3 border border-emerald-300 bg-white rounded-xl text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 shadow-xs"
+                className="w-full h-10 px-3 border border-emerald-300 bg-card border-white/5 rounded-xl text-sm font-semibold text-primary focus:ring-2 focus:ring-emerald-500 shadow-xs"
                 value={draftSku}
                 onChange={e => {
                   if (e.target.value === '_NEW_') {
@@ -292,10 +292,10 @@ export function PurchaseOrderForm({
             </div>
 
             <div className="md:col-span-4">
-              <label className="text-xs font-bold text-slate-700 mb-1 block">Lote (Opcional)</label>
+              <label className="text-xs font-bold text-secondary mb-1 block">Lote (Opcional)</label>
               <input
                 type="text"
-                className="w-full h-10 px-3 border border-slate-300 bg-white rounded-xl text-xs font-mono uppercase text-slate-800 shadow-xs"
+                className="w-full h-10 px-3 border border-white/10 bg-card border-white/5 rounded-xl text-xs font-mono uppercase text-primary shadow-xs"
                 placeholder="Ej. LT-2506"
                 value={draftLote}
                 onChange={e => setDraftLote(e.target.value)}
@@ -306,22 +306,22 @@ export function PurchaseOrderForm({
           {/* FILA 2: CANTIDAD, COSTO, IVA Y BOTÓN AÑADIR (SIN CORTES) */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
             <div className="md:col-span-3">
-              <label className="text-xs font-bold text-slate-700 mb-1 block">Cantidad</label>
+              <label className="text-xs font-bold text-secondary mb-1 block">Cantidad</label>
               <input
                 type="number"
                 min="1"
-                className="w-full h-10 px-3 border border-slate-300 bg-white rounded-xl text-sm font-bold text-slate-900 shadow-xs"
+                className="w-full h-10 px-3 border border-white/10 bg-card border-white/5 rounded-xl text-sm font-bold text-primary shadow-xs"
                 value={draftCantidad}
                 onChange={e => setDraftCantidad(parseInt(e.target.value) || 1)}
               />
             </div>
 
             <div className="md:col-span-3">
-              <label className="text-xs font-bold text-slate-700 mb-1 block">Costo Unit ($ COP)</label>
+              <label className="text-xs font-bold text-secondary mb-1 block">Costo Unit ($ COP)</label>
               <input
                 type="number"
                 min="0"
-                className="w-full h-10 px-3 border border-slate-300 bg-white rounded-xl text-sm font-bold text-slate-900 shadow-xs"
+                className="w-full h-10 px-3 border border-white/10 bg-card border-white/5 rounded-xl text-sm font-bold text-primary shadow-xs"
                 placeholder="Ej. 12000"
                 value={draftCosto || ''}
                 onChange={e => setDraftCosto(parseInt(e.target.value) || 0)}
@@ -331,7 +331,7 @@ export function PurchaseOrderForm({
             <div className="md:col-span-3">
               <label className="text-xs font-extrabold text-emerald-900 mb-1 block">IVA Producto (%)</label>
               <select
-                className="w-full h-10 px-3 border-2 border-emerald-400 bg-white rounded-xl text-sm font-bold text-slate-800 shadow-xs"
+                className="w-full h-10 px-3 border-2 border-emerald-400 bg-card border-white/5 rounded-xl text-sm font-bold text-primary shadow-xs"
                 value={draftIva}
                 onChange={e => setDraftIva(parseInt(e.target.value) || 0)}
               >
@@ -356,10 +356,10 @@ export function PurchaseOrderForm({
         </div>
 
         {/* 3. SECCIÓN: TABLA DE DETALLE DE ÍTEMS */}
-        <div className="border border-slate-200 rounded-xl overflow-hidden shadow-xs bg-white">
+        <div className="border border-border rounded-xl overflow-hidden shadow-xs bg-card border-white/5">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-100/90 border-b border-slate-200 text-slate-700 text-xs font-black uppercase tracking-wider">
+              <tr className="bg-slate-800/60/90 border-b border-border text-secondary text-xs font-black uppercase tracking-wider">
                 <th className="py-3 px-4 w-12 text-center">#</th>
                 <th className="py-3 px-4">SKU</th>
                 <th className="py-3 px-4">Producto</th>
@@ -386,15 +386,15 @@ export function PurchaseOrderForm({
                   const totalItemConIva = subItemNeto + itemIvaVal;
 
                   return (
-                    <tr key={`${item.sku}-${idx}`} className="hover:bg-slate-50/80 transition-colors">
+                    <tr key={`${item.sku}-${idx}`} className="hover:bg-slate-800/40/80 transition-colors">
                       <td className="py-3 px-4 text-center font-bold text-slate-400">{idx + 1}</td>
-                      <td className="py-3 px-4 font-mono text-xs font-bold text-slate-600">{item.sku}</td>
-                      <td className="py-3 px-4 font-bold text-slate-800">{item.nombre}</td>
+                      <td className="py-3 px-4 font-mono text-xs font-bold text-slate-400">{item.sku}</td>
+                      <td className="py-3 px-4 font-bold text-primary">{item.nombre}</td>
                       <td className="py-3 px-4 text-center font-mono text-xs text-emerald-700 font-semibold">{item.lote}</td>
-                      <td className="py-3 px-4 text-right font-black text-slate-900">{item.cantidad} unidades</td>
-                      <td className="py-3 px-4 text-right font-bold text-slate-700">${item.precioUnitario.toLocaleString('es-CO')}</td>
+                      <td className="py-3 px-4 text-right font-black text-primary">{item.cantidad} unidades</td>
+                      <td className="py-3 px-4 text-right font-bold text-secondary">${item.precioUnitario.toLocaleString('es-CO')}</td>
                       <td className="py-3 px-4 text-center font-bold">
-                        <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${itemIvaPct > 0 ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'}`}>
+                        <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${itemIvaPct > 0 ? 'bg-amber-100 text-amber-800' : 'bg-slate-800/60 text-slate-400'}`}>
                           {itemIvaPct}% {itemIvaPct > 0 ? 'Gravado' : 'Exento'}
                         </span>
                       </td>
@@ -418,35 +418,35 @@ export function PurchaseOrderForm({
         </div>
 
         {/* 4. SECCIÓN: RESUMEN DE TOTALES Y BOTÓN PRINCIPAL */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center pt-3 border-t border-slate-200">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center pt-3 border-t border-border">
           <div>
-            <label className="text-xs font-bold text-slate-700 uppercase mb-1.5 block">Fletes / Adicionales ($ COP)</label>
+            <label className="text-xs font-bold text-secondary uppercase mb-1.5 block">Fletes / Adicionales ($ COP)</label>
             <input
               type="number"
               min="0"
-              className="w-full h-10 px-3 border border-slate-300 bg-white rounded-xl text-sm font-bold text-slate-900 shadow-xs"
+              className="w-full h-10 px-3 border border-white/10 bg-card border-white/5 rounded-xl text-sm font-bold text-primary shadow-xs"
               placeholder="0"
               value={compra.fletes || 0}
               onChange={e => setCompra({ ...compra, fletes: parseInt(e.target.value) || 0 })}
             />
           </div>
 
-          <div className="flex flex-col gap-1.5 bg-slate-50/90 p-4.5 rounded-xl border border-slate-200/90 shadow-xs">
-            <div className="flex justify-between w-full text-xs text-slate-600 font-semibold">
+          <div className="flex flex-col gap-1.5 bg-slate-800/40/90 p-4.5 rounded-xl border border-border/90 shadow-xs">
+            <div className="flex justify-between w-full text-xs text-slate-400 font-semibold">
               <span>Subtotal Productos (Neto):</span>
               <span>${subtotalItems.toLocaleString('es-CO')}</span>
             </div>
-            <div className="flex justify-between w-full text-xs text-slate-700 font-bold">
+            <div className="flex justify-between w-full text-xs text-secondary font-bold">
               <span>Total IVA Acumulado (por producto):</span>
               <span className="text-amber-700">${valorIvaCalculado.toLocaleString('es-CO')}</span>
             </div>
             {fletesCalculado > 0 && (
-              <div className="flex justify-between w-full text-xs text-slate-600 font-semibold">
+              <div className="flex justify-between w-full text-xs text-slate-400 font-semibold">
                 <span>Fletes / Adicionales:</span>
                 <span>${fletesCalculado.toLocaleString('es-CO')}</span>
               </div>
             )}
-            <div className="flex justify-between w-full text-base font-black text-slate-900 border-t border-slate-200/80 pt-2 mt-1">
+            <div className="flex justify-between w-full text-base font-black text-primary border-t border-border/80 pt-2 mt-1">
               <span>Total Orden de Compra:</span>
               <span className="text-emerald-600 text-xl font-black">${totalGeneralOC.toLocaleString('es-CO')}</span>
             </div>

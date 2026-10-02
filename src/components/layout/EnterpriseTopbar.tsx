@@ -89,7 +89,7 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
       <div className="flex items-center gap-3">
         <button
           onClick={onToggleSidebar}
-          className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+          className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-card border-white/5/5 transition-colors cursor-pointer"
           title="Menú de Navegación"
         >
           <Menu size={20} />
@@ -123,7 +123,7 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
         >
           <Search size={14} className="text-cyan-400" />
           <span className="hidden md:inline font-medium">Buscar...</span>
-          <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-white/10 rounded border border-white/15 text-slate-300">
+          <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-card border-white/5/10 rounded border border-white/15 text-slate-300">
             Ctrl+K
           </kbd>
         </button>
@@ -155,7 +155,7 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
         {/* Alternador de Tema */}
         <button
           onClick={onToggleTheme}
-          className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+          className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-card border-white/5/5 transition-colors cursor-pointer"
           title="Alternar Tema Obsidian / Slate"
         >
           {theme === 'obsidian' ? <Terminal size={17} className="text-cyan-400" /> : <Moon size={17} />}

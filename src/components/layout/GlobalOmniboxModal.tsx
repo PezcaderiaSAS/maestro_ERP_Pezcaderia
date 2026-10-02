@@ -612,7 +612,7 @@ export const GlobalOmniboxModal: React.FC<GlobalOmniboxModalProps> = ({
                 setQuery('');
                 if (inputRef.current) inputRef.current.focus();
               }}
-              className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+              className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-card border-white/5/10 transition-colors"
               title="Limpiar búsqueda"
             >
               <X size={15} />
@@ -620,10 +620,10 @@ export const GlobalOmniboxModal: React.FC<GlobalOmniboxModalProps> = ({
           )}
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-card border-white/5/10 transition-colors"
             title="Cerrar (Esc)"
           >
-            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-white/10 rounded border border-white/15 text-slate-300">
+            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-card border-white/5/10 rounded border border-white/15 text-slate-300">
               Esc
             </kbd>
           </button>
@@ -646,7 +646,7 @@ export const GlobalOmniboxModal: React.FC<GlobalOmniboxModalProps> = ({
                 className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                   isActive
                     ? 'bg-cyan-500 text-slate-950 shadow-sm shadow-cyan-500/30 font-bold'
-                    : 'bg-white/5 text-slate-400 hover:text-white hover:bg-white/10'
+                    : 'bg-card border-white/5/5 text-slate-400 hover:text-white hover:bg-card border-white/5/10'
                 }`}
               >
                 <Icon size={12} />
@@ -685,7 +685,7 @@ export const GlobalOmniboxModal: React.FC<GlobalOmniboxModalProps> = ({
               const isSelected = selectedIndex === idx;
 
               // Color semántico por categoría o variante
-              let badgeClasses = 'bg-white/10 text-slate-300 border-white/10';
+              let badgeClasses = 'bg-card border-white/5/10 text-slate-300 border-white/10';
               if (action.badgeVariant === 'cyan') {
                 badgeClasses = 'bg-cyan-500/10 text-cyan-300 border-cyan-500/30';
               } else if (action.badgeVariant === 'purple') {
@@ -747,7 +747,7 @@ export const GlobalOmniboxModal: React.FC<GlobalOmniboxModalProps> = ({
                   {/* Acciones e Indicadores a la derecha */}
                   <div className="flex items-center gap-2 shrink-0 pl-3">
                     {idx < 9 && (
-                      <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[9px] font-mono rounded bg-white/5 text-slate-500 border border-white/10">
+                      <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[9px] font-mono rounded bg-card border-white/5/5 text-slate-500 border border-white/10">
                         Alt+{idx + 1}
                       </kbd>
                     )}
@@ -768,19 +768,19 @@ export const GlobalOmniboxModal: React.FC<GlobalOmniboxModalProps> = ({
         <div className="flex items-center justify-between py-2.5 px-4 border-t border-white/10 bg-slate-950/80 text-[11px] text-slate-400">
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded bg-white/10 font-mono text-[10px] text-slate-300">↑↓</kbd>{' '}
+              <kbd className="px-1.5 py-0.5 rounded bg-card border-white/5/10 font-mono text-[10px] text-slate-300">↑↓</kbd>{' '}
               Navegar
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded bg-white/10 font-mono text-[10px] text-slate-300">Enter</kbd>{' '}
+              <kbd className="px-1.5 py-0.5 rounded bg-card border-white/5/10 font-mono text-[10px] text-slate-300">Enter</kbd>{' '}
               Seleccionar
             </span>
             <span className="flex items-center gap-1 hidden sm:inline-flex">
-              <kbd className="px-1.5 py-0.5 rounded bg-white/10 font-mono text-[10px] text-slate-300">Tab</kbd>{' '}
+              <kbd className="px-1.5 py-0.5 rounded bg-card border-white/5/10 font-mono text-[10px] text-slate-300">Tab</kbd>{' '}
               Filtro
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded bg-white/10 font-mono text-[10px] text-slate-300">Esc</kbd>{' '}
+              <kbd className="px-1.5 py-0.5 rounded bg-card border-white/5/10 font-mono text-[10px] text-slate-300">Esc</kbd>{' '}
               Cerrar
             </span>
           </div>

@@ -23,13 +23,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     ref
   ) => {
     // Clases base modernas y limpias integrando tokens del Design System
-    const baseContainerClasses = 'flex items-center rounded-xl border bg-white px-3 py-2 text-sm shadow-sm transition-all duration-200';
+    const baseContainerClasses = 'flex items-center rounded-xl border bg-card border-white/5 px-3 py-2 text-sm shadow-sm transition-all duration-200';
     const activeClasses = 'focus-within:ring-2 focus-within:ring-[var(--primary-color)]/20 focus-within:border-[var(--primary-color)] outline-none';
-    const disabledClasses = 'disabled:cursor-not-allowed disabled:opacity-50 bg-slate-50';
+    const disabledClasses = 'disabled:cursor-not-allowed disabled:opacity-50 bg-slate-800/40';
     
     const errorClasses = error 
       ? 'border-red-500 focus-within:ring-red-500/20 focus-within:border-red-500' 
-      : 'border-slate-200';
+      : 'border-border';
       
     const widthClass = fullWidth ? 'w-full' : '';
 

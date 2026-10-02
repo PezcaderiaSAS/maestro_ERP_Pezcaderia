@@ -64,7 +64,7 @@ export default function AccountingView() {
     <div className="pos-layout flex animate-fade-in" style={{ flexDirection: 'column', gap: '20px', padding: '20px', overflowY: 'auto' }}>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-primary flex items-center gap-2">
             <BookOpen className="text-blue-600" />
             Libro Mayor Simplificado
           </h1>
@@ -74,11 +74,11 @@ export default function AccountingView() {
 
       <Card glass className="flex flex-wrap gap-4 items-end mb-6" style={{ padding: '16px' }}>
         <div className="flex-1 min-w-[200px]">
-          <label className="block text-sm font-medium text-slate-700 mb-1">Bodega (Sucursal)</label>
+          <label className="block text-sm font-medium text-secondary mb-1">Bodega (Sucursal)</label>
           <select 
             value={selectedBranch}
             onChange={(e) => setSelectedBranch(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-xl border border-border bg-card border-white/5 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           >
             {bodegas.map(b => (
               <option key={b.id} value={b.id}>{b.nombre}</option>
@@ -87,7 +87,7 @@ export default function AccountingView() {
         </div>
         
         <div className="flex-1 min-w-[150px]">
-          <label className="block text-sm font-medium text-slate-700 mb-1">Fecha Inicio</label>
+          <label className="block text-sm font-medium text-secondary mb-1">Fecha Inicio</label>
           <Input 
             type="date" 
             value={startDate}
@@ -97,7 +97,7 @@ export default function AccountingView() {
         </div>
         
         <div className="flex-1 min-w-[150px]">
-          <label className="block text-sm font-medium text-slate-700 mb-1">Fecha Fin</label>
+          <label className="block text-sm font-medium text-secondary mb-1">Fecha Fin</label>
           <Input 
             type="date" 
             value={endDate}
@@ -122,7 +122,7 @@ export default function AccountingView() {
 
       <div className="flex-1 overflow-auto">
         {summary.length === 0 && !loading ? (
-          <div className="h-full flex flex-col items-center justify-center text-slate-400 bg-white rounded-xl border border-slate-200 border-dashed">
+          <div className="h-full flex flex-col items-center justify-center text-slate-400 bg-card border-white/5 rounded-xl border border-border border-dashed">
             <DollarSign className="w-12 h-12 mb-2 text-slate-300" />
             <p>No hay movimientos en el periodo seleccionado.</p>
           </div>
@@ -131,11 +131,11 @@ export default function AccountingView() {
             {Object.entries(groupedSummary).map(([type, accounts]) => (
               <Card glass key={type} className="overflow-hidden" style={{ padding: 0 }}>
                 <div style={{ backgroundColor: 'var(--surface-dark)', padding: '12px 24px', borderBottom: '1px solid var(--border-color)' }}>
-                  <h3 className="font-bold text-slate-700 uppercase tracking-wider text-sm">{getTypeName(type)}</h3>
+                  <h3 className="font-bold text-secondary uppercase tracking-wider text-sm">{getTypeName(type)}</h3>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm text-left">
-                    <thead className="bg-slate-50 text-slate-500 font-medium border-b border-slate-200">
+                    <thead className="bg-slate-800/40 text-slate-500 font-medium border-b border-border">
                       <tr>
                         <th className="px-6 py-3">Código</th>
                         <th className="px-6 py-3">Nombre de Cuenta</th>
@@ -146,12 +146,12 @@ export default function AccountingView() {
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                       {accounts.map((s) => (
-                        <tr key={s.account.id} className="hover:bg-slate-50 transition-colors">
-                          <td className="px-6 py-3 font-medium text-slate-600">{s.account.code}</td>
-                          <td className="px-6 py-3 text-slate-800">{s.account.name}</td>
-                          <td className="px-6 py-3 text-right text-slate-600">{formatMoney(s.totalDebit)}</td>
-                          <td className="px-6 py-3 text-right text-slate-600">{formatMoney(s.totalCredit)}</td>
-                          <td className={`px-6 py-3 text-right font-bold ${s.balance < 0 ? 'text-red-600' : 'text-slate-800'}`}>
+                        <tr key={s.account.id} className="hover:bg-slate-800/40 transition-colors">
+                          <td className="px-6 py-3 font-medium text-slate-400">{s.account.code}</td>
+                          <td className="px-6 py-3 text-primary">{s.account.name}</td>
+                          <td className="px-6 py-3 text-right text-slate-400">{formatMoney(s.totalDebit)}</td>
+                          <td className="px-6 py-3 text-right text-slate-400">{formatMoney(s.totalCredit)}</td>
+                          <td className={`px-6 py-3 text-right font-bold ${s.balance < 0 ? 'text-red-600' : 'text-primary'}`}>
                             {formatMoney(s.balance)}
                           </td>
                         </tr>

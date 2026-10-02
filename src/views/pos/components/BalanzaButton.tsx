@@ -70,7 +70,7 @@ export const BalanzaButton: React.FC<BalanzaButtonProps> = ({
       disabled={reading}
       className={`min-h-[44px] h-11 px-3 inline-flex items-center gap-1.5 text-xs font-semibold rounded-lg transition-all active:scale-95 cursor-pointer shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 ${
         reading
-          ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-300 dark:border-slate-700'
+          ? 'bg-slate-700/60 dark:bg-slate-800 text-slate-400 cursor-not-allowed border border-white/10 dark:border-slate-700'
           : 'bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30'
       }`}
       title="Obtener peso desde balanza USB/Serial (Atajo: F8)"

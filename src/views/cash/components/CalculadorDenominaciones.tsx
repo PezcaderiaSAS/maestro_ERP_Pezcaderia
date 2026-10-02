@@ -78,7 +78,7 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
           <span className="font-extrabold text-base md:text-lg shrink-0 tracking-tight">{item.label}</span>
           <div className="text-right shrink-0">
             <span className="text-[10px] uppercase tracking-wider font-bold opacity-70 block">Subtotal</span>
-            <span className="font-black text-sm md:text-base text-slate-900 dark:text-slate-100 tabular-nums" title={`$${subtotal.toLocaleString()}`}>
+            <span className="font-black text-sm md:text-base text-primary dark:text-slate-100 tabular-nums" title={`$${subtotal.toLocaleString()}`}>
               ${subtotal.toLocaleString()}
             </span>
           </div>
@@ -93,7 +93,7 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
             <button
               type="button"
               onClick={decrement}
-              className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-lg bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-800 dark:text-slate-100 font-extrabold text-xl hover:bg-slate-100 dark:hover:bg-slate-700 active:scale-95 transition-all shrink-0 select-none shadow-sm cursor-pointer"
+              className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-lg bg-card border-white/5 dark:bg-slate-800 border-2 border-white/10 dark:border-slate-700 flex items-center justify-center text-primary dark:text-slate-100 font-extrabold text-xl hover:bg-slate-800/60 dark:hover:bg-slate-700 active:scale-95 transition-all shrink-0 select-none shadow-sm cursor-pointer"
               title="Disminuir (Táctil)"
               aria-label={`Disminuir ${item.label}`}
             >
@@ -112,13 +112,13 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
             onKeyDown={handleKeyDown}
             onFocus={(e) => e.target.select()}
             placeholder="0"
-            className="w-full flex-1 min-w-[55px] h-11 text-center bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-lg font-extrabold text-lg text-slate-900 dark:text-slate-100 tabular-nums transition-all outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 dark:focus:ring-cyan-900/50 disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none shadow-inner"
+            className="w-full flex-1 min-w-[55px] h-11 text-center bg-card border-white/5 dark:bg-slate-900 border-2 border-white/10 dark:border-slate-700 rounded-lg font-extrabold text-lg text-primary dark:text-slate-100 tabular-nums transition-all outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 dark:focus:ring-cyan-900/50 disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none shadow-inner"
           />
           {!readOnly && (
             <button
               type="button"
               onClick={increment}
-              className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-lg bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-800 dark:text-slate-100 font-extrabold text-xl hover:bg-slate-100 dark:hover:bg-slate-700 active:scale-95 transition-all shrink-0 select-none shadow-sm cursor-pointer"
+              className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-lg bg-card border-white/5 dark:bg-slate-800 border-2 border-white/10 dark:border-slate-700 flex items-center justify-center text-primary dark:text-slate-100 font-extrabold text-xl hover:bg-slate-800/60 dark:hover:bg-slate-700 active:scale-95 transition-all shrink-0 select-none shadow-sm cursor-pointer"
               title="Aumentar (Táctil)"
               aria-label={`Aumentar ${item.label}`}
             >
@@ -131,7 +131,7 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
   };
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 shadow-sm overflow-hidden w-full">
+    <div className="bg-card border-white/5/80 backdrop-blur-sm rounded-2xl border border-border shadow-sm overflow-hidden w-full">
       <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100">
 
         {/* Columna Billetes */}
@@ -145,7 +145,7 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             </div>
-            <h3 className="font-bold text-lg text-slate-800 m-0">Billetes</h3>
+            <h3 className="font-bold text-lg text-primary m-0">Billetes</h3>
           </div>
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
             {DENOMINACIONES_BILLETES.map(renderCard)}
@@ -153,7 +153,7 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
         </div>
 
         {/* Columna Monedas */}
-        <div className="p-4 md:p-5 flex flex-col gap-4 bg-slate-50/50">
+        <div className="p-4 md:p-5 flex flex-col gap-4 bg-slate-800/40/50">
           <div className="flex items-center gap-2 px-1">
             <div
               className="w-8 h-8 rounded-full flex items-center justify-center shadow-sm shrink-0"
@@ -163,7 +163,7 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 className="font-bold text-lg text-slate-800 m-0">Monedas</h3>
+            <h3 className="font-bold text-lg text-primary m-0">Monedas</h3>
           </div>
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
             {DENOMINACIONES_MONEDAS.map(renderCard)}

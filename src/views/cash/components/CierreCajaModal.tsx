@@ -120,21 +120,21 @@ export default function CierreCajaModal({ turnoActivo, usuarioId, onClose, onSuc
     <div className="fixed inset-0 z-50 bg-slate-900/65 backdrop-blur-sm flex justify-center items-center p-2 md:p-4 overflow-y-auto">
 
       {/* CARD — ancho máximo xl para acomodar calculador + saldos */}
-      <div className="bg-white rounded-3xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.35)] w-full max-w-5xl max-h-[95vh] flex flex-col overflow-hidden animate-[modalFadeIn_0.3s_ease-out_forwards]">
+      <div className="bg-card border-white/5 rounded-3xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.35)] w-full max-w-5xl max-h-[95vh] flex flex-col overflow-hidden animate-[modalFadeIn_0.3s_ease-out_forwards]">
 
         {/* HEADER — fijo, nunca hace scroll */}
-        <div className="flex flex-col items-center justify-center px-6 pt-5 pb-4 border-b border-slate-100 bg-slate-50 relative shrink-0">
+        <div className="flex flex-col items-center justify-center px-6 pt-5 pb-4 border-b border-slate-100 bg-slate-800/40 relative shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 hover:bg-slate-200 p-2 rounded-full transition-all"
+            className="absolute top-4 right-4 text-slate-400 hover:text-slate-400 hover:bg-slate-700/60 p-2 rounded-full transition-all"
           >
             <X size={20} />
           </button>
           <div className="bg-red-50 text-red-600 rounded-full p-3 mb-2">
             <Wallet size={30} />
           </div>
-          <h3 className="font-extrabold text-xl text-slate-800 m-0">Cierre de Caja</h3>
+          <h3 className="font-extrabold text-xl text-primary m-0">Cierre de Caja</h3>
           <p className="text-sm text-slate-500 mt-0.5 text-center">
             Declare el recaudo físico y cuadre los saldos.
           </p>
@@ -147,25 +147,25 @@ export default function CierreCajaModal({ turnoActivo, usuarioId, onClose, onSuc
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
             {/* Col 1: Saldos Teóricos */}
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-sm flex flex-col justify-center">
-              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-slate-200 pb-2 mb-3">
+            <div className="bg-slate-800/40 border border-border rounded-xl p-5 shadow-sm flex flex-col justify-center">
+              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-border pb-2 mb-3">
                 Saldos Teóricos
               </h4>
               <div className="flex flex-col gap-2.5">
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-500">Efectivo (Esperado):</span>
-                  <span className="font-bold text-slate-700">${turnoActivo.totalEfectivo.toLocaleString()}</span>
+                  <span className="font-bold text-secondary">${turnoActivo.totalEfectivo.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-500">Datáfono (Esperado):</span>
-                  <span className="font-bold text-slate-700">${turnoActivo.totalDatafono.toLocaleString()}</span>
+                  <span className="font-bold text-secondary">${turnoActivo.totalDatafono.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-500">Transferencias (Esperado):</span>
-                  <span className="font-bold text-slate-700">${turnoActivo.totalTransferencias.toLocaleString()}</span>
+                  <span className="font-bold text-secondary">${turnoActivo.totalTransferencias.toLocaleString()}</span>
                 </div>
-                <div className="border-t border-slate-200 pt-2.5 mt-1 flex justify-between items-center">
-                  <span className="text-xs font-black text-slate-700 uppercase">Total Global:</span>
+                <div className="border-t border-border pt-2.5 mt-1 flex justify-between items-center">
+                  <span className="text-xs font-black text-secondary uppercase">Total Global:</span>
                   <span className="font-black text-xl text-blue-600">${turnoActivo.saldoTeoricoGlobal.toLocaleString()}</span>
                 </div>
               </div>
@@ -175,7 +175,7 @@ export default function CierreCajaModal({ turnoActivo, usuarioId, onClose, onSuc
             <div className="flex flex-col gap-4 justify-center">
               {/* Datáfono */}
               <div className="flex flex-col gap-1.5">
-                <h4 className="flex items-center gap-2 text-xs font-bold text-slate-600 uppercase tracking-widest m-0">
+                <h4 className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest m-0">
                   <CreditCard size={15} /> Datáfono
                 </h4>
                 <div className="relative">
@@ -188,14 +188,14 @@ export default function CierreCajaModal({ turnoActivo, usuarioId, onClose, onSuc
                     value={datafono}
                     onChange={(e) => handleInputNumber(setDatafono, e.target.value)}
                     placeholder="Total en vouchers"
-                    className="w-full h-12 pl-8 pr-4 rounded-xl border-2 border-slate-200 bg-slate-50 focus:border-blue-400 focus:bg-white text-lg font-bold text-slate-800 outline-none transition-colors"
+                    className="w-full h-12 pl-8 pr-4 rounded-xl border-2 border-border bg-slate-800/40 focus:border-blue-400 focus:bg-card border-white/5 text-lg font-bold text-primary outline-none transition-colors"
                   />
                 </div>
               </div>
 
               {/* Transferencias */}
               <div className="flex flex-col gap-1.5">
-                <h4 className="flex items-center gap-2 text-xs font-bold text-slate-600 uppercase tracking-widest m-0">
+                <h4 className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest m-0">
                   <Landmark size={15} /> Transferencias
                 </h4>
                 <div className="relative">
@@ -208,7 +208,7 @@ export default function CierreCajaModal({ turnoActivo, usuarioId, onClose, onSuc
                     value={transferencia}
                     onChange={(e) => handleInputNumber(setTransferencia, e.target.value)}
                     placeholder="Total en transferencias"
-                    className="w-full h-12 pl-8 pr-4 rounded-xl border-2 border-slate-200 bg-slate-50 focus:border-blue-400 focus:bg-white text-lg font-bold text-slate-800 outline-none transition-colors"
+                    className="w-full h-12 pl-8 pr-4 rounded-xl border-2 border-border bg-slate-800/40 focus:border-blue-400 focus:bg-card border-white/5 text-lg font-bold text-primary outline-none transition-colors"
                   />
                 </div>
               </div>
@@ -235,7 +235,7 @@ export default function CierreCajaModal({ turnoActivo, usuarioId, onClose, onSuc
                     value={justificacion}
                     onChange={(e) => setJustificacion(e.target.value)}
                     placeholder="Explique el motivo del faltante o sobrante..."
-                    className="w-full min-h-[5rem] border-2 border-red-200 focus:border-red-400 rounded-xl p-3 text-sm font-medium text-slate-800 bg-white outline-none resize-none transition-colors"
+                    className="w-full min-h-[5rem] border-2 border-red-200 focus:border-red-400 rounded-xl p-3 text-sm font-medium text-primary bg-card border-white/5 outline-none resize-none transition-colors"
                   />
                 </div>
               )}
@@ -252,7 +252,7 @@ export default function CierreCajaModal({ turnoActivo, usuarioId, onClose, onSuc
 
           {/* SECCIÓN 2 — Calculador de Efectivo Físico */}
           <div className="flex flex-col gap-3">
-            <div className="flex justify-between items-end border-b border-slate-200 pb-2">
+            <div className="flex justify-between items-end border-b border-border pb-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">
                 Arqueo de Efectivo Físico
               </label>
@@ -272,11 +272,11 @@ export default function CierreCajaModal({ turnoActivo, usuarioId, onClose, onSuc
         </div>
 
         {/* FOOTER — fijo, nunca hace scroll */}
-        <div className="p-5 border-t border-slate-100 bg-slate-50 flex justify-end gap-3 shrink-0">
+        <div className="p-5 border-t border-slate-100 bg-slate-800/40 flex justify-end gap-3 shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="h-12 px-6 flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl border border-slate-200 transition-colors"
+            className="h-12 px-6 flex items-center gap-2 bg-slate-800/60 hover:bg-slate-700/60 text-slate-400 font-bold rounded-xl border border-border transition-colors"
           >
             <X size={18} /> Cancelar
           </button>

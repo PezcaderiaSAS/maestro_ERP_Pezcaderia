@@ -627,7 +627,7 @@ export const ProductionForm: React.FC<ProductionFormProps> = ({
           <div className="space-y-3 max-h-[520px] overflow-y-auto pr-1">
             {comandas.length === 0 ? (
               <div className="p-8 text-center bg-slate-950/40 rounded-xl border border-white/5">
-                <CheckCircle2 className="w-8 h-8 text-slate-600 mx-auto mb-2" />
+                <CheckCircle2 className="w-8 h-8 text-slate-400 mx-auto mb-2" />
                 <p className="text-xs text-slate-500">No hay comandas de corte pendientes.</p>
               </div>
             ) : (

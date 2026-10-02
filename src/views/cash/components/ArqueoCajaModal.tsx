@@ -367,7 +367,7 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
             <button
               type="button"
               onClick={onClose}
-              className="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-white/10 transition-all"
+              className="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-card border-white/5/10 transition-all"
             >
               <X size={20} />
             </button>
@@ -429,7 +429,7 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
               </thead>
               <tbody className="divide-y divide-white/5">
                 {/* Efectivo */}
-                <tr className="hover:bg-white/[0.02] transition-colors">
+                <tr className="hover:bg-card border-white/5/[0.02] transition-colors">
                   <td className="px-5 py-3.5 font-bold text-white flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
                     Efectivo en Gaveta
@@ -470,7 +470,7 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
                 </tr>
 
                 {/* Datáfono */}
-                <tr className="hover:bg-white/[0.02] transition-colors">
+                <tr className="hover:bg-card border-white/5/[0.02] transition-colors">
                   <td className="px-5 py-3.5 font-bold text-white flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-blue-400"></span>
                     Datáfono (Vouchers)
@@ -515,7 +515,7 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
                 </tr>
 
                 {/* Transferencia */}
-                <tr className="hover:bg-white/[0.02] transition-colors">
+                <tr className="hover:bg-card border-white/5/[0.02] transition-colors">
                   <td className="px-5 py-3.5 font-bold text-white flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-purple-400"></span>
                     Transferencias (Nequi / Bancolombia)

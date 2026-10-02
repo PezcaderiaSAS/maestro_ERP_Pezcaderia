@@ -53,15 +53,15 @@ export const DevTestDashboard: React.FC = () => {
   }
 
   return (
-    <div className="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-50 flex flex-col border-l border-gray-200">
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
+    <div className="fixed top-0 right-0 h-full w-80 bg-card border-white/5 shadow-2xl z-50 flex flex-col border-l border-border">
+      <div className="flex items-center justify-between p-4 border-b border-border bg-slate-800/40">
         <div className="flex items-center gap-2 text-indigo-700 font-bold">
           <TestTube size={20} />
           <span>DevTest Dashboard</span>
         </div>
         <button 
           onClick={() => setIsOpen(false)}
-          className="text-gray-500 hover:text-gray-800 transition-colors"
+          className="text-gray-500 hover:text-primary transition-colors"
         >
           <X size={20} />
         </button>
@@ -105,10 +105,10 @@ export const DevTestDashboard: React.FC = () => {
         </button>
       </div>
       
-      <div className="mt-auto p-4 border-t border-gray-200 bg-gray-50">
+      <div className="mt-auto p-4 border-t border-border bg-slate-800/40">
         <button 
           onClick={() => window.location.reload()}
-          className="flex items-center justify-center gap-2 p-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-800 transition-colors w-full text-sm font-medium"
+          className="flex items-center justify-center gap-2 p-2 rounded bg-slate-700/60 hover:bg-gray-300 text-primary transition-colors w-full text-sm font-medium"
         >
           <RefreshCw size={16} />
           🔄 Recargar App

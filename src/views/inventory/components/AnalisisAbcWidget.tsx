@@ -81,7 +81,7 @@ export const AnalisisAbcWidget: React.FC = () => {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-6">
+    <div className="bg-card border-white/5 dark:bg-slate-900 border border-border dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
         <div>
@@ -89,7 +89,7 @@ export const AnalisisAbcWidget: React.FC = () => {
             <span className="p-2 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
               <BarChart3 className="w-5 h-5" />
             </span>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <h2 className="text-xl font-bold text-primary dark:text-white flex items-center gap-2">
               Análisis ABC de Inventario (Pareto 80/20)
             </h2>
           </div>
@@ -99,7 +99,7 @@ export const AnalisisAbcWidget: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs text-slate-600 dark:text-slate-300">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/60 dark:bg-slate-800 text-xs text-slate-400 dark:text-slate-300">
             <Server className="w-3.5 h-3.5 text-cyan-500" />
             <span>Engine: <strong>{modoServidor === 'spring-boot' ? 'Spring Boot 4 (Java 21)' : 'Pareto Engine Local'}</strong></span>
           </div>
@@ -107,7 +107,7 @@ export const AnalisisAbcWidget: React.FC = () => {
           <select
             value={diasHistorial}
             onChange={(e) => setDiasHistorial(Number(e.target.value))}
-            className="px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-medium focus:ring-2 focus:ring-cyan-500"
+            className="px-3 py-1.5 rounded-xl border border-white/10 dark:border-slate-700 bg-card border-white/5 dark:bg-slate-800 text-secondary dark:text-slate-200 text-sm font-medium focus:ring-2 focus:ring-cyan-500"
           >
             <option value={7}>Últimos 7 días</option>
             <option value={30}>Últimos 30 días</option>
@@ -138,7 +138,7 @@ export const AnalisisAbcWidget: React.FC = () => {
               {countCatA} Productos
             </span>
           </div>
-          <p className="text-2xl font-black text-slate-900 dark:text-white">
+          <p className="text-2xl font-black text-primary dark:text-white">
             Alta Prioridad
           </p>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
@@ -156,7 +156,7 @@ export const AnalisisAbcWidget: React.FC = () => {
               {countCatB} Productos
             </span>
           </div>
-          <p className="text-2xl font-black text-slate-900 dark:text-white">
+          <p className="text-2xl font-black text-primary dark:text-white">
             Rotación Media
           </p>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
@@ -174,7 +174,7 @@ export const AnalisisAbcWidget: React.FC = () => {
               {countCatC} Productos
             </span>
           </div>
-          <p className="text-2xl font-black text-slate-900 dark:text-white">
+          <p className="text-2xl font-black text-primary dark:text-white">
             Baja Rotación
           </p>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
@@ -184,10 +184,10 @@ export const AnalisisAbcWidget: React.FC = () => {
       </div>
 
       {/* Tabla de Productos Pareto */}
-      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+      <div className="overflow-x-auto rounded-xl border border-border dark:border-slate-800">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 text-xs font-semibold uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">
+            <tr className="bg-slate-800/40 dark:bg-slate-800/80 text-slate-400 dark:text-slate-300 text-xs font-semibold uppercase tracking-wider border-b border-border dark:border-slate-800">
               <th className="px-4 py-3">Código SKU</th>
               <th className="px-4 py-3">Producto</th>
               <th className="px-4 py-3 text-right">Ventas Totales ($)</th>
@@ -195,7 +195,7 @@ export const AnalisisAbcWidget: React.FC = () => {
               <th className="px-4 py-3 text-center">Clasificación ABC</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-sm text-slate-700 dark:text-slate-300">
+          <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-sm text-secondary dark:text-slate-300">
             {loading ? (
               <tr>
                 <td colSpan={5} className="py-8 text-center text-slate-500 dark:text-slate-400">
@@ -215,18 +215,18 @@ export const AnalisisAbcWidget: React.FC = () => {
               items.map((item) => (
                 <tr 
                   key={item.productoId}
-                  className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors"
+                  className="hover:bg-slate-800/40/80 dark:hover:bg-slate-800/50 transition-colors"
                 >
                   <td className="px-4 py-3 font-mono text-xs text-slate-500 dark:text-slate-400">
                     {item.codigoSku}
                   </td>
-                  <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">
+                  <td className="px-4 py-3 font-medium text-primary dark:text-white">
                     {item.nombreProducto}
                   </td>
-                  <td className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-slate-100">
+                  <td className="px-4 py-3 text-right font-semibold text-primary dark:text-slate-100">
                     ${item.valorTotalVentas.toLocaleString('es-CO')}
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-xs text-slate-600 dark:text-slate-400">
+                  <td className="px-4 py-3 text-right font-mono text-xs text-slate-400 dark:text-slate-400">
                     {item.porcentajeAcumulado.toFixed(1)}%
                   </td>
                   <td className="px-4 py-3 text-center">

@@ -264,7 +264,7 @@ export const FishYieldProductionTab: React.FC<FishYieldProductionTabProps> = ({
 
           {kpisOperarios.length === 0 ? (
             <div className="text-center py-8 text-slate-400 space-y-2">
-              <Award className="w-10 h-10 mx-auto text-slate-600" />
+              <Award className="w-10 h-10 mx-auto text-slate-400" />
               <p className="text-xs">No hay registros de operarios aún.</p>
             </div>
           ) : (
@@ -309,7 +309,7 @@ export const FishYieldProductionTab: React.FC<FishYieldProductionTabProps> = ({
 
           {ordenes.length === 0 ? (
             <div className="text-center py-12 text-slate-400 space-y-2">
-              <Scissors className="w-12 h-12 mx-auto text-slate-600" />
+              <Scissors className="w-12 h-12 mx-auto text-slate-400" />
               <p className="text-sm">No se han procesado órdenes de transformación hoy.</p>
               <p className="text-xs text-slate-400">
                 Inicia un despiece para convertir pescado entero recibido de muelle en filetes y coproductos.

@@ -1,10 +1,14 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { DollarSign, ShoppingBag, PlusCircle, ArrowUpRight, Wallet, RefreshCw } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { calculateDashboardMetrics } from '../services/metricsService';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
+import { useCalendarEvents } from '../services/calendarService';
+import { CalendarGrid } from './dashboard/CalendarGrid';
+import { EventSidePanel } from './dashboard/EventSidePanel';
+import type { CalendarEvent } from '../types/calendar.types';
 
 interface MetricCardProps {
   title: string;
@@ -39,26 +43,49 @@ function MetricCard({ title, value, change, positive, icon }: MetricCardProps) {
 
 export default function DashboardView({ ventas = [], parametros: _parametros = {}, devoluciones = [] }: any) {
   const setView = useAppStore((s) => s.setCurrentView);
+  
+  // Métricas financieras
   const {
     totalSalesToday,
     salesTodayCount,
     isolatedCajaFisica,
     totalDigitalSales,
-    totalDevoluciones,
-    transaccionesRecientes
+    totalDevoluciones
   } = calculateDashboardMetrics(ventas, devoluciones);
 
+  // Hook del adaptador de calendario
+  const calendarEvents = useCalendarEvents();
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+
+  const handleProcessAction = (event: CalendarEvent) => {
+    // Redirigir según el tipo de obligación
+    switch (event.category) {
+      case 'PAYROLL':
+        setView('rrhh');
+        break;
+      case 'ACCOUNTS_PAYABLE':
+        setView('compras');
+        break;
+      case 'ACCOUNTS_RECEIVABLE':
+        setView('clientes');
+        break;
+      default:
+        // default fallback
+        break;
+    }
+  };
+
   return (
-    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: '24px' }}>
+    <div className="animate-fade-in flex flex-col gap-4 md:gap-6 p-4 md:p-6 h-full overflow-y-auto">
       
       {/* Encabezado */}
       <div>
-        <span style={{ fontSize: '14px', color: 'var(--text-secondary, #64748B)', fontWeight: 500 }}>Resumen Ejecutivo</span>
-        <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px', letterSpacing: '-0.5px', color: 'var(--primary-color)' }}>Panel de Control La Pezcadería</h2>
+        <span className="text-xs md:text-sm font-medium text-slate-400">Resumen Ejecutivo & Calendario</span>
+        <h2 className="text-xl md:text-2xl font-extrabold mt-1 tracking-tight text-primary">Panel de Control y Obligaciones</h2>
       </div>
  
       {/* Grid de Metricas */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-5">
         <MetricCard
           title="Ventas del Día"
           value={`$${totalSalesToday.toLocaleString('es-CO')}`}
@@ -89,77 +116,37 @@ export default function DashboardView({ ventas = [], parametros: _parametros = {
         />
       </div>
  
-      {/* Dashboard Body */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '24px' }}>
+      {/* Split-View Calendario (Adaptativo) */}
+      <div className={`grid gap-4 md:gap-6 flex-1 transition-all duration-300 ${selectedEvent ? 'grid-cols-1 lg:grid-cols-[1fr_350px] xl:grid-cols-[1fr_400px]' : 'grid-cols-1'}`}>
         
-        {/* Izquierda: Historial de Transacciones */}
-        <Card glass style={{ padding: '0' }}>
-          <div style={{ padding: '24px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '16px' }}>Transacciones del Día</h3>
-            <table className="hr-table" style={{ width: '100%' }}>
-              <thead>
-                <tr>
-                  <th style={{ padding: '12px 16px', textAlign: 'left', borderBottom: '1px solid var(--border-color, #E2E8F0)' }}>ID</th>
-                  <th style={{ padding: '12px 16px', textAlign: 'left', borderBottom: '1px solid var(--border-color, #E2E8F0)' }}>Descripción</th>
-                  <th style={{ padding: '12px 16px', textAlign: 'left', borderBottom: '1px solid var(--border-color, #E2E8F0)' }}>Tipo</th>
-                  <th style={{ padding: '12px 16px', textAlign: 'left', borderBottom: '1px solid var(--border-color, #E2E8F0)' }}>Hora</th>
-                  <th style={{ padding: '12px 16px', textAlign: 'right', borderBottom: '1px solid var(--border-color, #E2E8F0)' }}>Valor</th>
-                </tr>
-              </thead>
-              <tbody>
-                {transaccionesRecientes.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary, #64748B)' }}>
-                      No se han registrado transacciones el día de hoy.
-                    </td>
-                  </tr>
-                ) : (
-                  transaccionesRecientes.map((tx: any) => (
-                    <tr key={tx.id} style={{ borderBottom: '1px solid rgba(0, 255, 209, 0.1)' }}>
-                      <td style={{ padding: '12px 16px', fontWeight: 700, color: 'var(--text-secondary, #64748B)' }}>{tx.id}</td>
-                      <td style={{ padding: '12px 16px', fontWeight: 600 }}>{tx.descripcion}</td>
-                      <td style={{ padding: '12px 16px' }}>
-                        <Badge variant={tx.tipo === 'INGRESO' ? 'success' : 'danger'}>
-                          {tx.tipo}
-                        </Badge>
-                      </td>
-                      <td style={{ padding: '12px 16px', color: 'var(--text-secondary, #64748B)', fontSize: '13px' }}>{tx.hora}</td>
-                      <td style={{
-                        padding: '12px 16px', fontWeight: 700, textAlign: 'right',
-                        color: tx.tipo === 'INGRESO' ? 'var(--success-color, #10B981)' : 'var(--error-color, #EF4444)'
-                      }}>
-                        {tx.tipo === 'INGRESO' ? '+' : '-'}${tx.valor.toLocaleString('es-CO')}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+        {/* Izquierda: Calendario (CSS Grid) */}
+        <div className="min-h-[500px] lg:h-[650px] flex flex-col">
+          <CalendarGrid 
+            events={calendarEvents} 
+            onSelectEvent={(evt) => {
+              setSelectedEvent(evt);
+              // Auto-scroll to side panel on mobile
+              if (window.innerWidth < 1024) {
+                setTimeout(() => {
+                  document.getElementById('event-side-panel')?.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+              }
+            }} 
+            selectedEventId={selectedEvent?.id}
+          />
+        </div>
+
+        {/* Derecha: Side Panel dinámico */}
+        {selectedEvent && (
+          <div id="event-side-panel" className="min-h-[400px] lg:h-[650px] flex flex-col">
+            <EventSidePanel 
+              event={selectedEvent} 
+              onClose={() => setSelectedEvent(null)}
+              onAction={handleProcessAction}
+            />
           </div>
-        </Card>
- 
-        {/* Derecha: Accesos Rápidos */}
-        <Card glass style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '8px' }}>Operaciones Rápidas</h3>
-          
-          <Button 
-            variant="primary" 
-            onClick={() => setView('pos')}
-            className="w-full justify-center p-4 text-base"
-            icon={<ShoppingBag size={18} />}
-          >
-            Abrir Punto de Venta (POS)
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            onClick={() => setView('inventario')}
-            className="w-full justify-center p-4 text-base"
-            icon={<PlusCircle size={18} />}
-          >
-            Iniciar Transformación
-          </Button>
-        </Card>
+        )}
+        
       </div>
     </div>
   );

@@ -575,7 +575,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                 className={`px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1 cursor-pointer ${
                   isActive
                     ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm shadow-cyan-500/30'
-                    : 'bg-white/5 text-slate-400 hover:text-white hover:bg-white/10'
+                    : 'bg-card border-white/5/5 text-slate-400 hover:text-white hover:bg-card border-white/5/10'
                 }`}
               >
                 {Icon && <Icon size={12} />}

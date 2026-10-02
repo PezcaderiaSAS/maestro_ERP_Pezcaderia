@@ -21,7 +21,7 @@ export const Badge: React.FC<BadgeProps> = ({
     'danger': 'bg-[var(--danger-color)] text-white border border-[var(--danger-color)]',
     'primary': 'bg-[var(--primary-color)] text-white border border-[var(--primary-color)]',
     'outline': 'bg-transparent text-[var(--text-secondary)] border border-[var(--border-color)]',
-    'default': 'bg-gray-100 text-gray-800 border border-gray-200'
+    'default': 'bg-slate-800/60 text-primary border border-border'
   };
 
   return (

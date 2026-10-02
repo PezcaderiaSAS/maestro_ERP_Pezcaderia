@@ -655,7 +655,7 @@ export const ColdStorageRentalView: React.FC = () => {
                     const cfData = cuartosFrios.find((cf) => cf.id === ctr.cuarto_frio_id);
 
                     return (
-                      <tr key={ctr.id} className="hover:bg-white/[0.02]">
+                      <tr key={ctr.id} className="hover:bg-card border-white/5/[0.02]">
                         <td className="p-4 font-mono font-bold text-sky-400">{ctr.consecutivo}</td>
                         <td className="p-4 font-medium text-white">{clienteData?.razon_social || 'Cliente'}</td>
                         <td className="p-4">{cfData?.nombre || 'Cuarto Frío'}</td>
@@ -859,7 +859,7 @@ export const ColdStorageRentalView: React.FC = () => {
                   </tr>
                 ) : (
                   movimientos.map((m) => (
-                    <tr key={m.id} className="hover:bg-white/[0.02]">
+                    <tr key={m.id} className="hover:bg-card border-white/5/[0.02]">
                       <td className="p-4 font-mono font-bold text-white">{m.consecutivo_acta}</td>
                       <td className="p-4">
                         <span
@@ -1000,7 +1000,7 @@ export const ColdStorageRentalView: React.FC = () => {
                   inventario
                     .filter((i) => !selectedClienteFilter || i.cliente_id === selectedClienteFilter)
                     .map((item) => (
-                      <tr key={item.id} className="hover:bg-white/[0.02]">
+                      <tr key={item.id} className="hover:bg-card border-white/5/[0.02]">
                         <td className="p-4 font-mono font-bold text-sky-400">{item.lote_cliente}</td>
                         <td className="p-4 text-white font-medium">{item.cliente?.razon_social || 'Cliente'}</td>
                         <td className="p-4">{item.producto?.nombre || 'Producto'}</td>
@@ -1073,7 +1073,7 @@ export const ColdStorageRentalView: React.FC = () => {
                   </tr>
                 ) : (
                   causaciones.map((c) => (
-                    <tr key={c.id} className="hover:bg-white/[0.02]">
+                    <tr key={c.id} className="hover:bg-card border-white/5/[0.02]">
                       <td className="p-4 font-mono font-bold text-sky-400">{c.consecutivo_causacion}</td>
                       <td className="p-4 text-xs font-mono">
                         {c.periodo_inicio} a {c.periodo_fin}

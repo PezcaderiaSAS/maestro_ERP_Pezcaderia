@@ -142,14 +142,14 @@ export function ProductTable({
           </select>
 
           {/* Selector de Densidad Adaptativa */}
-          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200 dark:border-white/10 text-xs self-start md:self-auto">
+          <div className="flex items-center gap-1 bg-slate-800/60 dark:bg-slate-800/80 p-1 rounded-xl border border-border dark:border-white/10 text-xs self-start md:self-auto">
             <button
               type="button"
               onClick={() => setDensity('compact')}
               className={`px-2.5 py-1.5 rounded-lg transition-all cursor-pointer ${
                 density === 'compact'
-                  ? 'bg-white dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-300 shadow-sm font-bold'
-                  : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'
+                  ? 'bg-card border-white/5 dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-300 shadow-sm font-bold'
+                  : 'text-slate-500 hover:text-primary dark:hover:text-white'
               }`}
               title="Densidad Compacta (Mayor cantidad de registros)"
             >
@@ -160,8 +160,8 @@ export function ProductTable({
               onClick={() => setDensity('regular')}
               className={`px-2.5 py-1.5 rounded-lg transition-all cursor-pointer ${
                 density === 'regular'
-                  ? 'bg-white dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-300 shadow-sm font-bold'
-                  : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'
+                  ? 'bg-card border-white/5 dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-300 shadow-sm font-bold'
+                  : 'text-slate-500 hover:text-primary dark:hover:text-white'
               }`}
               title="Densidad Estándar"
             >
@@ -172,8 +172,8 @@ export function ProductTable({
               onClick={() => setDensity('comfortable')}
               className={`px-2.5 py-1.5 rounded-lg transition-all cursor-pointer ${
                 density === 'comfortable'
-                  ? 'bg-white dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-300 shadow-sm font-bold'
-                  : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'
+                  ? 'bg-card border-white/5 dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-300 shadow-sm font-bold'
+                  : 'text-slate-500 hover:text-primary dark:hover:text-white'
               }`}
               title="Densidad Táctil Confortable (Pantallas táctiles y cuartos fríos)"
             >
@@ -182,10 +182,10 @@ export function ProductTable({
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800/80 max-h-[70vh]">
+        <div className="overflow-x-auto rounded-xl border border-border dark:border-slate-800/80 max-h-[70vh]">
           <table className="w-full text-left border-collapse">
-            <thead className="sticky top-0 bg-slate-100/95 dark:bg-slate-900/95 backdrop-blur-md z-10 shadow-sm">
-              <tr className="border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <thead className="sticky top-0 bg-slate-800/60/95 dark:bg-slate-900/95 backdrop-blur-md z-10 shadow-sm">
+              <tr className="border-b border-border dark:border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                 <th className={getDensityCellClass()}>Imagen</th>
                 <th className={getDensityCellClass()}>SKU</th>
                 <th className={getDensityCellClass()}>Nombre y Categoría</th>
@@ -205,11 +205,11 @@ export function ProductTable({
                 return (
                   <tr 
                     key={p.sku} 
-                    className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
+                    className="hover:bg-slate-800/40/70 dark:hover:bg-slate-800/40 transition-colors"
                     style={{ opacity: p.activo ? 1 : 0.6 }}
                   >
                     <td className={getDensityCellClass()}>
-                      <div className="w-10 h-10 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 flex items-center justify-center shrink-0">
+                      <div className="w-10 h-10 rounded-lg overflow-hidden bg-slate-800/60 dark:bg-slate-800 border border-border dark:border-white/10 flex items-center justify-center shrink-0">
                         {p.imagen ? (
                           <img src={p.imagen} alt={p.nombre} className="w-full h-full object-cover" />
                         ) : (
@@ -222,7 +222,7 @@ export function ProductTable({
                     </td>
                     <td className={getDensityCellClass()}>
                       <div className="flex flex-col">
-                        <span className="font-bold text-slate-900 dark:text-slate-100">{p.nombre}</span>
+                        <span className="font-bold text-primary dark:text-slate-100">{p.nombre}</span>
                         <span className="text-[11px] text-slate-500 dark:text-slate-400">
                           {catData ? `${catData.tipo} > ${catData.linea} > ${catData.clase}` : p.categoria}
                         </span>
@@ -241,7 +241,7 @@ export function ProductTable({
                     </td>
                     <td className={getDensityCellClass()}>
                       <div className="flex items-center gap-1.5">
-                        <span className={`font-bold tabular-nums ${isLowStock ? 'text-rose-500 font-extrabold' : 'text-slate-900 dark:text-white'}`}>
+                        <span className={`font-bold tabular-nums ${isLowStock ? 'text-rose-500 font-extrabold' : 'text-primary dark:text-white'}`}>
                           {totalStock} {p.unidadMedida || 'kg'}
                         </span>
                         {isLowStock && p.control_inventario && (
@@ -249,7 +249,7 @@ export function ProductTable({
                         )}
                       </div>
                     </td>
-                    <td className={`${getDensityCellClass()} font-semibold text-slate-800 dark:text-slate-200 tabular-nums`}>
+                    <td className={`${getDensityCellClass()} font-semibold text-primary dark:text-slate-200 tabular-nums`}>
                       ${(p.precio_venta || 0).toLocaleString()}
                     </td>
                     <td className={getDensityCellClass()}>
@@ -288,7 +288,7 @@ export function ProductTable({
                             }
                             if (setIsCreating) setIsCreating(false);
                           }}
-                          className={`p-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10 active:scale-95 transition-all cursor-pointer flex items-center justify-center ${
+                          className={`p-2 rounded-lg bg-slate-800/60 hover:bg-slate-700/60 dark:bg-slate-800 dark:hover:bg-slate-700 text-secondary dark:text-slate-300 border border-border dark:border-white/10 active:scale-95 transition-all cursor-pointer flex items-center justify-center ${
                             density === 'comfortable' ? 'min-w-[44px] min-h-[44px]' : 'min-w-[32px] min-h-[32px]'
                           }`}
                           title="Editar Producto"

@@ -197,7 +197,7 @@ export const RouteManifestBuilderModal: React.FC<RouteManifestBuilderModalProps>
           </div>
           <button
             onClick={onClose}
-            className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+            className="w-10 h-10 rounded-xl bg-card border-white/5/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-card border-white/5/10 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -412,7 +412,7 @@ export const RouteManifestBuilderModal: React.FC<RouteManifestBuilderModalProps>
                             <span className="font-mono text-xs font-bold text-indigo-400">
                               #{pedido.numeroPedido}
                             </span>
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white/5 text-slate-300">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-card border-white/5/5 text-slate-300">
                               {pedido.jornada || 'AM'}
                             </span>
                           </div>
@@ -450,7 +450,7 @@ export const RouteManifestBuilderModal: React.FC<RouteManifestBuilderModalProps>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl border border-white/10 text-slate-300 hover:bg-white/5 font-semibold text-sm transition-colors"
+              className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl border border-white/10 text-slate-300 hover:bg-card border-white/5/5 font-semibold text-sm transition-colors"
             >
               Cancelar
             </button>

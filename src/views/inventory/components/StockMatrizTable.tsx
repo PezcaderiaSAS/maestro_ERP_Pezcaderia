@@ -29,7 +29,7 @@ const STATUS_CONFIG: Record<StockStatus, { label: string; bg: string; text: stri
   ok:       { label: 'OK',        bg: 'bg-emerald-50',  text: 'text-emerald-700', ring: 'ring-emerald-200' },
   warning:  { label: 'Bajo',      bg: 'bg-amber-50',    text: 'text-amber-700',   ring: 'ring-amber-200' },
   critical: { label: 'Crítico',   bg: 'bg-red-50',      text: 'text-red-700',     ring: 'ring-red-200' },
-  zero:     { label: 'Sin stock', bg: 'bg-slate-100',   text: 'text-slate-500',   ring: 'ring-slate-200' },
+  zero:     { label: 'Sin stock', bg: 'bg-slate-800/60',   text: 'text-slate-500',   ring: 'ring-slate-200' },
 };
 
 const ABC_CONFIG: Record<string, { bg: string; text: string; label: string }> = {
@@ -47,10 +47,10 @@ function StockCell({ qty, buffer, controlInventario, um }: { qty: number; buffer
   return (
     <td className="px-3 py-2 text-center align-middle" style={{ minWidth: '120px' }}>
       <div className={`inline-flex flex-col items-center gap-1 px-3 py-2 rounded-xl ring-1 ${cfg.bg} ${cfg.ring} w-full`}>
-        <span className={`text-sm font-black tabular-nums ${qty === 0 ? 'text-slate-400' : 'text-slate-800'}`}>
+        <span className={`text-sm font-black tabular-nums ${qty === 0 ? 'text-slate-400' : 'text-primary'}`}>
           {qty.toLocaleString('es-CO')} <span className="text-xs font-semibold text-slate-500">{um}</span>
         </span>
-        <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+        <div className="w-full h-1.5 bg-slate-700/60 rounded-full overflow-hidden">
           <div className={`h-full rounded-full transition-all duration-500 ${barColor}`} style={{ width: `${pct}%` }} />
         </div>
         <span className={`text-[10px] font-bold uppercase tracking-wider ${cfg.text}`}>{cfg.label}</span>
@@ -155,7 +155,7 @@ export function StockMatrizTable({ products, stock, bodegas }: Props) {
           { label: 'Stock OK',      count: okCount,       icon: CheckCircle2,  color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200', onClick: () => setStatusFilter('ALL') },
           { label: 'Stock Bajo',    count: warningCount,  icon: TrendingDown,  color: 'text-amber-600',   bg: 'bg-amber-50',   border: 'border-amber-200',   onClick: () => setStatusFilter(statusFilter === 'warning'  ? 'ALL' : 'warning') },
           { label: 'Stock Crítico', count: criticalCount, icon: AlertTriangle, color: 'text-red-600',     bg: 'bg-red-50',     border: 'border-red-200',     onClick: () => setStatusFilter(statusFilter === 'critical' ? 'ALL' : 'critical') },
-          { label: 'Sin Stock',     count: zeroCount,     icon: Package,       color: 'text-slate-500',   bg: 'bg-slate-50',   border: 'border-slate-200',   onClick: () => setStatusFilter(statusFilter === 'zero'     ? 'ALL' : 'zero') },
+          { label: 'Sin Stock',     count: zeroCount,     icon: Package,       color: 'text-slate-500',   bg: 'bg-slate-800/40',   border: 'border-border',   onClick: () => setStatusFilter(statusFilter === 'zero'     ? 'ALL' : 'zero') },
         ].map(({ label, count, icon: Icon, color, bg, border, onClick }) => (
           <button
             key={label}
@@ -166,7 +166,7 @@ export function StockMatrizTable({ products, stock, bodegas }: Props) {
               <Icon size={20} className={color} />
             </div>
             <div>
-              <p className="text-2xl font-black text-slate-800 leading-none">{count}</p>
+              <p className="text-2xl font-black text-primary leading-none">{count}</p>
               <p className={`text-xs font-semibold mt-0.5 ${color}`}>{label}</p>
             </div>
           </button>
@@ -175,12 +175,12 @@ export function StockMatrizTable({ products, stock, bodegas }: Props) {
 
       {/* Filters Bar */}
       <div className="flex flex-wrap gap-3 items-center">
-        <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2 flex-1 min-w-52 shadow-sm">
+        <div className="flex items-center gap-2 bg-card border-white/5 border border-border rounded-xl px-3 py-2 flex-1 min-w-52 shadow-sm">
           <Search size={16} className="text-slate-400 flex-shrink-0" />
           <input
             type="text"
             placeholder="Buscar por nombre, SKU o categoría..."
-            className="border-none outline-none bg-transparent text-sm w-full text-slate-700 placeholder-slate-400"
+            className="border-none outline-none bg-transparent text-sm w-full text-secondary placeholder-slate-400"
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
@@ -198,7 +198,7 @@ export function StockMatrizTable({ products, stock, bodegas }: Props) {
                     : f === 'A' ? 'bg-red-600 text-white border-red-600'
                     : f === 'B' ? 'bg-yellow-500 text-white border-yellow-500'
                     : 'bg-green-600 text-white border-green-600'
-                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                  : 'bg-card border-white/5 text-slate-400 border-border hover:bg-slate-800/40'
               }`}
             >
               {f === 'ALL' ? 'Todos ABC' : `Cat. ${f}`}
@@ -209,7 +209,7 @@ export function StockMatrizTable({ products, stock, bodegas }: Props) {
         <button
           onClick={() => setShowInactive(v => !v)}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
-            showInactive ? 'bg-slate-700 text-white border-slate-700' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+            showInactive ? 'bg-slate-700 text-white border-slate-700' : 'bg-card border-white/5 text-slate-400 border-border hover:bg-slate-800/40'
           }`}
         >
           {showInactive ? <Eye size={13} /> : <EyeOff size={13} />}
@@ -223,7 +223,7 @@ export function StockMatrizTable({ products, stock, bodegas }: Props) {
       </div>
 
       {/* Main Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-card border-white/5 rounded-2xl border border-border shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -283,7 +283,7 @@ export function StockMatrizTable({ products, stock, bodegas }: Props) {
                       <tr
                         key={p.sku}
                         onClick={() => setSelectedProduct(p)}
-                        className={`border-b border-slate-100 transition-all cursor-pointer hover:bg-slate-200 ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/40'} ${isInactive ? 'opacity-50' : ''}`}
+                        className={`border-b border-slate-100 transition-all cursor-pointer hover:bg-slate-700/60 ${idx % 2 === 0 ? 'bg-card border-white/5' : 'bg-slate-800/40/40'} ${isInactive ? 'opacity-50' : ''}`}
                       >
                         <td className="px-4 py-3 sticky left-0 bg-inherit z-10">
                           <span className={`inline-flex items-center justify-center w-7 h-7 rounded-lg text-xs font-black ${abcCfg.bg} ${abcCfg.text}`}>
@@ -298,7 +298,7 @@ export function StockMatrizTable({ products, stock, bodegas }: Props) {
                         <td className="px-4 py-3 min-w-48">
                           <div className="flex flex-col gap-0.5">
                             <div className="flex items-center gap-2">
-                              <span className="font-bold text-slate-800 text-sm leading-tight">{p.nombre}</span>
+                              <span className="font-bold text-primary text-sm leading-tight">{p.nombre}</span>
                               <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded text-[10px] font-bold border border-blue-200 hover:bg-blue-100 transition-colors">
                                 <Eye size={10} /> Ficha 360°
                               </span>
@@ -315,9 +315,9 @@ export function StockMatrizTable({ products, stock, bodegas }: Props) {
                             um={um}
                           />
                         ))}
-                        <td className="px-4 py-3 text-center align-middle bg-slate-50 border-l border-slate-200">
+                        <td className="px-4 py-3 text-center align-middle bg-slate-800/40 border-l border-border">
                           <div className="flex flex-col items-center gap-1">
-                            <span className={`text-base font-black tabular-nums ${totalStock === 0 ? 'text-slate-400' : 'text-slate-900'}`}>
+                            <span className={`text-base font-black tabular-nums ${totalStock === 0 ? 'text-slate-400' : 'text-primary'}`}>
                               {totalStock.toLocaleString('es-CO')}
                             </span>
                             <span className="text-xs text-slate-400 font-medium">{um}</span>
@@ -358,7 +358,7 @@ export function StockMatrizTable({ products, stock, bodegas }: Props) {
                       {orphanSkus.map((sku, idx) => {
                         const totalOrphan = activeBodegas.reduce((s, b) => s + (stock[b.nombre]?.[sku] ?? 0), 0);
                         return (
-                          <tr key={`orphan-${sku}`} className={`border-b border-amber-100 ${idx % 2 === 0 ? 'bg-amber-50/40' : 'bg-white'}`}>
+                          <tr key={`orphan-${sku}`} className={`border-b border-amber-100 ${idx % 2 === 0 ? 'bg-amber-50/40' : 'bg-card border-white/5'}`}>
                             <td className="px-4 py-3 sticky left-0 bg-inherit z-10">
                               <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg text-xs font-black bg-amber-100 text-amber-700">?</span>
                             </td>
@@ -398,10 +398,10 @@ export function StockMatrizTable({ products, stock, bodegas }: Props) {
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+        <div className="px-5 py-3 bg-slate-800/40 border-t border-border flex items-center justify-between">
           <span className="text-xs text-slate-500">
-            Mostrando <span className="font-bold text-slate-700">{filtered.length}</span> de{' '}
-            <span className="font-bold text-slate-700">{products.length}</span> productos
+            Mostrando <span className="font-bold text-secondary">{filtered.length}</span> de{' '}
+            <span className="font-bold text-secondary">{products.length}</span> productos
             {orphanSkus.length > 0 && (
               <span className="ml-2 text-amber-600 font-bold">· {orphanSkus.length} SKU(s) sin ficha</span>
             )}

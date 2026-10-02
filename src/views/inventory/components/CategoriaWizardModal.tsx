@@ -59,7 +59,7 @@ export function CategoriaWizardModal({ isOpen, onClose, onCategoryCreated }: Pro
 
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 isolate flex items-center justify-center p-4 animate-fade-in">
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full overflow-hidden flex flex-col">
+      <div className="bg-card border-white/5 rounded-2xl border border-border shadow-2xl max-w-md w-full overflow-hidden flex flex-col">
         {/* Cabecera */}
         <div className="bg-emerald-900 text-white p-5 flex justify-between items-center">
           <div className="flex items-center gap-2.5">
@@ -83,10 +83,10 @@ export function CategoriaWizardModal({ isOpen, onClose, onCategoryCreated }: Pro
         {/* Formulario */}
         <form onSubmit={handleFinish} className="p-6">
           <div className="mb-4">
-            <label className="block text-xs font-black text-slate-700 uppercase mb-2">Nombre de la Categoría *</label>
+            <label className="block text-xs font-black text-secondary uppercase mb-2">Nombre de la Categoría *</label>
             <input
               type="text"
-              className="w-full h-11 px-3 border-2 border-emerald-200 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500"
+              className="w-full h-11 px-3 border-2 border-emerald-200 rounded-xl text-sm font-bold text-primary focus:ring-2 focus:ring-emerald-500"
               placeholder="Ej. Filetes, Pescados, Conservas..."
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
@@ -96,10 +96,10 @@ export function CategoriaWizardModal({ isOpen, onClose, onCategoryCreated }: Pro
           </div>
 
           <div className="mb-4">
-            <label className="block text-xs font-black text-slate-700 uppercase mb-2">Categoría Padre</label>
+            <label className="block text-xs font-black text-secondary uppercase mb-2">Categoría Padre</label>
             <p className="text-xs text-slate-500 mb-2">Selecciona "Ninguna" si es una categoría principal o raíz.</p>
             <select
-              className="w-full h-11 px-3 border-2 border-emerald-200 bg-white rounded-xl text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500"
+              className="w-full h-11 px-3 border-2 border-emerald-200 bg-card border-white/5 rounded-xl text-sm font-semibold text-primary focus:ring-2 focus:ring-emerald-500"
               value={parentId}
               onChange={(e) => setParentId(e.target.value)}
             >
@@ -117,7 +117,7 @@ export function CategoriaWizardModal({ isOpen, onClose, onCategoryCreated }: Pro
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-slate-600 font-bold hover:bg-slate-200 rounded-lg text-sm transition-colors cursor-pointer"
+              className="px-4 py-2 text-slate-400 font-bold hover:bg-slate-700/60 rounded-lg text-sm transition-colors cursor-pointer"
             >
               Cancelar
             </button>

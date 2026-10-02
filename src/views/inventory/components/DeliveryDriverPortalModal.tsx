@@ -252,7 +252,7 @@ export const DeliveryDriverPortalModal: React.FC<DeliveryDriverPortalModalProps>
             </button>
             <button
               onClick={onClose}
-              className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white"
+              className="w-9 h-9 rounded-xl bg-card border-white/5/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white"
             >
               <X className="w-5 h-5" />
             </button>

@@ -151,7 +151,7 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
             <Wallet size={22} />
           </div>
           <div>
-            <h3 className="font-extrabold text-xl text-slate-800 m-0 leading-tight">Apertura de Turno</h3>
+            <h3 className="font-extrabold text-xl text-primary m-0 leading-tight">Apertura de Turno</h3>
             <p className="text-sm text-slate-500 font-medium m-0">
               Ingreso Directo de Base Inicial
             </p>
@@ -179,7 +179,7 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
         {/* SECCIÓN 1: SELECCIÓN DE BODEGA Y CAJA */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Bodega */}
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <div className="bg-slate-800/40 p-4 rounded-xl border border-border">
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">
               Bodega
             </label>
@@ -188,21 +188,21 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
                 data-testid="select-bodega"
                 value={selectedBodegaId}
                 onChange={(e) => setSelectedBodegaId(e.target.value)}
-                className="w-full h-11 px-3 rounded-lg border-2 border-slate-200 bg-white focus:border-[var(--primary-color)] text-base font-semibold text-slate-800 outline-none transition-colors cursor-pointer"
+                className="w-full h-11 px-3 rounded-lg border-2 border-border bg-card border-white/5 focus:border-[var(--primary-color)] text-base font-semibold text-primary outline-none transition-colors cursor-pointer"
               >
                 {bodegas.map(b => (
                   <option key={b.id} value={b.id}>{b.nombre}</option>
                 ))}
               </select>
             ) : (
-              <div className="h-11 px-3 flex items-center bg-white rounded-lg border border-slate-200 font-bold text-slate-700">
+              <div className="h-11 px-3 flex items-center bg-card border-white/5 rounded-lg border border-border font-bold text-secondary">
                 {bodegas.find(b => b.id === selectedBodegaId || b.nombre === selectedBodegaId)?.nombre || selectedBodegaId || 'Bodega Principal'}
               </div>
             )}
           </div>
 
           {/* Caja a Abrir */}
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <div className="bg-slate-800/40 p-4 rounded-xl border border-border">
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">
               Caja a Abrir
             </label>
@@ -212,7 +212,7 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
                 autoFocus={cajasDisponibles.length > 1 && !cajaSeleccionada}
                 value={cajaSeleccionada}
                 onChange={(e) => setCajaSeleccionada(e.target.value)}
-                className="w-full h-11 px-3 rounded-lg border-2 border-slate-200 bg-white focus:border-[var(--primary-color)] text-base font-semibold text-slate-800 outline-none transition-colors cursor-pointer"
+                className="w-full h-11 px-3 rounded-lg border-2 border-border bg-card border-white/5 focus:border-[var(--primary-color)] text-base font-semibold text-primary outline-none transition-colors cursor-pointer"
               >
                 {cajasDisponibles.map(c => (
                   <option key={c.id} value={c.id}>{c.nombre}</option>
@@ -232,10 +232,10 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
         </div>
 
         {/* SECCIÓN 2: INGRESO DE MONTO BASE Y BOTONES DE SUMA ACUMULATIVA */}
-        <div className="bg-white p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col gap-4">
+        <div className="bg-card border-white/5 p-5 rounded-2xl border-2 border-border shadow-sm flex flex-col gap-4">
           <div>
             <div className="flex justify-between items-center mb-2">
-              <label className="text-sm font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2 m-0">
+              <label className="text-sm font-bold text-secondary uppercase tracking-wider flex items-center gap-2 m-0">
                 <DollarSign size={18} className="text-emerald-600" />
                 Monto Base Inicial
               </label>
@@ -260,7 +260,7 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
               prefix="$ "
               value={baseDirecta || ''}
               onValueChange={(values) => setBaseDirecta(values.floatValue ?? 0)}
-              className="w-full h-16 px-4 rounded-xl border-2 border-emerald-300 bg-emerald-50/40 focus:border-emerald-500 focus:bg-white text-3xl text-slate-900 font-black outline-none transition-all shadow-inner"
+              className="w-full h-16 px-4 rounded-xl border-2 border-emerald-300 bg-emerald-50/40 focus:border-emerald-500 focus:bg-card border-white/5 text-3xl text-primary font-black outline-none transition-all shadow-inner"
               placeholder="$ 0"
             />
           </div>
@@ -300,7 +300,7 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
                   className={`py-2 px-1 text-xs font-black rounded-lg border transition-all active:scale-95 shadow-sm ${
                     baseDirecta === val
                       ? 'bg-blue-600 text-white border-blue-600 ring-2 ring-blue-200'
-                      : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
+                      : 'bg-slate-800/40 text-secondary border-border hover:bg-slate-800/60 hover:border-white/10'
                   }`}
                 >
                   {val === 0 ? 'Sin Base' : `$${val.toLocaleString('es-CO')}`}
@@ -334,7 +334,7 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
               </button>
             </div>
           ) : (
-            <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-center text-xs text-slate-500 font-medium">
+            <div className="p-2.5 bg-slate-800/40 border border-border rounded-xl text-center text-xs text-slate-500 font-medium">
               Sin saldo registrado del turno anterior para esta caja.
             </div>
           )}
@@ -348,7 +348,7 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
               value={notasApertura}
               onChange={(e) => setNotasApertura(e.target.value)}
               rows={2}
-              className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:border-blue-400 focus:bg-white text-sm text-slate-800 outline-none transition-colors resize-none"
+              className="w-full px-3 py-2 rounded-xl border border-border bg-slate-800/40 focus:border-blue-400 focus:bg-card border-white/5 text-sm text-primary outline-none transition-colors resize-none"
               placeholder="Notas opcionales sobre el estado o billetes al abrir..."
             />
           </div>

@@ -64,7 +64,7 @@ export const Modal: React.FC<ModalProps> = ({
 
       {/* Contenedor principal del modal */}
       <div 
-        className={`relative z-10 w-full ${maxWidthClass} bg-white rounded-2xl shadow-2xl flex flex-col max-h-[90vh] transition-all transform duration-300`}
+        className={`relative z-10 w-full ${maxWidthClass} bg-card border-white/5 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] transition-all transform duration-300`}
         role="dialog"
         aria-modal="true"
       >
@@ -79,7 +79,7 @@ export const Modal: React.FC<ModalProps> = ({
             )}
             <button
               onClick={onClose}
-              className="p-2 ml-auto text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]/20"
+              className="p-2 ml-auto text-slate-400 hover:text-secondary hover:bg-slate-800/60 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]/20"
               aria-label="Cerrar modal"
             >
               {/* Ícono SVG de X (Cerrar) genérico sin dependencias */}
@@ -98,7 +98,7 @@ export const Modal: React.FC<ModalProps> = ({
 
         {/* Pie (opcional) */}
         {footer && (
-          <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50/50 rounded-b-2xl">
+          <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-800/40/50 rounded-b-2xl">
             {footer}
           </div>
         )}

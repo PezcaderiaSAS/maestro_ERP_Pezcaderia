@@ -368,7 +368,7 @@ export const WarehouseTransferPanel: React.FC<WarehouseTransferPanelProps> = ({
         <div className="space-y-4">
           {trasladosEnTransito.length === 0 ? (
             <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-12 text-center">
-              <Truck className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+              <Truck className="w-12 h-12 text-slate-400 mx-auto mb-3" />
               <h3 className="text-base font-bold text-white mb-1">No hay traslados en tránsito</h3>
               <p className="text-sm text-slate-400 mb-4">
                 Todas las mercancías transferidas han sido recibidas y verificadas en destino.
@@ -419,7 +419,7 @@ export const WarehouseTransferPanel: React.FC<WarehouseTransferPanelProps> = ({
                     {t.items.map((item, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center justify-between text-xs py-1 px-2.5 bg-white/[0.02] rounded-lg border border-white/5"
+                        className="flex items-center justify-between text-xs py-1 px-2.5 bg-card border-white/5/[0.02] rounded-lg border border-white/5"
                       >
                         <span className="font-medium text-white">
                           {item.sku} - {item.nombre}
@@ -646,7 +646,7 @@ export const WarehouseTransferPanel: React.FC<WarehouseTransferPanelProps> = ({
                   </tr>
                 ) : (
                   historialFiltrado.map((t) => (
-                    <tr key={t.id} className="hover:bg-white/[0.02] transition-colors">
+                    <tr key={t.id} className="hover:bg-card border-white/5/[0.02] transition-colors">
                       <td className="py-2.5 px-3 font-mono font-bold text-cyan-400">{t.codigo_guia}</td>
                       <td className="py-2.5 px-3 text-slate-400">
                         {new Date(t.fecha_creacion).toLocaleDateString('es-CO')}

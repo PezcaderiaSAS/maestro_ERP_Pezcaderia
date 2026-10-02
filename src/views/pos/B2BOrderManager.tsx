@@ -149,7 +149,7 @@ export const B2BOrderManager: React.FC = () => {
               <tr>
                 <td colSpan={6} className="p-8 text-center text-slate-500">
                   <div className="flex flex-col items-center justify-center gap-2">
-                    <CheckCircle className="h-8 w-8 text-slate-600" />
+                    <CheckCircle className="h-8 w-8 text-slate-400" />
                     <span>No hay órdenes B2B activas</span>
                   </div>
                 </td>

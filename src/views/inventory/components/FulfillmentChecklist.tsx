@@ -190,7 +190,7 @@ export const FulfillmentChecklist: React.FC<FulfillmentChecklistProps> = ({
                     <CheckCircle2 className="w-8 h-8 text-emerald-500" />
                   )
                 ) : (
-                  <Circle className={`w-8 h-8 ${isPriorityA ? 'text-amber-500/50' : 'text-slate-600'} group-hover:text-blue-400 transition-colors`} />
+                  <Circle className={`w-8 h-8 ${isPriorityA ? 'text-amber-500/50' : 'text-slate-400'} group-hover:text-blue-400 transition-colors`} />
                 )}
               </div>
 

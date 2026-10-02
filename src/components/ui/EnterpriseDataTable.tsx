@@ -148,7 +148,7 @@ export function EnterpriseDataTable<T extends Record<string, any>>({
                     style={{ width: col.width }}
                     onClick={() => canSort && handleSort(col.key)}
                     className={`py-2.5 px-3 font-bold uppercase tracking-wider text-slate-300 select-none whitespace-nowrap ${alignClass} ${
-                      canSort ? 'cursor-pointer hover:bg-white/5 hover:text-white transition-colors' : ''
+                      canSort ? 'cursor-pointer hover:bg-card border-white/5/5 hover:text-white transition-colors' : ''
                     } ${col.className || ''}`}
                   >
                     <div

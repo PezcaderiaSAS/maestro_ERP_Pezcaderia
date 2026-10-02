@@ -257,7 +257,7 @@ export const DockReceivingTab: React.FC<DockReceivingTabProps> = ({
 
         {recepciones.length === 0 ? (
           <div className="text-center py-12 text-slate-400 space-y-3">
-            <Ship className="w-12 h-12 mx-auto text-slate-600" />
+            <Ship className="w-12 h-12 mx-auto text-slate-400" />
             <p className="text-sm">No hay actas de muelle registradas hoy.</p>
             <p className="text-xs text-slate-400">
               Registra una nueva descarga de lancha para generar el primer Lote Madre en cuartos fríos.
