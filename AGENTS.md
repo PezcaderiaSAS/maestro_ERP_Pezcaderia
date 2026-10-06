@@ -72,4 +72,29 @@ El proyecto cuenta con un ecosistema formal de habilidades y comandos slash de u
 | `/ui-tools` | [`.agents/skills/ui-ux-ecosystem/SKILL.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agents/skills/ui-ux-ecosystem/SKILL.md) | Hub consolidado de Awesome-Design-Tools, Awesome-UI y Awesome-Styleguides. |
 
 **Reglas de Gobernanza Preceptiva:** Ver [`.agent/rules/design-governance.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agent/rules/design-governance.md) y [`DOCS/ecosistema_herramientas_agentes_uiux.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/DOCS/ecosistema_herramientas_agentes_uiux.md).
-
+
+---
+
+# Orquestación Multiagente (Protocolo Brownfield SDD)
+
+Bajo el protocolo `BROWNFIELD_PROJECT_RESTRUCTURING_AND_SOFTWARE_FACTORY`, el equipo se divide en los siguientes agentes especializados:
+
+## @coordinator (Director de Orquesta)
+- Gestiona el estado de memoria viva (`MEMORY.md`).
+- Transmite el contexto sin editar código directamente.
+- Obliga la aprobación humana entre las fases de Especificación (Spec), Planificación (Plan) y Construcción (Build).
+
+## @planner (Arquitectura y Specs)
+- Redacta los requerimientos funcionales en notación EARS.
+- Escribe dentro del directorio de specs activo (ej. `specs/003-compras/spec.md` y `plan.md`).
+- Diseña funciones puras, algoritmos y estrategias de testing.
+
+## @implementer (Ejecutor TDD con Validación DevTools)
+- Realiza los cambios de código.
+- Obligado a usar TDD (Vitest/node --test).
+- **Mandato Crítico:** Tras cada actualización de código, DEBE invocar a `chrome-devtools` para validar la app en vista móvil (375px) garantizando que no haya errores JS.
+
+## @reviewer (QA e Inspector DevTools)
+- Audita los cambios comparando el código contra la Spec.
+- Realiza una segunda inspección autónoma con DevTools.
+- Gestiona los reintentos (máx 2) en caso de detectar fallos.

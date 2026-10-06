@@ -43,6 +43,10 @@ import { WarehouseTransferPanel } from './inventory/components/WarehouseTransfer
 import { WarehouseConfigManager } from './inventory/components/WarehouseConfigManager';
 import { BulkUploadModal } from '../components/BulkUploadModal';
 import { TableSkeleton } from '../components/ui/ShimmerSkeleton';
+import { InventoryDataTable } from '../components/inventory/InventoryDataTable';
+import { ExpiryAlertCards } from '../components/inventory/ExpiryAlertCards';
+import { TransferStockModal } from '../components/inventory/TransferStockModal';
+import { ScrapAdjustmentModal } from '../components/inventory/ScrapAdjustmentModal';
 import { useProductsQuery } from '../hooks/useInventoryQueries';
 import { useInventoryStore } from '../store/useInventoryStore';
 import { useMovementStore, MovimientoInventario } from '../store/useMovementStore';
@@ -80,7 +84,8 @@ export interface InventoryViewProps {
     | 'categorias'
     | 'recepcion_devoluciones'
     | 'configuracion_bodegas'
-    | 'reportes_compra';
+    | 'reportes_compra'
+    | 'wms_avanzado';
 }
 
 export default function InventoryView({ initialViewMode = 'operaciones' }: InventoryViewProps = {}) {
@@ -113,7 +118,12 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
     | 'recepcion_devoluciones'
     | 'configuracion_bodegas'
     | 'reportes_compra'
+    | 'wms_avanzado'
   >(initialViewMode);
+
+  // --- ESTADO: WMS AVANZADO ---
+  const [wmsTransferData, setWmsTransferData] = useState<{sku: string, batchId: string | null} | null>(null);
+  const [wmsAdjustData, setWmsAdjustData] = useState<{sku: string, batchId: string | null} | null>(null);
 
   useEffect(() => {
     if (initialViewMode) {
@@ -1720,6 +1730,18 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
           7. Compras & Entradas
         </button>
 
+        <button
+          onClick={() => setViewMode('wms_avanzado')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            viewMode === 'wms_avanzado'
+              ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40 shadow-lg shadow-blue-500/10'
+              : 'bg-slate-900/60 text-slate-400 hover:text-white border border-white/5'
+          }`}
+        >
+          <Boxes className="w-4 h-4" />
+          8. WMS Avanzado
+        </button>
+
         <div className="h-4 w-px bg-card border-white/5/10 mx-1 shrink-0" />
 
         <button
@@ -1832,6 +1854,26 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
                 </tbody>
               </table>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 8: WMS Avanzado */}
+      {viewMode === 'wms_avanzado' && (
+        <div className="space-y-6">
+          <ExpiryAlertCards />
+          <div className="bg-slate-900/80 backdrop-blur-xl border border-white/10 p-5 rounded-3xl shadow-xl">
+             <div className="mb-4">
+               <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                 <Boxes className="w-5 h-5 text-blue-400" />
+                 Control de Lotes y Estibas
+               </h3>
+               <p className="text-sm text-slate-400">Gestión avanzada de inventario por lotes, traslados y mermas directas.</p>
+             </div>
+             <InventoryDataTable 
+               onTransfer={(sku, batchId) => setWmsTransferData({ sku, batchId })}
+               onAdjust={(sku, batchId) => setWmsAdjustData({ sku, batchId })}
+             />
           </div>
         </div>
       )}
@@ -2095,6 +2137,22 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
         onClose={() => setIsBulkUploadOpen(false)}
         type="productos"
       />
+
+      {wmsTransferData && (
+        <TransferStockModal
+          sku={wmsTransferData.sku}
+          batchId={wmsTransferData.batchId}
+          onClose={() => setWmsTransferData(null)}
+        />
+      )}
+
+      {wmsAdjustData && (
+        <ScrapAdjustmentModal
+          sku={wmsAdjustData.sku}
+          batchId={wmsAdjustData.batchId}
+          onClose={() => setWmsAdjustData(null)}
+        />
+      )}
     </div>
   );
 }

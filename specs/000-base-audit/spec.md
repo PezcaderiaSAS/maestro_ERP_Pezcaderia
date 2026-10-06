@@ -1,19 +1,22 @@
-# Spec: 000-base-audit
+# Spec 000: Auditoría Base del Proyecto (Brownfield)
 
 ## 1. Objetivo
-Auditar el proyecto brownfield existente asegurando su estabilidad y configurando el entorno para el ciclo SDD según el protocolo v2.2.
+Auditar la aplicación "La Pezcadería ERP" en su estado actual, validando la estabilidad de la consola y la responsividad del layout a 375px mediante Chrome DevTools, estableciendo el punto de partida seguro antes de la integración del módulo de Compras.
 
-## 2. Requisitos Funcionales
-- **RF-1:** Iniciar el servidor de desarrollo (`vite`).
-- **RF-2:** Ejecutar la inspección inicial obligatoria con Chrome DevTools (375 px).
-- **RF-3:** Documentar errores actuales de consola (Warnings, Errors).
-- **RF-4:** Inicializar `MEMORY.md` y estructura base de specs.
+## 2. EARS - Functional Requirements
+- **WHILE** en modo de inicialización o navegación, **THE SYSTEM SHALL** mantener la consola del navegador libre de errores fatales de JavaScript o bloqueos de ejecución.
+- **WHILE** visualizado en resolución móvil (375px), **THE SYSTEM SHALL** renderizar de forma accesible el menú hamburguesa, la TopBar y el Navigation Drawer.
+- **WHEN** el usuario hace clic en el menú hamburguesa, **THE SYSTEM SHALL** desplegar fluidamente el panel lateral sobre el dashboard principal.
 
-## 3. Requisitos No Funcionales
-- No alterar la lógica existente.
-- Toda información extraída de DevTools debe reflejarse en `MEMORY.md`.
+## 3. Hallazgos de la Inspección (Chrome DevTools MCP)
+- **Consola:** Sin errores de ejecución. Durante la inspección se reparó un error de importación crítico de Supabase (`SyntaxError: The requested module '/src/lib/supabase.ts' does not provide an export named 'supabase'`), garantizando un inicio limpio. Se detectó una advertencia benigna de LogRocket por tiempo de espera en metadatos de estilo.
+- **Interfaz (375px):**
+  - El Drawer de navegación (sidebar) se despliega correctamente.
+  - El Dashboard muestra Tarjetas KPI verticales responsivas.
+  - Widget de Calendario Ejecutivo y Botones Flotantes (Pruebas Dev) funcionales.
+- **Estructura Base:** React 18, Vite, Zustand 5, Supabase RPC. 
 
-## 4. Criterios de Aceptación
-- [x] Aplicación levanta en `http://localhost:3000` u otro puerto asignado sin errores fatales de compilación.
-- [x] Captura de vista móvil obtenida.
-- [x] Lista de errores de consola compilada (0 errores, 0 advertencias).
+## 4. Criterios de Aceptación (Completados)
+- [x] Capturas de DevTools a 375px generadas y analizadas.
+- [x] Consola limpia de errores en `localhost:3000`.
+- [x] Sincronización de memoria base en `MEMORY.md`.

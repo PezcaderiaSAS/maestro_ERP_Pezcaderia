@@ -1,17 +1,21 @@
-# Memoria Viva del Proyecto (Estado Actual)
-**Última Actualización:** 2026-10-02
+# Memoria Activa - La Pezcadería ERP
 
-## 1. Estado Actual
-- **Fase:** Auditoría Inicial (Protocolo V2.2) y estabilización post-estructuración.
-- **Backend:** Supabase, Edge Functions.
-- **Frontend:** React 18, Vite 5, Zustand, TanStack Query, TailwindCSS.
+## Contexto Actual (Módulo 3 - Compras)
+- **Estado Global:** Auditoría Base completada. Interfaz móvil 375px funcionando. Componentes WMS y POS completados. Importación de Supabase reparada (`getSupabaseClient`).
+- **Arquitectura:** Vite + React + Zustand + Supabase (PostgreSQL RPC).
+- **Protocolo Activo:** `BROWNFIELD_PROJECT_RESTRUCTURING_AND_SOFTWARE_FACTORY` (v2.2-DEFINITIVE-DEVTOOLS-MANDATORY-LOOP).
+- **Mandatos SDD:** 
+  1. No editar código sin especificación (ears) aprobada.
+  2. Aplicar TDD con Vitest (`node --test`).
+  3. Verificación obligatoria con Chrome DevTools (375px) post-cambio.
+  4. Mantener la UI responsiva y libre de errores en consola.
 
-## 2. Decisiones Técnicas Activas
-- **SDD Activo:** Todo cambio requiere Spec, Plan y Tasks en `specs/`.
-- **Inspección DevTools:** Obligatoria en cada bucle por parte de @implementer y @reviewer tras cada actualización de código.
-- **Fechas:** Siempre fechas locales; NUNCA UTC para lógica de negocio de usuarios.
-- **Arquitectura:** Data-driven, componentes funcionales puramente orientados a interfaces.
+## Decisiones Técnicas y Restricciones
+- Supabase se invoca a través de `getSupabaseClient()` en `src/lib/supabase.ts`.
+- Persistencia local en IndexedDB.
+- Control concurrente vía Supabase RPC (`SELECT FOR UPDATE`).
+- Uso de **Google Stitch** como MCP de diseño visual.
 
-## 3. Errores Conocidos y Patrones a Evitar
-- **Estado Inicial de Consola:** 0 Errores, 0 Advertencias (confirmado en auditoría inicial con DevTools).
-- **Flujo Inicial:** El modal de Habeas Data (Ley 1581) bloquea la operación hasta ser aceptado. El renderizado móvil a 375px está funcionando y ajustándose correctamente al diseño.
+## Próximos Pasos (Roadmap)
+1. **Módulo de Compras:** Crear especificación y plan.
+2. Módulos siguientes: Cartera, Pedidos, Alquiler de Frío, Gastos.

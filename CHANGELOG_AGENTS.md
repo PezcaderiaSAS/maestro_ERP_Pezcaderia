@@ -19,6 +19,33 @@ Cada vez que un agente de IA finalice una sesión de trabajo, debe agregar una e
 
 ## Registros Diarios
 
+### [2026-10-06 11:10] - Antigravity (QATester)
+- **Módulo:** Inventarios y Bodegas (WMS)
+- **Acción:** Ejecución completa de la FASE 4 (Task 4.1).
+- **Archivos Modificados:** `src/tests/inventory.schema.test.ts`, `src/tests/useInventoryStore.test.ts`, `tools/spec-kit/02_INVENTORY_TASKS.md`
+- **Mejoras UX/UI (Design System):** N/A
+- **Notas/Bloqueos:** Pruebas unitarias completadas exitosamente usando Vitest (11 tests, 2 archivos). Se validaron los schemas de Zod (traslados y mermas con control estricto de bodegas iguales, justificaciones cortas, stock 0) y el estado global de Zustand conectándose correctamente a los mocks de Supabase RPC. El módulo WMS Base queda completo y estable. Siguiente módulo: Compras o Cartera, según disponga el usuario.
+
+### [2026-10-06 11:08] - Antigravity (UIReviewer)
+- **Módulo:** Inventarios y Bodegas (WMS)
+- **Acción:** Ejecución completa de la FASE 3 (Tasks 3.1, 3.2 y 3.3).
+- **Archivos Modificados:** `src/views/InventoryView.tsx`, `tools/spec-kit/02_INVENTORY_TASKS.md`
+- **Mejoras UX/UI (Design System):** Se integró exitosamente el nuevo tab `wms_avanzado` ("8. WMS Avanzado") en la vista principal `InventoryView.tsx` orquestando los componentes de alta densidad (`InventoryDataTable`, `ExpiryAlertCards`, modales) sin afectar la navegación legacy.
+- **Notas/Bloqueos:** FASE 3 del WMS completada. Queda lista la UI para gestión por lotes FEFO. Procediendo a FASE 4 (Testing).
+
+### [2026-10-06 11:04] - Antigravity (QualityEngineer / Architect)
+- **Módulo:** Inventarios y Bodegas (WMS)
+- **Acción:** Ejecución completa de la FASE 2 (Tasks 2.1 y 2.2).
+- **Archivos Modificados:** `src/schemas/inventory.schema.ts`, `src/stores/useInventoryStore.ts`, `tools/spec-kit/02_INVENTORY_TASKS.md`
+- **Notas/Bloqueos:** Construidos esquemas isomorfos Zod (`inventoryTransferSchema`, `inventoryAdjustmentSchema`) para traslados y mermas. Implementada máquina de estados en Zustand (`IDLE`, `LOADING_STOCK`, `TRANSFERRING`, `ADJUSTING`) conectada a Supabase RPC. FASE 2 completada. Procediendo a FASE 3 (UI).
+
+### [2026-10-06 11:03] - Antigravity (DataEngineer)
+- **Módulo:** Inventarios y Bodegas (WMS)
+- **Acción:** Ejecución completa de la FASE 1 (Tasks 1.1 y 1.2).
+- **Archivos Modificados:** `supabase/migrations/20261006110200_wms_schema.sql`, `supabase/migrations/20261006110300_wms_rpcs.sql`, `tools/spec-kit/02_INVENTORY_TASKS.md`
+- **Notas/Bloqueos:** Creadas las tablas base (`wms_warehouses`, `wms_batches`, `wms_stock`, `wms_movements`), habilitado RLS por tenant y desarrolladas funciones RPC robustas (`rpc_transfer_stock` y `rpc_adjust_stock`) implementando `SELECT FOR UPDATE` para seguridad transaccional. FASE 1 del WMS completada. Procediendo a FASE 2.
+
+
 ### [2026-10-06 10:55] - Antigravity (QualityEngineer / QATester)
 - **Módulo:** Ventas POS
 - **Acción:** Ejecución completa de la FASE 4 (Task 4.1).
