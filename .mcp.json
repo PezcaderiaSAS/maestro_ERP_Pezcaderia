@@ -46,6 +46,52 @@
         "RICOUI_DEFAULT_BRAND": "pezcaderia-glass"
       },
       "autoStart": true
+    },
+    "chrome-devtools": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@mcp/chrome-devtools"
+      ],
+      "autoStart": true
+    },
+    "context7": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@context7/mcp"
+      ],
+      "autoStart": true
+    },
+    "figma": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@figma/mcp-server"
+      ],
+      "env": {
+        "FIGMA_ACCESS_TOKEN": "<TU_FIGMA_PERSONAL_ACCESS_TOKEN>"
+      },
+      "autoStart": false
+    },
+    "github": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "<TU_GITHUB_TOKEN>"
+      },
+      "autoStart": false
     }
   }
 }

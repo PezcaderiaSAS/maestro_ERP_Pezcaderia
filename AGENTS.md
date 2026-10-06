@@ -1,7 +1,7 @@
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **maestro_ERP_Pezcaderia** (80129 symbols, 131399 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **maestro_ERP_Pezcaderia** (150689 symbols, 279877 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
@@ -71,30 +71,37 @@ El proyecto cuenta con un ecosistema formal de habilidades y comandos slash de u
 | `/ponytail` | [`.agents/skills/ponytail-harness/SKILL.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agents/skills/ponytail-harness/SKILL.md) | Harness de pipelines de tareas encadenadas con checkpoints de verificación. |
 | `/ui-tools` | [`.agents/skills/ui-ux-ecosystem/SKILL.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agents/skills/ui-ux-ecosystem/SKILL.md) | Hub consolidado de Awesome-Design-Tools, Awesome-UI y Awesome-Styleguides. |
 
-**Reglas de Gobernanza Preceptiva:** Ver [`.agent/rules/design-governance.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agent/rules/design-governance.md) y [`DOCS/ecosistema_herramientas_agentes_uiux.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/DOCS/ecosistema_herramientas_agentes_uiux.md).
+**Reglas de Gobernanza Preceptiva:** Ver [`.agent/rules/design-governance.md`](file:///c:/Users/Personal/Documents/Yurgen/Maestro_Pezcaderia_ERP/maestro_ERP_Pezcaderia/.agent/rules/design-governance.md) y [`DOCS/ecosistema_herramientas_agentes_uiux.md`](file:///c:/Users/Personal/Documents/Yurgen/Maestro_Pezcaderia_ERP/maestro_ERP_Pezcaderia/DOCS/ecosistema_herramientas_agentes_uiux.md).
 
 ---
 
-# Orquestación Multiagente (Protocolo Brownfield SDD)
+# Protocolo Brownfield v2.2 — Fábrica de Software y Bucle DevTools Obligatorio
 
-Bajo el protocolo `BROWNFIELD_PROJECT_RESTRUCTURING_AND_SOFTWARE_FACTORY`, el equipo se divide en los siguientes agentes especializados:
+El proyecto se rige por el protocolo formal de ingeniería brownfield [`protocol.json`](file:///c:/Users/Personal/Documents/Yurgen/Maestro_Pezcaderia_ERP/maestro_ERP_Pezcaderia/.opencode/protocol.json):
 
-## @coordinator (Director de Orquesta)
-- Gestiona el estado de memoria viva (`MEMORY.md`).
-- Transmite el contexto sin editar código directamente.
-- Obliga la aprobación humana entre las fases de Especificación (Spec), Planificación (Plan) y Construcción (Build).
+## 1. Infraestructura de Arnés
+- **Punto de Entrada:** [`AGENTS.md`](file:///c:/Users/Personal/Documents/Yurgen/Maestro_Pezcaderia_ERP/maestro_ERP_Pezcaderia/AGENTS.md)
+- **Constitución:** [`docs/constitution.md`](file:///c:/Users/Personal/Documents/Yurgen/Maestro_Pezcaderia_ERP/maestro_ERP_Pezcaderia/docs/constitution.md)
+- **Memoria Persistente:** [`MEMORY.md`](file:///c:/Users/Personal/Documents/Yurgen/Maestro_Pezcaderia_ERP/maestro_ERP_Pezcaderia/MEMORY.md) (máx. ~50 líneas, sincronizada con `/session-sync`).
+- **Directorio SDD:** [`specs/NNN-nombre/`](file:///c:/Users/Personal/Documents/Yurgen/Maestro_Pezcaderia_ERP/maestro_ERP_Pezcaderia/specs/) con `spec.md` (notación EARS), `plan.md` y `tasks.md`.
 
-## @planner (Arquitectura y Specs)
-- Redacta los requerimientos funcionales en notación EARS.
-- Escribe dentro del directorio de specs activo (ej. `specs/003-compras/spec.md` y `plan.md`).
-- Diseña funciones puras, algoritmos y estrategias de testing.
+## 2. Roles de Agentes (.opencode/agents/)
+- `@coordinator`: Director de orquesta y guardián de aprobaciones humanas.
+- `@planner`: Redactor de specs EARS, planes técnicos y tareas atómicas.
+- `@implementer`: Desarrollador TDD con validación en bucle tras cada modificación.
+- `@reviewer`: Auditor de especificaciones, código, pruebas e interfaces.
 
-## @implementer (Ejecutor TDD con Validación DevTools)
-- Realiza los cambios de código.
-- Obligado a usar TDD (Vitest/node --test).
-- **Mandato Crítico:** Tras cada actualización de código, DEBE invocar a `chrome-devtools` para validar la app en vista móvil (375px) garantizando que no haya errores JS.
+## 3. Regla Innegociable de Bucle DevTools
+> Tras **CADA** cambio de código realizado por `@implementer`, es **OBLIGATORIO** invocar inmediatamente el MCP `chrome-devtools` para:
+> 1. Abrir la aplicación y verificar **0 errores / warnings** en la consola JS.
+> 2. Comprobar el renderizado responsivo en vista móvil (**375 px**).
+> 3. Validar interactivamente el flujo modificado antes de marcar cualquier tarea como completada.
 
-## @reviewer (QA e Inspector DevTools)
-- Audita los cambios comparando el código contra la Spec.
-- Realiza una segunda inspección autónoma con DevTools.
-- Gestiona los reintentos (máx 2) en caso de detectar fallos.
+## 4. Comandos Slash del Protocolo (.opencode/commands/)
+- `/setup-mcps`: Inspecciona y verifica servidores MCP (`chrome-devtools`, `context7`, `figma`, `github`).
+- `/audit-project`: Audita el estado de la app en vivo con DevTools y sincroniza la memoria.
+- `/feature`: Planifica e implementa cambios menores exigiendo validación DevTools.
+- `/sdd-flow`: Orquesta el ciclo completo de SDD con loop continuo de DevTools.
+- `/sdd-change`: Gestiona modificaciones sobre especificaciones activas.
+- `/session-sync`: Condensa y depura `MEMORY.md` manteniendo el límite de ~50 líneas.
+
