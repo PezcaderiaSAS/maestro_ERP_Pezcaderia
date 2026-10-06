@@ -425,8 +425,8 @@
     "semantic_hash": ""
   },
   "package.json": {
-    "mtime": 1791217599.5172002,
-    "ast_hash": "843b93b48a52023083fc2e6d5d66e7f1",
+    "mtime": 1790959620.6167903,
+    "ast_hash": "eb10d4c08380ba73f4813657e164d121",
     "semantic_hash": ""
   },
   "playwright.config.ts": {
@@ -585,8 +585,8 @@
     "semantic_hash": ""
   },
   "src/main.tsx": {
-    "mtime": 1791215178.3186119,
-    "ast_hash": "0da94d64f90f47c6d197e7e32324b266",
+    "mtime": 1790953734.714056,
+    "ast_hash": "bdfd30de4b8c9979d7ade6e4bfbefae2",
     "semantic_hash": ""
   },
   "src/services/LocalDataService.ts": {
@@ -5620,8 +5620,8 @@
     "semantic_hash": ""
   },
   "skills-lock.json": {
-    "mtime": 1791217598.8180847,
-    "ast_hash": "02ebea8e64ee2a900d376990dba41ae8",
+    "mtime": 1788278737.007589,
+    "ast_hash": "cc40a6d6a60f658dfcf7e6f06f5dcc31",
     "semantic_hash": ""
   },
   "src/tests/analisisAbcPareto.test.ts": {
@@ -6435,178 +6435,178 @@
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/SKILL.md": {
-    "mtime": 1791217339.521141,
-    "ast_hash": "845c64575b6d28856ea6a9735a372225",
+    "mtime": 1788278728.9164605,
+    "ast_hash": "0e31e4a19cccde79afd7fee73982a158",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/_contributing.md": {
-    "mtime": 1791217339.5221405,
-    "ast_hash": "32c800fa6621705288dc651da22c9366",
+    "mtime": 1788278728.9174595,
+    "ast_hash": "19edd365b47667a9b81108cacfd75775",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/_sections.md": {
-    "mtime": 1791217339.5231462,
-    "ast_hash": "8547fba7fd9fae3b6be916c6f55b0f62",
+    "mtime": 1788278728.9184613,
+    "ast_hash": "7cc4829a3718c745dfdbec554c30485f",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/_template.md": {
-    "mtime": 1791217339.5231462,
-    "ast_hash": "74ec7e2bdd6c8ddbb354fcceec038bc2",
+    "mtime": 1788278728.9184613,
+    "ast_hash": "384ee769a417d3001e81d81b139acbf6",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/advanced-full-text-search.md": {
-    "mtime": 1791217339.5241406,
-    "ast_hash": "327f8367de51b0982b963f2928184c35",
+    "mtime": 1788278728.9194608,
+    "ast_hash": "f32a27eab306ad2a29db0a2a8a55b03c",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/advanced-jsonb-indexing.md": {
-    "mtime": 1791217339.5241406,
-    "ast_hash": "413ba907ff4408d6fd3545f839101ebf",
+    "mtime": 1788278728.9204624,
+    "ast_hash": "5b4fbcc451879892d366fa02194bb536",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/conn-idle-timeout.md": {
-    "mtime": 1791217339.5241406,
-    "ast_hash": "8bbe8b609d5241351672cefc19036db6",
+    "mtime": 1788278728.9214878,
+    "ast_hash": "c73ea45eecdb007786cd3b3e08e31640",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/conn-limits.md": {
-    "mtime": 1791217339.5251393,
-    "ast_hash": "661b3efcf0e35136352b3923ff265d5c",
+    "mtime": 1788278728.9214878,
+    "ast_hash": "59025fe12439048e81296f28feca4ce1",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/conn-pooling.md": {
-    "mtime": 1791217339.5251393,
-    "ast_hash": "c90dab7d0ab47443b41f17d5bc9f04b3",
+    "mtime": 1788278728.9224632,
+    "ast_hash": "8561b805a5e0bdfa348840266861de66",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/conn-prepared-statements.md": {
-    "mtime": 1791217339.5261402,
-    "ast_hash": "b53eb9dea11d6da338a8b6f9e67a3622",
+    "mtime": 1788278728.9224632,
+    "ast_hash": "fe941145678825d273baac1fe66d4dce",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/data-batch-inserts.md": {
-    "mtime": 1791217339.5261402,
-    "ast_hash": "6801a3a2d414dfd6a4c79970a37e795d",
+    "mtime": 1788278728.9234602,
+    "ast_hash": "75a4e92f80b90818221fae51f8b994f1",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/data-n-plus-one.md": {
-    "mtime": 1791217339.5261402,
-    "ast_hash": "c3ed0702a116d654602120bd5cd7713e",
+    "mtime": 1788278728.9234602,
+    "ast_hash": "4fc111bb51121f5181910b3759061ada",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/data-pagination.md": {
-    "mtime": 1791217339.5271392,
-    "ast_hash": "59be210a420d34780949ce16d5b4a8d5",
+    "mtime": 1788278728.9234602,
+    "ast_hash": "0e9b3211df99b3d35f7083c984b03ccb",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/data-upsert.md": {
-    "mtime": 1791217339.5271392,
-    "ast_hash": "3ae132bce8b5368e1e4a426d55ca4567",
+    "mtime": 1788278728.9244604,
+    "ast_hash": "51a26138848f5fec547cd56b9bcb33d4",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/lock-advisory.md": {
-    "mtime": 1791217339.528139,
-    "ast_hash": "ff943eb307d8b6e12cc6ab2bcb6e2d18",
+    "mtime": 1788278728.9244604,
+    "ast_hash": "3f3523b7b0a812a6906f92a6610a5a9b",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/lock-deadlock-prevention.md": {
-    "mtime": 1791217339.528139,
-    "ast_hash": "685b04bcae3a0720e84f1507d243e959",
+    "mtime": 1788278728.925462,
+    "ast_hash": "07eae98867b47074d82528df59d2135e",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/lock-short-transactions.md": {
-    "mtime": 1791217339.528139,
-    "ast_hash": "3c947d59e0359f3b236bf2ad1da52c61",
+    "mtime": 1788278728.925462,
+    "ast_hash": "aea973297ac14bba2586a2ff57fd8ff7",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/lock-skip-locked.md": {
-    "mtime": 1791217339.5291405,
-    "ast_hash": "098d38542f44b656aa55923f06db74c1",
+    "mtime": 1788278728.926462,
+    "ast_hash": "26e9bd402801299afce06ee506a9f864",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/monitor-explain-analyze.md": {
-    "mtime": 1791217339.5291405,
-    "ast_hash": "1fd19c373a0ff272129edd215a96e3a1",
+    "mtime": 1788278728.926462,
+    "ast_hash": "93d5998318098652ac380cd354718924",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/monitor-pg-stat-statements.md": {
-    "mtime": 1791217339.5301397,
-    "ast_hash": "2f0cab7f72ad9dfe2cba469aaaacc733",
+    "mtime": 1788278728.9274602,
+    "ast_hash": "ee51d9586cf18c848563799c14dcc638",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/monitor-vacuum-analyze.md": {
-    "mtime": 1791217339.5301397,
-    "ast_hash": "25e738451079707ac54d21364b5538e1",
+    "mtime": 1788278728.9274602,
+    "ast_hash": "e3d1e4f8831a37bdb1c7f364b911f7a6",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/query-composite-indexes.md": {
-    "mtime": 1791217339.53114,
-    "ast_hash": "5017f09940ed04b5b3ad836e426d9084",
+    "mtime": 1788278728.9284604,
+    "ast_hash": "bd959891036289cfaf3d54e49599b2d0",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/query-covering-indexes.md": {
-    "mtime": 1791217339.5321424,
-    "ast_hash": "fd05c38771229d97f2d4065d0af0df70",
+    "mtime": 1788278728.9284604,
+    "ast_hash": "5e62afcfe9289405caec1f32f351dd29",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/query-index-types.md": {
-    "mtime": 1791217339.5321424,
-    "ast_hash": "e2395c6ef69ea2f147c9ab1d18c7f879",
+    "mtime": 1788278728.9294593,
+    "ast_hash": "ef0d4ad9d1eb0466a0bde542ade59de2",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/query-missing-indexes.md": {
-    "mtime": 1791217339.5321424,
-    "ast_hash": "786767ec677862bad060fc1b4ae0a94f",
+    "mtime": 1788278728.9294593,
+    "ast_hash": "1bd5f85a9c930219dd479825986bd6ad",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/query-partial-indexes.md": {
-    "mtime": 1791217339.53314,
-    "ast_hash": "249d8fccca68c332e946b499531f21d8",
+    "mtime": 1788278728.9304597,
+    "ast_hash": "a6c64f9136f8a7880e53df3e259d90c9",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/schema-constraints.md": {
-    "mtime": 1791217339.53314,
-    "ast_hash": "476ca283cfda6c5517d94c25c41de775",
+    "mtime": 1788278728.9304597,
+    "ast_hash": "e7362385f5b79c28f5e495d7c45a7a52",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/schema-data-types.md": {
-    "mtime": 1791217339.5341442,
-    "ast_hash": "cd65e34969ebce0bce84f622f5072477",
+    "mtime": 1788278728.9544601,
+    "ast_hash": "a10f1ec17bd499622d9201af3d00e0d4",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/schema-foreign-key-indexes.md": {
-    "mtime": 1791217339.5341442,
-    "ast_hash": "8b99b21a07cadd2d85c6c16f416b5464",
+    "mtime": 1788278728.9544601,
+    "ast_hash": "6bc02b38edd88e56c89bab863f5c789b",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/schema-lowercase-identifiers.md": {
-    "mtime": 1791217339.5351405,
-    "ast_hash": "632ea53a0da6fe7651e354f3744d998e",
+    "mtime": 1788278728.9554622,
+    "ast_hash": "1df2eae336d542d365f99abdfa968367",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/schema-partitioning.md": {
-    "mtime": 1791217339.5351405,
-    "ast_hash": "0f2fe9016bf9aa79dd30d7d6a4a03358",
+    "mtime": 1788278728.9554622,
+    "ast_hash": "e95568857288b614ba0d4b8cd1b4fb72",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/schema-primary-keys.md": {
-    "mtime": 1791217339.5351405,
-    "ast_hash": "a732b1a95b6c231d47af14b715c6b9b0",
+    "mtime": 1788278728.9564617,
+    "ast_hash": "63412819d632d8cbe39f14630e5de085",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/security-privileges.md": {
-    "mtime": 1791217339.5361404,
-    "ast_hash": "e6fbc325f8f3af1cab3e1cb99d9f146a",
+    "mtime": 1788278728.9564617,
+    "ast_hash": "212beb5d93e7c02cb61c95e117af3aaa",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/security-rls-basics.md": {
-    "mtime": 1791217339.5361404,
-    "ast_hash": "82ee8b214f39f78c9e88061b6f890508",
+    "mtime": 1788278728.9574623,
+    "ast_hash": "2349e490ff266b1c2b81a2368c054baa",
     "semantic_hash": ""
   },
   ".agents/skills/supabase-postgres-best-practices/references/security-rls-performance.md": {
-    "mtime": 1791217339.53714,
-    "ast_hash": "ad2ccf01dfd325527b18256c3e25b842",
+    "mtime": 1788278728.9574623,
+    "ast_hash": "fcd4957af5dc87b88e1a96c190e89876",
     "semantic_hash": ""
   },
   ".agents/skills/tailwind-css-patterns/SKILL.md": {
@@ -7160,8 +7160,8 @@
     "semantic_hash": ""
   },
   "opencode.json": {
-    "mtime": 1790960875.081859,
-    "ast_hash": "6c9da8258f0f1e08e0a473af6c7b5832",
+    "mtime": 1790955279.7635229,
+    "ast_hash": "e854559b3ba0e08b5c6e04ed105f123e",
     "semantic_hash": ""
   },
   "packages/database-shared/package.json": {
@@ -7305,8 +7305,8 @@
     "semantic_hash": ""
   },
   "src/lib/safeApi.ts": {
-    "mtime": 1791215243.652646,
-    "ast_hash": "5a65c1e480b7cfeebaac69d16c8d0341",
+    "mtime": 1790953734.714056,
+    "ast_hash": "669c27b7b84805dbab80aab4d403126f",
     "semantic_hash": ""
   },
   "src/services/b2bDispatchService.ts": {
@@ -7907,1051 +7907,6 @@
   "tools/agency-swarm/README.md": {
     "mtime": 1790953734.776054,
     "ast_hash": "bd7e574a15f74e6b3c58566eb9850920",
-    "semantic_hash": ""
-  },
-  "prisma7.config.ts": {
-    "mtime": 1791217448.9412882,
-    "ast_hash": "f6143a6083213d512c0beaa8d98daf63",
-    "semantic_hash": ""
-  },
-  "scripts/migration/run_migration.ts": {
-    "mtime": 1791213129.104418,
-    "ast_hash": "7617d59daf37f82afe32c13938eaf461",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-cli/SKILL.md": {
-    "mtime": 1791217465.7220333,
-    "ast_hash": "c83a2d8f25952af4d1c8d721fb62b000",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-cli/references/agent-safety.md": {
-    "mtime": 1791217465.723065,
-    "ast_hash": "b13fb6d46dbfe7db9c2433202d412bd5",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-cli/references/complete.md": {
-    "mtime": 1791217465.7235801,
-    "ast_hash": "827d26a9f01251d2ae9d3ec295f5f8cd",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-cli/references/db-execute.md": {
-    "mtime": 1791217465.7238326,
-    "ast_hash": "fa456e36f9700329b4c1a8093e7ae92a",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-cli/references/db-pull.md": {
-    "mtime": 1791217465.7243488,
-    "ast_hash": "112e9c49afcd099c98a39801ecfe8f64",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-cli/references/db-push.md": {
-    "mtime": 1791217465.7243488,
-    "ast_hash": "9d5b2231c9a0cc01b7a56eb0dbe04b3c",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-cli/references/db-seed.md": {
-    "mtime": 1791217465.7253497,
-    "ast_hash": "6b49790f9fc526c3bf9f9e465b20abf1",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-cli/references/debug.md": {
-    "mtime": 1791217465.7253497,
-    "ast_hash": "efc540e515df61fb409d2b0f33b3f236",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-cli/references/dev.md": {
-    "mtime": 1791217465.7263484,
-    "ast_hash": "633c1f65ae2e3ac43e9b0f7f328f049f",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-cli/references/format.md": {
-    "mtime": 1791217465.7263484,
-    "ast_hash": "7f9480c36e8fb8fd39e4aa2b466e734d",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-cli/references/generate.md": {
-    "mtime": 1791217465.7263484,
-    "ast_hash": "6a346f0ccc80b0087320071ffdb31ab6",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-cli/references/init.md": {
-    "mtime": 1791217465.727349,
-    "ast_hash": "47825b9e05d1c08daf5458e1b4b0c37a",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-cli/references/mcp.md": {
-    "mtime": 1791217465.727349,
-    "ast_hash": "110546680b397c48425aae80a5441010",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-cli/references/migrate-deploy.md": {
-    "mtime": 1791217465.7283487,
-    "ast_hash": "ad5b33f62e3ca6762f18ccbf7c3e1e02",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-cli/references/migrate-dev.md": {
-    "mtime": 1791217465.7293482,
-    "ast_hash": "137ecc3c185e9ec765d633c1c53fd205",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-cli/references/migrate-diff.md": {
-    "mtime": 1791217465.7293482,
-    "ast_hash": "171192cdeeb27614abc384f8520c828a",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-cli/references/migrate-reset.md": {
-    "mtime": 1791217465.7303498,
-    "ast_hash": "29135da6cff321263989e49825eb303b",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-cli/references/migrate-resolve.md": {
-    "mtime": 1791217465.7303498,
-    "ast_hash": "bd96262ad456e74b111c1b9f7f6990d5",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-cli/references/migrate-status.md": {
-    "mtime": 1791217465.7303498,
-    "ast_hash": "6cbb214b8dfd4484e938f8714d1c1787",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-cli/references/studio.md": {
-    "mtime": 1791217465.7313488,
-    "ast_hash": "2026596659d5240e723e8aa2e08457cb",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-cli/references/validate.md": {
-    "mtime": 1791217465.7313488,
-    "ast_hash": "e55d15ed599ab1d5daa22b3dded2f3a6",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-client-api/SKILL.md": {
-    "mtime": 1791217465.7323494,
-    "ast_hash": "33e8490da9422e0409a9d6720d738432",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-client-api/references/client-methods.md": {
-    "mtime": 1791217465.7333481,
-    "ast_hash": "415a45ea5ddf1995a14c1d70694868ed",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-client-api/references/constructor.md": {
-    "mtime": 1791217465.7333481,
-    "ast_hash": "266f293805dcec719babe5827701c354",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-client-api/references/filters.md": {
-    "mtime": 1791217465.734349,
-    "ast_hash": "44a7456d7ea6cb8d8f4ccc6a20b16814",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-client-api/references/model-queries.md": {
-    "mtime": 1791217465.734349,
-    "ast_hash": "2bb53c933e4baf20076d713e13151091",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-client-api/references/query-options.md": {
-    "mtime": 1791217465.7353482,
-    "ast_hash": "30e889e6586befa4d524469e9110b989",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-client-api/references/raw-queries.md": {
-    "mtime": 1791217465.7353482,
-    "ast_hash": "ac6abaf987e38d31ecb67bd7b29043b6",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-client-api/references/relations.md": {
-    "mtime": 1791217465.7363474,
-    "ast_hash": "2c822b05319d89528354ada1d09dc241",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-client-api/references/transactions.md": {
-    "mtime": 1791217465.7363474,
-    "ast_hash": "b63ef1dd624c20c22a028f28a9e8a705",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-compute/SKILL.md": {
-    "mtime": 1791217465.737349,
-    "ast_hash": "6a8e608733665924d582e010aaa8fa3f",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-compute/references/app-deploy-cli.md": {
-    "mtime": 1791217465.7383494,
-    "ast_hash": "af3234f0e04d92140bd4216bb6145603",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-compute/references/compute-config.md": {
-    "mtime": 1791217465.7383494,
-    "ast_hash": "b99b8d26bd77c1fab925bc96ebf545f1",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-compute/references/create-prisma.md": {
-    "mtime": 1791217465.739348,
-    "ast_hash": "591bf4d18940482e80fb883c6abb19b1",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-compute/references/frameworks.md": {
-    "mtime": 1791217465.739348,
-    "ast_hash": "00b044c763d6f559b6e74d31f9fc2b79",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-compute/references/sdk-api.md": {
-    "mtime": 1791217465.740348,
-    "ast_hash": "0703621e3bc7f5c6c18185030321254b",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-compute/references/troubleshooting.md": {
-    "mtime": 1791217465.740348,
-    "ast_hash": "fbb828c275e54521b0621b56e03f66c4",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-database-setup/SKILL.md": {
-    "mtime": 1791217465.7413468,
-    "ast_hash": "7694ea8b0a9a2a4751cf63a6e241f29f",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-driver-adapter-implementation/SKILL.md": {
-    "mtime": 1791217465.7423482,
-    "ast_hash": "a34b8a6e8a68b25e2aca7a0388887839",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-mongodb-upgrade/SKILL.md": {
-    "mtime": 1791217465.7433486,
-    "ast_hash": "026f3333ceae232e1be79d5054431209",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-mongodb-upgrade/references/client-api-mapping.md": {
-    "mtime": 1791217465.7443476,
-    "ast_hash": "241c889046711441144f54f443e5c518",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-mongodb-upgrade/references/decision-stay-or-migrate.md": {
-    "mtime": 1791217465.7443476,
-    "ast_hash": "73080f0d9cb0eb1f35a8a38d353aa126",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-mongodb-upgrade/references/migrations-mapping.md": {
-    "mtime": 1791217465.7453494,
-    "ast_hash": "6a35b24785c7c4261567e1ac9de71ec3",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-mongodb-upgrade/references/schema-contract-mapping.md": {
-    "mtime": 1791217465.7453494,
-    "ast_hash": "a3daaccb14fb9e94cb7f2ce697b6b2de",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-mongodb-upgrade/references/verify-cutover-checklist.md": {
-    "mtime": 1791217465.7463477,
-    "ast_hash": "ae5e1c7e16f3b46188760820902a8a68",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-orm-setup/SKILL.md": {
-    "mtime": 1791217465.7473493,
-    "ast_hash": "5a7f4683ef5de35b9624685e1fff7527",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-orm-setup/references/v6-mongodb.md": {
-    "mtime": 1791217465.7473493,
-    "ast_hash": "89fe66b13db15a1233bb6fa031244c24",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-orm-setup/references/v7-client-setup.md": {
-    "mtime": 1791217465.7483487,
-    "ast_hash": "6a62a824bd294194030db1c6f259be17",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-orm-setup/references/v7-cockroachdb.md": {
-    "mtime": 1791217465.7483487,
-    "ast_hash": "73a3eebf9e617576d29100f43344eefd",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-orm-setup/references/v7-mysql.md": {
-    "mtime": 1791217465.7493486,
-    "ast_hash": "b6dba5a49ce6f98fc0ceb7037ee9363f",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-orm-setup/references/v7-postgresql.md": {
-    "mtime": 1791217465.7493486,
-    "ast_hash": "d9dec8bc4121cd4724cceaf964bc11a5",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-orm-setup/references/v7-prisma-postgres.md": {
-    "mtime": 1791217465.750349,
-    "ast_hash": "7c42280c893efd9d40b23fb0c33c3e96",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-orm-setup/references/v7-sqlite.md": {
-    "mtime": 1791217465.750349,
-    "ast_hash": "8e1832ba1a8eb9c13d05ed598d412e92",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-orm-setup/references/v7-sqlserver.md": {
-    "mtime": 1791217465.750349,
-    "ast_hash": "8107de78d48933dd48fa5355eb6ea5ee",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-postgres-setup/SKILL.md": {
-    "mtime": 1791217465.751348,
-    "ast_hash": "6adb2dd1fc641c185df8f20877ebf333",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-postgres-setup/references/operations.md": {
-    "mtime": 1791217465.7523477,
-    "ast_hash": "b22f9638689a89667f9d3af30e8eea7a",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-postgres-setup/references/provisioning.md": {
-    "mtime": 1791217465.7523477,
-    "ast_hash": "04b6bcbd22d51c548ede54e93275a2b4",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-postgres-setup/references/vercel-marketplace.md": {
-    "mtime": 1791217465.7533479,
-    "ast_hash": "b684fed481b3d9c8691f1d03ca067793",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-postgres/SKILL.md": {
-    "mtime": 1791217465.7533479,
-    "ast_hash": "d6729304ea5b6811e5b11210aaf72081",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-upgrade-v7/SKILL.md": {
-    "mtime": 1791217465.7543495,
-    "ast_hash": "c27c17ab912f26e7def1a3056abd5854",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-upgrade-v7/references/accelerate-users.md": {
-    "mtime": 1791217465.7553484,
-    "ast_hash": "dabf06bdced251eff703585d8aa09a81",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-upgrade-v7/references/driver-adapters.md": {
-    "mtime": 1791217465.7553484,
-    "ast_hash": "e5be89d424fdc219aa6af34e5f6e410e",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-upgrade-v7/references/env-variables.md": {
-    "mtime": 1791217465.7563472,
-    "ast_hash": "248ff3c8a622636e45e132b1e8b5079e",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-upgrade-v7/references/esm-support.md": {
-    "mtime": 1791217465.7563472,
-    "ast_hash": "cff7f35c26c4bc52f4eab28e8f05997f",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-upgrade-v7/references/prisma-config.md": {
-    "mtime": 1791217465.7573497,
-    "ast_hash": "195a2e920a8ac7ee65d06c7b5dc3f346",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-upgrade-v7/references/removed-features.md": {
-    "mtime": 1791217465.7573497,
-    "ast_hash": "f915f82fffed7764d722c712004762b3",
-    "semantic_hash": ""
-  },
-  ".agents/skills/prisma-upgrade-v7/references/schema-changes.md": {
-    "mtime": 1791217465.7573497,
-    "ast_hash": "1b1e7daa4f6109c92c716e1cb33b023d",
-    "semantic_hash": ""
-  },
-  ".agents/skills/supabase-postgres-best-practices/CHANGELOG.md": {
-    "mtime": 1791217339.521141,
-    "ast_hash": "fdd0ba418e6744556f0029ffb76711b1",
-    "semantic_hash": ""
-  },
-  ".agents/skills/supabase-server/SKILL.md": {
-    "mtime": 1791217597.5690713,
-    "ast_hash": "a741c2ce250706b3611f934969678bde",
-    "semantic_hash": ""
-  },
-  ".agents/skills/supabase/CHANGELOG.md": {
-    "mtime": 1791217339.53714,
-    "ast_hash": "a242cc1a20dc51c1ee1f2c9ae5ed4bf5",
-    "semantic_hash": ""
-  },
-  ".agents/skills/supabase/SKILL.md": {
-    "mtime": 1791217339.5381403,
-    "ast_hash": "800f6299965a4be5ba60e8c27b47230a",
-    "semantic_hash": ""
-  },
-  ".agents/skills/supabase/assets/feedback-issue-template.md": {
-    "mtime": 1791217339.5381403,
-    "ast_hash": "e2c8b4f1a20e46315dd7609540d9b8d4",
-    "semantic_hash": ""
-  },
-  ".agents/skills/supabase/references/skill-feedback.md": {
-    "mtime": 1791217339.5391402,
-    "ast_hash": "c9fa098e2ec8bdce9d6a0f8a64d2c6c0",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-cli/SKILL.md": {
-    "mtime": 1791217465.7220333,
-    "ast_hash": "c83a2d8f25952af4d1c8d721fb62b000",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-cli/references/agent-safety.md": {
-    "mtime": 1791217465.723065,
-    "ast_hash": "b13fb6d46dbfe7db9c2433202d412bd5",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-cli/references/complete.md": {
-    "mtime": 1791217465.7235801,
-    "ast_hash": "827d26a9f01251d2ae9d3ec295f5f8cd",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-cli/references/db-execute.md": {
-    "mtime": 1791217465.7238326,
-    "ast_hash": "fa456e36f9700329b4c1a8093e7ae92a",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-cli/references/db-pull.md": {
-    "mtime": 1791217465.7243488,
-    "ast_hash": "112e9c49afcd099c98a39801ecfe8f64",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-cli/references/db-push.md": {
-    "mtime": 1791217465.7243488,
-    "ast_hash": "9d5b2231c9a0cc01b7a56eb0dbe04b3c",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-cli/references/db-seed.md": {
-    "mtime": 1791217465.7253497,
-    "ast_hash": "6b49790f9fc526c3bf9f9e465b20abf1",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-cli/references/debug.md": {
-    "mtime": 1791217465.7253497,
-    "ast_hash": "efc540e515df61fb409d2b0f33b3f236",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-cli/references/dev.md": {
-    "mtime": 1791217465.7263484,
-    "ast_hash": "633c1f65ae2e3ac43e9b0f7f328f049f",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-cli/references/format.md": {
-    "mtime": 1791217465.7263484,
-    "ast_hash": "7f9480c36e8fb8fd39e4aa2b466e734d",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-cli/references/generate.md": {
-    "mtime": 1791217465.7263484,
-    "ast_hash": "6a346f0ccc80b0087320071ffdb31ab6",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-cli/references/init.md": {
-    "mtime": 1791217465.727349,
-    "ast_hash": "47825b9e05d1c08daf5458e1b4b0c37a",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-cli/references/mcp.md": {
-    "mtime": 1791217465.727349,
-    "ast_hash": "110546680b397c48425aae80a5441010",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-cli/references/migrate-deploy.md": {
-    "mtime": 1791217465.7283487,
-    "ast_hash": "ad5b33f62e3ca6762f18ccbf7c3e1e02",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-cli/references/migrate-dev.md": {
-    "mtime": 1791217465.7293482,
-    "ast_hash": "137ecc3c185e9ec765d633c1c53fd205",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-cli/references/migrate-diff.md": {
-    "mtime": 1791217465.7293482,
-    "ast_hash": "171192cdeeb27614abc384f8520c828a",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-cli/references/migrate-reset.md": {
-    "mtime": 1791217465.7303498,
-    "ast_hash": "29135da6cff321263989e49825eb303b",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-cli/references/migrate-resolve.md": {
-    "mtime": 1791217465.7303498,
-    "ast_hash": "bd96262ad456e74b111c1b9f7f6990d5",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-cli/references/migrate-status.md": {
-    "mtime": 1791217465.7303498,
-    "ast_hash": "6cbb214b8dfd4484e938f8714d1c1787",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-cli/references/studio.md": {
-    "mtime": 1791217465.7313488,
-    "ast_hash": "2026596659d5240e723e8aa2e08457cb",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-cli/references/validate.md": {
-    "mtime": 1791217465.7313488,
-    "ast_hash": "e55d15ed599ab1d5daa22b3dded2f3a6",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-client-api/SKILL.md": {
-    "mtime": 1791217465.7323494,
-    "ast_hash": "33e8490da9422e0409a9d6720d738432",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-client-api/references/client-methods.md": {
-    "mtime": 1791217465.7333481,
-    "ast_hash": "415a45ea5ddf1995a14c1d70694868ed",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-client-api/references/constructor.md": {
-    "mtime": 1791217465.7333481,
-    "ast_hash": "266f293805dcec719babe5827701c354",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-client-api/references/filters.md": {
-    "mtime": 1791217465.734349,
-    "ast_hash": "44a7456d7ea6cb8d8f4ccc6a20b16814",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-client-api/references/model-queries.md": {
-    "mtime": 1791217465.734349,
-    "ast_hash": "2bb53c933e4baf20076d713e13151091",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-client-api/references/query-options.md": {
-    "mtime": 1791217465.7353482,
-    "ast_hash": "30e889e6586befa4d524469e9110b989",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-client-api/references/raw-queries.md": {
-    "mtime": 1791217465.7353482,
-    "ast_hash": "ac6abaf987e38d31ecb67bd7b29043b6",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-client-api/references/relations.md": {
-    "mtime": 1791217465.7363474,
-    "ast_hash": "2c822b05319d89528354ada1d09dc241",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-client-api/references/transactions.md": {
-    "mtime": 1791217465.7363474,
-    "ast_hash": "b63ef1dd624c20c22a028f28a9e8a705",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-compute/SKILL.md": {
-    "mtime": 1791217465.737349,
-    "ast_hash": "6a8e608733665924d582e010aaa8fa3f",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-compute/references/app-deploy-cli.md": {
-    "mtime": 1791217465.7383494,
-    "ast_hash": "af3234f0e04d92140bd4216bb6145603",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-compute/references/compute-config.md": {
-    "mtime": 1791217465.7383494,
-    "ast_hash": "b99b8d26bd77c1fab925bc96ebf545f1",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-compute/references/create-prisma.md": {
-    "mtime": 1791217465.739348,
-    "ast_hash": "591bf4d18940482e80fb883c6abb19b1",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-compute/references/frameworks.md": {
-    "mtime": 1791217465.739348,
-    "ast_hash": "00b044c763d6f559b6e74d31f9fc2b79",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-compute/references/sdk-api.md": {
-    "mtime": 1791217465.740348,
-    "ast_hash": "0703621e3bc7f5c6c18185030321254b",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-compute/references/troubleshooting.md": {
-    "mtime": 1791217465.740348,
-    "ast_hash": "fbb828c275e54521b0621b56e03f66c4",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-database-setup/SKILL.md": {
-    "mtime": 1791217465.7413468,
-    "ast_hash": "7694ea8b0a9a2a4751cf63a6e241f29f",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-driver-adapter-implementation/SKILL.md": {
-    "mtime": 1791217465.7423482,
-    "ast_hash": "a34b8a6e8a68b25e2aca7a0388887839",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-mongodb-upgrade/SKILL.md": {
-    "mtime": 1791217465.7433486,
-    "ast_hash": "026f3333ceae232e1be79d5054431209",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-mongodb-upgrade/references/client-api-mapping.md": {
-    "mtime": 1791217465.7443476,
-    "ast_hash": "241c889046711441144f54f443e5c518",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-mongodb-upgrade/references/decision-stay-or-migrate.md": {
-    "mtime": 1791217465.7443476,
-    "ast_hash": "73080f0d9cb0eb1f35a8a38d353aa126",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-mongodb-upgrade/references/migrations-mapping.md": {
-    "mtime": 1791217465.7453494,
-    "ast_hash": "6a35b24785c7c4261567e1ac9de71ec3",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-mongodb-upgrade/references/schema-contract-mapping.md": {
-    "mtime": 1791217465.7453494,
-    "ast_hash": "a3daaccb14fb9e94cb7f2ce697b6b2de",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-mongodb-upgrade/references/verify-cutover-checklist.md": {
-    "mtime": 1791217465.7463477,
-    "ast_hash": "ae5e1c7e16f3b46188760820902a8a68",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-orm-setup/SKILL.md": {
-    "mtime": 1791217465.7473493,
-    "ast_hash": "5a7f4683ef5de35b9624685e1fff7527",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-orm-setup/references/v6-mongodb.md": {
-    "mtime": 1791217465.7473493,
-    "ast_hash": "89fe66b13db15a1233bb6fa031244c24",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-orm-setup/references/v7-client-setup.md": {
-    "mtime": 1791217465.7483487,
-    "ast_hash": "6a62a824bd294194030db1c6f259be17",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-orm-setup/references/v7-cockroachdb.md": {
-    "mtime": 1791217465.7483487,
-    "ast_hash": "73a3eebf9e617576d29100f43344eefd",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-orm-setup/references/v7-mysql.md": {
-    "mtime": 1791217465.7493486,
-    "ast_hash": "b6dba5a49ce6f98fc0ceb7037ee9363f",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-orm-setup/references/v7-postgresql.md": {
-    "mtime": 1791217465.7493486,
-    "ast_hash": "d9dec8bc4121cd4724cceaf964bc11a5",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-orm-setup/references/v7-prisma-postgres.md": {
-    "mtime": 1791217465.750349,
-    "ast_hash": "7c42280c893efd9d40b23fb0c33c3e96",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-orm-setup/references/v7-sqlite.md": {
-    "mtime": 1791217465.750349,
-    "ast_hash": "8e1832ba1a8eb9c13d05ed598d412e92",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-orm-setup/references/v7-sqlserver.md": {
-    "mtime": 1791217465.750349,
-    "ast_hash": "8107de78d48933dd48fa5355eb6ea5ee",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-postgres-setup/SKILL.md": {
-    "mtime": 1791217465.751348,
-    "ast_hash": "6adb2dd1fc641c185df8f20877ebf333",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-postgres-setup/references/operations.md": {
-    "mtime": 1791217465.7523477,
-    "ast_hash": "b22f9638689a89667f9d3af30e8eea7a",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-postgres-setup/references/provisioning.md": {
-    "mtime": 1791217465.7523477,
-    "ast_hash": "04b6bcbd22d51c548ede54e93275a2b4",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-postgres-setup/references/vercel-marketplace.md": {
-    "mtime": 1791217465.7533479,
-    "ast_hash": "b684fed481b3d9c8691f1d03ca067793",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-postgres/SKILL.md": {
-    "mtime": 1791217465.7533479,
-    "ast_hash": "d6729304ea5b6811e5b11210aaf72081",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-upgrade-v7/SKILL.md": {
-    "mtime": 1791217465.7543495,
-    "ast_hash": "c27c17ab912f26e7def1a3056abd5854",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-upgrade-v7/references/accelerate-users.md": {
-    "mtime": 1791217465.7553484,
-    "ast_hash": "dabf06bdced251eff703585d8aa09a81",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-upgrade-v7/references/driver-adapters.md": {
-    "mtime": 1791217465.7553484,
-    "ast_hash": "e5be89d424fdc219aa6af34e5f6e410e",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-upgrade-v7/references/env-variables.md": {
-    "mtime": 1791217465.7563472,
-    "ast_hash": "248ff3c8a622636e45e132b1e8b5079e",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-upgrade-v7/references/esm-support.md": {
-    "mtime": 1791217465.7563472,
-    "ast_hash": "cff7f35c26c4bc52f4eab28e8f05997f",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-upgrade-v7/references/prisma-config.md": {
-    "mtime": 1791217465.7573497,
-    "ast_hash": "195a2e920a8ac7ee65d06c7b5dc3f346",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-upgrade-v7/references/removed-features.md": {
-    "mtime": 1791217465.7573497,
-    "ast_hash": "f915f82fffed7764d722c712004762b3",
-    "semantic_hash": ""
-  },
-  ".claude/skills/prisma-upgrade-v7/references/schema-changes.md": {
-    "mtime": 1791217465.7573497,
-    "ast_hash": "1b1e7daa4f6109c92c716e1cb33b023d",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-cli/SKILL.md": {
-    "mtime": 1791217465.7220333,
-    "ast_hash": "c83a2d8f25952af4d1c8d721fb62b000",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-cli/references/agent-safety.md": {
-    "mtime": 1791217465.723065,
-    "ast_hash": "b13fb6d46dbfe7db9c2433202d412bd5",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-cli/references/complete.md": {
-    "mtime": 1791217465.7235801,
-    "ast_hash": "827d26a9f01251d2ae9d3ec295f5f8cd",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-cli/references/db-execute.md": {
-    "mtime": 1791217465.7238326,
-    "ast_hash": "fa456e36f9700329b4c1a8093e7ae92a",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-cli/references/db-pull.md": {
-    "mtime": 1791217465.7243488,
-    "ast_hash": "112e9c49afcd099c98a39801ecfe8f64",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-cli/references/db-push.md": {
-    "mtime": 1791217465.7243488,
-    "ast_hash": "9d5b2231c9a0cc01b7a56eb0dbe04b3c",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-cli/references/db-seed.md": {
-    "mtime": 1791217465.7253497,
-    "ast_hash": "6b49790f9fc526c3bf9f9e465b20abf1",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-cli/references/debug.md": {
-    "mtime": 1791217465.7253497,
-    "ast_hash": "efc540e515df61fb409d2b0f33b3f236",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-cli/references/dev.md": {
-    "mtime": 1791217465.7263484,
-    "ast_hash": "633c1f65ae2e3ac43e9b0f7f328f049f",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-cli/references/format.md": {
-    "mtime": 1791217465.7263484,
-    "ast_hash": "7f9480c36e8fb8fd39e4aa2b466e734d",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-cli/references/generate.md": {
-    "mtime": 1791217465.7263484,
-    "ast_hash": "6a346f0ccc80b0087320071ffdb31ab6",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-cli/references/init.md": {
-    "mtime": 1791217465.727349,
-    "ast_hash": "47825b9e05d1c08daf5458e1b4b0c37a",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-cli/references/mcp.md": {
-    "mtime": 1791217465.727349,
-    "ast_hash": "110546680b397c48425aae80a5441010",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-cli/references/migrate-deploy.md": {
-    "mtime": 1791217465.7283487,
-    "ast_hash": "ad5b33f62e3ca6762f18ccbf7c3e1e02",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-cli/references/migrate-dev.md": {
-    "mtime": 1791217465.7293482,
-    "ast_hash": "137ecc3c185e9ec765d633c1c53fd205",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-cli/references/migrate-diff.md": {
-    "mtime": 1791217465.7293482,
-    "ast_hash": "171192cdeeb27614abc384f8520c828a",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-cli/references/migrate-reset.md": {
-    "mtime": 1791217465.7303498,
-    "ast_hash": "29135da6cff321263989e49825eb303b",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-cli/references/migrate-resolve.md": {
-    "mtime": 1791217465.7303498,
-    "ast_hash": "bd96262ad456e74b111c1b9f7f6990d5",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-cli/references/migrate-status.md": {
-    "mtime": 1791217465.7303498,
-    "ast_hash": "6cbb214b8dfd4484e938f8714d1c1787",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-cli/references/studio.md": {
-    "mtime": 1791217465.7313488,
-    "ast_hash": "2026596659d5240e723e8aa2e08457cb",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-cli/references/validate.md": {
-    "mtime": 1791217465.7313488,
-    "ast_hash": "e55d15ed599ab1d5daa22b3dded2f3a6",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-client-api/SKILL.md": {
-    "mtime": 1791217465.7323494,
-    "ast_hash": "33e8490da9422e0409a9d6720d738432",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-client-api/references/client-methods.md": {
-    "mtime": 1791217465.7333481,
-    "ast_hash": "415a45ea5ddf1995a14c1d70694868ed",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-client-api/references/constructor.md": {
-    "mtime": 1791217465.7333481,
-    "ast_hash": "266f293805dcec719babe5827701c354",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-client-api/references/filters.md": {
-    "mtime": 1791217465.734349,
-    "ast_hash": "44a7456d7ea6cb8d8f4ccc6a20b16814",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-client-api/references/model-queries.md": {
-    "mtime": 1791217465.734349,
-    "ast_hash": "2bb53c933e4baf20076d713e13151091",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-client-api/references/query-options.md": {
-    "mtime": 1791217465.7353482,
-    "ast_hash": "30e889e6586befa4d524469e9110b989",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-client-api/references/raw-queries.md": {
-    "mtime": 1791217465.7353482,
-    "ast_hash": "ac6abaf987e38d31ecb67bd7b29043b6",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-client-api/references/relations.md": {
-    "mtime": 1791217465.7363474,
-    "ast_hash": "2c822b05319d89528354ada1d09dc241",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-client-api/references/transactions.md": {
-    "mtime": 1791217465.7363474,
-    "ast_hash": "b63ef1dd624c20c22a028f28a9e8a705",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-compute/SKILL.md": {
-    "mtime": 1791217465.737349,
-    "ast_hash": "6a8e608733665924d582e010aaa8fa3f",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-compute/references/app-deploy-cli.md": {
-    "mtime": 1791217465.7383494,
-    "ast_hash": "af3234f0e04d92140bd4216bb6145603",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-compute/references/compute-config.md": {
-    "mtime": 1791217465.7383494,
-    "ast_hash": "b99b8d26bd77c1fab925bc96ebf545f1",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-compute/references/create-prisma.md": {
-    "mtime": 1791217465.739348,
-    "ast_hash": "591bf4d18940482e80fb883c6abb19b1",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-compute/references/frameworks.md": {
-    "mtime": 1791217465.739348,
-    "ast_hash": "00b044c763d6f559b6e74d31f9fc2b79",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-compute/references/sdk-api.md": {
-    "mtime": 1791217465.740348,
-    "ast_hash": "0703621e3bc7f5c6c18185030321254b",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-compute/references/troubleshooting.md": {
-    "mtime": 1791217465.740348,
-    "ast_hash": "fbb828c275e54521b0621b56e03f66c4",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-database-setup/SKILL.md": {
-    "mtime": 1791217465.7413468,
-    "ast_hash": "7694ea8b0a9a2a4751cf63a6e241f29f",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-driver-adapter-implementation/SKILL.md": {
-    "mtime": 1791217465.7423482,
-    "ast_hash": "a34b8a6e8a68b25e2aca7a0388887839",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-mongodb-upgrade/SKILL.md": {
-    "mtime": 1791217465.7433486,
-    "ast_hash": "026f3333ceae232e1be79d5054431209",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-mongodb-upgrade/references/client-api-mapping.md": {
-    "mtime": 1791217465.7443476,
-    "ast_hash": "241c889046711441144f54f443e5c518",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-mongodb-upgrade/references/decision-stay-or-migrate.md": {
-    "mtime": 1791217465.7443476,
-    "ast_hash": "73080f0d9cb0eb1f35a8a38d353aa126",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-mongodb-upgrade/references/migrations-mapping.md": {
-    "mtime": 1791217465.7453494,
-    "ast_hash": "6a35b24785c7c4261567e1ac9de71ec3",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-mongodb-upgrade/references/schema-contract-mapping.md": {
-    "mtime": 1791217465.7453494,
-    "ast_hash": "a3daaccb14fb9e94cb7f2ce697b6b2de",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-mongodb-upgrade/references/verify-cutover-checklist.md": {
-    "mtime": 1791217465.7463477,
-    "ast_hash": "ae5e1c7e16f3b46188760820902a8a68",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-orm-setup/SKILL.md": {
-    "mtime": 1791217465.7473493,
-    "ast_hash": "5a7f4683ef5de35b9624685e1fff7527",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-orm-setup/references/v6-mongodb.md": {
-    "mtime": 1791217465.7473493,
-    "ast_hash": "89fe66b13db15a1233bb6fa031244c24",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-orm-setup/references/v7-client-setup.md": {
-    "mtime": 1791217465.7483487,
-    "ast_hash": "6a62a824bd294194030db1c6f259be17",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-orm-setup/references/v7-cockroachdb.md": {
-    "mtime": 1791217465.7483487,
-    "ast_hash": "73a3eebf9e617576d29100f43344eefd",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-orm-setup/references/v7-mysql.md": {
-    "mtime": 1791217465.7493486,
-    "ast_hash": "b6dba5a49ce6f98fc0ceb7037ee9363f",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-orm-setup/references/v7-postgresql.md": {
-    "mtime": 1791217465.7493486,
-    "ast_hash": "d9dec8bc4121cd4724cceaf964bc11a5",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-orm-setup/references/v7-prisma-postgres.md": {
-    "mtime": 1791217465.750349,
-    "ast_hash": "7c42280c893efd9d40b23fb0c33c3e96",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-orm-setup/references/v7-sqlite.md": {
-    "mtime": 1791217465.750349,
-    "ast_hash": "8e1832ba1a8eb9c13d05ed598d412e92",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-orm-setup/references/v7-sqlserver.md": {
-    "mtime": 1791217465.750349,
-    "ast_hash": "8107de78d48933dd48fa5355eb6ea5ee",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-postgres-setup/SKILL.md": {
-    "mtime": 1791217465.751348,
-    "ast_hash": "6adb2dd1fc641c185df8f20877ebf333",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-postgres-setup/references/operations.md": {
-    "mtime": 1791217465.7523477,
-    "ast_hash": "b22f9638689a89667f9d3af30e8eea7a",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-postgres-setup/references/provisioning.md": {
-    "mtime": 1791217465.7523477,
-    "ast_hash": "04b6bcbd22d51c548ede54e93275a2b4",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-postgres-setup/references/vercel-marketplace.md": {
-    "mtime": 1791217465.7533479,
-    "ast_hash": "b684fed481b3d9c8691f1d03ca067793",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-postgres/SKILL.md": {
-    "mtime": 1791217465.7533479,
-    "ast_hash": "d6729304ea5b6811e5b11210aaf72081",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-upgrade-v7/SKILL.md": {
-    "mtime": 1791217465.7543495,
-    "ast_hash": "c27c17ab912f26e7def1a3056abd5854",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-upgrade-v7/references/accelerate-users.md": {
-    "mtime": 1791217465.7553484,
-    "ast_hash": "dabf06bdced251eff703585d8aa09a81",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-upgrade-v7/references/driver-adapters.md": {
-    "mtime": 1791217465.7553484,
-    "ast_hash": "e5be89d424fdc219aa6af34e5f6e410e",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-upgrade-v7/references/env-variables.md": {
-    "mtime": 1791217465.7563472,
-    "ast_hash": "248ff3c8a622636e45e132b1e8b5079e",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-upgrade-v7/references/esm-support.md": {
-    "mtime": 1791217465.7563472,
-    "ast_hash": "cff7f35c26c4bc52f4eab28e8f05997f",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-upgrade-v7/references/prisma-config.md": {
-    "mtime": 1791217465.7573497,
-    "ast_hash": "195a2e920a8ac7ee65d06c7b5dc3f346",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-upgrade-v7/references/removed-features.md": {
-    "mtime": 1791217465.7573497,
-    "ast_hash": "f915f82fffed7764d722c712004762b3",
-    "semantic_hash": ""
-  },
-  ".windsurf/skills/prisma-upgrade-v7/references/schema-changes.md": {
-    "mtime": 1791217465.7573497,
-    "ast_hash": "1b1e7daa4f6109c92c716e1cb33b023d",
     "semantic_hash": ""
   }
 }

@@ -1,16 +1,16 @@
-# Graph Report - MaestroPescaderia  (2026-10-06)
+# Graph Report - MaestroPescaderia  (2026-10-02)
 
 ## Corpus Check
-- 1741 files · ~1,129,783 words
+- 1532 files · ~1,007,067 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 13360 nodes · 14187 edges · 1182 communities (996 shown, 186 thin omitted)
+- 12337 nodes · 13208 edges · 1111 communities (926 shown, 185 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 2 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `0ac705b8`
+- Built from commit: `e4150b9e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -1106,87 +1106,18 @@
 - [[_COMMUNITY_Community 1108|Community 1108]]
 - [[_COMMUNITY_Community 1109|Community 1109]]
 - [[_COMMUNITY_Community 1110|Community 1110]]
-- [[_COMMUNITY_Community 1111|Community 1111]]
-- [[_COMMUNITY_Community 1112|Community 1112]]
-- [[_COMMUNITY_Community 1113|Community 1113]]
-- [[_COMMUNITY_Community 1114|Community 1114]]
-- [[_COMMUNITY_Community 1115|Community 1115]]
-- [[_COMMUNITY_Community 1116|Community 1116]]
-- [[_COMMUNITY_Community 1117|Community 1117]]
-- [[_COMMUNITY_Community 1118|Community 1118]]
-- [[_COMMUNITY_Community 1119|Community 1119]]
-- [[_COMMUNITY_Community 1120|Community 1120]]
-- [[_COMMUNITY_Community 1121|Community 1121]]
-- [[_COMMUNITY_Community 1122|Community 1122]]
-- [[_COMMUNITY_Community 1123|Community 1123]]
-- [[_COMMUNITY_Community 1124|Community 1124]]
-- [[_COMMUNITY_Community 1125|Community 1125]]
-- [[_COMMUNITY_Community 1126|Community 1126]]
-- [[_COMMUNITY_Community 1127|Community 1127]]
-- [[_COMMUNITY_Community 1128|Community 1128]]
-- [[_COMMUNITY_Community 1129|Community 1129]]
-- [[_COMMUNITY_Community 1130|Community 1130]]
-- [[_COMMUNITY_Community 1131|Community 1131]]
-- [[_COMMUNITY_Community 1132|Community 1132]]
-- [[_COMMUNITY_Community 1133|Community 1133]]
-- [[_COMMUNITY_Community 1134|Community 1134]]
-- [[_COMMUNITY_Community 1135|Community 1135]]
-- [[_COMMUNITY_Community 1136|Community 1136]]
-- [[_COMMUNITY_Community 1137|Community 1137]]
-- [[_COMMUNITY_Community 1138|Community 1138]]
-- [[_COMMUNITY_Community 1139|Community 1139]]
-- [[_COMMUNITY_Community 1140|Community 1140]]
-- [[_COMMUNITY_Community 1141|Community 1141]]
-- [[_COMMUNITY_Community 1142|Community 1142]]
-- [[_COMMUNITY_Community 1143|Community 1143]]
-- [[_COMMUNITY_Community 1144|Community 1144]]
-- [[_COMMUNITY_Community 1145|Community 1145]]
-- [[_COMMUNITY_Community 1146|Community 1146]]
-- [[_COMMUNITY_Community 1147|Community 1147]]
-- [[_COMMUNITY_Community 1148|Community 1148]]
-- [[_COMMUNITY_Community 1149|Community 1149]]
-- [[_COMMUNITY_Community 1150|Community 1150]]
-- [[_COMMUNITY_Community 1151|Community 1151]]
-- [[_COMMUNITY_Community 1152|Community 1152]]
-- [[_COMMUNITY_Community 1153|Community 1153]]
-- [[_COMMUNITY_Community 1154|Community 1154]]
-- [[_COMMUNITY_Community 1155|Community 1155]]
-- [[_COMMUNITY_Community 1156|Community 1156]]
-- [[_COMMUNITY_Community 1157|Community 1157]]
-- [[_COMMUNITY_Community 1158|Community 1158]]
-- [[_COMMUNITY_Community 1159|Community 1159]]
-- [[_COMMUNITY_Community 1160|Community 1160]]
-- [[_COMMUNITY_Community 1161|Community 1161]]
-- [[_COMMUNITY_Community 1163|Community 1163]]
-- [[_COMMUNITY_Community 1164|Community 1164]]
-- [[_COMMUNITY_Community 1165|Community 1165]]
-- [[_COMMUNITY_Community 1166|Community 1166]]
-- [[_COMMUNITY_Community 1167|Community 1167]]
-- [[_COMMUNITY_Community 1168|Community 1168]]
-- [[_COMMUNITY_Community 1169|Community 1169]]
-- [[_COMMUNITY_Community 1170|Community 1170]]
-- [[_COMMUNITY_Community 1171|Community 1171]]
-- [[_COMMUNITY_Community 1172|Community 1172]]
-- [[_COMMUNITY_Community 1173|Community 1173]]
-- [[_COMMUNITY_Community 1174|Community 1174]]
-- [[_COMMUNITY_Community 1175|Community 1175]]
-- [[_COMMUNITY_Community 1176|Community 1176]]
-- [[_COMMUNITY_Community 1177|Community 1177]]
-- [[_COMMUNITY_Community 1178|Community 1178]]
-- [[_COMMUNITY_Community 1179|Community 1179]]
-- [[_COMMUNITY_Community 1180|Community 1180]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `IDataService` - 35 edges
 2. `LocalDataService` - 34 edges
 3. `useAppStore` - 29 edges
 4. `ResultadoOperacion` - 24 edges
-5. `Troubleshooting Prisma Compute` - 23 edges
-6. `CashService` - 23 edges
-7. `Agent Types Reference` - 23 edges
-8. `GitHub Code Review Skill` - 22 edges
-9. `useInventoryStore` - 21 edges
-10. `useOrderStore` - 21 edges
+5. `CashService` - 23 edges
+6. `Agent Types Reference` - 23 edges
+7. `GitHub Code Review Skill` - 22 edges
+8. `useInventoryStore` - 21 edges
+9. `useOrderStore` - 21 edges
+10. `App()` - 20 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `PricingView()` --calls--> `usePricing()`  [EXTRACTED]
@@ -1203,27 +1134,27 @@
 ## Import Cycles
 - 3-file cycle: `src/App.tsx -> src/views/PricingView.tsx -> src/hooks/usePricing.ts -> src/App.tsx`
 
-## Communities (1182 total, 186 thin omitted)
+## Communities (1111 total, 185 thin omitted)
 
 ### Community 0 - "Community 0"
-Cohesion: 0.08
-Nodes (55): FulfillmentChecklist(), usePricing(), AlistamientoBodegaView(), DispatchView(), orderDispatchService, App(), CategoriaConfig, DomainEvent (+47 more)
+Cohesion: 0.07
+Nodes (68): CartPanel(), DevolucionesTabProps, FulfillmentChecklist(), usePricing(), AlistamientoBodegaView(), DispatchView(), OmniboxAction, OmniboxCategory (+60 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.03
-Nodes (70): COLORS, ICONS, initLogger(), LOG_LEVELS, LogFn, LoggableDataService, Logger, LogLevel (+62 more)
+Cohesion: 0.04
+Nodes (72): COLORS, ICONS, initLogger(), LOG_LEVELS, LogFn, Logger, LogLevel, MODULE_LEVELS (+64 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.07
-Nodes (43): CashFlowView(), AperturaCajaModal(), AperturaCajaModalProps, ArqueoCajaModal(), ArqueoCajaModalProps, CalculadorDenominaciones(), DENOMINACIONES_BILLETES, DENOMINACIONES_MONEDAS (+35 more)
+Cohesion: 0.08
+Nodes (40): CashFlowView(), AperturaCajaModal(), AperturaCajaModalProps, ArqueoCajaModal(), ArqueoCajaModalProps, CalculadorDenominaciones(), DENOMINACIONES_BILLETES, DENOMINACIONES_MONEDAS (+32 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.09
-Nodes (26): BalanzaButton(), BalanzaButtonProps, CartPanel(), CartPanelProps, LineaVentaRow(), LineaVentaRowProps, MetodoCobroPos, PaymentPanel() (+18 more)
+Nodes (27): BalanzaButton(), BalanzaButtonProps, CartPanelProps, LineaVentaRow(), LineaVentaRowProps, MetodoCobroPos, PaymentPanel(), PaymentPanelProps (+19 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.15
-Nodes (21): transicionesValidas, getSkuByProductoId(), getUnidadByProductoId(), InventoryService, MovimientoInventario, procesarProduccion(), registrarEntrada(), registrarSalida() (+13 more)
+Cohesion: 0.10
+Nodes (30): WarehouseConfigManager(), transicionesValidas, getSkuByProductoId(), getUnidadByProductoId(), InventoryService, MovimientoInventario, procesarProduccion(), registrarEntrada() (+22 more)
 
 ### Community 5 - "Community 5"
 Cohesion: 0.04
@@ -1238,16 +1169,16 @@ Cohesion: 0.04
 Nodes (48): 10. Dependency Security, 1. Secrets Management, 2. Input Validation, 3. SQL Injection Prevention, 4. Authentication & Authorization, 5. XSS Prevention, 6. CSRF Protection, 7. Rate Limiting (+40 more)
 
 ### Community 8 - "Community 8"
-Cohesion: 0.07
-Nodes (28): 1. Eventually Consistent, 1. Microservices Coordination, 1. Webhook-Based Coordination, 2. GraphQL Federation, 2. Library Updates, 2. Strong Consistency, 3. Event Streaming, 3. Hybrid Approach (+20 more)
+Cohesion: 0.06
+Nodes (36): 1. Cross-Repo Initialization, 1. Eventually Consistent, 1. Repository Organization, 2. Communication, 2. Repository Discovery, 2. Strong Consistency, 3. Hybrid Approach, 3. Security (+28 more)
 
 ### Community 9 - "Community 9"
-Cohesion: 0.03
-Nodes (76): CatalogTab(), CatalogTabProps, DevolucionesTab(), DevolucionesTabProps, PriceHistoryModal(), PriceHistoryModalProps, PricingTab(), PricingTabProps (+68 more)
+Cohesion: 0.06
+Nodes (41): ProductSearchPanel(), ProductSearchPanelProps, ProductTable(), CalendarGrid(), CalendarGridProps, EventSidePanel(), EventSidePanelProps, useCalendarEvents() (+33 more)
 
 ### Community 10 - "Community 10"
-Cohesion: 0.10
-Nodes (20): devDependencies, autoprefixer, ecc-universal, jsdom, @playwright/test, postcss, prisma, tailwindcss (+12 more)
+Cohesion: 0.11
+Nodes (19): devDependencies, autoprefixer, ecc-universal, jsdom, @playwright/test, postcss, tailwindcss, @testing-library/jest-dom (+11 more)
 
 ### Community 11 - "Community 11"
 Cohesion: 0.04
@@ -1278,8 +1209,8 @@ Cohesion: 0.05
 Nodes (41): 1. Long Functions, 1. Readability First, 2. Deep Nesting, 2. KISS (Keep It Simple, Stupid), 3. DRY (Don't Repeat Yourself), 3. Magic Numbers, 4. YAGNI (You Aren't Gonna Need It), API Design Standards (+33 more)
 
 ### Community 18 - "Community 18"
-Cohesion: 0.06
-Nodes (33): 1. Swarm-Powered Actions, 1. Workflow Organization, 2. Dynamic Workflow Generation, 2. Security, 3. Intelligent Test Selection, 3. Performance, Action Commands, Adaptive Security Scanning (+25 more)
+Cohesion: 0.05
+Nodes (37): 1. PR Validation Swarm, 1. Self-Healing CI/CD, 1. Swarm-Powered Actions, 2. Dynamic Workflow Generation, 2. Progressive Deployment, 2. Release Automation, 3. Documentation Updates, 3. Intelligent Test Selection (+29 more)
 
 ### Community 19 - "Community 19"
 Cohesion: 0.05
@@ -1463,11 +1394,11 @@ Nodes (23): 1. Create Coordinated Issue with Swarm Tracking, 1. **Swarm-Coordina
 
 ### Community 64 - "Community 64"
 Cohesion: 0.06
-Nodes (32): 1. Issue-to-Swarm Conversion, 2. Issue Comment Commands, 3. Issue Templates for Swarms, Auto-Close Stale Issues, Auto-Label Based on Content, Automation Examples, Bug Reports, Complex Bug Investigation (+24 more)
+Nodes (36): 1. Issue Dependencies, 1. Issue-PR Linking, 1. Issue Templates, 2. Epic Management, 2. Label Strategy, 2. Milestone Coordination, 3. Comment Etiquette, 3. Cross-Repo Issues (+28 more)
 
 ### Community 65 - "Community 65"
-Cohesion: 0.07
-Nodes (28): 1. Multi-PR Swarm Coordination, 1. PR Templates, 2. PR Dependency Analysis, 2. Status Checks, 3. Automated PR Fixes, 3. PR Merge Automation, Advanced Features, Automatic Agent Assignment (+20 more)
+Cohesion: 0.06
+Nodes (32): 1. Multi-PR Swarm Coordination, 1. PR-Based Swarm Creation, 1. PR Templates, 2. PR Comment Commands, 2. PR Dependency Analysis, 2. Status Checks, 3. Automated PR Fixes, 3. Automated PR Workflows (+24 more)
 
 ### Community 66 - "Community 66"
 Cohesion: 0.08
@@ -1718,8 +1649,8 @@ Cohesion: 0.19
 Nodes (9): DevTestDashboard(), applySeed(), SEED_DATA, applySeed(), SEED_DATA, applySeed(), SEED_DATA, applySeed() (+1 more)
 
 ### Community 128 - "Community 128"
-Cohesion: 0.04
-Nodes (48): 1. Auto-Assignment, 1. Board Initialization, 1. Board Organization, 1. Multi-Board Sync, 2. Cross-Organization Sync, 2. Data Integrity, 2. Progress Tracking, 2. Task Synchronization (+40 more)
+Cohesion: 0.06
+Nodes (32): 1. Board Initialization, 1. Multi-Board Sync, 2. Cross-Organization Sync, 2. Task Synchronization, 3. External Tool Integration, 3. Real-time Updates, Advanced Synchronization, Board Commands (+24 more)
 
 ### Community 129 - "Community 129"
 Cohesion: 0.12
@@ -2830,8 +2761,8 @@ Cohesion: 0.22
 Nodes (9): Basic Development Chain, Code Refactoring Chain, Custom Chains (`run`), Data Processing Pipeline, Examples, How Context Flows, Options, Security Audit Workflow (+1 more)
 
 ### Community 408 - "Community 408"
-Cohesion: 0.22
-Nodes (9): Comprehensive Optimization, Debug Test Generation, Extended Refactoring, Pipeline Examples, Pipeline Options, Pipeline Output, Predefined Pipelines (`pipeline`), Quick Analysis (+1 more)
+Cohesion: 0.40
+Nodes (5): Comprehensive Optimization, Debug Test Generation, Extended Refactoring, Pipeline Examples, Quick Analysis
 
 ### Community 409 - "Community 409"
 Cohesion: 0.22
@@ -3574,8 +3505,8 @@ Cohesion: 0.40
 Nodes (4): Fase 0: Correcciones de Artefactos (Pre-Implementación), Fase 1: Implementación de Clases Utilitarias (React/JSX), Fase 2: Verificación de Calidad y Testing, Lista de Tareas (Task Tracker) — v2.0
 
 ### Community 595 - "Community 595"
-Cohesion: 0.40
-Nodes (5): 1. Analysis Pipeline, 2. Refactor Pipeline, 3. Test Pipeline, 4. Optimize Pipeline, Available Pipelines
+Cohesion: 0.22
+Nodes (9): 1. Analysis Pipeline, 2. Refactor Pipeline, 3. Test Pipeline, 4. Optimize Pipeline, Available Pipelines, Pipeline Options, Pipeline Output, Predefined Pipelines (`pipeline`) (+1 more)
 
 ### Community 596 - "Community 596"
 Cohesion: 0.40
@@ -3682,8 +3613,8 @@ Cohesion: 0.29
 Nodes (6): 📋 1. Compleitud y Claridad de Requerimientos (Completeness & Clarity), 🏛️ 2. Cumplimiento de la Constitución del ERP (Architecture & Business Rules), ⚙️ 3. Mantenibilidad y Desacoplamiento (Maintainability & Decoupling), 🧪 4. Verificabilidad y Calidad de Código (Testability & QA Gates), 🔒 5. Gestión de Riesgos e Infraestructura (Risk & Infrastructure), Lista de Verificación de Calidad (Quality Assurance Checklist - SDD / ISO 25010)
 
 ### Community 622 - "Community 622"
-Cohesion: 0.05
-Nodes (39): CategoriaWizardModal(), Props, CrearProductoRapidoModal(), Props, CrearProveedorRapidoModal(), Props, DockReceivingTab(), DockReceivingTabProps (+31 more)
+Cohesion: 0.07
+Nodes (29): CategoriaWizardModal(), Props, CrearProductoRapidoModal(), Props, CrearProveedorRapidoModal(), Props, DockReceivingTab(), DockReceivingTabProps (+21 more)
 
 ### Community 623 - "Community 623"
 Cohesion: 0.25
@@ -4190,7 +4121,7 @@ Cohesion: 0.09
 Nodes (22): Anti-Patterns to Avoid, Attach Console to Report, Auto-Fail Fixture, Basic Console Capture, Browser Console & JavaScript Error Handling, Capture by Type, Capture Deprecation Warnings, Capture Error Details (+14 more)
 
 ### Community 816 - "Community 816"
-Cohesion: 0.09
+Cohesion: 0.10
 Nodes (21): Capturing Verification Tokens, Complete Reset Flow, Complex Authentication Flow Patterns, Detecting Expired Sessions, Email Verification Flows, Expired Token Handling, Fully Mocked Verification, Logout from All Devices (+13 more)
 
 ### Community 817 - "Community 817"
@@ -4326,7 +4257,7 @@ Cohesion: 0.13
 Nodes (14): 📊 1. Resumen Ejecutivo del Estado del Sistema, 1. Vistas Monolíticas "God-Components", 2. Configuración ESLint Inexistente en Raíz, 🚨 2. Matriz de Hallazgos Clasificados por Severidad, 3. Dependencia Circular y Exportación de Tipos desde `App.tsx`, 🗺️ 3. Mapa de Estado de Flujos Transaccionales, 4. Falso Fallback Estático en Cálculo ABC Pareto 80/20, 🛠️ 4. Plan de Acción Recomendado (Fases SDD) (+6 more)
 
 ### Community 850 - "Community 850"
-Cohesion: 0.13
+Cohesion: 0.10
 Nodes (15): Anti-Patterns, "browserType.launch: Executable doesn't exist", CI Container Jobs, Container-Based Testing, Custom Dockerfile, Decision Guide, Dev Container Setup, Docker Compose Stack (+7 more)
 
 ### Community 851 - "Community 851"
@@ -4579,7 +4510,7 @@ Nodes (3): File-System Paths, Import Paths, Prefer Statically Analyzable Paths
 
 ### Community 916 - "Community 916"
 Cohesion: 0.07
-Nodes (27): Accept self-signed certificates, After (v7), Available Adapters, Before (v6), Configuration, Connection Pool Configuration, Driver Adapters, Installation (+19 more)
+Nodes (23): CatalogTab(), CatalogTabProps, DevolucionesTab(), PriceHistoryModal(), PriceHistoryModalProps, PricingTab(), PricingTabProps, ProductLineModal() (+15 more)
 
 ### Community 1028 - "Community 1028"
 Cohesion: 0.22
@@ -4654,20 +4585,16 @@ Cohesion: 0.50
 Nodes (4): 1. Distributed Task Queue, 2. Cross-Repo Testing, 3. Monorepo Migration, Advanced Features
 
 ### Community 1046 - "Community 1046"
-Cohesion: 0.10
-Nodes (20): dependencies, axios, date-fns, exceljs, file-saver, @google/genai, jspdf, logrocket (+12 more)
+Cohesion: 0.12
+Nodes (16): dependencies, axios, date-fns, exceljs, file-saver, @google/genai, jspdf, lucide-react (+8 more)
 
 ### Community 1047 - "Community 1047"
 Cohesion: 0.14
 Nodes (14): scripts, build, dev, lint, preview, repomix, repomix:app, test (+6 more)
 
 ### Community 1048 - "Community 1048"
-Cohesion: 0.19
-Nodes (8): EnterpriseSidebarProps, ERPViewKey, NavDomain, NavItem, EnterpriseTopbarProps, GlobalOmniboxModalProps, OmniboxAction, OmniboxCategory
-
-### Community 1049 - "Community 1049"
-Cohesion: 0.07
-Nodes (27): aggregate, Aggregation Operations, Atomic operations, count, create, Create Operations, createMany, createManyAndReturn (+19 more)
+Cohesion: 0.24
+Nodes (6): EnterpriseSidebarProps, ERPViewKey, NavDomain, NavItem, EnterpriseTopbarProps, GlobalOmniboxModalProps
 
 ### Community 1050 - "Community 1050"
 Cohesion: 0.20
@@ -4790,40 +4717,40 @@ Cohesion: 0.40
 Nodes (4): name, private, type, version
 
 ### Community 1085 - "Community 1085"
-Cohesion: 0.08
-Nodes (25): 1. Update package.json for ESM-first projects, 2. Update tsconfig.json, 3. Update schema.prisma, 4. Create prisma.config.ts, 5. Install a driver adapter (SQL providers only), 6. Update client instantiation, 7. Replace Prisma.validator with satisfies, 8. Run migrations and generate (+17 more)
+Cohesion: 0.50
+Nodes (4): 1. Microservices Coordination, 2. Library Updates, 3. Organization-Wide Changes, Use Cases
 
 ### Community 1086 - "Community 1086"
-Cohesion: 0.08
-Nodes (23): Connect existing, Count Relations, Create or connect, Create with relations, Delete related, Disconnect, every, Filter counted relations (+15 more)
+Cohesion: 0.50
+Nodes (4): 1. Webhook-Based Coordination, 2. GraphQL Federation, 3. Event Streaming, Communication Strategies
 
 ### Community 1087 - "Community 1087"
-Cohesion: 0.08
-Nodes (23): Alternatives, Auto-generate after migrate, Auto-seed after migrate, Automatic Behaviors Removed, CLI Flags Removed, Client Middleware, Common Middleware Patterns, Custom counter with extensions (+15 more)
+Cohesion: 0.50
+Nodes (4): 1. Auto-Assignment, 2. Progress Tracking, 3. Smart Card Movement, Automation Features
 
 ### Community 1088 - "Community 1088"
-Cohesion: 0.09
-Nodes (23): Accidental Prisma Postgres Provisioning, Auth Fails, Bun Entrypoint Missing, Compute Config Invalid, `create-prisma --yes` Did Not Deploy, Database Wiring or Schema Did Not Apply, Env Changes Did Not Apply, First Checks (+15 more)
+Cohesion: 0.50
+Nodes (4): 1. Board Organization, 2. Data Integrity, 3. Team Adoption, Best Practices
 
 ### Community 1089 - "Community 1089"
-Cohesion: 0.09
-Nodes (21): BigInt handling, Database-Specific Features, Date handling, Delete example, Dynamic table/column names, $executeRaw, Handling Results, Insert example (+13 more)
+Cohesion: 0.50
+Nodes (4): Agile Development Board, Examples, Kanban Flow Board, Research Project Board
 
 ### Community 1090 - "Community 1090"
-Cohesion: 0.10
-Nodes (18): Add custom methods, Add model methods, Chain extensions, Client Methods, $connect(), $disconnect(), $extends(), Graceful shutdown (+10 more)
+Cohesion: 0.50
+Nodes (4): Board Analytics, Custom Dashboards, Reports, Visualization & Reporting
 
 ### Community 1091 - "Community 1091"
-Cohesion: 0.10
-Nodes (20): AND (explicit), AND (implicit), Array Field Filters, Combined, Comparison, Equality, every, Filter Conditions and Operators (+12 more)
+Cohesion: 0.50
+Nodes (4): 1. Issue-to-Swarm Conversion, 2. Issue Comment Commands, 3. Issue Templates for Swarms, Core Features
 
 ### Community 1092 - "Community 1092"
-Cohesion: 0.10
-Nodes (20): cursor, distinct, Filtered include, include, Include relation count, Multiple distinct fields, Negative take (reverse), Nested include (+12 more)
+Cohesion: 0.50
+Nodes (4): Bug Reports, Feature Requests, Issue Types & Strategies, Technical Debt
 
 ### Community 1093 - "Community 1093"
-Cohesion: 0.10
-Nodes (20): [0.1.3](https://github.com/supabase/agent-skills/compare/v0.1.2...v0.1.3) (2026-06-02), [0.1.4](https://github.com/supabase/agent-skills/compare/v0.1.3...v0.1.4) (2026-06-05), [0.1.5](https://github.com/supabase/agent-skills/compare/v0.1.4...v0.1.5) (2026-07-10), [0.1.6](https://github.com/supabase/agent-skills/compare/v0.1.5...supabase-v0.1.6) (2026-07-30), [0.1.7](https://github.com/supabase/agent-skills/compare/v0.1.6...supabase-v0.1.7) (2026-08-12), [0.1.8](https://github.com/supabase/agent-skills/compare/v0.1.7...supabase-v0.1.8) (2026-09-24), [0.1.9](https://github.com/supabase/agent-skills/compare/v0.1.8...supabase-v0.1.9) (2026-09-28), Bug Fixes (+12 more)
+Cohesion: 0.50
+Nodes (4): 1. Workflow Organization, 2. Security, 3. Performance, Best Practices
 
 ### Community 1094 - "Community 1094"
 Cohesion: 0.50
@@ -4833,293 +4760,25 @@ Nodes (4): mcp_installation_and_setup, config_file_target, description, required
 Cohesion: 0.50
 Nodes (4): skills_depuration, active_skills, deprecated_or_merged_skills, strategy
 
-### Community 1098 - "Community 1098"
-Cohesion: 0.10
-Nodes (19): Client Instantiation, Client Methods, Create records, Delete records, Filter Operators, Find records, How to Use, Model Query Methods (+11 more)
-
-### Community 1111 - "Community 1111"
-Cohesion: 0.10
-Nodes (19): Accept data loss, Basic push, Command, Common Patterns, Comparison with migrate dev, Examples, Follow-up Command, Force reset (+11 more)
-
-### Community 1112 - "Community 1112"
-Cohesion: 0.10
-Nodes (19): Background mode, Command, Configuration, Custom ports, Examples, Force remove (stops first), Instance Management, List all instances (+11 more)
-
-### Community 1113 - "Community 1113"
-Cohesion: 0.10
-Nodes (19): After schema changes, Basic generation, Bun Runtime, CI/CD pipeline, Command, Common Patterns, Compiler Build Tuning, Current Generator Behavior (+11 more)
-
-### Community 1114 - "Community 1114"
-Cohesion: 0.10
-Nodes (19): After (v7) - prisma.config.ts, Basic Configuration, Before (v6) - schema.prisma, Configuration Options, Custom Config Path, datasource.directUrl, datasource.shadowDatabaseUrl, datasource.url (+11 more)
-
-### Community 1115 - "Community 1115"
-Cohesion: 0.10
-Nodes (19): Command, Common Workflow, Custom port, Don't open browser, Edit Records, Examples, Features, Filter Data (+11 more)
-
-### Community 1116 - "Community 1116"
-Cohesion: 0.11
-Nodes (18): After schema changes, Command, Common Patterns, Create and apply migration, Create without applying, Examples, Follow-up Commands, Full workflow (+10 more)
-
-### Community 1117 - "Community 1117"
-Cohesion: 0.11
-Nodes (15): Fix suggestion, Source, What happened, Skill Feedback, Steps, Core Principles, Debugging, Making and Committing Schema Changes (+7 more)
-
-### Community 1118 - "Community 1118"
-Cohesion: 0.13
-Nodes (9): 1. Install dependencies, 2. Add generator block, 3. Generate Prisma Client, 4. Instantiate Prisma Client, 5. Use a single instance, Prisma Client Setup, Edge connections, Node.js connections (+1 more)
-
-### Community 1119 - "Community 1119"
-Cohesion: 0.12
-Nodes (14): 1. Inspect the project, 2. Reuse or obtain a database, 3. Connect the application, 4. Configure the ORM and verify, Prisma Postgres setup, Console and database operations, Console and programmatic operations, Management API SDK (+6 more)
-
-### Community 1120 - "Community 1120"
-Cohesion: 0.11
-Nodes (17): Best Practices, Command, Common Patterns, Common seed commands, Conditional seeding, Configuration, Current Workflow, Development reset (+9 more)
-
-### Community 1121 - "Community 1121"
-Cohesion: 0.11
-Nodes (17): 1. Install dotenv, 2. Import in prisma.config.ts, Application Code, Bun Users, CI/CD Considerations, Entry point, Environment Variables, Multiple .env Files (+9 more)
-
-### Community 1122 - "Community 1122"
-Cohesion: 0.11
-Nodes (17): Calling from database with pg_net, Cloudflare Workers, Cookie-based environments (compose with `@supabase/ssr`), Documentation, Edge Function recipes, Entry points, Function-to-function calls, Hono (+9 more)
-
-### Community 1123 - "Community 1123"
-Cohesion: 0.12
-Nodes (16): 1. Keep your Accelerate URL, 2. Install Accelerate extension, 3. Configure prisma.config.ts, 4. Instantiate client with accelerateUrl, Caching with Accelerate, Correct v7 Setup for Accelerate, Edge Runtime, Important (+8 more)
-
-### Community 1124 - "Community 1124"
-Cohesion: 0.12
-Nodes (16): accelerateUrl (For Accelerate users), adapter (Required for the SQL provider workflow), Basic Instantiation, comments, Constructor Options, errorFormat, log, Log Events (+8 more)
-
-### Community 1125 - "Community 1125"
-Cohesion: 0.12
-Nodes (16): Basic introspection, Command, Examples, Force overwrite, Generated Schema Example, MongoDB Introspection, Options, Post-Introspection Cleanup (+8 more)
-
-### Community 1126 - "Community 1126"
-Cohesion: 0.12
-Nodes (16): Browser-Safe Types, Bun, "Cannot use import statement outside a module", CommonJS Projects, "ERR_REQUIRE_ESM", ESM and CommonJS Support, ESM Projects, File Extensions (+8 more)
-
-### Community 1127 - "Community 1127"
-Cohesion: 0.12
-Nodes (16): Add an example model, Basic initialization, Bun Runtime, Command, Examples, Generated Config (Bun), Generated Config (Node.js default), Generated Schema (+8 more)
-
-### Community 1128 - "Community 1128"
-Cohesion: 0.12
-Nodes (16): Basic deployment, Best Practices, Check status first, Command, Comparison with migrate dev, Configuration, Docker deployment, Error Handling (+8 more)
-
-### Community 1129 - "Community 1129"
-Cohesion: 0.12
-Nodes (16): [1.2.0](https://github.com/supabase/agent-skills/compare/v1.1.1...v1.2.0) (2026-06-02), [1.3.0](https://github.com/supabase/agent-skills/compare/v1.2.0...v1.3.0) (2026-06-05), [1.4.0](https://github.com/supabase/agent-skills/compare/v1.3.0...v1.4.0) (2026-07-10), [1.5.0](https://github.com/supabase/agent-skills/compare/supabase-postgres-best-practices-v1.4.0...supabase-postgres-best-practices-v1.5.0) (2026-07-30), [1.6.0](https://github.com/supabase/agent-skills/compare/supabase-postgres-best-practices-v1.5.0...supabase-postgres-best-practices-v1.6.0) (2026-07-30), Bug Fixes, Bug Fixes, Bug Fixes (+8 more)
-
-### Community 1130 - "Community 1130"
-Cohesion: 0.12
-Nodes (15): 1. Provider name, 2. Output is required, 3. engineType changed, 4. moduleFormat is explicit when needed, After Schema Changes, Datasource Block, Example Output Paths, Generated Entrypoints (+7 more)
-
-### Community 1131 - "Community 1131"
-Cohesion: 0.13
-Nodes (14): All or nothing, Best Practices, Handle errors, Interactive Transactions, Isolation levels, Keep transactions short, Nested Writes, OrThrow in Transactions (+6 more)
-
-### Community 1132 - "Community 1132"
-Cohesion: 0.14
-Nodes (13): Commit and rollback, Contract snapshot, Error mapping, Factory, ownership, and shadow database, Priority rules, Prisma SQL Driver Adapter Implementation, Query implementation, Result mapping (+5 more)
-
-### Community 1133 - "Community 1133"
-Cohesion: 0.14
-Nodes (14): Astro, Bun, Elysia, and Plain Source Servers, CLI-First Model, CLI Matrix, Custom Build Artifacts, Hono, NestJS, Next.js (+6 more)
-
-### Community 1134 - "Community 1134"
-Cohesion: 0.14
-Nodes (13): 1. Schema Configuration, 2. Config Configuration, 3. Environment Variable, Common Issues, Connection String Format, Driver Adapter, JSON Support, MySQL Setup (+5 more)
-
-### Community 1135 - "Community 1135"
-Cohesion: 0.15
-Nodes (13): Agent Skill Installation, Auth and Project Binding, Build and Run Locally, Database and Env, Deploy, Deployment Story: GitHub vs CLI, Operations, Output Handling (+5 more)
-
-### Community 1136 - "Community 1136"
-Cohesion: 0.15
-Nodes (12): Command, Configuration, Current Option Surface, Examples, Execute from file, Execute from stdin, Execute `migrate diff` output, Limitations (+4 more)
-
-### Community 1137 - "Community 1137"
-Cohesion: 0.15
-Nodes (13): 1. Schema Configuration, 2. Environment Variable, Client setup, Common Issues, Driver Adapters, ID Field Requirement, "Invalid ObjectID", Migrations vs Introspection (+5 more)
-
-### Community 1138 - "Community 1138"
-Cohesion: 0.17
-Nodes (12): AI Safety Checkpoint, Boundary: Platform and Compute, Command Categories, Current Command Behavior, Current Prisma CLI Setup, Environment Variables, How to Use, New Configuration File (+4 more)
-
-### Community 1139 - "Community 1139"
-Cohesion: 0.17
-Nodes (11): Check for drift (CI), Command, Create baseline migration, Examples, Generate SQL for a schema change, Options, prisma migrate diff, Review pending migrations (+3 more)
-
-### Community 1140 - "Community 1140"
-Cohesion: 0.17
-Nodes (11): Basic reset, Command, Configuration, Examples, Follow-up Steps, Force reset (CI/Automation), Options, prisma migrate reset (+3 more)
-
-### Community 1141 - "Community 1141"
-Cohesion: 0.17
-Nodes (12): 1. Schema Configuration, 2. Config Configuration, 3. Environment Variable, "Authentication failed", "Can't reach database server", Common Issues, Connection String Format, Driver Adapter (+4 more)
-
-### Community 1142 - "Community 1142"
-Cohesion: 0.17
-Nodes (12): 1. Schema Configuration, 2. Config Configuration, 3. Environment Variable, Common Issues, Connection String Format, "Database file not found", Driver Adapter, Limitations (+4 more)
-
-### Community 1143 - "Community 1143"
-Cohesion: 0.17
-Nodes (11): 1. Schema Configuration, 2. Config Configuration, 3. Environment Variable, Common Issues, Connection String Format, Driver Adapter, "Login failed for user", Prerequisites (+3 more)
-
-### Community 1144 - "Community 1144"
-Cohesion: 0.20
-Nodes (9): Bad, Blocker checks before migrating, decision-stay-or-migrate, Good, Priority, References, Stay-on-v6 hygiene, The facts the decision rests on (+1 more)
-
-### Community 1145 - "Community 1145"
-Cohesion: 0.20
-Nodes (9): Behavior, Command, Examples, Format default schema, Format specific schema, Options, prisma format, Use in Editor (+1 more)
-
-### Community 1146 - "Community 1146"
-Cohesion: 0.20
-Nodes (9): Command, Examples, Mark as Applied (Baselining), Mark as Rolled Back (Fixing Failures), Options, prisma migrate resolve, References, Use Cases (+1 more)
-
-### Community 1147 - "Community 1147"
-Cohesion: 0.20
-Nodes (9): Bad, Good, migrations-mapping, Priority, Prisma 8: bring the existing database under management, Prisma 8: every later schema change, References, v6: `db push` only (+1 more)
-
-### Community 1148 - "Community 1148"
-Cohesion: 0.20
-Nodes (9): Bad, Environment requirements, Good, Priority, References, schema-contract-mapping, Start without porting, The mapping (+1 more)
-
-### Community 1149 - "Community 1149"
-Cohesion: 0.20
-Nodes (10): 1. Schema Configuration, 2. Config Configuration, 3. Environment Variable, CockroachDB Setup, Common Issues, Driver Adapter, ID Generation, Prerequisites (+2 more)
-
-### Community 1150 - "Community 1150"
-Cohesion: 0.20
-Nodes (9): Command, Common Errors, Examples, Options, prisma validate, Use in CI, Validate default schema, Validate specific schema (+1 more)
-
-### Community 1151 - "Community 1151"
-Cohesion: 0.22
-Nodes (9): Bun Runtime, Client Generation, Database Operations, Local Development Database, Migrations (Development), Migrations (Production), Project Setup, Quick Reference (+1 more)
-
-### Community 1152 - "Community 1152"
-Cohesion: 0.22
-Nodes (9): 1. Command Verification, 2. Auth and Workspace Selection, 3. Framework Readiness, 4. Runtime Host and Port Binding, 5. Typed Compute Config, 6. Branch, Environment, and Database, 7. Deploy Operations, 8. SDK and API (+1 more)
-
-### Community 1153 - "Community 1153"
-Cohesion: 0.22
-Nodes (9): Avoid, Decision Tree, Preferred Workflow, Prisma Compute, Prisma Compute CLI Surface, Rules by Priority, Send Feedback and Report CLI Issues, Source-of-Truth Order (+1 more)
-
-### Community 1154 - "Community 1154"
-Cohesion: 0.22
-Nodes (9): App Fields, Basic Shape, Database Scope, File Names and Discovery, Generating a Config with `init`, Monorepos and Multi-App Repos, Precedence, Prisma Compute Config (+1 more)
-
-### Community 1155 - "Community 1155"
-Cohesion: 0.22
-Nodes (9): Addon Notes, Basic Commands, create-prisma Compute Flow, Failure Handling, Generated Deploy Script, Generated Files to Preserve, PostgreSQL and Database Behavior, Reference (+1 more)
-
-### Community 1156 - "Community 1156"
-Cohesion: 0.22
-Nodes (8): Check status, Command, Examples, Exit Codes, Options, prisma migrate status, What It Does, When to Use
-
-### Community 1157 - "Community 1157"
-Cohesion: 0.25
-Nodes (8): Decision table, Hand-off rule, If staying on v6: hygiene (a deliberate stay, not neglect), Prisma MongoDB Upgrade Path, Reference files, The decision, up front, The version landscape, Verified against
-
-### Community 1158 - "Community 1158"
-Cohesion: 0.25
-Nodes (7): Bad, client-api-mapping, Good, Priority, References, The mapping, Why It Matters
-
-### Community 1159 - "Community 1159"
-Cohesion: 0.25
-Nodes (7): Command, Notes, prisma mcp, References, Typical Use Cases, Usage, What It Does
-
-### Community 1160 - "Community 1160"
-Cohesion: 0.25
-Nodes (8): Compute SDK, Management API Concepts, Prefer the CLI for App Workflows, Regions, Repository-snapshot detection, SDK and API Automation, SDK Build Strategies, Secrets and Redaction
-
-### Community 1161 - "Community 1161"
-Cohesion: 0.38
-Nodes (6): ApiResponse, mapErrorToStatusCode(), safeDatabaseExecute(), SafeExecuteOptions, sanitizeErrorMessage(), SQLSTATE_ERROR_MAP
-
-### Community 1163 - "Community 1163"
-Cohesion: 0.29
-Nodes (7): 1. Detect the starting point, 2. Handle requested major upgrades separately, 3. Bootstrap a new Prisma 8 application, 4. Load the installed Prisma 8 guidance, 5. Set up or repair an earlier version, 6. Connect and verify, Prisma ORM setup
-
-### Community 1164 - "Community 1164"
-Cohesion: 0.29
-Nodes (6): Command, Example Output, Options, prisma debug, What It Does, When to Use
-
-### Community 1165 - "Community 1165"
-Cohesion: 0.29
-Nodes (6): Checklist, Ground rules, Priority, References, verify-cutover-checklist, Why It Matters
-
-### Community 1166 - "Community 1166"
-Cohesion: 0.40
-Nodes (3): supabase, Supplier, supplierSchema
-
-### Community 1167 - "Community 1167"
-Cohesion: 0.50
-Nodes (4): 1. Cross-Repo Initialization, 2. Repository Discovery, 3. Synchronized Operations, Core Features
-
-### Community 1168 - "Community 1168"
-Cohesion: 0.50
-Nodes (4): 1. Repository Organization, 2. Communication, 3. Security, Best Practices
-
-### Community 1169 - "Community 1169"
-Cohesion: 0.50
-Nodes (4): Caching Strategy, Parallel Execution, Performance Optimization, Resource Pooling
-
-### Community 1170 - "Community 1170"
-Cohesion: 0.50
-Nodes (4): Dependency Management, Orchestration Commands, Refactoring Operations, Security Updates
-
-### Community 1171 - "Community 1171"
-Cohesion: 0.50
-Nodes (4): 1. Issue Dependencies, 2. Epic Management, 3. Issue Templates, Advanced Features
-
-### Community 1172 - "Community 1172"
-Cohesion: 0.50
-Nodes (4): 1. Issue-PR Linking, 2. Milestone Coordination, 3. Cross-Repo Issues, Integration Patterns
-
-### Community 1173 - "Community 1173"
-Cohesion: 0.50
-Nodes (4): 1. Issue Templates, 2. Label Strategy, 3. Comment Etiquette, Best Practices
-
-### Community 1174 - "Community 1174"
-Cohesion: 0.50
-Nodes (4): 1. PR-Based Swarm Creation, 2. PR Comment Commands, 3. Automated PR Workflows, Core Features
-
-### Community 1175 - "Community 1175"
-Cohesion: 0.50
-Nodes (4): 1. PR Validation Swarm, 2. Release Automation, 3. Documentation Updates, Integration Examples
-
-### Community 1176 - "Community 1176"
-Cohesion: 0.50
-Nodes (4): 1. Self-Healing CI/CD, 2. Progressive Deployment, 3. Performance Regression Detection, Advanced Workflows
-
-### Community 1177 - "Community 1177"
-Cohesion: 0.50
-Nodes (3): AI safety checkpoint for destructive commands, Reference, Required workflow
-
 ## Knowledge Gaps
-- **9131 isolated node(s):** `Boundary: Platform and Compute`, `When to Apply`, `Rule Categories by Priority`, `Command Categories`, `Project Setup` (+9126 more)
+- **8390 isolated node(s):** `Agent: coordinator`, `Agent: implementer`, `Agent: planner`, `Agent: reviewer`, `/audit-project` (+8385 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **186 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **185 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Test Tags` connect `Community 796` to `Community 334`?**
+- **Why does `Debugging & Troubleshooting` connect `Community 750` to `Community 334`?**
+  _High betweenness centrality (0.003) - this node is a cross-community bridge._
+- **Why does `iFrame Testing` connect `Community 789` to `Community 334`?**
+  _High betweenness centrality (0.003) - this node is a cross-community bridge._
+- **Why does `Test Reports & Artifacts` connect `Community 793` to `Community 850`?**
   _High betweenness centrality (0.001) - this node is a cross-community bridge._
-- **Why does `Locator Strategies` connect `Community 814` to `Community 334`?**
-  _High betweenness centrality (0.001) - this node is a cross-community bridge._
-- **Why does `Test Data Factories & Generators` connect `Community 818` to `Community 334`?**
-  _High betweenness centrality (0.001) - this node is a cross-community bridge._
-- **What connects `Boundary: Platform and Compute`, `When to Apply`, `Rule Categories by Priority` to the rest of the system?**
-  _9131 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **What connects `Agent: coordinator`, `Agent: implementer`, `Agent: planner` to the rest of the system?**
+  _8390 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.08322981366459627 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06591760299625468 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.031613431613431615 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.036303630363036306 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
-  _Cohesion score 0.0728395061728395 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07894736842105263 - nodes in this community are weakly interconnected._
