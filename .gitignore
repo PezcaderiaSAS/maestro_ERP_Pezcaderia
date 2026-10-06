@@ -57,3 +57,5 @@ test-results/
 repomix-output.*
 repomix-*.md
 
+
+/src/generated/prisma

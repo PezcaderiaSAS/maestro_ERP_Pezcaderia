@@ -1,4 +1,5 @@
 import Swal from 'sweetalert2';
+import LogRocket from 'logrocket';
 
 export interface ApiResponse<T = unknown> {
   success: boolean;
@@ -92,6 +93,9 @@ export async function safeDatabaseExecute<T>(
         code: error.code,
         message: sanitized,
       });
+      LogRocket.captureMessage(`[API_SAFE_GUARD][${operationName}] - ${sanitized}`, {
+        tags: { code: error.code, operation: operationName },
+      });
 
       if (showSwalOnError) {
         Swal.fire({
@@ -121,6 +125,7 @@ export async function safeDatabaseExecute<T>(
   } catch (err: any) {
     const sanitized = sanitizeErrorMessage(err, customFallbackMessage || 'Error inesperado del sistema');
     console.error(`[API_FATAL_GUARD][${operationName}]`, err);
+    LogRocket.captureException(err, { tags: { operation: operationName }});
 
     if (showSwalOnError) {
       Swal.fire({
