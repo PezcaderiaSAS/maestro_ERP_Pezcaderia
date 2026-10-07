@@ -66,7 +66,7 @@ Sentry.init({
 });
 
 LogRocket.init('dlunqp/maestro_erp');
-setupLogRocketReact(LogRocket);
+setupLogRocketReact();
 
 function ErrorButton() {
   return (

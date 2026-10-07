@@ -63,19 +63,46 @@ tools\agency-swarm\.venv\Scripts\python.exe tools/agency-swarm/run_cli.py --demo
 
 ---
 
-## 📁 4. Estructura de Archivos
+## 🌐 4. Enjambre de Investigación UI/UX con Agent-Reach
+
+Se incluye una agencia especializada para la investigación de documentación técnica, código de referencia y heurísticas de accesibilidad UI/UX:
+
+```
+tools/agency-swarm/
+├── internet_tools.py        # Herramientas FetchDocumentation y CodeAndBestPracticesSearch
+├── research_agency.py       # Enjambre TechArchitect + UXStrategist + ProductManager
+├── agent_reach_runner.cjs   # Runner CLI universal para consultas inmediatas (Jina Reader / GitHub)
+```
+
+### Ejecución de la Research Agency:
+```bash
+# Modo interactivo del enjambre de investigación
+python tools/agency-swarm/research_agency.py
+
+# Consultas directas sin dependencias pesadas
+node tools/agency-swarm/agent_reach_runner.cjs read "https://react.dev"
+node tools/agency-swarm/agent_reach_runner.cjs search "The best implementation of atomic design in React 18 is"
+```
+
+---
+
+## 📁 5. Estructura de Archivos
 
 ```
 tools/agency-swarm/
 ├── .env.example          # Plantilla de variables de entorno
 ├── config.py             # Adaptador de Google AI Studio con AsyncOpenAI
-├── agency.py             # Definición del Swarm y flujos de comunicación
+├── agency.py             # Definición del Swarm de La Pezcaderia ERP
+├── research_agency.py    # Enjambre de investigación UI/UX y código limpio
+├── internet_tools.py     # Herramientas BaseTool de Agent-Reach (Jina / Exa)
+├── agent_reach_runner.cjs# Runner CLI multiplataforma
 ├── test_agency.py        # Test de inicialización
 ├── run_cli.py            # CLI y modo demo interactivo
-├── pezca_agents/         # Agentes especializados
+├── pezca_agents/         # Agentes especializados del ERP
 │   ├── software_architect.py
 │   ├── data_engineer.py
 │   ├── ui_reviewer.py
 │   └── quality_engineer.py
-└── .venv/                # Entorno virtual Python 3.13 con agency-swarm y google-genai
+└── .venv/                # Entorno virtual Python con agency-swarm
 ```
+

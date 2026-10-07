@@ -22,6 +22,15 @@ export function getSupabaseClient(): SupabaseClient {
   return client;
 }
 
+export const supabase: SupabaseClient = new Proxy({} as SupabaseClient, {
+  get(_target, prop) {
+    const instance = getSupabaseClient() as any;
+    const value = instance[prop];
+    return typeof value === 'function' ? value.bind(instance) : value;
+  },
+});
+
+
 export function mapRole(role: string): string {
   const map: Record<string, string> = {
     admin: 'ADMIN',

@@ -3,11 +3,17 @@ import { useInventoryStore } from '../stores/useInventoryStore';
 import { supabase } from '../lib/supabase';
 
 // Mock Supabase
-vi.mock('../lib/supabase', () => ({
-  supabase: {
+const { mockSupabase } = vi.hoisted(() => {
+  const mock = {
     from: vi.fn(),
     rpc: vi.fn(),
-  },
+  };
+  return { mockSupabase: mock };
+});
+
+vi.mock('../lib/supabase', () => ({
+  supabase: mockSupabase,
+  getSupabaseClient: () => mockSupabase,
 }));
 
 describe('useInventoryStore (WMS)', () => {

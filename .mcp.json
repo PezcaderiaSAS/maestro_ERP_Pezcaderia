@@ -92,6 +92,18 @@
         "GITHUB_PERSONAL_ACCESS_TOKEN": "<TU_GITHUB_TOKEN>"
       },
       "autoStart": false
+    },
+    "stitch": {
+      "serverUrl": "https://stitch.googleapis.com/mcp",
+      "headers": {
+        "X-Goog-Api-Key": "${STITCH_API_KEY}"
+      }
+    },
+    "hindsight": {
+      "serverUrl": "https://api.hindsight.vectorize.io/mcp/pezcaderia-erp/",
+      "headers": {
+        "Authorization": "Bearer ${HINDSIGHT_API_KEY}"
+      }
     }
   }
 }
