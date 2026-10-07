@@ -19,6 +19,13 @@ Cada vez que un agente de IA finalice una sesión de trabajo, debe agregar una e
 
 ## Registros Diarios
 
+### [2026-10-07 10:42] - Antigravity (ProjectManager & PrincipalEngineer)
+- **Módulo:** Alistamientos y Despachos B2B (Módulo 2 / WMS) - Rutas Bucaramanga
+- **Acción:** Localización de zonas metropolitanas de Bucaramanga (Cabecera, Cañaveral, Floridablanca, Ruitoque, Girón, Piedecuesta), integración de báscula digital Web Serial (`useBalanza`) con selector táctil de tara de empaque y emisión de remisión WMS con QR/PDF en `FulfillmentChecklist`.
+- **Archivos Modificados:** `specs/003-alistamiento-despachos-bucaramanga/spec.md`, `specs/003-alistamiento-despachos-bucaramanga/plan.md`, `src/views/inventory/components/WeighingModal.tsx`, `src/views/inventory/components/FulfillmentChecklist.tsx`, `src/views/inventory/components/RouteManifestBuilderModal.tsx`, `src/tests/b2bFulfillmentTactile.test.tsx`.
+- **Mejoras UX/UI (Design System):** Pesaje táctil en 1 toque apto para guantes térmicos (botones ≥ 48px), tara automática, semáforo visual de frío y validación móvil a 375 px verificada en Chrome DevTools MCP con 0 errores de consola.
+- **Notas/Bloqueos:** 47 archivos de prueba pasando (288 tests verdes, 100%), TypeScript 0 errores.
+
 ### [2026-10-07 10:05] - Antigravity (ProjectManager & PrincipalEngineer)
 - **Módulo:** Abastecimiento & Compras Bucaramanga (Módulo 6) - Recepción de Furgón y Báscula
 - **Acción:** Implementación y validación integral del flujo de compras adaptado a Bucaramanga (furgones refrigerados vía carretera, pesaje canastilla por canastilla con tara estándar de 2 kg, deducción de hielo, prorrateo de flete, landed cost real y liquidación determinista).
