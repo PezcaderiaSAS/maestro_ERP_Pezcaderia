@@ -18,17 +18,18 @@ interface RouteManifestBuilderModalProps {
 }
 
 const CONDUCTORES_PREDETERMINADOS = [
-  { id: 'cond-01', nombre: 'Carlos Mendoza', telefono: '3104567890', placa: 'WOP-482', vehiculo: 'Furgón Refrigerado Thermo King' },
-  { id: 'cond-02', nombre: 'Andrés Gómez', telefono: '3209876543', placa: 'SKL-913', vehiculo: 'Camión Isotérmico 3.5T' },
-  { id: 'cond-03', nombre: 'Jhonatan Rivas', telefono: '3151122334', placa: 'MVZ-504', vehiculo: 'Furgón Mediano Frío' },
+  { id: 'cond-01', nombre: 'Carlos Mendoza', telefono: '3104567890', placa: 'WOP-482', vehiculo: 'Furgón Refrigerado Thermo King (BCM)' },
+  { id: 'cond-02', nombre: 'Andrés Gómez', telefono: '3209876543', placa: 'SKL-913', vehiculo: 'Camión Isotérmico 3.5T (Santander)' },
+  { id: 'cond-03', nombre: 'Jhonatan Rivas', telefono: '3151122334', placa: 'MVZ-504', vehiculo: 'Furgón Mediano Frío (Metropolitana)' },
 ];
 
 const ZONAS_PREDETERMINADAS = [
-  'Ruta Norte - Restaurantes & Hoteles',
-  'Ruta Chapinero / Zona G - Gastronomía',
-  'Ruta Sur & Abastos - Mayoristas',
-  'Ruta Occidente - Salitre & Aeropuerto',
-  'Ruta Express - Domicilios Urgentes',
+  'Cabecera & Cañaveral - Hoteles & Restaurantes Gourmet',
+  'Floridablanca & Ruitoque - Clubes & Asadores',
+  'Girón & Centro - Cevicherías & Pescaderías Populares',
+  'Piedecuesta & Mensulí - Hoteles Campestres & Autoservicios',
+  'Zona Centro & San Francisco - Mayoristas & Plazas',
+  'Ruta Express Bucaramanga - Domicilios Urgentes',
 ];
 
 export const RouteManifestBuilderModal: React.FC<RouteManifestBuilderModalProps> = ({

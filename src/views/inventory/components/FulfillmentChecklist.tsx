@@ -4,6 +4,7 @@ import { useInventoryStore } from '../../../store/useInventoryStore';
 import { CheckCircle2, Circle, Scale, AlertTriangle, PackageCheck } from 'lucide-react';
 import { WeighingModal } from './WeighingModal';
 import { QuantityModal } from './QuantityModal';
+import { WmsRemisionModal } from './WmsRemisionModal';
 import { useOrderStore } from '../../../store/useOrderStore';
 import Swal from 'sweetalert2';
 
@@ -23,6 +24,7 @@ export const FulfillmentChecklist: React.FC<FulfillmentChecklistProps> = ({
   
   // Local state to track fulfillment progress before saving
   const [lineasAlistadas, setLineasAlistadas] = useState<LineaPedido[]>(pedido.lineas);
+  const [isRemisionOpen, setIsRemisionOpen] = useState(false);
   const [weighingModalOpen, setWeighingModalOpen] = useState(false);
   const [quantityModalOpen, setQuantityModalOpen] = useState(false);
   const [selectedLineIndex, setSelectedLineIndex] = useState<number | null>(null);
@@ -111,20 +113,23 @@ export const FulfillmentChecklist: React.FC<FulfillmentChecklistProps> = ({
 
     Swal.fire({
       icon: 'success',
-      title: 'Alistamiento Completo',
-      text: 'Todos los productos han sido verificados. El pedido pasará a estado LISTO.',
+      title: '¡Alistamiento Completo!',
+      text: 'Todos los productos han sido pesados y verificados. ¿Deseas emitir la Remisión WMS con Código QR de Despacho?',
       showCancelButton: true,
-      confirmButtonText: 'Confirmar y Finalizar',
-      cancelButtonText: 'Revisar',
-      confirmButtonColor: '#10B981'
+      confirmButtonText: 'Emitir Remisión WMS (QR / PDF)',
+      cancelButtonText: 'Solo Marcar LISTO',
+      confirmButtonColor: '#3B82F6',
+      cancelButtonColor: '#10B981',
     }).then((result) => {
       if (result.isConfirmed) {
-        saveProgress('LISTO');
+        saveProgress('LISTO', true);
+      } else {
+        saveProgress('LISTO', false);
       }
     });
   };
 
-  const saveProgress = (nuevoEstado: Pedido['estado']) => {
+  const saveProgress = (nuevoEstado: Pedido['estado'], emitirRemision = false) => {
     // Recalcular el subtotal con los nuevos totales de línea (por pesos reales)
     const nuevoSubtotal = lineasAlistadas.reduce((acc, curr) => acc + curr.totalLinea, 0);
     const nuevoDescuento = (nuevoSubtotal * pedido.descuentoGlobalPct) / 100;
@@ -140,7 +145,11 @@ export const FulfillmentChecklist: React.FC<FulfillmentChecklistProps> = ({
     };
 
     updateVenta(pedido.id, pedidoActualizado);
-    onComplete();
+    if (emitirRemision) {
+      setIsRemisionOpen(true);
+    } else {
+      onComplete();
+    }
   };
 
   return (
@@ -288,6 +297,25 @@ export const FulfillmentChecklist: React.FC<FulfillmentChecklistProps> = ({
             onConfirm={handleConfirmQuantity}
           />
         </>
+      )}
+
+      {isRemisionOpen && (
+        <WmsRemisionModal
+          isOpen={isRemisionOpen}
+          onClose={() => {
+            setIsRemisionOpen(false);
+            onComplete();
+          }}
+          pedido={{
+            ...pedido,
+            lineas: lineasAlistadas,
+            totalFinal: lineasAlistadas.reduce((acc, curr) => acc + curr.totalLinea, 0),
+          }}
+          onDispatchConfirmed={() => {
+            setIsRemisionOpen(false);
+            onComplete();
+          }}
+        />
       )}
     </div>
   );
