@@ -32,6 +32,7 @@ import { PurchaseOrderForm } from './inventory/components/PurchaseOrderForm';
 import { TransferForm } from './inventory/components/TransferForm';
 import { ProductionForm } from './inventory/components/ProductionForm';
 import { DockReceivingTab } from './inventory/components/DockReceivingTab';
+import { BucaramangaReceivingWizard } from './inventory/components/BucaramangaReceivingWizard';
 import { FishYieldProductionTab } from './inventory/components/FishYieldProductionTab';
 import { ColdRoomPreparation } from './inventory/components/ColdRoomPreparation';
 import { ReturnsReceiver } from './inventory/components/ReturnsReceiver';
@@ -1530,8 +1531,8 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
               onClick={() => setViewMode('compras_muelle')}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-lg shadow-cyan-600/20 transition-all cursor-pointer"
             >
-              <Anchor className="w-4 h-4" />
-              Recepción Muelle
+              <Truck className="w-4 h-4" />
+              Llegada Furgón
             </button>
 
             <button
@@ -1649,8 +1650,8 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
               : 'bg-slate-900/60 text-slate-400 hover:text-white border border-white/5'
           }`}
         >
-          <Anchor className="w-4 h-4" />
-          Muelle & Pescadores
+          <Truck className="w-4 h-4" />
+          Recepción Furgón (Bucaramanga)
         </button>
 
         <button
@@ -1878,15 +1879,16 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
         </div>
       )}
 
-      {/* TAB Muelle & Pescadores */}
+      {/* TAB Recepción Furgón Bucaramanga */}
       {viewMode === 'compras_muelle' && (
-        <DockReceivingTab
-          bodegas={bodegas as any}
-          onLoteCreado={() => {
-            loadStock();
-            loadInventory();
-          }}
-        />
+        <div className="space-y-4">
+          <BucaramangaReceivingWizard
+            onFinalizado={() => {
+              loadStock();
+              loadInventory();
+            }}
+          />
+        </div>
       )}
 
       {/* TAB 2: Kardex Contable NIIF */}

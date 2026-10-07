@@ -53,6 +53,93 @@
         }
       }
     },
+    "hyper-cobalt": {
+      "name": "Hyper Cobalt & Skin Sand",
+      "archetype": "Dark Glassmorphism Vibrant",
+      "description": "Tema eléctrico de alto impacto con cobalto vibrante (#0038FF) y acento arena cálida (#FFD8B8). Diseñado para máxima visibilidad táctil.",
+      "colors": {
+        "background": { "hex": "#050b1a", "hsl": "hsl(222, 68%, 6%)", "token": "--bg-color" },
+        "surface": { "hex": "#081026", "hsl": "hsl(224, 54%, 9%)", "token": "--card-bg", "alpha": 0.78 },
+        "surface_hover": { "hex": "#0e1c40", "hsl": "hsl(223, 64%, 15%)", "token": "--card-hover", "alpha": 0.88 },
+        "border": { "hex": "#ffd8b8", "hsl": "hsl(27, 100%, 86%)", "token": "--border-color", "alpha": 0.18 },
+        "primary": { "hex": "#0038FF", "hsl": "hsl(227, 100%, 50%)", "token": "--primary-color" },
+        "primary_hover": { "hex": "#002ecc", "hsl": "hsl(226, 100%, 40%)", "token": "--primary-hover" },
+        "accent": { "hex": "#FFD8B8", "hsl": "hsl(27, 100%, 86%)", "token": "--color-cyan-wave" },
+        "accent_hover": { "hex": "#ffc99e", "hsl": "hsl(27, 100%, 81%)", "token": "--accent-hover" },
+        "success": { "hex": "#10b981", "hsl": "hsl(160, 84%, 39%)", "token": "--color-emerald-a" },
+        "warning": { "hex": "#f59e0b", "hsl": "hsl(38, 92%, 50%)", "token": "--color-warning" },
+        "danger": { "hex": "#ef4444", "hsl": "hsl(0, 84%, 60%)", "token": "--btn-exit-bg" },
+        "text_primary": { "hex": "#fcfdfe", "hsl": "hsl(210, 40%, 99%)", "token": "--text-primary" },
+        "text_secondary": { "hex": "#cdd6e8", "hsl": "hsl(220, 35%, 86%)", "token": "--text-secondary" },
+        "text_muted": { "hex": "#8b9bb4", "hsl": "hsl(217, 21%, 63%)", "token": "--text-muted" }
+      },
+      "surfaces": {
+        "backdrop_blur": "blur(16px)",
+        "glass_overlay": "linear-gradient(135deg, rgba(255, 216, 184, 0.08) 0%, rgba(0, 56, 255, 0.03) 100%)",
+        "border_subtle": "1px solid rgba(255, 216, 184, 0.18)",
+        "shadow_ambient": "0 8px 32px 0 rgba(0, 0, 0, 0.45)",
+        "shadow_glow": "0 0 22px rgba(0, 56, 255, 0.28)",
+        "radii": { "sm": "0.375rem", "md": "0.5rem", "lg": "0.75rem", "xl": "1rem", "full": "9999px" }
+      }
+    },
+    "carbon-teal": {
+      "name": "Carbon Teal & Mint Foam",
+      "archetype": "Dark Industrial Maritime",
+      "description": "Estética marina profunda con fondo carbón petróleo (#042F32) y acento espuma de menta (#D6FFCB). Ideal para logística WMS.",
+      "colors": {
+        "background": { "hex": "#021214", "hsl": "hsl(187, 82%, 4%)", "token": "--bg-color" },
+        "surface": { "hex": "#042F32", "hsl": "hsl(184, 85%, 11%)", "token": "--card-bg", "alpha": 0.75 },
+        "surface_hover": { "hex": "#074145", "hsl": "hsl(184, 81%, 15%)", "token": "--card-hover", "alpha": 0.85 },
+        "border": { "hex": "#d6ffcb", "hsl": "hsl(108, 100%, 90%)", "token": "--border-color", "alpha": 0.18 },
+        "primary": { "hex": "#0d5f64", "hsl": "hsl(183, 77%, 22%)", "token": "--primary-color" },
+        "primary_hover": { "hex": "#09474b", "hsl": "hsl(184, 78%, 16%)", "token": "--primary-hover" },
+        "accent": { "hex": "#D6FFCB", "hsl": "hsl(108, 100%, 90%)", "token": "--color-cyan-wave" },
+        "accent_hover": { "hex": "#bafcb5", "hsl": "hsl(115, 95%, 85%)", "token": "--accent-hover" },
+        "success": { "hex": "#10b981", "hsl": "hsl(160, 84%, 39%)", "token": "--color-emerald-a" },
+        "warning": { "hex": "#f59e0b", "hsl": "hsl(38, 92%, 50%)", "token": "--color-warning" },
+        "danger": { "hex": "#ef4444", "hsl": "hsl(0, 84%, 60%)", "token": "--btn-exit-bg" },
+        "text_primary": { "hex": "#f7fdf8", "hsl": "hsl(130, 40%, 98%)", "token": "--text-primary" },
+        "text_secondary": { "hex": "#bce3cd", "hsl": "hsl(147, 43%, 81%)", "token": "--text-secondary" },
+        "text_muted": { "hex": "#7da893", "hsl": "hsl(151, 19%, 57%)", "token": "--text-muted" }
+      },
+      "surfaces": {
+        "backdrop_blur": "blur(16px)",
+        "glass_overlay": "linear-gradient(135deg, rgba(214, 255, 203, 0.08) 0%, rgba(4, 47, 50, 0.04) 100%)",
+        "border_subtle": "1px solid rgba(214, 255, 203, 0.18)",
+        "shadow_ambient": "0 8px 32px 0 rgba(0, 0, 0, 0.45)",
+        "shadow_glow": "0 0 22px rgba(214, 255, 203, 0.22)",
+        "radii": { "sm": "0.375rem", "md": "0.5rem", "lg": "0.75rem", "xl": "1rem", "full": "9999px" }
+      }
+    },
+    "chrome-violet": {
+      "name": "Chrome Violet & Glass Blue",
+      "archetype": "Dark Cyber Executive",
+      "description": "Estética premium sofisticada con violeta cromado (#5F2CFF) y acento celeste hielo (#DFF6FF). Para reportería ejecutiva y finanzas.",
+      "colors": {
+        "background": { "hex": "#0a0618", "hsl": "hsl(260, 60%, 6%)", "token": "--bg-color" },
+        "surface": { "hex": "#1c1040", "hsl": "hsl(256, 60%, 16%)", "token": "--card-bg", "alpha": 0.75 },
+        "surface_hover": { "hex": "#2a185e", "hsl": "hsl(255, 59%, 23%)", "token": "--card-hover", "alpha": 0.85 },
+        "border": { "hex": "#dff6ff", "hsl": "hsl(198, 100%, 94%)", "token": "--border-color", "alpha": 0.18 },
+        "primary": { "hex": "#5F2CFF", "hsl": "hsl(254, 100%, 59%)", "token": "--primary-color" },
+        "primary_hover": { "hex": "#4e20df", "hsl": "hsl(254, 75%, 50%)", "token": "--primary-hover" },
+        "accent": { "hex": "#DFF6FF", "hsl": "hsl(198, 100%, 94%)", "token": "--color-cyan-wave" },
+        "accent_hover": { "hex": "#bdeeff", "hsl": "hsl(196, 100%, 87%)", "token": "--accent-hover" },
+        "success": { "hex": "#10b981", "hsl": "hsl(160, 84%, 39%)", "token": "--color-emerald-a" },
+        "warning": { "hex": "#f59e0b", "hsl": "hsl(38, 92%, 50%)", "token": "--color-warning" },
+        "danger": { "hex": "#ef4444", "hsl": "hsl(0, 84%, 60%)", "token": "--btn-exit-bg" },
+        "text_primary": { "hex": "#faf9ff", "hsl": "hsl(250, 40%, 99%)", "token": "--text-primary" },
+        "text_secondary": { "hex": "#cfc6ea", "hsl": "hsl(256, 44%, 85%)", "token": "--text-secondary" },
+        "text_muted": { "hex": "#8e82b2", "hsl": "hsl(255, 23%, 60%)", "token": "--text-muted" }
+      },
+      "surfaces": {
+        "backdrop_blur": "blur(16px)",
+        "glass_overlay": "linear-gradient(135deg, rgba(223, 246, 255, 0.08) 0%, rgba(95, 44, 255, 0.04) 100%)",
+        "border_subtle": "1px solid rgba(223, 246, 255, 0.18)",
+        "shadow_ambient": "0 8px 32px 0 rgba(0, 0, 0, 0.45)",
+        "shadow_glow": "0 0 22px rgba(95, 44, 255, 0.30)",
+        "radii": { "sm": "0.375rem", "md": "0.5rem", "lg": "0.75rem", "xl": "1rem", "full": "9999px" }
+      }
+    },
     "linear": {
       "name": "Linear",
       "archetype": "Modern Dark Minimalist",

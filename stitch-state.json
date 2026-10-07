@@ -1,6 +1,15 @@
 {
   "brand": "pezcaderia-glass",
   "view": "dashboard",
-  "status": "refactored",
-  "theme": "Dark Glassmorphism"
+  "status": "synchronized",
+  "theme": "Dark Glassmorphism Multi-Theme Suite",
+  "active_themes": [
+    "pezcaderia-glass",
+    "hyper-cobalt",
+    "carbon-teal",
+    "chrome-violet"
+  ],
+  "wcag_compliance": "WCAG 2.1 AA",
+  "framework": "React 18 SPA + Vite",
+  "last_updated": "2026-10-07T09:27:00Z"
 }

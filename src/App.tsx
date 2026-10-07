@@ -644,7 +644,7 @@ export default function App() {
     };
   }, []);
 
-  const { userRole, setUserRole, currentView, setCurrentView, sidebarOpen, setSidebarOpen, toggleSidebar, theme, toggleTheme } = useAppStore();
+  const { userRole, setUserRole, currentView, setCurrentView, sidebarOpen, setSidebarOpen, toggleSidebar, theme, toggleTheme, setTheme } = useAppStore();
   const [isOmniboxOpen, setIsOmniboxOpen] = useState(false);
 
   // Atajo de teclado global: Ctrl + K (o Cmd + K) para Omnibox con captura prioritaria
@@ -1343,6 +1343,8 @@ export default function App() {
         return { cat: 'Comercial', sub: 'Directorio de Clientes' };
       case 'compras':
         return { cat: 'Administrativo', sub: 'Compras y Gastos' };
+      case 'compras_muelle':
+        return { cat: 'Abastecimiento y Planta', sub: 'Llegada de Camión (Bucaramanga)' };
       case 'kanban':
         return { cat: 'Logística', sub: 'Despachos / Kanban' };
       case 'crm':
@@ -1379,6 +1381,7 @@ export default function App() {
           onToggleSidebar={toggleSidebar}
           theme={theme}
           onToggleTheme={toggleTheme}
+          onSelectTheme={(t) => setTheme(t as any)}
           activeBodega="Bodega Principal"
           onOpenOmnibox={() => setIsOmniboxOpen(true)}
         />

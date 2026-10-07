@@ -434,7 +434,7 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
                     Efectivo en Gaveta
                   </td>
-                  <td className="px-5 py-3.5 text-slate-300 font-mono font-medium">
+                  <td className="px-5 py-3.5 text-slate-300 font-mono tabular-nums font-medium">
                     {esModoArqueoCiego ? (
                       <span className="text-slate-500 italic text-xs">*** Oculto (Modo Ciego) ***</span>
                     ) : (
@@ -458,7 +458,7 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
                       }`}
                     />
                   </td>
-                  <td className="px-5 py-3.5 font-bold text-right font-mono">
+                  <td className="px-5 py-3.5 font-bold text-right font-mono tabular-nums">
                     {esModoArqueoCiego ? (
                       <span className="text-slate-500 italic text-xs">***</span>
                     ) : (
@@ -475,7 +475,7 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
                     <span className="w-2.5 h-2.5 rounded-full bg-blue-400"></span>
                     Datáfono (Vouchers)
                   </td>
-                  <td className="px-5 py-3.5 text-slate-300 font-mono font-medium">
+                  <td className="px-5 py-3.5 text-slate-300 font-mono tabular-nums font-medium">
                     {esModoArqueoCiego ? (
                       <span className="text-slate-500 italic text-xs">*** Oculto (Modo Ciego) ***</span>
                     ) : (
@@ -503,7 +503,7 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
                       </button>
                     </div>
                   </td>
-                  <td className="px-5 py-3.5 font-bold text-right font-mono">
+                  <td className="px-5 py-3.5 font-bold text-right font-mono tabular-nums">
                     {esModoArqueoCiego ? (
                       <span className="text-slate-500 italic text-xs">***</span>
                     ) : (

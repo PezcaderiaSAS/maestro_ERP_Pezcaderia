@@ -14,8 +14,10 @@
 - Supabase se invoca a través de `getSupabaseClient()` en `src/lib/supabase.ts`.
 - Persistencia local en IndexedDB.
 - Control concurrente vía Supabase RPC (`SELECT FOR UPDATE`).
-- Uso de **Google Stitch** como MCP de diseño visual.
+- Uso de **Google Stitch** como MCP de diseño visual. Sincronizado en `stitch.json` y `stitch-state.json`.
+- **Multi-Theme Suite Activa:** 4 temas Dark Glass (`pezcaderia-glass`, `hyper-cobalt`, `carbon-teal`, `chrome-violet`) gobernados por `useAppStore` y Topbar.
 
 ## Próximos Pasos (Roadmap)
 1. **Módulo de Compras:** Crear especificación y plan.
 2. Módulos siguientes: Cartera, Pedidos, Alquiler de Frío, Gastos.
+

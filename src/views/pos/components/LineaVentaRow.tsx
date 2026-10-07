@@ -115,10 +115,10 @@ export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
 
         {/* Precio total línea + precio unitario */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
-          <span className="cart-item-price" style={{ color: 'var(--primary-color)', fontWeight: 700 }}>
+          <span className="cart-item-price font-mono tabular-nums tracking-tight" style={{ color: 'var(--primary-color)', fontWeight: 700 }}>
             ${totalLinea.toLocaleString('es-CO')}
           </span>
-          <span style={{ fontSize: '11px', color: '#64748B' }}>
+          <span className="font-mono tabular-nums text-[11px] text-slate-400">
             (${precioFinalDisplay.toLocaleString('es-CO')} c/u)
           </span>
           {tieneDescuentoLinea && (

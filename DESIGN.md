@@ -35,6 +35,17 @@
 - **Glass Card Overlay:** `linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%)`
 - **Action Button Gradient:** `linear-gradient(to right, #4f46e5, #06b6d4)`
 
+### Multi-Theme Suite (Google Stitch & Rico UI Brands)
+
+El ERP cuenta con un selector multi-tema accesible (`data-theme`) en `EnterpriseTopbar`, gobernado por `useAppStore` y sincronizado en `stitch.json`:
+
+| Tema (`data-theme`) | Primario / Glow | Acento / Badges | Canvas / Surface | Caso de Uso |
+| :--- | :--- | :--- | :--- | :--- |
+| `pezcaderia-glass` (Default) | `#4f46e5` (Marine Indigo) | `#06b6d4` (Cyan Wave) | `#0a0f1d` / `rgba(17, 24, 39, 0.75)` | Canónico general, dashboards y ventas |
+| `hyper-cobalt` | `#0038FF` (Cobalt Electric) | `#FFD8B8` (Skin Sand) | `#050b1a` / `rgba(8, 16, 38, 0.78)` | Terminales táctiles de alto contraste POS |
+| `carbon-teal` | `#042F32` (Carbon Teal) | `#D6FFCB` (Mint Foam) | `#021214` / `rgba(4, 47, 50, 0.75)` | Operaciones de frío WMS, FEFO y bodega |
+| `chrome-violet` | `#5F2CFF` (Chrome Violet) | `#DFF6FF` (Glass Blue) | `#0a0618` / `rgba(28, 16, 64, 0.75)` | Informes ejecutivos, cartera y contabilidad |
+
 ---
 
 ## 2. Typography

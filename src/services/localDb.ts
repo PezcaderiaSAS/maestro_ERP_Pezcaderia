@@ -51,7 +51,9 @@ export const DB_KEYS = {
   dock_purchases: 'pezcaderia_dock_purchases',
   fish_yield_orders: 'pezcaderia_fish_yield_orders',
   theme: 'pezcaderia_theme',
-  pos_drafts: 'pezca_pos_drafts_v1'
+  pos_drafts: 'pezca_pos_drafts_v1',
+  purchases_bcm_orders: 'pezcaderia_purchases_bcm_orders',
+  purchases_bcm_receptions: 'pezcaderia_purchases_bcm_receptions'
 } as const;
 
 export type DbKey = keyof typeof DB_KEYS;

@@ -630,7 +630,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
                 {totalItems} ítems
               </span>
             </div>
-            <strong className="text-2xl font-black text-cyan-400 tabular-nums">
+            <strong className="text-2xl font-black text-cyan-400 font-mono tracking-tight tabular-nums">
               ${totales.totalFinal.toLocaleString('es-CO')}
             </strong>
           </div>
