@@ -8,3 +8,5 @@ export * from './deliveryRoute.schema';
 export * from './dockReceiving.schema';
 export * from './fishProductionYield.schema';
 export * from './purchasesBucaramanga.schema';
+
+export * from './wms.schema';

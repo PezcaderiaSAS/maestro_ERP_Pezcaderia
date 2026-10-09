@@ -29,6 +29,7 @@ import {
 export type ERPViewKey =
   | 'dashboard'
   | 'pos'
+  | 'pos_offline'
   | 'precios'
   | 'clientes'
   | 'crm'
@@ -194,6 +195,14 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
           badge: 'Caja',
           badgeVariant: 'emerald',
           testId: 'nav-pos',
+        },
+        {
+          key: 'pos_offline',
+          label: 'POS Offline V2',
+          icon: ShoppingCart,
+          badge: 'Nuevo',
+          badgeVariant: 'amber',
+          testId: 'nav-pos-offline',
         },
         {
           key: 'precios',

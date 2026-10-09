@@ -3,7 +3,7 @@
   "project": {
     "name": "Pezcaderia ERP / FerreOn NextJS",
     "version": "2.0.0",
-    "theme_mode": "dark-glassmorphism",
+    "theme_mode": "light",
     "framework": "React 18 / Next.js 14+ (App Router)",
     "styling": "Tailwind CSS v3/v4",
     "icon_library": "lucide-react"
@@ -11,7 +11,7 @@
   "design_system": {
     "source_specification": "DESIGN.md",
     "mcp_server": "ricoui-design-mcp",
-    "default_brand": "pezcaderia-glass",
+    "default_brand": "pezcaderia-light",
     "tokens": {
       "colors": {
         "canvas_background": "hsl(222, 47%, 8%)",
@@ -49,6 +49,16 @@
           "accent": "#06b6d4",
           "border": "rgba(255, 255, 255, 0.12)",
           "badge": "PEZCADERIA S.A.S"
+        },
+        "pezcaderia-light": {
+          "name": "Pezcaderia Light (Operativo)",
+          "archetype": "SaaS Light Mode",
+          "canvas_background": "#f8fafc",
+          "surface_card": "#ffffff",
+          "primary": "#4f46e5",
+          "accent": "#06b6d4",
+          "border": "#e2e8f0",
+          "badge": "PEZCADERIA OPERATIVO"
         },
         "hyper-cobalt": {
           "name": "Hyper Cobalt & Skin Sand",

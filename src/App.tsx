@@ -21,8 +21,8 @@ import { ColdStorageRentalView } from './views/coldStorageRental/ColdStorageRent
 import { EnterpriseSidebar, type ERPViewKey } from './components/layout/EnterpriseSidebar';
 import { EnterpriseTopbar } from './components/layout/EnterpriseTopbar';
 import { GlobalOmniboxModal } from './components/layout/GlobalOmniboxModal';
+import { PosDashboard } from './components/pos/PosDashboard';
 import * as localDb from './services/localDb';
-// Stores de Zustand
 import { useInventoryStore } from './store/useInventoryStore';
 import { useWarehouseStore } from './store/useWarehouseStore';
 import { useOrderStore } from './store/useOrderStore';
@@ -1264,6 +1264,8 @@ export default function App() {
             handleAprobarPedidoManual={handleAprobarPedidoManual}
           />
         );
+      case 'pos_offline':
+        return <PosDashboard />;
       case 'inventario':
         return <InventoryView />;
       case 'configuracion_bodegas':
@@ -1323,6 +1325,8 @@ export default function App() {
         return { cat: 'Administrativo', sub: 'Panel de Control' };
       case 'pos':
         return { cat: 'Comercial', sub: 'Punto de Venta (POS)' };
+      case 'pos_offline':
+        return { cat: 'Comercial', sub: 'POS Offline V2' };
       case 'inventario':
         return { cat: 'Inventario y Planta', sub: 'Bodegas & WMS' };
       case 'configuracion_bodegas':

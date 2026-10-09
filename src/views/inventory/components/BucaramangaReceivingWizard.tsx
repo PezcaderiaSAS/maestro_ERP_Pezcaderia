@@ -147,6 +147,16 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
   }, [currentGrossWeight, currentCrateTare, currentIceDeductionPct]);
 
   // Agregar canastilla pesada
+  const [transferirMostrador, setTransferirMostrador] = useState<boolean>(false);
+  const [transferPOSId, setTransferPOSId] = useState<string>('mostrador-principal');
+  const [cantidadTransferir, setCantidadTransferir] = useState<string>('');
+
+  // Simulación de los mostradores de la sucursal actual
+  const mostradoresSucursal = [
+    { id: 'mostrador-principal', nombre: 'Punto de Venta Principal' },
+    { id: 'mostrador-express', nombre: 'Punto Express' }
+  ];
+
   const handleAgregarCanastilla = () => {
     const gross = typeof currentGrossWeight === 'number' ? currentGrossWeight : 0;
     if (gross <= currentCrateTare) {
@@ -213,6 +223,9 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
       advancePaymentDeducted,
       paymentStatus,
       notes,
+      transferToPOS: transferirMostrador,
+      transferPOSId: transferirMostrador ? transferPOSId : undefined,
+      transferQuantityKg: transferirMostrador ? (parseFloat(cantidadTransferir) || 0) : 0,
     });
 
     setIsSaving(false);
@@ -927,6 +940,61 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
                   rows={3}
                   className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white outline-none focus:border-cyan-400"
                 />
+              </div>
+
+              {/* TRASLADO RÁPIDO A MOSTRADOR */}
+              <div className="p-4 bg-blue-950/30 border border-blue-900/50 rounded-2xl space-y-3 mt-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm font-bold text-blue-300">
+                    <ShoppingCart className="w-5 h-5" />
+                    <span>Traslado Rápido a Punto de Venta (Mostrador)</span>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={transferirMostrador}
+                      onChange={(e) => {
+                        setTransferirMostrador(e.target.checked);
+                        if (e.target.checked && !cantidadTransferir) {
+                          setCantidadTransferir(liquidacion.totalNetWeightKg.toString());
+                        }
+                      }}
+                    />
+                    <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                  </label>
+                </div>
+
+                {transferirMostrador && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3 animate-fade-in">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-400 mb-1">Punto de Venta Destino:</label>
+                      <select
+                        value={transferPOSId}
+                        onChange={(e) => setTransferPOSId(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-700 text-slate-300 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
+                      >
+                        {mostradoresSucursal.map(m => (
+                          <option key={m.id} value={m.id}>{m.nombre}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-400 mb-1">Cantidad a Trasladar (kg):</label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={cantidadTransferir}
+                          onChange={(e) => setCantidadTransferir(e.target.value)}
+                          className="w-full bg-slate-950 border border-blue-500/50 text-white rounded-xl px-3 py-2 text-sm font-mono outline-none focus:border-blue-400"
+                        />
+                        <span className="absolute right-3 top-2.5 text-xs text-slate-500 font-bold">kg</span>
+                      </div>
+                      <p className="text-[10px] text-slate-500 mt-1">Máx disponible: {liquidacion.totalNetWeightKg} kg</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

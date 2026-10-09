@@ -209,6 +209,27 @@ export async function registrarRecepcionBucaramanga(
     const existentes = obtenerRecepcionesBucaramanga();
     save(STORAGE_KEY_RECEPTIONS, [recepcionCompleta, ...existentes]);
 
+    // 5.1. Si se indicó Traslado Rápido a POS, ejecutar el traslado lógico
+    if (datos.transferToPOS && datos.transferPOSId && datos.transferQuantityKg > 0) {
+      try {
+        const supabase = getSupabaseClient();
+        if (supabase) {
+          // Ejecutar RPC para transferir inmediatamente stock de bodega principal a POS
+          await supabase.rpc('rpc_transfer_stock', {
+            p_tenant_id: '00000000-0000-0000-0000-000000000000',
+            p_source_warehouse_id: lotesGenerados[0]?.bodegaId || 'cava-principal',
+            p_target_warehouse_id: datos.transferPOSId,
+            p_sku: lotesGenerados[0]?.sku || 'PESCADO-MIX',
+            p_quantity: datos.transferQuantityKg,
+            p_actor_id: '00000000-0000-0000-0000-000000000000',
+            p_notes: `Traslado Automático desde Recepción ${recepcionCompleta.receptionNumber}`
+          });
+        }
+      } catch (err) {
+        console.warn('Error transfiriendo stock al mostrador (offline mode):', err);
+      }
+    }
+
     // 6. Si venía de un pedido previo, actualizar su estado a RECIBIDO_TOTAL
     if (datos.purchaseOrderId) {
       const pedidos = obtenerPedidosCompraBucaramanga();

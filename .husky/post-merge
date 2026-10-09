@@ -1,1 +1,1 @@
-node .agent/scripts/sync-agents.js
+node .agent/scripts/sync-agents.cjs

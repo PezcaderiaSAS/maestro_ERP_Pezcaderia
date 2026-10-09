@@ -73,6 +73,11 @@ function cleanOrphanedFiles() {
 
       // Si el archivo es untracked (??) y pertenece a las carpetas de ECC
       if (state === '??' && (filePath.startsWith('.agents/skills') || filePath.startsWith('.agent/workflows'))) {
+        // Ignorar dependencias autogeneradas por Impeccable
+        if (filePath.includes('impeccable')) {
+          return;
+        }
+        
         const fullPath = path.join(ROOT_DIR, filePath);
         if (fs.existsSync(fullPath)) {
           fs.rmSync(fullPath, { recursive: true, force: true });
@@ -90,8 +95,39 @@ function cleanOrphanedFiles() {
   }
 }
 
+// 3. Instalación de Marco de Diseño (Impeccable)
+function installImpeccable() {
+  console.log('🎨 Instalando/Actualizando marco de diseño Impeccable...');
+  try {
+    // Instalar en modo silencioso y forzado para compatibilidad general
+    execSync('npx -y impeccable install --scope=project --providers=claude', { stdio: 'inherit' });
+    
+    // Migrar artefactos de .claude (generados por defecto) al ecosistema .agents de Antigravity
+    const claudeImpeccableDir = path.join(ROOT_DIR, '.claude/skills/impeccable');
+    const agentsImpeccableDir = path.join(SKILLS_DIR, 'frontend_ui/impeccable');
+    
+    if (fs.existsSync(claudeImpeccableDir)) {
+      fs.cpSync(claudeImpeccableDir, agentsImpeccableDir, { recursive: true, force: true });
+    }
+
+    const claudeAgentsDir = path.join(ROOT_DIR, '.claude/agents');
+    const agentsAgentsDir = path.join(ROOT_DIR, '.agents/agents');
+    if (fs.existsSync(claudeAgentsDir)) {
+      if (!fs.existsSync(agentsAgentsDir)) fs.mkdirSync(agentsAgentsDir, { recursive: true });
+      fs.readdirSync(claudeAgentsDir).forEach(file => {
+        fs.cpSync(path.join(claudeAgentsDir, file), path.join(agentsAgentsDir, file), { recursive: true, force: true });
+      });
+    }
+
+    console.log(`${GREEN}✅ Impeccable integrado con éxito en el ecosistema .agents.${RESET}`);
+  } catch (error) {
+    console.error(`${YELLOW}⚠️ Advertencia: Ocurrió un error al instalar Impeccable. Continúa la ejecución sin él.${RESET}`);
+  }
+}
+
 // Ejecución
 checkProtectedAssets();
+installImpeccable();
 cleanOrphanedFiles();
 
 console.log(`${GREEN}✅ Sincronización ECC completada con éxito. Listo para operar.${RESET}`);

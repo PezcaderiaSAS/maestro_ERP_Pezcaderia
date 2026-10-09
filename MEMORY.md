@@ -1,18 +1,19 @@
 # Memoria Activa - La Pezcadería ERP
 
-## Contexto Actual (Rediseño Light Mode & Alto Contraste en POS y Cajas)
-- **Estado Global:** Rediseño urgente a Modo Claro (Light Mode) de alto contraste 100% completado y validado en vivo con Chrome DevTools.
-- **Skills Creadas como Fuentes de Verdad:**
-  - `.agents/skills/erp-pos-design-tokens/SKILL.md`: Especificación de tokens Light Mode WCAG AA+ (fondos slate-50 `#f8fafc`, tarjetas `#ffffff`, bordes `#cbd5e1`, tipografía `#0f172a`, inputs puros blancos con anillos de foco azul/índigo, semáforos operativos).
-  - `.agents/skills/ui-ux-pro-max/SKILL.md`: Patrones de flujo SaaS, split-pane táctil y AppShell responsivo.
-- **Vistas y Componentes Migrados a Light Mode:**
-  - `src/index.css`: Reemplazo de temas oscuros (`hyper-cobalt`, `carbon-teal`, `chrome-violet`, `obsidian`) por variantes claras de alto contraste. Sobrescrituras globales para clases oscuras residuales.
-  - `src/App.tsx`, `EnterpriseTopbar.tsx`, `EnterpriseSidebar.tsx`: AppShell completo en Light Mode con títulos nítidos y badges de dominio.
-  - `POSView.tsx`, `CartPanel.tsx`, `ParkedOrdersBar.tsx`, `PaymentPanel.tsx`: Catálogo de productos con nombres en mayúscula y negro intenso `#0f172a`, etiquetas de precio contrastadas, panel de ventas en espera con badges índigo/ámbar, e inputs de cobro y peso con fondo blanco absoluto.
-  - `CashFlowView.tsx` y `EgresoOperativoModal.tsx`: Tablas de movimientos y formularios de egreso convertidos a Light Mode con legibilidad total bajo luz solar o iluminación intensa de punto de venta.
-- **Verificación DevTools:** 0 errores en consola JS, Vite HMR 100% activo en `127.0.0.1:3000`, inspección visual exitosa de modales y flujos de cobro.
+## Contexto Actual (POS Offline & Recepción WMS)
+- **Estado Global:** Implementación del Módulo POS Offline-First (Mostrador táctil en frío) y Flujo de Traslado Rápido a Sucursal.
+- **Vistas y Componentes Desarrollados:**
+  - `PosDashboard.tsx`: Panel principal del POS, adaptado a táctil y diseñado para funcionar sin internet usando el patrón Outbox.
+  - `useOutboxSync.ts`: Lógica de sincronización vía IndexedDB para capturar ventas y trasladarlas asíncronamente.
+  - `BucaramangaReceivingWizard.tsx`: Integración del Traslado Rápido al final de la recepción (Liquidación).
+- **Backend & Base de Datos (Pendiente):**
+  - Creada la migración SQL `20261009124000_pos_fefo_sync.sql` con la función `rpc_pos_sync_fefo` para deducir de manera inteligente (FEFO) el stock vendido en el POS, soportando stock negativo.
+  - **PENDIENTE PARA LA PRÓXIMA SESIÓN:** 
+    1. Ejecutar `npx prisma db execute` o `supabase migration up` (falló por falta de la variable `DIRECT_URL` en el `.env`).
+    2. Validar con DevTools la UI ya que hubo error 503 del subagente y fallo de conexión al puerto 5173 (actualmente Vite corre en el 3000).
 
 ## Siguientes Flujos Operativos Prioritarios
-1. **Alquileres de Frío (WMS 3PL):** Pesaje por estiba (posiciones de 800 kg), tarifas por día/mes y actas de custodia de terceros.
-2. **Transformación y Fileteo en Frío (Yield & Mermas):** Despiece táctil de pescado entero a filete/posta con balance de masa en vivo.
+1. Resolver migraciones SQL para que Prisma se sincronice con Supabase (`DIRECT_URL`).
+2. Continuar con Alquileres de Frío (WMS 3PL) y Actas de custodia.
+3. Transformación y Fileteo en Frío (Yield & Mermas).
 

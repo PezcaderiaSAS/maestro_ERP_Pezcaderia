@@ -83,6 +83,9 @@ export const RecepcionBucaramangaSchema = z.object({
   advancePaymentDeducted: z.number().min(0, 'El anticipo deducido no puede ser negativo').default(0),
   paymentStatus: z.enum(['PENDIENTE', 'PAGADO_CONTADO', 'CREDITO']).default('PENDIENTE'),
   notes: z.string().max(500).optional(),
+  transferToPOS: z.boolean().default(false),
+  transferPOSId: z.string().optional(),
+  transferQuantityKg: z.number().min(0).default(0),
 });
 
 export type RecepcionBucaramanga = z.infer<typeof RecepcionBucaramangaSchema>;
