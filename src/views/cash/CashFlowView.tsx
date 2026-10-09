@@ -1,10 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Wallet, ArrowRightLeft, Upload, Download, Power, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  Wallet,
+  ArrowRightLeft,
+  Upload,
+  Download,
+  Power,
+  AlertTriangle,
+  Truck,
+  Fish,
+  Snowflake,
+  ShoppingCart,
+  Receipt,
+  Filter,
+} from 'lucide-react';
 import { cashService } from '../../services/cashService';
 import { Caja, TurnoCaja, MovimientoCaja } from '../../types/cash.types';
 import Swal from 'sweetalert2';
 import ArqueoCajaModal from './components/ArqueoCajaModal';
 import TrasladoDineroModal from './components/TrasladoDineroModal';
+import EgresoOperativoModal from './components/EgresoOperativoModal';
 import { AperturaCajaModal } from '../pos/components/AperturaCajaModal';
 import { useWarehouseStore } from '../../store/useWarehouseStore';
 import { useCashStore } from '../../store/useCashStore';
@@ -30,8 +44,11 @@ export default function CashFlowView() {
   // Modales
   const [showCierreModal, setShowCierreModal] = useState(false);
   const [showTrasladoModal, setShowTrasladoModal] = useState(false);
-
+  const [showEgresoModal, setShowEgresoModal] = useState(false);
   const [showAperturaModal, setShowAperturaModal] = useState(false);
+
+  // Filtro de movimientos diario
+  const [filtroTab, setFiltroTab] = useState<'TODO' | 'VENTAS' | 'FLETES' | 'PESCADO' | 'GASTOS'>('TODO');
   // Cargar Cajas
   useEffect(() => {
     // Si no existen cajas en la BD, inyectamos unas de prueba por primera vez
@@ -43,7 +60,10 @@ export default function CashFlowView() {
       cajasGuardadas = cashService.getCajas();
     }
     
-    const cajasBodega = cajasGuardadas.filter(c => c.bodegaId === bodegaSeleccionada && c.activa);
+    const bodegaObj = bodegas.find(b => b.nombre === bodegaSeleccionada || b.id === bodegaSeleccionada);
+    const cajasBodega = cajasGuardadas.filter(c => 
+      (c.bodegaId === bodegaSeleccionada || (bodegaObj && c.bodegaId === bodegaObj.id) || (!bodegaObj && c.activa)) && c.activa
+    );
     setCajas(cajasBodega);
     
     if (cajasBodega.length > 0) {
@@ -78,56 +98,25 @@ export default function CashFlowView() {
 
   const handleEgresoRapido = () => {
     if (!turnoActivo) return;
-
-    Swal.fire({
-      title: 'Registrar Egreso',
-      html: `
-        <select id="swal-metodo" class="swal2-input">
-          <option value="EFECTIVO">Efectivo</option>
-          <option value="DATAFONO">Datáfono</option>
-          <option value="TRANSFERENCIA">Transferencia</option>
-        </select>
-        <input id="swal-monto" type="number" class="swal2-input" placeholder="Monto">
-        <input id="swal-concepto" class="swal2-input" placeholder="Concepto (Ej. Pago proveedor, Gasto menor)">
-      `,
-      focusConfirm: false,
-      showCancelButton: true,
-      preConfirm: () => {
-        const metodoPago = (document.getElementById('swal-metodo') as HTMLSelectElement).value;
-        const monto = (document.getElementById('swal-monto') as HTMLInputElement).value;
-        const concepto = (document.getElementById('swal-concepto') as HTMLInputElement).value;
-        
-        if (!monto || Number(monto) <= 0) {
-          Swal.showValidationMessage('Ingrese un monto válido');
-          return false;
-        }
-        if (!concepto) {
-          Swal.showValidationMessage('Ingrese un concepto');
-          return false;
-        }
-        return { monto: Number(monto), concepto, metodoPago };
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const res = cashService.registrarMovimiento(
-          turnoActivo.id,
-          turnoActivo.cajaId,
-          'EGRESO_GASTO',
-          result.value.metodoPago as any,
-          result.value.monto,
-          result.value.concepto,
-          null,
-          usuarioId
-        );
-        if (!res.error) {
-          Swal.fire('Éxito', 'Movimiento registrado con éxito', 'success');
-          loadData();
-        } else {
-          Swal.fire('Error', res.error, 'error');
-        }
-      }
-    });
+    setShowEgresoModal(true);
   };
+
+  const movimientosFiltrados = useMemo(() => {
+    return movimientos.filter(mov => {
+      if (filtroTab === 'TODO') return true;
+      if (filtroTab === 'VENTAS') return mov.tipo === 'INGRESO_VENTA';
+      if (filtroTab === 'FLETES') {
+        return mov.categoriaEgreso === 'FLETE_TRANSPORTE' || mov.concepto.toLowerCase().includes('flete');
+      }
+      if (filtroTab === 'PESCADO') {
+        return mov.categoriaEgreso === 'PAGO_PROVEEDOR_PESCADO' || mov.concepto.toLowerCase().includes('pescado') || mov.concepto.toLowerCase().includes('proveedor');
+      }
+      if (filtroTab === 'GASTOS') {
+        return mov.categoriaEgreso === 'INSUMOS_HIELO_CAVA' || mov.categoriaEgreso === 'GASTO_OPERATIVO_GENERAL' || (mov.tipo.startsWith('EGRESO') && mov.categoriaEgreso !== 'FLETE_TRANSPORTE' && mov.categoriaEgreso !== 'PAGO_PROVEEDOR_PESCADO');
+      }
+      return true;
+    });
+  }, [movimientos, filtroTab]);
 
   return (
     <div className="p-4 md:p-6 bg-slate-800/40 min-h-full flex-1 overflow-y-auto">
@@ -231,30 +220,30 @@ export default function CashFlowView() {
                   </div>
                 </div>
 
-                <div className="space-y-3 pt-6 border-t border-gray-100">
+                <div className="space-y-3 pt-6 border-t border-slate-700/60">
                   <button 
                     data-testid="btn-egreso-rapido"
                     onClick={handleEgresoRapido}
-                    className="w-full bg-card border-white/5 border border-white/10 hover:bg-slate-800/40 text-secondary font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
+                    className="w-full min-h-[50px] bg-rose-600/10 hover:bg-rose-600/20 text-rose-400 font-bold py-3 px-4 rounded-xl border border-rose-500/30 flex items-center justify-center gap-2.5 transition active:scale-95"
                   >
-                    <Upload size={18} className="text-red-500" />
-                    Registrar Egreso (Gasto)
+                    <Upload size={20} className="text-rose-400" />
+                    <span>Salida de Dinero (Flete / Compra)</span>
                   </button>
                   <button 
                     data-testid="btn-traslado-dinero"
                     onClick={() => setShowTrasladoModal(true)}
-                    className="w-full bg-card border-white/5 border border-white/10 hover:bg-slate-800/40 text-secondary font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
+                    className="w-full min-h-[48px] bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 font-medium py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition active:scale-95"
                   >
-                    <ArrowRightLeft size={18} className="text-blue-500" />
-                    Trasladar Dinero
+                    <ArrowRightLeft size={18} className="text-blue-400" />
+                    <span>Mover Plata entre Cajas</span>
                   </button>
                   <button 
                     data-testid="btn-cierre-caja"
                     onClick={() => setShowCierreModal(true)}
-                    className="w-full bg-red-50 hover:bg-red-100 text-red-700 font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors mt-4 border border-red-200"
+                    className="w-full min-h-[50px] bg-red-600 hover:bg-red-500 text-white font-black py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-red-600/20 transition active:scale-95 mt-4"
                   >
-                    <Power size={18} />
-                    Hacer Cierre de Caja
+                    <Power size={20} />
+                    <span>Cerrar Turno (Arqueo Ciego)</span>
                   </button>
                 </div>
               </div>
@@ -264,57 +253,140 @@ export default function CashFlowView() {
           {/* Panel Derecho: Historial de Movimientos */}
           <div className="lg:col-span-2">
             <div className="bg-card border-white/5 rounded-2xl shadow-sm border border-border h-full flex flex-col">
-              <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-                <h3 className="text-lg font-bold text-primary">Historial de Movimientos</h3>
-                <span className="bg-slate-800/60 text-slate-400 text-xs px-2 py-1 rounded font-medium">
-                  {movimientos.length} transacciones
-                </span>
+              <div className="p-5 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h3 className="text-lg font-bold text-primary">Movimientos de Hoy</h3>
+                  <p className="text-xs text-slate-400">Control de entradas y salidas en tiempo real</p>
+                </div>
+
+                {/* Pestañas Táctiles de Filtrado Rápido */}
+                <div className="flex flex-wrap gap-1.5 p-1 bg-slate-950/80 rounded-xl border border-slate-800">
+                  <button
+                    onClick={() => setFiltroTab('TODO')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                      filtroTab === 'TODO' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    Todo ({movimientos.length})
+                  </button>
+                  <button
+                    onClick={() => setFiltroTab('VENTAS')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition ${
+                      filtroTab === 'VENTAS' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <ShoppingCart size={12} />
+                    <span>Ventas</span>
+                  </button>
+                  <button
+                    onClick={() => setFiltroTab('FLETES')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition ${
+                      filtroTab === 'FLETES' ? 'bg-amber-600 text-white' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <Truck size={12} />
+                    <span>Fletes</span>
+                  </button>
+                  <button
+                    onClick={() => setFiltroTab('PESCADO')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition ${
+                      filtroTab === 'PESCADO' ? 'bg-cyan-600 text-white' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <Fish size={12} />
+                    <span>Pescado</span>
+                  </button>
+                  <button
+                    onClick={() => setFiltroTab('GASTOS')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition ${
+                      filtroTab === 'GASTOS' ? 'bg-rose-600 text-white' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <Receipt size={12} />
+                    <span>Gastos</span>
+                  </button>
+                </div>
               </div>
+
               <div className="p-0 flex-1 overflow-auto">
-                {movimientos.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-64 text-gray-400">
-                    <AlertTriangle size={32} className="mb-2 opacity-50" />
-                    <p>No hay movimientos registrados en este turno.</p>
+                {movimientosFiltrados.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-64 text-slate-500">
+                    <AlertTriangle size={32} className="mb-2 opacity-40 text-amber-400" />
+                    <p className="text-sm">No hay transacciones en este filtro.</p>
                   </div>
                 ) : (
                   <table className="w-full text-left border-collapse">
-                    <thead className="bg-slate-800/40 sticky top-0">
+                    <thead className="bg-slate-900/80 sticky top-0 border-b border-slate-800">
                       <tr>
-                        <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Hora</th>
-                        <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Tipo</th>
-                        <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Concepto</th>
-                        <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Monto</th>
+                        <th className="px-5 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Hora</th>
+                        <th className="px-5 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Categoría</th>
+                        <th className="px-5 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Detalle</th>
+                        <th className="px-5 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">Monto</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {movimientos.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(mov => {
-                        const esIngreso = mov.tipo.startsWith('INGRESO');
-                        return (
-                          <tr key={mov.id} className="hover:bg-slate-800/40">
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              <div className="flex flex-col">
-                                <span>{new Date(mov.createdAt).toLocaleDateString()}</span>
-                                {new Date(mov.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${esIngreso ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                {esIngreso ? <Download size={12} /> : <Upload size={12} />}
-                                {mov.tipo.replace('INGRESO_', '').replace('EGRESO_', '').replace('_', ' ')}
-                              </span>
-                              <span className="ml-2 text-xs text-gray-400 font-semibold uppercase">
-                                {mov.metodoPago}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 text-sm text-secondary">
-                              {mov.concepto}
-                            </td>
-                            <td className={`px-6 py-4 whitespace-nowrap text-sm font-bold text-right ${esIngreso ? 'text-green-600' : 'text-red-600'}`}>
-                              {esIngreso ? '+' : '-'}${mov.monto.toLocaleString()}
-                            </td>
-                          </tr>
-                        );
-                      })}
+                    <tbody className="divide-y divide-slate-800/60">
+                      {movimientosFiltrados
+                        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                        .map(mov => {
+                          const esIngreso = mov.tipo.startsWith('INGRESO');
+                          const esFlete = mov.categoriaEgreso === 'FLETE_TRANSPORTE' || mov.concepto.toLowerCase().includes('flete');
+                          const esPescado = mov.categoriaEgreso === 'PAGO_PROVEEDOR_PESCADO' || mov.concepto.toLowerCase().includes('pescado');
+                          const esHielo = mov.categoriaEgreso === 'INSUMOS_HIELO_CAVA' || mov.concepto.toLowerCase().includes('hielo');
+
+                          return (
+                            <tr key={mov.id} className="hover:bg-slate-800/40 transition">
+                              <td className="px-5 py-3.5 whitespace-nowrap text-xs text-slate-400">
+                                <div className="flex flex-col font-mono">
+                                  <span className="text-slate-300">{new Date(mov.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                  <span className="text-[10px] text-slate-500">{new Date(mov.createdAt).toLocaleDateString()}</span>
+                                </div>
+                              </td>
+                              <td className="px-5 py-3.5 whitespace-nowrap">
+                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
+                                  esIngreso
+                                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                                    : esFlete
+                                    ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                                    : esPescado
+                                    ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
+                                    : esHielo
+                                    ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                                    : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                                }`}>
+                                  {esIngreso && <Download size={12} />}
+                                  {!esIngreso && esFlete && <Truck size={12} />}
+                                  {!esIngreso && esPescado && <Fish size={12} />}
+                                  {!esIngreso && esHielo && <Snowflake size={12} />}
+                                  {!esIngreso && !esFlete && !esPescado && !esHielo && <Upload size={12} />}
+                                  
+                                  {esFlete
+                                    ? 'Flete Camión'
+                                    : esPescado
+                                    ? 'Compra Pescado'
+                                    : esHielo
+                                    ? 'Hielo / Frío'
+                                    : mov.tipo.replace('INGRESO_', '').replace('EGRESO_', '').replace('_', ' ')}
+                                </span>
+                                <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono font-semibold uppercase">
+                                  {mov.metodoPago}
+                                </span>
+                              </td>
+                              <td className="px-5 py-3.5 text-xs text-slate-200">
+                                <div className="font-medium">{mov.concepto}</div>
+                                {mov.metadata?.placaCamion && (
+                                  <span className="text-[10px] text-amber-400 font-mono">
+                                    Furgón: {mov.metadata.placaCamion}
+                                  </span>
+                                )}
+                              </td>
+                              <td className={`px-5 py-3.5 whitespace-nowrap text-sm font-black font-mono text-right ${
+                                esIngreso ? 'text-emerald-400' : 'text-rose-400'
+                              }`}>
+                                {esIngreso ? '+' : '-'}${mov.monto.toLocaleString()} COP
+                              </td>
+                            </tr>
+                          );
+                        })}
                     </tbody>
                   </table>
                 )}
@@ -357,6 +429,18 @@ export default function CashFlowView() {
           onSuccess={() => {
             setShowTrasladoModal(false);
             loadData(); // Refrescará para mostrar el nuevo egreso
+          }}
+        />
+      )}
+
+      {showEgresoModal && turnoActivo && (
+        <EgresoOperativoModal
+          turnoActivo={turnoActivo}
+          usuarioId={usuarioId}
+          onClose={() => setShowEgresoModal(false)}
+          onSuccess={() => {
+            setShowEgresoModal(false);
+            loadData();
           }}
         />
       )}

@@ -1,6 +1,6 @@
 import {
   Caja, TurnoCaja, MovimientoCaja, TrasladoDinero,
-  TipoMovimientoCaja, MetodoPago, DetalleArqueo
+  TipoMovimientoCaja, MetodoPago, DetalleArqueo, CategoriaEgresoOperativo
 } from '../types/cash.types';
 import { ResultadoOperacion } from '../types/common.types';
 import * as localDb from './localDb';
@@ -91,8 +91,8 @@ class LegacyCashService {
       const nuevoTurno: TurnoCaja = {
         id: generateId('trn'), cajaId, branch_id, cajeroId,
         fechaApertura: new Date().toISOString(), fechaCierre: null, baseInicial,
-        detalleArqueoApertura: detalleApertura, saldoTeoricoGlobal: baseInicial,
-        totalEfectivo: baseInicial, totalDatafono: 0, totalTransferencias: 0,
+        detalleArqueoApertura: detalleApertura, saldoTeoricoGlobal: 0,
+        totalEfectivo: 0, totalDatafono: 0, totalTransferencias: 0,
         saldoFisicoEfectivo: null, diferenciaEfectivo: null, estado: 'ABIERTO',
         justificacion: null, notasApertura: notasApertura || null,
         createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), createdBy: cajeroId
@@ -205,6 +205,70 @@ class LegacyCashService {
     } catch (e: any) { return { data: null, error: e.message || 'Error al registrar el movimiento' }; }
   }
 
+  public registrarEgresoOperativo(params: {
+    turnoId: string;
+    cajaId: string;
+    categoriaEgreso: CategoriaEgresoOperativo;
+    metodoPago: MetodoPago;
+    monto: number;
+    concepto: string;
+    referenciaId?: string | null;
+    usuarioId: string;
+    metadata?: MovimientoCaja['metadata'];
+  }): ResultadoOperacion<MovimientoCaja> {
+    try {
+      if (params.monto <= 0) return { data: null, error: 'El monto debe ser mayor a cero' };
+      const turnos = this.getTurnos();
+      const idx = turnos.findIndex(t => t.id === params.turnoId);
+      if (idx === -1) return { data: null, error: 'Turno no encontrado' };
+      const turno = turnos[idx];
+      if (turno.estado !== 'ABIERTO') {
+        return { data: null, error: 'No se pueden registrar movimientos en un turno cerrado' };
+      }
+
+      // Validación estricta de saldo en efectivo (EARS-W01)
+      if (params.metodoPago === 'EFECTIVO' && turno.totalEfectivo < params.monto) {
+        return {
+          data: null,
+          error: `Saldo en efectivo insuficiente ($${turno.totalEfectivo.toLocaleString()} COP disponibles, requerido $${params.monto.toLocaleString()} COP). Puede pagar por transferencia bancaria o registrar a crédito.`,
+        };
+      }
+
+      const nuevoMovimiento: MovimientoCaja = {
+        id: generateId('mov'),
+        turnoId: params.turnoId,
+        cajaId: params.cajaId,
+        branch_id: turno.branch_id,
+        tipo: 'EGRESO_GASTO',
+        metodoPago: params.metodoPago,
+        monto: params.monto,
+        concepto: params.concepto,
+        referenciaId: params.referenciaId || null,
+        categoriaEgreso: params.categoriaEgreso,
+        metadata: params.metadata,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: params.usuarioId,
+      };
+
+      const movimientos = localDb.load<MovimientoCaja[]>('movimientosCaja', []);
+      movimientos.push(nuevoMovimiento);
+      localDb.save('movimientosCaja', movimientos);
+
+      const delta = -params.monto;
+      turno.saldoTeoricoGlobal += delta;
+      if (params.metodoPago === 'EFECTIVO') turno.totalEfectivo += delta;
+      if (params.metodoPago === 'DATAFONO') turno.totalDatafono += delta;
+      if (params.metodoPago === 'TRANSFERENCIA') turno.totalTransferencias += delta;
+      turnos[idx] = turno;
+      localDb.save('turnosCaja', turnos);
+
+      return { data: nuevoMovimiento, error: null };
+    } catch (e: any) {
+      return { data: null, error: e.message || 'Error al registrar el egreso operativo' };
+    }
+  }
+
   public getTraslados(): TrasladoDinero[] { return localDb.load<TrasladoDinero[]>('trasladosDinero', []); }
 
   public trasladarDinero(turnoOrigenId: string, cajaDestinoId: string, metodoPago: MetodoPago, monto: number, concepto: string, usuarioId: string): ResultadoOperacion<TrasladoDinero> {
@@ -266,8 +330,8 @@ export class CashService {
       const nuevoTurno: TurnoCaja = {
         id: generateId('trn'), cajaId, branch_id, cajeroId,
         fechaApertura: new Date().toISOString(), fechaCierre: null, baseInicial,
-        detalleArqueoApertura: detalleApertura, saldoTeoricoGlobal: baseInicial,
-        totalEfectivo: baseInicial, totalDatafono: 0, totalTransferencias: 0,
+        detalleArqueoApertura: detalleApertura, saldoTeoricoGlobal: 0,
+        totalEfectivo: 0, totalDatafono: 0, totalTransferencias: 0,
         saldoFisicoEfectivo: null, diferenciaEfectivo: null, estado: 'ABIERTO',
         justificacion: null, notasApertura: notasApertura || null,
         createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), createdBy: cajeroId,
@@ -345,6 +409,54 @@ export class CashService {
       await this.dataService.create('movimientos_caja', nuevoMovimiento);
       return { data: nuevoMovimiento, error: null };
     } catch (e: any) { return { data: null, error: e.message || 'Error al registrar el movimiento' }; }
+  }
+
+  async registrarEgresoOperativo(params: {
+    turnoId: string;
+    cajaId: string;
+    categoriaEgreso: CategoriaEgresoOperativo;
+    metodoPago: MetodoPago;
+    monto: number;
+    concepto: string;
+    referenciaId?: string | null;
+    metadata?: MovimientoCaja['metadata'];
+  }): Promise<ResultadoOperacion<MovimientoCaja>> {
+    try {
+      if (params.monto <= 0) return { data: null, error: 'El monto debe ser mayor a cero' };
+      const turno = await this.dataService.getById<TurnoCaja>('turnos_caja', params.turnoId);
+      if (!turno) return { data: null, error: 'Turno no encontrado' };
+      if (turno.estado !== 'ABIERTO') {
+        return { data: null, error: 'No se pueden registrar movimientos en un turno cerrado' };
+      }
+
+      if (params.metodoPago === 'EFECTIVO' && turno.totalEfectivo < params.monto) {
+        return {
+          data: null,
+          error: `Saldo en efectivo insuficiente ($${turno.totalEfectivo.toLocaleString()} COP disponibles, requerido $${params.monto.toLocaleString()} COP).`,
+        };
+      }
+
+      const nuevoMovimiento: MovimientoCaja = {
+        id: generateId('mov'),
+        turnoId: params.turnoId,
+        cajaId: params.cajaId,
+        branch_id: turno.branch_id,
+        tipo: 'EGRESO_GASTO',
+        metodoPago: params.metodoPago,
+        monto: params.monto,
+        concepto: params.concepto,
+        referenciaId: params.referenciaId || null,
+        categoriaEgreso: params.categoriaEgreso,
+        metadata: params.metadata,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: '',
+      };
+      await this.dataService.create('movimientos_caja', nuevoMovimiento);
+      return { data: nuevoMovimiento, error: null };
+    } catch (e: any) {
+      return { data: null, error: e.message || 'Error al registrar el egreso operativo' };
+    }
   }
 
   async trasladarDinero(turnoOrigenId: string, cajaDestinoId: string, metodoPago: MetodoPago, monto: number, concepto: string): Promise<ResultadoOperacion<TrasladoDinero>> {

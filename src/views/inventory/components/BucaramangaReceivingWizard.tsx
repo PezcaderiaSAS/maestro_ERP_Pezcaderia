@@ -16,6 +16,7 @@ import {
   Thermometer,
   RotateCcw,
   Sparkles,
+  Wallet,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useBalanza } from '../../../hooks/useBalanza';
@@ -23,9 +24,11 @@ import {
   obtenerPedidosCompraBucaramanga,
   obtenerRecepcionesBucaramanga,
   registrarRecepcionBucaramanga,
+  liquidarEgresoCajaRecepcion,
   type PedidoCompraBucaramanga,
   type RecepcionBucaramangaCompleta,
 } from '../../../services/purchasesBucaramangaService';
+import { cashService } from '../../../services/cashService';
 import {
   calcularPesajeCanastilla,
   calcularLiquidacionBucaramanga,
@@ -73,6 +76,10 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
 
   // Datos del Paso 3: El Frío y la Plata
   const [paymentStatus, setPaymentStatus] = useState<'PENDIENTE' | 'PAGADO_CONTADO' | 'CREDITO'>('CREDITO');
+  const [debitarCajaFlete, setDebitarCajaFlete] = useState<boolean>(true);
+  const [debitarCajaProveedor, setDebitarCajaProveedor] = useState<boolean>(false);
+  const [metodoPagoFlete, setMetodoPagoFlete] = useState<'EFECTIVO' | 'TRANSFERENCIA'>('EFECTIVO');
+  const [metodoPagoProveedor, setMetodoPagoProveedor] = useState<'EFECTIVO' | 'TRANSFERENCIA'>('TRANSFERENCIA');
   const [notes, setNotes] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
@@ -230,6 +237,36 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
       notas: `Recepción Bucaramanga ${numRecepcion} - Prov: ${supplierName}`,
     });
 
+    // Liquidar egresos en la caja activa si fue seleccionado
+    let textoEgresos = '';
+    const cajasDisponibles = cashService.getCajas();
+    const cajaActiva = cajasDisponibles.find(c => cashService.getTurnoActivo(c.id));
+    const turnoActivo = cajaActiva ? cashService.getTurnoActivo(cajaActiva.id) : null;
+
+    if (res.data && turnoActivo && cajaActiva && (debitarCajaFlete || (paymentStatus === 'PAGADO_CONTADO' && debitarCajaProveedor))) {
+      const resCaja = liquidarEgresoCajaRecepcion({
+        cajaId: cajaActiva.id,
+        turnoId: turnoActivo.id,
+        recepcion: res.data.recepcion,
+        pagarFlete: debitarCajaFlete,
+        metodoPagoFlete,
+        pagarProveedor: paymentStatus === 'PAGADO_CONTADO' && debitarCajaProveedor,
+        metodoPagoProveedor,
+        usuarioId: inspectorName,
+      });
+
+      if (resCaja.error) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Recepción guardada, pero ocurrió un aviso en Caja',
+          text: resCaja.error,
+        });
+      } else if (resCaja.egresosRegistrados.length > 0) {
+        const totalDebitado = resCaja.egresosRegistrados.reduce((acc, eg) => acc + eg.monto, 0);
+        textoEgresos = `<p class="text-amber-400 font-bold"><strong>Egresos Registrados en Caja:</strong> $${totalDebitado.toLocaleString()} COP debitados de ${cajaActiva.nombre}.</p>`;
+      }
+    }
+
     Swal.fire({
       icon: 'success',
       title: '¡Pescado Guardado en el Frío!',
@@ -239,6 +276,7 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
           <p><strong>Kilos Netos Guardados:</strong> ${liquidacion.totalNetWeightKg.toLocaleString()} kg</p>
           <p><strong>Costo Real Puesto en BCM:</strong> $${liquidacion.landedCostTotal.toLocaleString()} COP</p>
           <p class="text-emerald-400 font-bold"><strong>Saldo Liquidado al Proveedor:</strong> $${liquidacion.balanceToPaySupplier.toLocaleString()} COP</p>
+          ${textoEgresos}
         </div>
       `,
       confirmButtonText: 'Entendido',
@@ -820,6 +858,64 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
                     Queda Debiendo (A Crédito 15-30 Días)
                   </button>
                 </div>
+              </div>
+
+              {/* Opciones de Débito Inmediato en Caja */}
+              <div className="p-4 bg-slate-950/80 border border-slate-800 rounded-2xl space-y-3">
+                <div className="flex items-center gap-2 text-sm font-bold text-white">
+                  <Wallet className="w-4 h-4 text-emerald-400" />
+                  <span>Salida de Dinero desde Caja de Hoy:</span>
+                </div>
+
+                {/* Opción Flete */}
+                <div className="flex items-center justify-between p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs">
+                  <div>
+                    <span className="font-bold text-slate-200">Pagar Flete del Camión ($ {totalFreightCost.toLocaleString()} COP)</span>
+                    <p className="text-[11px] text-slate-400">Sale de caja para pagar al transportador</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={metodoPagoFlete}
+                      onChange={(e) => setMetodoPagoFlete(e.target.value as any)}
+                      className="bg-slate-950 border border-slate-700 text-slate-300 rounded-lg px-2 py-1 text-xs outline-none"
+                    >
+                      <option value="EFECTIVO">Efectivo</option>
+                      <option value="TRANSFERENCIA">Transferencia</option>
+                    </select>
+                    <input
+                      type="checkbox"
+                      checked={debitarCajaFlete}
+                      onChange={(e) => setDebitarCajaFlete(e.target.checked)}
+                      className="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-400"
+                    />
+                  </div>
+                </div>
+
+                {/* Opción Proveedor si es de Contado */}
+                {paymentStatus === 'PAGADO_CONTADO' && (
+                  <div className="flex items-center justify-between p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs">
+                    <div>
+                      <span className="font-bold text-emerald-300">Pagar Pescado de Contado ($ {liquidacion.balanceToPaySupplier.toLocaleString()} COP)</span>
+                      <p className="text-[11px] text-slate-400">Debitar de caja/bancos para el proveedor</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={metodoPagoProveedor}
+                        onChange={(e) => setMetodoPagoProveedor(e.target.value as any)}
+                        className="bg-slate-950 border border-slate-700 text-slate-300 rounded-lg px-2 py-1 text-xs outline-none"
+                      >
+                        <option value="TRANSFERENCIA">Transferencia</option>
+                        <option value="EFECTIVO">Efectivo</option>
+                      </select>
+                      <input
+                        type="checkbox"
+                        checked={debitarCajaProveedor}
+                        onChange={(e) => setDebitarCajaProveedor(e.target.checked)}
+                        className="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-400"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-1">

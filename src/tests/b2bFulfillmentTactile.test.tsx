@@ -21,6 +21,7 @@ describe('B2B Fulfillment Tactile & Bucaramanga Routes Suite', () => {
     productoId: 'prod-01',
     cantidadSolicitada: 15,
     cantidadAlistada: 0,
+    cantidadDespachada: 0,
     precioPactado: 28000,
     totalLinea: 420000,
     estadoLinea: 'PENDIENTE' as const,

@@ -26,6 +26,13 @@ export type TipoMovimientoCaja =
 
 export type MetodoPago = 'EFECTIVO' | 'DATAFONO' | 'TRANSFERENCIA';
 
+export type CategoriaEgresoOperativo =
+  | 'FLETE_TRANSPORTE'
+  | 'PAGO_PROVEEDOR_PESCADO'
+  | 'ANTICIPO_COMPRA'
+  | 'INSUMOS_HIELO_CAVA'
+  | 'GASTO_OPERATIVO_GENERAL';
+
 // ---------------------------------------------------------------------------
 // Entidades Base
 // ---------------------------------------------------------------------------
@@ -99,6 +106,17 @@ export interface MovimientoCaja extends Auditable {
   monto: number;
   concepto: string;
   referenciaId: string | null;
+  categoriaEgreso?: CategoriaEgresoOperativo;
+  metadata?: {
+    placaCamion?: string;
+    proveedorNombre?: string;
+    proveedorId?: string;
+    numeroGuia?: string;
+    consecutivoRecepcion?: string;
+    kilosNetos?: number;
+    saldoPendienteCxP?: number;
+    [key: string]: any;
+  };
 }
 
 /** Transacción con categorías de negocio (absorbida desde caja.types.ts). */

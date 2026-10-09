@@ -8,6 +8,8 @@ import {
 } from '../../packages/validation-schemas/src/purchasesBucaramanga.schema';
 import type { ResultadoOperacion } from '../types/common.types';
 import { getSupabaseClient } from '../lib/supabase';
+import { cashService } from './cashService';
+import type { MetodoPago, MovimientoCaja } from '../types/cash.types';
 
 export interface PedidoCompraBucaramanga {
   id: string;
@@ -221,3 +223,77 @@ export async function registrarRecepcionBucaramanga(
     return { data: null, error: err.message || 'Error inesperado procesando la recepción' };
   }
 }
+
+/**
+ * Conecta una recepción de camión en Bucaramanga con la caja activa
+ * para debitar automáticamente flete y/o saldo al proveedor de contado
+ */
+export function liquidarEgresoCajaRecepcion(params: {
+  cajaId: string;
+  turnoId: string;
+  recepcion: RecepcionBucaramangaCompleta;
+  pagarFlete: boolean;
+  metodoPagoFlete?: MetodoPago;
+  pagarProveedor: boolean;
+  metodoPagoProveedor?: MetodoPago;
+  usuarioId: string;
+}): { egresosRegistrados: MovimientoCaja[]; error: string | null } {
+  const egresos: MovimientoCaja[] = [];
+
+  try {
+    // 1. Pagar Flete si aplica
+    if (params.pagarFlete && params.recepcion.liquidacion.totalFreightCost > 0) {
+      const resFlete = cashService.registrarEgresoOperativo({
+        turnoId: params.turnoId,
+        cajaId: params.cajaId,
+        categoriaEgreso: 'FLETE_TRANSPORTE',
+        metodoPago: params.metodoPagoFlete || 'EFECTIVO',
+        monto: params.recepcion.liquidacion.totalFreightCost,
+        concepto: `Flete Furgón ${params.recepcion.truckPlate} - ${params.recepcion.transportCompany || 'Transportador'}`,
+        referenciaId: params.recepcion.receptionNumber,
+        usuarioId: params.usuarioId,
+        metadata: {
+          placaCamion: params.recepcion.truckPlate,
+          numeroGuia: params.recepcion.shippingGuideNumber,
+          consecutivoRecepcion: params.recepcion.receptionNumber,
+          proveedorNombre: params.recepcion.supplierName,
+        },
+      });
+
+      if (resFlete.error) {
+        return { egresosRegistrados: egresos, error: `Flete: ${resFlete.error}` };
+      }
+      if (resFlete.data) egresos.push(resFlete.data);
+    }
+
+    // 2. Pagar Saldo al Proveedor si aplica
+    if (params.pagarProveedor && params.recepcion.liquidacion.balanceToPaySupplier > 0) {
+      const resProv = cashService.registrarEgresoOperativo({
+        turnoId: params.turnoId,
+        cajaId: params.cajaId,
+        categoriaEgreso: 'PAGO_PROVEEDOR_PESCADO',
+        metodoPago: params.metodoPagoProveedor || 'EFECTIVO',
+        monto: params.recepcion.liquidacion.balanceToPaySupplier,
+        concepto: `Liquidación Pescado ${params.recepcion.supplierName} (${params.recepcion.liquidacion.totalNetWeightKg.toLocaleString()} kg)`,
+        referenciaId: params.recepcion.receptionNumber,
+        usuarioId: params.usuarioId,
+        metadata: {
+          proveedorId: params.recepcion.supplierId,
+          proveedorNombre: params.recepcion.supplierName,
+          consecutivoRecepcion: params.recepcion.receptionNumber,
+          kilosNetos: params.recepcion.liquidacion.totalNetWeightKg,
+        },
+      });
+
+      if (resProv.error) {
+        return { egresosRegistrados: egresos, error: `Proveedor: ${resProv.error}` };
+      }
+      if (resProv.data) egresos.push(resProv.data);
+    }
+
+    return { egresosRegistrados: egresos, error: null };
+  } catch (e: any) {
+    return { egresosRegistrados: egresos, error: e.message || 'Error procesando los egresos de caja' };
+  }
+}
+

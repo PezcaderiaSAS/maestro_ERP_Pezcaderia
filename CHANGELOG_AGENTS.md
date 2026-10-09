@@ -19,6 +19,13 @@ Cada vez que un agente de IA finalice una sesión de trabajo, debe agregar una e
 
 ## Registros Diarios
 
+### [2026-10-09 07:35] - Antigravity (ProjectManager & PrincipalEngineer)
+- **Módulo:** Movimientos de Dinero, Egresos Operativos y Flujos de Caja Bucaramanga (Módulo 004 / SDD)
+- **Acción:** Implementación completa del ciclo operativo de egresos de caja: liquidación directa de fletes de furgón y compras de contado desde la recepción de camión en Bucaramanga (`BucaramangaReceivingWizard` Paso 3), modal táctil de egreso operativo con presets y autocompletado en `CashFlowView` (`EgresoOperativoModal`), validación estricta de saldo en efectivo (EARS-W01) con opciones alternativas de pago por transferencia o crédito/deuda con proveedor, y pestañas táctiles de filtrado (`Todo`, `🛒 Ventas`, `🚚 Fletes`, `🐟 Pescado`, `💵 Gastos`).
+- **Archivos Modificados:** `specs/004-movimientos-caja-tesoreria-bucaramanga/spec.md`, `specs/004-movimientos-caja-tesoreria-bucaramanga/plan.md`, `specs/004-movimientos-caja-tesoreria-bucaramanga/tasks.md`, `src/types/cash.types.ts`, `src/services/cashService.ts`, `src/services/purchasesBucaramangaService.ts`, `src/views/cash/components/EgresoOperativoModal.tsx`, `src/views/cash/CashFlowView.tsx`, `src/views/inventory/components/BucaramangaReceivingWizard.tsx`, `src/tests/cashPurchasesIntegration.test.ts`, `MEMORY.md`.
+- **Mejoras UX/UI (Design System):** Diseñado bajo "La Regla de los 12 Años": botones táctiles gigantes (≥ 52 px) aptos para pantallas POS y tablet, semáforo visual inmediato (verde = ingresos, rojo = egresos, naranja = fletes), autocompletado desde recepciones de furgón recientes y validación en vivo en Chrome DevTools a 375 px (móvil) con 0 errores y 0 warnings en la consola JS.
+- **Notas/Bloqueos:** 48 suites de prueba pasando al 100% (294 tests verdes), TypeScript con 0 errores (`tsc --noEmit`).
+
 ### [2026-10-07 10:42] - Antigravity (ProjectManager & PrincipalEngineer)
 - **Módulo:** Alistamientos y Despachos B2B (Módulo 2 / WMS) - Rutas Bucaramanga
 - **Acción:** Localización de zonas metropolitanas de Bucaramanga (Cabecera, Cañaveral, Floridablanca, Ruitoque, Girón, Piedecuesta), integración de báscula digital Web Serial (`useBalanza`) con selector táctil de tara de empaque y emisión de remisión WMS con QR/PDF en `FulfillmentChecklist`.
