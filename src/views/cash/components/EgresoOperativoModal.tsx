@@ -235,26 +235,26 @@ export const EgresoOperativoModal: React.FC<EgresoOperativoModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
         {/* Cabecera Táctil */}
-        <div className="bg-gradient-to-r from-rose-950/60 to-slate-900 border-b border-rose-900/30 p-6 flex justify-between items-center">
+        <div className="bg-rose-50 border-b border-rose-100 p-6 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-2xl text-rose-400">
+            <div className="p-3 bg-rose-100 border border-rose-200 rounded-2xl text-rose-600">
               <DollarSign className="w-7 h-7" />
             </div>
             <div>
-              <h2 className="text-xl font-black text-white tracking-tight">
+              <h2 className="text-xl font-black text-slate-900 tracking-tight">
                 Registrar Salida de Dinero (Egreso)
               </h2>
-              <p className="text-xs text-rose-300 font-medium">
+              <p className="text-xs text-rose-700 font-medium">
                 Pago de fletes, compras de pescado o insumos operativos
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
+            className="p-2.5 rounded-xl bg-white hover:bg-slate-100 text-slate-500 hover:text-slate-900 border border-slate-200 transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -264,8 +264,8 @@ export const EgresoOperativoModal: React.FC<EgresoOperativoModalProps> = ({
           {/* Selector Inteligente de Categorías - Cuadrícula Táctil Top 6 & Creación en Caliente */}
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <label className="text-xs font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                 1. Motivo del Pago (Frecuentes del Día):
               </label>
               <div className="flex items-center gap-2">
@@ -275,7 +275,7 @@ export const EgresoOperativoModal: React.FC<EgresoOperativoModalProps> = ({
                     setMostrarTodasCategorias(!mostrarTodasCategorias);
                     setMostrarCrearCategoria(false);
                   }}
-                  className="text-xs font-bold text-cyan-400 hover:text-cyan-300 flex items-center gap-1 transition px-2 py-1 rounded-lg hover:bg-cyan-500/10"
+                  className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition px-2 py-1 rounded-lg hover:bg-indigo-50 cursor-pointer"
                 >
                   {mostrarTodasCategorias ? 'Ocultar catálogo' : `Ver todas (${catalogoCategorias.length})`}
                   {mostrarTodasCategorias ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -286,7 +286,7 @@ export const EgresoOperativoModal: React.FC<EgresoOperativoModalProps> = ({
                     setMostrarCrearCategoria(!mostrarCrearCategoria);
                     setMostrarTodasCategorias(false);
                   }}
-                  className="text-xs font-black text-rose-400 hover:text-rose-300 flex items-center gap-1 transition px-2 py-1 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 rounded-lg"
+                  className="text-xs font-black text-rose-700 hover:text-rose-900 flex items-center gap-1 transition px-2 py-1 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg cursor-pointer"
                 >
                   <PlusCircle className="w-3.5 h-3.5" />
                   + Otra Categoría
@@ -296,13 +296,13 @@ export const EgresoOperativoModal: React.FC<EgresoOperativoModalProps> = ({
 
             {/* Panel Táctil en Caliente para Crear Categoría Rápida */}
             {mostrarCrearCategoria && (
-              <div className="p-4 bg-slate-950/90 border border-rose-500/40 rounded-2xl space-y-3 animate-in fade-in zoom-in-95 duration-150">
+              <div className="p-4 bg-slate-50 border border-rose-200 rounded-2xl space-y-3 animate-in fade-in zoom-in-95 duration-150">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                    <PlusCircle className="w-4 h-4 text-rose-400" />
+                  <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                    <PlusCircle className="w-4 h-4 text-rose-600" />
                     Crear Nueva Categoría de Egreso
                   </span>
-                  <span className="text-[11px] text-slate-400">Se guarda para todas las cajas</span>
+                  <span className="text-[11px] text-slate-500">Se guarda para todas las cajas</span>
                 </div>
                 <div className="space-y-2">
                   <input
@@ -310,11 +310,11 @@ export const EgresoOperativoModal: React.FC<EgresoOperativoModalProps> = ({
                     placeholder="Ej. Cafetería, Domicilios, Compra Insumos..."
                     value={nuevoNombreCat}
                     onChange={(e) => setNuevoNombreCat(e.target.value)}
-                    className="w-full min-h-[46px] px-3.5 bg-slate-900 border border-slate-700 focus:border-rose-500 rounded-xl text-white text-sm outline-none transition font-medium"
+                    className="w-full min-h-[46px] px-3.5 bg-white border border-slate-300 focus:border-rose-500 rounded-xl text-slate-900 text-sm outline-none transition font-medium"
                     autoFocus
                   />
                   <div className="space-y-1">
-                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                    <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">
                       Icono / Emoji Rápido:
                     </span>
                     <div className="flex flex-wrap gap-1.5">
@@ -323,10 +323,10 @@ export const EgresoOperativoModal: React.FC<EgresoOperativoModalProps> = ({
                           key={emoji}
                           type="button"
                           onClick={() => setNuevoIconoCat(emoji)}
-                          className={`w-10 h-10 rounded-xl text-lg flex items-center justify-center transition border ${
+                          className={`w-10 h-10 rounded-xl text-lg flex items-center justify-center transition border cursor-pointer ${
                             nuevoIconoCat === emoji
-                              ? 'bg-rose-500/30 border-rose-400 scale-110 shadow-md shadow-rose-500/20'
-                              : 'bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700'
+                              ? 'bg-rose-100 border-rose-400 scale-110 shadow-sm'
+                              : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                           }`}
                         >
                           {emoji}
@@ -342,7 +342,7 @@ export const EgresoOperativoModal: React.FC<EgresoOperativoModalProps> = ({
                       setMostrarCrearCategoria(false);
                       setNuevoNombreCat('');
                     }}
-                    className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition"
+                    className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer"
                   >
                     Cancelar
                   </button>
@@ -350,7 +350,7 @@ export const EgresoOperativoModal: React.FC<EgresoOperativoModalProps> = ({
                     type="button"
                     disabled={!nuevoNombreCat.trim()}
                     onClick={handleCrearNuevaCategoria}
-                    className="min-h-[44px] px-4 py-2 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white rounded-xl text-xs font-black flex items-center gap-1.5 transition shadow-lg shadow-rose-600/30"
+                    className="min-h-[44px] px-4 py-2 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white rounded-xl text-xs font-black flex items-center gap-1.5 transition shadow-md shadow-rose-600/30 cursor-pointer"
                   >
                     <CheckCircle className="w-4 h-4" />
                     Guardar y Usar
@@ -361,8 +361,8 @@ export const EgresoOperativoModal: React.FC<EgresoOperativoModalProps> = ({
 
             {/* Desplegable Completo de Todas las Categorías */}
             {mostrarTodasCategorias && (
-              <div className="p-3 bg-slate-950/80 border border-cyan-500/30 rounded-2xl space-y-2">
-                <span className="text-xs font-bold text-slate-300">Todas las categorías activas:</span>
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+                <span className="text-xs font-bold text-slate-700">Todas las categorías activas:</span>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   {catalogoCategorias.map((cat) => (
                     <button
@@ -372,10 +372,10 @@ export const EgresoOperativoModal: React.FC<EgresoOperativoModalProps> = ({
                         handleSeleccionarCategoria(cat);
                         setMostrarTodasCategorias(false);
                       }}
-                      className={`min-h-[50px] p-2.5 rounded-xl border text-left flex items-center gap-2 transition active:scale-95 ${
+                      className={`min-h-[50px] p-2.5 rounded-xl border text-left flex items-center gap-2 transition active:scale-95 cursor-pointer ${
                         categoria === cat.nombre
-                          ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200 font-bold'
-                          : 'bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700'
+                          ? 'bg-indigo-100 border-indigo-400 text-indigo-900 font-bold'
+                          : 'bg-white border-slate-200 text-slate-800 hover:bg-slate-100'
                       }`}
                     >
                       <span className="text-base">{cat.icono}</span>
@@ -395,16 +395,16 @@ export const EgresoOperativoModal: React.FC<EgresoOperativoModalProps> = ({
                     key={cat.id}
                     type="button"
                     onClick={() => handleSeleccionarCategoria(cat)}
-                    className={`min-h-[54px] p-3 rounded-2xl border text-left flex items-center gap-2.5 transition active:scale-95 ${
+                    className={`min-h-[54px] p-3 rounded-2xl border text-left flex items-center gap-2.5 transition active:scale-95 cursor-pointer ${
                       isSelected
-                        ? 'bg-gradient-to-r from-rose-500/20 to-amber-500/10 border-rose-400 text-rose-200 font-bold shadow-lg shadow-rose-500/10 ring-1 ring-rose-400/40'
-                        : 'bg-slate-950/60 border-slate-800 text-slate-300 hover:border-slate-700'
+                        ? 'bg-rose-50 border-rose-400 text-rose-900 font-bold shadow-sm ring-1 ring-rose-400'
+                        : 'bg-slate-50 border-slate-200 text-slate-800 hover:border-slate-300 hover:bg-slate-100'
                     }`}
                   >
                     <span className="text-xl flex-shrink-0">{cat.icono}</span>
                     <div className="min-w-0">
                       <div className="text-xs font-black truncate">{cat.nombre}</div>
-                      <div className="text-[10px] text-slate-400 truncate">
+                      <div className="text-[10px] text-slate-500 truncate">
                         {cat.descripcion || 'Gasto operativo'}
                       </div>
                     </div>
@@ -415,20 +415,20 @@ export const EgresoOperativoModal: React.FC<EgresoOperativoModalProps> = ({
 
             {/* Indicador de Categoría Seleccionada si no está en el Top */}
             {!categoriasTop.some((c) => c.nombre === categoria || (c.id === 'cat-flete' && categoria === 'FLETE_TRANSPORTE')) && (
-              <div className="p-2.5 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-center justify-between text-xs text-rose-300">
-                <span className="flex items-center gap-1.5 font-bold">
+              <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-xl flex items-center justify-between text-xs text-rose-800 font-bold">
+                <span className="flex items-center gap-1.5">
                   <span>🏷️</span> Categoría seleccionada: <u>{categoria}</u>
                 </span>
-                <span className="text-[10px] bg-rose-500/20 px-2 py-0.5 rounded text-rose-200">Personalizada</span>
+                <span className="text-[10px] bg-rose-100 px-2 py-0.5 rounded text-rose-700">Personalizada</span>
               </div>
             )}
           </div>
 
           {/* Autocompletar desde Recepciones de Camión (si hay fletes o compras pendientes) */}
           {recepciones.length > 0 && (categoria === 'FLETE_TRANSPORTE' || categoria === 'PAGO_PROVEEDOR_PESCADO') && (
-            <div className="p-3 bg-slate-950/70 border border-slate-800 rounded-2xl space-y-2">
-              <span className="text-xs font-bold text-slate-400 flex items-center gap-1.5">
-                <Truck className="w-3.5 h-3.5 text-cyan-400" />
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+              <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <Truck className="w-3.5 h-3.5 text-indigo-600" />
                 Cargar automáticamente desde una llegada de camión reciente:
               </span>
               <div className="flex gap-2 overflow-x-auto pb-1">
@@ -437,16 +437,16 @@ export const EgresoOperativoModal: React.FC<EgresoOperativoModalProps> = ({
                     key={rec.id}
                     type="button"
                     onClick={() => handleSeleccionarRecepcion(rec)}
-                    className="flex-shrink-0 text-left p-2.5 bg-slate-900 border border-slate-800 hover:border-cyan-500/50 rounded-xl transition text-xs space-y-1"
+                    className="flex-shrink-0 text-left p-2.5 bg-white border border-slate-200 hover:border-indigo-400 rounded-xl transition text-xs space-y-1 cursor-pointer"
                   >
                     <div className="flex items-center justify-between gap-3">
-                      <span className="font-bold text-white">{rec.truckPlate}</span>
-                      <span className="text-[10px] px-1.5 py-0.5 bg-slate-800 text-slate-400 rounded font-mono">
+                      <span className="font-bold text-slate-900">{rec.truckPlate}</span>
+                      <span className="text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded font-mono">
                         {rec.receptionNumber}
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-400 truncate max-w-[170px]">{rec.supplierName}</p>
-                    <div className="text-[11px] font-bold text-cyan-400">
+                    <p className="text-[11px] text-slate-600 truncate max-w-[170px]">{rec.supplierName}</p>
+                    <div className="text-[11px] font-bold text-indigo-700">
                       {categoria === 'FLETE_TRANSPORTE'
                         ? `Flete: $${rec.liquidacion?.totalFreightCost?.toLocaleString()} COP`
                         : `Saldo: $${rec.liquidacion?.balanceToPaySupplier?.toLocaleString()} COP`}
@@ -460,12 +460,12 @@ export const EgresoOperativoModal: React.FC<EgresoOperativoModalProps> = ({
           {/* Selector de Método de Pago y Saldo Disponible */}
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                 2. ¿De dónde sale la plata?
               </label>
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-slate-600">
                 Efectivo en caja:{' '}
-                <strong className={saldoEfectivoDisponible > 0 ? 'text-emerald-400 font-mono' : 'text-rose-400 font-mono'}>
+                <strong className={saldoEfectivoDisponible > 0 ? 'text-emerald-700 font-mono font-bold' : 'text-rose-600 font-mono font-bold'}>
                   ${saldoEfectivoDisponible.toLocaleString()} COP
                 </strong>
               </span>
@@ -475,56 +475,56 @@ export const EgresoOperativoModal: React.FC<EgresoOperativoModalProps> = ({
               <button
                 type="button"
                 onClick={() => setMetodoPago('EFECTIVO')}
-                className={`min-h-[50px] rounded-2xl border flex items-center justify-center gap-2 font-bold text-sm transition active:scale-95 ${
+                className={`min-h-[50px] rounded-2xl border flex items-center justify-center gap-2 font-bold text-sm transition active:scale-95 cursor-pointer ${
                   metodoPago === 'EFECTIVO'
-                    ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300'
-                    : 'bg-slate-950/60 border-slate-800 text-slate-400'
+                    ? 'bg-emerald-100 border-emerald-400 text-emerald-800 shadow-sm'
+                    : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                 }`}
               >
-                <DollarSign className="w-4 h-4 text-emerald-400" />
+                <DollarSign className="w-4 h-4 text-emerald-600" />
                 <span>Efectivo</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setMetodoPago('TRANSFERENCIA')}
-                className={`min-h-[50px] rounded-2xl border flex items-center justify-center gap-2 font-bold text-sm transition active:scale-95 ${
+                className={`min-h-[50px] rounded-2xl border flex items-center justify-center gap-2 font-bold text-sm transition active:scale-95 cursor-pointer ${
                   metodoPago === 'TRANSFERENCIA'
-                    ? 'bg-purple-500/20 border-purple-400 text-purple-300'
-                    : 'bg-slate-950/60 border-slate-800 text-slate-400'
+                    ? 'bg-purple-100 border-purple-400 text-purple-800 shadow-sm'
+                    : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                 }`}
               >
-                <Send className="w-4 h-4 text-purple-400" />
+                <Send className="w-4 h-4 text-purple-600" />
                 <span>Transferencia</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setMetodoPago('DATAFONO')}
-                className={`min-h-[50px] rounded-2xl border flex items-center justify-center gap-2 font-bold text-sm transition active:scale-95 ${
+                className={`min-h-[50px] rounded-2xl border flex items-center justify-center gap-2 font-bold text-sm transition active:scale-95 cursor-pointer ${
                   metodoPago === 'DATAFONO'
-                    ? 'bg-blue-500/20 border-blue-400 text-blue-300'
-                    : 'bg-slate-950/60 border-slate-800 text-slate-400'
+                    ? 'bg-blue-100 border-blue-400 text-blue-800 shadow-sm'
+                    : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                 }`}
               >
-                <CreditCard className="w-4 h-4 text-blue-400" />
+                <CreditCard className="w-4 h-4 text-blue-600" />
                 <span>Datáfono / Tarjeta</span>
               </button>
             </div>
 
             {/* Alerta de Fondos Insuficientes */}
             {esEfectivoInsuficiente && (
-              <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-2xl text-xs text-rose-300 flex items-start gap-2 animate-pulse">
-                <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-400 mt-0.5" />
+              <div className="p-3 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-800 flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-600 mt-0.5" />
                 <div>
                   <p className="font-bold">Efectivo insuficiente para este pago.</p>
-                  <p className="text-slate-400 text-[11px] mt-0.5">
+                  <p className="text-slate-600 text-[11px] mt-0.5">
                     Faltan ${(numMonto - saldoEfectivoDisponible).toLocaleString()} COP. Puedes cambiar el método a Transferencia Bancaria o registrarlo a crédito con el proveedor.
                   </p>
                   <button
                     type="button"
                     onClick={() => setMetodoPago('TRANSFERENCIA')}
-                    className="mt-2 px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-bold text-[11px] transition"
+                    className="mt-2 px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold text-[11px] transition cursor-pointer"
                   >
                     Usar Transferencia Bancaria
                   </button>
@@ -536,7 +536,7 @@ export const EgresoOperativoModal: React.FC<EgresoOperativoModalProps> = ({
           {/* Importe Numérico y Concepto */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                 Valor del Pago ($ COP):
               </label>
               <div className="relative">
@@ -549,13 +549,13 @@ export const EgresoOperativoModal: React.FC<EgresoOperativoModalProps> = ({
                   placeholder="0"
                   value={monto}
                   onChange={(e) => setMonto(e.target.value === '' ? '' : Number(e.target.value))}
-                  className="w-full min-h-[50px] pl-8 pr-4 bg-slate-950 border border-slate-800 focus:border-rose-500 rounded-2xl text-white font-mono font-black text-lg outline-none transition"
+                  className="w-full min-h-[50px] pl-8 pr-4 bg-white border border-slate-300 focus:border-rose-500 rounded-2xl text-slate-900 font-mono font-black text-lg outline-none transition"
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                 Número de Guía o Factura (Opcional):
               </label>
               <input
@@ -563,13 +563,13 @@ export const EgresoOperativoModal: React.FC<EgresoOperativoModalProps> = ({
                 placeholder="Ej. REM-8821 o F-4091"
                 value={referenciaId}
                 onChange={(e) => setReferenciaId(e.target.value)}
-                className="w-full min-h-[50px] px-4 bg-slate-950 border border-slate-800 focus:border-rose-500 rounded-2xl text-white text-sm outline-none transition"
+                className="w-full min-h-[50px] px-4 bg-white border border-slate-300 focus:border-rose-500 rounded-2xl text-slate-900 text-sm outline-none transition"
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
               Detalle o Motivo del Pago:
             </label>
             <input
@@ -578,17 +578,17 @@ export const EgresoOperativoModal: React.FC<EgresoOperativoModalProps> = ({
               placeholder="Ej. Pago Flete Furgón WDF-452 (Cartagena a Bucaramanga)"
               value={concepto}
               onChange={(e) => setConcepto(e.target.value)}
-              className="w-full min-h-[50px] px-4 bg-slate-950 border border-slate-800 focus:border-rose-500 rounded-2xl text-white text-sm outline-none transition"
+              className="w-full min-h-[50px] px-4 bg-white border border-slate-300 focus:border-rose-500 rounded-2xl text-slate-900 text-sm outline-none transition"
             />
           </div>
 
           {/* Botones de Acción Táctiles (≥ 52 px) */}
-          <div className="pt-2 flex items-center justify-end gap-3 border-t border-slate-800">
+          <div className="pt-2 flex items-center justify-end gap-3 border-t border-slate-200">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="min-h-[52px] px-6 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-2xl text-sm transition"
+              className="min-h-[52px] px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl text-sm transition cursor-pointer"
             >
               Cancelar
             </button>
@@ -597,7 +597,7 @@ export const EgresoOperativoModal: React.FC<EgresoOperativoModalProps> = ({
               type="submit"
               data-testid="btn-confirmar-egreso"
               disabled={isSubmitting || esEfectivoInsuficiente || !numMonto}
-              className="min-h-[52px] px-8 bg-rose-600 hover:bg-rose-500 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed text-white font-black rounded-2xl text-base flex items-center gap-2.5 shadow-xl shadow-rose-600/25 transition"
+              className="min-h-[52px] px-8 bg-rose-600 hover:bg-rose-700 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed text-white font-black rounded-2xl text-base flex items-center gap-2.5 shadow-lg shadow-rose-600/25 transition cursor-pointer"
             >
               <CheckCircle className="w-5 h-5" />
               <span>{isSubmitting ? 'Registrando...' : 'Confirmar Salida de Dinero'}</span>

@@ -156,17 +156,17 @@ export default function CashFlowView() {
   }, [movimientos, filtroTab]);
 
   return (
-    <div className="p-4 md:p-6 bg-slate-800/40 min-h-full flex-1 overflow-y-auto">
+    <div className="p-4 md:p-6 bg-slate-50 min-h-full flex-1 overflow-y-auto">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-extrabold text-primary tracking-tight">Gestión de Cajas</h1>
-          <p className="text-gray-500 mt-1">Control de flujo de efectivo por bodega</p>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Gestión de Cajas</h1>
+          <p className="text-slate-500 mt-1">Control de flujo de efectivo por bodega</p>
         </div>
         
-        <div className="flex items-center gap-4 bg-card border-white/5 p-2 rounded-lg shadow-sm border">
-          <span className="text-sm font-medium text-slate-400">Bodega:</span>
+        <div className="flex items-center gap-4 bg-white border border-slate-200 p-2 rounded-xl shadow-sm">
+          <span className="text-sm font-bold text-slate-600">Bodega:</span>
           <select 
-            className="border-white/10 rounded text-sm focus:ring-blue-500 font-semibold"
+            className="border border-slate-200 bg-slate-50 text-slate-800 rounded-lg text-sm focus:ring-blue-500 font-semibold px-2 py-1"
             value={bodegaSeleccionada}
             onChange={(e) => setBodegaSeleccionada(e.target.value)}
           >
@@ -175,9 +175,9 @@ export default function CashFlowView() {
             ))}
           </select>
 
-          <span className="text-sm font-medium text-slate-400 ml-4">Caja:</span>
+          <span className="text-sm font-bold text-slate-600 ml-4">Caja:</span>
           <select 
-            className="border-white/10 rounded text-sm focus:ring-blue-500 font-semibold"
+            className="border border-slate-200 bg-slate-50 text-slate-800 rounded-lg text-sm focus:ring-blue-500 font-semibold px-2 py-1"
             value={cajaSeleccionada}
             onChange={(e) => setCajaSeleccionada(e.target.value)}
           >
@@ -189,16 +189,16 @@ export default function CashFlowView() {
       </div>
 
       {!turnoActivo ? (
-        <div className="bg-card border-white/5 rounded-2xl shadow-sm border border-border p-12 text-center max-w-2xl mx-auto mt-10">
-          <div className="w-20 h-20 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-12 text-center max-w-2xl mx-auto mt-10">
+          <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
             <Wallet size={40} />
           </div>
-          <h2 className="text-2xl font-bold text-primary mb-2">La caja está cerrada</h2>
-          <p className="text-gray-500 mb-8">Debe abrir un turno para procesar ventas y registrar movimientos de efectivo en esta caja.</p>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">La caja está cerrada</h2>
+          <p className="text-slate-500 mb-8">Debe abrir un turno para procesar ventas y registrar movimientos de efectivo en esta caja.</p>
           <button 
             data-testid="btn-abrir-turno"
             onClick={handleApertura}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto cursor-pointer"
           >
             <Power size={20} />
             Abrir Turno de Caja
@@ -208,7 +208,7 @@ export default function CashFlowView() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Panel Izquierdo: Resumen y Acciones */}
           <div className="lg:col-span-1 space-y-6">
-            <div className="bg-card border-white/5 rounded-2xl shadow-sm border border-blue-100 overflow-hidden mb-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6">
               <div className="bg-blue-600 p-6 text-white text-center relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-20">
                   <Wallet size={80} />
@@ -222,62 +222,62 @@ export default function CashFlowView() {
               </div>
               
               {/* Desglose por Medio de Pago (Control de Cuadre) */}
-              <div className="grid grid-cols-3 bg-slate-800/40 border-b border-border">
-                <div className="p-3 text-center border-r border-border">
-                  <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Efectivo</p>
-                  <p className="text-sm font-bold text-green-700">${turnoActivo.totalEfectivo.toLocaleString()}</p>
+              <div className="grid grid-cols-3 bg-slate-50 border-b border-slate-200">
+                <div className="p-3 text-center border-r border-slate-200">
+                  <p className="text-xs text-slate-500 uppercase font-bold tracking-wider mb-1">Efectivo</p>
+                  <p className="text-sm font-black text-emerald-600">${turnoActivo.totalEfectivo.toLocaleString()}</p>
                 </div>
-                <div className="p-3 text-center border-r border-border">
-                  <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Datáfono</p>
-                  <p className="text-sm font-bold text-blue-700">${turnoActivo.totalDatafono.toLocaleString()}</p>
+                <div className="p-3 text-center border-r border-slate-200">
+                  <p className="text-xs text-slate-500 uppercase font-bold tracking-wider mb-1">Datáfono</p>
+                  <p className="text-sm font-black text-blue-600">${turnoActivo.totalDatafono.toLocaleString()}</p>
                 </div>
                 <div className="p-3 text-center">
-                  <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Transf.</p>
-                  <p className="text-sm font-bold text-purple-700">${turnoActivo.totalTransferencias.toLocaleString()}</p>
+                  <p className="text-xs text-slate-500 uppercase font-bold tracking-wider mb-1">Transf.</p>
+                  <p className="text-sm font-black text-purple-600">${turnoActivo.totalTransferencias.toLocaleString()}</p>
                 </div>
               </div>
 
               <div className="p-6">
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-500">Base Inicial:</span>
-                    <span className="font-semibold text-primary">${turnoActivo.baseInicial.toLocaleString()}</span>
+                    <span className="text-slate-500 font-medium">Base Inicial:</span>
+                    <span className="font-bold text-slate-900">${turnoActivo.baseInicial.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-500">Total Ingresos:</span>
-                    <span className="font-semibold text-green-600">
+                    <span className="text-slate-500 font-medium">Total Ingresos:</span>
+                    <span className="font-bold text-emerald-600">
                       +${movimientos.filter(m => m.tipo.startsWith('INGRESO')).reduce((acc, m) => acc + m.monto, 0).toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-500">Total Egresos:</span>
-                    <span className="font-semibold text-red-600">
+                    <span className="text-slate-500 font-medium">Total Egresos:</span>
+                    <span className="font-bold text-rose-600">
                       -${movimientos.filter(m => m.tipo.startsWith('EGRESO')).reduce((acc, m) => acc + m.monto, 0).toLocaleString()}
                     </span>
                   </div>
                 </div>
 
-                <div className="space-y-3 pt-6 border-t border-slate-700/60">
+                <div className="space-y-3 pt-6 border-t border-slate-200">
                   <button 
                     data-testid="btn-egreso-rapido"
                     onClick={handleEgresoRapido}
-                    className="w-full min-h-[50px] bg-rose-600/10 hover:bg-rose-600/20 text-rose-400 font-bold py-3 px-4 rounded-xl border border-rose-500/30 flex items-center justify-center gap-2.5 transition active:scale-95"
+                    className="w-full min-h-[50px] bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold py-3 px-4 rounded-xl border border-rose-200 flex items-center justify-center gap-2.5 transition active:scale-95 cursor-pointer shadow-sm"
                   >
-                    <Upload size={20} className="text-rose-400" />
+                    <Upload size={20} className="text-rose-600" />
                     <span>Salida de Dinero (Flete / Compra)</span>
                   </button>
                   <button 
                     data-testid="btn-traslado-dinero"
                     onClick={() => setShowTrasladoModal(true)}
-                    className="w-full min-h-[48px] bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 font-medium py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition active:scale-95"
+                    className="w-full min-h-[48px] bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-800 font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer"
                   >
-                    <ArrowRightLeft size={18} className="text-blue-400" />
+                    <ArrowRightLeft size={18} className="text-blue-600" />
                     <span>Mover Plata entre Cajas</span>
                   </button>
                   <button 
                     data-testid="btn-cierre-caja"
                     onClick={() => setShowCierreModal(true)}
-                    className="w-full min-h-[50px] bg-red-600 hover:bg-red-500 text-white font-black py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-red-600/20 transition active:scale-95 mt-4"
+                    className="w-full min-h-[50px] bg-red-600 hover:bg-red-700 text-white font-black py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-md shadow-red-600/20 transition active:scale-95 mt-4 cursor-pointer"
                   >
                     <Power size={20} />
                     <span>Cerrar Turno (Arqueo Ciego)</span>
@@ -289,27 +289,27 @@ export default function CashFlowView() {
 
           {/* Panel Derecho: Historial de Movimientos */}
           <div className="lg:col-span-2">
-            <div className="bg-card border-white/5 rounded-2xl shadow-sm border border-border h-full flex flex-col">
-              <div className="p-5 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 h-full flex flex-col">
+              <div className="p-5 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                  <h3 className="text-lg font-bold text-primary">Movimientos de Hoy</h3>
-                  <p className="text-xs text-slate-400">Control de entradas y salidas en tiempo real</p>
+                  <h3 className="text-lg font-bold text-slate-900">Movimientos de Hoy</h3>
+                  <p className="text-xs text-slate-500">Control de entradas y salidas en tiempo real</p>
                 </div>
 
                 {/* Pestañas Táctiles de Filtrado Rápido y Dinámicas */}
-                <div className="flex flex-wrap gap-1.5 p-1 bg-slate-950/80 rounded-xl border border-slate-800">
+                <div className="flex flex-wrap gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200">
                   <button
                     onClick={() => setFiltroTab('TODO')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
-                      filtroTab === 'TODO' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                      filtroTab === 'TODO' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
                     }`}
                   >
                     Todo ({movimientos.length})
                   </button>
                   <button
                     onClick={() => setFiltroTab('VENTAS')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition ${
-                      filtroTab === 'VENTAS' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer ${
+                      filtroTab === 'VENTAS' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
                     }`}
                   >
                     <ShoppingCart size={12} />
@@ -317,8 +317,8 @@ export default function CashFlowView() {
                   </button>
                   <button
                     onClick={() => setFiltroTab('FLETES')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition ${
-                      filtroTab === 'FLETES' ? 'bg-amber-600 text-white' : 'text-slate-400 hover:text-white'
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer ${
+                      filtroTab === 'FLETES' ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
                     }`}
                   >
                     <Truck size={12} />
@@ -326,8 +326,8 @@ export default function CashFlowView() {
                   </button>
                   <button
                     onClick={() => setFiltroTab('PESCADO')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition ${
-                      filtroTab === 'PESCADO' ? 'bg-cyan-600 text-white' : 'text-slate-400 hover:text-white'
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer ${
+                      filtroTab === 'PESCADO' ? 'bg-cyan-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
                     }`}
                   >
                     <Fish size={12} />
@@ -343,23 +343,23 @@ export default function CashFlowView() {
                         <button
                           key={cat.key}
                           onClick={() => setFiltroTab(cat.nombre)}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition ${
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition cursor-pointer ${
                             isActive
                               ? 'bg-rose-600 text-white shadow-sm'
-                              : 'text-slate-300 hover:text-white hover:bg-slate-900'
+                              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
                           }`}
                         >
                           <span>{cat.icono}</span>
                           <span>{cat.nombre}</span>
-                          <span className="text-[10px] px-1.5 py-0.2 bg-black/30 rounded-full font-mono">{cat.count}</span>
+                          <span className="text-[10px] px-1.5 py-0.2 bg-black/10 text-slate-800 rounded-full font-mono">{cat.count}</span>
                         </button>
                       );
                     })}
 
                   <button
                     onClick={() => setFiltroTab('GASTOS')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition ${
-                      filtroTab === 'GASTOS' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white'
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer ${
+                      filtroTab === 'GASTOS' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
                     }`}
                   >
                     <Receipt size={12} />
@@ -371,20 +371,20 @@ export default function CashFlowView() {
               <div className="p-0 flex-1 overflow-auto">
                 {movimientosFiltrados.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-64 text-slate-500">
-                    <AlertTriangle size={32} className="mb-2 opacity-40 text-amber-400" />
+                    <AlertTriangle size={32} className="mb-2 opacity-40 text-amber-500" />
                     <p className="text-sm">No hay transacciones en este filtro.</p>
                   </div>
                 ) : (
                   <table className="w-full text-left border-collapse">
-                    <thead className="bg-slate-900/80 sticky top-0 border-b border-slate-800">
+                    <thead className="bg-slate-50 sticky top-0 border-b border-slate-200">
                       <tr>
-                        <th className="px-5 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Hora</th>
-                        <th className="px-5 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Categoría</th>
-                        <th className="px-5 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Detalle</th>
-                        <th className="px-5 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">Monto</th>
+                        <th className="px-5 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider">Hora</th>
+                        <th className="px-5 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider">Categoría</th>
+                        <th className="px-5 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider">Detalle</th>
+                        <th className="px-5 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-right">Monto</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/60">
+                    <tbody className="divide-y divide-slate-100">
                       {movimientosFiltrados
                         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                         .map(mov => {
@@ -401,24 +401,24 @@ export default function CashFlowView() {
                           );
 
                           return (
-                            <tr key={mov.id} className="hover:bg-slate-800/40 transition">
-                              <td className="px-5 py-3.5 whitespace-nowrap text-xs text-slate-400">
+                            <tr key={mov.id} className="hover:bg-slate-50/80 transition">
+                              <td className="px-5 py-3.5 whitespace-nowrap text-xs text-slate-600">
                                 <div className="flex flex-col font-mono">
-                                  <span className="text-slate-300">{new Date(mov.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                  <span className="text-slate-900 font-bold">{new Date(mov.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                   <span className="text-[10px] text-slate-500">{new Date(mov.createdAt).toLocaleDateString()}</span>
                                 </div>
                               </td>
                               <td className="px-5 py-3.5 whitespace-nowrap">
                                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
                                   esIngreso
-                                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                     : esFlete
-                                    ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                                    ? 'bg-amber-50 text-amber-700 border border-amber-200'
                                     : esPescado
-                                    ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
+                                    ? 'bg-cyan-50 text-cyan-700 border border-cyan-200'
                                     : esHielo
-                                    ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                                    : 'bg-rose-500/10 text-rose-300 border border-rose-500/20'
+                                    ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                                    : 'bg-rose-50 text-rose-700 border border-rose-200'
                                 }`}>
                                   {esIngreso ? (
                                     <>
@@ -452,20 +452,20 @@ export default function CashFlowView() {
                                     </>
                                   )}
                                 </span>
-                                <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono font-semibold uppercase">
+                                <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 font-mono font-bold uppercase">
                                   {mov.metodoPago}
                                 </span>
                               </td>
-                              <td className="px-5 py-3.5 text-xs text-slate-200">
-                                <div className="font-medium">{mov.concepto}</div>
+                              <td className="px-5 py-3.5 text-xs text-slate-800">
+                                <div className="font-semibold text-slate-900">{mov.concepto}</div>
                                 {mov.metadata?.placaCamion && (
-                                  <span className="text-[10px] text-amber-400 font-mono">
+                                  <span className="text-[10px] text-amber-700 font-mono font-bold">
                                     Furgón: {mov.metadata.placaCamion}
                                   </span>
                                 )}
                               </td>
                               <td className={`px-5 py-3.5 whitespace-nowrap text-sm font-black font-mono text-right ${
-                                esIngreso ? 'text-emerald-400' : 'text-rose-400'
+                                esIngreso ? 'text-emerald-600' : 'text-rose-600'
                               }`}>
                                 {esIngreso ? '+' : '-'}${mov.monto.toLocaleString()} COP
                               </td>

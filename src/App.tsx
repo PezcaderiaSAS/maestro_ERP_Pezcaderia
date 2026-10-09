@@ -1359,7 +1359,10 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#090D16] text-slate-100 font-sans select-none">
+    <div 
+      className="flex h-screen w-screen overflow-hidden bg-slate-50 text-slate-900 font-sans select-none" 
+      style={{ backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }}
+    >
       {/* Enterprise Sidebar unificado (4 dominios clave estilo Carbon/Atlassian) */}
       <EnterpriseSidebar
         currentView={currentView as ERPViewKey}
@@ -1386,7 +1389,10 @@ export default function App() {
           onOpenOmnibox={() => setIsOmniboxOpen(true)}
         />
 
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6 bg-gradient-to-b from-[#090D16] via-[#0D1322] to-[#090D16]">
+        <main 
+          className="flex-1 overflow-y-auto p-4 lg:p-6"
+          style={{ backgroundColor: 'var(--bg-color)' }}
+        >
           {renderView()}
         </main>
       </div>

@@ -523,7 +523,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
             type="button"
             onClick={onGuardarBorrador}
             disabled={lineas.length === 0}
-            className="flex items-center gap-1.5 px-3 py-1.5 h-9 rounded-xl border border-cyan-500/30 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
+            className="flex items-center gap-1.5 px-3 py-1.5 h-9 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
             title="Poner pedido actual en espera (Atajo: F6)"
             aria-label="Poner pedido actual en espera (Atajo F6)"
           >
@@ -537,13 +537,13 @@ export const CartPanel: React.FC<CartPanelProps> = ({
             onClick={handleOpenBorradores}
             className={`relative flex items-center gap-1.5 px-3 py-1.5 h-9 rounded-xl border text-xs font-bold transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
               drafts.length > 0
-                ? 'bg-amber-500/15 border-amber-500/30 text-amber-300 hover:bg-amber-500/25 shadow-md shadow-amber-500/10'
-                : 'bg-slate-800/80 border-white/10 text-slate-400 hover:text-white'
+                ? 'bg-amber-50 border-amber-300 text-amber-800 hover:bg-amber-100 shadow-sm'
+                : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-sm'
             }`}
             title="Ver pedidos guardados en espera"
             aria-label={`Ver ${drafts.length} pedidos guardados en espera`}
           >
-            <Archive size={14} className={drafts.length > 0 ? 'text-amber-400' : 'text-slate-400'} />
+            <Archive size={14} className={drafts.length > 0 ? 'text-amber-600' : 'text-slate-500'} />
             <span>Borradores</span>
             {drafts.length > 0 && (
               <span 
@@ -617,20 +617,20 @@ export const CartPanel: React.FC<CartPanelProps> = ({
 
       {/* ── FOOTER STICKY: Total + Descuento + Pago ── */}
       <div
-        className="pos-cart-footer shrink-0 sticky bottom-0 bg-slate-900/95 backdrop-blur-md p-2.5 border-t border-white/10 flex flex-col gap-2 rounded-b-xl"
+        className="pos-cart-footer shrink-0 sticky bottom-0 bg-slate-50/95 backdrop-blur-md p-2.5 border-t border-slate-200 flex flex-col gap-2 rounded-b-xl shadow-inner"
       >
         {/* Total prominente táctil */}
         {lineas.length > 0 && (
           <div className="flex justify-between items-center py-1 px-1">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">TOTAL</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">TOTAL</span>
               <span 
-                className={`bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-[11px] font-bold px-2 py-0.5 rounded-full ${isBouncing ? 'animate-bounce' : ''}`}
+                className={`bg-indigo-50 text-indigo-700 border border-indigo-200 text-[11px] font-bold px-2 py-0.5 rounded-full ${isBouncing ? 'animate-bounce' : ''}`}
               >
                 {totalItems} ítems
               </span>
             </div>
-            <strong className="text-2xl font-black text-cyan-400 font-mono tracking-tight tabular-nums">
+            <strong className="text-2xl font-black text-indigo-600 font-mono tracking-tight tabular-nums">
               ${totales.totalFinal.toLocaleString('es-CO')}
             </strong>
           </div>

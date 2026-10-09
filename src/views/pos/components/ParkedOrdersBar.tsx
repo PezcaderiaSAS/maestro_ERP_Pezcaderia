@@ -22,13 +22,13 @@ export const ParkedOrdersBar: React.FC<ParkedOrdersBarProps> = ({
   onNewParkedSale,
 }) => {
   return (
-    <div className="flex flex-col gap-1.5 px-3 py-2 bg-slate-950/70 border-b border-white/10 shrink-0">
-      <div className="flex items-center justify-between text-[11px] text-slate-400 font-semibold">
+    <div className="flex flex-col gap-1.5 px-3 py-2 bg-slate-50 border-b border-slate-200 shrink-0">
+      <div className="flex items-center justify-between text-[11px] text-slate-600 font-semibold">
         <div className="flex items-center gap-1.5">
-          <PauseCircle size={13} className="text-cyan-400" />
-          <span className="text-slate-300">Ventas en Espera & Multicliente</span>
+          <PauseCircle size={13} className="text-indigo-600" />
+          <span className="text-slate-800 font-bold">Ventas en Espera & Multicliente</span>
           {drafts.length > 0 && (
-            <span className="px-1.5 py-0.2 rounded-full bg-cyan-500/20 text-cyan-300 font-mono text-[10px] font-bold">
+            <span className="px-1.5 py-0.2 rounded-full bg-indigo-100 text-indigo-700 font-mono text-[10px] font-bold">
               {drafts.length}
             </span>
           )}
@@ -37,7 +37,7 @@ export const ParkedOrdersBar: React.FC<ParkedOrdersBarProps> = ({
         <button
           type="button"
           onClick={onNewParkedSale}
-          className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-cyan-600/30 hover:bg-cyan-600 text-cyan-200 hover:text-white border border-cyan-500/30 transition-all text-[11px] font-bold cursor-pointer active:scale-95"
+          className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-900 border border-indigo-200 transition-all text-[11px] font-bold cursor-pointer active:scale-95"
           title="Poner venta actual en espera e iniciar nueva venta limpia (F6)"
         >
           <Plus size={12} />
@@ -51,13 +51,13 @@ export const ParkedOrdersBar: React.FC<ParkedOrdersBarProps> = ({
         <div
           className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold border transition-all shrink-0 cursor-default ${
             activeDraftId === null
-              ? 'bg-cyan-500/20 text-cyan-200 border-cyan-500/40 shadow-sm shadow-cyan-500/20'
-              : 'bg-slate-900 text-slate-400 border-white/5'
+              ? 'bg-indigo-100 text-indigo-900 border-indigo-300 shadow-sm'
+              : 'bg-white text-slate-600 border-slate-200'
           }`}
         >
-          <ShoppingCart size={13} className="text-cyan-400" />
+          <ShoppingCart size={13} className="text-indigo-600" />
           <span>Venta Activa</span>
-          <span className="font-mono text-[10px] bg-slate-950/50 px-1.5 py-0.5 rounded text-white">
+          <span className="font-mono text-[10px] bg-indigo-50 px-1.5 py-0.5 rounded text-indigo-800 border border-indigo-200">
             {currentItemsCount} ítems (${currentTotal.toLocaleString('es-CO')})
           </span>
         </div>
@@ -81,15 +81,15 @@ export const ParkedOrdersBar: React.FC<ParkedOrdersBarProps> = ({
               onClick={() => onSelectDraft(d)}
               className={`group flex items-center gap-2 px-2.5 py-1 rounded-xl text-xs font-bold border transition-all shrink-0 cursor-pointer ${
                 isSelected
-                  ? 'bg-amber-500/20 text-amber-200 border-amber-500/50 shadow-sm shadow-amber-500/20 ring-1 ring-amber-400/40'
-                  : 'bg-slate-900/90 text-slate-300 border-white/10 hover:border-amber-500/30 hover:bg-slate-800'
+                  ? 'bg-amber-100 text-amber-900 border-amber-300 shadow-sm ring-1 ring-amber-400'
+                  : 'bg-white text-slate-700 border-slate-200 hover:border-amber-300 hover:bg-amber-50/50'
               }`}
               title={`Clic para retomar el pedido de ${alias}`}
             >
               <div className="flex items-center gap-1.5 min-w-0">
-                <PauseCircle size={12} className={isSelected ? 'text-amber-400' : 'text-slate-400'} />
+                <PauseCircle size={12} className={isSelected ? 'text-amber-600' : 'text-slate-400'} />
                 <span className="truncate max-w-[110px]">{alias}</span>
-                <span className="font-mono text-[10px] text-amber-300 bg-amber-500/10 px-1 py-0.2 rounded">
+                <span className="font-mono text-[10px] text-amber-800 bg-amber-100 px-1 py-0.2 rounded border border-amber-200">
                   ${totalFormatted}
                 </span>
                 {timeFormatted && (
@@ -103,7 +103,7 @@ export const ParkedOrdersBar: React.FC<ParkedOrdersBarProps> = ({
               <button
                 type="button"
                 onClick={(e) => onDeleteDraft(d.id, e)}
-                className="p-0.5 rounded text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors ml-1"
+                className="p-0.5 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors ml-1"
                 title="Descartar este pedido en espera"
               >
                 <X size={12} />

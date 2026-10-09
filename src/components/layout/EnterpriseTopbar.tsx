@@ -122,12 +122,12 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
   const breadcrumb = getBreadcrumb();
 
   return (
-    <header className="h-16 flex items-center justify-between px-4 lg:px-6 bg-[#090D16]/90 backdrop-blur-xl border-b border-white/10 select-none z-30 sticky top-0 shadow-lg">
+    <header className="h-16 flex items-center justify-between px-4 lg:px-6 bg-white/95 backdrop-blur-xl border-b border-slate-200 text-slate-800 select-none z-30 sticky top-0 shadow-sm">
       {/* Sección Izquierda: Toggle + Breadcrumb */}
       <div className="flex items-center gap-3">
         <button
           onClick={onToggleSidebar}
-          className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-card border-white/5/5 transition-colors cursor-pointer"
+          className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
           title="Menú de Navegación"
         >
           <Menu size={20} />
@@ -137,15 +137,15 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
         <div className="flex items-center gap-1.5 text-xs">
           <button
             onClick={onNavigateHome}
-            className="text-slate-400 hover:text-white transition-colors flex items-center gap-1 font-medium"
+            className="text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-1 font-semibold"
           >
             <Home size={14} />
             <span className="hidden sm:inline">ERP</span>
           </button>
-          <ChevronRight size={12} className="text-slate-500" />
-          <span className="text-slate-400 hidden md:inline font-medium">{breadcrumb.domain}</span>
-          <ChevronRight size={12} className="text-slate-500 hidden md:inline" />
-          <span className="text-white font-bold truncate max-w-[200px] sm:max-w-none">
+          <ChevronRight size={12} className="text-slate-400" />
+          <span className="text-slate-500 hidden md:inline font-semibold">{breadcrumb.domain}</span>
+          <ChevronRight size={12} className="text-slate-400 hidden md:inline" />
+          <span className="text-slate-900 font-extrabold truncate max-w-[200px] sm:max-w-none">
             {breadcrumb.sub}
           </span>
         </div>
@@ -156,27 +156,27 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
         {/* Buscador Rápido Omnibox (Ctrl + K) */}
         <button
           onClick={onOpenOmnibox}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-white/10 text-xs text-slate-300 hover:text-white transition-all cursor-pointer shadow-sm"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-xs text-slate-700 hover:text-slate-900 transition-all cursor-pointer shadow-sm font-medium"
           title="Buscador Universal (Ctrl + K)"
         >
-          <Search size={14} className="text-cyan-400" />
+          <Search size={14} className="text-indigo-600" />
           <span className="hidden md:inline font-medium">Buscar...</span>
-          <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-card border-white/5/10 rounded border border-white/15 text-slate-300">
+          <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-white rounded border border-slate-300 text-slate-600 font-bold">
             Ctrl+K
           </kbd>
         </button>
 
         {/* Selector de Bodega / Sucursal Activa */}
-        <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/40 border border-white/5 text-xs text-slate-300">
-          <Store size={14} className="text-cyan-400" />
-          <span className="font-semibold text-white">{activeBodega}</span>
+        <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-700">
+          <Store size={14} className="text-indigo-600" />
+          <span className="font-bold text-slate-900">{activeBodega}</span>
         </div>
 
         {/* Indicador de Conectividad Outbox / Red con Sincronización en Tiempo Real */}
         <NetworkSyncStatusBadge className="hidden sm:inline-flex" />
 
         {/* Nombre de Empresa / Sistema / Badge de Tema */}
-        <span className="hidden xl:inline-block px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 font-mono">
+        <span className="hidden xl:inline-block px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-indigo-50 text-indigo-700 border border-indigo-200 font-mono">
           {currentThemeConfig.badge}
         </span>
 
@@ -184,7 +184,7 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
         <button
           id="topbar-btn-facturar-pos"
           onClick={onNavigatePOS}
-          className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all cursor-pointer"
+          className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
         >
           <ShoppingCart size={14} />
           <span className="hidden sm:inline">Facturar POS</span>
@@ -194,24 +194,24 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
         <div className="relative">
           <button
             onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
-            className="flex items-center gap-1.5 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 border border-white/10 transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
             title={`Tema actual: ${currentThemeConfig.label} (Click para cambiar)`}
           >
-            <Palette size={17} className="text-cyan-400" />
+            <Palette size={17} className="text-indigo-600" />
             <span
-              className="w-2.5 h-2.5 rounded-full ring-1 ring-white/20"
+              className="w-2.5 h-2.5 rounded-full ring-1 ring-slate-300"
               style={{ backgroundColor: currentThemeConfig.primaryColor }}
             />
           </button>
 
           {isThemeMenuOpen && (
             <div
-              className="absolute right-0 mt-2 w-48 rounded-xl bg-slate-900/95 backdrop-blur-xl border border-white/15 shadow-2xl p-1.5 z-50 text-xs font-sans"
+              className="absolute right-0 mt-2 w-48 rounded-xl bg-white border border-slate-200 shadow-xl p-1.5 z-50 text-xs font-sans"
               style={{ isolation: 'isolate' }}
             >
-              <div className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-white/10 mb-1 flex items-center justify-between">
-                <span>Temas Glass</span>
-                <span className="text-[9px] text-cyan-400 font-mono">WCAG AA</span>
+              <div className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 mb-1 flex items-center justify-between">
+                <span>Temas Light</span>
+                <span className="text-[9px] text-indigo-600 font-mono font-bold">WCAG AA</span>
               </div>
               {THEMES_CONFIG.map((t) => {
                 const isActive = t.id === theme;
@@ -228,18 +228,18 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
                     }}
                     className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-left transition-all cursor-pointer ${
                       isActive
-                        ? 'bg-white/10 text-white font-semibold'
-                        : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                        ? 'bg-indigo-50 text-indigo-700 font-bold'
+                        : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
                     }`}
                   >
                     <div className="flex items-center gap-2">
                       <span
-                        className="w-3 h-3 rounded-full border border-white/20 shrink-0"
+                        className="w-3 h-3 rounded-full border border-slate-300 shrink-0"
                         style={{ backgroundColor: t.primaryColor }}
                       />
                       <span>{t.label}</span>
                     </div>
-                    {isActive && <Check size={14} className="text-cyan-400 shrink-0" />}
+                    {isActive && <Check size={14} className="text-indigo-600 shrink-0" />}
                   </button>
                 );
               })}
@@ -248,7 +248,7 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
         </div>
 
         {/* Avatar Usuario Compacto */}
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-white font-bold text-xs flex items-center justify-center ring-2 ring-white/10 shrink-0">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-white font-bold text-xs flex items-center justify-center ring-2 ring-slate-200 shrink-0 shadow-sm">
           Yu
         </div>
       </div>

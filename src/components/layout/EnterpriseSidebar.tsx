@@ -260,32 +260,32 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
 
       <aside
         id="enterprise-sidebar"
-        className={`fixed top-0 bottom-0 left-0 z-50 flex flex-col bg-[#090D16] border-r border-white/10 text-slate-300 transition-all duration-300 ease-in-out select-none shadow-2xl ${
+        className={`fixed top-0 bottom-0 left-0 z-50 flex flex-col bg-white border-r border-slate-200 text-slate-700 transition-all duration-300 ease-in-out select-none shadow-lg ${
           isOpen ? 'w-64 translate-x-0' : 'w-20 lg:w-20 -translate-x-full lg:translate-x-0'
         }`}
       >
         {/* Header del Sidebar */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-white/10 bg-slate-950/40">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200 bg-slate-50/80">
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/20 shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 shrink-0">
               <span className="text-lg">🐟</span>
             </div>
             {isOpen && (
               <div className="flex flex-col truncate">
-                <span className="text-sm font-black tracking-tight text-white flex items-center gap-1.5">
+                <span className="text-sm font-black tracking-tight text-slate-900 flex items-center gap-1.5">
                   La Pezcadería
-                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-mono">
+                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 font-mono font-bold">
                     ERP
                   </span>
                 </span>
-                <span className="text-[10px] text-slate-400 font-mono">OBSIDIAN V2.4</span>
+                <span className="text-[10px] text-slate-500 font-mono font-semibold">ENTERPRISE V3.1</span>
               </div>
             )}
           </div>
 
           <button
             onClick={onToggleOpen}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-card border-white/5/5 transition-colors hidden lg:flex items-center justify-center"
+            className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-200 transition-colors hidden lg:flex items-center justify-center"
             title={isOpen ? 'Colapsar menú (Ctrl+B)' : 'Expandir menú (Ctrl+B)'}
           >
             {isOpen ? <PanelLeftClose size={18} /> : <PanelLeft size={18} />}
@@ -293,24 +293,24 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
         </div>
 
         {/* Perfil Compacto y Botón POS */}
-        <div className="p-3 border-b border-white/10 space-y-2.5 bg-slate-900/20">
+        <div className="p-3 border-b border-slate-200 space-y-2.5 bg-slate-50/40">
           {/* Card de Usuario */}
-          <div className="flex items-center gap-2.5 p-2 rounded-xl bg-slate-800/40 border border-white/5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-md">
+          <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-slate-200 shadow-sm">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-sm">
               Yu
             </div>
             {isOpen && (
               <div className="flex-1 min-w-0">
-                <span className="text-xs font-bold text-white block truncate">Yurgen Moreno</span>
+                <span className="text-xs font-bold text-slate-900 block truncate">Yurgen Moreno</span>
                 <select
                   value={userRole}
                   onChange={(e) => onChangeRole(e.target.value)}
-                  className="w-full text-[10px] bg-transparent text-slate-400 font-medium border-0 p-0 outline-none cursor-pointer hover:text-cyan-400 transition-colors"
+                  className="w-full text-[10px] bg-transparent text-slate-600 font-semibold border-0 p-0 outline-none cursor-pointer hover:text-indigo-600 transition-colors"
                 >
-                  <option value="admin" className="bg-slate-900 text-white">Super administrador</option>
-                  <option value="vendedor" className="bg-slate-900 text-white">Vendedor Comercial</option>
-                  <option value="bodega" className="bg-slate-900 text-white">Jefe de Bodega</option>
-                  <option value="administrativo" className="bg-slate-900 text-white">Administrativo</option>
+                  <option value="admin" className="bg-white text-slate-900">Super administrador</option>
+                  <option value="vendedor" className="bg-white text-slate-900">Vendedor Comercial</option>
+                  <option value="bodega" className="bg-white text-slate-900">Jefe de Bodega</option>
+                  <option value="administrativo" className="bg-white text-slate-900">Administrativo</option>
                 </select>
               </div>
             )}
@@ -320,10 +320,10 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
           <button
             id="sidebar-btn-facturar-pos"
             onClick={() => onSelectView('pos')}
-            className={`w-full flex items-center justify-center gap-2 py-2 rounded-xl font-bold text-xs text-white shadow-lg transition-all duration-200 cursor-pointer ${
+            className={`w-full flex items-center justify-center gap-2 py-2 rounded-xl font-bold text-xs text-white shadow-md transition-all duration-200 cursor-pointer ${
               currentView === 'pos'
                 ? 'bg-gradient-to-r from-emerald-600 to-teal-600 ring-2 ring-emerald-500/50 shadow-emerald-500/20'
-                : 'bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:to-blue-500 shadow-cyan-500/20'
+                : 'bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:to-blue-500 shadow-indigo-500/20'
             }`}
             title="Abrir Punto de Venta (POS)"
           >
@@ -333,7 +333,7 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
         </div>
 
         {/* Lista de Navegación por 4 Dominios */}
-        <div className="flex-1 overflow-y-auto px-2 py-3 space-y-4 scrollbar-thin scrollbar-thumb-white/10">
+        <div className="flex-1 overflow-y-auto px-2 py-3 space-y-4">
           {domains.map((domain) => {
             const isCollapsed = collapsedDomains[domain.id];
             const hasActiveChild = domain.items.some((item) => item.key === currentView);
@@ -344,16 +344,16 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
                 {isOpen ? (
                   <button
                     onClick={() => toggleDomain(domain.id)}
-                    className="w-full flex items-center justify-between px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-slate-400 hover:text-white transition-colors cursor-pointer group"
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors cursor-pointer group"
                   >
-                    <span className="flex items-center gap-1.5">
-                      <domain.icon size={13} className="text-cyan-400 group-hover:scale-110 transition-transform" />
+                    <span className="flex items-center gap-1.5 font-bold">
+                      <domain.icon size={13} className="text-indigo-600 group-hover:scale-110 transition-transform" />
                       {domain.title}
                     </span>
                     {isCollapsed ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
                   </button>
                 ) : (
-                  <div className="h-px bg-card border-white/5/10 my-2 mx-1" />
+                  <div className="h-px bg-slate-200 my-2 mx-1" />
                 )}
 
                 {/* Ítems del Dominio (Filas densas Carbon de 36px) */}
@@ -369,20 +369,20 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
                           onClick={() => onSelectView(item.key)}
                           className={`w-full h-9 flex items-center gap-2.5 px-3 rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer relative group ${
                             isActive
-                              ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/10 text-cyan-300 border border-cyan-500/30 shadow-md shadow-cyan-500/5'
-                              : 'text-slate-400 hover:text-white hover:bg-card border-white/5/[0.04]'
+                              ? 'bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-sm font-bold'
+                              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                           }`}
                           title={!isOpen ? item.label : undefined}
                         >
                           {/* Indicador Activo Lateral */}
                           {isActive && (
-                            <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
+                            <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-indigo-600" />
                           )}
 
                           <item.icon
                             size={16}
                             className={`shrink-0 transition-transform group-hover:scale-110 ${
-                              isActive ? 'text-cyan-400' : 'text-slate-400 group-hover:text-white'
+                              isActive ? 'text-indigo-600' : 'text-slate-500 group-hover:text-slate-900'
                             }`}
                           />
 
@@ -393,12 +393,12 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
                             <span
                               className={`px-1.5 py-0.2 rounded-full text-[10px] font-black font-mono shrink-0 ${
                                 item.badgeVariant === 'cyan'
-                                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                                  ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
                                   : item.badgeVariant === 'emerald'
-                                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                   : item.badgeVariant === 'rose'
-                                  ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
-                                  : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                  ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                                  : 'bg-amber-50 text-amber-700 border border-amber-200'
                               }`}
                             >
                               {item.badge}
@@ -416,12 +416,12 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
 
         {/* Footer del Sidebar */}
         {isOpen && (
-          <div className="p-3 border-t border-white/10 bg-slate-950/40 text-[10px] text-slate-400 flex items-center justify-between">
-            <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="p-3 border-t border-slate-200 bg-slate-50 text-[10px] text-slate-600 flex items-center justify-between font-semibold">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               Sistema Conectado
             </span>
-            <span className="font-mono text-slate-400">v2.4.0</span>
+            <span className="font-mono text-slate-500 font-bold">v3.1.0</span>
           </div>
         )}
       </aside>

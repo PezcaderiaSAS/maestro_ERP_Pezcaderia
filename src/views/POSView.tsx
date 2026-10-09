@@ -1512,15 +1512,15 @@ export default function POSView({
         </div>
       )}
 
-      {/* Selector de Vistas / Pestañas de POS Compactas (Estilo Atlassian/Carbon) */}
-      <div className="flex flex-wrap items-center justify-between gap-2 py-1.5 px-3 bg-slate-900/80 border border-white/10 rounded-xl shrink-0">
+      {/* Selector de Vistas / Pestañas de POS Compactas (Estilo Atlassian/Carbon - Light Mode) */}
+      <div className="flex flex-wrap items-center justify-between gap-2 py-1.5 px-3 bg-white border border-slate-200 rounded-xl shadow-sm shrink-0">
         <div className="flex items-center gap-1.5 overflow-x-auto">
           <button
             onClick={() => setActiveSubView('venta_pos')}
             className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${
               activeSubView === 'venta_pos'
-                ? 'bg-cyan-600 text-white shadow-sm ring-1 ring-cyan-400/40'
-                : 'bg-transparent text-slate-300 hover:bg-slate-800'
+                ? 'bg-indigo-600 text-white shadow-sm ring-1 ring-indigo-400'
+                : 'bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900'
             }`}
           >
             <CreditCard size={15} />
@@ -1531,8 +1531,8 @@ export default function POSView({
             onClick={() => setActiveSubView('consolidacion_b2b')}
             className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${
               activeSubView === 'consolidacion_b2b'
-                ? 'bg-blue-600 text-white shadow-sm ring-1 ring-blue-400/40'
-                : 'bg-transparent text-slate-300 hover:bg-slate-800'
+                ? 'bg-blue-600 text-white shadow-sm ring-1 ring-blue-400'
+                : 'bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900'
             }`}
           >
             <Truck size={15} />
@@ -1548,8 +1548,8 @@ export default function POSView({
             onClick={() => setActiveSubView('canales_digitales')}
             className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${
               activeSubView === 'canales_digitales'
-                ? 'bg-purple-600 text-white shadow-sm ring-1 ring-purple-400/40'
-                : 'bg-transparent text-slate-300 hover:bg-slate-800'
+                ? 'bg-purple-600 text-white shadow-sm ring-1 ring-purple-400'
+                : 'bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900'
             }`}
           >
             <RefreshCw size={15} />
@@ -1565,8 +1565,8 @@ export default function POSView({
             onClick={() => setActiveSubView('gestion_kanban')}
             className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${
               activeSubView === 'gestion_kanban'
-                ? 'bg-amber-600 text-white shadow-sm ring-1 ring-amber-400/40'
-                : 'bg-transparent text-slate-300 hover:bg-slate-800'
+                ? 'bg-amber-600 text-white shadow-sm ring-1 ring-amber-400'
+                : 'bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900'
             }`}
           >
             <span className="text-xs font-mono font-bold">KB</span>
@@ -1577,42 +1577,42 @@ export default function POSView({
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowRestockModal(true)}
-            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg border border-amber-500/40 bg-amber-500/10 text-amber-300 text-xs font-bold hover:bg-amber-500/20 transition-all"
+            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold hover:bg-amber-100 transition-all shadow-sm"
             title="Solicitar Reabastecimiento a Bodega Principal"
           >
-            <Truck size={13} className="text-amber-400" />
+            <Truck size={13} className="text-amber-600" />
             <span className="hidden sm:inline">Reabastecer POS</span>
           </button>
 
-          <div className="text-xs text-slate-400 hidden md:block">
-            Rol: <span className="text-cyan-400 font-bold uppercase">{userRole}</span>
+          <div className="text-xs text-slate-500 hidden md:block font-medium">
+            Rol: <span className="text-indigo-600 font-bold uppercase">{userRole}</span>
           </div>
 
           <div className="relative">
             <button
               onClick={() => setShowHamburger(!showHamburger)}
-              className="p-1.5 rounded-lg border border-white/10 bg-slate-800/80 hover:bg-slate-700 text-slate-200 transition-colors"
+              className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 transition-colors shadow-sm cursor-pointer"
             >
               <Menu size={16} />
             </button>
             {showHamburger && (
-              <div className="absolute right-0 mt-2 w-48 bg-slate-900 border border-white/15 rounded-xl shadow-2xl z-50 overflow-hidden text-slate-200">
+              <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden text-slate-800">
                 {!isTurnoAbierto ? (
-                  <button onClick={() => { setShowAperturaModal(true); setShowHamburger(false); }} className="w-full text-left px-4 py-2.5 hover:bg-slate-800 text-xs font-semibold border-b border-white/10 flex items-center gap-2">
-                    <Plus size={14} className="text-cyan-400" /> Abrir Turno
+                  <button onClick={() => { setShowAperturaModal(true); setShowHamburger(false); }} className="w-full text-left px-4 py-2.5 hover:bg-slate-50 text-xs font-semibold border-b border-slate-100 flex items-center gap-2 text-slate-800">
+                    <Plus size={14} className="text-indigo-600" /> Abrir Turno
                   </button>
                 ) : (
                   <>
-                    <button onClick={() => { setShowArqueoModal(true); setShowHamburger(false); }} className="w-full text-left px-4 py-2.5 hover:bg-slate-800 text-xs font-semibold text-rose-400 border-b border-white/10 flex items-center gap-2">
+                    <button onClick={() => { setShowArqueoModal(true); setShowHamburger(false); }} className="w-full text-left px-4 py-2.5 hover:bg-slate-50 text-xs font-semibold text-rose-600 border-b border-slate-100 flex items-center gap-2">
                       <X size={14} /> Cerrar Turno
                     </button>
-                    <button onClick={() => { setShowHamburger(false); }} className="w-full text-left px-4 py-2.5 hover:bg-slate-800 text-xs font-medium border-b border-white/10 flex items-center gap-2">
-                      <AlertTriangle size={14} className="text-amber-400" /> Retiros / Egresos
+                    <button onClick={() => { setShowHamburger(false); }} className="w-full text-left px-4 py-2.5 hover:bg-slate-50 text-xs font-medium border-b border-slate-100 flex items-center gap-2 text-slate-700">
+                      <AlertTriangle size={14} className="text-amber-600" /> Retiros / Egresos
                     </button>
                   </>
                 )}
-                <button onClick={() => { setShowHamburger(false); }} className="w-full text-left px-4 py-2.5 hover:bg-slate-800 text-xs font-medium flex items-center gap-2">
-                  <FileText size={14} className="text-slate-400" /> Historial
+                <button onClick={() => { setShowHamburger(false); }} className="w-full text-left px-4 py-2.5 hover:bg-slate-50 text-xs font-medium flex items-center gap-2 text-slate-700">
+                  <FileText size={14} className="text-slate-500" /> Historial
                 </button>
               </div>
             )}
@@ -1638,7 +1638,7 @@ export default function POSView({
 
             {/* Columna Derecha: Carrito de Compras / Factura con scroll desacoplado */}
             <div className="flex flex-col min-h-0 h-full">
-              <Card glass className="pos-sidebar-cart flex flex-col h-full min-h-0 p-0 overflow-hidden border border-white/10 shadow-xl">
+              <Card glass className="pos-sidebar-cart flex flex-col h-full min-h-0 p-0 overflow-hidden border border-slate-200 shadow-sm bg-white">
         {ultimoTicket ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px', height: '100%', overflowY: 'auto' }}>
             <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: 0, textAlign: 'center' }}>Venta Realizada con Éxito</h3>

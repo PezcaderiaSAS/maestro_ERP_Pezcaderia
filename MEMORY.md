@@ -1,17 +1,16 @@
 # Memoria Activa - La Pezcadería ERP
 
-## Contexto Actual (Categorías Rápidas e Inteligentes de Egresos de Caja)
-- **Estado Global:** Módulo 005 (Categorías Rápidas e Inteligentes de Egresos de Caja / Smart Quick Picks) 100% completado y verificado.
-- **Arquitectura:** Vite + React 18 + Zustand + SweetAlert2 + DevTools 375 px Loop.
-- **Protocolo Activo:** `SOFTWARE_FACTORY_ANTIGRAVITY_DEFINITIVE_V3.1` (3.1-LAPTOP-DEVTOOLS-MANDATORY-LOOP).
-- **Suite de Pruebas:** 49 archivos / 299 tests pasando (100% verde) + `tsc --noEmit` con 0 errores.
-- **Regla de los 12 Años & Operativa:** Botones táctiles ≥ 52 px (`Salida de Dinero`), creación en caliente táctil sin salir del modal ni perder montos (`+ Otra Categoría` con selector de 6 emojis y guardado reactivo en `EgresoOperativoModal`), ranking Top 6 inteligente de categorías según uso en el día/turno, catálogo semilla persistido en `localDb` (`Flete Camión`, `Pago Pescado`, `Hielo/Cavas`, `Insumos Bodega`, `Pago Domicilios`, `Cafetería/Refrigerios`, `Aseo/Limpieza`, `Gasto Menor`), prevención de duplicados insensible a mayúsculas/tildes (EARS-W01) y pestañas de filtro dinámicas con badges automáticos en `CashFlowView`.
-
-## Decisiones Técnicas y Restricciones
-- Integración dual: débito directo en 1 toque en `BucaramangaReceivingWizard` (Paso 3) y registro manual con presets y creación en caliente en `CashFlowView` mediante `EgresoOperativoModal`.
-- Validación estricta de saldo en efectivo (EARS-W01) evitando saldos negativos con opción alternativa de transferencia o deuda/crédito a proveedor.
-- Persistencia local multi-tenant en clave `pezcaderia_categorias_gastos` con sincronización de ranking por frecuencia de movimientos.
-- Facturación electrónica DIAN diferida por mandato del usuario; prioridad máxima a los flujos operativos de piso (compras camión, alistamiento, despacho, caja, alquiler frío).
+## Contexto Actual (Rediseño Light Mode & Alto Contraste en POS y Cajas)
+- **Estado Global:** Rediseño urgente a Modo Claro (Light Mode) de alto contraste 100% completado y validado en vivo con Chrome DevTools.
+- **Skills Creadas como Fuentes de Verdad:**
+  - `.agents/skills/erp-pos-design-tokens/SKILL.md`: Especificación de tokens Light Mode WCAG AA+ (fondos slate-50 `#f8fafc`, tarjetas `#ffffff`, bordes `#cbd5e1`, tipografía `#0f172a`, inputs puros blancos con anillos de foco azul/índigo, semáforos operativos).
+  - `.agents/skills/ui-ux-pro-max/SKILL.md`: Patrones de flujo SaaS, split-pane táctil y AppShell responsivo.
+- **Vistas y Componentes Migrados a Light Mode:**
+  - `src/index.css`: Reemplazo de temas oscuros (`hyper-cobalt`, `carbon-teal`, `chrome-violet`, `obsidian`) por variantes claras de alto contraste. Sobrescrituras globales para clases oscuras residuales.
+  - `src/App.tsx`, `EnterpriseTopbar.tsx`, `EnterpriseSidebar.tsx`: AppShell completo en Light Mode con títulos nítidos y badges de dominio.
+  - `POSView.tsx`, `CartPanel.tsx`, `ParkedOrdersBar.tsx`, `PaymentPanel.tsx`: Catálogo de productos con nombres en mayúscula y negro intenso `#0f172a`, etiquetas de precio contrastadas, panel de ventas en espera con badges índigo/ámbar, e inputs de cobro y peso con fondo blanco absoluto.
+  - `CashFlowView.tsx` y `EgresoOperativoModal.tsx`: Tablas de movimientos y formularios de egreso convertidos a Light Mode con legibilidad total bajo luz solar o iluminación intensa de punto de venta.
+- **Verificación DevTools:** 0 errores en consola JS, Vite HMR 100% activo en `127.0.0.1:3000`, inspección visual exitosa de modales y flujos de cobro.
 
 ## Siguientes Flujos Operativos Prioritarios
 1. **Alquileres de Frío (WMS 3PL):** Pesaje por estiba (posiciones de 800 kg), tarifas por día/mes y actas de custodia de terceros.
