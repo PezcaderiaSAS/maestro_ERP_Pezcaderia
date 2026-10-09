@@ -16,7 +16,8 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "repomix": "repomix",
-    "repomix:app": "repomix --include \"src/**,package.json,vite.config.ts,tsconfig*.json,tailwind.config.js,index.html,database/**\" -o repomix-app.md"
+    "repomix:app": "repomix --include \"src/**,package.json,vite.config.ts,tsconfig*.json,tailwind.config.js,index.html,database/**\" -o repomix-app.md",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@google/genai": "^2.25.0",
