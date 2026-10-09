@@ -26,12 +26,43 @@ export type TipoMovimientoCaja =
 
 export type MetodoPago = 'EFECTIVO' | 'DATAFONO' | 'TRANSFERENCIA';
 
+export const CATEGORIAS_EGRESO_CANONICAS = {
+  FLETE_TRANSPORTE: 'FLETE_TRANSPORTE',
+  PAGO_PROVEEDOR_PESCADO: 'PAGO_PROVEEDOR_PESCADO',
+  ANTICIPO_COMPRA: 'ANTICIPO_COMPRA',
+  INSUMOS_HIELO_CAVA: 'INSUMOS_HIELO_CAVA',
+  GASTO_OPERATIVO_GENERAL: 'GASTO_OPERATIVO_GENERAL',
+  PAGO_DOMICILIOS: 'PAGO_DOMICILIOS',
+  CAFETERIA_REFRIGERIOS: 'CAFETERIA_REFRIGERIOS',
+  ASEO_LIMPIEZA: 'ASEO_LIMPIEZA',
+  INSUMOS_BODEGA: 'INSUMOS_BODEGA'
+} as const;
+
 export type CategoriaEgresoOperativo =
   | 'FLETE_TRANSPORTE'
   | 'PAGO_PROVEEDOR_PESCADO'
   | 'ANTICIPO_COMPRA'
   | 'INSUMOS_HIELO_CAVA'
-  | 'GASTO_OPERATIVO_GENERAL';
+  | 'GASTO_OPERATIVO_GENERAL'
+  | 'PAGO_DOMICILIOS'
+  | 'CAFETERIA_REFRIGERIOS'
+  | 'ASEO_LIMPIEZA'
+  | 'INSUMOS_BODEGA'
+  | (string & {});
+
+/** Configuración de categoría de gasto u egreso operativo configurable por empresa. */
+export interface CategoriaGastoConfig {
+  id: string;
+  nombre: string;
+  icono: string;
+  colorBadge: string;
+  descripcion?: string;
+  esFrecuente?: boolean; // Fijada por admin
+  vecesUsada?: number;  // Frecuencia acumulada
+  activa: boolean;
+  tenantId?: string;
+  createdAt?: string;
+}
 
 // ---------------------------------------------------------------------------
 // Entidades Base

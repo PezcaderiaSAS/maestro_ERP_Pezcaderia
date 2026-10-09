@@ -1,6 +1,7 @@
 import {
   Caja, TurnoCaja, MovimientoCaja, TrasladoDinero,
-  TipoMovimientoCaja, MetodoPago, DetalleArqueo, CategoriaEgresoOperativo
+  TipoMovimientoCaja, MetodoPago, DetalleArqueo, CategoriaEgresoOperativo,
+  CategoriaGastoConfig
 } from '../types/cash.types';
 import { ResultadoOperacion } from '../types/common.types';
 import * as localDb from './localDb';
@@ -9,6 +10,18 @@ import { LocalDataService } from './LocalDataService';
 
 const generateId = (prefix: string) =>
   `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 5)}`;
+
+/** Catálogo semilla predeterminado de categorías operativas de egreso. */
+export const CATEGORIAS_SEMILLA_GASTOS: CategoriaGastoConfig[] = [
+  { id: 'cat-flete', nombre: 'Flete Camión', icono: '🚚', colorBadge: 'amber', descripcion: 'Transporte y furgón refrigerado', esFrecuente: true, vecesUsada: 0, activa: true },
+  { id: 'cat-pescado', nombre: 'Pago Pescado', icono: '🐟', colorBadge: 'cyan', descripcion: 'Compra contado proveedor costa', esFrecuente: true, vecesUsada: 0, activa: true },
+  { id: 'cat-hielo', nombre: 'Hielo / Cavas', icono: '🧊', colorBadge: 'blue', descripcion: 'Conservación en frío y empaque', esFrecuente: true, vecesUsada: 0, activa: true },
+  { id: 'cat-insumos', nombre: 'Insumos Bodega', icono: '📦', colorBadge: 'purple', descripcion: 'Bolsas, cajas, cinta, empaques', esFrecuente: true, vecesUsada: 0, activa: true },
+  { id: 'cat-domicilios', nombre: 'Pago Domicilios', icono: '🛵', colorBadge: 'emerald', descripcion: 'Mensajería y fletes urbanos', esFrecuente: true, vecesUsada: 0, activa: true },
+  { id: 'cat-cafeteria', nombre: 'Cafetería / Refrigerios', icono: '☕', colorBadge: 'rose', descripcion: 'Alimentación y tintos operarios', esFrecuente: false, vecesUsada: 0, activa: true },
+  { id: 'cat-aseo', nombre: 'Aseo y Limpieza', icono: '🧹', colorBadge: 'teal', descripcion: 'Desinfección de cuartos y planta', esFrecuente: false, vecesUsada: 0, activa: true },
+  { id: 'cat-menor', nombre: 'Gasto Operativo Menor', icono: '🏷️', colorBadge: 'slate', descripcion: 'Otros imprevistos menores', esFrecuente: false, vecesUsada: 0, activa: true }
+];
 
 // ── Callbacks de integración ─────────────────────────────────────────────────
 // El servicio NO importa stores ni otros servicios directamente.
@@ -32,6 +45,7 @@ class LegacyCashService {
 
   constructor() {
     this.seedCajasParaBodegas();
+    this.seedCategoriasGastos();
   }
 
   public seedCajasParaBodegas(): void {
@@ -263,10 +277,103 @@ class LegacyCashService {
       turnos[idx] = turno;
       localDb.save('turnosCaja', turnos);
 
+      if (params.categoriaEgreso) {
+        this.incrementarUsoCategoria(params.categoriaEgreso);
+      }
+
       return { data: nuevoMovimiento, error: null };
     } catch (e: any) {
       return { data: null, error: e.message || 'Error al registrar el egreso operativo' };
     }
+  }
+
+  public seedCategoriasGastos(): void {
+    const existentes = localDb.load<CategoriaGastoConfig[]>('categoriasGastos', []);
+    if (!existentes || existentes.length === 0) {
+      localDb.save('categoriasGastos', CATEGORIAS_SEMILLA_GASTOS);
+    }
+  }
+
+  public getCategoriasGastos(tenantId?: string): CategoriaGastoConfig[] {
+    this.seedCategoriasGastos();
+    const categorias = localDb.load<CategoriaGastoConfig[]>('categoriasGastos', CATEGORIAS_SEMILLA_GASTOS);
+    return categorias.filter(c => c.activa !== false && (!tenantId || !c.tenantId || c.tenantId === tenantId || c.tenantId === 'default'));
+  }
+
+  public crearCategoriaGasto(params: {
+    nombre: string;
+    icono?: string;
+    colorBadge?: string;
+    descripcion?: string;
+    esFrecuente?: boolean;
+    tenantId?: string;
+  }): CategoriaGastoConfig {
+    const nombreLimpio = params.nombre.trim();
+    if (!nombreLimpio) throw new Error('El nombre de la categoría no puede estar vacío');
+
+    const normalizar = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    const normBuscada = normalizar(nombreLimpio);
+
+    const todas = localDb.load<CategoriaGastoConfig[]>('categoriasGastos', CATEGORIAS_SEMILLA_GASTOS);
+    const existente = todas.find(c => normalizar(c.nombre) === normBuscada);
+    if (existente) {
+      return existente; // EARS-W01: retorno amigable sin duplicar
+    }
+
+    const nueva: CategoriaGastoConfig = {
+      id: generateId('cat'),
+      nombre: nombreLimpio,
+      icono: params.icono || '🏷️',
+      colorBadge: params.colorBadge || 'rose',
+      descripcion: params.descripcion || '',
+      esFrecuente: params.esFrecuente ?? false,
+      vecesUsada: 1, // Inicializar con uso activo
+      activa: true,
+      tenantId: params.tenantId || 'default',
+      createdAt: new Date().toISOString()
+    };
+
+    todas.push(nueva);
+    localDb.save('categoriasGastos', todas);
+    return nueva;
+  }
+
+  public incrementarUsoCategoria(nombreOCodigo: string): void {
+    if (!nombreOCodigo) return;
+    const todas = localDb.load<CategoriaGastoConfig[]>('categoriasGastos', CATEGORIAS_SEMILLA_GASTOS);
+    const normalizar = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    const norm = normalizar(nombreOCodigo);
+
+    const cat = todas.find(c => normalizar(c.id) === norm || normalizar(c.nombre) === norm);
+    if (cat) {
+      cat.vecesUsada = (cat.vecesUsada || 0) + 1;
+      localDb.save('categoriasGastos', todas);
+    }
+  }
+
+  public obtenerCategoriasMasUsadas(movimientos?: MovimientoCaja[], limite: number = 6): CategoriaGastoConfig[] {
+    const categorias = this.getCategoriasGastos();
+    const normalizar = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+
+    // Conteo en vivo de los movimientos provistos (ej. del día o turno actual)
+    const conteo = new Map<string, number>();
+    if (movimientos && movimientos.length > 0) {
+      movimientos.forEach(m => {
+        if (m.tipo === 'EGRESO_GASTO' && m.categoriaEgreso) {
+          const key = normalizar(m.categoriaEgreso);
+          conteo.set(key, (conteo.get(key) || 0) + 1);
+        }
+      });
+    }
+
+    return [...categorias].sort((a, b) => {
+      const usosA = (conteo.get(normalizar(a.nombre)) || conteo.get(normalizar(a.id)) || 0) + (a.vecesUsada || 0);
+      const usosB = (conteo.get(normalizar(b.nombre)) || conteo.get(normalizar(b.id)) || 0) + (b.vecesUsada || 0);
+      if (usosB !== usosA) return usosB - usosA;
+      if (a.esFrecuente && !b.esFrecuente) return -1;
+      if (!a.esFrecuente && b.esFrecuente) return 1;
+      return a.nombre.localeCompare(b.nombre);
+    }).slice(0, limite);
   }
 
   public getTraslados(): TrasladoDinero[] { return localDb.load<TrasladoDinero[]>('trasladosDinero', []); }
@@ -479,3 +586,16 @@ export class CashService {
     } catch (e: any) { return { data: null, error: e.message || 'Error al procesar el traslado' }; }
   }
 }
+
+// ── Helpers Canónicos de Categorías de Gastos ─────────────────────────────────
+export const getCategoriasGastos = (tenantId?: string) => cashService.getCategoriasGastos(tenantId);
+export const crearCategoriaGasto = (params: {
+  nombre: string;
+  icono?: string;
+  colorBadge?: string;
+  descripcion?: string;
+  esFrecuente?: boolean;
+  tenantId?: string;
+}) => cashService.crearCategoriaGasto(params);
+export const obtenerCategoriasMasUsadas = (movimientos?: MovimientoCaja[], limite?: number) =>
+  cashService.obtenerCategoriasMasUsadas(movimientos, limite);

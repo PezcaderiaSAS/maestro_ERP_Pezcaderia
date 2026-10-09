@@ -11,13 +11,23 @@ import {
   Building,
   CreditCard,
   Send,
+  PlusCircle,
+  ChevronDown,
+  ChevronUp,
+  Sparkles,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { cashService } from '../../../services/cashService';
+import {
+  cashService,
+  getCategoriasGastos,
+  crearCategoriaGasto,
+  obtenerCategoriasMasUsadas,
+} from '../../../services/cashService';
 import { obtenerRecepcionesBucaramanga } from '../../../services/purchasesBucaramangaService';
 import {
   TurnoCaja,
   CategoriaEgresoOperativo,
+  CategoriaGastoConfig,
   MetodoPago,
 } from '../../../types/cash.types';
 
@@ -28,20 +38,39 @@ interface EgresoOperativoModalProps {
   onSuccess: () => void;
 }
 
+const EMOJIS_PRESET = ['☕', '🛵', '📦', '🧹', '⚡', '🏷️', '🥖', '🧊', '🐟', '🚚'];
+
 export const EgresoOperativoModal: React.FC<EgresoOperativoModalProps> = ({
   turnoActivo,
   usuarioId,
   onClose,
   onSuccess,
 }) => {
-  const [categoria, setCategoria] = useState<CategoriaEgresoOperativo>('FLETE_TRANSPORTE');
+  const [categoria, setCategoria] = useState<CategoriaEgresoOperativo>('Flete Camión');
   const [metodoPago, setMetodoPago] = useState<MetodoPago>('EFECTIVO');
   const [monto, setMonto] = useState<number | ''>('');
-  const [concepto, setConcepto] = useState<string>('');
+  const [concepto, setConcepto] = useState<string>('Flete furgón refrigerado');
   const [placaCamion, setPlacaCamion] = useState<string>('');
   const [proveedorNombre, setProveedorNombre] = useState<string>('');
   const [referenciaId, setReferenciaId] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  // Estados de categorías inteligentes y creación en caliente
+  const [catalogoCategorias, setCatalogoCategorias] = useState<CategoriaGastoConfig[]>(() => getCategoriasGastos());
+  const [mostrarCrearCategoria, setMostrarCrearCategoria] = useState<boolean>(false);
+  const [mostrarTodasCategorias, setMostrarTodasCategorias] = useState<boolean>(false);
+  const [nuevoNombreCat, setNuevoNombreCat] = useState<string>('');
+  const [nuevoIconoCat, setNuevoIconoCat] = useState<string>('☕');
+
+  // Obtener movimientos del turno para calcular frecuencia en vivo
+  const movimientosTurno = useMemo(() => {
+    return cashService.getMovimientos(turnoActivo.id);
+  }, [turnoActivo.id]);
+
+  // Ranking inteligente de las Top categorías más usadas (Top 6)
+  const categoriasTop = useMemo(() => {
+    return obtenerCategoriasMasUsadas(movimientosTurno, 6);
+  }, [catalogoCategorias, movimientosTurno]);
 
   // Obtener recepciones recientes en Bucaramanga para autocompletar
   const recepciones = useMemo(() => {
@@ -58,32 +87,66 @@ export const EgresoOperativoModal: React.FC<EgresoOperativoModalProps> = ({
     setPlacaCamion(rec.truckPlate || '');
     setProveedorNombre(rec.supplierName || '');
 
-    if (categoria === 'FLETE_TRANSPORTE') {
+    const catNorm = (categoria || '').toLowerCase();
+    if (catNorm.includes('flete')) {
       setMonto(rec.liquidacion?.totalFreightCost || '');
       setConcepto(`Pago Flete Furgón ${rec.truckPlate} - ${rec.transportCompany || 'Transportador'}`);
-    } else if (categoria === 'PAGO_PROVEEDOR_PESCADO') {
+    } else if (catNorm.includes('pescado') || catNorm.includes('proveedor')) {
       setMonto(rec.liquidacion?.balanceToPaySupplier || '');
       setConcepto(`Pago Contado Pescado ${rec.supplierName} (Guía ${rec.receptionNumber})`);
     }
   };
 
-  const handleSeleccionarPresetCategoria = (cat: CategoriaEgresoOperativo) => {
-    setCategoria(cat);
+  const handleSeleccionarCategoria = (cat: CategoriaGastoConfig) => {
+    setCategoria(cat.nombre);
     setReferenciaId('');
-    if (cat === 'FLETE_TRANSPORTE') {
+    const norm = cat.nombre.toLowerCase();
+
+    if (norm.includes('flete')) {
       setConcepto('Flete furgón refrigerado');
       setMetodoPago('EFECTIVO');
-    } else if (cat === 'PAGO_PROVEEDOR_PESCADO') {
+    } else if (norm.includes('pescado')) {
       setConcepto('Liquidación compra de pescado en muelle/puerto');
       setMetodoPago('TRANSFERENCIA');
-    } else if (cat === 'INSUMOS_HIELO_CAVA') {
+    } else if (norm.includes('hielo')) {
       setConcepto('Compra de hielo en escamas para cavas');
       setMetodoPago('EFECTIVO');
+    } else if (norm.includes('domicilio')) {
+      setConcepto('Pago de mensajería / domicilios urbanos');
+      setMetodoPago('EFECTIVO');
+    } else if (norm.includes('cafeter') || norm.includes('refrigerio')) {
+      setConcepto('Cafetería y refrigerios de operarios');
+      setMetodoPago('EFECTIVO');
+    } else if (norm.includes('insumo')) {
+      setConcepto('Compra de insumos operativos de bodega');
+      setMetodoPago('EFECTIVO');
+    } else if (norm.includes('aseo') || norm.includes('limpieza')) {
+      setConcepto('Insumos de aseo y desinfección');
+      setMetodoPago('EFECTIVO');
     } else {
-      setConcepto('Gasto operativo bodega Bucaramanga');
+      setConcepto(`Pago: ${cat.nombre}`);
       setMetodoPago('EFECTIVO');
     }
   };
+
+  const handleCrearNuevaCategoria = (e: React.FormEvent) => {
+    e.preventDefault();
+    const nombreLimpio = nuevoNombreCat.trim();
+    if (!nombreLimpio) return;
+
+    const creada = crearCategoriaGasto({
+      nombre: nombreLimpio,
+      icono: nuevoIconoCat,
+    });
+
+    const actualizado = getCategoriasGastos();
+    setCatalogoCategorias(actualizado);
+    handleSeleccionarCategoria(creada);
+    setNuevoNombreCat('');
+    setMostrarCrearCategoria(false);
+    setMostrarTodasCategorias(false);
+  };
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -198,76 +261,167 @@ export const EgresoOperativoModal: React.FC<EgresoOperativoModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Selector de Categoría Rápida - Botones Gigantes (≥ 52 px) */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-              1. Motivo del Pago:
-            </label>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
-              <button
-                type="button"
-                onClick={() => handleSeleccionarPresetCategoria('FLETE_TRANSPORTE')}
-                className={`min-h-[56px] p-3 rounded-2xl border text-left flex flex-col justify-center transition active:scale-95 ${
-                  categoria === 'FLETE_TRANSPORTE'
-                    ? 'bg-amber-500/20 border-amber-400 text-amber-300 font-bold shadow-lg shadow-amber-500/10'
-                    : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
-                }`}
-              >
-                <div className="flex items-center gap-1.5 text-xs font-black">
-                  <Truck className="w-4 h-4 text-amber-400" />
-                  <span>Flete Camión</span>
-                </div>
-                <span className="text-[10px] text-slate-400 mt-0.5">Transporte furgón</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleSeleccionarPresetCategoria('PAGO_PROVEEDOR_PESCADO')}
-                className={`min-h-[56px] p-3 rounded-2xl border text-left flex flex-col justify-center transition active:scale-95 ${
-                  categoria === 'PAGO_PROVEEDOR_PESCADO'
-                    ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300 font-bold shadow-lg shadow-emerald-500/10'
-                    : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
-                }`}
-              >
-                <div className="flex items-center gap-1.5 text-xs font-black">
-                  <Fish className="w-4 h-4 text-emerald-400" />
-                  <span>Pago Pescado</span>
-                </div>
-                <span className="text-[10px] text-slate-400 mt-0.5">Compra contado</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleSeleccionarPresetCategoria('INSUMOS_HIELO_CAVA')}
-                className={`min-h-[56px] p-3 rounded-2xl border text-left flex flex-col justify-center transition active:scale-95 ${
-                  categoria === 'INSUMOS_HIELO_CAVA'
-                    ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 font-bold shadow-lg shadow-cyan-500/10'
-                    : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
-                }`}
-              >
-                <div className="flex items-center gap-1.5 text-xs font-black">
-                  <Snowflake className="w-4 h-4 text-cyan-400" />
-                  <span>Hielo / Cava</span>
-                </div>
-                <span className="text-[10px] text-slate-400 mt-0.5">Frío y empaques</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleSeleccionarPresetCategoria('GASTO_OPERATIVO_GENERAL')}
-                className={`min-h-[56px] p-3 rounded-2xl border text-left flex flex-col justify-center transition active:scale-95 ${
-                  categoria === 'GASTO_OPERATIVO_GENERAL'
-                    ? 'bg-rose-500/20 border-rose-400 text-rose-300 font-bold shadow-lg shadow-rose-500/10'
-                    : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
-                }`}
-              >
-                <div className="flex items-center gap-1.5 text-xs font-black">
-                  <Receipt className="w-4 h-4 text-rose-400" />
-                  <span>Gasto Menor</span>
-                </div>
-                <span className="text-[10px] text-slate-400 mt-0.5">Varios bodega</span>
-              </button>
+          {/* Selector Inteligente de Categorías - Cuadrícula Táctil Top 6 & Creación en Caliente */}
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                1. Motivo del Pago (Frecuentes del Día):
+              </label>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMostrarTodasCategorias(!mostrarTodasCategorias);
+                    setMostrarCrearCategoria(false);
+                  }}
+                  className="text-xs font-bold text-cyan-400 hover:text-cyan-300 flex items-center gap-1 transition px-2 py-1 rounded-lg hover:bg-cyan-500/10"
+                >
+                  {mostrarTodasCategorias ? 'Ocultar catálogo' : `Ver todas (${catalogoCategorias.length})`}
+                  {mostrarTodasCategorias ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMostrarCrearCategoria(!mostrarCrearCategoria);
+                    setMostrarTodasCategorias(false);
+                  }}
+                  className="text-xs font-black text-rose-400 hover:text-rose-300 flex items-center gap-1 transition px-2 py-1 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 rounded-lg"
+                >
+                  <PlusCircle className="w-3.5 h-3.5" />
+                  + Otra Categoría
+                </button>
+              </div>
             </div>
+
+            {/* Panel Táctil en Caliente para Crear Categoría Rápida */}
+            {mostrarCrearCategoria && (
+              <div className="p-4 bg-slate-950/90 border border-rose-500/40 rounded-2xl space-y-3 animate-in fade-in zoom-in-95 duration-150">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <PlusCircle className="w-4 h-4 text-rose-400" />
+                    Crear Nueva Categoría de Egreso
+                  </span>
+                  <span className="text-[11px] text-slate-400">Se guarda para todas las cajas</span>
+                </div>
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    placeholder="Ej. Cafetería, Domicilios, Compra Insumos..."
+                    value={nuevoNombreCat}
+                    onChange={(e) => setNuevoNombreCat(e.target.value)}
+                    className="w-full min-h-[46px] px-3.5 bg-slate-900 border border-slate-700 focus:border-rose-500 rounded-xl text-white text-sm outline-none transition font-medium"
+                    autoFocus
+                  />
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                      Icono / Emoji Rápido:
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {EMOJIS_PRESET.map((emoji) => (
+                        <button
+                          key={emoji}
+                          type="button"
+                          onClick={() => setNuevoIconoCat(emoji)}
+                          className={`w-10 h-10 rounded-xl text-lg flex items-center justify-center transition border ${
+                            nuevoIconoCat === emoji
+                              ? 'bg-rose-500/30 border-rose-400 scale-110 shadow-md shadow-rose-500/20'
+                              : 'bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700'
+                          }`}
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMostrarCrearCategoria(false);
+                      setNuevoNombreCat('');
+                    }}
+                    className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!nuevoNombreCat.trim()}
+                    onClick={handleCrearNuevaCategoria}
+                    className="min-h-[44px] px-4 py-2 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white rounded-xl text-xs font-black flex items-center gap-1.5 transition shadow-lg shadow-rose-600/30"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    Guardar y Usar
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Desplegable Completo de Todas las Categorías */}
+            {mostrarTodasCategorias && (
+              <div className="p-3 bg-slate-950/80 border border-cyan-500/30 rounded-2xl space-y-2">
+                <span className="text-xs font-bold text-slate-300">Todas las categorías activas:</span>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  {catalogoCategorias.map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => {
+                        handleSeleccionarCategoria(cat);
+                        setMostrarTodasCategorias(false);
+                      }}
+                      className={`min-h-[50px] p-2.5 rounded-xl border text-left flex items-center gap-2 transition active:scale-95 ${
+                        categoria === cat.nombre
+                          ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200 font-bold'
+                          : 'bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700'
+                      }`}
+                    >
+                      <span className="text-base">{cat.icono}</span>
+                      <span className="text-xs truncate">{cat.nombre}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Cuadrícula Táctil de las Top Categorías (Smart Quick Picks) */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
+              {categoriasTop.map((cat) => {
+                const isSelected = categoria === cat.nombre || (cat.id === 'cat-flete' && categoria === 'FLETE_TRANSPORTE');
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => handleSeleccionarCategoria(cat)}
+                    className={`min-h-[54px] p-3 rounded-2xl border text-left flex items-center gap-2.5 transition active:scale-95 ${
+                      isSelected
+                        ? 'bg-gradient-to-r from-rose-500/20 to-amber-500/10 border-rose-400 text-rose-200 font-bold shadow-lg shadow-rose-500/10 ring-1 ring-rose-400/40'
+                        : 'bg-slate-950/60 border-slate-800 text-slate-300 hover:border-slate-700'
+                    }`}
+                  >
+                    <span className="text-xl flex-shrink-0">{cat.icono}</span>
+                    <div className="min-w-0">
+                      <div className="text-xs font-black truncate">{cat.nombre}</div>
+                      <div className="text-[10px] text-slate-400 truncate">
+                        {cat.descripcion || 'Gasto operativo'}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Indicador de Categoría Seleccionada si no está en el Top */}
+            {!categoriasTop.some((c) => c.nombre === categoria || (c.id === 'cat-flete' && categoria === 'FLETE_TRANSPORTE')) && (
+              <div className="p-2.5 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-center justify-between text-xs text-rose-300">
+                <span className="flex items-center gap-1.5 font-bold">
+                  <span>🏷️</span> Categoría seleccionada: <u>{categoria}</u>
+                </span>
+                <span className="text-[10px] bg-rose-500/20 px-2 py-0.5 rounded text-rose-200">Personalizada</span>
+              </div>
+            )}
           </div>
 
           {/* Autocompletar desde Recepciones de Camión (si hay fletes o compras pendientes) */}

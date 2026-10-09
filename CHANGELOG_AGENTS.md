@@ -19,6 +19,13 @@ Cada vez que un agente de IA finalice una sesión de trabajo, debe agregar una e
 
 ## Registros Diarios
 
+### [2026-10-09 08:30] - Antigravity (ProjectManager & PrincipalEngineer)
+- **Módulo:** Categorías Rápidas e Inteligentes de Egresos de Caja (Módulo 005 / SDD)
+- **Acción:** Implementación completa del catálogo dinámico de categorías de egresos de caja: soporte de creación en caliente táctil sin salir del modal ni perder montos (`+ Otra Categoría` con selector de 6 emojis y guardado reactivo en `EgresoOperativoModal`), catálogo semilla inicial persistido en `localDb` (`Flete Camión`, `Pago Pescado`, `Hielo/Cavas`, `Insumos Bodega`, `Pago Domicilios`, `Cafetería/Refrigerios`, `Aseo/Limpieza`, `Gasto Menor`), ranking dinámico de Top 6 categorías más usadas según movimientos del turno/día, prevención de duplicados insensible a tildes/mayúsculas (EARS-W01), y sincronización automática de filtros táctiles y badges con emojis en `CashFlowView`.
+- **Archivos Modificados:** `specs/005-categorias-rapidas-caja/spec.md`, `specs/005-categorias-rapidas-caja/plan.md`, `specs/005-categorias-rapidas-caja/tasks.md`, `src/types/cash.types.ts`, `src/services/cashService.ts`, `src/views/cash/components/EgresoOperativoModal.tsx`, `src/views/cash/CashFlowView.tsx`, `src/tests/quickExpenseCategories.test.ts`.
+- **Mejoras UX/UI (Design System):** Diseñado con "La Regla de los 12 Años": botones táctiles gigantes (≥ 52 px), feedback instantáneo de selección, creación fluida en 1 toque en la misma pantalla, selector rápido de emojis para micro-copy visual, y badges dinámicos con contador en las pestañas de filtro de movimientos.
+- **Notas/Bloqueos:** Validado en vivo vía Chrome DevTools MCP en móvil (375 px) con 0 errores y 0 warnings en consola JS. Suite global Vitest: 49/49 suites aprobadas (299 tests verdes, 100%), TypeScript con 0 errores (`tsc --noEmit`).
+
 ### [2026-10-09 07:35] - Antigravity (ProjectManager & PrincipalEngineer)
 - **Módulo:** Movimientos de Dinero, Egresos Operativos y Flujos de Caja Bucaramanga (Módulo 004 / SDD)
 - **Acción:** Implementación completa del ciclo operativo de egresos de caja: liquidación directa de fletes de furgón y compras de contado desde la recepción de camión en Bucaramanga (`BucaramangaReceivingWizard` Paso 3), modal táctil de egreso operativo con presets y autocompletado en `CashFlowView` (`EgresoOperativoModal`), validación estricta de saldo en efectivo (EARS-W01) con opciones alternativas de pago por transferencia o crédito/deuda con proveedor, y pestañas táctiles de filtrado (`Todo`, `🛒 Ventas`, `🚚 Fletes`, `🐟 Pescado`, `💵 Gastos`).

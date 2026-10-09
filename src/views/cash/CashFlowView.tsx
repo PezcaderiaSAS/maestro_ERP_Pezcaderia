@@ -13,12 +13,12 @@ import {
   Receipt,
   Filter,
 } from 'lucide-react';
-import { cashService } from '../../services/cashService';
-import { Caja, TurnoCaja, MovimientoCaja } from '../../types/cash.types';
+import { cashService, getCategoriasGastos } from '../../services/cashService';
+import { Caja, TurnoCaja, MovimientoCaja, CategoriaGastoConfig } from '../../types/cash.types';
 import Swal from 'sweetalert2';
 import ArqueoCajaModal from './components/ArqueoCajaModal';
 import TrasladoDineroModal from './components/TrasladoDineroModal';
-import EgresoOperativoModal from './components/EgresoOperativoModal';
+import { EgresoOperativoModal } from './components/EgresoOperativoModal';
 import { AperturaCajaModal } from '../pos/components/AperturaCajaModal';
 import { useWarehouseStore } from '../../store/useWarehouseStore';
 import { useCashStore } from '../../store/useCashStore';
@@ -47,8 +47,8 @@ export default function CashFlowView() {
   const [showEgresoModal, setShowEgresoModal] = useState(false);
   const [showAperturaModal, setShowAperturaModal] = useState(false);
 
-  // Filtro de movimientos diario
-  const [filtroTab, setFiltroTab] = useState<'TODO' | 'VENTAS' | 'FLETES' | 'PESCADO' | 'GASTOS'>('TODO');
+  // Filtro de movimientos diario (admite presets y categorías personalizadas)
+  const [filtroTab, setFiltroTab] = useState<string>('TODO');
   // Cargar Cajas
   useEffect(() => {
     // Si no existen cajas en la BD, inyectamos unas de prueba por primera vez
@@ -101,20 +101,57 @@ export default function CashFlowView() {
     setShowEgresoModal(true);
   };
 
+  // Catálogo persistente de categorías configuradas
+  const catalogoCategorias = useMemo(() => {
+    return getCategoriasGastos();
+  }, [movimientos]);
+
+  // Extraer categorías dinámicas que tienen movimientos registrados en el turno
+  const categoriasConMovimientos = useMemo(() => {
+    const conteo = new Map<string, number>();
+    movimientos.forEach(m => {
+      if (m.tipo.startsWith('EGRESO') && m.categoriaEgreso) {
+        conteo.set(m.categoriaEgreso, (conteo.get(m.categoriaEgreso) || 0) + 1);
+      }
+    });
+
+    return Array.from(conteo.entries()).map(([catKey, count]) => {
+      const match = catalogoCategorias.find(c =>
+        c.nombre.toLowerCase() === catKey.toLowerCase() ||
+        c.id.toLowerCase() === catKey.toLowerCase()
+      );
+      return {
+        key: catKey,
+        nombre: match?.nombre || catKey,
+        icono: match?.icono || '🏷️',
+        colorBadge: match?.colorBadge || 'rose',
+        count,
+      };
+    });
+  }, [movimientos, catalogoCategorias]);
+
   const movimientosFiltrados = useMemo(() => {
     return movimientos.filter(mov => {
       if (filtroTab === 'TODO') return true;
       if (filtroTab === 'VENTAS') return mov.tipo === 'INGRESO_VENTA';
       if (filtroTab === 'FLETES') {
-        return mov.categoriaEgreso === 'FLETE_TRANSPORTE' || mov.concepto.toLowerCase().includes('flete');
+        const cat = (mov.categoriaEgreso || '').toLowerCase();
+        const conc = (mov.concepto || '').toLowerCase();
+        return cat.includes('flete') || conc.includes('flete');
       }
       if (filtroTab === 'PESCADO') {
-        return mov.categoriaEgreso === 'PAGO_PROVEEDOR_PESCADO' || mov.concepto.toLowerCase().includes('pescado') || mov.concepto.toLowerCase().includes('proveedor');
+        const cat = (mov.categoriaEgreso || '').toLowerCase();
+        const conc = (mov.concepto || '').toLowerCase();
+        return cat.includes('pescado') || conc.includes('pescado') || conc.includes('proveedor');
       }
       if (filtroTab === 'GASTOS') {
-        return mov.categoriaEgreso === 'INSUMOS_HIELO_CAVA' || mov.categoriaEgreso === 'GASTO_OPERATIVO_GENERAL' || (mov.tipo.startsWith('EGRESO') && mov.categoriaEgreso !== 'FLETE_TRANSPORTE' && mov.categoriaEgreso !== 'PAGO_PROVEEDOR_PESCADO');
+        return mov.tipo.startsWith('EGRESO');
       }
-      return true;
+      // Filtro dinámico por categoría exacta o coincidencia de concepto
+      const cat = (mov.categoriaEgreso || '').toLowerCase();
+      const conc = (mov.concepto || '').toLowerCase();
+      const filtro = filtroTab.toLowerCase();
+      return cat === filtro || cat.includes(filtro) || conc.includes(filtro);
     });
   }, [movimientos, filtroTab]);
 
@@ -259,7 +296,7 @@ export default function CashFlowView() {
                   <p className="text-xs text-slate-400">Control de entradas y salidas en tiempo real</p>
                 </div>
 
-                {/* Pestañas Táctiles de Filtrado Rápido */}
+                {/* Pestañas Táctiles de Filtrado Rápido y Dinámicas */}
                 <div className="flex flex-wrap gap-1.5 p-1 bg-slate-950/80 rounded-xl border border-slate-800">
                   <button
                     onClick={() => setFiltroTab('TODO')}
@@ -296,14 +333,37 @@ export default function CashFlowView() {
                     <Fish size={12} />
                     <span>Pescado</span>
                   </button>
+
+                  {/* Pestañas dinámicas de categorías con movimientos en el turno actual */}
+                  {categoriasConMovimientos
+                    .filter(c => !c.nombre.toLowerCase().includes('flete') && !c.nombre.toLowerCase().includes('pescado'))
+                    .map(cat => {
+                      const isActive = filtroTab.toLowerCase() === cat.nombre.toLowerCase() || filtroTab === cat.key;
+                      return (
+                        <button
+                          key={cat.key}
+                          onClick={() => setFiltroTab(cat.nombre)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition ${
+                            isActive
+                              ? 'bg-rose-600 text-white shadow-sm'
+                              : 'text-slate-300 hover:text-white hover:bg-slate-900'
+                          }`}
+                        >
+                          <span>{cat.icono}</span>
+                          <span>{cat.nombre}</span>
+                          <span className="text-[10px] px-1.5 py-0.2 bg-black/30 rounded-full font-mono">{cat.count}</span>
+                        </button>
+                      );
+                    })}
+
                   <button
                     onClick={() => setFiltroTab('GASTOS')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition ${
-                      filtroTab === 'GASTOS' ? 'bg-rose-600 text-white' : 'text-slate-400 hover:text-white'
+                      filtroTab === 'GASTOS' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white'
                     }`}
                   >
                     <Receipt size={12} />
-                    <span>Gastos</span>
+                    <span>Todos Egresos</span>
                   </button>
                 </div>
               </div>
@@ -329,9 +389,16 @@ export default function CashFlowView() {
                         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                         .map(mov => {
                           const esIngreso = mov.tipo.startsWith('INGRESO');
-                          const esFlete = mov.categoriaEgreso === 'FLETE_TRANSPORTE' || mov.concepto.toLowerCase().includes('flete');
-                          const esPescado = mov.categoriaEgreso === 'PAGO_PROVEEDOR_PESCADO' || mov.concepto.toLowerCase().includes('pescado');
-                          const esHielo = mov.categoriaEgreso === 'INSUMOS_HIELO_CAVA' || mov.concepto.toLowerCase().includes('hielo');
+                          const catNombre = (mov.categoriaEgreso || '').toLowerCase();
+                          const esFlete = catNombre.includes('flete') || mov.concepto.toLowerCase().includes('flete');
+                          const esPescado = catNombre.includes('pescado') || mov.concepto.toLowerCase().includes('pescado');
+                          const esHielo = catNombre.includes('hielo') || mov.concepto.toLowerCase().includes('hielo');
+
+                          // Buscar coincidencia en catálogo de categorías
+                          const catConfig = catalogoCategorias.find(c =>
+                            c.nombre.toLowerCase() === catNombre ||
+                            c.id.toLowerCase() === catNombre
+                          );
 
                           return (
                             <tr key={mov.id} className="hover:bg-slate-800/40 transition">
@@ -351,21 +418,39 @@ export default function CashFlowView() {
                                     ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
                                     : esHielo
                                     ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                                    : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                                    : 'bg-rose-500/10 text-rose-300 border border-rose-500/20'
                                 }`}>
-                                  {esIngreso && <Download size={12} />}
-                                  {!esIngreso && esFlete && <Truck size={12} />}
-                                  {!esIngreso && esPescado && <Fish size={12} />}
-                                  {!esIngreso && esHielo && <Snowflake size={12} />}
-                                  {!esIngreso && !esFlete && !esPescado && !esHielo && <Upload size={12} />}
-                                  
-                                  {esFlete
-                                    ? 'Flete Camión'
-                                    : esPescado
-                                    ? 'Compra Pescado'
-                                    : esHielo
-                                    ? 'Hielo / Frío'
-                                    : mov.tipo.replace('INGRESO_', '').replace('EGRESO_', '').replace('_', ' ')}
+                                  {esIngreso ? (
+                                    <>
+                                      <Download size={12} />
+                                      <span>{mov.tipo.replace('INGRESO_', '').replace('_', ' ')}</span>
+                                    </>
+                                  ) : catConfig ? (
+                                    <>
+                                      <span>{catConfig.icono}</span>
+                                      <span>{catConfig.nombre}</span>
+                                    </>
+                                  ) : esFlete ? (
+                                    <>
+                                      <Truck size={12} />
+                                      <span>Flete Camión</span>
+                                    </>
+                                  ) : esPescado ? (
+                                    <>
+                                      <Fish size={12} />
+                                      <span>Compra Pescado</span>
+                                    </>
+                                  ) : esHielo ? (
+                                    <>
+                                      <Snowflake size={12} />
+                                      <span>Hielo / Frío</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <span>🏷️</span>
+                                      <span>{mov.categoriaEgreso || mov.tipo.replace('EGRESO_', '').replace('_', ' ')}</span>
+                                    </>
+                                  )}
                                 </span>
                                 <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono font-semibold uppercase">
                                   {mov.metodoPago}
