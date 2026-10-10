@@ -14,7 +14,16 @@ import {
   RecepcionCustodiaInputSchema,
   DespachoCustodiaInputSchema,
   NOMINAL_KG_POR_POSICION,
+  PartidaRecepcionSchema,
+  RecepcionMultipleInputSchema,
+  ClienteRapidoInputSchema,
+  ItemDespachoCustodiaSchema,
+  DespachoMultipleInputSchema,
+  calcularTotalesPartidasRecepcion,
 } from '../../packages/validation-schemas/src/coldStorageRental.schema';
+import type { PartidaRecepcion, ItemDespacho } from '../../packages/validation-schemas/src/coldStorageRental.schema';
+import { coldStorageRentalService } from '../services/coldStorageRentalService';
+import { coldStoragePdfService } from '../services/coldStoragePdfService';
 
 const mockSave = vi.fn();
 vi.mock('jspdf', () => {
@@ -720,6 +729,300 @@ describe('Módulo Alquiler de Cuarto Frío WMS 3PL - Reglas de Negocio', () => {
       expect(sem.estadoSemaforo).toBe('POR_VENCER');
       expect(sem.diasMora).toBe(0);
       expect(sem.mensajeAlerta).toBe('Vence hoy');
+    });
+  });
+
+  describe('Recepción Múltiple, Creación Express y Despacho Consolidado WMS 3PL (Fase SDD 006)', () => {
+    describe('Cálculo Gravimétrico Consolidado de Partidas Múltiples con Taras Heterogéneas', () => {
+      it('debe consolidar exactamente un producto registrado 3 veces con canastillas, cajas y suelto', () => {
+        const partidas: PartidaRecepcion[] = [
+          {
+            producto_nombre: 'Corvina Entera Congelada',
+            lote_cliente: 'LOT-CORV-01',
+            temperatura_c: -18.0,
+            tipo_empaque: 'CANASTILLAS',
+            cantidad_bultos: 10,
+            tara_unitaria_kg: 2.0,
+            peso_tara_total_kg: 20.0,
+            peso_bruto_kg: 220.0,
+            peso_neto_kg: 200.0,
+          },
+          {
+            producto_nombre: 'Corvina Entera Congelada',
+            lote_cliente: 'LOT-CORV-02',
+            temperatura_c: -18.0,
+            tipo_empaque: 'CAJAS',
+            cantidad_bultos: 5,
+            tara_unitaria_kg: 0.8,
+            peso_tara_total_kg: 4.0,
+            peso_bruto_kg: 104.0,
+            peso_neto_kg: 100.0,
+          },
+          {
+            producto_nombre: 'Corvina Entera Congelada',
+            lote_cliente: 'LOT-CORV-03',
+            temperatura_c: -18.0,
+            tipo_empaque: 'SUELTO',
+            cantidad_bultos: 0,
+            tara_unitaria_kg: 0.0,
+            peso_tara_total_kg: 0.0,
+            peso_bruto_kg: 50.5,
+            peso_neto_kg: 50.5,
+          },
+        ];
+
+        const totales = calcularTotalesPartidasRecepcion(partidas);
+
+        expect(totales.totalBultos).toBe(15);
+        expect(totales.totalPesoBrutoKg).toBe(374.5);
+        expect(totales.totalTaraTotalKg).toBe(24.0);
+        expect(totales.totalPesoNetoKg).toBe(350.5);
+
+        // Resumen por producto
+        const resumenProd = totales.resumenPorProducto['CORVINA ENTERA CONGELADA'];
+        expect(resumenProd).toBeDefined();
+        expect(resumenProd.bultos).toBe(15);
+        expect(resumenProd.pesoNetoKg).toBe(350.5);
+        expect(resumenProd.partidasCount).toBe(3);
+
+        // Resumen por empaque
+        expect(totales.resumenPorEmpaque.CANASTILLAS.bultos).toBe(10);
+        expect(totales.resumenPorEmpaque.CANASTILLAS.pesoNetoKg).toBe(200.0);
+        expect(totales.resumenPorEmpaque.CAJAS.bultos).toBe(5);
+        expect(totales.resumenPorEmpaque.CAJAS.pesoNetoKg).toBe(100.0);
+        expect(totales.resumenPorEmpaque.SUELTO.bultos).toBe(0);
+        expect(totales.resumenPorEmpaque.SUELTO.pesoNetoKg).toBe(50.5);
+      });
+
+      it('debe validar la estructura de cada partida con PartidaRecepcionSchema', () => {
+        const itemValido = {
+          producto_nombre: 'Filete de Tilapia',
+          tipo_empaque: 'CANASTILLAS',
+          cantidad_bultos: 8,
+          tara_unitaria_kg: 2.0,
+          peso_tara_total_kg: 16.0,
+          peso_bruto_kg: 176.0,
+          peso_neto_kg: 160.0,
+        };
+
+        const parsed = PartidaRecepcionSchema.safeParse(itemValido);
+        expect(parsed.success).toBe(true);
+
+        const itemInvalido = {
+          producto_nombre: '',
+          tipo_empaque: 'CANASTILLAS',
+          cantidad_bultos: -5,
+          tara_unitaria_kg: 2.0,
+          peso_tara_total_kg: 10.0,
+          peso_bruto_kg: 5.0,
+          peso_neto_kg: -5.0,
+        };
+        const parsedInv = PartidaRecepcionSchema.safeParse(itemInvalido);
+        expect(parsedInv.success).toBe(false);
+      });
+    });
+
+    describe('Creación Rápida de Cliente Express in-situ (15 Segundos)', () => {
+      it('debe validar y crear cliente y contrato rápido con ClienteRapidoInputSchema', async () => {
+        const input = {
+          razon_social: 'Distribuidora del Caribe SAS',
+          numero_identificacion: '901888777-2',
+          tipo_identificacion: 'NIT',
+          telefono: '3109998888',
+          email: 'logistica@delcaribe.co',
+          modalidad_tiempo: 'DIAS' as const,
+          tarifa_pactada: 45000,
+          capacidad_posiciones: 2,
+          temperatura_acordada: -18.0,
+        };
+
+        const validated = ClienteRapidoInputSchema.parse(input);
+        expect(validated.razon_social).toBe('Distribuidora del Caribe SAS');
+
+        const resultado = await coldStorageRentalService.crearClienteYContratoRapido(input);
+
+        expect(resultado.cliente).toBeDefined();
+        expect(resultado.cliente.id).toBeDefined();
+        expect(resultado.cliente.razon_social).toBe('Distribuidora del Caribe SAS');
+        expect(resultado.cliente.estado).toBe('ACTIVO');
+
+        expect(resultado.contrato).toBeDefined();
+        expect(resultado.contrato.id).toBeDefined();
+        expect(resultado.contrato.consecutivo).toContain('CF-CTO-');
+        expect(resultado.contrato.posiciones_contratadas).toBe(2);
+        expect(resultado.contrato.tarifa_unitaria).toBe(45000);
+        expect(resultado.contrato.estado).toBe('VIGENTE');
+      });
+    });
+
+    describe('Registro de Recepción Múltiple Consolidada en Servicio', () => {
+      it('debe guardar recepción múltiple retornando consecutivo de acta y totales consolidados', async () => {
+        const recepcionInput = {
+          contrato_id: 'contrato-mock-123',
+          cliente_id: 'cliente-mock-456',
+          transportador_nombre: 'Carlos Conductor',
+          transportador_cedula: '1098765432',
+          placa_vehiculo: 'WKL-890',
+          temperatura_camion_c: -19.5,
+          observaciones: 'Descargue en rampa frigorífica 1',
+          items: [
+            {
+              producto_nombre: 'Pargo Rojo Entero',
+              lote_cliente: 'LOT-PRG-01',
+              temperatura_c: -18.5,
+              tipo_empaque: 'CANASTILLAS' as const,
+              cantidad_bultos: 12,
+              tara_unitaria_kg: 2.0,
+              peso_tara_total_kg: 24.0,
+              peso_bruto_kg: 264.0,
+              peso_neto_kg: 240.0,
+            },
+            {
+              producto_nombre: 'Pargo Rojo Entero',
+              lote_cliente: 'LOT-PRG-02',
+              temperatura_c: -18.5,
+              tipo_empaque: 'CAJAS' as const,
+              cantidad_bultos: 4,
+              tara_unitaria_kg: 0.8,
+              peso_tara_total_kg: 3.2,
+              peso_bruto_kg: 83.2,
+              peso_neto_kg: 80.0,
+            },
+          ],
+        };
+
+        const res = await coldStorageRentalService.registrarRecepcionMultiple(recepcionInput);
+
+        expect(res.success).toBe(true);
+        expect(res.acta_consecutivo).toContain('REC-CF-');
+        expect(res.partidasGuardadas).toBe(2);
+        expect(res.totales.totalBultos).toBe(16);
+        expect(res.totales.totalPesoBrutoKg).toBe(347.2);
+        expect(res.totales.totalTaraTotalKg).toBe(27.2);
+        expect(res.totales.totalPesoNetoKg).toBe(320.0);
+        expect(res.inventarios.length).toBe(2);
+        expect(res.movimientos.length).toBe(2);
+      });
+    });
+
+    describe('Registro de Despacho Múltiple Consolidado en Servicio', () => {
+      it('debe procesar retiro total y parcial con consecutivo único de despacho', async () => {
+        const itemsDespacho: ItemDespacho[] = [
+          {
+            inventario_id: 'inv-lote-1',
+            producto_nombre: 'Pargo Rojo Entero',
+            tipo_empaque: 'CANASTILLAS',
+            bultos_a_retirar: 12,
+            peso_neto_a_retirar: 240.0,
+            es_retiro_total: true,
+          },
+          {
+            inventario_id: 'inv-lote-2',
+            producto_nombre: 'Corvina Entera',
+            tipo_empaque: 'CAJAS',
+            bultos_a_retirar: 2,
+            peso_neto_a_retirar: 40.0,
+            es_retiro_total: false,
+          },
+        ];
+
+        const despachoInput = {
+          contrato_id: 'contrato-mock-123',
+          cliente_id: 'cliente-mock-456',
+          transportador_nombre: 'Marcos Retiro',
+          transportador_cedula: '79888999',
+          placa_vehiculo: 'SST-345',
+          items: itemsDespacho,
+          observaciones: 'Despacho para distribución local',
+          autorizar_salida_mora: false,
+        };
+
+        const res = await coldStorageRentalService.registrarDespachoMultiple(despachoInput);
+
+        expect(res.success).toBe(true);
+        expect(res.acta_consecutivo).toContain('DSP-CF-');
+        expect(res.totalBultosDespachados).toBe(14);
+        expect(res.totalPesoDespachadoKg).toBe(280.0);
+        expect(res.itemsProcesados).toBe(2);
+        expect(res.movimientos.length).toBe(2);
+      });
+    });
+
+    describe('Generación de Documentos PDF Multi-Partida', () => {
+      it('debe generar Acta Consolidada de Recepción con tabla de múltiples pesadas', () => {
+        const doc = coldStoragePdfService.generarPdfActaRecepcionMultiple({
+          actaConsecutivo: 'REC-CF-99001',
+          cliente: {
+            empresa_id: 'emp-1',
+            razon_social: 'Distribuidora del Caribe SAS',
+            numero_identificacion: '901888777-2',
+            tipo_identificacion: 'NIT',
+            autorizados_retiro: [],
+            estado: 'ACTIVO',
+          },
+          transportadorNombre: 'Carlos Conductor',
+          transportadorCedula: '1098765432',
+          placaVehiculo: 'WKL-890',
+          temperaturaC: -19.5,
+          items: [
+            {
+              producto_nombre: 'Corvina Entera',
+              lote_cliente: 'LOT-CORV-01',
+              temperatura_c: -18.0,
+              tipo_empaque: 'CANASTILLAS',
+              cantidad_bultos: 10,
+              tara_unitaria_kg: 2.0,
+              peso_tara_total_kg: 20.0,
+              peso_bruto_kg: 220.0,
+              peso_neto_kg: 200.0,
+            },
+            {
+              producto_nombre: 'Corvina Entera',
+              lote_cliente: 'LOT-CORV-02',
+              temperatura_c: -18.0,
+              tipo_empaque: 'CAJAS',
+              cantidad_bultos: 5,
+              tara_unitaria_kg: 0.8,
+              peso_tara_total_kg: 4.0,
+              peso_bruto_kg: 104.0,
+              peso_neto_kg: 100.0,
+            },
+          ],
+        });
+
+        expect(doc).toBeDefined();
+        expect(mockSave).toHaveBeenCalledWith('Acta_Recepcion_Consolidada_REC-CF-99001.pdf');
+      });
+
+      it('debe generar Acta Consolidada de Despacho con múltiples lotes', () => {
+        const doc = coldStoragePdfService.generarPdfActaDespachoMultiple({
+          actaConsecutivo: 'DSP-CF-77002',
+          cliente: {
+            empresa_id: 'emp-1',
+            razon_social: 'Distribuidora del Caribe SAS',
+            numero_identificacion: '901888777-2',
+            tipo_identificacion: 'NIT',
+            autorizados_retiro: [],
+            estado: 'ACTIVO',
+          },
+          transportadorNombre: 'Marcos Retiro',
+          transportadorCedula: '79888999',
+          placaVehiculo: 'SST-345',
+          items: [
+            {
+              inventario_id: 'inv-1',
+              producto_nombre: 'Corvina Entera',
+              tipo_empaque: 'CANASTILLAS',
+              bultos_a_retirar: 10,
+              peso_neto_a_retirar: 200.0,
+              es_retiro_total: true,
+            },
+          ],
+        });
+
+        expect(doc).toBeDefined();
+        expect(mockSave).toHaveBeenCalledWith('Acta_Despacho_Consolidada_DSP-CF-77002.pdf');
+      });
     });
   });
 });

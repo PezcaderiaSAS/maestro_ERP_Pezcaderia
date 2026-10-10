@@ -1,33 +1,19 @@
 # Memoria Activa - La Pezcadería ERP
 
-## Contexto Actual (Rediseño Light Mode & Alto Contraste en POS y Cajas)
-- **Estado Global:** Rediseño urgente a Modo Claro (Light Mode) de alto contraste 100% completado y validado en vivo con Chrome DevTools.
-- **Skills Creadas como Fuentes de Verdad:**
-  - `.agents/skills/erp-pos-design-tokens/SKILL.md`: Especificación de tokens Light Mode WCAG AA+ (fondos slate-50 `#f8fafc`, tarjetas `#ffffff`, bordes `#cbd5e1`, tipografía `#0f172a`, inputs puros blancos con anillos de foco azul/índigo, semáforos operativos).
-  - `.agents/skills/ui-ux-pro-max/SKILL.md`: Patrones de flujo SaaS, split-pane táctil y AppShell responsivo.
-- **Vistas y Componentes Migrados a Light Mode:**
-  - `src/index.css`: Reemplazo de temas oscuros (`hyper-cobalt`, `carbon-teal`, `chrome-violet`, `obsidian`) por variantes claras de alto contraste. Sobrescrituras globales para clases oscuras residuales.
-  - `src/App.tsx`, `EnterpriseTopbar.tsx`, `EnterpriseSidebar.tsx`: AppShell completo en Light Mode con títulos nítidos y badges de dominio.
-  - `POSView.tsx`, `CartPanel.tsx`, `ParkedOrdersBar.tsx`, `PaymentPanel.tsx`: Catálogo de productos con nombres en mayúscula y negro intenso `#0f172a`, etiquetas de precio contrastadas, panel de ventas en espera con badges índigo/ámbar, e inputs de cobro y peso con fondo blanco absoluto.
-  - `CashFlowView.tsx` y `EgresoOperativoModal.tsx`: Tablas de movimientos y formularios de egreso convertidos a Light Mode con legibilidad total bajo luz solar o iluminación intensa de punto de venta.
-- **Verificación DevTools:** 0 errores en consola JS, Vite HMR 100% activo en `127.0.0.1:3000`, inspección visual exitosa de modales y flujos de cobro.
+## Contexto Actual & Estado Global (Light Mode WCAG AA+ & SDD 006 Completado)
+- **Estado Global:** Sistema 100% en Modo Claro (Light Mode) de alto contraste con tokens WCAG 2.2 AA+ (`.agents/skills/erp-pos-design-tokens/SKILL.md`).
+- **Verificación Completa:**
+  - `npx tsc --noEmit`: 0 errores de tipado.
+  - `npx vitest run`: 49 suites de prueba ejecutadas, **321 tests pasando al 100%** (incluyendo 44 tests de frío).
+  - **Bucle DevTools MCP en Vivo:** Probado en escritorio y móvil (375 px) con **0 errores en consola JS**.
 
-## Módulo Alquiler de Cuarto Frío & Custodia 3PL (Completado)
-- **Flujo Operativo Asistido ("Regla de los 12 Años"):** Flujo en 4 pasos visuales (1. Cliente/Contrato -> 2. Báscula/Recepción -> 3. Retiro/Acta -> 4. Cobro en Caja).
-- **Cálculo Gravimétrico Exacto:** Precisión milimétrica sin redondeos flotantes (`Number.EPSILON`), tara programable por cliente (Canastilla: 2.0 kg, Caja: 0.8 kg, Suelto) y deducción automática.
-- **Modelos de Facturación:** Soporte dual para custodia por Días (`Kg netos × Días reales × Tarifa/día`) y Meses (posiciones fijas de 800 kg con fecha de corte y semáforos de mora/cartera vencida).
-- **Integración con Caja y Documentos PDF:** Depósito directo al turno de cajero activo en `cashService`, generación ejecutiva de Actas de Ingreso/Retiro, Contratos, Recibo de Pago (Carta) y Ticket Térmico POS 80mm en `coldStoragePdfService.ts`.
-- **Validación y Tests:** 37/37 tests unitarios en Vitest pasando (exit code 0), TypeScript 0 errores, y loop de Chrome DevTools verificado en escritorio y móvil (375 px) con 0 errores de consola.
+## Módulo Alquiler de Cuarto Frío WMS 3PL (Especificación SDD 006 Completada)
+- **Recepción Múltiple con Taras Heterogéneas:** Planilla interactiva de pesaje en báscula calibrada que permite registrar múltiples partidas para el mismo o diferentes productos con empaques y taras independientes (Canastillas: 2.0 kg, Cajas: 0.8 kg, Suelto: 0.0 kg), consolidando totales gravimétricos exactos en una sola Acta de Recepción (`REC-CF-XXXXXX`).
+- **Creación Express de Cliente In-Situ (15 Segundos):** Sub-modal táctil express que permite registrar un cliente depositante y activar su contrato al vuelo sin salir del modal de pesaje ni perder partidas en curso, preseleccionándolo automáticamente.
+- **Despacho Consolidado con Checklist Multi-Lote:** Modal con selector de cliente y checklist interactivo de todas sus existencias activas en custodia, con soporte para retiro total o parcial por lote, validación de saldos y emisión de una sola Acta de Salida (`DSP-CF-XXXXXX`).
+- **Resiliencia Offline / Local:** Doble capa de persistencia (Supabase RPC con fallback transparente y sincronizado a `localStorage`), permitiendo operación ininterrumpida sin caídas.
+- **Documentos PDF Oficiales:** Actas consolidadas de recepción y despacho multi-partida generadas con jsPDF en `coldStoragePdfService.ts`.
 
-## Dashboard Ejecutivo & Calendario de Obligaciones (Optimizado Light Mode WCAG AA+)
-- **KPIs de Alto Impacto:** Tarjetas blancas elevadas con bordes `border-slate-200`, iconos con fondos pastel saturados por dominio (Ventas: esmeralda, Caja: azul, Digital: púrpura, Notas Crédito: rosa) y cifras legibles en negro `#0f172a`.
-- **Calendario Operativo:** Eliminada cabecera oscura; nueva cabecera ejecutiva slate-50, cuadrícula con separación 1px (`gap-px bg-slate-200`), días de semana contrastados y día actual destacado en azul con badge.
-- **Píldoras de Eventos/Obligaciones:** Contraste WCAG 2.2 AA+ (fondos pastel con bordes temáticos y texto legible 100% en light mode).
-- **Validación:** 49 suites de prueba (314 tests verdes), 0 errores TypeScript, inspección Chrome DevTools en escritorio y móvil (375 px) con 0 errores de consola.
-
-## Próxima Sesión: Plan Activo para Ejecución Inmediata
-- **Especificación SDD Activa:** `specs/006-alquiler-frio-multi-item-ui-unification/` (`spec.md`, `plan.md`, `tasks.md`).
-- **Alcance a Ejecutar tras `git pull`:**
-  1. *Alquiler de Frío Multi-Producto & Taras:* Partidas múltiples de pesaje en un solo movimiento (soportando el mismo producto con diferentes empaques/taras: canastillas, cajas, suelto), creación rápida de cliente in-situ (15 seg) y despacho múltiple con checklist.
-  2. *Unificación UI/UX Global (Light Mode WCAG AA+):* Auditoría y erradicación de clases oscuras en Bodega (Inventario, Kardex), Camión, Compras, Ventas y Terceros.
-- **Validación Obligatoria:** 100% tests verdes en Vitest, `tsc --noEmit` 0 errores y bucle DevTools en móvil (375 px) con 0 errores en consola JS.
+## Gobernanza UI/UX & Regla de los 12 Años
+- **Flujo en 4 Pasos Visuales:** 1. Cliente/Contrato -> 2. Báscula/Recepción -> 3. Retiro/Despacho -> 4. Cobro en Caja.
+- **Accesibilidad:** Botones táctiles $\ge 44\text{ px}$, inputs blancos con anillos índigo/esmeralda, etiquetas autoexplicativas y alertas SweetAlert2 con resúmenes claros.

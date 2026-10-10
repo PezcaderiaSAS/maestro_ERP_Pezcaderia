@@ -23,6 +23,11 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   Sparkles,
+  Trash2,
+  Zap,
+  ListChecks,
+  CheckSquare,
+  Square,
 } from 'lucide-react';
 
 import {
@@ -42,12 +47,16 @@ import {
   calcularTaraYNetoExacto,
   calcularLiquidacionDias,
   evaluarCarteraYVencimiento,
+  calcularTotalesPartidasRecepcion,
   TARAS_PREDETERMINADAS_KG,
   type TipoEmpaqueCustodia,
   type ContratoAlquilerCf,
   type ClienteCustodia,
   type ProductoCustodia,
   type CuartoFrio,
+  type PartidaRecepcion,
+  type ItemDespacho,
+  type ClienteRapidoInput,
 } from '../../../packages/validation-schemas/src/coldStorageRental.schema';
 import { cashService } from '../../services/cashService';
 import type { MetodoPago } from '../../types/cash.types';
@@ -72,6 +81,7 @@ export const ColdStorageRentalView: React.FC = () => {
 
   // Modales
   const [showClienteModal, setShowClienteModal] = useState(false);
+  const [showClienteRapidoSubmodal, setShowClienteRapidoSubmodal] = useState(false);
   const [showContratoModal, setShowContratoModal] = useState(false);
   const [showRecepcionModal, setShowRecepcionModal] = useState(false);
   const [showDespachoModal, setShowDespachoModal] = useState(false);
@@ -105,6 +115,19 @@ export const ColdStorageRentalView: React.FC = () => {
     posiciones: 1,
   });
 
+  // Creación rápida de cliente in-situ en báscula (15 segundos)
+  const [clienteRapidoForm, setClienteRapidoForm] = useState<ClienteRapidoInput>({
+    razon_social: '',
+    numero_identificacion: '',
+    tipo_identificacion: 'NIT',
+    telefono: '',
+    email: '',
+    modalidad_tiempo: 'DIAS',
+    tarifa_pactada: 45000,
+    capacidad_posiciones: 1,
+    temperatura_acordada: -18.0,
+  });
+
   const [nuevoContrato, setNuevoContrato] = useState({
     cliente_id: '',
     cuarto_frio_id: '',
@@ -119,17 +142,21 @@ export const ColdStorageRentalView: React.FC = () => {
     observaciones: '',
   });
 
-  // Recepción en Báscula (Paso 2)
-  const [recepcionForm, setRecepcionForm] = useState({
-    contrato_id: '',
+  // Planilla de Recepción Múltiple en Báscula (Paso 2)
+  const [partidasPlanilla, setPartidasPlanilla] = useState<PartidaRecepcion[]>([]);
+  const [partidaActual, setPartidaActual] = useState({
+    producto_nombre: '',
     producto_custodia_id: '',
-    nombre_producto_nuevo: '',
     lote_cliente: '',
     tipo_empaque: 'CANASTILLAS' as TipoEmpaqueCustodia,
     cantidad_bultos: 10,
     tara_unitaria_kg: 2.0,
     peso_bruto_kg: 320.0,
     temperatura_c: -18.5,
+  });
+
+  const [recepcionForm, setRecepcionForm] = useState({
+    contrato_id: '',
     transportador_nombre: '',
     transportador_cedula: '',
     placa_vehiculo: '',
@@ -138,12 +165,20 @@ export const ColdStorageRentalView: React.FC = () => {
     guardar_preset_tara: true,
   });
 
-  // Despacho de Mercancía (Paso 3)
+  // Despacho Múltiple Consolidado (Paso 3)
+  const [despachoClienteId, setDespachoClienteId] = useState('');
+  const [despachoItemsSeleccionados, setDespachoItemsSeleccionados] = useState<
+    Record<
+      string,
+      {
+        seleccionado: boolean;
+        bultos_a_retirar: number;
+        peso_neto_a_retirar: number;
+        es_retiro_total: boolean;
+      }
+    >
+  >({});
   const [despachoForm, setDespachoForm] = useState({
-    inventario_id: '',
-    bultos_salida: 5,
-    peso_bruto_salida: 155.0,
-    peso_tara_salida: 10.0,
     transportador_nombre: '',
     transportador_cedula: '',
     placa_vehiculo: '',
@@ -217,33 +252,55 @@ export const ColdStorageRentalView: React.FC = () => {
     cargarTodo();
   }, []);
 
-  // Calcular en tiempo real la tara y peso neto de la recepción
-  const gravimetriaRecepcion = useMemo(() => {
+  // Calcular en tiempo real la tara y peso neto de la partida en báscula
+  const gravimetriaPartidaActual = useMemo(() => {
     return calcularTaraYNetoExacto({
-      tipoEmpaque: recepcionForm.tipo_empaque,
-      cantidadBultos: recepcionForm.cantidad_bultos,
-      pesoBrutoKg: recepcionForm.peso_bruto_kg,
-      taraUnitariaConfigurada: recepcionForm.tara_unitaria_kg,
+      tipoEmpaque: partidaActual.tipo_empaque,
+      cantidadBultos: partidaActual.cantidad_bultos,
+      pesoBrutoKg: partidaActual.peso_bruto_kg,
+      taraUnitariaConfigurada: partidaActual.tara_unitaria_kg,
     });
   }, [
-    recepcionForm.tipo_empaque,
-    recepcionForm.cantidad_bultos,
-    recepcionForm.peso_bruto_kg,
-    recepcionForm.tara_unitaria_kg,
+    partidaActual.tipo_empaque,
+    partidaActual.cantidad_bultos,
+    partidaActual.peso_bruto_kg,
+    partidaActual.tara_unitaria_kg,
   ]);
 
-  // Al cambiar el contrato en recepción, actualizar preset de tara del cliente
+  // Totales consolidados de la planilla de pesaje multi-partida
+  const totalesPlanilla = useMemo(() => {
+    return calcularTotalesPartidasRecepcion(partidasPlanilla);
+  }, [partidasPlanilla]);
+
+  // Al cambiar el contrato en recepción, actualizar preset de tara del cliente en la partida
   useEffect(() => {
     if (!recepcionForm.contrato_id) return;
     const ctr = contratos.find((c) => c.id === recepcionForm.contrato_id);
     if (!ctr) return;
     const presets = coldStorageRentalService.obtenerPresetTaraCliente(ctr.cliente_id);
-    if (recepcionForm.tipo_empaque === 'CANASTILLAS') {
-      setRecepcionForm((prev) => ({ ...prev, tara_unitaria_kg: presets.taraCanastillaKg }));
-    } else if (recepcionForm.tipo_empaque === 'CAJAS') {
-      setRecepcionForm((prev) => ({ ...prev, tara_unitaria_kg: presets.taraCajaKg }));
+    if (partidaActual.tipo_empaque === 'CANASTILLAS') {
+      setPartidaActual((prev) => ({ ...prev, tara_unitaria_kg: presets.taraCanastillaKg }));
+    } else if (partidaActual.tipo_empaque === 'CAJAS') {
+      setPartidaActual((prev) => ({ ...prev, tara_unitaria_kg: presets.taraCajaKg }));
     }
-  }, [recepcionForm.contrato_id, recepcionForm.tipo_empaque, contratos]);
+  }, [recepcionForm.contrato_id, partidaActual.tipo_empaque, contratos]);
+
+  // Totales consolidados del checklist de despacho
+  const totalesDespachoSeleccionado = useMemo(() => {
+    let bultos = 0;
+    let peso = 0;
+    let count = 0;
+
+    Object.values(despachoItemsSeleccionados).forEach((item) => {
+      if (item.seleccionado) {
+        bultos += item.bultos_a_retirar || 0;
+        peso = Math.round((peso + (item.peso_neto_a_retirar || 0) + Number.EPSILON) * 100) / 100;
+        count += 1;
+      }
+    });
+
+    return { totalBultos: bultos, totalPesoKg: peso, totalSeleccionados: count };
+  }, [despachoItemsSeleccionados]);
 
   // Turnos de caja abiertos para Cobro
   const turnosAbiertos = useMemo(() => {
@@ -374,14 +431,102 @@ export const ColdStorageRentalView: React.FC = () => {
     }
   };
 
-  // Manejador Paso 2: Guardar Recepción en Báscula
-  const handleGuardarRecepcion = async (e: React.FormEvent) => {
+  // Manejador: Crear Cliente y Contrato Express (15 Segundos)
+  const handleGuardarClienteRapido = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!gravimetriaRecepcion.esValido) {
+    try {
+      setLoading(true);
+      const res = await coldStorageRentalService.crearClienteYContratoRapido(clienteRapidoForm);
+      setClientes((prev) => [res.cliente, ...prev]);
+      setContratos((prev) => [res.contrato, ...prev]);
+      setRecepcionForm((prev) => ({ ...prev, contrato_id: res.contrato.id || '' }));
+      setShowClienteRapidoSubmodal(false);
+
+      Swal.fire({
+        icon: 'success',
+        title: '¡Cliente y Contrato Activos!',
+        text: `${res.cliente.razon_social} configurado en 15 segundos listo para pesaje en báscula.`,
+        timer: 2500,
+        showConfirmButton: false,
+      });
+    } catch (err: any) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error Creando Cliente Rápido',
+        text: err.message || 'Verifique los datos del cliente.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Manejador: Agregar Partida de Pesaje a la Planilla en Vivo
+  const handleAgregarPartida = () => {
+    if (!partidaActual.producto_nombre.trim()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Producto Requerido',
+        text: 'Escribe el nombre del producto que estás pesando.',
+      });
+      return;
+    }
+
+    if (!gravimetriaPartidaActual.esValido) {
       Swal.fire({
         icon: 'warning',
         title: 'Pesaje Inválido',
-        text: gravimetriaRecepcion.error || 'Verifique el peso en báscula.',
+        text: gravimetriaPartidaActual.error || 'Verifique el peso en báscula.',
+      });
+      return;
+    }
+
+    const nuevaPartida: PartidaRecepcion = {
+      id: crypto.randomUUID(),
+      producto_nombre: partidaActual.producto_nombre.trim(),
+      producto_custodia_id: partidaActual.producto_custodia_id || undefined,
+      lote_cliente: partidaActual.lote_cliente.trim() || `LOTE-${new Date().toISOString().slice(2, 10).replace(/-/g, '')}`,
+      tipo_empaque: partidaActual.tipo_empaque,
+      cantidad_bultos: Number(partidaActual.cantidad_bultos),
+      tara_unitaria_kg: Number(partidaActual.tara_unitaria_kg),
+      peso_tara_total_kg: Number(gravimetriaPartidaActual.taraTotalKg),
+      peso_bruto_kg: Number(partidaActual.peso_bruto_kg),
+      peso_neto_kg: Number(gravimetriaPartidaActual.pesoNetoKg),
+      temperatura_c: Number(partidaActual.temperatura_c),
+    };
+
+    setPartidasPlanilla((prev) => [...prev, nuevaPartida]);
+
+    // Limpiar campos de pesaje de la partida para permitir la siguiente pesada inmediata
+    setPartidaActual((prev) => ({
+      ...prev,
+      peso_bruto_kg: 0,
+      lote_cliente: '',
+    }));
+  };
+
+  // Manejador: Eliminar Partida de la Planilla
+  const handleEliminarPartida = (index: number) => {
+    setPartidasPlanilla((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // Manejador Paso 2: Guardar Recepción Consolidada (Planilla Completa)
+  const handleGuardarRecepcionMultiple = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!recepcionForm.contrato_id) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Cliente no Seleccionado',
+        text: 'Elige un cliente y contrato o crea uno nuevo con el botón express.',
+      });
+      return;
+    }
+
+    if (partidasPlanilla.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Planilla Vacía',
+        text: 'Agrega al menos una pesada a la planilla con el botón "+ Agregar Partida a la Planilla".',
       });
       return;
     }
@@ -391,111 +536,62 @@ export const ColdStorageRentalView: React.FC = () => {
       const ctr = contratos.find((c) => c.id === recepcionForm.contrato_id);
       const cl = clientes.find((c) => c.id === ctr?.cliente_id);
 
-      // Si desea recordar la tara
       if (recepcionForm.guardar_preset_tara && cl) {
         coldStorageRentalService.guardarPresetTaraCliente(cl.id || '', {
           taraCanastillaKg:
-            recepcionForm.tipo_empaque === 'CANASTILLAS'
-              ? recepcionForm.tara_unitaria_kg
+            partidaActual.tipo_empaque === 'CANASTILLAS'
+              ? partidaActual.tara_unitaria_kg
               : TARAS_PREDETERMINADAS_KG.CANASTILLAS,
           taraCajaKg:
-            recepcionForm.tipo_empaque === 'CAJAS'
-              ? recepcionForm.tara_unitaria_kg
+            partidaActual.tipo_empaque === 'CAJAS'
+              ? partidaActual.tara_unitaria_kg
               : TARAS_PREDETERMINADAS_KG.CAJAS,
         });
       }
 
-      // Si no seleccionó un producto pero escribió un nombre rápido, registrar producto
-      let prodId = recepcionForm.producto_custodia_id;
-      if (!prodId && recepcionForm.nombre_producto_nuevo && cl) {
-        const prodCreado = await coldStorageRentalService.crearProductoCustodia({
-          empresa_id: DEFAULT_EMPRESA_ID,
-          cliente_id: cl.id,
-          nombre: recepcionForm.nombre_producto_nuevo,
-          tipo_empaque: recepcionForm.tipo_empaque,
-          modalidad_medicion: 'SOLO_PESO',
-          activo: true,
-        });
-        prodId = prodCreado.id || '';
-      }
-
-      const res = await coldStorageRentalService.registrarRecepcion({
+      const res = await coldStorageRentalService.registrarRecepcionMultiple({
         empresa_id: DEFAULT_EMPRESA_ID,
         contrato_id: recepcionForm.contrato_id,
-        producto_custodia_id: prodId || productos[0]?.id || '00000000-0000-0000-0000-000000000000',
-        lote_cliente: recepcionForm.lote_cliente || `LOTE-${Date.now().toString().slice(-6)}`,
-        bultos: Number(recepcionForm.cantidad_bultos),
-        peso_bruto_kg: Number(recepcionForm.peso_bruto_kg),
-        peso_tara_kg: Number(gravimetriaRecepcion.taraTotalKg),
-        temperatura: Number(recepcionForm.temperatura_c),
+        cliente_id: cl?.id,
+        items: partidasPlanilla,
         transportador_nombre: recepcionForm.transportador_nombre || 'Conductor Directo',
         transportador_cedula: recepcionForm.transportador_cedula || '000000',
         placa_vehiculo: recepcionForm.placa_vehiculo || 'LOCAL',
-        operador_id: '00000000-0000-0000-0000-000000000000',
-        fecha_vencimiento: recepcionForm.fecha_vencimiento || null,
+        temperatura_camion_c: partidaActual.temperatura_c,
         observaciones: recepcionForm.observaciones || null,
       });
 
       setShowRecepcionModal(false);
+      setPartidasPlanilla([]);
 
       Swal.fire({
         icon: 'success',
-        title: '¡Mercancía Ingresada al Frío!',
+        title: '¡Planilla de Frío Consolidada!',
         html: `
           <div class="text-left space-y-2 p-2">
-            <p>📄 Acta de Entrada: <b>${res.acta_consecutivo}</b></p>
-            <p>📦 Empaque: <b>${recepcionForm.cantidad_bultos} ${recepcionForm.tipo_empaque}</b></p>
-            <p>⚖️ Tara Descontada: <b>${gravimetriaRecepcion.taraTotalKg} Kg</b></p>
-            <p class="text-lg text-indigo-700 font-bold">✨ Peso Neto Ingresado: ${res.peso_neto_ingresado} Kg</p>
+            <p>📄 Acta Consolidada: <b>${res.acta_consecutivo}</b></p>
+            <p>📋 Partidas Pesadas: <b>${res.partidasGuardadas} ítems</b></p>
+            <p>📦 Total Bultos: <b>${res.totales.totalBultos}</b></p>
+            <p>⚖️ Tara Descontada: <b>${res.totales.totalTaraTotalKg} Kg</b></p>
+            <p class="text-lg text-emerald-700 font-black">✨ Peso Neto Consolidado: ${res.totales.totalPesoNetoKg} Kg</p>
           </div>
         `,
         confirmButtonText: 'Descargar Acta PDF',
-        confirmButtonColor: '#4f46e5',
+        confirmButtonColor: '#059669',
         showCancelButton: true,
         cancelButtonText: 'Cerrar',
       }).then((result) => {
         if (result.isConfirmed && cl) {
-          const prodObj = productos.find((p) => p.id === prodId) || {
-            nombre: recepcionForm.nombre_producto_nuevo || 'Pescado en Custodia',
-            tipo_empaque: recepcionForm.tipo_empaque,
-            modalidad_medicion: 'SOLO_PESO',
-          };
-          coldStoragePdfService.generarPdfActaRecepcion({
-            movimiento: {
-              id: res.movimiento_id,
-              empresa_id: DEFAULT_EMPRESA_ID,
-              inventario_custodia_id: '',
-              tipo_movimiento: 'ENTRADA',
-              consecutivo_acta: res.acta_consecutivo,
-              fecha_movimiento: new Date().toISOString(),
-              bultos: recepcionForm.cantidad_bultos,
-              peso_bruto_kg: recepcionForm.peso_bruto_kg,
-              peso_tara_kg: gravimetriaRecepcion.taraTotalKg,
-              peso_neto_kg: res.peso_neto_ingresado,
-              temperatura_medida: recepcionForm.temperatura_c,
-              merma_kg: 0,
-              transportador_nombre: recepcionForm.transportador_nombre,
-              transportador_cedula: recepcionForm.transportador_cedula,
-              placa_vehiculo: recepcionForm.placa_vehiculo,
-            },
-            inventario: {
-              id: '',
-              empresa_id: DEFAULT_EMPRESA_ID,
-              contrato_id: recepcionForm.contrato_id,
-              cliente_id: cl.id || '',
-              producto_custodia_id: prodId,
-              lote_cliente: recepcionForm.lote_cliente,
-              fecha_ingreso: new Date().toISOString(),
-              bultos_iniciales: recepcionForm.cantidad_bultos,
-              bultos_actuales: recepcionForm.cantidad_bultos,
-              peso_neto_inicial_kg: res.peso_neto_ingresado,
-              peso_neto_actual_kg: res.peso_neto_ingresado,
-              activo: true,
-              creado_en: '',
-              actualizado_en: '',
-            },
+          coldStoragePdfService.generarPdfActaRecepcionMultiple({
+            actaConsecutivo: res.acta_consecutivo,
             cliente: cl,
-            producto: prodObj as any,
+            contrato: ctr,
+            transportadorNombre: recepcionForm.transportador_nombre || 'Conductor Directo',
+            transportadorCedula: recepcionForm.transportador_cedula || '000000',
+            placaVehiculo: recepcionForm.placa_vehiculo || 'LOCAL',
+            temperaturaC: partidaActual.temperatura_c,
+            observaciones: recepcionForm.observaciones || null,
+            items: partidasPlanilla,
           });
         }
       });
@@ -505,83 +601,149 @@ export const ColdStorageRentalView: React.FC = () => {
       Swal.fire({
         icon: 'error',
         title: 'Error en Recepción',
-        text: err.message || 'No se pudo guardar la recepción.',
+        text: err.message || 'No se pudo guardar la recepción múltiple.',
       });
     } finally {
       setLoading(false);
     }
   };
 
-  // Manejador Paso 3: Guardar Despacho
-  const handleGuardarDespacho = async (e: React.FormEvent) => {
+  // Manejador: Abrir Modal de Despacho con Selección de Cliente
+  const handleAbrirDespachoModal = (invItem?: InventarioCustodiaItem) => {
+    let targetClienteId = despachoClienteId;
+    if (invItem) {
+      targetClienteId = invItem.cliente_id;
+      setSelectedItemForDespacho(invItem);
+    } else if (!targetClienteId && inventario.length > 0) {
+      targetClienteId = inventario[0].cliente_id;
+    }
+    setDespachoClienteId(targetClienteId);
+
+    // Pre-seleccionar ítems del cliente
+    const itemsDelCliente = inventario.filter((i) => i.cliente_id === targetClienteId && i.activo);
+    const nuevoMap: Record<
+      string,
+      { seleccionado: boolean; bultos_a_retirar: number; peso_neto_a_retirar: number; es_retiro_total: boolean }
+    > = {};
+
+    itemsDelCliente.forEach((i) => {
+      const match = invItem ? i.id === invItem.id : true;
+      nuevoMap[i.id] = {
+        seleccionado: match,
+        bultos_a_retirar: i.bultos_actuales,
+        peso_neto_a_retirar: Number(i.peso_neto_actual_kg),
+        es_retiro_total: true,
+      };
+    });
+
+    setDespachoItemsSeleccionados(nuevoMap);
+    setShowDespachoModal(true);
+  };
+
+  // Manejador: Alternar selección de un ítem en el checklist de despacho
+  const handleToggleSeleccionDespacho = (invId: string) => {
+    setDespachoItemsSeleccionados((prev) => {
+      const itemActual = prev[invId];
+      if (!itemActual) return prev;
+      return {
+        ...prev,
+        [invId]: {
+          ...itemActual,
+          seleccionado: !itemActual.seleccionado,
+        },
+      };
+    });
+  };
+
+  // Manejador: Establecer retiro total para un ítem del checklist
+  const handleRetiroTotalItem = (invItem: InventarioCustodiaItem) => {
+    setDespachoItemsSeleccionados((prev) => ({
+      ...prev,
+      [invItem.id]: {
+        seleccionado: true,
+        bultos_a_retirar: invItem.bultos_actuales,
+        peso_neto_a_retirar: Number(invItem.peso_neto_actual_kg),
+        es_retiro_total: true,
+      },
+    }));
+  };
+
+  // Manejador Paso 3: Guardar Despacho Consolidado (Checklist Múltiple)
+  const handleGuardarDespachoMultiple = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedItemForDespacho) return;
+
+    const cl = clientes.find((c) => c.id === despachoClienteId);
+    if (!cl || !cl.id) {
+      Swal.fire({ icon: 'warning', title: 'Cliente Requerido', text: 'Selecciona un cliente válido para despachar.' });
+      return;
+    }
+
+    const itemsAProcesar: ItemDespacho[] = [];
+    Object.entries(despachoItemsSeleccionados).forEach(([invId, data]) => {
+      if (data.seleccionado && data.bultos_a_retirar > 0 && data.peso_neto_a_retirar > 0) {
+        const invRow = inventario.find((i) => i.id === invId);
+        itemsAProcesar.push({
+          inventario_id: invId,
+          producto_nombre: invRow?.producto?.nombre || 'Producto en Custodia',
+          tipo_empaque: invRow?.producto?.tipo_empaque || 'ESTÁNDAR',
+          bultos_a_retirar: data.bultos_a_retirar,
+          peso_neto_a_retirar: data.peso_neto_a_retirar,
+          es_retiro_total: data.es_retiro_total,
+        });
+      }
+    });
+
+    if (itemsAProcesar.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Sin Lotes Seleccionados',
+        text: 'Marca al menos un lote con cantidades mayores a cero para despachar.',
+      });
+      return;
+    }
+
+    const ctr = contratos.find((c) => c.cliente_id === cl.id && c.estado === 'VIGENTE');
 
     try {
       setLoading(true);
-      const res = await coldStorageRentalService.registrarDespacho({
-        empresa_id: DEFAULT_EMPRESA_ID,
-        inventario_id: selectedItemForDespacho.id,
-        bultos_despacho: Number(despachoForm.bultos_salida),
-        peso_bruto_salida: Number(despachoForm.peso_bruto_salida),
-        peso_tara_salida: Number(despachoForm.peso_tara_salida),
+      const res = await coldStorageRentalService.registrarDespachoMultiple({
+        contrato_id: ctr?.id || '00000000-0000-0000-0000-000000000000',
+        cliente_id: cl.id,
+        items: itemsAProcesar,
         transportador_nombre: despachoForm.transportador_nombre || 'Conductor Retiro',
         transportador_cedula: despachoForm.transportador_cedula || '000000',
         placa_vehiculo: despachoForm.placa_vehiculo || 'RETIRO',
-        operador_id: '00000000-0000-0000-0000-000000000000',
         observaciones: despachoForm.observaciones || null,
+        autorizar_salida_mora: despachoForm.autorizar_salida_mora,
       });
 
       setShowDespachoModal(false);
 
       Swal.fire({
         icon: 'success',
-        title: '¡Mercancía Retirada con Éxito!',
+        title: '¡Despacho Consolidado Exitoso!',
         html: `
           <div class="text-left space-y-2 p-2">
-            <p>📄 Acta de Despacho: <b>${res.acta_consecutivo}</b></p>
-            <p>⚖️ Peso Retirado: <b>${res.peso_despachado_kg} Kg</b></p>
-            <p>❄️ Merma Natural de Frío: <b>${res.merma_kg} Kg</b></p>
-            <p class="text-lg text-emerald-700 font-bold">📦 Quedan en Bodega: ${res.remanente_peso_kg} Kg (${res.remanente_bultos} bultos)</p>
+            <p>📄 Acta de Salida: <b>${res.acta_consecutivo}</b></p>
+            <p>📦 Lotes Entregados: <b>${res.itemsProcesados}</b></p>
+            <p>📦 Total Bultos Retirados: <b>${res.totalBultosDespachados}</b></p>
+            <p class="text-lg text-amber-700 font-black">⚖️ Peso Neto Despachado: ${res.totalPesoDespachadoKg} Kg</p>
           </div>
         `,
         confirmButtonText: 'Descargar Acta Salida PDF',
-        confirmButtonColor: '#4f46e5',
+        confirmButtonColor: '#d97706',
         showCancelButton: true,
         cancelButtonText: 'Cerrar',
       }).then((result) => {
         if (result.isConfirmed) {
-          const cl = clientes.find((c) => c.id === selectedItemForDespacho.cliente_id) || {
-            razon_social: 'Cliente',
-            numero_identificacion: 'N/A',
-            tipo_identificacion: 'NIT',
-          };
-          const pr = productos.find((p) => p.id === selectedItemForDespacho.producto_custodia_id) || {
-            nombre: 'Producto en Custodia',
-          };
-
-          coldStoragePdfService.generarPdfActaDespacho({
-            movimiento: {
-              id: res.movimiento_id,
-              empresa_id: DEFAULT_EMPRESA_ID,
-              inventario_custodia_id: selectedItemForDespacho.id,
-              tipo_movimiento: 'SALIDA',
-              consecutivo_acta: res.acta_consecutivo,
-              fecha_movimiento: new Date().toISOString(),
-              bultos: despachoForm.bultos_salida,
-              peso_bruto_kg: despachoForm.peso_bruto_salida,
-              peso_tara_kg: despachoForm.peso_tara_salida,
-              peso_neto_kg: res.peso_despachado_kg,
-              merma_kg: res.merma_kg,
-              transportador_nombre: despachoForm.transportador_nombre,
-              transportador_cedula: despachoForm.transportador_cedula,
-              placa_vehiculo: despachoForm.placa_vehiculo,
-            },
-            inventario: selectedItemForDespacho,
-            cliente: cl as any,
-            producto: pr as any,
-            remanenteBultos: res.remanente_bultos,
-            remanentePesoKg: res.remanente_peso_kg,
+          coldStoragePdfService.generarPdfActaDespachoMultiple({
+            actaConsecutivo: res.acta_consecutivo,
+            cliente: cl,
+            transportadorNombre: despachoForm.transportador_nombre || 'Conductor Retiro',
+            transportadorCedula: despachoForm.transportador_cedula || '000000',
+            placaVehiculo: despachoForm.placa_vehiculo || 'RETIRO',
+            observaciones: despachoForm.observaciones || null,
+            items: itemsAProcesar,
           });
         }
       });
@@ -591,7 +753,7 @@ export const ColdStorageRentalView: React.FC = () => {
       Swal.fire({
         icon: 'error',
         title: 'Error en Despacho',
-        text: err.message || 'No se pudo registrar la salida.',
+        text: err.message || 'No se pudo registrar el despacho múltiple.',
       });
     } finally {
       setLoading(false);
@@ -792,11 +954,29 @@ export const ColdStorageRentalView: React.FC = () => {
           {/* PASO 3 */}
           <button
             onClick={() => {
-              setActiveTab('existencias');
-              if (inventario.length > 0) {
-                setSelectedItemForDespacho(inventario[0]);
-                setShowDespachoModal(true);
+              const primerClienteConInv = clientes.find((c) =>
+                inventario.some((i) => i.cliente_id === c.id && i.activo)
+              );
+              if (primerClienteConInv && primerClienteConInv.id) {
+                setDespachoClienteId(primerClienteConInv.id);
+                const itemsDelCliente = inventario.filter(
+                  (i) => i.cliente_id === primerClienteConInv.id && i.activo
+                );
+                const nuevoMap: Record<
+                  string,
+                  { seleccionado: boolean; bultos_a_retirar: number; peso_neto_a_retirar: number; es_retiro_total: boolean }
+                > = {};
+                itemsDelCliente.forEach((i) => {
+                  nuevoMap[i.id] = {
+                    seleccionado: true,
+                    bultos_a_retirar: i.bultos_actuales,
+                    peso_neto_a_retirar: Number(i.peso_neto_actual_kg),
+                    es_retiro_total: true,
+                  };
+                });
+                setDespachoItemsSeleccionados(nuevoMap);
               }
+              setShowDespachoModal(true);
             }}
             className="text-left p-5 rounded-2xl bg-white hover:bg-amber-50/50 border-2 border-amber-200/80 hover:border-amber-500 transition-all shadow-sm hover:shadow-md group flex flex-col justify-between"
           >
@@ -1623,245 +1803,443 @@ export const ColdStorageRentalView: React.FC = () => {
       {/* ========================================================================= */}
       {/* MODAL 2: RECEPCIÓN BÁSCULA + TARA INTELIGENTE (PASO 2) */}
       {/* ========================================================================= */}
+      {/* ========================================================================= */}
+      {/* MODAL 2: RECEPCIÓN Y PLANILLA DE PESAJE EN BÁSCULA (PASO 2) */}
+      {/* ========================================================================= */}
       {showRecepcionModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 max-w-2xl w-full space-y-4 shadow-2xl animate-in fade-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 max-w-4xl w-full space-y-5 shadow-2xl animate-in fade-in zoom-in-95 max-h-[92vh] overflow-y-auto">
+            {/* Cabecera del Modal */}
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                <Scale className="w-5 h-5 text-emerald-600" />
-                Paso 2: Recepción en Báscula (Cajas, Canastillas o Suelto)
-              </h3>
+              <div>
+                <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
+                  <Scale className="w-6 h-6 text-emerald-600" />
+                  Paso 2: Planilla de Pesaje y Recepción en Frío
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Registra múltiples pesadas para el mismo camión o cliente con taras heterogéneas en una sola acta.
+                </p>
+              </div>
               <button
-                onClick={() => setShowRecepcionModal(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold"
+                onClick={() => {
+                  setShowRecepcionModal(false);
+                  setPartidasPlanilla([]);
+                }}
+                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-lg"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleGuardarRecepcion} className="space-y-4 text-sm">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2">
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Selecciona el Cliente y Contrato *
-                  </label>
-                  <select
-                    required
-                    value={recepcionForm.contrato_id}
-                    onChange={(e) => setRecepcionForm({ ...recepcionForm, contrato_id: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 focus:ring-2 focus:ring-emerald-500 font-bold"
-                  >
-                    <option value="">-- Elige qué cliente está entregando la mercancía --</option>
-                    {contratos.map((ctr) => {
-                      const cl = clientes.find((c) => c.id === ctr.cliente_id);
-                      return (
-                        <option key={ctr.id} value={ctr.id}>
-                          {cl?.razon_social} ({ctr.consecutivo} • {ctr.modalidad_tiempo})
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
+            {/* Selector de Cliente / Contrato con Botón Express in-line */}
+            <div className="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-200/80 space-y-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <label className="block text-xs font-black uppercase tracking-wider text-indigo-950">
+                  Cliente Depositante y Contrato Activo *
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowClienteRapidoSubmodal(true)}
+                  className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs flex items-center gap-1.5 transition-all self-start sm:self-auto"
+                >
+                  <Zap className="w-3.5 h-3.5 text-amber-300" />
+                  + Nuevo Cliente Rápido (15s)
+                </button>
+              </div>
 
+              <select
+                required
+                value={recepcionForm.contrato_id}
+                onChange={(e) => setRecepcionForm({ ...recepcionForm, contrato_id: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-indigo-300 text-slate-900 focus:ring-2 focus:ring-indigo-500 font-bold text-sm shadow-xs"
+              >
+                <option value="">-- Elige el cliente que entrega la mercancía --</option>
+                {contratos
+                  .filter((c) => c.estado === 'VIGENTE')
+                  .map((ctr) => {
+                    const cl = clientes.find((c) => c.id === ctr.cliente_id);
+                    return (
+                      <option key={ctr.id} value={ctr.id}>
+                        {cl?.razon_social} (Contrato: {ctr.consecutivo} • {ctr.modalidad_tiempo} •{' '}
+                        {ctr.posiciones_contratadas * 800} Kg nominales)
+                      </option>
+                    );
+                  })}
+              </select>
+            </div>
+
+            {/* SECCIÓN 1: FORMULARIO DE PARTIDA ACTUAL EN BÁSCULA */}
+            <div className="p-5 rounded-2xl bg-white border-2 border-emerald-300 shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b border-emerald-100 pb-2">
+                <span className="text-xs font-black uppercase tracking-wider text-emerald-800 flex items-center gap-2">
+                  <Scale className="w-4 h-4 text-emerald-600" /> 1. Pesaje de la Partida Actual en Báscula
+                </span>
+                <span className="text-xs text-slate-500 font-medium">
+                  Configura empaque y peso bruto de esta pesada
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    ¿Qué producto entrega? *
-                  </label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Nombre del Producto / Especie *</label>
                   <input
                     type="text"
                     required
-                    placeholder="Ej. Corvina, Camarón, Atún..."
-                    value={recepcionForm.nombre_producto_nuevo}
-                    onChange={(e) =>
-                      setRecepcionForm({ ...recepcionForm, nombre_producto_nuevo: e.target.value })
-                    }
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 font-medium"
+                    placeholder="Ej. Corvina Entera, Camarón, Atún, Filete..."
+                    value={partidaActual.producto_nombre}
+                    onChange={(e) => setPartidaActual({ ...partidaActual, producto_nombre: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 font-bold focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Lote del Cliente (Opcional)
-                  </label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Lote del Cliente (Opcional)</label>
                   <input
                     type="text"
-                    placeholder="Ej. LOT-OCT-01"
-                    value={recepcionForm.lote_cliente}
-                    onChange={(e) => setRecepcionForm({ ...recepcionForm, lote_cliente: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 font-medium"
+                    placeholder="Ej. LOTE-OCT-01 o N/A"
+                    value={partidaActual.lote_cliente}
+                    onChange={(e) => setPartidaActual({ ...partidaActual, lote_cliente: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 font-medium focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
               </div>
 
               {/* Selector Visual de Empaque */}
-              <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-3">
-                <label className="block text-xs font-black uppercase tracking-wider text-emerald-950">
-                  ¿Cómo viene empacado el producto?
-                </label>
-                <div className="grid grid-cols-3 gap-3">
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                <label className="block text-xs font-bold text-slate-700">Tipo de Empaque y Tara Unitaria:</label>
+                <div className="grid grid-cols-3 gap-2.5">
                   <button
                     type="button"
                     onClick={() =>
-                      setRecepcionForm({
-                        ...recepcionForm,
+                      setPartidaActual({
+                        ...partidaActual,
                         tipo_empaque: 'CANASTILLAS',
                         tara_unitaria_kg: 2.0,
                       })
                     }
                     className={`p-3 rounded-xl border text-center transition-all ${
-                      recepcionForm.tipo_empaque === 'CANASTILLAS'
+                      partidaActual.tipo_empaque === 'CANASTILLAS'
                         ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm font-black'
                         : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 font-bold'
                     }`}
                   >
                     <div className="text-xl">🧺</div>
-                    <div className="text-xs mt-1">Canastillas</div>
+                    <div className="text-xs mt-1">Canastillas (2.0 Kg)</div>
                   </button>
 
                   <button
                     type="button"
                     onClick={() =>
-                      setRecepcionForm({
-                        ...recepcionForm,
+                      setPartidaActual({
+                        ...partidaActual,
                         tipo_empaque: 'CAJAS',
                         tara_unitaria_kg: 0.8,
                       })
                     }
                     className={`p-3 rounded-xl border text-center transition-all ${
-                      recepcionForm.tipo_empaque === 'CAJAS'
+                      partidaActual.tipo_empaque === 'CAJAS'
                         ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm font-black'
                         : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 font-bold'
                     }`}
                   >
                     <div className="text-xl">📦</div>
-                    <div className="text-xs mt-1">Cajas</div>
+                    <div className="text-xs mt-1">Cajas (0.8 Kg)</div>
                   </button>
 
                   <button
                     type="button"
                     onClick={() =>
-                      setRecepcionForm({
-                        ...recepcionForm,
+                      setPartidaActual({
+                        ...partidaActual,
                         tipo_empaque: 'SUELTO',
-                        cantidad_bultos: 1,
+                        cantidad_bultos: 0,
                         tara_unitaria_kg: 0.0,
                       })
                     }
                     className={`p-3 rounded-xl border text-center transition-all ${
-                      recepcionForm.tipo_empaque === 'SUELTO'
+                      partidaActual.tipo_empaque === 'SUELTO'
                         ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm font-black'
                         : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 font-bold'
                     }`}
                   >
                     <div className="text-xl">🐟</div>
-                    <div className="text-xs mt-1">Suelto / Granel</div>
+                    <div className="text-xs mt-1">Suelto / Granel (0 Kg)</div>
                   </button>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 pt-2">
+                <div className="grid grid-cols-2 gap-3 pt-1">
                   <div>
-                    <label className="block text-xs font-bold text-emerald-950 mb-1">
-                      {recepcionForm.tipo_empaque === 'CANASTILLAS'
-                        ? '¿Cuántas canastillas entran?'
-                        : recepcionForm.tipo_empaque === 'CAJAS'
-                        ? '¿Cuántas cajas entran?'
-                        : 'Bultos (1 para suelto)'}
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      {partidaActual.tipo_empaque === 'CANASTILLAS'
+                        ? 'Cantidad de Canastillas'
+                        : partidaActual.tipo_empaque === 'CAJAS'
+                        ? 'Cantidad de Cajas'
+                        : 'Bultos (0 para granel)'}
                     </label>
                     <input
                       type="number"
-                      min="1"
-                      required
-                      value={recepcionForm.cantidad_bultos}
+                      min="0"
+                      value={partidaActual.cantidad_bultos}
                       onChange={(e) =>
-                        setRecepcionForm({ ...recepcionForm, cantidad_bultos: Number(e.target.value) })
+                        setPartidaActual({ ...partidaActual, cantidad_bultos: Number(e.target.value) })
                       }
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-emerald-300 font-black text-slate-900 text-base"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 font-black text-slate-900 text-base"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-emerald-950 mb-1">
-                      Tara por cada unidad (Kg)
-                    </label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Tara por Unidad (Kg)</label>
                     <input
                       type="number"
                       step="0.01"
-                      required
-                      value={recepcionForm.tara_unitaria_kg}
+                      value={partidaActual.tara_unitaria_kg}
                       onChange={(e) =>
-                        setRecepcionForm({ ...recepcionForm, tara_unitaria_kg: Number(e.target.value) })
+                        setPartidaActual({ ...partidaActual, tara_unitaria_kg: Number(e.target.value) })
                       }
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-emerald-300 font-bold text-slate-900 text-base"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 font-bold text-slate-900 text-base"
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Pantalla Gigante de Báscula */}
-              <div className="p-5 rounded-2xl bg-slate-900 text-white space-y-3 shadow-lg">
-                <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                  <span className="text-xs font-mono font-bold tracking-wider text-emerald-400 flex items-center gap-1.5">
-                    <Scale className="w-4 h-4" /> BÁSCULA CALIBRADA EN TIEMPO REAL
+              {/* Pantalla en Vivo de Báscula Calibrada */}
+              <div className="p-4 rounded-2xl bg-slate-900 text-white space-y-3 shadow-md">
+                <div className="flex justify-between items-center border-b border-slate-800 pb-1.5">
+                  <span className="text-xs font-mono font-bold text-emerald-400 flex items-center gap-1.5">
+                    <Scale className="w-4 h-4" /> BÁSCULA ELECTRÓNICA CALIBRADA
                   </span>
-                  <span className="text-xs font-mono text-slate-400">TARA RESTADA AUTOMÁTICAMENTE</span>
+                  <span className="text-xs font-mono text-slate-400">TARA DESCONTADA EN VIVO</span>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-center">
                   <div>
                     <label className="block text-xs font-bold text-slate-300 mb-1">
-                      Digita el Peso Bruto de la Báscula (Kg) *
+                      Peso Bruto en Báscula (Kg) *
                     </label>
                     <input
                       type="number"
                       step="0.01"
-                      required
-                      value={recepcionForm.peso_bruto_kg}
+                      placeholder="0.00"
+                      value={partidaActual.peso_bruto_kg || ''}
                       onChange={(e) =>
-                        setRecepcionForm({ ...recepcionForm, peso_bruto_kg: Number(e.target.value) })
+                        setPartidaActual({ ...partidaActual, peso_bruto_kg: Number(e.target.value) })
                       }
-                      className="w-full px-4 py-3 rounded-xl bg-slate-800 border-2 border-emerald-500 text-emerald-400 font-mono font-black text-2xl focus:ring-2 focus:ring-emerald-400 outline-hidden"
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-800 border-2 border-emerald-500 text-emerald-400 font-mono font-black text-2xl outline-hidden"
                     />
                   </div>
 
-                  <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 text-right">
+                  <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-right">
                     <div className="text-xs text-slate-400">
-                      Total Tara: -{gravimetriaRecepcion.taraTotalKg.toFixed(2)} Kg
+                      Tara Calculada: -{gravimetriaPartidaActual.taraTotalKg.toFixed(2)} Kg
                     </div>
-                    <div className="text-xs uppercase text-slate-400 font-bold mt-1">Peso Neto Real:</div>
-                    <div className="text-3xl font-black font-mono text-emerald-400 tracking-tight">
-                      {gravimetriaRecepcion.pesoNetoKg.toFixed(2)}{' '}
-                      <span className="text-sm font-sans font-bold text-slate-400">Kg</span>
+                    <div className="text-xs uppercase text-slate-400 font-bold mt-1">Peso Neto Resultante:</div>
+                    <div className="text-2xl font-black font-mono text-emerald-400 tracking-tight">
+                      {gravimetriaPartidaActual.pesoNetoKg.toFixed(2)}{' '}
+                      <span className="text-xs font-sans text-slate-400">Kg</span>
                     </div>
                   </div>
                 </div>
-
-                <label className="flex items-center gap-2 text-xs text-slate-300 cursor-pointer pt-1">
-                  <input
-                    type="checkbox"
-                    checked={recepcionForm.guardar_preset_tara}
-                    onChange={(e) =>
-                      setRecepcionForm({ ...recepcionForm, guardar_preset_tara: e.target.checked })
-                    }
-                    className="w-4 h-4 rounded-sm text-indigo-600 focus:ring-indigo-500"
-                  />
-                  <span>Recordar esta tara ({recepcionForm.tara_unitaria_kg} Kg) para este cliente en el futuro</span>
-                </label>
               </div>
 
-              <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
+              {/* Botón de Agregar Partida */}
+              <button
+                type="button"
+                onClick={handleAgregarPartida}
+                disabled={!partidaActual.producto_nombre.trim() || !gravimetriaPartidaActual.esValido}
+                className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-black text-sm shadow-md flex items-center justify-center gap-2 transition-all"
+              >
+                <Plus className="w-5 h-5" />
+                Agregar Partida a la Planilla de Pesaje
+              </button>
+            </div>
+
+            {/* SECCIÓN 2: PLANILLA DE PESAJE EN VIVO ACUMULADA */}
+            <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                <span className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
+                  <ListChecks className="w-4 h-4 text-indigo-600" /> 2. Planilla Acumulada del Camión (
+                  {partidasPlanilla.length} {partidasPlanilla.length === 1 ? 'partida' : 'partidas'})
+                </span>
+                {partidasPlanilla.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setPartidasPlanilla([])}
+                    className="text-xs text-rose-600 hover:underline font-bold"
+                  >
+                    Limpiar toda la planilla
+                  </button>
+                )}
+              </div>
+
+              {partidasPlanilla.length === 0 ? (
+                <div className="p-6 text-center rounded-xl bg-white border border-dashed border-slate-300 text-slate-500 space-y-1">
+                  <Scale className="w-8 h-8 text-slate-400 mx-auto" />
+                  <p className="text-xs font-bold text-slate-700">Aún no hay pesadas agregadas a la planilla.</p>
+                  <p className="text-xs text-slate-500">
+                    Ingresa el producto, empaque y peso bruto arriba y presiona "Agregar Partida".
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-xs">
+                    <table className="w-full text-xs text-left">
+                      <thead className="bg-slate-100 text-slate-700 uppercase font-black text-[11px] border-b border-slate-200">
+                        <tr>
+                          <th className="p-2.5">#</th>
+                          <th className="p-2.5">Producto</th>
+                          <th className="p-2.5">Empaque</th>
+                          <th className="p-2.5 text-center">Bultos</th>
+                          <th className="p-2.5 text-right">Tara Tot (Kg)</th>
+                          <th className="p-2.5 text-right">Bruto (Kg)</th>
+                          <th className="p-2.5 text-right">Neto Real (Kg)</th>
+                          <th className="p-2.5 text-center">Acción</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 font-medium">
+                        {partidasPlanilla.map((p, idx) => (
+                          <tr key={p.id || idx} className="hover:bg-slate-50 transition-colors">
+                            <td className="p-2.5 font-bold text-slate-500">{idx + 1}</td>
+                            <td className="p-2.5 font-bold text-slate-900">{p.producto_nombre}</td>
+                            <td className="p-2.5 text-slate-700">{p.tipo_empaque}</td>
+                            <td className="p-2.5 text-center font-bold text-slate-800">{p.cantidad_bultos}</td>
+                            <td className="p-2.5 text-right font-mono text-slate-600">
+                              -{p.peso_tara_total_kg.toFixed(2)}
+                            </td>
+                            <td className="p-2.5 text-right font-mono text-slate-700">
+                              {p.peso_bruto_kg.toFixed(2)}
+                            </td>
+                            <td className="p-2.5 text-right font-mono font-black text-emerald-700 text-sm">
+                              {p.peso_neto_kg.toFixed(2)} Kg
+                            </td>
+                            <td className="p-2.5 text-center">
+                              <button
+                                type="button"
+                                onClick={() => handleEliminarPartida(idx)}
+                                title="Eliminar pesada"
+                                className="p-1 rounded-lg hover:bg-rose-100 text-rose-600 transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Barra de Totales Gravimétricos Consolidados */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-300 text-slate-900">
+                    <div>
+                      <div className="text-[11px] font-bold text-emerald-900 uppercase">Total Bultos:</div>
+                      <div className="text-lg font-black text-emerald-950 font-mono">
+                        {totalesPlanilla.totalBultos} bultos
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[11px] font-bold text-emerald-900 uppercase">Total Bruto:</div>
+                      <div className="text-lg font-bold text-slate-800 font-mono">
+                        {totalesPlanilla.totalPesoBrutoKg.toFixed(2)} Kg
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[11px] font-bold text-emerald-900 uppercase">Total Tara:</div>
+                      <div className="text-lg font-bold text-slate-800 font-mono">
+                        -{totalesPlanilla.totalTaraTotalKg.toFixed(2)} Kg
+                      </div>
+                    </div>
+                    <div className="p-2 rounded-lg bg-emerald-600 text-white text-right">
+                      <div className="text-[10px] uppercase font-bold tracking-wider text-emerald-100">
+                        Total Neto Consolidado:
+                      </div>
+                      <div className="text-xl font-black font-mono tracking-tight">
+                        {totalesPlanilla.totalPesoNetoKg.toFixed(2)} Kg
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* SECCIÓN 3: TRANSPORTE Y GUARDADO FINAL */}
+            <form onSubmit={handleGuardarRecepcionMultiple} className="space-y-4 pt-2">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                <span className="text-xs font-black uppercase tracking-wider text-slate-800 block">
+                  3. Datos de Transporte y Conductor
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Nombre del Conductor *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Ej. Pedro Picapiedra"
+                      value={recepcionForm.transportador_nombre}
+                      onChange={(e) =>
+                        setRecepcionForm({ ...recepcionForm, transportador_nombre: e.target.value })
+                      }
+                      className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 font-bold text-slate-900 text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Cédula del Conductor *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Ej. 1098765432"
+                      value={recepcionForm.transportador_cedula}
+                      onChange={(e) =>
+                        setRecepcionForm({ ...recepcionForm, transportador_cedula: e.target.value })
+                      }
+                      className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 font-bold text-slate-900 text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Placa del Vehículo *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Ej. WKL-890"
+                      value={recepcionForm.placa_vehiculo}
+                      onChange={(e) =>
+                        setRecepcionForm({ ...recepcionForm, placa_vehiculo: e.target.value })
+                      }
+                      className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 font-bold text-slate-900 text-xs uppercase"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Observaciones de Recepción</label>
+                  <input
+                    type="text"
+                    placeholder="Ej. Descargue en rampa frigorífica 1, pescado en congelación profunda..."
+                    value={recepcionForm.observaciones}
+                    onChange={(e) => setRecepcionForm({ ...recepcionForm, observaciones: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 font-medium text-slate-900 text-xs"
+                  />
+                </div>
+              </div>
+
+              {/* Botones de Acción */}
+              <div className="flex justify-end gap-3 pt-2 border-t border-slate-200">
                 <button
                   type="button"
-                  onClick={() => setShowRecepcionModal(false)}
-                  className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200"
+                  onClick={() => {
+                    setShowRecepcionModal(false);
+                    setPartidasPlanilla([]);
+                  }}
+                  className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  disabled={loading || !gravimetriaRecepcion.esValido}
-                  className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black shadow-md flex items-center gap-2"
+                  disabled={loading || partidasPlanilla.length === 0}
+                  className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-black text-sm shadow-md flex items-center gap-2 transition-all"
                 >
-                  {loading ? 'Registrando...' : '✓ Ingresar y Descargar Acta'}
+                  {loading ? 'Guardando...' : `💾 Guardar Recepción Consolidada (${partidasPlanilla.length} Partidas)`}
                 </button>
               </div>
             </form>
@@ -1870,117 +2248,404 @@ export const ColdStorageRentalView: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL 3: DESPACHO / SALIDA DE MERCANCÍA (PASO 3) */}
+      {/* SUB-MODAL EXPRESS: CREACIÓN RÁPIDA DE CLIENTE (15 SEGUNDOS) */}
       {/* ========================================================================= */}
-      {showDespachoModal && selectedItemForDespacho && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 max-w-xl w-full space-y-4 shadow-2xl animate-in fade-in zoom-in-95">
-            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+      {showClienteRapidoSubmodal && (
+        <div className="fixed inset-0 z-60 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border-2 border-indigo-400 rounded-3xl p-6 max-w-lg w-full space-y-4 shadow-2xl animate-in fade-in zoom-in-95">
+            <div className="flex justify-between items-center border-b border-indigo-100 pb-3">
               <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                <Truck className="w-5 h-5 text-amber-600" />
-                Paso 3: Retirar / Despachar Mercancía de Custodia
+                <Zap className="w-5 h-5 text-amber-500" />
+                Crear Cliente y Activar Contrato (15 Segundos)
               </h3>
               <button
-                onClick={() => setShowDespachoModal(false)}
+                type="button"
+                onClick={() => setShowClienteRapidoSubmodal(false)}
                 className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold"
               >
                 ✕
               </button>
             </div>
 
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
-              <div className="flex justify-between">
-                <span className="text-slate-500 font-bold">Lote:</span>
-                <span className="font-mono font-bold text-slate-800">{selectedItemForDespacho.lote_cliente}</span>
+            <p className="text-xs text-slate-500">
+              Registra el cliente al vuelo sin salir del modal de pesaje. Se creará automáticamente un contrato activo.
+            </p>
+
+            <form onSubmit={handleGuardarClienteRapido} className="space-y-3.5 text-sm">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Razón Social o Nombre Completo *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ej. Distribuidora del Mar SAS / Juan Perez"
+                  value={clienteRapidoForm.razon_social}
+                  onChange={(e) =>
+                    setClienteRapidoForm({ ...clienteRapidoForm, razon_social: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 font-bold text-slate-900"
+                />
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500 font-bold">Disponible en Bodega:</span>
-                <span className="font-black text-emerald-700">
-                  {selectedItemForDespacho.peso_neto_actual_kg} Kg ({selectedItemForDespacho.bultos_actuales} bultos)
-                </span>
-              </div>
-            </div>
 
-            <form onSubmit={handleGuardarDespacho} className="space-y-4 text-sm">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Bultos a Retirar *
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max={selectedItemForDespacho.bultos_actuales}
-                    required
-                    value={despachoForm.bultos_salida}
-                    onChange={(e) =>
-                      setDespachoForm({ ...despachoForm, bultos_salida: Number(e.target.value) })
-                    }
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 font-bold text-slate-900"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Peso Bruto Salida Báscula (Kg) *
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    required
-                    value={despachoForm.peso_bruto_salida}
-                    onChange={(e) =>
-                      setDespachoForm({ ...despachoForm, peso_bruto_salida: Number(e.target.value) })
-                    }
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 font-bold text-slate-900"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Tara Salida (Kg)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={despachoForm.peso_tara_salida}
-                    onChange={(e) =>
-                      setDespachoForm({ ...despachoForm, peso_tara_salida: Number(e.target.value) })
-                    }
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 font-bold text-slate-900"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Placa del Vehículo
-                  </label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">NIT o Cédula *</label>
                   <input
                     type="text"
-                    placeholder="Ej. ABC-123"
-                    value={despachoForm.placa_vehiculo}
+                    required
+                    placeholder="Ej. 901234567-8"
+                    value={clienteRapidoForm.numero_identificacion}
                     onChange={(e) =>
-                      setDespachoForm({ ...despachoForm, placa_vehiculo: e.target.value })
+                      setClienteRapidoForm({ ...clienteRapidoForm, numero_identificacion: e.target.value })
+                    }
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 font-bold text-slate-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Teléfono Celular *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej. 3101234567"
+                    value={clienteRapidoForm.telefono}
+                    onChange={(e) =>
+                      setClienteRapidoForm({ ...clienteRapidoForm, telefono: e.target.value })
                     }
                     className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 font-bold text-slate-900"
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Modalidad de Tiempo *</label>
+                  <select
+                    value={clienteRapidoForm.modalidad_tiempo}
+                    onChange={(e) =>
+                      setClienteRapidoForm({
+                        ...clienteRapidoForm,
+                        modalidad_tiempo: e.target.value as 'DIAS' | 'MESES',
+                        tarifa_pactada: e.target.value === 'DIAS' ? 45000 : 650000,
+                      })
+                    }
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 font-bold text-slate-900"
+                  >
+                    <option value="DIAS">Por DÍAS (Temporal)</option>
+                    <option value="MESES">Por MESES (Mensualidad)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Tarifa Pactada COP ({clienteRapidoForm.modalidad_tiempo === 'DIAS' ? '$/día' : '$/mes'}) *
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    value={clienteRapidoForm.tarifa_pactada}
+                    onChange={(e) =>
+                      setClienteRapidoForm({
+                        ...clienteRapidoForm,
+                        tarifa_pactada: Number(e.target.value),
+                      })
+                    }
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 font-black text-indigo-700 font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2.5 pt-2 border-t border-slate-100">
                 <button
                   type="button"
-                  onClick={() => setShowDespachoModal(false)}
-                  className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200"
+                  onClick={() => setShowClienteRapidoSubmodal(false)}
+                  className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 text-xs"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-black shadow-md flex items-center gap-2"
+                  className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs shadow-md flex items-center gap-1.5"
                 >
-                  {loading ? 'Despachando...' : '✓ Autorizar Salida y Generar Acta'}
+                  <Zap className="w-4 h-4 text-amber-300" />
+                  {loading ? 'Activando...' : '⚡ Activar Cliente y Contrato'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL 3: DESPACHO CONSOLIDADO CON CHECKLIST MULTI-LOTE (PASO 3) */}
+      {/* ========================================================================= */}
+      {showDespachoModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 max-w-3xl w-full space-y-4 shadow-2xl animate-in fade-in zoom-in-95 max-h-[92vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
+                  <Truck className="w-6 h-6 text-amber-600" />
+                  Paso 3: Despacho Consolidado de Mercancía en Custodia
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Selecciona los lotes activos a retirar con retiro total o parcial en una sola Acta de Salida.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowDespachoModal(false)}
+                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-lg"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Selector de Cliente */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Cliente Depositante que Retira la Mercancía *
+              </label>
+              <select
+                required
+                value={despachoClienteId}
+                onChange={(e) => {
+                  setDespachoClienteId(e.target.value);
+                  // Reinicializar selección para el nuevo cliente
+                  const itemsDelCliente = inventario.filter((i) => i.cliente_id === e.target.value && i.activo);
+                  const nuevoMap: Record<
+                    string,
+                    { seleccionado: boolean; bultos_a_retirar: number; peso_neto_a_retirar: number; es_retiro_total: boolean }
+                  > = {};
+                  itemsDelCliente.forEach((i) => {
+                    nuevoMap[i.id] = {
+                      seleccionado: true,
+                      bultos_a_retirar: i.bultos_actuales,
+                      peso_neto_a_retirar: Number(i.peso_neto_actual_kg),
+                      es_retiro_total: true,
+                    };
+                  });
+                  setDespachoItemsSeleccionados(nuevoMap);
+                }}
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 font-bold text-sm focus:ring-2 focus:ring-amber-500"
+              >
+                <option value="">-- Elige un cliente --</option>
+                {clientes.map((cl) => {
+                  const itemsCount = inventario.filter((i) => i.cliente_id === cl.id && i.activo).length;
+                  return (
+                    <option key={cl.id} value={cl.id}>
+                      {cl.razon_social} ({itemsCount} lotes activos en frío)
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+
+            {/* Checklist de Lotes Activos del Cliente */}
+            <div className="space-y-3">
+              <span className="text-xs font-black uppercase tracking-wider text-slate-900 block">
+                Existencias Activas en Cuarto Frío:
+              </span>
+
+              {inventario.filter((i) => i.cliente_id === despachoClienteId && i.activo).length === 0 ? (
+                <div className="p-6 text-center rounded-xl bg-slate-50 border border-slate-200 text-slate-500 text-xs">
+                  No hay inventario activo en custodia para este cliente.
+                </div>
+              ) : (
+                <div className="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+                  {inventario
+                    .filter((i) => i.cliente_id === despachoClienteId && i.activo)
+                    .map((item) => {
+                      const sel = despachoItemsSeleccionados[item.id] || {
+                        seleccionado: false,
+                        bultos_a_retirar: item.bultos_actuales,
+                        peso_neto_a_retirar: Number(item.peso_neto_actual_kg),
+                        es_retiro_total: true,
+                      };
+
+                      return (
+                        <div
+                          key={item.id}
+                          className={`p-3.5 rounded-xl border transition-all ${
+                            sel.seleccionado
+                              ? 'bg-amber-50/70 border-amber-300 shadow-xs'
+                              : 'bg-white border-slate-200 opacity-70 hover:opacity-100'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-3">
+                            <label className="flex items-center gap-2.5 cursor-pointer flex-1">
+                              <input
+                                type="checkbox"
+                                checked={sel.seleccionado}
+                                onChange={() => handleToggleSeleccionDespacho(item.id)}
+                                className="w-5 h-5 rounded-md text-amber-600 focus:ring-amber-500"
+                              />
+                              <div>
+                                <span className="font-bold text-slate-900 text-sm block">
+                                  {item.producto?.nombre || 'Pescado en Custodia'}
+                                </span>
+                                <span className="text-xs text-slate-500">
+                                  Lote: <b className="text-slate-700">{item.lote_cliente}</b> • Empaque:{' '}
+                                  {item.producto?.tipo_empaque || 'Estándar'} • Saldo:{' '}
+                                  <b className="text-emerald-700 font-bold">{item.peso_neto_actual_kg} Kg</b> (
+                                  {item.bultos_actuales} bultos)
+                                </span>
+                              </div>
+                            </label>
+
+                            <button
+                              type="button"
+                              onClick={() => handleRetiroTotalItem(item)}
+                              className="px-2.5 py-1 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs shrink-0"
+                            >
+                              Retiro Total
+                            </button>
+                          </div>
+
+                          {sel.seleccionado && (
+                            <div className="mt-3 pt-2.5 border-t border-amber-200/80 grid grid-cols-2 gap-3 text-xs">
+                              <div>
+                                <label className="block text-slate-700 font-bold mb-1">
+                                  Bultos a Retirar (Máx: {item.bultos_actuales})
+                                </label>
+                                <input
+                                  type="number"
+                                  min="1"
+                                  max={item.bultos_actuales}
+                                  value={sel.bultos_a_retirar}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    setDespachoItemsSeleccionados((prev) => ({
+                                      ...prev,
+                                      [item.id]: {
+                                        ...sel,
+                                        bultos_a_retirar: val,
+                                        es_retiro_total:
+                                          val >= item.bultos_actuales &&
+                                          sel.peso_neto_a_retirar >= Number(item.peso_neto_actual_kg),
+                                      },
+                                    }));
+                                  }}
+                                  className="w-full px-3 py-1.5 rounded-lg bg-white border border-amber-300 font-bold text-slate-900"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block text-slate-700 font-bold mb-1">
+                                  Peso Neto a Retirar Kg (Máx: {item.peso_neto_actual_kg})
+                                </label>
+                                <input
+                                  type="number"
+                                  step="0.01"
+                                  min="0.1"
+                                  max={Number(item.peso_neto_actual_kg)}
+                                  value={sel.peso_neto_a_retirar}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    setDespachoItemsSeleccionados((prev) => ({
+                                      ...prev,
+                                      [item.id]: {
+                                        ...sel,
+                                        peso_neto_a_retirar: val,
+                                        es_retiro_total:
+                                          sel.bultos_a_retirar >= item.bultos_actuales &&
+                                          val >= Number(item.peso_neto_actual_kg),
+                                      },
+                                    }));
+                                  }}
+                                  className="w-full px-3 py-1.5 rounded-lg bg-white border border-amber-300 font-black text-slate-900 font-mono"
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
+
+              {/* Barra de Totales a Retirar */}
+              <div className="flex justify-between items-center p-3.5 rounded-xl bg-amber-50 border border-amber-300">
+                <div>
+                  <span className="text-xs text-amber-900 font-bold block uppercase">Total a Despachar:</span>
+                  <span className="text-sm text-slate-700">
+                    {totalesDespachoSeleccionado.totalSeleccionados} lotes marcados •{' '}
+                    <b>{totalesDespachoSeleccionado.totalBultos} bultos</b>
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="text-xs text-amber-800 font-bold block">PESO NETO SALIDA:</span>
+                  <span className="text-2xl font-black font-mono text-amber-800">
+                    {totalesDespachoSeleccionado.totalPesoKg.toFixed(2)} Kg
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Formulario de Transporte */}
+            <form onSubmit={handleGuardarDespachoMultiple} className="space-y-4 pt-1">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Conductor Receptor *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej. Roberto Martinez"
+                    value={despachoForm.transportador_nombre}
+                    onChange={(e) => setDespachoForm({ ...despachoForm, transportador_nombre: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 font-bold text-slate-900 text-xs"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Cédula del Conductor *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej. 79888999"
+                    value={despachoForm.transportador_cedula}
+                    onChange={(e) => setDespachoForm({ ...despachoForm, transportador_cedula: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 font-bold text-slate-900 text-xs"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Placa del Vehículo *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej. SST-345"
+                    value={despachoForm.placa_vehiculo}
+                    onChange={(e) => setDespachoForm({ ...despachoForm, placa_vehiculo: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 font-bold text-slate-900 text-xs uppercase"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Observaciones</label>
+                <input
+                  type="text"
+                  placeholder="Ej. Salida autorizada para distribución local..."
+                  value={despachoForm.observaciones}
+                  onChange={(e) => setDespachoForm({ ...despachoForm, observaciones: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 font-medium text-slate-900 text-xs"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowDespachoModal(false)}
+                  className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-bold text-sm hover:bg-slate-200"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading || totalesDespachoSeleccionado.totalSeleccionados === 0}
+                  className="px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white font-black text-sm shadow-md flex items-center gap-2"
+                >
+                  {loading ? 'Despachando...' : '🚚 Confirmar Despacho Consolidado y Emitir Acta'}
                 </button>
               </div>
             </form>

@@ -471,3 +471,143 @@ export function evaluarCarteraYVencimiento(params: {
   }
 }
 
+// ============================================================================
+// ESQUEMAS MULTI-PARTIDA (BÁSCULA Y DESPACHO CON TARAS HETEROGÉNEAS)
+// ============================================================================
+
+/**
+ * Representa una partida individual dentro de un ticket de pesaje en báscula.
+ * Permite que un mismo producto se registre N veces con diferentes empaques/taras.
+ */
+export const PartidaRecepcionSchema = z.object({
+  id: z.string().optional(),
+  producto_nombre: z.string().min(1, 'Nombre de producto requerido').max(100),
+  producto_custodia_id: z.string().optional(),
+  lote_cliente: z.string().optional().default(''),
+  fecha_vencimiento: z.string().optional().nullable(),
+  tipo_empaque: TipoEmpaqueCustodiaEnum,
+  cantidad_bultos: z.number().int().nonnegative('La cantidad de bultos no puede ser negativa'),
+  tara_unitaria_kg: z.number().nonnegative('La tara unitaria no puede ser negativa'),
+  peso_bruto_kg: z.number().positive('El peso bruto debe ser mayor a 0 kg'),
+  peso_tara_total_kg: z.number().nonnegative(),
+  peso_neto_kg: z.number().positive('El peso neto debe ser estrictamente positivo'),
+  temperatura_c: z.number().min(-40).max(30).optional().default(-18.5),
+});
+export type PartidaRecepcion = z.infer<typeof PartidaRecepcionSchema>;
+
+/**
+ * Movimiento de recepción en báscula multi-partida.
+ */
+export const RecepcionMultipleInputSchema = z.object({
+  empresa_id: z.string().optional(),
+  contrato_id: z.string().min(1, 'Contrato requerido'),
+  cliente_id: z.string().optional(),
+  items: z.array(PartidaRecepcionSchema).min(1, 'Debe incluir al menos una pesada en la planilla'),
+  transportador_nombre: z.string().min(1, 'Nombre del transportador requerido').max(100),
+  transportador_cedula: z.string().min(1, 'Cédula requerida').max(30),
+  placa_vehiculo: z.string().min(1, 'Placa requerida').max(15),
+  temperatura_camion_c: z.number().min(-40).max(30).default(-18.0),
+  observaciones: z.string().optional().nullable(),
+});
+export type RecepcionMultipleInput = z.infer<typeof RecepcionMultipleInputSchema>;
+
+/**
+ * Creación rápida de cliente y contrato in-situ en báscula (15 segundos).
+ */
+export const ClienteRapidoInputSchema = z.object({
+  razon_social: z.string().min(2, 'Nombre o razón social requerida').max(150),
+  numero_identificacion: z.string().min(4, 'Número de documento o NIT requerido').max(30),
+  tipo_identificacion: z.string().default('NIT'),
+  telefono: z.string().min(6, 'Teléfono requerido').max(30),
+  email: z.string().email().optional().or(z.literal('')).nullable(),
+  modalidad_tiempo: ModalidadTiempoEnum.default('DIAS'),
+  tarifa_pactada: z.number().positive('La tarifa debe ser mayor a 0'),
+  capacidad_posiciones: z.number().int().positive().default(1),
+  temperatura_acordada: z.number().optional().default(-18.0),
+});
+export type ClienteRapidoInput = z.infer<typeof ClienteRapidoInputSchema>;
+
+/**
+ * Ítem individual seleccionado para retiro/despacho en el checklist de existencias.
+ */
+export const ItemDespachoCustodiaSchema = z.object({
+  inventario_id: z.string().min(1, 'ID de inventario requerido'),
+  producto_nombre: z.string().min(1, 'Producto requerido'),
+  tipo_empaque: z.string().optional(),
+  bultos_a_retirar: z.number().int().positive('Cantidad de bultos debe ser > 0'),
+  peso_neto_a_retirar: z.number().positive('Peso a retirar debe ser > 0'),
+  es_retiro_total: z.boolean().default(false),
+});
+export type ItemDespacho = z.infer<typeof ItemDespachoCustodiaSchema>;
+export type ItemDespachoCustodia = ItemDespacho;
+
+/**
+ * Despacho múltiple consolidado de lotes en custodia.
+ */
+export const DespachoMultipleInputSchema = z.object({
+  contrato_id: z.string().min(1, 'Contrato requerido'),
+  cliente_id: z.string().min(1, 'Cliente requerido'),
+  items: z.array(ItemDespachoCustodiaSchema).min(1, 'Debe seleccionar al menos un lote para retirar'),
+  transportador_nombre: z.string().min(1, 'Nombre del transportador requerido').max(100),
+  transportador_cedula: z.string().min(1, 'Cédula requerida').max(30),
+  placa_vehiculo: z.string().min(1, 'Placa requerida').max(15),
+  observaciones: z.string().optional().nullable(),
+  autorizar_salida_mora: z.boolean().optional().default(false),
+});
+export type DespachoMultipleInput = z.infer<typeof DespachoMultipleInputSchema>;
+
+/**
+ * Calcula con precisión milimétrica los totales gravimétricos de una lista de partidas de pesaje.
+ */
+export function calcularTotalesPartidasRecepcion(items: PartidaRecepcion[]): {
+  totalBultos: number;
+  totalPesoBrutoKg: number;
+  totalTaraTotalKg: number;
+  totalPesoNetoKg: number;
+  resumenPorProducto: Record<string, { bultos: number; pesoNetoKg: number; partidasCount: number }>;
+  resumenPorEmpaque: Record<TipoEmpaqueCustodia, { bultos: number; pesoNetoKg: number }>;
+} {
+  let totalBultos = 0;
+  let totalPesoBrutoKg = 0;
+  let totalTaraTotalKg = 0;
+  let totalPesoNetoKg = 0;
+
+  const resumenPorProducto: Record<string, { bultos: number; pesoNetoKg: number; partidasCount: number }> = {};
+  const resumenPorEmpaque: Record<TipoEmpaqueCustodia, { bultos: number; pesoNetoKg: number }> = {
+    CANASTILLAS: { bultos: 0, pesoNetoKg: 0 },
+    CAJAS: { bultos: 0, pesoNetoKg: 0 },
+    SUELTO: { bultos: 0, pesoNetoKg: 0 },
+  };
+
+  for (const item of items) {
+    totalBultos += item.cantidad_bultos;
+    totalPesoBrutoKg = Math.round((totalPesoBrutoKg + item.peso_bruto_kg + Number.EPSILON) * 100) / 100;
+    totalTaraTotalKg = Math.round((totalTaraTotalKg + item.peso_tara_total_kg + Number.EPSILON) * 100) / 100;
+    totalPesoNetoKg = Math.round((totalPesoNetoKg + item.peso_neto_kg + Number.EPSILON) * 100) / 100;
+
+    // Resumen agrupado por nombre de producto
+    const prodKey = item.producto_nombre.trim().toUpperCase();
+    if (!resumenPorProducto[prodKey]) {
+      resumenPorProducto[prodKey] = { bultos: 0, pesoNetoKg: 0, partidasCount: 0 };
+    }
+    resumenPorProducto[prodKey].bultos += item.cantidad_bultos;
+    resumenPorProducto[prodKey].pesoNetoKg =
+      Math.round((resumenPorProducto[prodKey].pesoNetoKg + item.peso_neto_kg + Number.EPSILON) * 100) / 100;
+    resumenPorProducto[prodKey].partidasCount += 1;
+
+    // Resumen agrupado por empaque
+    resumenPorEmpaque[item.tipo_empaque].bultos += item.cantidad_bultos;
+    resumenPorEmpaque[item.tipo_empaque].pesoNetoKg =
+      Math.round((resumenPorEmpaque[item.tipo_empaque].pesoNetoKg + item.peso_neto_kg + Number.EPSILON) * 100) / 100;
+  }
+
+  return {
+    totalBultos,
+    totalPesoBrutoKg,
+    totalTaraTotalKg,
+    totalPesoNetoKg,
+    resumenPorProducto,
+    resumenPorEmpaque,
+  };
+}
+
