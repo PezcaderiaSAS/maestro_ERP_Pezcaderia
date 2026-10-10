@@ -11,6 +11,7 @@ import type {
   ClienteRapidoInput,
   DespachoMultipleInput,
   PartidaRecepcion,
+  TipoEmpaqueCustodia,
 } from '../../packages/validation-schemas/src/coldStorageRental.schema';
 import {
   RecepcionMultipleInputSchema,
@@ -264,21 +265,62 @@ export const coldStorageRentalService = {
           } as any)
           .select()
           .single();
-        if (!error && data) return data as ProductoCustodia;
+        if (!error && data) {
+          try {
+            if (typeof localStorage !== 'undefined') {
+              const local = JSON.parse(localStorage.getItem('pezcaderia_productos_custodia') || '[]');
+              local.unshift(data);
+              localStorage.setItem('pezcaderia_productos_custodia', JSON.stringify(local));
+            }
+          } catch {}
+          return data as ProductoCustodia;
+        }
       } catch (err) {
         console.warn('[coldStorageRentalService] Supabase no disponible crearProductoCustodia:', err);
       }
     }
-    const nuevo: ProductoCustodia = {
+    const nuevo: ProductoCustodia & { tara_unitaria_kg?: number } = {
       id: crypto.randomUUID(),
       empresa_id: DEFAULT_EMPRESA_ID,
+      cliente_id: producto.cliente_id || '00000000-0000-0000-0000-000000000000',
       nombre: producto.nombre || 'Nuevo Producto',
       tipo_empaque: (producto.tipo_empaque as any) || 'CANASTILLAS',
       modalidad_medicion: (producto.modalidad_medicion as any) || 'MIXTO_BULTOS_PESO',
       activo: true,
       creado_en: new Date().toISOString(),
+      tara_unitaria_kg: (producto as any).tara_unitaria_kg,
     };
-    return nuevo;
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const local = JSON.parse(localStorage.getItem('pezcaderia_productos_custodia') || '[]');
+        local.unshift(nuevo);
+        localStorage.setItem('pezcaderia_productos_custodia', JSON.stringify(local));
+      }
+    } catch {
+      // Ignorar
+    }
+    return nuevo as ProductoCustodia;
+  },
+
+  /**
+   * Registra múltiples productos en lote asociados a un cliente
+   */
+  async crearProductosCustodiaBatch(
+    clienteId: string,
+    items: Array<{ nombre: string; tipo_empaque: TipoEmpaqueCustodia; tara_unitaria_kg: number }>
+  ): Promise<ProductoCustodia[]> {
+    const creados: ProductoCustodia[] = [];
+    for (const item of items) {
+      if (!item.nombre || !item.nombre.trim()) continue;
+      const nuevo = await this.crearProductoCustodia({
+        nombre: item.nombre.trim(),
+        tipo_empaque: item.tipo_empaque,
+        tara_unitaria_kg: item.tara_unitaria_kg,
+        cliente_id: clienteId,
+      });
+      creados.push(nuevo);
+    }
+    return creados;
   },
 
   /**

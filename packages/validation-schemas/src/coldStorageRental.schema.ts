@@ -528,6 +528,26 @@ export const ClienteRapidoInputSchema = z.object({
 export type ClienteRapidoInput = z.infer<typeof ClienteRapidoInputSchema>;
 
 /**
+ * Producto individual para creación rápida asociada a cliente
+ */
+export const ProductoRapidoItemSchema = z.object({
+  id: z.string().optional(),
+  nombre: z.string().min(1, 'El nombre de la especie o producto es requerido').max(150),
+  tipo_empaque: TipoEmpaqueCustodiaEnum.default('CANASTILLAS'),
+  tara_unitaria_kg: z.number().nonnegative().default(2.0),
+});
+export type ProductoRapidoItem = z.infer<typeof ProductoRapidoItemSchema>;
+
+/**
+ * Lote masivo de creación rápida de productos asociados a un cliente
+ */
+export const ProductosClienteBatchInputSchema = z.object({
+  cliente_id: z.string().min(1, 'Cliente requerido'),
+  productos: z.array(ProductoRapidoItemSchema).min(1, 'Debe incluir al menos un producto'),
+});
+export type ProductosClienteBatchInput = z.infer<typeof ProductosClienteBatchInputSchema>;
+
+/**
  * Ítem individual seleccionado para retiro/despacho en el checklist de existencias.
  */
 export const ItemDespachoCustodiaSchema = z.object({

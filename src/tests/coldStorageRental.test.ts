@@ -17,6 +17,8 @@ import {
   PartidaRecepcionSchema,
   RecepcionMultipleInputSchema,
   ClienteRapidoInputSchema,
+  ProductoRapidoItemSchema,
+  ProductosClienteBatchInputSchema,
   ItemDespachoCustodiaSchema,
   DespachoMultipleInputSchema,
   calcularTotalesPartidasRecepcion,
@@ -1022,6 +1024,55 @@ describe('Módulo Alquiler de Cuarto Frío WMS 3PL - Reglas de Negocio', () => {
 
         expect(doc).toBeDefined();
         expect(mockSave).toHaveBeenCalledWith('Acta_Despacho_Consolidada_DSP-CF-77002.pdf');
+      });
+    });
+
+    describe('Creación Rápida Múltiple de Productos Asociados al Cliente (Batch)', () => {
+      it('debe validar ProductoRapidoItemSchema y ProductosClienteBatchInputSchema correctamente', () => {
+        const item1 = ProductoRapidoItemSchema.parse({
+          nombre: 'Corvina Entera',
+          tipo_empaque: 'CANASTILLAS',
+          tara_unitaria_kg: 2.0,
+        });
+        expect(item1.nombre).toBe('Corvina Entera');
+        expect(item1.tipo_empaque).toBe('CANASTILLAS');
+        expect(item1.tara_unitaria_kg).toBe(2.0);
+
+        const lote = ProductosClienteBatchInputSchema.parse({
+          cliente_id: 'cl-1234',
+          productos: [
+            { nombre: 'Corvina Entera', tipo_empaque: 'CANASTILLAS', tara_unitaria_kg: 2.0 },
+            { nombre: 'Pargo Rojo', tipo_empaque: 'CAJAS', tara_unitaria_kg: 0.8 },
+            { nombre: 'Camarón Tití', tipo_empaque: 'SUELTO', tara_unitaria_kg: 0.0 },
+          ],
+        });
+        expect(lote.productos.length).toBe(3);
+        expect(lote.cliente_id).toBe('cl-1234');
+      });
+
+      it('debe registrar múltiples productos en lote asignando el cliente_id en coldStorageRentalService', async () => {
+        const clienteId = 'cliente-asociado-777';
+        const items = [
+          { nombre: 'Robalo Fresco', tipo_empaque: 'CANASTILLAS' as const, tara_unitaria_kg: 2.0 },
+          { nombre: 'Sierra Fileteada', tipo_empaque: 'CAJAS' as const, tara_unitaria_kg: 0.8 },
+          { nombre: 'Calamar Tubo', tipo_empaque: 'SUELTO' as const, tara_unitaria_kg: 0.0 },
+        ];
+
+        const creados = await coldStorageRentalService.crearProductosCustodiaBatch(clienteId, items);
+
+        expect(creados.length).toBe(3);
+        expect(creados[0].cliente_id).toBe(clienteId);
+        expect(creados[0].nombre).toBe('Robalo Fresco');
+        expect(creados[1].cliente_id).toBe(clienteId);
+        expect(creados[1].nombre).toBe('Sierra Fileteada');
+        expect(creados[2].cliente_id).toBe(clienteId);
+        expect(creados[2].nombre).toBe('Calamar Tubo');
+
+        // Verificar que el catálogo del cliente retorne los productos creados
+        const productosCliente = await coldStorageRentalService.getProductosCustodia(clienteId);
+        expect(productosCliente.some((p) => p.nombre === 'Robalo Fresco')).toBe(true);
+        expect(productosCliente.some((p) => p.nombre === 'Sierra Fileteada')).toBe(true);
+        expect(productosCliente.some((p) => p.nombre === 'Calamar Tubo')).toBe(true);
       });
     });
   });

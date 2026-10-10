@@ -28,6 +28,7 @@ import {
   ListChecks,
   CheckSquare,
   Square,
+  Fish,
 } from 'lucide-react';
 
 import {
@@ -82,11 +83,27 @@ export const ColdStorageRentalView: React.FC = () => {
   // Modales
   const [showClienteModal, setShowClienteModal] = useState(false);
   const [showClienteRapidoSubmodal, setShowClienteRapidoSubmodal] = useState(false);
+  const [showProductoRapidoSubmodal, setShowProductoRapidoSubmodal] = useState(false);
   const [showContratoModal, setShowContratoModal] = useState(false);
   const [showRecepcionModal, setShowRecepcionModal] = useState(false);
   const [showDespachoModal, setShowDespachoModal] = useState(false);
   const [showCobroModal, setShowCobroModal] = useState(false);
   const [showProductoModal, setShowProductoModal] = useState(false);
+
+  // Formulario y lista de creación rápida de producto(s) asociado(s) al cliente
+  const [productoRapidoForm, setProductoRapidoForm] = useState({
+    nombre: '',
+    tipo_empaque: 'CANASTILLAS' as TipoEmpaqueCustodia,
+    tara_unitaria_kg: 2.0,
+  });
+  const [productosLoteLista, setProductosLoteLista] = useState<
+    Array<{
+      id: string;
+      nombre: string;
+      tipo_empaque: TipoEmpaqueCustodia;
+      tara_unitaria_kg: number;
+    }>
+  >([]);
 
   // Selecciones para acciones
   const [selectedItemForDespacho, setSelectedItemForDespacho] = useState<InventarioCustodiaItem | null>(null);
@@ -266,6 +283,20 @@ export const ColdStorageRentalView: React.FC = () => {
     partidaActual.peso_bruto_kg,
     partidaActual.tara_unitaria_kg,
   ]);
+
+  // Cliente activo en el modal de recepción
+  const clienteActivoRecepcion = useMemo(() => {
+    if (!recepcionForm.contrato_id) return null;
+    const ctr = contratos.find((c) => c.id === recepcionForm.contrato_id);
+    if (!ctr) return null;
+    return clientes.find((cl) => cl.id === ctr.cliente_id) || null;
+  }, [recepcionForm.contrato_id, contratos, clientes]);
+
+  // Catálogo de productos asociados al cliente activo o de uso general
+  const productosClienteActivo = useMemo(() => {
+    if (!clienteActivoRecepcion) return productos;
+    return productos.filter((p) => !p.cliente_id || p.cliente_id === clienteActivoRecepcion.id);
+  }, [clienteActivoRecepcion, productos]);
 
   // Totales consolidados de la planilla de pesaje multi-partida
   const totalesPlanilla = useMemo(() => {
@@ -454,6 +485,128 @@ export const ColdStorageRentalView: React.FC = () => {
         icon: 'error',
         title: 'Error Creando Cliente Rápido',
         text: err.message || 'Verifique los datos del cliente.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Manejador: Agregar producto(s) a la lista de lote temporal antes de persistir
+  const handleAgregarProductoAlLote = () => {
+    const rawNombre = productoRapidoForm.nombre.trim();
+    if (!rawNombre) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Nombre Requerido',
+        text: 'Escribe el nombre de la especie o producto para agregarlo.',
+      });
+      return;
+    }
+
+    // Soporte para entrada múltiple separada por comas o saltos de línea (ej: "Corvina, Pargo, Camarón")
+    const nombresSeparados = rawNombre
+      .split(/[,\n]/)
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
+
+    const nuevosItems = nombresSeparados.map((nom) => ({
+      id: crypto.randomUUID(),
+      nombre: nom,
+      tipo_empaque: productoRapidoForm.tipo_empaque,
+      tara_unitaria_kg: productoRapidoForm.tara_unitaria_kg,
+    }));
+
+    setProductosLoteLista((prev) => [...prev, ...nuevosItems]);
+    setProductoRapidoForm((prev) => ({ ...prev, nombre: '' }));
+  };
+
+  // Manejador: Eliminar un producto de la lista de lote
+  const handleEliminarProductoDelLote = (id: string) => {
+    setProductosLoteLista((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  // Manejador: Guardar Producto(s) Express Asociados al Cliente (Individual o Múltiple)
+  const handleGuardarProductoRapido = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+
+    // Consolidar ítems del lote + ítem actual del input si tiene texto
+    const itemsAGuardar = [...productosLoteLista];
+    const nombreEnInput = productoRapidoForm.nombre.trim();
+
+    if (nombreEnInput) {
+      const nombresSeparados = nombreEnInput
+        .split(/[,\n]/)
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
+
+      nombresSeparados.forEach((nom) => {
+        itemsAGuardar.push({
+          id: crypto.randomUUID(),
+          nombre: nom,
+          tipo_empaque: productoRapidoForm.tipo_empaque,
+          tara_unitaria_kg: productoRapidoForm.tara_unitaria_kg,
+        });
+      });
+    }
+
+    if (itemsAGuardar.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Sin Productos',
+        text: 'Escribe al menos un nombre de producto o especie para registrar.',
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const clienteIdDestino = clienteActivoRecepcion?.id || '00000000-0000-0000-0000-000000000000';
+      const productosCreados = await coldStorageRentalService.crearProductosCustodiaBatch(
+        clienteIdDestino,
+        itemsAGuardar
+      );
+
+      // Actualizar catálogo en memoria
+      setProductos((prev) => {
+        const nuevosFiltrados = productosCreados.filter((n) => !prev.some((p) => p.id === n.id));
+        return [...nuevosFiltrados, ...prev];
+      });
+
+      // Autoseleccionar el primer producto en la báscula de la partida actual
+      if (productosCreados.length > 0) {
+        const primerProd = productosCreados[0];
+        setPartidaActual((prev) => ({
+          ...prev,
+          producto_nombre: primerProd.nombre,
+          tipo_empaque: (['CANASTILLAS', 'CAJAS', 'GRANEL'].includes(primerProd.tipo_empaque)
+            ? primerProd.tipo_empaque
+            : 'CANASTILLAS') as TipoEmpaqueCustodia,
+          tara_unitaria_kg: (primerProd as any).tara_unitaria_kg ?? itemsAGuardar[0].tara_unitaria_kg,
+        }));
+      }
+
+      // Cerrar y limpiar submodal y lote
+      setShowProductoRapidoSubmodal(false);
+      setProductosLoteLista([]);
+      setProductoRapidoForm({
+        nombre: '',
+        tipo_empaque: 'CANASTILLAS',
+        tara_unitaria_kg: 2.0,
+      });
+
+      const clienteNombre = clienteActivoRecepcion?.razon_social || 'el cliente activo';
+      Swal.fire({
+        icon: 'success',
+        title: productosCreados.length === 1 ? '¡Producto Creado!' : '¡Productos Creados en Lote!',
+        text: `${productosCreados.length} producto(s) asociado(s) con éxito a ${clienteNombre} y listos para pesaje.`,
+        timer: 2500,
+        showConfirmButton: false,
+      });
+    } catch (err: any) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error Creando Productos',
+        text: err.message || 'No se pudieron registrar los productos del cliente.',
       });
     } finally {
       setLoading(false);
@@ -1881,15 +2034,103 @@ export const ColdStorageRentalView: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Nombre del Producto / Especie *</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-bold text-slate-700">
+                      Nombre del Producto / Especie *
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProductoRapidoForm({
+                          nombre: partidaActual.producto_nombre || '',
+                          tipo_empaque: partidaActual.tipo_empaque,
+                          tara_unitaria_kg: partidaActual.tara_unitaria_kg,
+                        });
+                        setShowProductoRapidoSubmodal(true);
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-[11px] font-black flex items-center gap-1 transition-all shadow-xs cursor-pointer"
+                      title="Registrar 1 o múltiples productos/especies asociados a este cliente en lote"
+                    >
+                      <Zap className="w-3.5 h-3.5 text-emerald-600" />
+                      + Registrar Productos (Lote)
+                    </button>
+                  </div>
+
                   <input
                     type="text"
                     required
+                    list="productos-cliente-datalist"
                     placeholder="Ej. Corvina Entera, Camarón, Atún, Filete..."
                     value={partidaActual.producto_nombre}
-                    onChange={(e) => setPartidaActual({ ...partidaActual, producto_nombre: e.target.value })}
+                    onChange={(e) => {
+                      const nuevoNombre = e.target.value;
+                      const match = productosClienteActivo.find(
+                        (p) => p.nombre.toLowerCase() === nuevoNombre.trim().toLowerCase()
+                      );
+                      if (match) {
+                        const empaqueMatch = (['CANASTILLAS', 'CAJAS', 'GRANEL'].includes(match.tipo_empaque)
+                          ? match.tipo_empaque
+                          : 'CANASTILLAS') as TipoEmpaqueCustodia;
+                        const taraMatch = (match as any).tara_unitaria_kg ?? (empaqueMatch === 'CANASTILLAS' ? 2.0 : empaqueMatch === 'CAJAS' ? 0.8 : 0.0);
+                        setPartidaActual((prev) => ({
+                          ...prev,
+                          producto_nombre: match.nombre,
+                          tipo_empaque: empaqueMatch,
+                          tara_unitaria_kg: taraMatch,
+                        }));
+                      } else {
+                        setPartidaActual((prev) => ({ ...prev, producto_nombre: nuevoNombre }));
+                      }
+                    }}
                     className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 font-bold focus:ring-2 focus:ring-emerald-500"
                   />
+
+                  {/* Datalist con productos asociados */}
+                  <datalist id="productos-cliente-datalist">
+                    {productosClienteActivo.map((prod) => (
+                      <option key={prod.id || prod.nombre} value={prod.nombre}>
+                        {prod.tipo_empaque} ({prod.modalidad_medicion})
+                      </option>
+                    ))}
+                  </datalist>
+
+                  {/* Chips táctiles rápidos de productos del cliente (1-toque) */}
+                  {productosClienteActivo.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1.5 items-center">
+                      <span className="text-[10px] uppercase font-bold text-slate-400 mr-1 flex items-center gap-1">
+                        <Fish className="w-3 h-3 text-emerald-600" /> Habituales:
+                      </span>
+                      {productosClienteActivo.slice(0, 5).map((prod) => {
+                        const esSeleccionado = partidaActual.producto_nombre.toLowerCase() === prod.nombre.toLowerCase();
+                        return (
+                          <button
+                            key={prod.id || prod.nombre}
+                            type="button"
+                            onClick={() => {
+                              const empaque = (['CANASTILLAS', 'CAJAS', 'GRANEL'].includes(prod.tipo_empaque)
+                                ? prod.tipo_empaque
+                                : 'CANASTILLAS') as TipoEmpaqueCustodia;
+                              const tara = (prod as any).tara_unitaria_kg ?? (empaque === 'CANASTILLAS' ? 2.0 : empaque === 'CAJAS' ? 0.8 : 0.0);
+                              setPartidaActual((prev) => ({
+                                ...prev,
+                                producto_nombre: prod.nombre,
+                                tipo_empaque: empaque,
+                                tara_unitaria_kg: tara,
+                              }));
+                            }}
+                            className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition-all flex items-center gap-1 cursor-pointer ${
+                              esSeleccionado
+                                ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                                : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200 hover:border-slate-300'
+                            }`}
+                          >
+                            <span>🐟</span>
+                            <span>{prod.nombre}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -2251,7 +2492,7 @@ export const ColdStorageRentalView: React.FC = () => {
       {/* SUB-MODAL EXPRESS: CREACIÓN RÁPIDA DE CLIENTE (15 SEGUNDOS) */}
       {/* ========================================================================= */}
       {showClienteRapidoSubmodal && (
-        <div className="fixed inset-0 z-60 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9999] bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white border-2 border-indigo-400 rounded-3xl p-6 max-w-lg w-full space-y-4 shadow-2xl animate-in fade-in zoom-in-95">
             <div className="flex justify-between items-center border-b border-indigo-100 pb-3">
               <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
@@ -2375,6 +2616,247 @@ export const ColdStorageRentalView: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* ========================================================================= */}
+      {/* SUBMODAL: CREAR PRODUCTO(S) ASOCIADO(S) AL CLIENTE EN BATCH / LOTE */}
+      {/* ========================================================================= */}
+      {showProductoRapidoSubmodal && (
+        <div className="fixed inset-0 z-[9999] bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border-2 border-emerald-400 rounded-3xl p-6 max-w-xl w-full space-y-4 shadow-2xl animate-in fade-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+            {/* Header del Modal */}
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+              <div>
+                <span className="text-[10px] uppercase font-black tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                  Alta Rápida (1 a N Productos)
+                </span>
+                <h4 className="text-lg font-black text-slate-900 mt-1 flex items-center gap-1.5">
+                  <Fish className="w-5 h-5 text-emerald-600" />
+                  Registro de Productos para el Cliente
+                </h4>
+                <p className="text-xs text-slate-500 font-medium">
+                  {clienteActivoRecepcion
+                    ? `Se asociarán a: ${clienteActivoRecepcion.razon_social}`
+                    : 'Catálogo de custodia del cliente activo'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowProductoRapidoSubmodal(false);
+                  setProductosLoteLista([]);
+                }}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-sm cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Formulario de Entrada Rápida de Línea */}
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-bold text-slate-700">
+                  Especie o Producto a Agregar *
+                </label>
+                <span className="text-[10px] text-slate-400 font-medium">
+                  Tip: Separa con comas para agregar varios (Ej. Corvina, Pargo, Camarón)
+                </span>
+              </div>
+
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  autoFocus
+                  placeholder="Ej. Corvina Entera, Camarón Tití, Filete Robalo..."
+                  value={productoRapidoForm.nombre}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAgregarProductoAlLote();
+                    }
+                  }}
+                  onChange={(e) =>
+                    setProductoRapidoForm({ ...productoRapidoForm, nombre: e.target.value })
+                  }
+                  className="flex-1 px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500"
+                />
+                <button
+                  type="button"
+                  onClick={handleAgregarProductoAlLote}
+                  className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-xs flex items-center gap-1 cursor-pointer transition-all"
+                >
+                  <Plus className="w-4 h-4" />
+                  + Agregar al Lote
+                </button>
+              </div>
+
+              {/* Selector Visual de Empaque para este producto */}
+              <div>
+                <label className="block text-[11px] font-bold text-slate-600 mb-1.5">
+                  Empaque y Tara Habitual:
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setProductoRapidoForm({
+                        ...productoRapidoForm,
+                        tipo_empaque: 'CANASTILLAS',
+                        tara_unitaria_kg: 2.0,
+                      })
+                    }
+                    className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
+                      productoRapidoForm.tipo_empaque === 'CANASTILLAS'
+                        ? 'bg-emerald-600 text-white border-emerald-600 font-black shadow-xs'
+                        : 'bg-white text-slate-700 border-slate-200 font-bold hover:bg-slate-100'
+                    }`}
+                  >
+                    <div className="text-base">🧺</div>
+                    <div className="text-[11px]">Canastilla (2.0 kg)</div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setProductoRapidoForm({
+                        ...productoRapidoForm,
+                        tipo_empaque: 'CAJAS',
+                        tara_unitaria_kg: 0.8,
+                      })
+                    }
+                    className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
+                      productoRapidoForm.tipo_empaque === 'CAJAS'
+                        ? 'bg-emerald-600 text-white border-emerald-600 font-black shadow-xs'
+                        : 'bg-white text-slate-700 border-slate-200 font-bold hover:bg-slate-100'
+                    }`}
+                  >
+                    <div className="text-base">📦</div>
+                    <div className="text-[11px]">Caja (0.8 kg)</div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setProductoRapidoForm({
+                        ...productoRapidoForm,
+                        tipo_empaque: 'GRANEL',
+                        tara_unitaria_kg: 0.0,
+                      })
+                    }
+                    className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
+                      productoRapidoForm.tipo_empaque === 'GRANEL'
+                        ? 'bg-emerald-600 text-white border-emerald-600 font-black shadow-xs'
+                        : 'bg-white text-slate-700 border-slate-200 font-bold hover:bg-slate-100'
+                    }`}
+                  >
+                    <div className="text-base">🐟</div>
+                    <div className="text-[11px]">Granel / Suelto (0 kg)</div>
+                  </button>
+                </div>
+              </div>
+
+              {/* Ajuste de tara fina */}
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-[11px] text-slate-500 font-semibold">
+                  Tara Unitaria Específica (Kg):
+                </span>
+                <input
+                  type="number"
+                  step="0.05"
+                  min="0"
+                  value={productoRapidoForm.tara_unitaria_kg}
+                  onChange={(e) =>
+                    setProductoRapidoForm({
+                      ...productoRapidoForm,
+                      tara_unitaria_kg: Number(e.target.value),
+                    })
+                  }
+                  className="w-28 px-3 py-1 rounded-lg bg-white border border-slate-300 font-bold font-mono text-emerald-700 text-right text-xs"
+                />
+              </div>
+            </div>
+
+            {/* Lista Acumulada de Productos en el Lote */}
+            {productosLoteLista.length > 0 && (
+              <div className="p-3.5 rounded-2xl bg-emerald-50/60 border border-emerald-200 space-y-2">
+                <div className="flex items-center justify-between border-b border-emerald-200/60 pb-1.5">
+                  <span className="text-xs font-black text-emerald-900 flex items-center gap-1.5">
+                    <ListChecks className="w-4 h-4 text-emerald-700" />
+                    {productosLoteLista.length} Producto(s) en la Lista para Asociar:
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setProductosLoteLista([])}
+                    className="text-[10px] font-bold text-rose-600 hover:text-rose-800 underline cursor-pointer"
+                  >
+                    Limpiar lista
+                  </button>
+                </div>
+
+                <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                  {productosLoteLista.map((item, idx) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between p-2 rounded-xl bg-white border border-emerald-100 shadow-2xs"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-emerald-800">#{idx + 1}</span>
+                        <span className="text-sm font-black text-slate-900">{item.nombre}</span>
+                        <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
+                          {item.tipo_empaque} ({item.tara_unitaria_kg} kg)
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleEliminarProductoDelLote(item.id)}
+                        className="text-slate-400 hover:text-rose-600 p-1 rounded-lg hover:bg-rose-50 transition-all cursor-pointer"
+                        title="Eliminar de la lista"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Footer de Acciones */}
+            <div className="flex justify-between items-center pt-3 border-t border-slate-100">
+              <span className="text-xs text-slate-400 font-medium">
+                {productosLoteLista.length > 0
+                  ? `Total: ${productosLoteLista.length + (productoRapidoForm.nombre.trim() ? 1 : 0)} producto(s) a guardar`
+                  : 'Listo para guardar 1 o múltiples'}
+              </span>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowProductoRapidoSubmodal(false);
+                    setProductosLoteLista([]);
+                  }}
+                  className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 text-xs cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => handleGuardarProductoRapido()}
+                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  <Zap className="w-4 h-4 text-amber-300" />
+                  {loading
+                    ? 'Guardando...'
+                    : productosLoteLista.length > 0
+                    ? `⚡ Guardar ${productosLoteLista.length + (productoRapidoForm.nombre.trim() ? 1 : 0)} Productos y Usar en Báscula`
+                    : '⚡ Guardar Producto y Usar en Báscula'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
 
       {/* ========================================================================= */}
       {/* MODAL 3: DESPACHO CONSOLIDADO CON CHECKLIST MULTI-LOTE (PASO 3) */}
