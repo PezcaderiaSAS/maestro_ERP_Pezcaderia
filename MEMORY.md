@@ -25,5 +25,9 @@
 - **Píldoras de Eventos/Obligaciones:** Contraste WCAG 2.2 AA+ (fondos pastel con bordes temáticos y texto legible 100% en light mode).
 - **Validación:** 49 suites de prueba (314 tests verdes), 0 errores TypeScript, inspección Chrome DevTools en escritorio y móvil (375 px) con 0 errores de consola.
 
-## Siguientes Flujos Operativos Prioritarios
-1. **Transformación y Fileteo en Frío (Yield & Mermas):** Despiece táctil de pescado entero a filete/posta con balance de masa en vivo.
+## Próxima Sesión: Plan Activo para Ejecución Inmediata
+- **Especificación SDD Activa:** `specs/006-alquiler-frio-multi-item-ui-unification/` (`spec.md`, `plan.md`, `tasks.md`).
+- **Alcance a Ejecutar tras `git pull`:**
+  1. *Alquiler de Frío Multi-Producto & Taras:* Partidas múltiples de pesaje en un solo movimiento (soportando el mismo producto con diferentes empaques/taras: canastillas, cajas, suelto), creación rápida de cliente in-situ (15 seg) y despacho múltiple con checklist.
+  2. *Unificación UI/UX Global (Light Mode WCAG AA+):* Auditoría y erradicación de clases oscuras en Bodega (Inventario, Kardex), Camión, Compras, Ventas y Terceros.
+- **Validación Obligatoria:** 100% tests verdes en Vitest, `tsc --noEmit` 0 errores y bucle DevTools en móvil (375 px) con 0 errores en consola JS.
