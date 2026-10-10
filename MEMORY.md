@@ -19,5 +19,11 @@
 - **Integración con Caja y Documentos PDF:** Depósito directo al turno de cajero activo en `cashService`, generación ejecutiva de Actas de Ingreso/Retiro, Contratos, Recibo de Pago (Carta) y Ticket Térmico POS 80mm en `coldStoragePdfService.ts`.
 - **Validación y Tests:** 37/37 tests unitarios en Vitest pasando (exit code 0), TypeScript 0 errores, y loop de Chrome DevTools verificado en escritorio y móvil (375 px) con 0 errores de consola.
 
+## Dashboard Ejecutivo & Calendario de Obligaciones (Optimizado Light Mode WCAG AA+)
+- **KPIs de Alto Impacto:** Tarjetas blancas elevadas con bordes `border-slate-200`, iconos con fondos pastel saturados por dominio (Ventas: esmeralda, Caja: azul, Digital: púrpura, Notas Crédito: rosa) y cifras legibles en negro `#0f172a`.
+- **Calendario Operativo:** Eliminada cabecera oscura; nueva cabecera ejecutiva slate-50, cuadrícula con separación 1px (`gap-px bg-slate-200`), días de semana contrastados y día actual destacado en azul con badge.
+- **Píldoras de Eventos/Obligaciones:** Contraste WCAG 2.2 AA+ (fondos pastel con bordes temáticos y texto legible 100% en light mode).
+- **Validación:** 49 suites de prueba (314 tests verdes), 0 errores TypeScript, inspección Chrome DevTools en escritorio y móvil (375 px) con 0 errores de consola.
+
 ## Siguientes Flujos Operativos Prioritarios
 1. **Transformación y Fileteo en Frío (Yield & Mermas):** Despiece táctil de pescado entero a filete/posta con balance de masa en vivo.

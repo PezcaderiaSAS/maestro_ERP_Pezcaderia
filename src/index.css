@@ -38,10 +38,10 @@
   .bg-neutral-800 { background-color: #e2e8f0 !important; }
 
   /* Cards y paneles semi-transparentes oscuros */
-  .bg-slate-800\/50, .bg-slate-800\/60, .bg-slate-800\/80 { background-color: #f1f5f9 !important; }
-  .bg-slate-900\/50, .bg-slate-900\/60, .bg-slate-900\/80 { background-color: #f8fafc !important; }
-  .bg-gray-800\/50, .bg-gray-800\/60, .bg-gray-800\/80   { background-color: #f1f5f9 !important; }
-  .bg-gray-900\/50, .bg-gray-900\/60, .bg-gray-900\/80   { background-color: #f8fafc !important; }
+  .bg-slate-800\/40, .bg-slate-800\/50, .bg-slate-800\/60, .bg-slate-800\/80 { background-color: #f1f5f9 !important; }
+  .bg-slate-900\/30, .bg-slate-900\/40, .bg-slate-900\/50, .bg-slate-900\/60, .bg-slate-900\/80 { background-color: #f8fafc !important; }
+  .bg-gray-800\/40, .bg-gray-800\/50, .bg-gray-800\/60, .bg-gray-800\/80   { background-color: #f1f5f9 !important; }
+  .bg-gray-900\/40, .bg-gray-900\/50, .bg-gray-900\/60, .bg-gray-900\/80   { background-color: #f8fafc !important; }
 
   /* --- Texto blanco/claro sobre fondos oscuros → Texto oscuro --- */
   .text-white   { color: #0f172a !important; }
@@ -72,7 +72,12 @@
   .border-slate-800 { border-color: #e2e8f0 !important; }
   .border-gray-700  { border-color: #cbd5e1 !important; }
   .border-gray-800  { border-color: #e2e8f0 !important; }
-  .border-white\/10, .border-white\/20 { border-color: #e2e8f0 !important; }
+  .border-white\/5, .border-white\/10, .border-white\/20 { border-color: #cbd5e1 !important; }
+  .glass-panel {
+    background-color: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05) !important;
+  }
 
   /* --- Divide oscuro --- */
   .divide-slate-700 > * + * { border-color: #e2e8f0 !important; }

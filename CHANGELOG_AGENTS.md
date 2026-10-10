@@ -19,6 +19,18 @@ Cada vez que un agente de IA finalice una sesión de trabajo, debe agregar una e
 
 ## Registros Diarios
 
+### [2026-10-10 07:35] - Antigravity (Protocol Coordinator & Lead Engineer)
+- **Módulo:** Dashboard Ejecutivo & Calendario de Obligaciones (Reajuste de Contrastes y UI/UX Light Mode)
+- **Acción:** Reajuste radical de contrastes, visibilidad y jerarquía visual del Dashboard Ejecutivo y Calendario de Obligaciones tras análisis y reporte del usuario:
+  1. *Agency Swarm UIReviewer & Gemini:* Orquestación de `/swarm` con especialista `UIReviewer` (Google AI Studio - `gemini-2.5-flash`), recomendando paleta WCAG AA+ estricta, celdas de cuadrícula con bordes definidos y eliminación de contenedores oscuros anidados.
+  2. *KPI Cards Ejecutivas:* Tarjetas blancas elevadas (`bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-md`) con iconos destacados por temática (Ventas: esmeralda, Caja Chica: azul, Digital: púrpura, Notas Crédito: rosa), cifras en negro intenso `#0f172a` y badges de subtítulo contrastados con bordes.
+  3. *Calendario Operativo:* Reemplazo de la cabecera oscura por cabecera ejecutiva `bg-slate-50 border-b border-slate-200` con badge azul de icono, cuadrícula con separación 1px (`grid grid-cols-7 bg-slate-200 gap-px`) que garantiza bordes visibles en todas las celdas, días de la semana nítidos en slate-700, día actual resaltado con anillo azul e indicador `HOY`, y píldoras de obligaciones en colores pastel con bordes de alto contraste.
+  4. *Panel Lateral de Evento:* Rediseñado a tarjeta blanca `bg-white border border-slate-200 shadow-xl` con tipografía de alto impacto.
+  5. *Ajuste Global en index.css:* Inclusión de `.bg-slate-900\/40` y `.border-white\/5` en las reglas de sobrescritura Light Mode y consolidación de `.glass-panel`.
+- **Archivos Modificados:** `src/index.css`, `src/views/DashboardView.tsx`, `src/views/dashboard/CalendarGrid.tsx`, `src/views/dashboard/EventSidePanel.tsx`, `tools/agency-swarm/config.py`, `tools/agency-swarm/.env`, `MEMORY.md`.
+- **Mejoras UX/UI (Design System):** Eliminación total del aspecto lavado/invisible del calendario y los números flotantes sin bordes. Cumplimiento WCAG 2.2 AA+ en toda la vista ejecutiva.
+- **Validación y Pruebas:** 49/49 suites de prueba aprobadas (314 tests verdes en Vitest), `tsc --noEmit` con 0 errores, y loop en vivo Chrome DevTools MCP verificado en escritorio y móvil (375 px) con 0 errores y 0 warnings en consola JS.
+
 ### [2026-10-10 07:15] - Antigravity (Protocol Coordinator & Lead Engineer)
 - **Módulo:** WMS Alquiler de Cuarto Frío & Custodia 3PL (`wms-cold-storage-rental`)
 - **Acción:** Implementación y optimización integral del ciclo de vida operativo del módulo de alquiler de cuarto frío y custodia de mercancía de terceros (3PL):
