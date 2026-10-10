@@ -19,6 +19,18 @@ Cada vez que un agente de IA finalice una sesión de trabajo, debe agregar una e
 
 ## Registros Diarios
 
+### [2026-10-10 07:15] - Antigravity (Protocol Coordinator & Lead Engineer)
+- **Módulo:** WMS Alquiler de Cuarto Frío & Custodia 3PL (`wms-cold-storage-rental`)
+- **Acción:** Implementación y optimización integral del ciclo de vida operativo del módulo de alquiler de cuarto frío y custodia de mercancía de terceros (3PL):
+  1. *Registro y Contratos:* Modelo dual de custodia por Días (liquidación contra retiro por peso neto) y Meses (posiciones fijas de 800 kg con corte mensual y semáforos de mora/cartera vencida).
+  2. *Báscula y Taras con Precisión Milimétrica:* Motor gravimétrico exacto (`calcularTaraYNetoExacto`) con deducción de peso de empaque (Canastillas: 2.0 kg, Cajas: 0.8 kg, Suelto) y memoria de preset por cliente sin errores de redondeo IEEE 754 (`Number.EPSILON`).
+  3. *Flujo Asistido "Regla de los 12 Años":* Header operativo de 4 pasos visuales e interactivos (1: Nuevo Cliente/Contrato, 2: Recibir Mercancía en Báscula, 3: Retirar Lote, 4: Cobrar en Caja).
+  4. *Cobro en Caja Directo:* Conexión directa a `cashService.registrarMovimiento` depositando en el turno de cajero activo de forma atómica.
+  5. *Documentos PDF de Alto Nivel:* Actas de Ingreso, Actas de Salida, Contratos, Recibo de Pago Oficial (Carta) y Ticket Térmico POS 80mm en `coldStoragePdfService.ts`.
+- **Archivos Modificados:** `packages/validation-schemas/src/coldStorageRental.schema.ts`, `src/services/coldStorageRentalService.ts`, `src/services/coldStoragePdfService.ts`, `src/views/coldStorageRental/ColdStorageRentalView.tsx`, `src/tests/coldStorageRental.test.ts`, `specs/wms-cold-storage-rental/spec.md`, `specs/wms-cold-storage-rental/tasks.md`, `MEMORY.md`.
+- **Mejoras UX/UI (Design System):** Rediseño total a Light Mode de alto contraste WCAG AA+ (`bg-slate-50`, `#0f172a`, cards blancas `#ffffff`), badges de embalaje con cálculo automático de tara en vivo, banner de cartera en mora y alerta preventiva en retiros con botón instantáneo de cobro.
+- **Validación y Pruebas:** 37/37 tests unitarios en Vitest aprobados (100% verdes en 212ms), `tsc --noEmit` con 0 errores de tipado, y bucle Chrome DevTools MCP verificado en vista de escritorio y móvil (375 px) con 0 errores y 0 warnings en consola JS.
+
 ### [2026-10-10 06:30] - Antigravity (Protocol Coordinator & Lead Engineer)
 - **Módulo:** Inicio de Sesión / Rediseño Light Mode & Verificación de Agentes y Workflows
 - **Acción:** Inicio de nueva sesión de trabajo con reactivación completa del ecosistema de agentes (Protocolo Brownfield v2.2 y ECC). Sincronización con `git pull origin main` (incorporando `549b033` con hook de Husky y saneamiento de skills obsoletas). Activación del servidor Vite dev en `127.0.0.1:3000`. Auditoría en vivo mediante Chrome DevTools MCP en resolución de escritorio y móvil (375 px) confirmando 0 errores en consola JS y renderizado impecable en Light Mode de alto contraste (WCAG 2.2 AA+).

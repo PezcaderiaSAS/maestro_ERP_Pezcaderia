@@ -5,6 +5,10 @@ import {
   calcularRecargoSobrecupo,
   calcularMermaSalida,
   liquidarCausacionAlquiler,
+  calcularTaraYNetoExacto,
+  calcularLiquidacionDias,
+  evaluarCarteraYVencimiento,
+  TARAS_PREDETERMINADAS_KG,
   ContratoAlquilerCfSchema,
   ProductoCustodiaSchema,
   RecepcionCustodiaInputSchema,
@@ -25,6 +29,7 @@ vi.mock('jspdf', () => {
       text: vi.fn(),
       setDrawColor: vi.fn(),
       setLineWidth: vi.fn(),
+      setLineDashPattern: vi.fn(),
       line: vi.fn(),
       splitTextToSize: vi.fn((t: string) => [t]),
       save: mockSave,
@@ -481,5 +486,241 @@ describe('Módulo Alquiler de Cuarto Frío WMS 3PL - Reglas de Negocio', () => {
       expect(doc).toBeDefined();
       expect(mockSave).toHaveBeenCalledWith('Certificado_Custodia_901555666-4_2026-09-28.pdf');
     });
+
+    it('debe generar el Recibo Oficial de Caja y Paz y Salvo en formato ejecutivo carta', async () => {
+      const { coldStoragePdfService } = await import('../services/coldStoragePdfService');
+      const doc = coldStoragePdfService.generarPdfReciboPagoAlquiler({
+        consecutivo: 'RC-CF-2026-001',
+        cliente: {
+          empresa_id: 'emp-1',
+          razon_social: 'Distribuidora del Caribe SAS',
+          numero_identificacion: '900111222-3',
+          tipo_identificacion: 'NIT',
+          autorizados_retiro: [],
+          estado: 'ACTIVO',
+        },
+        concepto: 'Alquiler de cuarto frío mes de octubre (1 posición 800 kg)',
+        subtotal: 650000,
+        iva: 123500,
+        retefuente: 26000,
+        totalPagar: 747500,
+        metodoPago: 'TRANSFERENCIA',
+        referenciaCaja: 'CAJA-BODEGA-01',
+        cajeroNombre: 'Yurgen Martinez',
+      });
+
+      expect(doc).toBeDefined();
+      expect(mockSave).toHaveBeenCalledWith('Recibo_Caja_RC-CF-2026-001.pdf');
+    });
+
+    it('debe generar el Ticket Térmico de Caja POS en formato rollo 80mm', async () => {
+      const { coldStoragePdfService } = await import('../services/coldStoragePdfService');
+      const doc = coldStoragePdfService.generarPdfTicketTermicoAlquiler({
+        consecutivo: 'TCK-CF-0042',
+        cliente: {
+          empresa_id: 'emp-1',
+          razon_social: 'Pescados y Mariscos La Herradura',
+          numero_identificacion: '800999888-1',
+          tipo_identificacion: 'NIT',
+          autorizados_retiro: [],
+          estado: 'ACTIVO',
+        },
+        concepto: 'Liquidación 3 días almacenamiento (450 kg corvina)',
+        totalPagar: 202500,
+        metodoPago: 'EFECTIVO',
+      });
+
+      expect(doc).toBeDefined();
+      expect(mockSave).toHaveBeenCalledWith('Ticket_TCK-CF-0042.pdf');
+    });
+  });
+
+  describe('Cálculo Milimétrico de Tara y Peso Neto por Empaque (Cajas, Canastillas, Suelto)', () => {
+    it('debe tener taras estándar calibradas para cada embalaje', () => {
+      expect(TARAS_PREDETERMINADAS_KG.CANASTILLAS).toBe(2.0);
+      expect(TARAS_PREDETERMINADAS_KG.CAJAS).toBe(0.8);
+      expect(TARAS_PREDETERMINADAS_KG.SUELTO).toBe(0.0);
+    });
+
+    it('debe calcular correctamente la tara de 10 canastillas estándar y el neto', () => {
+      // 10 canastillas * 2.0 kg = 20 kg tara. Bruto 320 kg -> Neto 300.00 kg
+      const res = calcularTaraYNetoExacto({
+        tipoEmpaque: 'CANASTILLAS',
+        cantidadBultos: 10,
+        pesoBrutoKg: 320,
+      });
+
+      expect(res.esValido).toBe(true);
+      expect(res.taraUnitaria).toBe(2.0);
+      expect(res.taraTotalKg).toBe(20.0);
+      expect(res.pesoNetoKg).toBe(300.0);
+    });
+
+    it('debe permitir calibrar tara unitaria personalizada por cliente con precisión milimétrica', () => {
+      // Canastilla pesada a 2.15 kg c/u. 15 canastillas = 32.25 kg tara. Bruto 450.75 kg -> Neto 418.50 kg
+      const res = calcularTaraYNetoExacto({
+        tipoEmpaque: 'CANASTILLAS',
+        cantidadBultos: 15,
+        pesoBrutoKg: 450.75,
+        taraUnitariaConfigurada: 2.15,
+      });
+
+      expect(res.esValido).toBe(true);
+      expect(res.taraUnitaria).toBe(2.15);
+      expect(res.taraTotalKg).toBe(32.25);
+      expect(res.pesoNetoKg).toBe(418.5);
+    });
+
+    it('debe calcular empaque en cajas con tara estándar o personalizada', () => {
+      // 25 cajas * 0.8 kg = 20 kg tara. Bruto 520 kg -> Neto 500 kg
+      const res = calcularTaraYNetoExacto({
+        tipoEmpaque: 'CAJAS',
+        cantidadBultos: 25,
+        pesoBrutoKg: 520,
+      });
+
+      expect(res.esValido).toBe(true);
+      expect(res.taraTotalKg).toBe(20.0);
+      expect(res.pesoNetoKg).toBe(500.0);
+    });
+
+    it('debe admitir pesaje suelto a granel con tara cero o tara de tina', () => {
+      const res = calcularTaraYNetoExacto({
+        tipoEmpaque: 'SUELTO',
+        cantidadBultos: 1,
+        pesoBrutoKg: 850.55,
+      });
+
+      expect(res.esValido).toBe(true);
+      expect(res.taraTotalKg).toBe(0.0);
+      expect(res.pesoNetoKg).toBe(850.55);
+    });
+
+    it('debe rechazar pesaje si el peso bruto no supera la tara', () => {
+      // 10 canastillas = 20 kg tara, pero bruto solo 18 kg
+      const res = calcularTaraYNetoExacto({
+        tipoEmpaque: 'CANASTILLAS',
+        cantidadBultos: 10,
+        pesoBrutoKg: 18,
+      });
+
+      expect(res.esValido).toBe(false);
+      expect(res.pesoNetoKg).toBe(0);
+      expect(res.error).toContain('debe ser mayor a la tara total');
+    });
+
+    it('debe rechazar cero bultos en cajas o canastillas', () => {
+      const res = calcularTaraYNetoExacto({
+        tipoEmpaque: 'CANASTILLAS',
+        cantidadBultos: 0,
+        pesoBrutoKg: 100,
+      });
+
+      expect(res.esValido).toBe(false);
+      expect(res.error).toContain('al menos 1 unidad');
+    });
+  });
+
+  describe('Liquidación de Almacenamiento Frigorífico por DÍAS', () => {
+    it('debe liquidar tarifa por kilogramos netos y días efectivos con IVA', () => {
+      // 1000 kg netos, 5 días de frío, tarifa $150 COP por kg/día
+      // Subtotal = 1000 * 5 * 150 = $750,000 COP
+      // IVA 19% = $142,500 COP
+      // Total = $892,500 COP
+      const res = calcularLiquidacionDias({
+        fechaIngreso: '2026-10-01',
+        fechaSalida: '2026-10-06',
+        pesoNetoKg: 1000,
+        tarifaDia: 150,
+        baseCobro: 'KILOGRAMOS',
+        cobrarIva: true,
+      });
+
+      expect(res.diasCustodia).toBe(5);
+      expect(res.subtotal).toBe(750000);
+      expect(res.iva).toBe(142500);
+      expect(res.totalPagar).toBe(892500);
+    });
+
+    it('debe liquidar tarifa por posiciones (800 kg c/u) y días efectivos', () => {
+      // 1500 kg netos -> 2 posiciones (800 kg c/u)
+      // 3 días de frío a $25,000 COP por posición/día
+      // Subtotal = 2 * 3 * 25,000 = $150,000 COP
+      // IVA 19% = $28,500 COP
+      // Retefuente 4% = $6,000 COP
+      // Total = $172,500 COP
+      const res = calcularLiquidacionDias({
+        fechaIngreso: '2026-10-01',
+        fechaSalida: '2026-10-04',
+        pesoNetoKg: 1500,
+        tarifaDia: 25000,
+        baseCobro: 'POSICIONES',
+        cobrarIva: true,
+        porcentajeRetefuente: 4,
+      });
+
+      expect(res.diasCustodia).toBe(3);
+      expect(res.unidadesCobro).toBe(2);
+      expect(res.subtotal).toBe(150000);
+      expect(res.iva).toBe(28500);
+      expect(res.retefuente).toBe(6000);
+      expect(res.totalPagar).toBe(172500);
+    });
+
+    it('debe computar mínimo 1 día de almacenamiento si entra y sale el mismo día', () => {
+      const res = calcularLiquidacionDias({
+        fechaIngreso: '2026-10-05',
+        fechaSalida: '2026-10-05',
+        pesoNetoKg: 500,
+        tarifaDia: 200,
+        cobrarIva: false,
+      });
+
+      expect(res.diasCustodia).toBe(1);
+      expect(res.subtotal).toBe(100000); // 500 * 1 * 200
+      expect(res.totalPagar).toBe(100000);
+    });
+  });
+
+  describe('Semáforo y Evaluación de Cartera / Vencimientos de Mensualidades', () => {
+    it('debe retornar AL_DIA si la causación ya fue pagada', () => {
+      const sem = evaluarCarteraYVencimiento({
+        fechaCorteMensualidad: '2026-09-30',
+        valorMensualidad: 650000,
+        estadoPago: 'PAGADA',
+      });
+
+      expect(sem.estadoSemaforo).toBe('AL_DIA');
+      expect(sem.saldoPendiente).toBe(0);
+      expect(sem.diasMora).toBe(0);
+    });
+
+    it('debe detectar EN_MORA con los días exactos si la fecha de corte venció', () => {
+      const sem = evaluarCarteraYVencimiento({
+        fechaCorteMensualidad: '2026-10-01',
+        fechaActual: '2026-10-10',
+        valorMensualidad: 650000,
+        estadoPago: 'PENDIENTE',
+      });
+
+      expect(sem.estadoSemaforo).toBe('EN_MORA');
+      expect(sem.diasMora).toBe(9);
+      expect(sem.saldoPendiente).toBe(650000);
+      expect(sem.mensajeAlerta).toContain('9 días de mora');
+    });
+
+    it('debe alertar POR_VENCER si vence hoy o en los próximos 3 días', () => {
+      const sem = evaluarCarteraYVencimiento({
+        fechaCorteMensualidad: '2026-10-10',
+        fechaActual: '2026-10-10',
+        valorMensualidad: 650000,
+        estadoPago: 'PENDIENTE',
+      });
+
+      expect(sem.estadoSemaforo).toBe('POR_VENCER');
+      expect(sem.diasMora).toBe(0);
+      expect(sem.mensajeAlerta).toBe('Vence hoy');
+    });
   });
 });
+

@@ -59,17 +59,44 @@ La Pezcaderia cuenta con infraestructura de refrigeración y congelación indust
 
 ### 2.5 Generación de Documentos de Soporte (Motor PDF)
 1. **Contrato de Alquiler de Espacio Frigorífico (PDF)**.
-2. **Acta de Recepción e Ingreso de Custodia (PDF)** con pesaje detallado y firmas.
-3. **Acta de Despacho y Salida de Custodia (PDF)** con balance remanente y firmas de entrega.
+2. **Acta de Recepción e Ingreso de Custodia (PDF)** con desglose de empaque (Cajas, Canastillas, Suelto), tara calculada y peso neto.
+3. **Acta de Despacho y Salida de Custodia (PDF)** con balance remanente, porcentaje de merma y firmas de entrega.
 4. **Certificado de Existencias de Inventario en Custodia (PDF)**: Emitido por el operador a solicitud del cliente con fecha de corte oficial.
+5. **Recibo Oficial de Caja y Paz y Salvo (PDF Ejecutivo Carta)**: Desglose de subtotal, IVA 19%, retenciones y comprobante fiscal.
+6. **Ticket Térmico POS (PDF 80mm)**: Comprobante instantáneo de mostrador para el conductor/cliente.
 
-### 2.6 Integración Contable (Ingresos y Egresos)
+### 2.6 Integración Contable y Caja Diaria (cashService)
 - **Ingresos por Alquiler**:
   - Cuenta `4155` (Ingresos Operacionales por Servicios de Alquiler / Bodegaje).
   - Cuenta `2408` (IVA generado 19% sobre servicios de almacenamiento).
   - Cuenta `1305` (Cuentas por Cobrar / Clientes).
-  - Cuenta `135515` (Retención en la fuente practicada si el cliente es agente de retención).
-- **Cuentas de Orden (Opcional según contrato)**:
-  - Cuenta `8105` (Bienes recibidos en custodia) y `8405` (Acreedoras de control).
-- **Egresos Operacionales**:
-  - Registro de costos directos asociados al mantenimiento, energía eléctrica proporcional e insumos de frío.
+- **Cobro en Caja Física Diaria**:
+  - Integración nativa con `cashService.registrarMovimiento` tipo `INGRESO_VENTA`.
+  - Actualización atómica de saldos en efectivo o transferencias del turno abierto.
+  - Marcación automática de la causación como `PAGADA`.
+
+---
+
+## 3. Protocolo Operativo Asistido ("La Regla de los 12 Años")
+
+Para garantizar que cualquier persona o nuevo operario sin entrenamiento complejo pueda ejecutar el ciclo completo de frío de forma infalible:
+1. **Paso 1: 👤 Nuevo Cliente / Contrato Rápido**:
+   - Tarjeta visual clara. Formulario simplificado (Nombre/Razón Social, NIT/CC, Teléfono).
+   - Selección directa entre: ☀️ **Por Días** (tarifa diaria por kg o posición) o 📅 **Por Meses** (mensualidad fija por posición de 800 kg).
+2. **Paso 2: 📥 Recibir Mercancía (Báscula + Empaque Táctil)**:
+   - Selección táctil del embalaje: 🧺 **Canastillas** (tara unitaria sugerida 2.0 kg o recordada por cliente), 📦 **Cajas** (tara unitaria sugerida 0.8 kg) o 🐟 **Suelto** (tara directa 0.0 kg).
+   - El operario sólo introduce la cantidad de bultos y el peso bruto de la báscula.
+   - El sistema calcula instantáneamente `Tara Total` y `Peso Neto Exacto` a 2 decimales sin redondeos imprecisos.
+   - Opción para recordar y guardar la tara específica del cliente para sus próximas recepciones.
+   - Generación de Acta de Entrada en 1 clic.
+3. **Paso 3: 📤 Retirar Mercancía**:
+   - Selección del lote del cliente y cantidad/kilos a retirar.
+   - Semáforo automático de cartera:
+     - 🟢 **Al Día**: Permite retiro inmediato.
+     - 🟡 **Por Vencer**: Notificación amigable.
+     - 🔴 **En Mora / Saldo Pendiente**: Bloqueo asistido con botón destacado **"Cobrar en Caja Ahora"** o autorización gerencial.
+   - Generación de Acta de Salida en 1 clic con remanente exacto.
+4. **Paso 4: 💰 Cobrar en Caja y Liquidar**:
+   - Panel de cartera con clientes en mora y valores pendientes.
+   - Modal de Cobro Express con selección de método (Efectivo, Nequi/Transferencia, Datafono).
+   - Envío directo a la caja abierta del ERP e impresión instantánea de Recibo Oficial o Ticket Térmico 80mm.

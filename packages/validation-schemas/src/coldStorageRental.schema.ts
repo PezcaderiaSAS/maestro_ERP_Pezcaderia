@@ -258,3 +258,216 @@ export function liquidarCausacionAlquiler(params: {
     totalPagar,
   };
 }
+
+// ============================================================================
+// EMPAQUES, TARAS Y LIQUIDACIÓN POR DÍAS / CARTERA
+// ============================================================================
+
+export const TipoEmpaqueCustodiaEnum = z.enum(['CANASTILLAS', 'CAJAS', 'SUELTO']);
+export type TipoEmpaqueCustodia = z.infer<typeof TipoEmpaqueCustodiaEnum>;
+
+export interface TaraPresetCliente {
+  taraCanastillaKg: number;
+  taraCajaKg: number;
+  ultimaActualizacion?: string;
+}
+
+/**
+ * Tara estándar predeterminada por tipo de embalaje (en Kilogramos)
+ */
+export const TARAS_PREDETERMINADAS_KG: Record<TipoEmpaqueCustodia, number> = {
+  CANASTILLAS: 2.0, // Canastilla plástica estándar calada
+  CAJAS: 0.8,       // Caja de cartón corrugado estándar
+  SUELTO: 0.0,      // Pesa directa en báscula
+};
+
+/**
+ * Realiza el cálculo gravimétrico exacto de tara y peso neto para cualquier embalaje.
+ * Aplica redondeo milimétrico seguro con EPSILON evitando fallos de punto flotante.
+ */
+export function calcularTaraYNetoExacto(params: {
+  tipoEmpaque: TipoEmpaqueCustodia;
+  cantidadBultos: number;
+  pesoBrutoKg: number;
+  taraUnitariaConfigurada?: number;
+}): {
+  taraUnitaria: number;
+  taraTotalKg: number;
+  pesoNetoKg: number;
+  esValido: boolean;
+  error?: string;
+} {
+  const { tipoEmpaque, cantidadBultos, pesoBrutoKg, taraUnitariaConfigurada } = params;
+
+  if (pesoBrutoKg <= 0) {
+    return {
+      taraUnitaria: 0,
+      taraTotalKg: 0,
+      pesoNetoKg: 0,
+      esValido: false,
+      error: 'El peso bruto en báscula debe ser mayor a 0 kg.',
+    };
+  }
+
+  if (tipoEmpaque !== 'SUELTO' && cantidadBultos <= 0) {
+    return {
+      taraUnitaria: 0,
+      taraTotalKg: 0,
+      pesoNetoKg: 0,
+      esValido: false,
+      error: 'Debe ingresar al menos 1 unidad de empaque (cajas o canastillas).',
+    };
+  }
+
+  const taraUnitaria =
+    typeof taraUnitariaConfigurada === 'number' && taraUnitariaConfigurada >= 0
+      ? taraUnitariaConfigurada
+      : TARAS_PREDETERMINADAS_KG[tipoEmpaque];
+
+  const multiplicador = tipoEmpaque === 'SUELTO' ? 1 : cantidadBultos;
+  const taraTotalKg = Math.round((multiplicador * taraUnitaria + Number.EPSILON) * 100) / 100;
+
+  if (pesoBrutoKg <= taraTotalKg) {
+    return {
+      taraUnitaria,
+      taraTotalKg,
+      pesoNetoKg: 0,
+      esValido: false,
+      error: `El peso bruto (${pesoBrutoKg} Kg) debe ser mayor a la tara total de los empaques (${taraTotalKg} Kg).`,
+    };
+  }
+
+  const pesoNetoKg = Math.round(((pesoBrutoKg - taraTotalKg) + Number.EPSILON) * 100) / 100;
+
+  return {
+    taraUnitaria,
+    taraTotalKg,
+    pesoNetoKg,
+    esValido: true,
+  };
+}
+
+/**
+ * Liquida el cobro de almacenamiento frigorífico para clientes por DÍAS.
+ */
+export function calcularLiquidacionDias(params: {
+  fechaIngreso: string;
+  fechaSalida: string;
+  pesoNetoKg: number;
+  tarifaDia: number;
+  baseCobro?: 'KILOGRAMOS' | 'POSICIONES';
+  cobrarIva?: boolean;
+  porcentajeRetefuente?: number;
+}): {
+  diasCustodia: number;
+  subtotal: number;
+  iva: number;
+  retefuente: number;
+  totalPagar: number;
+  baseCobro: 'KILOGRAMOS' | 'POSICIONES';
+  unidadesCobro: number;
+} {
+  const {
+    fechaIngreso,
+    fechaSalida,
+    pesoNetoKg,
+    tarifaDia,
+    baseCobro = 'KILOGRAMOS',
+    cobrarIva = true,
+    porcentajeRetefuente = 0,
+  } = params;
+
+  const inicio = new Date(fechaIngreso.substring(0, 10)).getTime();
+  const fin = new Date(fechaSalida.substring(0, 10)).getTime();
+  const diffMs = fin - inicio;
+  const diasCalculados = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  // Mínimo 1 día de almacenamiento si entra y sale en la misma jornada
+  const diasCustodia = Math.max(1, isNaN(diasCalculados) ? 1 : diasCalculados);
+
+  let unidadesCobro = 0;
+  let subtotal = 0;
+
+  if (baseCobro === 'POSICIONES') {
+    unidadesCobro = calcularPosicionesNecesarias(pesoNetoKg);
+    subtotal = Math.round((diasCustodia * unidadesCobro * tarifaDia + Number.EPSILON) * 100) / 100;
+  } else {
+    // Por kilogramos
+    unidadesCobro = pesoNetoKg;
+    subtotal = Math.round((diasCustodia * pesoNetoKg * tarifaDia + Number.EPSILON) * 100) / 100;
+  }
+
+  const iva = cobrarIva ? Math.round((subtotal * IVA_COLOMBIA_STORAGE + Number.EPSILON) * 100) / 100 : 0;
+  const retefuente = Math.round((subtotal * ((porcentajeRetefuente || 0) / 100) + Number.EPSILON) * 100) / 100;
+  const totalPagar = Math.round((subtotal + iva - retefuente + Number.EPSILON) * 100) / 100;
+
+  return {
+    diasCustodia,
+    subtotal,
+    iva,
+    retefuente,
+    totalPagar,
+    baseCobro,
+    unidadesCobro,
+  };
+}
+
+/**
+ * Evalúa el estado de cartera de un cliente para un periodo o mensualidad.
+ * Retorna estado en semáforo simplificado para operarios (La Regla de los 12 Años).
+ */
+export function evaluarCarteraYVencimiento(params: {
+  fechaCorteMensualidad: string;
+  fechaActual?: string;
+  valorMensualidad: number;
+  estadoPago: 'PENDIENTE' | 'PAGADA' | 'ANULADA';
+}): {
+  estadoSemaforo: 'AL_DIA' | 'POR_VENCER' | 'EN_MORA';
+  diasMora: number;
+  mensajeAlerta: string;
+  saldoPendiente: number;
+  badgeClase: string;
+} {
+  const { fechaCorteMensualidad, fechaActual, valorMensualidad, estadoPago } = params;
+
+  if (estadoPago === 'PAGADA' || estadoPago === 'ANULADA') {
+    return {
+      estadoSemaforo: 'AL_DIA',
+      diasMora: 0,
+      mensajeAlerta: 'Al día: Mensualidad pagada',
+      saldoPendiente: 0,
+      badgeClase: 'bg-emerald-50 text-emerald-700 border-emerald-300',
+    };
+  }
+
+  const hoyStr = fechaActual ? fechaActual.substring(0, 10) : new Date().toISOString().substring(0, 10);
+  const corteTime = new Date(fechaCorteMensualidad.substring(0, 10)).getTime();
+  const hoyTime = new Date(hoyStr).getTime();
+  const diffDias = Math.floor((hoyTime - corteTime) / (1000 * 60 * 60 * 24));
+
+  if (diffDias > 0) {
+    return {
+      estadoSemaforo: 'EN_MORA',
+      diasMora: diffDias,
+      mensajeAlerta: `Vencido: ${diffDias} día${diffDias > 1 ? 's' : ''} de mora`,
+      saldoPendiente: valorMensualidad,
+      badgeClase: 'bg-rose-50 text-rose-700 border-rose-300',
+    };
+  } else if (diffDias >= -3) {
+    return {
+      estadoSemaforo: 'POR_VENCER',
+      diasMora: 0,
+      mensajeAlerta: diffDias === 0 ? 'Vence hoy' : `Vence en ${Math.abs(diffDias)} días`,
+      saldoPendiente: valorMensualidad,
+      badgeClase: 'bg-amber-50 text-amber-700 border-amber-300',
+    };
+  } else {
+    return {
+      estadoSemaforo: 'AL_DIA',
+      diasMora: 0,
+      mensajeAlerta: `Al día (Corte: ${fechaCorteMensualidad})`,
+      saldoPendiente: valorMensualidad,
+      badgeClase: 'bg-emerald-50 text-emerald-700 border-emerald-300',
+    };
+  }
+}
+

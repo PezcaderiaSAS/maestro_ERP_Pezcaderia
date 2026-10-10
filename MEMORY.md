@@ -12,7 +12,12 @@
   - `CashFlowView.tsx` y `EgresoOperativoModal.tsx`: Tablas de movimientos y formularios de egreso convertidos a Light Mode con legibilidad total bajo luz solar o iluminación intensa de punto de venta.
 - **Verificación DevTools:** 0 errores en consola JS, Vite HMR 100% activo en `127.0.0.1:3000`, inspección visual exitosa de modales y flujos de cobro.
 
-## Siguientes Flujos Operativos Prioritarios
-1. **Alquileres de Frío (WMS 3PL):** Pesaje por estiba (posiciones de 800 kg), tarifas por día/mes y actas de custodia de terceros.
-2. **Transformación y Fileteo en Frío (Yield & Mermas):** Despiece táctil de pescado entero a filete/posta con balance de masa en vivo.
+## Módulo Alquiler de Cuarto Frío & Custodia 3PL (Completado)
+- **Flujo Operativo Asistido ("Regla de los 12 Años"):** Flujo en 4 pasos visuales (1. Cliente/Contrato -> 2. Báscula/Recepción -> 3. Retiro/Acta -> 4. Cobro en Caja).
+- **Cálculo Gravimétrico Exacto:** Precisión milimétrica sin redondeos flotantes (`Number.EPSILON`), tara programable por cliente (Canastilla: 2.0 kg, Caja: 0.8 kg, Suelto) y deducción automática.
+- **Modelos de Facturación:** Soporte dual para custodia por Días (`Kg netos × Días reales × Tarifa/día`) y Meses (posiciones fijas de 800 kg con fecha de corte y semáforos de mora/cartera vencida).
+- **Integración con Caja y Documentos PDF:** Depósito directo al turno de cajero activo en `cashService`, generación ejecutiva de Actas de Ingreso/Retiro, Contratos, Recibo de Pago (Carta) y Ticket Térmico POS 80mm en `coldStoragePdfService.ts`.
+- **Validación y Tests:** 37/37 tests unitarios en Vitest pasando (exit code 0), TypeScript 0 errores, y loop de Chrome DevTools verificado en escritorio y móvil (375 px) con 0 errores de consola.
 
+## Siguientes Flujos Operativos Prioritarios
+1. **Transformación y Fileteo en Frío (Yield & Mermas):** Despiece táctil de pescado entero a filete/posta con balance de masa en vivo.

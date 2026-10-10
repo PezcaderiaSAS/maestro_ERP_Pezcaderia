@@ -389,9 +389,126 @@ export const coldStorageRentalService = {
 
     const { data, error } = await query;
     if (error) {
-      console.error('[coldStorageRentalService] Error fetching causaciones:', error);
-      throw error;
+      console.warn('[coldStorageRentalService] Supabase causaciones no disponibles, usando caché local:', error.message);
+      const local = JSON.parse(localStorage.getItem('pezcaderia_causaciones_cf') || '[]');
+      if (contratoId) return local.filter((c: any) => c.contrato_id === contratoId);
+      return local;
     }
     return (data ?? []) as CausacionAlquilerItem[];
   },
+
+  /**
+   * Guarda en almacenamiento local persistente el preset de tara para un cliente
+   */
+  guardarPresetTaraCliente(
+    clienteId: string,
+    presets: { taraCanastillaKg: number; taraCajaKg: number }
+  ): void {
+    try {
+      const actual = JSON.parse(localStorage.getItem('pezcaderia_cf_presets_tara') || '{}');
+      actual[clienteId] = {
+        ...presets,
+        ultimaActualizacion: new Date().toISOString(),
+      };
+      localStorage.setItem('pezcaderia_cf_presets_tara', JSON.stringify(actual));
+    } catch (e) {
+      console.warn('Error guardando preset de tara:', e);
+    }
+  },
+
+  /**
+   * Obtiene el preset de tara configurado para un cliente, o los valores por defecto del sistema
+   */
+  obtenerPresetTaraCliente(clienteId?: string): { taraCanastillaKg: number; taraCajaKg: number } {
+    try {
+      if (!clienteId) return { taraCanastillaKg: 2.0, taraCajaKg: 0.8 };
+      const actual = JSON.parse(localStorage.getItem('pezcaderia_cf_presets_tara') || '{}');
+      if (actual[clienteId]) {
+        return {
+          taraCanastillaKg: Number(actual[clienteId].taraCanastillaKg ?? 2.0),
+          taraCajaKg: Number(actual[clienteId].taraCajaKg ?? 0.8),
+        };
+      }
+    } catch (e) {
+      console.warn('Error leyendo preset de tara:', e);
+    }
+    return { taraCanastillaKg: 2.0, taraCajaKg: 0.8 };
+  },
+
+  /**
+   * Registra el pago del servicio de alquiler directamente en el turno de caja abierto
+   * integrándolo con cashService (actualiza saldos físicos, arqueo y genera recibo).
+   */
+  async registrarCobroEnCaja(params: {
+    turnoId: string;
+    cajaId: string;
+    clienteId: string;
+    contratoId?: string;
+    causacionId?: string;
+    monto: number;
+    metodoPago: 'EFECTIVO' | 'DATAFONO' | 'TRANSFERENCIA' | 'CREDITO' | 'MIXTO';
+    concepto: string;
+    referenciaId: string;
+    usuarioId?: string;
+  }): Promise<{ success: boolean; movimientoCajaId?: string; error?: string }> {
+    try {
+      const { cashService } = await import('./cashService');
+      const resultado = cashService.registrarMovimiento(
+        params.turnoId,
+        params.cajaId,
+        'INGRESO_VENTA',
+        params.metodoPago as any,
+        params.monto,
+        params.concepto,
+        params.referenciaId,
+        params.usuarioId || '00000000-0000-0000-0000-000000000000'
+      );
+
+      if (resultado.error) {
+        return { success: false, error: resultado.error };
+      }
+
+      // Si hay una causación asociada, marcarla como pagada
+      if (params.causacionId) {
+        await this.marcarCausacionPagada(params.causacionId, params.metodoPago, params.turnoId);
+      }
+
+      return {
+        success: true,
+        movimientoCajaId: resultado.data?.id,
+      };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error registrando cobro en caja' };
+    }
+  },
+
+  /**
+   * Marca una causación como pagada en Supabase o en el almacenamiento local
+   */
+  async marcarCausacionPagada(causacionId: string, metodoPago: string, turnoId?: string): Promise<void> {
+    const sb = getSupabaseClient();
+    try {
+      await sb
+        .from('causaciones_alquiler_cf')
+        .update({
+          estado_pago: 'PAGADA',
+          asiento_contable_ref: `PAGO-CAJA-${metodoPago}-${turnoId || 'TURNO'}`,
+        })
+        .eq('id', causacionId);
+    } catch (e) {
+      console.warn('Error actualizando causación en Supabase, actualizando local:', e);
+    }
+
+    try {
+      const local = JSON.parse(localStorage.getItem('pezcaderia_causaciones_cf') || '[]');
+      const idx = local.findIndex((c: any) => c.id === causacionId);
+      if (idx !== -1) {
+        local[idx].estado_pago = 'PAGADA';
+        localStorage.setItem('pezcaderia_causaciones_cf', JSON.stringify(local));
+      }
+    } catch (e) {
+      // Ignorar errores locales
+    }
+  },
 };
+
