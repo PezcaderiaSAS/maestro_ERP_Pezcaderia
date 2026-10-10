@@ -19,6 +19,18 @@ Cada vez que un agente de IA finalice una sesión de trabajo, debe agregar una e
 
 ## Registros Diarios
 
+### [2026-10-10 13:10] - Antigravity (Quality Engineer & Full-Lifecycle Auditor)
+- **Módulo:** WMS Alquiler de Cuarto Frío & Custodia 3PL (Suite E2E Integral de Ciclo de Vida)
+- **Acción:** Creación, ejecución y certificación de la suite de pruebas E2E `src/tests/coldStorageFullLifecycleE2E.test.ts` cubriendo el 100% del ciclo operativo:
+  1. *Fase 1 (Directorio Unificado de Clientes & Contratos):* Registro del cliente depositante ("Comercializadora Océano Azul SAS"), activación atómica de contrato de alquiler por Días (tarifa pactada: $45.000, 2 posiciones = 1.600 kg nominales) y validación de consulta en el directorio general de clientes.
+  2. *Fase 2 (Mercancía Asociada al Cliente):* Registro individual y múltiple (batch) de productos asociados al depositante ("Corvina Entera Fresca", "Pargo Rojo Platero", "Camarón Tití Congelado", "Filete de Robalo") con aislamiento de catálogo por `cliente_id`.
+  3. *Fase 3 (Entradas y Báscula Multi-Partida):* Recepción consolidada de 3 pesadas sucesivas con taras heterogéneas (Canastillas a 2.0 kg, Cajas a 0.8 kg, Suelto a 0.0 kg), totales gravimétricos exactos (39 bultos, 40 kg tara, 980 kg neto), creación de existencias activas en inventario y generación del Acta de Recepción PDF (`coldStoragePdfService.generarActaRecepcionConsolidadaPdf`).
+  4. *Fase 4 (Despacho Consolidado y Salidas Multi-Lote):* Retiro total de un lote y parcial de otro con checklist de existencias, validación de saldos descontados (0 y 200 kg netos restantes), cálculo de merma y generación del Acta de Salida PDF (`coldStoragePdfService.generarActaDespachoConsolidadaPdf`).
+  5. *Fase 5 (Flujo de Caja, Liquidación con IVA 19% & Recibos):* Liquidación de causación contable ($650.000 subtotal + $123.500 IVA = $773.500 COP), asentamiento en turno de caja activo mediante `cashService.registrarMovimiento` (efectivo/nequi), transición de estado a `PAGADA`, y generación de Recibo Carta PDF y Ticket Térmico 80mm.
+  6. *Verificación DevTools en Vivo:* Ejecutado y validado en el runtime del navegador sobre la aplicación real con **0 errores en consola JS**.
+- **Archivos Creados/Modificados:** `src/tests/coldStorageFullLifecycleE2E.test.ts`, `MEMORY.md`, `CHANGELOG_AGENTS.md`.
+- **Notas/Bloqueos:** 100% de los requerimientos satisfechos y verificados.
+
 ### [2026-10-10 13:00] - Antigravity (Protocol Coordinator & UI/UX Specialist)
 - **Módulo:** WMS Alquiler de Cuarto Frío & Custodia 3PL (Registro Múltiple de Productos en Báscula)
 - **Acción:** Implementación completa y certificación de la creación rápida individual y múltiple (batch) de productos asociados al cliente depositante:

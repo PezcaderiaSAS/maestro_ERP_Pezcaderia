@@ -4,7 +4,8 @@
 - **Estado Global:** Sistema 100% en Modo Claro (Light Mode) de alto contraste con tokens WCAG 2.2 AA+ (`.agents/skills/erp-pos-design-tokens/SKILL.md`).
 - **Verificación Completa:**
   - `npx tsc --noEmit`: 0 errores de tipado.
-  - `npx vitest run`: 49 suites de prueba ejecutadas, **321 tests pasando al 100%** (incluyendo 44 tests de frío).
+  - `npx vitest run`: 50 suites de prueba ejecutadas, **325 tests pasando al 100%** (incluyendo 48 tests de frío y suite E2E integral de ciclo de vida).
+  - **Suite E2E de Ciclo Completo (`coldStorageFullLifecycleE2E.test.ts`):** 5 fases certificadas (Directorio Clientes, Catálogo por Cliente, Recepción y Báscula Multi-Partida, Despacho Multi-Lote, Actas PDF de Entradas/Salidas y Liquidación en Caja).
   - **Bucle DevTools MCP en Vivo:** Probado en escritorio y móvil (375 px) con **0 errores en consola JS**.
 
 ## Módulo Alquiler de Cuarto Frío WMS 3PL (Especificación SDD 006 Completada)
