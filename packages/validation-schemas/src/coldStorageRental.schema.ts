@@ -631,3 +631,99 @@ export function calcularTotalesPartidasRecepcion(items: PartidaRecepcion[]): {
   };
 }
 
+/**
+ * Calcula con precisión milimétrica el peso neto y bruto para productos
+ * estandarizados que ingresan por cajas con peso nominal fijo (ej. papas a la francesa en cajas de 10 kg).
+ */
+export function calcularPesoCajasNominal(params: {
+  cantidadCajas: number;
+  pesoNominalKg: number;
+  taraUnitariaKg?: number;
+}): {
+  pesoNetoKg: number;
+  taraTotalKg: number;
+  pesoBrutoKg: number;
+  esValido: boolean;
+  error?: string;
+} {
+  const { cantidadCajas, pesoNominalKg, taraUnitariaKg = 0 } = params;
+
+  if (cantidadCajas <= 0) {
+    return {
+      pesoNetoKg: 0,
+      taraTotalKg: 0,
+      pesoBrutoKg: 0,
+      esValido: false,
+      error: 'La cantidad de cajas debe ser mayor a 0.',
+    };
+  }
+
+  if (pesoNominalKg <= 0) {
+    return {
+      pesoNetoKg: 0,
+      taraTotalKg: 0,
+      pesoBrutoKg: 0,
+      esValido: false,
+      error: 'El peso nominal por caja debe ser mayor a 0 kg.',
+    };
+  }
+
+  const pesoNetoKg = Math.round((cantidadCajas * pesoNominalKg + Number.EPSILON) * 100) / 100;
+  const taraTotalKg = Math.round((cantidadCajas * taraUnitariaKg + Number.EPSILON) * 100) / 100;
+  const pesoBrutoKg = Math.round(((pesoNetoKg + taraTotalKg) + Number.EPSILON) * 100) / 100;
+
+  return {
+    pesoNetoKg,
+    taraTotalKg,
+    pesoBrutoKg,
+    esValido: true,
+  };
+}
+
+/**
+ * Estima por regla de tres el peso proporcional sugerido a retirar en una salida parcial a granel.
+ * Si la cantidad de bultos a retirar iguala o supera el saldo actual, retorna exactamente el saldo total de kg disponible
+ * evitando errores de decimales o redondeo en el vaciado.
+ */
+export function calcularEstimacionProporcionalSalida(params: {
+  pesoNetoActualKg: number;
+  bultosActuales: number;
+  bultosARetirar: number;
+}): {
+  pesoSugeridoKg: number;
+  esRetiroTotal: boolean;
+  pesoPromedioPorBultoKg: number;
+} {
+  const { pesoNetoActualKg, bultosActuales, bultosARetirar } = params;
+
+  if (bultosActuales <= 0 || pesoNetoActualKg <= 0 || bultosARetirar <= 0) {
+    return {
+      pesoSugeridoKg: 0,
+      esRetiroTotal: false,
+      pesoPromedioPorBultoKg: 0,
+    };
+  }
+
+  const pesoPromedioPorBultoKg =
+    Math.round(((pesoNetoActualKg / bultosActuales) + Number.EPSILON) * 1000) / 1000;
+
+  // Si retira todos los bultos (o más), sugerir el 100% exacto del peso actual disponible
+  if (bultosARetirar >= bultosActuales) {
+    return {
+      pesoSugeridoKg: Math.round((pesoNetoActualKg + Number.EPSILON) * 100) / 100,
+      esRetiroTotal: true,
+      pesoPromedioPorBultoKg,
+    };
+  }
+
+  const pesoSugeridoKg =
+    Math.round(((pesoNetoActualKg / bultosActuales) * bultosARetirar + Number.EPSILON) * 100) / 100;
+
+  return {
+    pesoSugeridoKg,
+    esRetiroTotal: false,
+    pesoPromedioPorBultoKg,
+  };
+}
+
+

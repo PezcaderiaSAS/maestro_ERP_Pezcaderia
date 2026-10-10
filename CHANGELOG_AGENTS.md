@@ -19,6 +19,29 @@ Cada vez que un agente de IA finalice una sesión de trabajo, debe agregar una e
 
 ## Registros Diarios
 
+### [2026-10-10 13:35] - Antigravity (Protocol Coordinator, WMS Specialist & UI/UX Engineer)
+- **Módulo:** WMS Alquiler de Cuarto Frío & Custodia 3PL (Especificación SDD 007)
+- **Acción:** Implementación completa y certificación de Cajas de Peso Fijo Nominal, Granel Bimodal en Canastillas y Salidas Rápidas:
+  1. *Cajas de Peso Fijo Nominal (`PESO_ESTABLE`):*
+     - Soporte para productos que ingresan en cajas estandarizadas (ej. papas a la francesa en cajas de 10 kg).
+     - Selector táctil `[📦 Cajas Peso Fijo (10 Kg)]` vs `[⚖️ Granel / Báscula]` en el modal de recepción.
+     - Función matemática determinista `calcularPesoCajasNominal` para autocalcular peso neto y tara nominal al escribir las cajas sin obligar a pesaje en báscula.
+  2. *Granel Bimodal en Canastillas (`MIXTO_BULTOS_PESO`):*
+     - Control bimodal estricto tanto de canastillas físicas como de kilos netos (ej. 40 canastillas de capón de carne con 843.3 kg).
+     - En el modal de despacho, al cambiar la cantidad de canastillas a retirar (ej. 30 de 40), cálculo automático del peso proporcional sugerido ($632.48\text{ kg}$) mediante `calcularEstimacionProporcionalSalida`, manteniendo el input editable para pesaje en báscula real de salida (ej. $630.0\text{ kg}$).
+     - Actualización y descuento atómico de saldos: 10 canastillas y $213.3\text{ kg}$ restantes.
+  3. *Botones de Salida Rápida (Restante & Vaciado Total):*
+     - Botón individual `[⚡ Retirar Restante]` en cada lote del checklist para liquidar el 100% de canastillas y kilos de ese producto en 1 toque.
+     - Botón global `[⚡ Despachar Todo el Saldo]` en la cabecera del cliente para marcar todos los lotes activos al 100% de una sola vez.
+  4. *Suite TDD & Pruebas Unitarias:*
+     - Agregada suite de 5 tests en `src/tests/coldStorageRental.test.ts` cubriendo el caso de uso exacto del usuario y casos límite.
+  5. *Bucle DevTools MCP en Vivo:*
+     - Verificado en el navegador con **0 errores en consola JS**.
+     - Verificado en viewport móvil (375 px) con renderizado responsivo óptimo.
+- **Archivos Modificados:** `packages/validation-schemas/src/coldStorageRental.schema.ts`, `src/services/coldStorageRentalService.ts`, `src/views/coldStorageRental/ColdStorageRentalView.tsx`, `src/tests/coldStorageRental.test.ts`, `specs/007-alquiler-frio-peso-fijo-granel-salida-rapida/tasks.md`, `MEMORY.md`, `CHANGELOG_AGENTS.md`.
+- **Mejoras UX/UI (Design System):** Ergonomía táctil, chips con badges ámbar/esmeralda, botones de 1-toque `[⚡ Retirar Restante]` y `[⚡ Despachar Todo el Saldo]`, Light Mode WCAG 2.2 AA+.
+- **Notas/Bloqueos:** Ninguno. 100% de los requerimientos satisfechos y verificados.
+
 ### [2026-10-10 13:10] - Antigravity (Quality Engineer & Full-Lifecycle Auditor)
 - **Módulo:** WMS Alquiler de Cuarto Frío & Custodia 3PL (Suite E2E Integral de Ciclo de Vida)
 - **Acción:** Creación, ejecución y certificación de la suite de pruebas E2E `src/tests/coldStorageFullLifecycleE2E.test.ts` cubriendo el 100% del ciclo operativo:

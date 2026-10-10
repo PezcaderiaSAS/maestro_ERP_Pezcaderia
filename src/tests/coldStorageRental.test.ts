@@ -22,6 +22,8 @@ import {
   ItemDespachoCustodiaSchema,
   DespachoMultipleInputSchema,
   calcularTotalesPartidasRecepcion,
+  calcularPesoCajasNominal,
+  calcularEstimacionProporcionalSalida,
 } from '../../packages/validation-schemas/src/coldStorageRental.schema';
 import type { PartidaRecepcion, ItemDespacho } from '../../packages/validation-schemas/src/coldStorageRental.schema';
 import { coldStorageRentalService } from '../services/coldStorageRentalService';
@@ -1073,6 +1075,142 @@ describe('Módulo Alquiler de Cuarto Frío WMS 3PL - Reglas de Negocio', () => {
         expect(productosCliente.some((p) => p.nombre === 'Robalo Fresco')).toBe(true);
         expect(productosCliente.some((p) => p.nombre === 'Sierra Fileteada')).toBe(true);
         expect(productosCliente.some((p) => p.nombre === 'Calamar Tubo')).toBe(true);
+      });
+    });
+
+    describe('SDD 007: Cajas de Peso Cerrado (Fijo), Granel Bimodal en Canastillas & Salida Rápida', () => {
+      it('debe calcular con precisión milimétrica la recepción de productos en cajas de peso cerrado', () => {
+        // Ejemplo del usuario: papas fritas en cajas de 10 kilos (50 cajas)
+        const res = calcularPesoCajasNominal({
+          cantidadCajas: 50,
+          pesoNominalKg: 10.0,
+          taraUnitariaKg: 0.8,
+        });
+
+        expect(res.esValido).toBe(true);
+        expect(res.pesoNetoKg).toBe(500.0); // 50 * 10 = 500 kg netos
+        expect(res.taraTotalKg).toBe(40.0); // 50 * 0.8 = 40 kg de tara
+        expect(res.pesoBrutoKg).toBe(540.0); // 500 + 40 = 540 kg bruto
+      });
+
+      it('debe rechazar cajas o peso nominal menor o igual a cero', () => {
+        expect(calcularPesoCajasNominal({ cantidadCajas: 0, pesoNominalKg: 10 }).esValido).toBe(false);
+        expect(calcularPesoCajasNominal({ cantidadCajas: 10, pesoNominalKg: 0 }).esValido).toBe(false);
+      });
+
+      it('debe calcular la estimación proporcional automática para salidas parciales a granel', () => {
+        // Ejemplo del usuario: capón de carne al granel: 40 canastillas y 843.3 kg netos
+        // Salida parcial de 30 canastillas:
+        const estimacion = calcularEstimacionProporcionalSalida({
+          pesoNetoActualKg: 843.3,
+          bultosActuales: 40,
+          bultosARetirar: 30,
+        });
+
+        expect(estimacion.esRetiroTotal).toBe(false);
+        expect(estimacion.pesoPromedioPorBultoKg).toBe(21.083); // 843.3 / 40 = 21.0825 -> 21.083
+        expect(estimacion.pesoSugeridoKg).toBe(632.48); // (843.3 / 40) * 30 = 632.475 -> 632.48 kg
+      });
+
+      it('debe retornar exactamente el 100% del saldo disponible cuando el retiro es total (evita discrepancias de decimales)', () => {
+        const estimacionTotal = calcularEstimacionProporcionalSalida({
+          pesoNetoActualKg: 843.3,
+          bultosActuales: 40,
+          bultosARetirar: 40,
+        });
+
+        expect(estimacionTotal.esRetiroTotal).toBe(true);
+        expect(estimacionTotal.pesoSugeridoKg).toBe(843.3);
+      });
+
+      it('debe simular el flujo completo del usuario: recepción a granel, salida parcial con peso báscula real y salida rápida del restante', async () => {
+        // 1. Recepción a granel: 40 canastillas de capón de carne con peso bruto 923.3 kg (tara 80 kg -> 843.3 kg netos)
+        const recepcion = await coldStorageRentalService.registrarRecepcionMultiple({
+          contrato_id: 'ctr-test-granel-007',
+          cliente_id: 'cl-capon-test',
+          transportador_nombre: 'Conductor Capón',
+          transportador_cedula: '12345678',
+          placa_vehiculo: 'TRK-843',
+          items: [
+            {
+              producto_nombre: 'Capón de Carne a Granel',
+              lote_cliente: 'LOT-CAPON-40',
+              tipo_empaque: 'CANASTILLAS',
+              cantidad_bultos: 40,
+              tara_unitaria_kg: 2.0,
+              peso_tara_total_kg: 80.0,
+              peso_bruto_kg: 923.3,
+              peso_neto_kg: 843.3,
+              temperatura_c: -18.0,
+            },
+          ],
+        });
+
+        expect(recepcion.success).toBe(true);
+        const invId = recepcion.inventarios[0].id;
+        expect(recepcion.inventarios[0].bultos_actuales).toBe(40);
+        expect(recepcion.inventarios[0].peso_neto_actual_kg).toBe(843.3);
+
+        // 2. Salida parcial: se retiran 30 canastillas. El operario pesa en rampa y digita 630.0 kg reales
+        const salidaParcial = await coldStorageRentalService.registrarDespachoMultiple({
+          contrato_id: 'ctr-test-granel-007',
+          cliente_id: 'cl-capon-test',
+          transportador_nombre: 'Conductor Salida 1',
+          transportador_cedula: '87654321',
+          placa_vehiculo: 'SAL-001',
+          items: [
+            {
+              inventario_id: invId,
+              producto_nombre: 'Capón de Carne a Granel',
+              tipo_empaque: 'CANASTILLAS',
+              bultos_a_retirar: 30,
+              peso_neto_a_retirar: 630.0, // Báscula de salida real
+              es_retiro_total: false,
+            },
+          ],
+        });
+
+        expect(salidaParcial.success).toBe(true);
+        expect(salidaParcial.totalBultosDespachados).toBe(30);
+        expect(salidaParcial.totalPesoDespachadoKg).toBe(630.0);
+
+        // Consultar el saldo restante en inventario
+        const invs = await coldStorageRentalService.getInventarioCustodia('cl-capon-test');
+        const invItem = invs.find((i) => i.id === invId);
+        expect(invItem).toBeDefined();
+        expect(invItem!.bultos_actuales).toBe(10); // 40 - 30 = 10 canastillas restantes
+        expect(invItem!.peso_neto_actual_kg).toBe(213.3); // 843.3 - 630.0 = 213.3 kg restantes
+        expect(invItem!.activo).toBe(true);
+
+        // 3. Salida rápida: después de unos días, se despacha todo el restante (10 canastillas y 213.3 kg)
+        const salidaRapida = await coldStorageRentalService.registrarDespachoMultiple({
+          contrato_id: 'ctr-test-granel-007',
+          cliente_id: 'cl-capon-test',
+          transportador_nombre: 'Conductor Salida Final',
+          transportador_cedula: '99887766',
+          placa_vehiculo: 'SAL-FINAL',
+          items: [
+            {
+              inventario_id: invId,
+              producto_nombre: 'Capón de Carne a Granel',
+              tipo_empaque: 'CANASTILLAS',
+              bultos_a_retirar: 10,
+              peso_neto_a_retirar: 213.3,
+              es_retiro_total: true,
+            },
+          ],
+        });
+
+        expect(salidaRapida.success).toBe(true);
+        expect(salidaRapida.totalBultosDespachados).toBe(10);
+        expect(salidaRapida.totalPesoDespachadoKg).toBe(213.3);
+
+        // Verificar que el lote quedó totalmente liquidado y desactivado (saldo 0)
+        const invsFinal = await coldStorageRentalService.getInventarioCustodia('cl-capon-test');
+        const invItemFinal = invsFinal.find((i) => i.id === invId);
+        expect(invItemFinal!.bultos_actuales).toBe(0);
+        expect(invItemFinal!.peso_neto_actual_kg).toBe(0);
+        expect(invItemFinal!.activo).toBe(false);
       });
     });
   });

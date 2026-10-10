@@ -18,6 +18,8 @@ import {
   ClienteRapidoInputSchema,
   DespachoMultipleInputSchema,
   calcularTotalesPartidasRecepcion,
+  calcularPesoCajasNominal,
+  calcularEstimacionProporcionalSalida,
 } from '../../packages/validation-schemas/src/coldStorageRental.schema';
 
 export const DEFAULT_EMPRESA_ID = '00000000-0000-0000-0000-000000000001';
@@ -1113,9 +1115,19 @@ export const coldStorageRentalService = {
       acta_consecutivo: consecutivoActa,
       totalBultosDespachados: totalBultos,
       totalPesoDespachadoKg: totalPeso,
-      itemsProcesados: validated.items.length,
       movimientos: movimientosCreados,
     };
   },
+
+  /**
+   * Helper determinista: Cálculo de cajas con peso cerrado nominal
+   */
+  calcularPesoCajasNominal,
+
+  /**
+   * Helper determinista: Estimación proporcional de salidas parciales a granel
+   */
+  calcularEstimacionProporcionalSalida,
 };
+
 

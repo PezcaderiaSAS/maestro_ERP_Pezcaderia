@@ -49,6 +49,8 @@ import {
   calcularLiquidacionDias,
   evaluarCarteraYVencimiento,
   calcularTotalesPartidasRecepcion,
+  calcularPesoCajasNominal,
+  calcularEstimacionProporcionalSalida,
   TARAS_PREDETERMINADAS_KG,
   type TipoEmpaqueCustodia,
   type ContratoAlquilerCf,
@@ -170,6 +172,8 @@ export const ColdStorageRentalView: React.FC = () => {
     tara_unitaria_kg: 2.0,
     peso_bruto_kg: 320.0,
     temperatura_c: -18.5,
+    es_peso_fijo_caja: false,
+    peso_nominal_caja_kg: 10.0,
   });
 
   const [recepcionForm, setRecepcionForm] = useState({
@@ -271,6 +275,24 @@ export const ColdStorageRentalView: React.FC = () => {
 
   // Calcular en tiempo real la tara y peso neto de la partida en báscula
   const gravimetriaPartidaActual = useMemo(() => {
+    if (partidaActual.es_peso_fijo_caja) {
+      // Si el operario no pesó en báscula, se calcula directamente por cajas y peso nominal
+      if (!partidaActual.peso_bruto_kg || partidaActual.peso_bruto_kg <= 0) {
+        return calcularPesoCajasNominal({
+          cantidadCajas: partidaActual.cantidad_bultos,
+          pesoNominalKg: partidaActual.peso_nominal_caja_kg,
+          taraUnitariaKg: partidaActual.tara_unitaria_kg,
+        });
+      }
+      // Si pesó en báscula, valida el bruto menos la tara de las cajas
+      return calcularTaraYNetoExacto({
+        tipoEmpaque: 'CAJAS',
+        cantidadBultos: partidaActual.cantidad_bultos,
+        pesoBrutoKg: partidaActual.peso_bruto_kg,
+        taraUnitariaConfigurada: partidaActual.tara_unitaria_kg,
+      });
+    }
+
     return calcularTaraYNetoExacto({
       tipoEmpaque: partidaActual.tipo_empaque,
       cantidadBultos: partidaActual.cantidad_bultos,
@@ -278,6 +300,8 @@ export const ColdStorageRentalView: React.FC = () => {
       taraUnitariaConfigurada: partidaActual.tara_unitaria_kg,
     });
   }, [
+    partidaActual.es_peso_fijo_caja,
+    partidaActual.peso_nominal_caja_kg,
     partidaActual.tipo_empaque,
     partidaActual.cantidad_bultos,
     partidaActual.peso_bruto_kg,
@@ -633,6 +657,14 @@ export const ColdStorageRentalView: React.FC = () => {
       return;
     }
 
+    const pesoBrutoReal =
+      Number(partidaActual.peso_bruto_kg) > 0
+        ? Number(partidaActual.peso_bruto_kg)
+        : Number(
+            (gravimetriaPartidaActual as any).pesoBrutoKg ||
+              gravimetriaPartidaActual.pesoNetoKg + gravimetriaPartidaActual.taraTotalKg
+          );
+
     const nuevaPartida: PartidaRecepcion = {
       id: crypto.randomUUID(),
       producto_nombre: partidaActual.producto_nombre.trim(),
@@ -642,7 +674,7 @@ export const ColdStorageRentalView: React.FC = () => {
       cantidad_bultos: Number(partidaActual.cantidad_bultos),
       tara_unitaria_kg: Number(partidaActual.tara_unitaria_kg),
       peso_tara_total_kg: Number(gravimetriaPartidaActual.taraTotalKg),
-      peso_bruto_kg: Number(partidaActual.peso_bruto_kg),
+      peso_bruto_kg: pesoBrutoReal,
       peso_neto_kg: Number(gravimetriaPartidaActual.pesoNetoKg),
       temperatura_c: Number(partidaActual.temperatura_c),
     };
@@ -808,7 +840,7 @@ export const ColdStorageRentalView: React.FC = () => {
     });
   };
 
-  // Manejador: Establecer retiro total para un ítem del checklist
+  // Manejador: Botón Salida Rápida para un lote individual [⚡ Retirar Restante]
   const handleRetiroTotalItem = (invItem: InventarioCustodiaItem) => {
     setDespachoItemsSeleccionados((prev) => ({
       ...prev,
@@ -819,6 +851,39 @@ export const ColdStorageRentalView: React.FC = () => {
         es_retiro_total: true,
       },
     }));
+  };
+
+  // Manejador: Botón Salida Rápida Global [⚡ Despachar Todo el Saldo] para todos los lotes del cliente
+  const handleDespacharTodoSaldoCliente = () => {
+    const itemsDelCliente = inventario.filter((i) => i.cliente_id === despachoClienteId && i.activo);
+    if (itemsDelCliente.length === 0) return;
+
+    const nuevoMap: Record<
+      string,
+      { seleccionado: boolean; bultos_a_retirar: number; peso_neto_a_retirar: number; es_retiro_total: boolean }
+    > = {};
+
+    itemsDelCliente.forEach((i) => {
+      nuevoMap[i.id] = {
+        seleccionado: true,
+        bultos_a_retirar: i.bultos_actuales,
+        peso_neto_a_retirar: Number(i.peso_neto_actual_kg),
+        es_retiro_total: true,
+      };
+    });
+
+    setDespachoItemsSeleccionados(nuevoMap);
+  };
+
+  // Manejador: Desmarcar todos los lotes del cliente
+  const handleDeseleccionarTodoCliente = () => {
+    setDespachoItemsSeleccionados((prev) => {
+      const nuevo = { ...prev };
+      Object.keys(nuevo).forEach((k) => {
+        nuevo[k] = { ...nuevo[k], seleccionado: false };
+      });
+      return nuevo;
+    });
   };
 
   // Manejador Paso 3: Guardar Despacho Consolidado (Checklist Múltiple)
@@ -2068,15 +2133,24 @@ export const ColdStorageRentalView: React.FC = () => {
                         (p) => p.nombre.toLowerCase() === nuevoNombre.trim().toLowerCase()
                       );
                       if (match) {
+                        const esCajaFija =
+                          match.modalidad_medicion === 'PESO_ESTABLE' ||
+                          (typeof match.peso_unitario_nominal === 'number' && match.peso_unitario_nominal > 0);
                         const empaqueMatch = (['CANASTILLAS', 'CAJAS', 'GRANEL'].includes(match.tipo_empaque)
                           ? match.tipo_empaque
+                          : esCajaFija
+                          ? 'CAJAS'
                           : 'CANASTILLAS') as TipoEmpaqueCustodia;
-                        const taraMatch = (match as any).tara_unitaria_kg ?? (empaqueMatch === 'CANASTILLAS' ? 2.0 : empaqueMatch === 'CAJAS' ? 0.8 : 0.0);
+                        const taraMatch =
+                          (match as any).tara_unitaria_kg ??
+                          (empaqueMatch === 'CANASTILLAS' ? 2.0 : empaqueMatch === 'CAJAS' ? 0.8 : 0.0);
                         setPartidaActual((prev) => ({
                           ...prev,
                           producto_nombre: match.nombre,
                           tipo_empaque: empaqueMatch,
                           tara_unitaria_kg: taraMatch,
+                          es_peso_fijo_caja: esCajaFija,
+                          peso_nominal_caja_kg: match.peso_unitario_nominal || prev.peso_nominal_caja_kg || 10.0,
                         }));
                       } else {
                         setPartidaActual((prev) => ({ ...prev, producto_nombre: nuevoNombre }));
@@ -2102,6 +2176,9 @@ export const ColdStorageRentalView: React.FC = () => {
                       </span>
                       {productosClienteActivo.slice(0, 5).map((prod) => {
                         const esSeleccionado = partidaActual.producto_nombre.toLowerCase() === prod.nombre.toLowerCase();
+                        const esCajaFija =
+                          prod.modalidad_medicion === 'PESO_ESTABLE' ||
+                          (typeof prod.peso_unitario_nominal === 'number' && prod.peso_unitario_nominal > 0);
                         return (
                           <button
                             key={prod.id || prod.nombre}
@@ -2109,13 +2186,19 @@ export const ColdStorageRentalView: React.FC = () => {
                             onClick={() => {
                               const empaque = (['CANASTILLAS', 'CAJAS', 'GRANEL'].includes(prod.tipo_empaque)
                                 ? prod.tipo_empaque
+                                : esCajaFija
+                                ? 'CAJAS'
                                 : 'CANASTILLAS') as TipoEmpaqueCustodia;
-                              const tara = (prod as any).tara_unitaria_kg ?? (empaque === 'CANASTILLAS' ? 2.0 : empaque === 'CAJAS' ? 0.8 : 0.0);
+                              const tara =
+                                (prod as any).tara_unitaria_kg ??
+                                (empaque === 'CANASTILLAS' ? 2.0 : empaque === 'CAJAS' ? 0.8 : 0.0);
                               setPartidaActual((prev) => ({
                                 ...prev,
                                 producto_nombre: prod.nombre,
                                 tipo_empaque: empaque,
                                 tara_unitaria_kg: tara,
+                                es_peso_fijo_caja: esCajaFija,
+                                peso_nominal_caja_kg: prod.peso_unitario_nominal || prev.peso_nominal_caja_kg || 10.0,
                               }));
                             }}
                             className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition-all flex items-center gap-1 cursor-pointer ${
@@ -2124,8 +2207,11 @@ export const ColdStorageRentalView: React.FC = () => {
                                 : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200 hover:border-slate-300'
                             }`}
                           >
-                            <span>🐟</span>
+                            <span>{esCajaFija ? '📦' : '🐟'}</span>
                             <span>{prod.nombre}</span>
+                            {esCajaFija && prod.peso_unitario_nominal && (
+                              <span className="text-[10px] opacity-80">({prod.peso_unitario_nominal}kg)</span>
+                            )}
                           </button>
                         );
                       })}
@@ -2145,102 +2231,206 @@ export const ColdStorageRentalView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Selector Visual de Empaque */}
+              {/* Selector Visual de Empaque y Modalidad */}
               <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
-                <label className="block text-xs font-bold text-slate-700">Tipo de Empaque y Tara Unitaria:</label>
-                <div className="grid grid-cols-3 gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setPartidaActual({
-                        ...partidaActual,
-                        tipo_empaque: 'CANASTILLAS',
-                        tara_unitaria_kg: 2.0,
-                      })
-                    }
-                    className={`p-3 rounded-xl border text-center transition-all ${
-                      partidaActual.tipo_empaque === 'CANASTILLAS'
-                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm font-black'
-                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 font-bold'
-                    }`}
-                  >
-                    <div className="text-xl">🧺</div>
-                    <div className="text-xs mt-1">Canastillas (2.0 Kg)</div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setPartidaActual({
-                        ...partidaActual,
-                        tipo_empaque: 'CAJAS',
-                        tara_unitaria_kg: 0.8,
-                      })
-                    }
-                    className={`p-3 rounded-xl border text-center transition-all ${
-                      partidaActual.tipo_empaque === 'CAJAS'
-                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm font-black'
-                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 font-bold'
-                    }`}
-                  >
-                    <div className="text-xl">📦</div>
-                    <div className="text-xs mt-1">Cajas (0.8 Kg)</div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setPartidaActual({
-                        ...partidaActual,
-                        tipo_empaque: 'SUELTO',
-                        cantidad_bultos: 0,
-                        tara_unitaria_kg: 0.0,
-                      })
-                    }
-                    className={`p-3 rounded-xl border text-center transition-all ${
-                      partidaActual.tipo_empaque === 'SUELTO'
-                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm font-black'
-                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 font-bold'
-                    }`}
-                  >
-                    <div className="text-xl">🐟</div>
-                    <div className="text-xs mt-1">Suelto / Granel (0 Kg)</div>
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 pt-1">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
-                      {partidaActual.tipo_empaque === 'CANASTILLAS'
-                        ? 'Cantidad de Canastillas'
-                        : partidaActual.tipo_empaque === 'CAJAS'
-                        ? 'Cantidad de Cajas'
-                        : 'Bultos (0 para granel)'}
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={partidaActual.cantidad_bultos}
-                      onChange={(e) =>
-                        setPartidaActual({ ...partidaActual, cantidad_bultos: Number(e.target.value) })
+                <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-200">
+                  <label className="text-xs font-black text-slate-800 flex items-center gap-1.5">
+                    <Layers className="w-4 h-4 text-emerald-600" /> Modalidad de Medición:
+                  </label>
+                  <div className="flex bg-slate-200/80 p-0.5 rounded-xl text-xs font-bold">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setPartidaActual((prev) => ({
+                          ...prev,
+                          es_peso_fijo_caja: false,
+                        }))
                       }
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 font-black text-slate-900 text-base"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Tara por Unidad (Kg)</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={partidaActual.tara_unitaria_kg}
-                      onChange={(e) =>
-                        setPartidaActual({ ...partidaActual, tara_unitaria_kg: Number(e.target.value) })
+                      className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                        !partidaActual.es_peso_fijo_caja
+                          ? 'bg-white text-emerald-800 font-black shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      ⚖️ Granel / Báscula
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setPartidaActual((prev) => ({
+                          ...prev,
+                          es_peso_fijo_caja: true,
+                          tipo_empaque: 'CAJAS',
+                          tara_unitaria_kg: prev.tara_unitaria_kg || 0.8,
+                        }))
                       }
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 font-bold text-slate-900 text-base"
-                    />
+                      className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                        partidaActual.es_peso_fijo_caja
+                          ? 'bg-emerald-600 text-white font-black shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      📦 Cajas Peso Fijo (10 Kg)
+                    </button>
                   </div>
                 </div>
+
+                {/* Si está en modo cajas de peso fijo cerrado */}
+                {partidaActual.es_peso_fijo_caja ? (
+                  <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-300 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black text-emerald-900 flex items-center gap-1.5">
+                        <Box className="w-4 h-4 text-emerald-700" /> Cajas con Peso Cerrado Estandarizado
+                      </span>
+                      <span className="text-[10px] font-bold text-emerald-700 bg-white px-2 py-0.5 rounded-full border border-emerald-200">
+                        Cálculo Automático
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2.5">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Cantidad de Cajas *</label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={partidaActual.cantidad_bultos}
+                          onChange={(e) =>
+                            setPartidaActual({ ...partidaActual, cantidad_bultos: Number(e.target.value) })
+                          }
+                          className="w-full px-3 py-2 rounded-xl bg-white border border-emerald-400 font-black text-emerald-900 text-base"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Peso Nominal por Caja (Kg) *</label>
+                        <input
+                          type="number"
+                          step="0.05"
+                          min="0.1"
+                          value={partidaActual.peso_nominal_caja_kg}
+                          onChange={(e) =>
+                            setPartidaActual({ ...partidaActual, peso_nominal_caja_kg: Number(e.target.value) })
+                          }
+                          className="w-full px-3 py-2 rounded-xl bg-white border border-emerald-400 font-black text-emerald-900 text-base font-mono"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Tara por Caja (Kg)</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={partidaActual.tara_unitaria_kg}
+                          onChange={(e) =>
+                            setPartidaActual({ ...partidaActual, tara_unitaria_kg: Number(e.target.value) })
+                          }
+                          className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 font-bold text-slate-900 text-base"
+                        />
+                      </div>
+                    </div>
+
+                    <p className="text-[11px] text-emerald-800 font-medium">
+                      💡 <b>{partidaActual.cantidad_bultos} cajas</b> × <b>{partidaActual.peso_nominal_caja_kg} Kg</b> = <b className="text-emerald-950 font-black text-xs">{(partidaActual.cantidad_bultos * partidaActual.peso_nominal_caja_kg).toFixed(2)} Kg Netos</b> registrados sin forzar pesaje unitario en báscula.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <label className="block text-xs font-bold text-slate-700">Tipo de Empaque y Tara Unitaria:</label>
+                    <div className="grid grid-cols-3 gap-2.5">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPartidaActual({
+                            ...partidaActual,
+                            tipo_empaque: 'CANASTILLAS',
+                            tara_unitaria_kg: 2.0,
+                          })
+                        }
+                        className={`p-3 rounded-xl border text-center transition-all ${
+                          partidaActual.tipo_empaque === 'CANASTILLAS'
+                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm font-black'
+                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 font-bold'
+                        }`}
+                      >
+                        <div className="text-xl">🧺</div>
+                        <div className="text-xs mt-1">Canastillas (2.0 Kg)</div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPartidaActual({
+                            ...partidaActual,
+                            tipo_empaque: 'CAJAS',
+                            tara_unitaria_kg: 0.8,
+                          })
+                        }
+                        className={`p-3 rounded-xl border text-center transition-all ${
+                          partidaActual.tipo_empaque === 'CAJAS'
+                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm font-black'
+                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 font-bold'
+                        }`}
+                      >
+                        <div className="text-xl">📦</div>
+                        <div className="text-xs mt-1">Cajas (0.8 Kg)</div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPartidaActual({
+                            ...partidaActual,
+                            tipo_empaque: 'SUELTO',
+                            cantidad_bultos: 0,
+                            tara_unitaria_kg: 0.0,
+                          })
+                        }
+                        className={`p-3 rounded-xl border text-center transition-all ${
+                          partidaActual.tipo_empaque === 'SUELTO'
+                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm font-black'
+                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 font-bold'
+                        }`}
+                      >
+                        <div className="text-xl">🐟</div>
+                        <div className="text-xs mt-1">Suelto / Granel (0 Kg)</div>
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 pt-1">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          {partidaActual.tipo_empaque === 'CANASTILLAS'
+                            ? 'Cantidad de Canastillas'
+                            : partidaActual.tipo_empaque === 'CAJAS'
+                            ? 'Cantidad de Cajas'
+                            : 'Bultos (0 para granel)'}
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={partidaActual.cantidad_bultos}
+                          onChange={(e) =>
+                            setPartidaActual({ ...partidaActual, cantidad_bultos: Number(e.target.value) })
+                          }
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 font-black text-slate-900 text-base"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Tara por Unidad (Kg)</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={partidaActual.tara_unitaria_kg}
+                          onChange={(e) =>
+                            setPartidaActual({ ...partidaActual, tara_unitaria_kg: Number(e.target.value) })
+                          }
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 font-bold text-slate-900 text-base"
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Pantalla en Vivo de Báscula Calibrada */}
@@ -2249,18 +2439,24 @@ export const ColdStorageRentalView: React.FC = () => {
                   <span className="text-xs font-mono font-bold text-emerald-400 flex items-center gap-1.5">
                     <Scale className="w-4 h-4" /> BÁSCULA ELECTRÓNICA CALIBRADA
                   </span>
-                  <span className="text-xs font-mono text-slate-400">TARA DESCONTADA EN VIVO</span>
+                  <span className="text-xs font-mono text-slate-400">
+                    {partidaActual.es_peso_fijo_caja
+                      ? 'MODO CAJAS PESO CERRADO (BÁSCULA OPCIONAL)'
+                      : 'TARA DESCONTADA EN VIVO'}
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-center">
                   <div>
                     <label className="block text-xs font-bold text-slate-300 mb-1">
-                      Peso Bruto en Báscula (Kg) *
+                      {partidaActual.es_peso_fijo_caja
+                        ? 'Peso Bruto en Báscula (Opcional si varía)'
+                        : 'Peso Bruto en Báscula (Kg) *'}
                     </label>
                     <input
                       type="number"
                       step="0.01"
-                      placeholder="0.00"
+                      placeholder={partidaActual.es_peso_fijo_caja ? `${gravimetriaPartidaActual.pesoBrutoKg || '0.00'}` : '0.00'}
                       value={partidaActual.peso_bruto_kg || ''}
                       onChange={(e) =>
                         setPartidaActual({ ...partidaActual, peso_bruto_kg: Number(e.target.value) })
@@ -2924,9 +3120,37 @@ export const ColdStorageRentalView: React.FC = () => {
 
             {/* Checklist de Lotes Activos del Cliente */}
             <div className="space-y-3">
-              <span className="text-xs font-black uppercase tracking-wider text-slate-900 block">
-                Existencias Activas en Cuarto Frío:
-              </span>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <span className="text-xs font-black uppercase tracking-wider text-slate-900 block">
+                    Existencias Activas en Cuarto Frío:
+                  </span>
+                  <span className="text-[11px] text-slate-500 font-medium">
+                    Control bimodal: Canastillas/Cajas físicas y Kilogramos netos
+                  </span>
+                </div>
+
+                {inventario.filter((i) => i.cliente_id === despachoClienteId && i.activo).length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleDespacharTodoSaldoCliente}
+                      className="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-black text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                      title="Marcar el 100% de los bultos y kilos restantes de todos los lotes del cliente para salida inmediata"
+                    >
+                      <Zap className="w-3.5 h-3.5 text-amber-200" />
+                      ⚡ Despachar Todo el Saldo
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDeseleccionarTodoCliente}
+                      className="text-xs font-semibold text-slate-500 hover:text-slate-800 underline cursor-pointer"
+                    >
+                      Desmarcar todos
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {inventario.filter((i) => i.cliente_id === despachoClienteId && i.activo).length === 0 ? (
                 <div className="p-6 text-center rounded-xl bg-slate-50 border border-slate-200 text-slate-500 text-xs">
@@ -2969,7 +3193,7 @@ export const ColdStorageRentalView: React.FC = () => {
                                   Lote: <b className="text-slate-700">{item.lote_cliente}</b> • Empaque:{' '}
                                   {item.producto?.tipo_empaque || 'Estándar'} • Saldo:{' '}
                                   <b className="text-emerald-700 font-bold">{item.peso_neto_actual_kg} Kg</b> (
-                                  {item.bultos_actuales} bultos)
+                                  {item.bultos_actuales} bultos/canastillas)
                                 </span>
                               </div>
                             </label>
@@ -2977,9 +3201,11 @@ export const ColdStorageRentalView: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => handleRetiroTotalItem(item)}
-                              className="px-2.5 py-1 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs shrink-0"
+                              className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-black text-xs shrink-0 flex items-center gap-1 shadow-xs cursor-pointer transition-all"
+                              title="Retirar todo el restante de este lote de manera rápida"
                             >
-                              Retiro Total
+                              <Zap className="w-3.5 h-3.5 text-amber-200" />
+                              ⚡ Retirar Restante
                             </button>
                           </div>
 
@@ -2987,7 +3213,7 @@ export const ColdStorageRentalView: React.FC = () => {
                             <div className="mt-3 pt-2.5 border-t border-amber-200/80 grid grid-cols-2 gap-3 text-xs">
                               <div>
                                 <label className="block text-slate-700 font-bold mb-1">
-                                  Bultos a Retirar (Máx: {item.bultos_actuales})
+                                  Canastillas / Cajas a Retirar (Máx: {item.bultos_actuales})
                                 </label>
                                 <input
                                   type="number"
@@ -2995,25 +3221,38 @@ export const ColdStorageRentalView: React.FC = () => {
                                   max={item.bultos_actuales}
                                   value={sel.bultos_a_retirar}
                                   onChange={(e) => {
-                                    const val = Number(e.target.value);
+                                    const val = Math.max(0, Math.min(item.bultos_actuales, Number(e.target.value)));
+                                    const estimacion = calcularEstimacionProporcionalSalida({
+                                      pesoNetoActualKg: Number(item.peso_neto_actual_kg),
+                                      bultosActuales: item.bultos_actuales,
+                                      bultosARetirar: val,
+                                    });
                                     setDespachoItemsSeleccionados((prev) => ({
                                       ...prev,
                                       [item.id]: {
                                         ...sel,
                                         bultos_a_retirar: val,
-                                        es_retiro_total:
-                                          val >= item.bultos_actuales &&
-                                          sel.peso_neto_a_retirar >= Number(item.peso_neto_actual_kg),
+                                        peso_neto_a_retirar: estimacion.pesoSugeridoKg,
+                                        es_retiro_total: estimacion.esRetiroTotal,
                                       },
                                     }));
                                   }}
                                   className="w-full px-3 py-1.5 rounded-lg bg-white border border-amber-300 font-bold text-slate-900"
                                 />
+                                {sel.bultos_a_retirar < item.bultos_actuales && (
+                                  <span className="text-[10px] text-amber-800 font-bold block mt-0.5">
+                                    ⚡ Sugerido: {calcularEstimacionProporcionalSalida({
+                                      pesoNetoActualKg: Number(item.peso_neto_actual_kg),
+                                      bultosActuales: item.bultos_actuales,
+                                      bultosARetirar: sel.bultos_a_retirar,
+                                    }).pesoSugeridoKg} Kg (editable)
+                                  </span>
+                                )}
                               </div>
 
                               <div>
                                 <label className="block text-slate-700 font-bold mb-1">
-                                  Peso Neto a Retirar Kg (Máx: {item.peso_neto_actual_kg})
+                                  Peso Neto a Retirar Kg (Báscula de Salida)
                                 </label>
                                 <input
                                   type="number"
@@ -3036,6 +3275,15 @@ export const ColdStorageRentalView: React.FC = () => {
                                   }}
                                   className="w-full px-3 py-1.5 rounded-lg bg-white border border-amber-300 font-black text-slate-900 font-mono"
                                 />
+                                {sel.es_retiro_total ? (
+                                  <span className="text-[10px] text-emerald-700 font-black block mt-0.5">
+                                    ✓ Vaciado completo del lote (saldo 0)
+                                  </span>
+                                ) : (
+                                  <span className="text-[10px] text-slate-500 font-semibold block mt-0.5">
+                                    Saldo restante: {Math.max(0, Math.round((Number(item.peso_neto_actual_kg) - sel.peso_neto_a_retirar) * 100) / 100)} Kg ({Math.max(0, item.bultos_actuales - sel.bultos_a_retirar)} canastillas)
+                                  </span>
+                                )}
                               </div>
                             </div>
                           )}

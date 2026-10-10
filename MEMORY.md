@@ -1,21 +1,21 @@
 # Memoria Activa - La Pezcadería ERP
 
-## Contexto Actual & Estado Global (Light Mode WCAG AA+ & SDD 006 Completado)
+## Contexto Actual & Estado Global (Light Mode WCAG AA+ & SDD 006 / 007 Completados)
 - **Estado Global:** Sistema 100% en Modo Claro (Light Mode) de alto contraste con tokens WCAG 2.2 AA+ (`.agents/skills/erp-pos-design-tokens/SKILL.md`).
 - **Verificación Completa:**
-  - `npx tsc --noEmit`: 0 errores de tipado.
-  - `npx vitest run`: 50 suites de prueba ejecutadas, **325 tests pasando al 100%** (incluyendo 48 tests de frío y suite E2E integral de ciclo de vida).
-  - **Suite E2E de Ciclo Completo (`coldStorageFullLifecycleE2E.test.ts`):** 5 fases certificadas (Directorio Clientes, Catálogo por Cliente, Recepción y Báscula Multi-Partida, Despacho Multi-Lote, Actas PDF de Entradas/Salidas y Liquidación en Caja).
-  - **Bucle DevTools MCP en Vivo:** Probado en escritorio y móvil (375 px) con **0 errores en consola JS**.
+  - 50+ suites de prueba ejecutadas, pasando al 100% (incluyendo E2E de ciclo completo y SDD 007).
+  - **Bucle DevTools MCP en Vivo:** Verificado en escritorio y móvil (375 px) con **0 errores en consola JS**.
 
-## Módulo Alquiler de Cuarto Frío WMS 3PL (Especificación SDD 006 Completada)
-- **Recepción Múltiple con Taras Heterogéneas:** Planilla interactiva de pesaje en báscula calibrada que permite registrar múltiples partidas para el mismo o diferentes productos con empaques y taras independientes (Canastillas: 2.0 kg, Cajas: 0.8 kg, Suelto: 0.0 kg), consolidando totales gravimétricos exactos en una sola Acta de Recepción (`REC-CF-XXXXXX`).
-- **Creación Express de Cliente In-Situ (15 Segundos):** Sub-modal táctil express que permite registrar un cliente depositante y activar su contrato al vuelo sin salir del modal de pesaje ni perder partidas en curso, preseleccionándolo automáticamente.
-- **Creación Rápida Individual y Múltiple de Productos (Batch):** Sub-modal táctil (`z-[9999]`) para registrar 1 a N especies/productos asociados al cliente activo. Soporta entrada por comas (ej. "Corvina, Pargo, Camarón"), configuración individual de empaques y taras, persistencia en Supabase + `localStorage` (`crearProductosCustodiaBatch`) y selección táctil a 1-toque mediante chips de productos habituales en la báscula.
-- **Despacho Consolidado con Checklist Multi-Lote:** Modal con selector de cliente y checklist interactivo de todas sus existencias activas en custodia, con soporte para retiro total o parcial por lote, validación de saldos y emisión de una sola Acta de Salida (`DSP-CF-XXXXXX`).
-- **Resiliencia Offline / Local:** Doble capa de persistencia (Supabase RPC con fallback transparente y sincronizado a `localStorage`), permitiendo operación ininterrumpida sin caídas.
-- **Documentos PDF Oficiales:** Actas consolidadas de recepción y despacho multi-partida generadas con jsPDF en `coldStoragePdfService.ts`.
+## Módulo Alquiler de Cuarto Frío WMS 3PL (SDD 006 & SDD 007)
+- **Cajas de Peso Cerrado / Fijo (SDD 007):** Selector táctil `[📦 Cajas Peso Fijo]` (ej. papas fritas 10 kg). Permite ingresar cantidad de cajas y peso nominal sin obligar a pesaje en báscula, calculando peso neto y tara nominal de forma determinista (`calcularPesoCajasNominal`).
+- **Granel Bimodal en Canastillas (SDD 007):** Control dual estricto para productos a granel (ej. 40 canastillas con 843.3 kg netos). En salidas parciales (ej. 30 canastillas), auto-calcula la sugerencia proporcional por regla de tres ($632.48\text{ kg}$) manteniendo el campo editable para báscula real de salida (ej. $630.0\text{ kg}$), dejando el saldo exacto en canastillas y kilos (10 canastillas, $213.3\text{ kg}$).
+- **Salida Rápida (Restante y Vaciado Total - SDD 007):**
+  - Botón individual `[⚡ Retirar Restante]` en cada lote para vaciar canastillas y kilos al 100% en 1 toque.
+  - Botón global `[⚡ Despachar Todo el Saldo]` en la cabecera del cliente para seleccionar y liquidar todas las existencias en custodia de una sola vez.
+- **Recepción Múltiple & Creación Express (SDD 006):** Planilla multi-partida heterogénea, creación de cliente al vuelo (15 seg) y creación rápida de productos en batch con chips táctiles.
+- **Despacho Consolidado & Salidas:** Checklist interactivo por cliente emitiendo Actas PDF oficiales (`DSP-CF-XXXXXX`).
+- **Resiliencia & Persistencia:** Sincronización transparente Supabase RPC + `localStorage` (`pezcaderia_inventario_custodia`, `pezcaderia_movimientos_custodia`).
 
 ## Gobernanza UI/UX & Regla de los 12 Años
 - **Flujo en 4 Pasos Visuales:** 1. Cliente/Contrato -> 2. Báscula/Recepción -> 3. Retiro/Despacho -> 4. Cobro en Caja.
-- **Accesibilidad:** Botones táctiles $\ge 44\text{ px}$, chips de producto de un toque, inputs blancos con anillos índigo/esmeralda, etiquetas autoexplicativas y alertas SweetAlert2 con resúmenes claros.
+- **Accesibilidad:** Botones táctiles $\ge 44\text{ px}$, chips de producto de un toque, inputs blancos con anillos índigo/esmeralda, alertas SweetAlert2 claras.
