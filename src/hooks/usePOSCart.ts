@@ -40,22 +40,36 @@ export function usePOSCart(initialCliente: ClientePOS | null = null) {
 
   const agregarProducto = (producto: Producto, cantidad: number = 1, esPesoManual: boolean = false) => {
     log.info('agregarProducto', { sku: producto.sku, nombre: producto.nombre, cantidad });
-    // Resolver precio de venta según el tipo de cliente
-    let precioLista = Number((producto as any).precio_venta_pos ?? producto.precioVentaPOS) || 0;
+    // Resolver precio de venta según el tipo de cliente (siempre entero en COP)
+    let precioLista = Math.round(Number((producto as any).precio_venta_pos ?? producto.precioVentaPOS) || 0);
     if (cliente) {
       if (cliente.tipoPrecio === 'RESTAURANTE') {
-        precioLista = Number((producto as any).precio_venta_restaurante ?? producto.precioVentaRestaurante) || 0;
+        precioLista = Math.round(Number((producto as any).precio_venta_restaurante ?? producto.precioVentaRestaurante) || 0);
       } else if (cliente.tipoPrecio === 'MAYORISTA') {
-        precioLista = Number((producto as any).precio_venta_mayorista ?? producto.precioVentaMayorista) || 0;
+        precioLista = Math.round(Number((producto as any).precio_venta_mayorista ?? producto.precioVentaMayorista) || 0);
       }
     }
+
+    // Normalizar unidad de medida: detecta 'kg', 'KG', 'kilo', 'kilos'
+    const unidadMedidaStr = (producto.unidadMedida || (producto as any).unidad || '').toString().trim().toUpperCase();
+    const unidad: 'KG' | 'UNIDAD' = unidadMedidaStr === 'KG' || unidadMedidaStr === 'KILO' || unidadMedidaStr === 'KILOS' ? 'KG' : 'UNIDAD';
+
+    // Manejo de IVA
+    const tarifaIva = Number((producto as any).iva) || 0;
+    const ivaIncluido = (producto as any).ivaIncluido !== false;
 
     setLineas((prev) => {
       const idx = prev.findIndex((l) => l.productoId === producto.id);
       if (idx > -1) {
         const itemActual = prev[idx];
         const nuevaCantidad = itemActual.cantidad + cantidad;
-        const calc = calcularTotalLinea(precioLista, itemActual.descuentoPct, nuevaCantidad);
+        const calc = calcularTotalLinea(
+          precioLista,
+          itemActual.descuentoPct,
+          nuevaCantidad,
+          itemActual.iva ?? tarifaIva,
+          itemActual.ivaIncluido ?? ivaIncluido
+        );
         const updated = [...prev];
         updated[idx] = {
           ...itemActual,
@@ -63,24 +77,30 @@ export function usePOSCart(initialCliente: ClientePOS | null = null) {
           precioLista,
           precioFinal: calc.precioFinal,
           totalLinea: calc.totalLinea,
+          baseGravableLinea: calc.baseGravableLinea,
+          cuotaIvaLinea: calc.cuotaIvaLinea,
           esPesoManual: esPesoManual || itemActual.esPesoManual,
         };
         return updated;
       }
 
-      const calc = calcularTotalLinea(precioLista, 0, cantidad);
+      const calc = calcularTotalLinea(precioLista, 0, cantidad, tarifaIva, ivaIncluido);
       const nuevaLinea: LineaVenta = {
         productoId: producto.id,
         sku: producto.sku,
         nombre: producto.nombre,
         cantidad,
-        unidad: producto.unidadMedida === 'KG' ? 'KG' : 'UNIDAD',
+        unidad,
         precioLista,
         descuentoPct: 0,
         precioFinal: calc.precioFinal,
         totalLinea: calc.totalLinea,
-        precioCompra: producto.precioCompra || 0,
+        baseGravableLinea: calc.baseGravableLinea,
+        cuotaIvaLinea: calc.cuotaIvaLinea,
+        precioCompra: Math.round(producto.precioCompra || (producto as any).precio_compra || 0),
         esPesoManual,
+        iva: tarifaIva,
+        ivaIncluido,
       };
       return [...prev, nuevaLinea];
     });
@@ -97,12 +117,14 @@ export function usePOSCart(initialCliente: ClientePOS | null = null) {
     setLineas((prev) =>
       prev.map((l) => {
         if (l.productoId === productoId) {
-          const calc = calcularTotalLinea(l.precioLista, l.descuentoPct, cantidad);
+          const calc = calcularTotalLinea(l.precioLista, l.descuentoPct, cantidad, l.iva, l.ivaIncluido);
           return {
             ...l,
             cantidad,
             precioFinal: calc.precioFinal,
             totalLinea: calc.totalLinea,
+            baseGravableLinea: calc.baseGravableLinea,
+            cuotaIvaLinea: calc.cuotaIvaLinea,
           };
         }
         return l;
@@ -117,12 +139,14 @@ export function usePOSCart(initialCliente: ClientePOS | null = null) {
     setLineas((prev) =>
       prev.map((l) => {
         if (l.productoId === productoId) {
-          const calc = calcularTotalLinea(l.precioLista, descuentoPct, l.cantidad);
+          const calc = calcularTotalLinea(l.precioLista, descuentoPct, l.cantidad, l.iva, l.ivaIncluido);
           return {
             ...l,
             descuentoPct,
             precioFinal: calc.precioFinal,
             totalLinea: calc.totalLinea,
+            baseGravableLinea: calc.baseGravableLinea,
+            cuotaIvaLinea: calc.cuotaIvaLinea,
           };
         }
         return l;
@@ -132,17 +156,42 @@ export function usePOSCart(initialCliente: ClientePOS | null = null) {
 
   const updateItemPrice = (productoId: string, newPrice: number) => {
     if (newPrice < 0) return;
+    const cleanPrice = Math.round(newPrice);
 
     setLineas((prev) =>
       prev.map((l) => {
         if (l.productoId === productoId) {
-          const calc = calcularTotalLinea(newPrice, l.descuentoPct, l.cantidad);
+          const calc = calcularTotalLinea(cleanPrice, l.descuentoPct, l.cantidad, l.iva, l.ivaIncluido);
           return {
             ...l,
             precioModificadoOriginal: l.precioModificadoOriginal ?? l.precioLista,
-            precioLista: newPrice,
+            precioLista: cleanPrice,
             precioFinal: calc.precioFinal,
             totalLinea: calc.totalLinea,
+            baseGravableLinea: calc.baseGravableLinea,
+            cuotaIvaLinea: calc.cuotaIvaLinea,
+          };
+        }
+        return l;
+      })
+    );
+  };
+
+  const resetItemPrice = (productoId: string) => {
+    log.info('resetItemPrice', { productoId });
+    setLineas((prev) =>
+      prev.map((l) => {
+        if (l.productoId === productoId && l.precioModificadoOriginal !== undefined) {
+          const originalPrice = l.precioModificadoOriginal;
+          const calc = calcularTotalLinea(originalPrice, l.descuentoPct, l.cantidad, l.iva, l.ivaIncluido);
+          return {
+            ...l,
+            precioLista: originalPrice,
+            precioFinal: calc.precioFinal,
+            totalLinea: calc.totalLinea,
+            baseGravableLinea: calc.baseGravableLinea,
+            cuotaIvaLinea: calc.cuotaIvaLinea,
+            precioModificadoOriginal: undefined,
           };
         }
         return l;
@@ -172,6 +221,7 @@ export function usePOSCart(initialCliente: ClientePOS | null = null) {
     actualizarCantidad,
     actualizarDescuentoLinea,
     updateItemPrice,
+    resetItemPrice,
     removerProducto,
     setCliente,
     setDescuentoGlobalPct,

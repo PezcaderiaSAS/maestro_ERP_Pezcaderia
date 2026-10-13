@@ -1,5 +1,5 @@
 import React from 'react';
-import { Minus, Plus, X } from 'lucide-react';
+import { Minus, Plus, X, Edit3 } from 'lucide-react';
 import type { LineaVenta } from '../../../types/pos.types';
 import { BalanzaButton } from './BalanzaButton';
 import { Button } from '../../../components/ui/Button';
@@ -16,6 +16,8 @@ interface LineaVentaRowProps {
   onWeightRead: (productoId: string, peso: number) => void;
   onAplicarPrecioHistorico: (productoId: string, precio: number) => void;
   onResetPrecio: (productoId: string) => void;
+  onUpdatePrecio?: (productoId: string, precio: number) => void;
+  onResetItemPrice?: (productoId: string) => void;
 }
 
 export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
@@ -29,10 +31,87 @@ export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
   onWeightRead,
   onAplicarPrecioHistorico,
   onResetPrecio,
+  onUpdatePrecio,
+  onResetItemPrice,
 }) => {
   const isInsufficient = stockDisponible < linea.cantidad;
   const totalLinea = precioFinalDisplay * linea.cantidad;
   const tieneDescuentoLinea = linea.descuentoPct > 0;
+  const isPrecioModificado =
+    linea.precioModificadoOriginal !== undefined &&
+    linea.precioModificadoOriginal !== linea.precioLista;
+
+  const handleEditarPrecioClick = async () => {
+    if (!onUpdatePrecio) return;
+
+    const precioBaseActual = Math.round(linea.precioLista);
+
+    const { value: nuevoPrecioStr, isConfirmed } = await Swal.fire({
+      title: 'Modificar Precio de Venta',
+      text: `Producto: ${linea.nombre}`,
+      input: 'number',
+      inputLabel: `Precio unitario por ${linea.unidad === 'KG' ? 'Kg' : 'Unidad'} ($ COP)`,
+      inputValue: precioBaseActual.toString(),
+      inputAttributes: {
+        min: '0',
+        step: 'any',
+        inputmode: 'numeric',
+        placeholder: 'Ej: 31000',
+      },
+      inputValidator: (value) => {
+        if (!value || isNaN(Number(value))) {
+          return 'Por favor ingresa un precio válido en pesos colombianos (COP)';
+        }
+        if (Number(value) <= 0) {
+          return 'El precio de venta debe ser mayor a $0 COP';
+        }
+        return null;
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Guardar Precio',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#059669',
+      cancelButtonColor: '#64748b',
+    });
+
+    if (!isConfirmed || !nuevoPrecioStr) return;
+
+    const nuevoPrecio = Math.round(parseFloat(nuevoPrecioStr));
+    if (isNaN(nuevoPrecio) || nuevoPrecio <= 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Precio inválido',
+        text: 'Ingrese un valor numérico mayor a $0 COP.',
+      });
+      return;
+    }
+
+    // Validación de rentabilidad si precio < costo de compra
+    if (linea.precioCompra > 0 && nuevoPrecio < linea.precioCompra) {
+      const { isConfirmed: confirmaBajoCosto } = await Swal.fire({
+        icon: 'warning',
+        title: 'Rentabilidad Comprometida',
+        html: `El precio ingresado (<strong>$${nuevoPrecio.toLocaleString('es-CO')} COP</strong>) es inferior al costo de compra (<strong>$${linea.precioCompra.toLocaleString('es-CO')} COP</strong>).<br/><br/>¿Desea aplicar este precio con margen negativo?`,
+        showCancelButton: true,
+        confirmButtonText: 'Sí, aplicar precio',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#d97706',
+        cancelButtonColor: '#64748b',
+      });
+
+      if (!confirmaBajoCosto) return;
+    }
+
+    onUpdatePrecio(linea.productoId, nuevoPrecio);
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: `Precio actualizado: $${nuevoPrecio.toLocaleString('es-CO')} COP`,
+      showConfirmButton: false,
+      timer: 1500,
+    });
+  };
 
   const handleQtyDelta = (delta: number) => {
     const nuevaCantidad = Number(linea.cantidad) + delta;
@@ -91,11 +170,29 @@ export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
         className="cart-item-left"
         style={{ display: 'flex', flexDirection: 'column', gap: '3px', flex: 1 }}
       >
-        {/* Nombre y badge peso manual */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        {/* Nombre, badge de unidad y badge peso manual */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
           <span className="cart-item-name" style={{ fontWeight: 700, fontSize: '13px' }}>
             {linea.nombre}
           </span>
+
+          {/* Badge distintivo de tipo de venta (Kilos vs Unidades) */}
+          {linea.unidad === 'KG' ? (
+            <span
+              className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-50 text-sky-700 border border-sky-200 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800"
+              title="Producto vendido por peso en Kilogramos"
+            >
+              ⚖️ KILOS
+            </span>
+          ) : (
+            <span
+              className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800"
+              title="Producto vendido por Unidades enteras"
+            >
+              📦 UNIDAD
+            </span>
+          )}
+
           {linea.esPesoManual && (
             <span
               title="Peso ingresado manualmente (RN-13)"
@@ -118,9 +215,43 @@ export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
           <span className="cart-item-price font-mono tabular-nums tracking-tight" style={{ color: 'var(--primary-color)', fontWeight: 700 }}>
             ${totalLinea.toLocaleString('es-CO')}
           </span>
-          <span className="font-mono tabular-nums text-[11px] text-slate-400">
-            (${precioFinalDisplay.toLocaleString('es-CO')} c/u)
-          </span>
+          <button
+            type="button"
+            onClick={handleEditarPrecioClick}
+            title="Haga clic para editar el precio de venta unitario"
+            className="group inline-flex items-center gap-1 font-mono tabular-nums text-[11px] font-semibold px-1.5 py-0.5 rounded border border-slate-200 bg-white hover:bg-indigo-50 hover:border-indigo-300 text-slate-600 hover:text-indigo-600 transition-all cursor-pointer shadow-2xs"
+          >
+            <span>(${precioFinalDisplay.toLocaleString('es-CO')} / {linea.unidad === 'KG' ? 'kg' : 'und'})</span>
+            <Edit3 size={11} className="text-slate-400 group-hover:text-indigo-600" />
+          </button>
+          {isPrecioModificado && (
+            <span
+              style={{
+                fontSize: '10px',
+                padding: '1px 5px',
+                borderRadius: '4px',
+                backgroundColor: '#FEF3C7',
+                color: '#D97706',
+                fontWeight: 700,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '2px',
+              }}
+              title={`Precio base de catálogo: $${linea.precioModificadoOriginal?.toLocaleString('es-CO')}`}
+            >
+              ✏️ Modificado (Base: ${linea.precioModificadoOriginal?.toLocaleString('es-CO')})
+            </span>
+          )}
+          {isPrecioModificado && onResetItemPrice && (
+            <button
+              type="button"
+              onClick={() => onResetItemPrice(linea.productoId)}
+              className="text-[10px] text-amber-600 hover:text-amber-800 underline font-semibold cursor-pointer"
+              title="Restablecer al precio original de catálogo"
+            >
+              Restablecer
+            </button>
+          )}
           {tieneDescuentoLinea && (
             <span
               style={{
@@ -146,7 +277,7 @@ export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
               fontWeight: 600,
             }}
           >
-            Stock: {stockDisponible} {isInsufficient && '⚠️ Insuficiente'}
+            Stock: {stockDisponible} {linea.unidad === 'KG' ? 'kg' : 'und'} {isInsufficient && '⚠️ Insuficiente'}
           </span>
         </div>
 
@@ -237,10 +368,10 @@ export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
             onChange={handleInputChange}
             onBlur={handleInputBlur}
             className="w-full text-center border border-white/10 dark:border-white/15 rounded-lg text-base font-bold h-11 px-1 bg-card border-white/5 dark:bg-slate-900 text-primary dark:text-white tabular-nums shadow-inner"
-            step="any"
-            min="0"
-            inputMode="decimal"
-            aria-label="Cantidad del producto"
+            step={linea.unidad === 'KG' ? 'any' : '1'}
+            min={linea.unidad === 'KG' ? '0.001' : '1'}
+            inputMode={linea.unidad === 'KG' ? 'decimal' : 'numeric'}
+            aria-label={`Cantidad del producto en ${linea.unidad === 'KG' ? 'kilos' : 'unidades'}`}
           />
         </div>
 

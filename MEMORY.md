@@ -1,19 +1,33 @@
 # Memoria Activa - La Pezcadería ERP
 
-## Contexto Actual (POS Offline & Recepción WMS)
-- **Estado Global:** Implementación del Módulo POS Offline-First (Mostrador táctil en frío) y Flujo de Traslado Rápido a Sucursal.
+## Contexto Actual & Estado Global (Light Mode WCAG AA+ & SDD 006 / 007 / 008 / 009 Completados)
+- **Estado Global:** Sistema 100% en Modo Claro (Light Mode) de alto contraste con tokens WCAG 2.2 AA+ (`.agents/skills/erp-pos-design-tokens/SKILL.md`).
+- **Verificación Completa:**
+  - 50+ suites de prueba ejecutadas al 100% (unitarias y E2E de ciclo completo).
+  - **Bucle DevTools MCP en Vivo:** Verificado en escritorio y móvil (375 px) con **0 errores en consola JS**.
+
+## Módulo POS Offline & Traslado Rápido WMS
 - **Vistas y Componentes Desarrollados:**
-  - `PosDashboard.tsx`: Panel principal del POS, adaptado a táctil y diseñado para funcionar sin internet usando el patrón Outbox.
-  - `useOutboxSync.ts`: Lógica de sincronización vía IndexedDB para capturar ventas y trasladarlas asíncronamente.
-  - `BucaramangaReceivingWizard.tsx`: Integración del Traslado Rápido al final de la recepción (Liquidación).
-- **Backend & Base de Datos (Pendiente):**
-  - Creada la migración SQL `20261009124000_pos_fefo_sync.sql` con la función `rpc_pos_sync_fefo` para deducir de manera inteligente (FEFO) el stock vendido en el POS, soportando stock negativo.
-  - **PENDIENTE PARA LA PRÓXIMA SESIÓN:** 
-    1. Ejecutar `npx prisma db execute` o `supabase migration up` (falló por falta de la variable `DIRECT_URL` en el `.env`).
-    2. Validar con DevTools la UI ya que hubo error 503 del subagente y fallo de conexión al puerto 5173 (actualmente Vite corre en el 3000).
+  - `PosDashboard.tsx`: Panel principal del POS, adaptado a táctil y diseñado para operar sin internet con patrón Outbox.
+  - `useOutboxSync.ts`: Sincronización vía IndexedDB para capturar ventas y encolarlas asíncronamente.
+  - `BucaramangaReceivingWizard.tsx`: Integración de Traslado Rápido a mostrador al liquidar recepción de compra.
+- **Backend & Deducción FEFO:**
+  - Migración SQL `20261009124000_pos_fefo_sync.sql` con `rpc_pos_sync_fefo` para deducción por vencimiento y soporte de stock negativo.
 
-## Siguientes Flujos Operativos Prioritarios
-1. Resolver migraciones SQL para que Prisma se sincronice con Supabase (`DIRECT_URL`).
-2. Continuar con Alquileres de Frío (WMS 3PL) y Actas de custodia.
-3. Transformación y Fileteo en Frío (Yield & Mermas).
+## SDD 009: Redondeo Entero COP, IVA Incluido y Diferenciación Unidad vs Kilos
+- **Redondeo Estricto a Enteros en COP:** Todos los precios, subtotales, descuentos, bases gravables e IVA son enteros exactos (`Math.round`), eliminando centavos y descuadres de $1 peso en balances contables.
+- **Desglose Determinista de IVA Incluido:** Fórmula canónica ante descuentos y cambios de precio ($10.000 -> $9.000 con 19%):
+  $\text{Base} = \text{round}(\text{Total} / (1 + \text{tarifa}/100)) = \$7.563$, $\text{IVA} = \text{Total} - \text{Base} = \$1.437$, garantizando que $\text{Base} + \text{IVA} \equiv \text{Total}$.
+- **Diferenciación Visual & Operativa:**
+  - `⚖️ KILOS`: Badge azul en catálogo y carrito, rotulado `$XX.XXX / kg`, botón de balanza activo, admisión de peso decimal.
+  - `📦 UNIDAD`: Badge esmeralda, rotulado `$XX.XXX / und`, paso entero (`step="1"`), sin botón de balanza.
+- **Productos de Prueba Sembrados en Catálogo:**
+  1. `Camaron Crudo 41-50` (`CAM-CRU-41-50`): Materia Prima, venta por kilos, compra $28.500, venta POS $38.000.
+  2. `Camaron Crudo 41-50 x 500 gr` (`CAM-CRU-41-50-500G`): Producto Final por unidades, compra $14.250 (derivado proporcionalmente: $28.500 * 0.5), venta POS $22.000.
 
+## Módulo POS — Precios en Venta & Suite de 6 Flujos E2E (SDD 008)
+- **Edición Ágil de Precios en Carrito:** Botón ✏️ en cada fila, confirmación de rentabilidad si precio < costo, badge `✏️ Modificado (Base: $X)`.
+- **6 Pilares E2E Certificados:** Apertura de caja, venta multi-presentación, venta guardada/retomada con pago mixto, venta con precio modificado, venta a crédito, y solicitud de reabastecimiento POS a Bodega Principal.
+
+## Gobernanza UI/UX
+- Ergonomía táctil $\ge 44\text{ px}$, alto contraste WCAG AA+, tipografías claras, cero errores de consola.

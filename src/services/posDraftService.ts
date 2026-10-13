@@ -110,6 +110,13 @@ export class PosDraftService {
   }
 
   /**
+   * Elimina/descarta un borrador de pedido (alias para resolveDraft con 'DESCARTADO')
+   */
+  static async deleteDraft(draftId: string): Promise<void> {
+    return this.resolveDraft(draftId, 'DESCARTADO');
+  }
+
+  /**
    * Sincroniza y descarga pedidos en espera desde Supabase para la empresa activa
    */
   static async fetchRemoteDrafts(): Promise<CartDraft[]> {

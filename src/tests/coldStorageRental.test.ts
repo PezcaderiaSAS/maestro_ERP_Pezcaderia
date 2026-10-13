@@ -5,12 +5,29 @@ import {
   calcularRecargoSobrecupo,
   calcularMermaSalida,
   liquidarCausacionAlquiler,
+  calcularTaraYNetoExacto,
+  calcularLiquidacionDias,
+  evaluarCarteraYVencimiento,
+  TARAS_PREDETERMINADAS_KG,
   ContratoAlquilerCfSchema,
   ProductoCustodiaSchema,
   RecepcionCustodiaInputSchema,
   DespachoCustodiaInputSchema,
   NOMINAL_KG_POR_POSICION,
+  PartidaRecepcionSchema,
+  RecepcionMultipleInputSchema,
+  ClienteRapidoInputSchema,
+  ProductoRapidoItemSchema,
+  ProductosClienteBatchInputSchema,
+  ItemDespachoCustodiaSchema,
+  DespachoMultipleInputSchema,
+  calcularTotalesPartidasRecepcion,
+  calcularPesoCajasNominal,
+  calcularEstimacionProporcionalSalida,
 } from '../../packages/validation-schemas/src/coldStorageRental.schema';
+import type { PartidaRecepcion, ItemDespacho } from '../../packages/validation-schemas/src/coldStorageRental.schema';
+import { coldStorageRentalService } from '../services/coldStorageRentalService';
+import { coldStoragePdfService } from '../services/coldStoragePdfService';
 
 const mockSave = vi.fn();
 vi.mock('jspdf', () => {
@@ -25,6 +42,7 @@ vi.mock('jspdf', () => {
       text: vi.fn(),
       setDrawColor: vi.fn(),
       setLineWidth: vi.fn(),
+      setLineDashPattern: vi.fn(),
       line: vi.fn(),
       splitTextToSize: vi.fn((t: string) => [t]),
       save: mockSave,
@@ -481,5 +499,720 @@ describe('Módulo Alquiler de Cuarto Frío WMS 3PL - Reglas de Negocio', () => {
       expect(doc).toBeDefined();
       expect(mockSave).toHaveBeenCalledWith('Certificado_Custodia_901555666-4_2026-09-28.pdf');
     });
+
+    it('debe generar el Recibo Oficial de Caja y Paz y Salvo en formato ejecutivo carta', async () => {
+      const { coldStoragePdfService } = await import('../services/coldStoragePdfService');
+      const doc = coldStoragePdfService.generarPdfReciboPagoAlquiler({
+        consecutivo: 'RC-CF-2026-001',
+        cliente: {
+          empresa_id: 'emp-1',
+          razon_social: 'Distribuidora del Caribe SAS',
+          numero_identificacion: '900111222-3',
+          tipo_identificacion: 'NIT',
+          autorizados_retiro: [],
+          estado: 'ACTIVO',
+        },
+        concepto: 'Alquiler de cuarto frío mes de octubre (1 posición 800 kg)',
+        subtotal: 650000,
+        iva: 123500,
+        retefuente: 26000,
+        totalPagar: 747500,
+        metodoPago: 'TRANSFERENCIA',
+        referenciaCaja: 'CAJA-BODEGA-01',
+        cajeroNombre: 'Yurgen Martinez',
+      });
+
+      expect(doc).toBeDefined();
+      expect(mockSave).toHaveBeenCalledWith('Recibo_Caja_RC-CF-2026-001.pdf');
+    });
+
+    it('debe generar el Ticket Térmico de Caja POS en formato rollo 80mm', async () => {
+      const { coldStoragePdfService } = await import('../services/coldStoragePdfService');
+      const doc = coldStoragePdfService.generarPdfTicketTermicoAlquiler({
+        consecutivo: 'TCK-CF-0042',
+        cliente: {
+          empresa_id: 'emp-1',
+          razon_social: 'Pescados y Mariscos La Herradura',
+          numero_identificacion: '800999888-1',
+          tipo_identificacion: 'NIT',
+          autorizados_retiro: [],
+          estado: 'ACTIVO',
+        },
+        concepto: 'Liquidación 3 días almacenamiento (450 kg corvina)',
+        totalPagar: 202500,
+        metodoPago: 'EFECTIVO',
+      });
+
+      expect(doc).toBeDefined();
+      expect(mockSave).toHaveBeenCalledWith('Ticket_TCK-CF-0042.pdf');
+    });
+  });
+
+  describe('Cálculo Milimétrico de Tara y Peso Neto por Empaque (Cajas, Canastillas, Suelto)', () => {
+    it('debe tener taras estándar calibradas para cada embalaje', () => {
+      expect(TARAS_PREDETERMINADAS_KG.CANASTILLAS).toBe(2.0);
+      expect(TARAS_PREDETERMINADAS_KG.CAJAS).toBe(0.8);
+      expect(TARAS_PREDETERMINADAS_KG.SUELTO).toBe(0.0);
+    });
+
+    it('debe calcular correctamente la tara de 10 canastillas estándar y el neto', () => {
+      // 10 canastillas * 2.0 kg = 20 kg tara. Bruto 320 kg -> Neto 300.00 kg
+      const res = calcularTaraYNetoExacto({
+        tipoEmpaque: 'CANASTILLAS',
+        cantidadBultos: 10,
+        pesoBrutoKg: 320,
+      });
+
+      expect(res.esValido).toBe(true);
+      expect(res.taraUnitaria).toBe(2.0);
+      expect(res.taraTotalKg).toBe(20.0);
+      expect(res.pesoNetoKg).toBe(300.0);
+    });
+
+    it('debe permitir calibrar tara unitaria personalizada por cliente con precisión milimétrica', () => {
+      // Canastilla pesada a 2.15 kg c/u. 15 canastillas = 32.25 kg tara. Bruto 450.75 kg -> Neto 418.50 kg
+      const res = calcularTaraYNetoExacto({
+        tipoEmpaque: 'CANASTILLAS',
+        cantidadBultos: 15,
+        pesoBrutoKg: 450.75,
+        taraUnitariaConfigurada: 2.15,
+      });
+
+      expect(res.esValido).toBe(true);
+      expect(res.taraUnitaria).toBe(2.15);
+      expect(res.taraTotalKg).toBe(32.25);
+      expect(res.pesoNetoKg).toBe(418.5);
+    });
+
+    it('debe calcular empaque en cajas con tara estándar o personalizada', () => {
+      // 25 cajas * 0.8 kg = 20 kg tara. Bruto 520 kg -> Neto 500 kg
+      const res = calcularTaraYNetoExacto({
+        tipoEmpaque: 'CAJAS',
+        cantidadBultos: 25,
+        pesoBrutoKg: 520,
+      });
+
+      expect(res.esValido).toBe(true);
+      expect(res.taraTotalKg).toBe(20.0);
+      expect(res.pesoNetoKg).toBe(500.0);
+    });
+
+    it('debe admitir pesaje suelto a granel con tara cero o tara de tina', () => {
+      const res = calcularTaraYNetoExacto({
+        tipoEmpaque: 'SUELTO',
+        cantidadBultos: 1,
+        pesoBrutoKg: 850.55,
+      });
+
+      expect(res.esValido).toBe(true);
+      expect(res.taraTotalKg).toBe(0.0);
+      expect(res.pesoNetoKg).toBe(850.55);
+    });
+
+    it('debe rechazar pesaje si el peso bruto no supera la tara', () => {
+      // 10 canastillas = 20 kg tara, pero bruto solo 18 kg
+      const res = calcularTaraYNetoExacto({
+        tipoEmpaque: 'CANASTILLAS',
+        cantidadBultos: 10,
+        pesoBrutoKg: 18,
+      });
+
+      expect(res.esValido).toBe(false);
+      expect(res.pesoNetoKg).toBe(0);
+      expect(res.error).toContain('debe ser mayor a la tara total');
+    });
+
+    it('debe rechazar cero bultos en cajas o canastillas', () => {
+      const res = calcularTaraYNetoExacto({
+        tipoEmpaque: 'CANASTILLAS',
+        cantidadBultos: 0,
+        pesoBrutoKg: 100,
+      });
+
+      expect(res.esValido).toBe(false);
+      expect(res.error).toContain('al menos 1 unidad');
+    });
+  });
+
+  describe('Liquidación de Almacenamiento Frigorífico por DÍAS', () => {
+    it('debe liquidar tarifa por kilogramos netos y días efectivos con IVA', () => {
+      // 1000 kg netos, 5 días de frío, tarifa $150 COP por kg/día
+      // Subtotal = 1000 * 5 * 150 = $750,000 COP
+      // IVA 19% = $142,500 COP
+      // Total = $892,500 COP
+      const res = calcularLiquidacionDias({
+        fechaIngreso: '2026-10-01',
+        fechaSalida: '2026-10-06',
+        pesoNetoKg: 1000,
+        tarifaDia: 150,
+        baseCobro: 'KILOGRAMOS',
+        cobrarIva: true,
+      });
+
+      expect(res.diasCustodia).toBe(5);
+      expect(res.subtotal).toBe(750000);
+      expect(res.iva).toBe(142500);
+      expect(res.totalPagar).toBe(892500);
+    });
+
+    it('debe liquidar tarifa por posiciones (800 kg c/u) y días efectivos', () => {
+      // 1500 kg netos -> 2 posiciones (800 kg c/u)
+      // 3 días de frío a $25,000 COP por posición/día
+      // Subtotal = 2 * 3 * 25,000 = $150,000 COP
+      // IVA 19% = $28,500 COP
+      // Retefuente 4% = $6,000 COP
+      // Total = $172,500 COP
+      const res = calcularLiquidacionDias({
+        fechaIngreso: '2026-10-01',
+        fechaSalida: '2026-10-04',
+        pesoNetoKg: 1500,
+        tarifaDia: 25000,
+        baseCobro: 'POSICIONES',
+        cobrarIva: true,
+        porcentajeRetefuente: 4,
+      });
+
+      expect(res.diasCustodia).toBe(3);
+      expect(res.unidadesCobro).toBe(2);
+      expect(res.subtotal).toBe(150000);
+      expect(res.iva).toBe(28500);
+      expect(res.retefuente).toBe(6000);
+      expect(res.totalPagar).toBe(172500);
+    });
+
+    it('debe computar mínimo 1 día de almacenamiento si entra y sale el mismo día', () => {
+      const res = calcularLiquidacionDias({
+        fechaIngreso: '2026-10-05',
+        fechaSalida: '2026-10-05',
+        pesoNetoKg: 500,
+        tarifaDia: 200,
+        cobrarIva: false,
+      });
+
+      expect(res.diasCustodia).toBe(1);
+      expect(res.subtotal).toBe(100000); // 500 * 1 * 200
+      expect(res.totalPagar).toBe(100000);
+    });
+  });
+
+  describe('Semáforo y Evaluación de Cartera / Vencimientos de Mensualidades', () => {
+    it('debe retornar AL_DIA si la causación ya fue pagada', () => {
+      const sem = evaluarCarteraYVencimiento({
+        fechaCorteMensualidad: '2026-09-30',
+        valorMensualidad: 650000,
+        estadoPago: 'PAGADA',
+      });
+
+      expect(sem.estadoSemaforo).toBe('AL_DIA');
+      expect(sem.saldoPendiente).toBe(0);
+      expect(sem.diasMora).toBe(0);
+    });
+
+    it('debe detectar EN_MORA con los días exactos si la fecha de corte venció', () => {
+      const sem = evaluarCarteraYVencimiento({
+        fechaCorteMensualidad: '2026-10-01',
+        fechaActual: '2026-10-10',
+        valorMensualidad: 650000,
+        estadoPago: 'PENDIENTE',
+      });
+
+      expect(sem.estadoSemaforo).toBe('EN_MORA');
+      expect(sem.diasMora).toBe(9);
+      expect(sem.saldoPendiente).toBe(650000);
+      expect(sem.mensajeAlerta).toContain('9 días de mora');
+    });
+
+    it('debe alertar POR_VENCER si vence hoy o en los próximos 3 días', () => {
+      const sem = evaluarCarteraYVencimiento({
+        fechaCorteMensualidad: '2026-10-10',
+        fechaActual: '2026-10-10',
+        valorMensualidad: 650000,
+        estadoPago: 'PENDIENTE',
+      });
+
+      expect(sem.estadoSemaforo).toBe('POR_VENCER');
+      expect(sem.diasMora).toBe(0);
+      expect(sem.mensajeAlerta).toBe('Vence hoy');
+    });
+  });
+
+  describe('Recepción Múltiple, Creación Express y Despacho Consolidado WMS 3PL (Fase SDD 006)', () => {
+    describe('Cálculo Gravimétrico Consolidado de Partidas Múltiples con Taras Heterogéneas', () => {
+      it('debe consolidar exactamente un producto registrado 3 veces con canastillas, cajas y suelto', () => {
+        const partidas: PartidaRecepcion[] = [
+          {
+            producto_nombre: 'Corvina Entera Congelada',
+            lote_cliente: 'LOT-CORV-01',
+            temperatura_c: -18.0,
+            tipo_empaque: 'CANASTILLAS',
+            cantidad_bultos: 10,
+            tara_unitaria_kg: 2.0,
+            peso_tara_total_kg: 20.0,
+            peso_bruto_kg: 220.0,
+            peso_neto_kg: 200.0,
+          },
+          {
+            producto_nombre: 'Corvina Entera Congelada',
+            lote_cliente: 'LOT-CORV-02',
+            temperatura_c: -18.0,
+            tipo_empaque: 'CAJAS',
+            cantidad_bultos: 5,
+            tara_unitaria_kg: 0.8,
+            peso_tara_total_kg: 4.0,
+            peso_bruto_kg: 104.0,
+            peso_neto_kg: 100.0,
+          },
+          {
+            producto_nombre: 'Corvina Entera Congelada',
+            lote_cliente: 'LOT-CORV-03',
+            temperatura_c: -18.0,
+            tipo_empaque: 'SUELTO',
+            cantidad_bultos: 0,
+            tara_unitaria_kg: 0.0,
+            peso_tara_total_kg: 0.0,
+            peso_bruto_kg: 50.5,
+            peso_neto_kg: 50.5,
+          },
+        ];
+
+        const totales = calcularTotalesPartidasRecepcion(partidas);
+
+        expect(totales.totalBultos).toBe(15);
+        expect(totales.totalPesoBrutoKg).toBe(374.5);
+        expect(totales.totalTaraTotalKg).toBe(24.0);
+        expect(totales.totalPesoNetoKg).toBe(350.5);
+
+        // Resumen por producto
+        const resumenProd = totales.resumenPorProducto['CORVINA ENTERA CONGELADA'];
+        expect(resumenProd).toBeDefined();
+        expect(resumenProd.bultos).toBe(15);
+        expect(resumenProd.pesoNetoKg).toBe(350.5);
+        expect(resumenProd.partidasCount).toBe(3);
+
+        // Resumen por empaque
+        expect(totales.resumenPorEmpaque.CANASTILLAS.bultos).toBe(10);
+        expect(totales.resumenPorEmpaque.CANASTILLAS.pesoNetoKg).toBe(200.0);
+        expect(totales.resumenPorEmpaque.CAJAS.bultos).toBe(5);
+        expect(totales.resumenPorEmpaque.CAJAS.pesoNetoKg).toBe(100.0);
+        expect(totales.resumenPorEmpaque.SUELTO.bultos).toBe(0);
+        expect(totales.resumenPorEmpaque.SUELTO.pesoNetoKg).toBe(50.5);
+      });
+
+      it('debe validar la estructura de cada partida con PartidaRecepcionSchema', () => {
+        const itemValido = {
+          producto_nombre: 'Filete de Tilapia',
+          tipo_empaque: 'CANASTILLAS',
+          cantidad_bultos: 8,
+          tara_unitaria_kg: 2.0,
+          peso_tara_total_kg: 16.0,
+          peso_bruto_kg: 176.0,
+          peso_neto_kg: 160.0,
+        };
+
+        const parsed = PartidaRecepcionSchema.safeParse(itemValido);
+        expect(parsed.success).toBe(true);
+
+        const itemInvalido = {
+          producto_nombre: '',
+          tipo_empaque: 'CANASTILLAS',
+          cantidad_bultos: -5,
+          tara_unitaria_kg: 2.0,
+          peso_tara_total_kg: 10.0,
+          peso_bruto_kg: 5.0,
+          peso_neto_kg: -5.0,
+        };
+        const parsedInv = PartidaRecepcionSchema.safeParse(itemInvalido);
+        expect(parsedInv.success).toBe(false);
+      });
+    });
+
+    describe('Creación Rápida de Cliente Express in-situ (15 Segundos)', () => {
+      it('debe validar y crear cliente y contrato rápido con ClienteRapidoInputSchema', async () => {
+        const input = {
+          razon_social: 'Distribuidora del Caribe SAS',
+          numero_identificacion: '901888777-2',
+          tipo_identificacion: 'NIT',
+          telefono: '3109998888',
+          email: 'logistica@delcaribe.co',
+          modalidad_tiempo: 'DIAS' as const,
+          tarifa_pactada: 45000,
+          capacidad_posiciones: 2,
+          temperatura_acordada: -18.0,
+        };
+
+        const validated = ClienteRapidoInputSchema.parse(input);
+        expect(validated.razon_social).toBe('Distribuidora del Caribe SAS');
+
+        const resultado = await coldStorageRentalService.crearClienteYContratoRapido(input);
+
+        expect(resultado.cliente).toBeDefined();
+        expect(resultado.cliente.id).toBeDefined();
+        expect(resultado.cliente.razon_social).toBe('Distribuidora del Caribe SAS');
+        expect(resultado.cliente.estado).toBe('ACTIVO');
+
+        expect(resultado.contrato).toBeDefined();
+        expect(resultado.contrato.id).toBeDefined();
+        expect(resultado.contrato.consecutivo).toContain('CF-CTO-');
+        expect(resultado.contrato.posiciones_contratadas).toBe(2);
+        expect(resultado.contrato.tarifa_unitaria).toBe(45000);
+        expect(resultado.contrato.estado).toBe('VIGENTE');
+      });
+    });
+
+    describe('Registro de Recepción Múltiple Consolidada en Servicio', () => {
+      it('debe guardar recepción múltiple retornando consecutivo de acta y totales consolidados', async () => {
+        const recepcionInput = {
+          contrato_id: 'contrato-mock-123',
+          cliente_id: 'cliente-mock-456',
+          transportador_nombre: 'Carlos Conductor',
+          transportador_cedula: '1098765432',
+          placa_vehiculo: 'WKL-890',
+          temperatura_camion_c: -19.5,
+          observaciones: 'Descargue en rampa frigorífica 1',
+          items: [
+            {
+              producto_nombre: 'Pargo Rojo Entero',
+              lote_cliente: 'LOT-PRG-01',
+              temperatura_c: -18.5,
+              tipo_empaque: 'CANASTILLAS' as const,
+              cantidad_bultos: 12,
+              tara_unitaria_kg: 2.0,
+              peso_tara_total_kg: 24.0,
+              peso_bruto_kg: 264.0,
+              peso_neto_kg: 240.0,
+            },
+            {
+              producto_nombre: 'Pargo Rojo Entero',
+              lote_cliente: 'LOT-PRG-02',
+              temperatura_c: -18.5,
+              tipo_empaque: 'CAJAS' as const,
+              cantidad_bultos: 4,
+              tara_unitaria_kg: 0.8,
+              peso_tara_total_kg: 3.2,
+              peso_bruto_kg: 83.2,
+              peso_neto_kg: 80.0,
+            },
+          ],
+        };
+
+        const res = await coldStorageRentalService.registrarRecepcionMultiple(recepcionInput);
+
+        expect(res.success).toBe(true);
+        expect(res.acta_consecutivo).toContain('REC-CF-');
+        expect(res.partidasGuardadas).toBe(2);
+        expect(res.totales.totalBultos).toBe(16);
+        expect(res.totales.totalPesoBrutoKg).toBe(347.2);
+        expect(res.totales.totalTaraTotalKg).toBe(27.2);
+        expect(res.totales.totalPesoNetoKg).toBe(320.0);
+        expect(res.inventarios.length).toBe(2);
+        expect(res.movimientos.length).toBe(2);
+      });
+    });
+
+    describe('Registro de Despacho Múltiple Consolidado en Servicio', () => {
+      it('debe procesar retiro total y parcial con consecutivo único de despacho', async () => {
+        const itemsDespacho: ItemDespacho[] = [
+          {
+            inventario_id: 'inv-lote-1',
+            producto_nombre: 'Pargo Rojo Entero',
+            tipo_empaque: 'CANASTILLAS',
+            bultos_a_retirar: 12,
+            peso_neto_a_retirar: 240.0,
+            es_retiro_total: true,
+          },
+          {
+            inventario_id: 'inv-lote-2',
+            producto_nombre: 'Corvina Entera',
+            tipo_empaque: 'CAJAS',
+            bultos_a_retirar: 2,
+            peso_neto_a_retirar: 40.0,
+            es_retiro_total: false,
+          },
+        ];
+
+        const despachoInput = {
+          contrato_id: 'contrato-mock-123',
+          cliente_id: 'cliente-mock-456',
+          transportador_nombre: 'Marcos Retiro',
+          transportador_cedula: '79888999',
+          placa_vehiculo: 'SST-345',
+          items: itemsDespacho,
+          observaciones: 'Despacho para distribución local',
+          autorizar_salida_mora: false,
+        };
+
+        const res = await coldStorageRentalService.registrarDespachoMultiple(despachoInput);
+
+        expect(res.success).toBe(true);
+        expect(res.acta_consecutivo).toContain('DSP-CF-');
+        expect(res.totalBultosDespachados).toBe(14);
+        expect(res.totalPesoDespachadoKg).toBe(280.0);
+        expect(res.itemsProcesados).toBe(2);
+        expect(res.movimientos.length).toBe(2);
+      });
+    });
+
+    describe('Generación de Documentos PDF Multi-Partida', () => {
+      it('debe generar Acta Consolidada de Recepción con tabla de múltiples pesadas', () => {
+        const doc = coldStoragePdfService.generarPdfActaRecepcionMultiple({
+          actaConsecutivo: 'REC-CF-99001',
+          cliente: {
+            empresa_id: 'emp-1',
+            razon_social: 'Distribuidora del Caribe SAS',
+            numero_identificacion: '901888777-2',
+            tipo_identificacion: 'NIT',
+            autorizados_retiro: [],
+            estado: 'ACTIVO',
+          },
+          transportadorNombre: 'Carlos Conductor',
+          transportadorCedula: '1098765432',
+          placaVehiculo: 'WKL-890',
+          temperaturaC: -19.5,
+          items: [
+            {
+              producto_nombre: 'Corvina Entera',
+              lote_cliente: 'LOT-CORV-01',
+              temperatura_c: -18.0,
+              tipo_empaque: 'CANASTILLAS',
+              cantidad_bultos: 10,
+              tara_unitaria_kg: 2.0,
+              peso_tara_total_kg: 20.0,
+              peso_bruto_kg: 220.0,
+              peso_neto_kg: 200.0,
+            },
+            {
+              producto_nombre: 'Corvina Entera',
+              lote_cliente: 'LOT-CORV-02',
+              temperatura_c: -18.0,
+              tipo_empaque: 'CAJAS',
+              cantidad_bultos: 5,
+              tara_unitaria_kg: 0.8,
+              peso_tara_total_kg: 4.0,
+              peso_bruto_kg: 104.0,
+              peso_neto_kg: 100.0,
+            },
+          ],
+        });
+
+        expect(doc).toBeDefined();
+        expect(mockSave).toHaveBeenCalledWith('Acta_Recepcion_Consolidada_REC-CF-99001.pdf');
+      });
+
+      it('debe generar Acta Consolidada de Despacho con múltiples lotes', () => {
+        const doc = coldStoragePdfService.generarPdfActaDespachoMultiple({
+          actaConsecutivo: 'DSP-CF-77002',
+          cliente: {
+            empresa_id: 'emp-1',
+            razon_social: 'Distribuidora del Caribe SAS',
+            numero_identificacion: '901888777-2',
+            tipo_identificacion: 'NIT',
+            autorizados_retiro: [],
+            estado: 'ACTIVO',
+          },
+          transportadorNombre: 'Marcos Retiro',
+          transportadorCedula: '79888999',
+          placaVehiculo: 'SST-345',
+          items: [
+            {
+              inventario_id: 'inv-1',
+              producto_nombre: 'Corvina Entera',
+              tipo_empaque: 'CANASTILLAS',
+              bultos_a_retirar: 10,
+              peso_neto_a_retirar: 200.0,
+              es_retiro_total: true,
+            },
+          ],
+        });
+
+        expect(doc).toBeDefined();
+        expect(mockSave).toHaveBeenCalledWith('Acta_Despacho_Consolidada_DSP-CF-77002.pdf');
+      });
+    });
+
+    describe('Creación Rápida Múltiple de Productos Asociados al Cliente (Batch)', () => {
+      it('debe validar ProductoRapidoItemSchema y ProductosClienteBatchInputSchema correctamente', () => {
+        const item1 = ProductoRapidoItemSchema.parse({
+          nombre: 'Corvina Entera',
+          tipo_empaque: 'CANASTILLAS',
+          tara_unitaria_kg: 2.0,
+        });
+        expect(item1.nombre).toBe('Corvina Entera');
+        expect(item1.tipo_empaque).toBe('CANASTILLAS');
+        expect(item1.tara_unitaria_kg).toBe(2.0);
+
+        const lote = ProductosClienteBatchInputSchema.parse({
+          cliente_id: 'cl-1234',
+          productos: [
+            { nombre: 'Corvina Entera', tipo_empaque: 'CANASTILLAS', tara_unitaria_kg: 2.0 },
+            { nombre: 'Pargo Rojo', tipo_empaque: 'CAJAS', tara_unitaria_kg: 0.8 },
+            { nombre: 'Camarón Tití', tipo_empaque: 'SUELTO', tara_unitaria_kg: 0.0 },
+          ],
+        });
+        expect(lote.productos.length).toBe(3);
+        expect(lote.cliente_id).toBe('cl-1234');
+      });
+
+      it('debe registrar múltiples productos en lote asignando el cliente_id en coldStorageRentalService', async () => {
+        const clienteId = 'cliente-asociado-777';
+        const items = [
+          { nombre: 'Robalo Fresco', tipo_empaque: 'CANASTILLAS' as const, tara_unitaria_kg: 2.0 },
+          { nombre: 'Sierra Fileteada', tipo_empaque: 'CAJAS' as const, tara_unitaria_kg: 0.8 },
+          { nombre: 'Calamar Tubo', tipo_empaque: 'SUELTO' as const, tara_unitaria_kg: 0.0 },
+        ];
+
+        const creados = await coldStorageRentalService.crearProductosCustodiaBatch(clienteId, items);
+
+        expect(creados.length).toBe(3);
+        expect(creados[0].cliente_id).toBe(clienteId);
+        expect(creados[0].nombre).toBe('Robalo Fresco');
+        expect(creados[1].cliente_id).toBe(clienteId);
+        expect(creados[1].nombre).toBe('Sierra Fileteada');
+        expect(creados[2].cliente_id).toBe(clienteId);
+        expect(creados[2].nombre).toBe('Calamar Tubo');
+
+        // Verificar que el catálogo del cliente retorne los productos creados
+        const productosCliente = await coldStorageRentalService.getProductosCustodia(clienteId);
+        expect(productosCliente.some((p) => p.nombre === 'Robalo Fresco')).toBe(true);
+        expect(productosCliente.some((p) => p.nombre === 'Sierra Fileteada')).toBe(true);
+        expect(productosCliente.some((p) => p.nombre === 'Calamar Tubo')).toBe(true);
+      });
+    });
+
+    describe('SDD 007: Cajas de Peso Cerrado (Fijo), Granel Bimodal en Canastillas & Salida Rápida', () => {
+      it('debe calcular con precisión milimétrica la recepción de productos en cajas de peso cerrado', () => {
+        // Ejemplo del usuario: papas fritas en cajas de 10 kilos (50 cajas)
+        const res = calcularPesoCajasNominal({
+          cantidadCajas: 50,
+          pesoNominalKg: 10.0,
+          taraUnitariaKg: 0.8,
+        });
+
+        expect(res.esValido).toBe(true);
+        expect(res.pesoNetoKg).toBe(500.0); // 50 * 10 = 500 kg netos
+        expect(res.taraTotalKg).toBe(40.0); // 50 * 0.8 = 40 kg de tara
+        expect(res.pesoBrutoKg).toBe(540.0); // 500 + 40 = 540 kg bruto
+      });
+
+      it('debe rechazar cajas o peso nominal menor o igual a cero', () => {
+        expect(calcularPesoCajasNominal({ cantidadCajas: 0, pesoNominalKg: 10 }).esValido).toBe(false);
+        expect(calcularPesoCajasNominal({ cantidadCajas: 10, pesoNominalKg: 0 }).esValido).toBe(false);
+      });
+
+      it('debe calcular la estimación proporcional automática para salidas parciales a granel', () => {
+        // Ejemplo del usuario: capón de carne al granel: 40 canastillas y 843.3 kg netos
+        // Salida parcial de 30 canastillas:
+        const estimacion = calcularEstimacionProporcionalSalida({
+          pesoNetoActualKg: 843.3,
+          bultosActuales: 40,
+          bultosARetirar: 30,
+        });
+
+        expect(estimacion.esRetiroTotal).toBe(false);
+        expect(estimacion.pesoPromedioPorBultoKg).toBe(21.083); // 843.3 / 40 = 21.0825 -> 21.083
+        expect(estimacion.pesoSugeridoKg).toBe(632.48); // (843.3 / 40) * 30 = 632.475 -> 632.48 kg
+      });
+
+      it('debe retornar exactamente el 100% del saldo disponible cuando el retiro es total (evita discrepancias de decimales)', () => {
+        const estimacionTotal = calcularEstimacionProporcionalSalida({
+          pesoNetoActualKg: 843.3,
+          bultosActuales: 40,
+          bultosARetirar: 40,
+        });
+
+        expect(estimacionTotal.esRetiroTotal).toBe(true);
+        expect(estimacionTotal.pesoSugeridoKg).toBe(843.3);
+      });
+
+      it('debe simular el flujo completo del usuario: recepción a granel, salida parcial con peso báscula real y salida rápida del restante', async () => {
+        // 1. Recepción a granel: 40 canastillas de capón de carne con peso bruto 923.3 kg (tara 80 kg -> 843.3 kg netos)
+        const recepcion = await coldStorageRentalService.registrarRecepcionMultiple({
+          contrato_id: 'ctr-test-granel-007',
+          cliente_id: 'cl-capon-test',
+          transportador_nombre: 'Conductor Capón',
+          transportador_cedula: '12345678',
+          placa_vehiculo: 'TRK-843',
+          items: [
+            {
+              producto_nombre: 'Capón de Carne a Granel',
+              lote_cliente: 'LOT-CAPON-40',
+              tipo_empaque: 'CANASTILLAS',
+              cantidad_bultos: 40,
+              tara_unitaria_kg: 2.0,
+              peso_tara_total_kg: 80.0,
+              peso_bruto_kg: 923.3,
+              peso_neto_kg: 843.3,
+              temperatura_c: -18.0,
+            },
+          ],
+        });
+
+        expect(recepcion.success).toBe(true);
+        const invId = recepcion.inventarios[0].id;
+        expect(recepcion.inventarios[0].bultos_actuales).toBe(40);
+        expect(recepcion.inventarios[0].peso_neto_actual_kg).toBe(843.3);
+
+        // 2. Salida parcial: se retiran 30 canastillas. El operario pesa en rampa y digita 630.0 kg reales
+        const salidaParcial = await coldStorageRentalService.registrarDespachoMultiple({
+          contrato_id: 'ctr-test-granel-007',
+          cliente_id: 'cl-capon-test',
+          transportador_nombre: 'Conductor Salida 1',
+          transportador_cedula: '87654321',
+          placa_vehiculo: 'SAL-001',
+          items: [
+            {
+              inventario_id: invId,
+              producto_nombre: 'Capón de Carne a Granel',
+              tipo_empaque: 'CANASTILLAS',
+              bultos_a_retirar: 30,
+              peso_neto_a_retirar: 630.0, // Báscula de salida real
+              es_retiro_total: false,
+            },
+          ],
+        });
+
+        expect(salidaParcial.success).toBe(true);
+        expect(salidaParcial.totalBultosDespachados).toBe(30);
+        expect(salidaParcial.totalPesoDespachadoKg).toBe(630.0);
+
+        // Consultar el saldo restante en inventario
+        const invs = await coldStorageRentalService.getInventarioCustodia('cl-capon-test');
+        const invItem = invs.find((i) => i.id === invId);
+        expect(invItem).toBeDefined();
+        expect(invItem!.bultos_actuales).toBe(10); // 40 - 30 = 10 canastillas restantes
+        expect(invItem!.peso_neto_actual_kg).toBe(213.3); // 843.3 - 630.0 = 213.3 kg restantes
+        expect(invItem!.activo).toBe(true);
+
+        // 3. Salida rápida: después de unos días, se despacha todo el restante (10 canastillas y 213.3 kg)
+        const salidaRapida = await coldStorageRentalService.registrarDespachoMultiple({
+          contrato_id: 'ctr-test-granel-007',
+          cliente_id: 'cl-capon-test',
+          transportador_nombre: 'Conductor Salida Final',
+          transportador_cedula: '99887766',
+          placa_vehiculo: 'SAL-FINAL',
+          items: [
+            {
+              inventario_id: invId,
+              producto_nombre: 'Capón de Carne a Granel',
+              tipo_empaque: 'CANASTILLAS',
+              bultos_a_retirar: 10,
+              peso_neto_a_retirar: 213.3,
+              es_retiro_total: true,
+            },
+          ],
+        });
+
+        expect(salidaRapida.success).toBe(true);
+        expect(salidaRapida.totalBultosDespachados).toBe(10);
+        expect(salidaRapida.totalPesoDespachadoKg).toBe(213.3);
+
+        // Verificar que el lote quedó totalmente liquidado y desactivado (saldo 0)
+        const invsFinal = await coldStorageRentalService.getInventarioCustodia('cl-capon-test');
+        const invItemFinal = invsFinal.find((i) => i.id === invId);
+        expect(invItemFinal!.bultos_actuales).toBe(0);
+        expect(invItemFinal!.peso_neto_actual_kg).toBe(0);
+        expect(invItemFinal!.activo).toBe(false);
+      });
+    });
   });
 });
+

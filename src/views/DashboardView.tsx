@@ -16,28 +16,46 @@ interface MetricCardProps {
   change: string;
   positive: boolean;
   icon: ReactNode;
+  iconTheme?: 'emerald' | 'blue' | 'purple' | 'rose';
 }
 
-function MetricCard({ title, value, change, positive, icon }: MetricCardProps) {
+function MetricCard({ title, value, change, positive, icon, iconTheme = 'emerald' }: MetricCardProps) {
+  const themeStyles = {
+    emerald: {
+      iconBg: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+      badge: 'bg-emerald-50 text-emerald-800 border-emerald-200'
+    },
+    blue: {
+      iconBg: 'bg-blue-100 text-blue-700 border-blue-200',
+      badge: 'bg-blue-50 text-blue-800 border-blue-200'
+    },
+    purple: {
+      iconBg: 'bg-purple-100 text-purple-700 border-purple-200',
+      badge: 'bg-purple-50 text-purple-800 border-purple-200'
+    },
+    rose: {
+      iconBg: 'bg-rose-100 text-rose-700 border-rose-200',
+      badge: 'bg-rose-50 text-rose-800 border-rose-200'
+    }
+  }[iconTheme];
+
   return (
-    <Card glass style={{ display: 'flex', flexDirection: 'column', gap: '12px', height: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: '13px', color: 'var(--text-secondary, #64748B)', fontWeight: 600 }}>{title}</span>
-        <div style={{
-          width: '36px', height: '36px', borderRadius: '10px',
-          backgroundColor: positive ? 'rgba(0, 177, 113, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-          display: 'flex', alignItems: 'center', justifySelf: 'center', justifyContent: 'center'
-        }}>
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition-all p-5 flex flex-col justify-between gap-4">
+      <div className="flex justify-between items-start">
+        <span className="text-xs md:text-sm font-bold text-slate-600 uppercase tracking-wider">{title}</span>
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-xs ${themeStyles.iconBg}`}>
           {icon}
         </div>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-        <span style={{ fontSize: '24px', fontWeight: 800, letterSpacing: '-0.5px' }}>{value}</span>
-        <span style={{ fontSize: '12px', color: positive ? 'var(--success-color, #10B981)' : 'var(--error-color, #EF4444)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '2px' }}>
-          {positive ? '+' : ''}{change} <ArrowUpRight size={12} />
-        </span>
+      <div className="flex flex-col gap-1.5">
+        <span className="text-3xl font-black text-slate-900 tracking-tight">{value}</span>
+        <div className="flex items-center gap-1.5 mt-0.5">
+          <span className={`text-xs font-bold px-2 py-0.5 rounded-md border flex items-center gap-1 ${themeStyles.badge}`}>
+            {positive ? '+' : ''}{change} {positive ? <ArrowUpRight size={13} /> : null}
+          </span>
+        </div>
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -80,8 +98,12 @@ export default function DashboardView({ ventas = [], parametros: _parametros = {
       
       {/* Encabezado */}
       <div>
-        <span className="text-xs md:text-sm font-medium text-slate-400">Resumen Ejecutivo & Calendario</span>
-        <h2 className="text-xl md:text-2xl font-extrabold mt-1 tracking-tight text-primary">Panel de Control y Obligaciones</h2>
+        <span className="text-xs md:text-sm font-extrabold uppercase tracking-wider text-slate-500">
+          Resumen Ejecutivo & Calendario Operativo
+        </span>
+        <h2 className="text-2xl md:text-3xl font-black mt-1 tracking-tight text-slate-900">
+          Panel de Control y Obligaciones
+        </h2>
       </div>
  
       {/* Grid de Metricas */}
@@ -91,28 +113,32 @@ export default function DashboardView({ ventas = [], parametros: _parametros = {
           value={`$${totalSalesToday.toLocaleString('es-CO')}`}
           change={`${salesTodayCount} transacciones`}
           positive={totalSalesToday > 0}
-          icon={<DollarSign size={18} color="var(--success-color, #00B171)" />}
+          iconTheme="emerald"
+          icon={<DollarSign size={20} />}
         />
         <MetricCard
           title="Caja Chica (Efectivo Neto)"
           value={`$${isolatedCajaFisica.toLocaleString('es-CO')}`}
           change="Excluye canales digitales (RN-06)"
           positive={true}
-          icon={<Wallet size={18} color="var(--success-color, #00B171)" />}
+          iconTheme="blue"
+          icon={<Wallet size={20} />}
         />
         <MetricCard
           title="Canales Digitales (Shopify/Rappi)"
           value={`$${totalDigitalSales.toLocaleString('es-CO')}`}
           change="Procesado en cola (RN-03)"
           positive={totalDigitalSales > 0}
-          icon={<ShoppingBag size={18} color="var(--success-color, #00B171)" />}
+          iconTheme="purple"
+          icon={<ShoppingBag size={20} />}
         />
         <MetricCard
           title="Notas de Crédito Hoy"
           value={`$${totalDevoluciones.toLocaleString('es-CO')}`}
           change="Cancelaciones de pedido"
           positive={false}
-          icon={<RefreshCw size={18} color="var(--error-color, #EF4444)" />}
+          iconTheme="rose"
+          icon={<RefreshCw size={20} />}
         />
       </div>
  

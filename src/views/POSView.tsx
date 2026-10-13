@@ -111,7 +111,7 @@ export default function POSView({
     loadTurnoActivoPorCajero(userRole);
   }, [userRole, showAperturaModal, loadTurnoActivoPorCajero]);
 
-  const { getPrimaryBodega, activaId } = useWarehouseStore();
+  const { bodegas, getPrimaryBodega, activaId } = useWarehouseStore();
   const bodegaActivaId = activaId || getPrimaryBodega()?.id || 'b1';
   const bodegaActivaNombre = getPrimaryBodega()?.nombre || 'Bodega Principal';
 
@@ -130,6 +130,8 @@ export default function POSView({
     agregarProducto,
     actualizarCantidad,
     actualizarDescuentoLinea,
+    updateItemPrice,
+    resetItemPrice,
     removerProducto,
     setCliente,
     setDescuentoGlobalPct: setDescuentoGlobal,
@@ -165,7 +167,7 @@ export default function POSView({
     return {
       product,
       cantidad: linea.cantidad,
-      precioOverride: linea.precioFinal !== linea.precioLista ? linea.precioFinal : undefined
+      precioOverride: linea.precioFinal
     };
   });
 
@@ -202,7 +204,7 @@ export default function POSView({
         inputPlaceholder: 'Ej: 1.5',
         inputAttributes: {
           min: '0.01',
-          step: '0.01'
+          step: 'any'
         },
         showCancelButton: true,
         confirmButtonText: 'Agregar al carrito',
@@ -1673,6 +1675,8 @@ export default function POSView({
             onWeightRead={(pid, peso) => actualizarCantidad(pid, peso)}
             onLimpiarCarrito={limpiarCarrito}
             onSetLineas={setCartLineas}
+            onUpdatePrecio={updateItemPrice}
+            onResetItemPrice={resetItemPrice}
             onSelectCliente={handleAgregarCliente}
             onClearCliente={() => setCliente(defaultClient)}
             onDescuentoClick={handleDescuentoGlobal}

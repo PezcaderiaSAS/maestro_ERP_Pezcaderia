@@ -43,7 +43,7 @@ def get_gemini_model(
         print("Obten tu clave sin costo en: https://aistudio.google.com/app/apikey\n")
         key = "dummy-key-for-init"
 
-    selected_model = model_name or os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite")
+    selected_model = model_name or os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
     # Cliente AsyncOpenAI con reintentos automáticos para mitigar límites de tasa
     client = AsyncOpenAI(

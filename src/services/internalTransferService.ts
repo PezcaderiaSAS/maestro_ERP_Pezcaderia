@@ -162,10 +162,10 @@ export const internalTransferService = {
       traslados.unshift(nuevoTraslado);
       save(STORAGE_KEY, traslados);
 
-      // Intentar sincronizar con Supabase RPC
-      const supabase = getSupabaseClient();
-      if (supabase) {
-        try {
+      // Intentar sincronizar con Supabase RPC de forma resiliente
+      try {
+        const supabase = getSupabaseClient();
+        if (supabase) {
           await supabase.rpc('fn_crear_solicitud_traslado_pos', {
             p_bodega_origen_id: validated.bodegaOrigenId,
             p_bodega_origen_nombre: nuevoTraslado.bodegaOrigenNombre,
@@ -176,9 +176,9 @@ export const internalTransferService = {
             p_observaciones: validated.observaciones || null,
             p_items: validated.items,
           });
-        } catch (sbErr) {
-          console.warn('[InternalTransferService] Sync Supabase opcional fallback a localDb:', sbErr);
         }
+      } catch (sbErr) {
+        console.warn('[InternalTransferService] Sync Supabase opcional fallback a localDb:', sbErr);
       }
 
       return { success: true, data: nuevoTraslado };

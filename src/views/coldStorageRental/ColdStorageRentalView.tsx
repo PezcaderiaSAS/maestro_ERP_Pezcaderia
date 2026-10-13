@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Swal from 'sweetalert2';
 import {
   Snowflake,
@@ -10,15 +10,25 @@ import {
   Plus,
   Download,
   AlertTriangle,
-  CheckCircle,
+  CheckCircle2,
   Truck,
   TrendingUp,
-  Activity,
-  Calendar,
   Layers,
   Search,
   RefreshCw,
-  Send,
+  Printer,
+  CreditCard,
+  Clock,
+  ShieldAlert,
+  ArrowDownRight,
+  ArrowUpRight,
+  Sparkles,
+  Trash2,
+  Zap,
+  ListChecks,
+  CheckSquare,
+  Square,
+  Fish,
 } from 'lucide-react';
 
 import {
@@ -35,16 +45,29 @@ import {
   calcularRecargoSobrecupo,
   calcularMermaSalida,
   liquidarCausacionAlquiler,
+  calcularTaraYNetoExacto,
+  calcularLiquidacionDias,
+  evaluarCarteraYVencimiento,
+  calcularTotalesPartidasRecepcion,
+  calcularPesoCajasNominal,
+  calcularEstimacionProporcionalSalida,
+  TARAS_PREDETERMINADAS_KG,
+  type TipoEmpaqueCustodia,
   type ContratoAlquilerCf,
   type ClienteCustodia,
   type ProductoCustodia,
   type CuartoFrio,
+  type PartidaRecepcion,
+  type ItemDespacho,
+  type ClienteRapidoInput,
 } from '../../../packages/validation-schemas/src/coldStorageRental.schema';
+import { cashService } from '../../services/cashService';
+import type { MetodoPago } from '../../types/cash.types';
 
 export const ColdStorageRentalView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
-    'dashboard' | 'contratos' | 'clientes_productos' | 'bascula_movimientos' | 'existencias' | 'contabilidad'
-  >('dashboard');
+    'operaciones' | 'existencias' | 'cartera' | 'contratos' | 'movimientos' | 'capacidad'
+  >('operaciones');
 
   const [loading, setLoading] = useState(false);
   const [cuartosFrios, setCuartosFrios] = useState<CuartoFrio[]>([]);
@@ -55,21 +78,75 @@ export const ColdStorageRentalView: React.FC = () => {
   const [movimientos, setMovimientos] = useState<MovimientoCustodiaItem[]>([]);
   const [causaciones, setCausaciones] = useState<CausacionAlquilerItem[]>([]);
 
-  // Filtros de búsqueda
+  // Filtros
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedClienteFilter, setSelectedClienteFilter] = useState('');
 
   // Modales
-  const [showContratoModal, setShowContratoModal] = useState(false);
   const [showClienteModal, setShowClienteModal] = useState(false);
-  const [showProductoModal, setShowProductoModal] = useState(false);
+  const [showClienteRapidoSubmodal, setShowClienteRapidoSubmodal] = useState(false);
+  const [showProductoRapidoSubmodal, setShowProductoRapidoSubmodal] = useState(false);
+  const [showContratoModal, setShowContratoModal] = useState(false);
   const [showRecepcionModal, setShowRecepcionModal] = useState(false);
   const [showDespachoModal, setShowDespachoModal] = useState(false);
-  const [showCausacionModal, setShowCausacionModal] = useState(false);
-  const [selectedContratoForCausacion, setSelectedContratoForCausacion] = useState<ContratoAlquilerCf | null>(null);
-  const [selectedInvForDespacho, setSelectedInvForDespacho] = useState<InventarioCustodiaItem | null>(null);
+  const [showCobroModal, setShowCobroModal] = useState(false);
+  const [showProductoModal, setShowProductoModal] = useState(false);
 
-  // Form states para creación rápida
+  // Formulario y lista de creación rápida de producto(s) asociado(s) al cliente
+  const [productoRapidoForm, setProductoRapidoForm] = useState({
+    nombre: '',
+    tipo_empaque: 'CANASTILLAS' as TipoEmpaqueCustodia,
+    tara_unitaria_kg: 2.0,
+  });
+  const [productosLoteLista, setProductosLoteLista] = useState<
+    Array<{
+      id: string;
+      nombre: string;
+      tipo_empaque: TipoEmpaqueCustodia;
+      tara_unitaria_kg: number;
+    }>
+  >([]);
+
+  // Selecciones para acciones
+  const [selectedItemForDespacho, setSelectedItemForDespacho] = useState<InventarioCustodiaItem | null>(null);
+  const [cobroData, setCobroData] = useState<{
+    clienteId: string;
+    clienteNombre: string;
+    contratoId?: string;
+    causacionId?: string;
+    monto: number;
+    concepto: string;
+    modalidad: 'DIAS' | 'MESES';
+    dias?: number;
+    kilos?: number;
+  } | null>(null);
+
+  // Estados de formularios
+  const [nuevoCliente, setNuevoCliente] = useState({
+    razon_social: '',
+    numero_identificacion: '',
+    tipo_identificacion: 'NIT',
+    responsable_contacto: '',
+    telefono: '',
+    email: '',
+    modalidad_preferida: 'MESES' as 'DIAS' | 'MESES',
+    tarifa_acordada: 650000,
+    posiciones: 1,
+  });
+
+  // Creación rápida de cliente in-situ en báscula (15 segundos)
+  const [clienteRapidoForm, setClienteRapidoForm] = useState<ClienteRapidoInput>({
+    razon_social: '',
+    numero_identificacion: '',
+    tipo_identificacion: 'NIT',
+    telefono: '',
+    email: '',
+    modalidad_tiempo: 'DIAS',
+    tarifa_pactada: 45000,
+    capacidad_posiciones: 1,
+    temperatura_acordada: -18.0,
+  });
+
   const [nuevoContrato, setNuevoContrato] = useState({
     cliente_id: '',
     cuarto_frio_id: '',
@@ -84,60 +161,62 @@ export const ColdStorageRentalView: React.FC = () => {
     observaciones: '',
   });
 
-  const [nuevoCliente, setNuevoCliente] = useState({
-    razon_social: '',
-    numero_identificacion: '',
-    tipo_identificacion: 'NIT',
-    responsable_contacto: '',
-    telefono: '',
-    email: '',
-  });
-
-  const [nuevoProducto, setNuevoProducto] = useState({
-    cliente_id: '',
-    nombre: '',
-    codigo_cliente: '',
-    tipo_empaque: 'CAJA_CARTON',
-    modalidad_medicion: 'SOLO_PESO' as 'SOLO_PESO' | 'PESO_ESTABLE' | 'MIXTO_BULTOS_PESO',
-    peso_unitario_nominal: 20,
-    temperatura_optima: '-18C a -22C',
-  });
-
-  const [nuevaRecepcion, setNuevaRecepcion] = useState({
-    contrato_id: '',
+  // Planilla de Recepción Múltiple en Báscula (Paso 2)
+  const [partidasPlanilla, setPartidasPlanilla] = useState<PartidaRecepcion[]>([]);
+  const [partidaActual, setPartidaActual] = useState({
+    producto_nombre: '',
     producto_custodia_id: '',
     lote_cliente: '',
-    bultos: 1,
-    peso_bruto_kg: 820,
-    peso_tara_kg: 20,
-    temperatura: -18.5,
+    tipo_empaque: 'CANASTILLAS' as TipoEmpaqueCustodia,
+    cantidad_bultos: 10,
+    tara_unitaria_kg: 2.0,
+    peso_bruto_kg: 320.0,
+    temperatura_c: -18.5,
+    es_peso_fijo_caja: false,
+    peso_nominal_caja_kg: 10.0,
+  });
+
+  const [recepcionForm, setRecepcionForm] = useState({
+    contrato_id: '',
     transportador_nombre: '',
     transportador_cedula: '',
     placa_vehiculo: '',
     fecha_vencimiento: '',
     observaciones: '',
+    guardar_preset_tara: true,
   });
 
-  const [nuevoDespacho, setNuevoDespacho] = useState({
-    inventario_id: '',
-    bultos_despacho: 1,
-    peso_bruto_salida: 820,
-    peso_tara_salida: 20,
+  // Despacho Múltiple Consolidado (Paso 3)
+  const [despachoClienteId, setDespachoClienteId] = useState('');
+  const [despachoItemsSeleccionados, setDespachoItemsSeleccionados] = useState<
+    Record<
+      string,
+      {
+        seleccionado: boolean;
+        bultos_a_retirar: number;
+        peso_neto_a_retirar: number;
+        es_retiro_total: boolean;
+      }
+    >
+  >({});
+  const [despachoForm, setDespachoForm] = useState({
     transportador_nombre: '',
     transportador_cedula: '',
     placa_vehiculo: '',
     observaciones: '',
+    autorizar_salida_mora: false,
   });
 
-  const [nuevaCausacion, setNuevaCausacion] = useState({
-    contrato_id: '',
-    periodo_inicio: '',
-    periodo_fin: '',
-    recargo_sobrecupo: 0,
-    porcentaje_retefuente: 4.0,
+  // Cobro en Caja (Paso 4)
+  const [pagoForm, setPagoForm] = useState({
+    metodoPago: 'EFECTIVO' as MetodoPago,
+    turnoId: '',
+    cajaId: '',
+    montoRecibido: 0,
+    cambio: 0,
   });
 
-  // Cargar datos
+  // Carga de datos
   const cargarTodo = async () => {
     try {
       setLoading(true);
@@ -151,7 +230,32 @@ export const ColdStorageRentalView: React.FC = () => {
         coldStorageRentalService.getCausaciones().catch(() => []),
       ]);
 
-      setCuartosFrios(cfs);
+      // Seed por defecto si está vacío para evitar vista en blanco
+      let cuartosFinales = cfs;
+      if (cuartosFinales.length === 0) {
+        cuartosFinales = [
+          {
+            id: 'cf-principal-01',
+            empresa_id: DEFAULT_EMPRESA_ID,
+            codigo: 'CF-01',
+            nombre: 'Cuarto Frío Principal (Congelación -18°C)',
+            temperatura_setpoint: -18.0,
+            capacidad_total_posiciones: 50,
+            activo: true,
+          },
+          {
+            id: 'cf-refrig-02',
+            empresa_id: DEFAULT_EMPRESA_ID,
+            codigo: 'CF-02',
+            nombre: 'Cuarto Frío Refrigeración Fresca (0°C a +4°C)',
+            temperatura_setpoint: 2.0,
+            capacidad_total_posiciones: 20,
+            activo: true,
+          },
+        ];
+      }
+
+      setCuartosFrios(cuartosFinales);
       setClientes(cls);
       setProductos(prods);
       setContratos(ctrs);
@@ -159,14 +263,7 @@ export const ColdStorageRentalView: React.FC = () => {
       setMovimientos(movs);
       setCausaciones(causs);
     } catch (err: any) {
-      console.error('Error cargando datos de cuarto frío:', err);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error de Conexión',
-        text: 'No se pudieron cargar todos los registros del cuarto frío.',
-        background: '#0f172a',
-        color: '#f8fafc',
-      });
+      console.warn('Error cargando datos de cuarto frío:', err);
     } finally {
       setLoading(false);
     }
@@ -176,249 +273,802 @@ export const ColdStorageRentalView: React.FC = () => {
     cargarTodo();
   }, []);
 
-  // Cálculos de métricas del Dashboard
+  // Calcular en tiempo real la tara y peso neto de la partida en báscula
+  const gravimetriaPartidaActual = useMemo(() => {
+    if (partidaActual.es_peso_fijo_caja) {
+      // Si el operario no pesó en báscula, se calcula directamente por cajas y peso nominal
+      if (!partidaActual.peso_bruto_kg || partidaActual.peso_bruto_kg <= 0) {
+        return calcularPesoCajasNominal({
+          cantidadCajas: partidaActual.cantidad_bultos,
+          pesoNominalKg: partidaActual.peso_nominal_caja_kg,
+          taraUnitariaKg: partidaActual.tara_unitaria_kg,
+        });
+      }
+      // Si pesó en báscula, valida el bruto menos la tara de las cajas
+      return calcularTaraYNetoExacto({
+        tipoEmpaque: 'CAJAS',
+        cantidadBultos: partidaActual.cantidad_bultos,
+        pesoBrutoKg: partidaActual.peso_bruto_kg,
+        taraUnitariaConfigurada: partidaActual.tara_unitaria_kg,
+      });
+    }
+
+    return calcularTaraYNetoExacto({
+      tipoEmpaque: partidaActual.tipo_empaque,
+      cantidadBultos: partidaActual.cantidad_bultos,
+      pesoBrutoKg: partidaActual.peso_bruto_kg,
+      taraUnitariaConfigurada: partidaActual.tara_unitaria_kg,
+    });
+  }, [
+    partidaActual.es_peso_fijo_caja,
+    partidaActual.peso_nominal_caja_kg,
+    partidaActual.tipo_empaque,
+    partidaActual.cantidad_bultos,
+    partidaActual.peso_bruto_kg,
+    partidaActual.tara_unitaria_kg,
+  ]);
+
+  // Cliente activo en el modal de recepción
+  const clienteActivoRecepcion = useMemo(() => {
+    if (!recepcionForm.contrato_id) return null;
+    const ctr = contratos.find((c) => c.id === recepcionForm.contrato_id);
+    if (!ctr) return null;
+    return clientes.find((cl) => cl.id === ctr.cliente_id) || null;
+  }, [recepcionForm.contrato_id, contratos, clientes]);
+
+  // Catálogo de productos asociados al cliente activo o de uso general
+  const productosClienteActivo = useMemo(() => {
+    if (!clienteActivoRecepcion) return productos;
+    return productos.filter((p) => !p.cliente_id || p.cliente_id === clienteActivoRecepcion.id);
+  }, [clienteActivoRecepcion, productos]);
+
+  // Totales consolidados de la planilla de pesaje multi-partida
+  const totalesPlanilla = useMemo(() => {
+    return calcularTotalesPartidasRecepcion(partidasPlanilla);
+  }, [partidasPlanilla]);
+
+  // Al cambiar el contrato en recepción, actualizar preset de tara del cliente en la partida
+  useEffect(() => {
+    if (!recepcionForm.contrato_id) return;
+    const ctr = contratos.find((c) => c.id === recepcionForm.contrato_id);
+    if (!ctr) return;
+    const presets = coldStorageRentalService.obtenerPresetTaraCliente(ctr.cliente_id);
+    if (partidaActual.tipo_empaque === 'CANASTILLAS') {
+      setPartidaActual((prev) => ({ ...prev, tara_unitaria_kg: presets.taraCanastillaKg }));
+    } else if (partidaActual.tipo_empaque === 'CAJAS') {
+      setPartidaActual((prev) => ({ ...prev, tara_unitaria_kg: presets.taraCajaKg }));
+    }
+  }, [recepcionForm.contrato_id, partidaActual.tipo_empaque, contratos]);
+
+  // Totales consolidados del checklist de despacho
+  const totalesDespachoSeleccionado = useMemo(() => {
+    let bultos = 0;
+    let peso = 0;
+    let count = 0;
+
+    Object.values(despachoItemsSeleccionados).forEach((item) => {
+      if (item.seleccionado) {
+        bultos += item.bultos_a_retirar || 0;
+        peso = Math.round((peso + (item.peso_neto_a_retirar || 0) + Number.EPSILON) * 100) / 100;
+        count += 1;
+      }
+    });
+
+    return { totalBultos: bultos, totalPesoKg: peso, totalSeleccionados: count };
+  }, [despachoItemsSeleccionados]);
+
+  // Turnos de caja abiertos para Cobro
+  const turnosAbiertos = useMemo(() => {
+    return cashService.getTurnos().filter((t) => t.estado === 'ABIERTO');
+  }, [showCobroModal]);
+
+  // Métricas del Dashboard
   const totalPosicionesCapacidad = cuartosFrios.reduce((acc, cf) => acc + (cf.capacidad_total_posiciones || 0), 0);
   const totalPosicionesContratadas = contratos
     .filter((c) => c.estado === 'VIGENTE')
     .reduce((acc, c) => acc + (c.posiciones_contratadas || 0), 0);
   const posicionesDisponibles = Math.max(0, totalPosicionesCapacidad - totalPosicionesContratadas);
-
   const totalKilosEnCustodia = inventario.reduce((acc, inv) => acc + Number(inv.peso_neto_actual_kg || 0), 0);
   const totalBultosEnCustodia = inventario.reduce((acc, inv) => acc + (inv.bultos_actuales || 0), 0);
-  const totalIngresosMes = causaciones.reduce((acc, c) => acc + Number(c.total || 0), 0);
 
-  // Manejadores de Formularios
-  const handleGuardarContrato = async (e: React.FormEvent) => {
+  // Clientes con Cartera / Vencimientos
+  const clientesConCartera = useMemo(() => {
+    const listado: Array<{
+      contrato: ContratoAlquilerCf;
+      cliente: ClienteCustodia;
+      causacion?: CausacionAlquilerItem;
+      diasMora: number;
+      mensaje: string;
+      montoPendiente: number;
+      semaforo: 'AL_DIA' | 'POR_VENCER' | 'EN_MORA';
+    }> = [];
+
+    contratos.forEach((ctr) => {
+      const cl = clientes.find((c) => c.id === ctr.cliente_id);
+      if (!cl) return;
+
+      const causPendiente = causaciones.find(
+        (c) => c.contrato_id === ctr.id && c.estado_pago === 'PENDIENTE'
+      );
+
+      if (causPendiente) {
+        const evalCartera = evaluarCarteraYVencimiento({
+          fechaCorteMensualidad: causPendiente.periodo_fin,
+          valorMensualidad: Number(causPendiente.total),
+          estadoPago: 'PENDIENTE',
+        });
+
+        listado.push({
+          contrato: ctr,
+          cliente: cl,
+          causacion: causPendiente,
+          diasMora: evalCartera.diasMora,
+          mensaje: evalCartera.mensajeAlerta,
+          montoPendiente: evalCartera.saldoPendiente,
+          semaforo: evalCartera.estadoSemaforo,
+        });
+      } else if (ctr.modalidad_tiempo === 'MESES') {
+        const evalCartera = evaluarCarteraYVencimiento({
+          fechaCorteMensualidad: ctr.fecha_fin,
+          valorMensualidad: ctr.tarifa_unitaria * ctr.posiciones_contratadas,
+          estadoPago: 'PENDIENTE',
+        });
+
+        if (evalCartera.estadoSemaforo !== 'AL_DIA') {
+          listado.push({
+            contrato: ctr,
+            cliente: cl,
+            diasMora: evalCartera.diasMora,
+            mensaje: evalCartera.mensajeAlerta,
+            montoPendiente: evalCartera.saldoPendiente,
+            semaforo: evalCartera.estadoSemaforo,
+          });
+        }
+      }
+    });
+
+    return listado;
+  }, [contratos, clientes, causaciones]);
+
+  // Manejador Paso 1: Guardar Cliente y Contrato Rápido
+  const handleGuardarClienteYContrato = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setLoading(true);
+      const clienteGuardado = await coldStorageRentalService.crearClienteCustodia({
+        empresa_id: DEFAULT_EMPRESA_ID,
+        razon_social: nuevoCliente.razon_social,
+        numero_identificacion: nuevoCliente.numero_identificacion,
+        tipo_identificacion: nuevoCliente.tipo_identificacion,
+        responsable_contacto: nuevoCliente.responsable_contacto,
+        telefono: nuevoCliente.telefono,
+        email: nuevoCliente.email || null,
+        autorizados_retiro: [],
+        estado: 'ACTIVO',
+      });
+
       const consecutivo = `CTR-CF-${new Date().getFullYear()}-${String(contratos.length + 1).padStart(3, '0')}`;
-      
-      const payload: Partial<ContratoAlquilerCf> = {
+      const cuartoAsignado = cuartosFrios[0]?.id || 'cf-principal-01';
+
+      await coldStorageRentalService.crearContrato({
         empresa_id: DEFAULT_EMPRESA_ID,
         consecutivo,
-        cliente_id: nuevoContrato.cliente_id,
-        cuarto_frio_id: nuevoContrato.cuarto_frio_id,
-        modalidad_tiempo: nuevoContrato.modalidad_tiempo,
-        posiciones_contratadas: Number(nuevoContrato.posiciones_contratadas),
-        tarifa_unitaria: Number(nuevoContrato.tarifa_unitaria),
-        tarifa_recargo_sobrepeso_kg: Number(nuevoContrato.tarifa_recargo_sobrepeso_kg),
-        modalidad_facturacion: nuevoContrato.modalidad_facturacion,
-        requiere_cuentas_orden: nuevoContrato.requiere_cuentas_orden,
-        fecha_inicio: nuevoContrato.fecha_inicio,
-        fecha_fin: nuevoContrato.fecha_fin,
+        cliente_id: clienteGuardado.id,
+        cuarto_frio_id: cuartoAsignado,
+        modalidad_tiempo: nuevoCliente.modalidad_preferida,
+        posiciones_contratadas: Number(nuevoCliente.posiciones),
+        tarifa_unitaria: Number(nuevoCliente.tarifa_acordada),
+        tarifa_recargo_sobrepeso_kg: 250,
+        modalidad_facturacion: nuevoCliente.modalidad_preferida === 'MESES' ? 'ANTICIPADA' : 'VENCIDA',
+        requiere_cuentas_orden: false,
+        fecha_inicio: new Date().toISOString().substring(0, 10),
+        fecha_fin: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().substring(0, 10),
         estado: 'VIGENTE',
-        observaciones: nuevoContrato.observaciones,
-      };
+        observaciones: `Contrato rápido para cliente ${nuevoCliente.razon_social}`,
+      });
 
-      await coldStorageRentalService.crearContrato(payload);
-      setShowContratoModal(false);
-      Swal.fire({
-        icon: 'success',
-        title: 'Contrato Creado',
-        text: `Contrato ${consecutivo} registrado exitosamente (${payload.posiciones_contratadas! * 800} Kg asegurados).`,
-        background: '#0f172a',
-        color: '#f8fafc',
-      });
-      await cargarTodo();
-    } catch (err: any) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: err.message || 'No se pudo crear el contrato.',
-        background: '#0f172a',
-        color: '#f8fafc',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGuardarCliente = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      setLoading(true);
-      await coldStorageRentalService.crearClienteCustodia({
-        empresa_id: DEFAULT_EMPRESA_ID,
-        ...(nuevoCliente as any),
-      });
       setShowClienteModal(false);
       Swal.fire({
         icon: 'success',
-        title: 'Cliente Registrado',
-        text: 'Cliente 3PL registrado satisfactoriamente.',
-        background: '#0f172a',
-        color: '#f8fafc',
+        title: '¡Cliente y Contrato Activos!',
+        text: `${nuevoCliente.razon_social} listo para ingresar mercancía en frío (${nuevoCliente.posiciones * 800} Kg nominales).`,
+        confirmButtonColor: '#4f46e5',
       });
       await cargarTodo();
     } catch (err: any) {
       Swal.fire({
         icon: 'error',
-        title: 'Error',
-        text: err.message || 'Error al guardar cliente.',
-        background: '#0f172a',
-        color: '#f8fafc',
+        title: 'Error al Registrar',
+        text: err.message || 'No se pudo guardar el cliente.',
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGuardarProducto = async (e: React.FormEvent) => {
+  // Manejador: Crear Cliente y Contrato Express (15 Segundos)
+  const handleGuardarClienteRapido = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setLoading(true);
-      await coldStorageRentalService.crearProductoCustodia({
-        empresa_id: DEFAULT_EMPRESA_ID,
-        ...(nuevoProducto as any),
-      });
-      setShowProductoModal(false);
+      const res = await coldStorageRentalService.crearClienteYContratoRapido(clienteRapidoForm);
+      setClientes((prev) => [res.cliente, ...prev]);
+      setContratos((prev) => [res.contrato, ...prev]);
+      setRecepcionForm((prev) => ({ ...prev, contrato_id: res.contrato.id || '' }));
+      setShowClienteRapidoSubmodal(false);
+
       Swal.fire({
         icon: 'success',
-        title: 'Producto Registrado',
-        text: 'SKU de cliente registrado para custodia.',
-        background: '#0f172a',
-        color: '#f8fafc',
+        title: '¡Cliente y Contrato Activos!',
+        text: `${res.cliente.razon_social} configurado en 15 segundos listo para pesaje en báscula.`,
+        timer: 2500,
+        showConfirmButton: false,
       });
-      await cargarTodo();
     } catch (err: any) {
       Swal.fire({
         icon: 'error',
-        title: 'Error',
-        text: err.message || 'Error al guardar producto.',
-        background: '#0f172a',
-        color: '#f8fafc',
+        title: 'Error Creando Cliente Rápido',
+        text: err.message || 'Verifique los datos del cliente.',
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGuardarRecepcion = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Manejador: Agregar producto(s) a la lista de lote temporal antes de persistir
+  const handleAgregarProductoAlLote = () => {
+    const rawNombre = productoRapidoForm.nombre.trim();
+    if (!rawNombre) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Nombre Requerido',
+        text: 'Escribe el nombre de la especie o producto para agregarlo.',
+      });
+      return;
+    }
+
+    // Soporte para entrada múltiple separada por comas o saltos de línea (ej: "Corvina, Pargo, Camarón")
+    const nombresSeparados = rawNombre
+      .split(/[,\n]/)
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
+
+    const nuevosItems = nombresSeparados.map((nom) => ({
+      id: crypto.randomUUID(),
+      nombre: nom,
+      tipo_empaque: productoRapidoForm.tipo_empaque,
+      tara_unitaria_kg: productoRapidoForm.tara_unitaria_kg,
+    }));
+
+    setProductosLoteLista((prev) => [...prev, ...nuevosItems]);
+    setProductoRapidoForm((prev) => ({ ...prev, nombre: '' }));
+  };
+
+  // Manejador: Eliminar un producto de la lista de lote
+  const handleEliminarProductoDelLote = (id: string) => {
+    setProductosLoteLista((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  // Manejador: Guardar Producto(s) Express Asociados al Cliente (Individual o Múltiple)
+  const handleGuardarProductoRapido = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+
+    // Consolidar ítems del lote + ítem actual del input si tiene texto
+    const itemsAGuardar = [...productosLoteLista];
+    const nombreEnInput = productoRapidoForm.nombre.trim();
+
+    if (nombreEnInput) {
+      const nombresSeparados = nombreEnInput
+        .split(/[,\n]/)
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
+
+      nombresSeparados.forEach((nom) => {
+        itemsAGuardar.push({
+          id: crypto.randomUUID(),
+          nombre: nom,
+          tipo_empaque: productoRapidoForm.tipo_empaque,
+          tara_unitaria_kg: productoRapidoForm.tara_unitaria_kg,
+        });
+      });
+    }
+
+    if (itemsAGuardar.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Sin Productos',
+        text: 'Escribe al menos un nombre de producto o especie para registrar.',
+      });
+      return;
+    }
+
     try {
       setLoading(true);
-      const res = await coldStorageRentalService.registrarRecepcion({
+      const clienteIdDestino = clienteActivoRecepcion?.id || '00000000-0000-0000-0000-000000000000';
+      const productosCreados = await coldStorageRentalService.crearProductosCustodiaBatch(
+        clienteIdDestino,
+        itemsAGuardar
+      );
+
+      // Actualizar catálogo en memoria
+      setProductos((prev) => {
+        const nuevosFiltrados = productosCreados.filter((n) => !prev.some((p) => p.id === n.id));
+        return [...nuevosFiltrados, ...prev];
+      });
+
+      // Autoseleccionar el primer producto en la báscula de la partida actual
+      if (productosCreados.length > 0) {
+        const primerProd = productosCreados[0];
+        setPartidaActual((prev) => ({
+          ...prev,
+          producto_nombre: primerProd.nombre,
+          tipo_empaque: (['CANASTILLAS', 'CAJAS', 'GRANEL'].includes(primerProd.tipo_empaque)
+            ? primerProd.tipo_empaque
+            : 'CANASTILLAS') as TipoEmpaqueCustodia,
+          tara_unitaria_kg: (primerProd as any).tara_unitaria_kg ?? itemsAGuardar[0].tara_unitaria_kg,
+        }));
+      }
+
+      // Cerrar y limpiar submodal y lote
+      setShowProductoRapidoSubmodal(false);
+      setProductosLoteLista([]);
+      setProductoRapidoForm({
+        nombre: '',
+        tipo_empaque: 'CANASTILLAS',
+        tara_unitaria_kg: 2.0,
+      });
+
+      const clienteNombre = clienteActivoRecepcion?.razon_social || 'el cliente activo';
+      Swal.fire({
+        icon: 'success',
+        title: productosCreados.length === 1 ? '¡Producto Creado!' : '¡Productos Creados en Lote!',
+        text: `${productosCreados.length} producto(s) asociado(s) con éxito a ${clienteNombre} y listos para pesaje.`,
+        timer: 2500,
+        showConfirmButton: false,
+      });
+    } catch (err: any) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error Creando Productos',
+        text: err.message || 'No se pudieron registrar los productos del cliente.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Manejador: Agregar Partida de Pesaje a la Planilla en Vivo
+  const handleAgregarPartida = () => {
+    if (!partidaActual.producto_nombre.trim()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Producto Requerido',
+        text: 'Escribe el nombre del producto que estás pesando.',
+      });
+      return;
+    }
+
+    if (!gravimetriaPartidaActual.esValido) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Pesaje Inválido',
+        text: gravimetriaPartidaActual.error || 'Verifique el peso en báscula.',
+      });
+      return;
+    }
+
+    const pesoBrutoReal =
+      Number(partidaActual.peso_bruto_kg) > 0
+        ? Number(partidaActual.peso_bruto_kg)
+        : Number(
+            (gravimetriaPartidaActual as any).pesoBrutoKg ||
+              gravimetriaPartidaActual.pesoNetoKg + gravimetriaPartidaActual.taraTotalKg
+          );
+
+    const nuevaPartida: PartidaRecepcion = {
+      id: crypto.randomUUID(),
+      producto_nombre: partidaActual.producto_nombre.trim(),
+      producto_custodia_id: partidaActual.producto_custodia_id || undefined,
+      lote_cliente: partidaActual.lote_cliente.trim() || `LOTE-${new Date().toISOString().slice(2, 10).replace(/-/g, '')}`,
+      tipo_empaque: partidaActual.tipo_empaque,
+      cantidad_bultos: Number(partidaActual.cantidad_bultos),
+      tara_unitaria_kg: Number(partidaActual.tara_unitaria_kg),
+      peso_tara_total_kg: Number(gravimetriaPartidaActual.taraTotalKg),
+      peso_bruto_kg: pesoBrutoReal,
+      peso_neto_kg: Number(gravimetriaPartidaActual.pesoNetoKg),
+      temperatura_c: Number(partidaActual.temperatura_c),
+    };
+
+    setPartidasPlanilla((prev) => [...prev, nuevaPartida]);
+
+    // Limpiar campos de pesaje de la partida para permitir la siguiente pesada inmediata
+    setPartidaActual((prev) => ({
+      ...prev,
+      peso_bruto_kg: 0,
+      lote_cliente: '',
+    }));
+  };
+
+  // Manejador: Eliminar Partida de la Planilla
+  const handleEliminarPartida = (index: number) => {
+    setPartidasPlanilla((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // Manejador Paso 2: Guardar Recepción Consolidada (Planilla Completa)
+  const handleGuardarRecepcionMultiple = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!recepcionForm.contrato_id) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Cliente no Seleccionado',
+        text: 'Elige un cliente y contrato o crea uno nuevo con el botón express.',
+      });
+      return;
+    }
+
+    if (partidasPlanilla.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Planilla Vacía',
+        text: 'Agrega al menos una pesada a la planilla con el botón "+ Agregar Partida a la Planilla".',
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const ctr = contratos.find((c) => c.id === recepcionForm.contrato_id);
+      const cl = clientes.find((c) => c.id === ctr?.cliente_id);
+
+      if (recepcionForm.guardar_preset_tara && cl) {
+        coldStorageRentalService.guardarPresetTaraCliente(cl.id || '', {
+          taraCanastillaKg:
+            partidaActual.tipo_empaque === 'CANASTILLAS'
+              ? partidaActual.tara_unitaria_kg
+              : TARAS_PREDETERMINADAS_KG.CANASTILLAS,
+          taraCajaKg:
+            partidaActual.tipo_empaque === 'CAJAS'
+              ? partidaActual.tara_unitaria_kg
+              : TARAS_PREDETERMINADAS_KG.CAJAS,
+        });
+      }
+
+      const res = await coldStorageRentalService.registrarRecepcionMultiple({
         empresa_id: DEFAULT_EMPRESA_ID,
-        contrato_id: nuevaRecepcion.contrato_id,
-        producto_custodia_id: nuevaRecepcion.producto_custodia_id,
-        lote_cliente: nuevaRecepcion.lote_cliente,
-        bultos: Number(nuevaRecepcion.bultos),
-        peso_bruto_kg: Number(nuevaRecepcion.peso_bruto_kg),
-        peso_tara_kg: Number(nuevaRecepcion.peso_tara_kg),
-        temperatura: Number(nuevaRecepcion.temperatura),
-        transportador_nombre: nuevaRecepcion.transportador_nombre,
-        transportador_cedula: nuevaRecepcion.transportador_cedula,
-        placa_vehiculo: nuevaRecepcion.placa_vehiculo,
-        operador_id: '00000000-0000-0000-0000-000000000000',
-        fecha_vencimiento: nuevaRecepcion.fecha_vencimiento || null,
-        observaciones: nuevaRecepcion.observaciones,
-      } as any);
+        contrato_id: recepcionForm.contrato_id,
+        cliente_id: cl?.id,
+        items: partidasPlanilla,
+        transportador_nombre: recepcionForm.transportador_nombre || 'Conductor Directo',
+        transportador_cedula: recepcionForm.transportador_cedula || '000000',
+        placa_vehiculo: recepcionForm.placa_vehiculo || 'LOCAL',
+        temperatura_camion_c: partidaActual.temperatura_c,
+        observaciones: recepcionForm.observaciones || null,
+      });
 
       setShowRecepcionModal(false);
+      setPartidasPlanilla([]);
+
       Swal.fire({
         icon: 'success',
-        title: 'Acta de Recepción Generada',
+        title: '¡Planilla de Frío Consolidada!',
         html: `
-          <p>Acta: <b>${res.acta_consecutivo}</b></p>
-          <p>Peso Neto Ingresado: <b>${res.peso_neto_ingresado} Kg</b></p>
-          ${res.sobrecupo_detectado_kg > 0 ? `<p style="color:#ef4444">⚠️ Sobrecupo Detectado: <b>${res.sobrecupo_detectado_kg} Kg</b></p>` : ''}
+          <div class="text-left space-y-2 p-2">
+            <p>📄 Acta Consolidada: <b>${res.acta_consecutivo}</b></p>
+            <p>📋 Partidas Pesadas: <b>${res.partidasGuardadas} ítems</b></p>
+            <p>📦 Total Bultos: <b>${res.totales.totalBultos}</b></p>
+            <p>⚖️ Tara Descontada: <b>${res.totales.totalTaraTotalKg} Kg</b></p>
+            <p class="text-lg text-emerald-700 font-black">✨ Peso Neto Consolidado: ${res.totales.totalPesoNetoKg} Kg</p>
+          </div>
         `,
-        background: '#0f172a',
-        color: '#f8fafc',
+        confirmButtonText: 'Descargar Acta PDF',
+        confirmButtonColor: '#059669',
+        showCancelButton: true,
+        cancelButtonText: 'Cerrar',
+      }).then((result) => {
+        if (result.isConfirmed && cl) {
+          coldStoragePdfService.generarPdfActaRecepcionMultiple({
+            actaConsecutivo: res.acta_consecutivo,
+            cliente: cl,
+            contrato: ctr,
+            transportadorNombre: recepcionForm.transportador_nombre || 'Conductor Directo',
+            transportadorCedula: recepcionForm.transportador_cedula || '000000',
+            placaVehiculo: recepcionForm.placa_vehiculo || 'LOCAL',
+            temperaturaC: partidaActual.temperatura_c,
+            observaciones: recepcionForm.observaciones || null,
+            items: partidasPlanilla,
+          });
+        }
       });
+
       await cargarTodo();
     } catch (err: any) {
       Swal.fire({
         icon: 'error',
         title: 'Error en Recepción',
-        text: err.message || 'No se pudo registrar la recepción.',
-        background: '#0f172a',
-        color: '#f8fafc',
+        text: err.message || 'No se pudo guardar la recepción múltiple.',
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGuardarDespacho = async (e: React.FormEvent) => {
+  // Manejador: Abrir Modal de Despacho con Selección de Cliente
+  const handleAbrirDespachoModal = (invItem?: InventarioCustodiaItem) => {
+    let targetClienteId = despachoClienteId;
+    if (invItem) {
+      targetClienteId = invItem.cliente_id;
+      setSelectedItemForDespacho(invItem);
+    } else if (!targetClienteId && inventario.length > 0) {
+      targetClienteId = inventario[0].cliente_id;
+    }
+    setDespachoClienteId(targetClienteId);
+
+    // Pre-seleccionar ítems del cliente
+    const itemsDelCliente = inventario.filter((i) => i.cliente_id === targetClienteId && i.activo);
+    const nuevoMap: Record<
+      string,
+      { seleccionado: boolean; bultos_a_retirar: number; peso_neto_a_retirar: number; es_retiro_total: boolean }
+    > = {};
+
+    itemsDelCliente.forEach((i) => {
+      const match = invItem ? i.id === invItem.id : true;
+      nuevoMap[i.id] = {
+        seleccionado: match,
+        bultos_a_retirar: i.bultos_actuales,
+        peso_neto_a_retirar: Number(i.peso_neto_actual_kg),
+        es_retiro_total: true,
+      };
+    });
+
+    setDespachoItemsSeleccionados(nuevoMap);
+    setShowDespachoModal(true);
+  };
+
+  // Manejador: Alternar selección de un ítem en el checklist de despacho
+  const handleToggleSeleccionDespacho = (invId: string) => {
+    setDespachoItemsSeleccionados((prev) => {
+      const itemActual = prev[invId];
+      if (!itemActual) return prev;
+      return {
+        ...prev,
+        [invId]: {
+          ...itemActual,
+          seleccionado: !itemActual.seleccionado,
+        },
+      };
+    });
+  };
+
+  // Manejador: Botón Salida Rápida para un lote individual [⚡ Retirar Restante]
+  const handleRetiroTotalItem = (invItem: InventarioCustodiaItem) => {
+    setDespachoItemsSeleccionados((prev) => ({
+      ...prev,
+      [invItem.id]: {
+        seleccionado: true,
+        bultos_a_retirar: invItem.bultos_actuales,
+        peso_neto_a_retirar: Number(invItem.peso_neto_actual_kg),
+        es_retiro_total: true,
+      },
+    }));
+  };
+
+  // Manejador: Botón Salida Rápida Global [⚡ Despachar Todo el Saldo] para todos los lotes del cliente
+  const handleDespacharTodoSaldoCliente = () => {
+    const itemsDelCliente = inventario.filter((i) => i.cliente_id === despachoClienteId && i.activo);
+    if (itemsDelCliente.length === 0) return;
+
+    const nuevoMap: Record<
+      string,
+      { seleccionado: boolean; bultos_a_retirar: number; peso_neto_a_retirar: number; es_retiro_total: boolean }
+    > = {};
+
+    itemsDelCliente.forEach((i) => {
+      nuevoMap[i.id] = {
+        seleccionado: true,
+        bultos_a_retirar: i.bultos_actuales,
+        peso_neto_a_retirar: Number(i.peso_neto_actual_kg),
+        es_retiro_total: true,
+      };
+    });
+
+    setDespachoItemsSeleccionados(nuevoMap);
+  };
+
+  // Manejador: Desmarcar todos los lotes del cliente
+  const handleDeseleccionarTodoCliente = () => {
+    setDespachoItemsSeleccionados((prev) => {
+      const nuevo = { ...prev };
+      Object.keys(nuevo).forEach((k) => {
+        nuevo[k] = { ...nuevo[k], seleccionado: false };
+      });
+      return nuevo;
+    });
+  };
+
+  // Manejador Paso 3: Guardar Despacho Consolidado (Checklist Múltiple)
+  const handleGuardarDespachoMultiple = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const cl = clientes.find((c) => c.id === despachoClienteId);
+    if (!cl || !cl.id) {
+      Swal.fire({ icon: 'warning', title: 'Cliente Requerido', text: 'Selecciona un cliente válido para despachar.' });
+      return;
+    }
+
+    const itemsAProcesar: ItemDespacho[] = [];
+    Object.entries(despachoItemsSeleccionados).forEach(([invId, data]) => {
+      if (data.seleccionado && data.bultos_a_retirar > 0 && data.peso_neto_a_retirar > 0) {
+        const invRow = inventario.find((i) => i.id === invId);
+        itemsAProcesar.push({
+          inventario_id: invId,
+          producto_nombre: invRow?.producto?.nombre || 'Producto en Custodia',
+          tipo_empaque: invRow?.producto?.tipo_empaque || 'ESTÁNDAR',
+          bultos_a_retirar: data.bultos_a_retirar,
+          peso_neto_a_retirar: data.peso_neto_a_retirar,
+          es_retiro_total: data.es_retiro_total,
+        });
+      }
+    });
+
+    if (itemsAProcesar.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Sin Lotes Seleccionados',
+        text: 'Marca al menos un lote con cantidades mayores a cero para despachar.',
+      });
+      return;
+    }
+
+    const ctr = contratos.find((c) => c.cliente_id === cl.id && c.estado === 'VIGENTE');
+
     try {
       setLoading(true);
-      const res = await coldStorageRentalService.registrarDespacho({
-        empresa_id: DEFAULT_EMPRESA_ID,
-        inventario_id: nuevoDespacho.inventario_id,
-        bultos_despacho: Number(nuevoDespacho.bultos_despacho),
-        peso_bruto_salida: Number(nuevoDespacho.peso_bruto_salida),
-        peso_tara_salida: Number(nuevoDespacho.peso_tara_salida),
-        transportador_nombre: nuevoDespacho.transportador_nombre,
-        transportador_cedula: nuevoDespacho.transportador_cedula,
-        placa_vehiculo: nuevoDespacho.placa_vehiculo,
-        operador_id: '00000000-0000-0000-0000-000000000000',
-        observaciones: nuevoDespacho.observaciones,
-      } as any);
+      const res = await coldStorageRentalService.registrarDespachoMultiple({
+        contrato_id: ctr?.id || '00000000-0000-0000-0000-000000000000',
+        cliente_id: cl.id,
+        items: itemsAProcesar,
+        transportador_nombre: despachoForm.transportador_nombre || 'Conductor Retiro',
+        transportador_cedula: despachoForm.transportador_cedula || '000000',
+        placa_vehiculo: despachoForm.placa_vehiculo || 'RETIRO',
+        observaciones: despachoForm.observaciones || null,
+        autorizar_salida_mora: despachoForm.autorizar_salida_mora,
+      });
 
       setShowDespachoModal(false);
+
       Swal.fire({
         icon: 'success',
-        title: 'Acta de Despacho Generada',
+        title: '¡Despacho Consolidado Exitoso!',
         html: `
-          <p>Acta: <b>${res.acta_consecutivo}</b></p>
-          <p>Peso Despachado: <b>${res.peso_despachado_kg} Kg</b></p>
-          <p>Merma Registrada: <b>${res.merma_kg} Kg</b></p>
-          <p>Saldo Remanente: <b>${res.remanente_peso_kg} Kg (${res.remanente_bultos} bultos)</b></p>
+          <div class="text-left space-y-2 p-2">
+            <p>📄 Acta de Salida: <b>${res.acta_consecutivo}</b></p>
+            <p>📦 Lotes Entregados: <b>${res.itemsProcesados}</b></p>
+            <p>📦 Total Bultos Retirados: <b>${res.totalBultosDespachados}</b></p>
+            <p class="text-lg text-amber-700 font-black">⚖️ Peso Neto Despachado: ${res.totalPesoDespachadoKg} Kg</p>
+          </div>
         `,
-        background: '#0f172a',
-        color: '#f8fafc',
+        confirmButtonText: 'Descargar Acta Salida PDF',
+        confirmButtonColor: '#d97706',
+        showCancelButton: true,
+        cancelButtonText: 'Cerrar',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          coldStoragePdfService.generarPdfActaDespachoMultiple({
+            actaConsecutivo: res.acta_consecutivo,
+            cliente: cl,
+            transportadorNombre: despachoForm.transportador_nombre || 'Conductor Retiro',
+            transportadorCedula: despachoForm.transportador_cedula || '000000',
+            placaVehiculo: despachoForm.placa_vehiculo || 'RETIRO',
+            observaciones: despachoForm.observaciones || null,
+            items: itemsAProcesar,
+          });
+        }
       });
+
       await cargarTodo();
     } catch (err: any) {
       Swal.fire({
         icon: 'error',
         title: 'Error en Despacho',
-        text: err.message || 'No se pudo despachar la mercancía.',
-        background: '#0f172a',
-        color: '#f8fafc',
+        text: err.message || 'No se pudo registrar el despacho múltiple.',
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGuardarCausacion = async (e: React.FormEvent) => {
+  // Manejador Paso 4: Confirmar Cobro en Caja
+  const handleConfirmarCobroEnCaja = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!cobroData) return;
+
+    if (turnosAbiertos.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'No hay Turno de Caja Abierto',
+        text: 'Abre primero la caja en el módulo de Tesorería/POS para asentar los fondos.',
+        confirmButtonColor: '#4f46e5',
+      });
+      return;
+    }
+
     try {
       setLoading(true);
-      const res = await coldStorageRentalService.causarIngresoAlquiler({
-        empresa_id: DEFAULT_EMPRESA_ID,
-        contrato_id: nuevaCausacion.contrato_id,
-        periodo_inicio: nuevaCausacion.periodo_inicio,
-        periodo_fin: nuevaCausacion.periodo_fin,
-        recargo_sobrecupo: Number(nuevaCausacion.recargo_sobrecupo),
-        porcentaje_retefuente: Number(nuevaCausacion.porcentaje_retefuente),
-      } as any);
+      const turnoSeleccionado = turnosAbiertos.find((t) => t.id === pagoForm.turnoId) || turnosAbiertos[0];
+      const consecutivoRecibo = `RC-CF-${Date.now().toString().slice(-6)}`;
 
-      setShowCausacionModal(false);
+      const res = await coldStorageRentalService.registrarCobroEnCaja({
+        turnoId: turnoSeleccionado.id,
+        cajaId: turnoSeleccionado.cajaId,
+        clienteId: cobroData.clienteId,
+        contratoId: cobroData.contratoId,
+        causacionId: cobroData.causacionId,
+        monto: cobroData.monto,
+        metodoPago: pagoForm.metodoPago,
+        concepto: `${cobroData.concepto} - Ref: ${consecutivoRecibo}`,
+        referenciaId: consecutivoRecibo,
+      });
+
+      if (!res.success) {
+        throw new Error(res.error || 'Error al registrar cobro');
+      }
+
+      setShowCobroModal(false);
+
+      const cl = clientes.find((c) => c.id === cobroData.clienteId) || {
+        razon_social: cobroData.clienteNombre,
+        numero_identificacion: 'N/A',
+        tipo_identificacion: 'NIT',
+      };
+
       Swal.fire({
         icon: 'success',
-        title: 'Causación Contable Exitosa (4155)',
+        title: '¡Pago Recibido en Caja!',
         html: `
-          <p>Consecutivo: <b>${res.consecutivo_causacion}</b></p>
-          <p>Subtotal Servicio: <b>$${Number(res.subtotal).toLocaleString('es-CO')}</b></p>
-          <p>IVA 19% (2408): <b>$${Number(res.iva_19).toLocaleString('es-CO')}</b></p>
-          <p>Total a Cobrar (1305): <b>$${Number(res.total).toLocaleString('es-CO')}</b></p>
+          <div class="text-left space-y-2 p-2">
+            <p>🧾 Recibo Oficial: <b>${consecutivoRecibo}</b></p>
+            <p>💵 Monto: <b>$${Number(cobroData.monto).toLocaleString('es-CO')} COP</b></p>
+            <p>💳 Método: <b>${pagoForm.metodoPago}</b></p>
+            <p class="text-xs text-slate-500">Saldo asentado en turno de caja de forma inmediata.</p>
+          </div>
         `,
-        background: '#0f172a',
-        color: '#f8fafc',
+        showDenyButton: true,
+        confirmButtonText: '📄 Recibo Carta',
+        denyButtonText: '🧾 Ticket Térmico 80mm',
+        confirmButtonColor: '#4f46e5',
+        denyButtonColor: '#0f172a',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          coldStoragePdfService.generarPdfReciboPagoAlquiler({
+            consecutivo: consecutivoRecibo,
+            cliente: cl as any,
+            concepto: cobroData.concepto,
+            modalidadTiempo: cobroData.modalidad,
+            diasLiquidacion: cobroData.dias,
+            kilosLiquidacion: cobroData.kilos,
+            subtotal: Math.round(cobroData.monto / 1.19),
+            iva: Math.round(cobroData.monto - cobroData.monto / 1.19),
+            totalPagar: cobroData.monto,
+            metodoPago: pagoForm.metodoPago,
+          });
+        } else if (result.isDenied) {
+          coldStoragePdfService.generarPdfTicketTermicoAlquiler({
+            consecutivo: consecutivoRecibo,
+            cliente: cl as any,
+            concepto: cobroData.concepto,
+            totalPagar: cobroData.monto,
+            metodoPago: pagoForm.metodoPago,
+          });
+        }
       });
+
       await cargarTodo();
     } catch (err: any) {
       Swal.fire({
         icon: 'error',
-        title: 'Error en Causación',
-        text: err.message || 'No se pudo liquidar la causación contable.',
-        background: '#0f172a',
-        color: '#f8fafc',
+        title: 'Error de Cobro',
+        text: err.message || 'No se pudo asentar el pago en caja.',
       });
     } finally {
       setLoading(false);
@@ -426,60 +1076,256 @@ export const ColdStorageRentalView: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 p-6 space-y-6 text-slate-100 bg-slate-950 min-h-screen">
-      {/* Encabezado Principal */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-6 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-2xl">
+    <div className="flex-1 p-6 space-y-6 text-slate-900 bg-slate-50 min-h-screen">
+      {/* ========================================================================= */}
+      {/* ENCABEZADO PRINCIPAL (LIGHT MODE WCAG AA+) */}
+      {/* ========================================================================= */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm">
         <div className="flex items-center space-x-4">
-          <div className="p-3.5 bg-sky-500/10 border border-sky-500/30 rounded-xl text-sky-400">
-            <Snowflake className="w-8 h-8 animate-pulse" />
+          <div className="p-3.5 bg-indigo-50 border border-indigo-200/80 rounded-2xl text-indigo-600 shadow-sm">
+            <Snowflake className="w-8 h-8 animate-pulse text-indigo-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
-              Alquiler de Cuarto Frío y Custodia 3PL
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30">
+            <h1 className="text-2xl font-black tracking-tight text-slate-900 flex items-center gap-3">
+              Alquiler de Cuarto Frío & Custodia 3PL
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-800 font-bold border border-indigo-200">
                 800 Kg / Posición
               </span>
             </h1>
-            <p className="text-sm text-slate-400">
-              Gestión de contratos de almacenamiento frigorífico, báscula calibrada, actas y causación en cuenta 4155.
+            <p className="text-sm text-slate-600 font-medium">
+              Flujo operativo simplificado: registro rápido, pesaje en báscula calibrada, retiro con control de cartera y cobro en caja.
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">
           <button
-            onClick={() => setShowRecepcionModal(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium shadow-lg shadow-emerald-950 transition-all text-sm"
-          >
-            <Scale className="w-4 h-4" />
-            Recepción Báscula (Entrada)
-          </button>
-          <button
-            onClick={() => setShowContratoModal(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-medium shadow-lg shadow-sky-950 transition-all text-sm"
-          >
-            <Plus className="w-4 h-4" />
-            Nuevo Contrato
-          </button>
-          <button
             onClick={cargarTodo}
-            className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-white/10"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs border border-slate-300 transition-all shadow-sm"
             title="Refrescar Datos"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            Actualizar
           </button>
         </div>
       </div>
 
-      {/* Tabs de Navegación */}
-      <div className="flex border-b border-white/10 space-x-2 overflow-x-auto pb-1">
+      {/* ========================================================================= */}
+      {/* ASISTENTE OPERATIVO 1-2-3-4 ("LA REGLA DE LOS 12 AÑOS") */}
+      {/* ========================================================================= */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-black uppercase tracking-wider text-slate-500 flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-indigo-600" />
+            Asistente Operativo Paso a Paso (Flujo para Cualquier Operario)
+          </h2>
+          <span className="text-xs font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-200">
+            Fácil • Rápido • Sin errores
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {/* PASO 1 */}
+          <button
+            onClick={() => setShowClienteModal(true)}
+            className="text-left p-5 rounded-2xl bg-white hover:bg-indigo-50/50 border-2 border-indigo-200/80 hover:border-indigo-500 transition-all shadow-sm hover:shadow-md group flex flex-col justify-between"
+          >
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="w-8 h-8 rounded-xl bg-indigo-600 text-white font-black text-sm flex items-center justify-center shadow-sm">
+                  1
+                </span>
+                <Users className="w-5 h-5 text-indigo-600 group-hover:scale-110 transition-transform" />
+              </div>
+              <h3 className="font-bold text-slate-900 text-base">Nuevo Cliente / Contrato</h3>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                Ingresa los datos del cliente. Elige si guarda por <b>días</b> o por <b>meses</b>.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center text-xs font-bold text-indigo-600">
+              Registrar Cliente →
+            </div>
+          </button>
+
+          {/* PASO 2 */}
+          <button
+            onClick={() => setShowRecepcionModal(true)}
+            className="text-left p-5 rounded-2xl bg-white hover:bg-emerald-50/50 border-2 border-emerald-200/80 hover:border-emerald-500 transition-all shadow-sm hover:shadow-md group flex flex-col justify-between"
+          >
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="w-8 h-8 rounded-xl bg-emerald-600 text-white font-black text-sm flex items-center justify-center shadow-sm">
+                  2
+                </span>
+                <Scale className="w-5 h-5 text-emerald-600 group-hover:scale-110 transition-transform" />
+              </div>
+              <h3 className="font-bold text-slate-900 text-base">Recibir Mercancía (Báscula)</h3>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                Elige empaque: <b>Canastillas 🧺</b>, <b>Cajas 📦</b> o <b>Suelto 🐟</b>. Tara automática.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center text-xs font-bold text-emerald-600">
+              Pesar en Báscula →
+            </div>
+          </button>
+
+          {/* PASO 3 */}
+          <button
+            onClick={() => {
+              const primerClienteConInv = clientes.find((c) =>
+                inventario.some((i) => i.cliente_id === c.id && i.activo)
+              );
+              if (primerClienteConInv && primerClienteConInv.id) {
+                setDespachoClienteId(primerClienteConInv.id);
+                const itemsDelCliente = inventario.filter(
+                  (i) => i.cliente_id === primerClienteConInv.id && i.activo
+                );
+                const nuevoMap: Record<
+                  string,
+                  { seleccionado: boolean; bultos_a_retirar: number; peso_neto_a_retirar: number; es_retiro_total: boolean }
+                > = {};
+                itemsDelCliente.forEach((i) => {
+                  nuevoMap[i.id] = {
+                    seleccionado: true,
+                    bultos_a_retirar: i.bultos_actuales,
+                    peso_neto_a_retirar: Number(i.peso_neto_actual_kg),
+                    es_retiro_total: true,
+                  };
+                });
+                setDespachoItemsSeleccionados(nuevoMap);
+              }
+              setShowDespachoModal(true);
+            }}
+            className="text-left p-5 rounded-2xl bg-white hover:bg-amber-50/50 border-2 border-amber-200/80 hover:border-amber-500 transition-all shadow-sm hover:shadow-md group flex flex-col justify-between"
+          >
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="w-8 h-8 rounded-xl bg-amber-600 text-white font-black text-sm flex items-center justify-center shadow-sm">
+                  3
+                </span>
+                <Truck className="w-5 h-5 text-amber-600 group-hover:scale-110 transition-transform" />
+              </div>
+              <h3 className="font-bold text-slate-900 text-base">Retirar / Despachar</h3>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                Entrega producto al conductor. Te avisa si debe dinero antes de salir.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center text-xs font-bold text-amber-600">
+              Despachar Producto →
+            </div>
+          </button>
+
+          {/* PASO 4 */}
+          <button
+            onClick={() => setActiveTab('cartera')}
+            className="text-left p-5 rounded-2xl bg-white hover:bg-sky-50/50 border-2 border-sky-200/80 hover:border-sky-500 transition-all shadow-sm hover:shadow-md group flex flex-col justify-between"
+          >
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="w-8 h-8 rounded-xl bg-sky-600 text-white font-black text-sm flex items-center justify-center shadow-sm">
+                  4
+                </span>
+                <DollarSign className="w-5 h-5 text-sky-600 group-hover:scale-110 transition-transform" />
+              </div>
+              <h3 className="font-bold text-slate-900 text-base">Liquidar & Cobrar en Caja</h3>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                Recibe efectivo o Nequi. Suma a tu caja del día e imprime recibo oficial.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center text-xs font-bold text-sky-600">
+              Ver Cartera y Cobrar →
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* ALERTA Y MONITOR DE CARTERA (CLIENTES CON VENCIMIENTOS) */}
+      {/* ========================================================================= */}
+      {clientesConCartera.length > 0 ? (
+        <div className="p-5 rounded-2xl bg-amber-50/80 border-2 border-amber-300 shadow-sm space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-amber-900 font-bold">
+              <AlertTriangle className="w-5 h-5 text-amber-600" />
+              <span>Clientes con Pagos Pendientes o Mensualidades Vencidas ({clientesConCartera.length})</span>
+            </div>
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-200 text-amber-900">
+              Atención en Portería / Caja
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {clientesConCartera.map((item, idx) => (
+              <div
+                key={idx}
+                className="p-3.5 rounded-xl bg-white border border-amber-200 shadow-xs flex justify-between items-center"
+              >
+                <div>
+                  <h4 className="font-bold text-slate-900 text-sm">{item.cliente.razon_social}</h4>
+                  <p className="text-xs text-slate-500">
+                    Contrato {item.contrato.consecutivo} • {item.contrato.modalidad_tiempo}
+                  </p>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full font-bold ${
+                        item.semaforo === 'EN_MORA'
+                          ? 'bg-rose-100 text-rose-800'
+                          : 'bg-amber-100 text-amber-800'
+                      }`}
+                    >
+                      {item.mensaje}
+                    </span>
+                    <span className="text-xs font-bold text-slate-900">
+                      ${Math.round(item.montoPendiente).toLocaleString('es-CO')}
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setCobroData({
+                      clienteId: item.cliente.id || '',
+                      clienteNombre: item.cliente.razon_social,
+                      contratoId: item.contrato.id,
+                      causacionId: item.causacion?.id,
+                      monto: item.montoPendiente,
+                      concepto: `Alquiler Cuarto Frío - ${item.contrato.consecutivo} (${item.mensaje})`,
+                      modalidad: item.contrato.modalidad_tiempo,
+                    });
+                    setShowCobroModal(true);
+                  }}
+                  className="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-sm transition-all"
+                >
+                  Cobrar
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between text-emerald-900 text-sm">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+            <span className="font-semibold">
+              Todos los clientes de alquiler y custodia se encuentran al día y a paz y salvo.
+            </span>
+          </div>
+          <span className="text-xs text-emerald-700 font-bold bg-emerald-100 px-2 py-0.5 rounded-full">
+            0 Facturas en Mora
+          </span>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* TABS DE GESTIÓN Y AUDITORÍA */}
+      {/* ========================================================================= */}
+      <div className="flex border-b border-slate-200 space-x-2 overflow-x-auto pb-1">
         {[
-          { id: 'dashboard', label: 'Dashboard & Capacidad', icon: TrendingUp },
-          { id: 'contratos', label: 'Contratos de Alquiler', icon: FileText },
-          { id: 'clientes_productos', label: 'Clientes & Catálogo 3PL', icon: Users },
-          { id: 'bascula_movimientos', label: 'Báscula & Movimientos', icon: Scale },
+          { id: 'operaciones', label: 'Panel Operativo & Capacidad', icon: Layers },
           { id: 'existencias', label: 'Existencias en Custodia', icon: Box },
-          { id: 'contabilidad', label: 'Causación Contable (4155)', icon: DollarSign },
+          { id: 'cartera', label: 'Cartera & Cobro en Caja', icon: DollarSign },
+          { id: 'movimientos', label: 'Actas de Báscula', icon: Scale },
+          { id: 'contratos', label: 'Contratos Activos', icon: FileText },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -487,10 +1333,10 @@ export const ColdStorageRentalView: React.FC = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium text-sm transition-all whitespace-nowrap ${
+              className={`flex items-center gap-2 px-5 py-3 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${
                 isActive
-                  ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30 shadow-md'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/40'
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -501,107 +1347,112 @@ export const ColdStorageRentalView: React.FC = () => {
       </div>
 
       {/* ========================================================================= */}
-      {/* TAB 1: DASHBOARD & CAPACIDAD */}
+      {/* CONTENIDO TAB 1: OPERACIONES Y CAPACIDAD */}
       {/* ========================================================================= */}
-      {activeTab === 'dashboard' && (
+      {activeTab === 'operaciones' && (
         <div className="space-y-6">
-          {/* Métricas Clave */}
+          {/* Métricas Generales */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="p-5 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10">
-              <span className="text-xs uppercase tracking-wider text-slate-400">Capacidad Total Cuartos</span>
-              <div className="text-2xl font-bold text-white mt-1">
+            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
+              <span className="text-xs uppercase tracking-wider text-slate-500 font-bold">Capacidad Total</span>
+              <div className="text-2xl font-black text-slate-900 mt-1">
                 {totalPosicionesCapacidad}{' '}
-                <span className="text-xs font-normal text-slate-400">pos. ({(totalPosicionesCapacidad * 800).toLocaleString('es-CO')} Kg)</span>
+                <span className="text-xs font-semibold text-slate-500">
+                  pos. ({(totalPosicionesCapacidad * 800).toLocaleString('es-CO')} Kg)
+                </span>
               </div>
-              <div className="mt-3 flex items-center gap-2 text-xs text-slate-400">
-                <span className="w-2 h-2 rounded-full bg-sky-400"></span>
-                <span>800 Kg estándar por posición</span>
-              </div>
+              <p className="text-xs text-slate-500 mt-2 font-medium">800 Kg estándar por posición</p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10">
-              <span className="text-xs uppercase tracking-wider text-slate-400">Posiciones Contratadas</span>
-              <div className="text-2xl font-bold text-sky-400 mt-1">
-                {totalPosicionesContratadas} <span className="text-xs font-normal text-slate-400">ocupadas</span>
+            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
+              <span className="text-xs uppercase tracking-wider text-slate-500 font-bold">Posiciones Alquiladas</span>
+              <div className="text-2xl font-black text-indigo-600 mt-1">
+                {totalPosicionesContratadas}{' '}
+                <span className="text-xs font-semibold text-slate-500">contratadas</span>
               </div>
-              <div className="mt-3 flex items-center gap-2 text-xs text-emerald-400">
-                <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                <span>{posicionesDisponibles} posiciones libres disponibles</span>
-              </div>
+              <p className="text-xs text-emerald-600 mt-2 font-bold">
+                {posicionesDisponibles} posiciones libres disponibles
+              </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10">
-              <span className="text-xs uppercase tracking-wider text-slate-400">Kilos Reales en Custodia</span>
-              <div className="text-2xl font-bold text-emerald-400 mt-1">
+            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
+              <span className="text-xs uppercase tracking-wider text-slate-500 font-bold">Kilos Reales en Frío</span>
+              <div className="text-2xl font-black text-emerald-600 mt-1">
                 {totalKilosEnCustodia.toLocaleString('es-CO')}{' '}
-                <span className="text-xs font-normal text-slate-400">Kg netos</span>
+                <span className="text-xs font-semibold text-slate-500">Kg netos</span>
               </div>
-              <div className="mt-3 text-xs text-slate-400">
-                {totalBultosEnCustodia} bultos / cajas almacenadas
-              </div>
+              <p className="text-xs text-slate-500 mt-2 font-medium">
+                {totalBultosEnCustodia} bultos / canastillas guardadas
+              </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10">
-              <span className="text-xs uppercase tracking-wider text-slate-400">Ingresos Acumulados (4155)</span>
-              <div className="text-2xl font-bold text-amber-400 mt-1">
-                ${Math.round(totalIngresosMes).toLocaleString('es-CO')}
+            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
+              <span className="text-xs uppercase tracking-wider text-slate-500 font-bold">Clientes Activos</span>
+              <div className="text-2xl font-black text-sky-600 mt-1">
+                {clientes.length}{' '}
+                <span className="text-xs font-semibold text-slate-500">depositantes</span>
               </div>
-              <div className="mt-3 text-xs text-slate-400">
-                Facturación por servicio frigorífico
-              </div>
+              <p className="text-xs text-slate-500 mt-2 font-medium">
+                {contratos.filter((c) => c.estado === 'VIGENTE').length} contratos vigentes
+              </p>
             </div>
           </div>
 
-          {/* Tarjetas de Cuartos Fríos Físicos */}
-          <div className="p-6 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 space-y-4">
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <Layers className="w-5 h-5 text-sky-400" />
-              Estado y Setpoint de Cuartos Fríos
-            </h2>
+          {/* Cuartos Fríos Físicos */}
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
+            <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+              <Layers className="w-5 h-5 text-indigo-600" />
+              Estado y Ocupación de Cuartos Fríos
+            </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {cuartosFrios.map((cf) => {
-                const contratosEnCuarto = contratos.filter((c) => c.cuarto_frio_id === cf.id && c.estado === 'VIGENTE');
+                const contratosEnCuarto = contratos.filter(
+                  (c) => c.cuarto_frio_id === cf.id && c.estado === 'VIGENTE'
+                );
                 const posOcupadas = contratosEnCuarto.reduce((acc, c) => acc + c.posiciones_contratadas, 0);
-                const porcentajeOcupacion = cf.capacidad_total_posiciones > 0
-                  ? Math.min(100, Math.round((posOcupadas / cf.capacidad_total_posiciones) * 100))
-                  : 0;
+                const porcentajeOcupacion =
+                  cf.capacidad_total_posiciones > 0
+                    ? Math.min(100, Math.round((posOcupadas / cf.capacidad_total_posiciones) * 100))
+                    : 0;
 
                 return (
-                  <div key={cf.id} className="p-5 rounded-xl bg-slate-950/60 border border-white/5 space-y-3">
+                  <div key={cf.id} className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
                     <div className="flex justify-between items-start">
                       <div>
-                        <span className="text-xs font-mono text-sky-400">{cf.codigo}</span>
-                        <h3 className="font-semibold text-white">{cf.nombre}</h3>
+                        <span className="text-xs font-mono font-bold text-indigo-600">{cf.codigo}</span>
+                        <h4 className="font-black text-slate-900">{cf.nombre}</h4>
                       </div>
-                      <span className="px-2.5 py-1 rounded-full text-xs font-mono bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                      <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-blue-100 text-blue-800 border border-blue-200">
                         {cf.temperatura_setpoint} °C
                       </span>
                     </div>
 
                     <div className="space-y-1">
-                      <div className="flex justify-between text-xs text-slate-400">
-                        <span>Ocupación</span>
-                        <span>{posOcupadas} / {cf.capacidad_total_posiciones} pos. ({porcentajeOcupacion}%)</span>
+                      <div className="flex justify-between text-xs text-slate-600 font-semibold">
+                        <span>Ocupación de Espacio</span>
+                        <span>
+                          {posOcupadas} de {cf.capacidad_total_posiciones} pos. ({porcentajeOcupacion}%)
+                        </span>
                       </div>
-                      <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                      <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
                         <div
                           className={`h-full transition-all ${
                             porcentajeOcupacion > 90
                               ? 'bg-rose-500'
                               : porcentajeOcupacion > 70
                               ? 'bg-amber-500'
-                              : 'bg-sky-500'
+                              : 'bg-indigo-600'
                           }`}
                           style={{ width: `${porcentajeOcupacion}%` }}
                         ></div>
                       </div>
                     </div>
 
-                    <div className="flex justify-between items-center text-xs text-slate-400 pt-2 border-t border-white/5">
-                      <span>Capacidad Kg:</span>
-                      <span className="font-semibold text-slate-200">
-                        {(cf.capacidad_total_posiciones * 800).toLocaleString('es-CO')} Kg
+                    <div className="flex justify-between items-center text-xs text-slate-500 pt-2 border-t border-slate-200">
+                      <span>Capacidad Total:</span>
+                      <span className="font-bold text-slate-800">
+                        {(cf.capacidad_total_posiciones * 800).toLocaleString('es-CO')} Kg Max
                       </span>
                     </div>
                   </div>
@@ -613,101 +1464,92 @@ export const ColdStorageRentalView: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 2: CONTRATOS DE ALQUILER */}
+      {/* CONTENIDO TAB 2: EXISTENCIAS EN CUSTODIA */}
       {/* ========================================================================= */}
-      {activeTab === 'contratos' && (
+      {activeTab === 'existencias' && (
         <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-lg font-bold text-white">Contratos de Prestación de Servicios Frigoríficos</h2>
-            <button
-              onClick={() => setShowContratoModal(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-medium text-sm"
-            >
-              <Plus className="w-4 h-4" />
-              Nuevo Contrato
-            </button>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+            <div>
+              <h2 className="text-lg font-black text-slate-900">Inventario y Lotes en Custodia</h2>
+              <p className="text-xs text-slate-500">
+                Mercancía perteneciente a terceros almacenada en los cuartos fríos.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => {
+                  if (clientes.length > 0 && inventario.length > 0) {
+                    const cl = clientes[0];
+                    coldStoragePdfService.generarPdfCertificadoCustodia({
+                      cliente: cl,
+                      inventarioItems: inventario.filter((i) => i.cliente_id === cl.id),
+                      fechaCorte: new Date().toISOString().substring(0, 10),
+                    });
+                  } else {
+                    Swal.fire({
+                      icon: 'info',
+                      title: 'Sin datos',
+                      text: 'No hay existencias activas para emitir certificado.',
+                    });
+                  }
+                }}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs border border-slate-300 shadow-sm"
+              >
+                <Download className="w-4 h-4 text-indigo-600" />
+                Certificado Existencias (PDF)
+              </button>
+            </div>
           </div>
 
-          <div className="rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 overflow-hidden">
-            <table className="w-full text-left text-sm text-slate-300">
-              <thead className="bg-slate-950/80 text-xs uppercase tracking-wider text-slate-400 border-b border-white/10">
+          <div className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+            <table className="w-full text-left text-sm text-slate-800">
+              <thead className="bg-slate-100 text-xs uppercase tracking-wider text-slate-600 border-b border-slate-200">
                 <tr>
-                  <th className="p-4">Consecutivo</th>
-                  <th className="p-4">Cliente (3PL)</th>
-                  <th className="p-4">Cuarto Frío</th>
-                  <th className="p-4">Posiciones (800kg)</th>
-                  <th className="p-4">Tarifa Unitaria</th>
-                  <th className="p-4">Vigencia</th>
-                  <th className="p-4">Estado</th>
+                  <th className="p-4">Cliente (Dueño)</th>
+                  <th className="p-4">Producto</th>
+                  <th className="p-4">Lote Cliente</th>
+                  <th className="p-4">Fecha Ingreso</th>
+                  <th className="p-4">Bultos / Cajas</th>
+                  <th className="p-4">Kilos Netos</th>
                   <th className="p-4 text-center">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
-                {contratos.length === 0 ? (
+              <tbody className="divide-y divide-slate-100">
+                {inventario.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="p-8 text-center text-slate-500">
-                      No hay contratos registrados. Haz clic en "Nuevo Contrato" para iniciar.
+                    <td colSpan={7} className="p-8 text-center text-slate-400">
+                      No hay inventario en custodia registrado actualmente. Utiliza el <b>Paso 2</b> para recibir mercancía en báscula.
                     </td>
                   </tr>
                 ) : (
-                  contratos.map((ctr) => {
-                    const clienteData = clientes.find((c) => c.id === ctr.cliente_id);
-                    const cfData = cuartosFrios.find((cf) => cf.id === ctr.cuarto_frio_id);
+                  inventario.map((item) => {
+                    const cl = clientes.find((c) => c.id === item.cliente_id);
+                    const prod = productos.find((p) => p.id === item.producto_custodia_id);
 
                     return (
-                      <tr key={ctr.id} className="hover:bg-card border-white/5/[0.02]">
-                        <td className="p-4 font-mono font-bold text-sky-400">{ctr.consecutivo}</td>
-                        <td className="p-4 font-medium text-white">{clienteData?.razon_social || 'Cliente'}</td>
-                        <td className="p-4">{cfData?.nombre || 'Cuarto Frío'}</td>
-                        <td className="p-4">
-                          <span className="font-semibold text-emerald-400">{ctr.posiciones_contratadas} pos.</span>{' '}
-                          <span className="text-xs text-slate-500">({ctr.posiciones_contratadas * 800} Kg)</span>
+                      <tr key={item.id} className="hover:bg-slate-50/80">
+                        <td className="p-4 font-bold text-slate-900">{cl?.razon_social || 'Cliente'}</td>
+                        <td className="p-4 font-medium text-slate-700">
+                          {prod?.nombre || item.producto?.nombre || 'Pescado en Frío'}
                         </td>
-                        <td className="p-4">
-                          ${Number(ctr.tarifa_unitaria).toLocaleString('es-CO')} / {ctr.modalidad_tiempo}
+                        <td className="p-4 font-mono text-xs font-bold text-indigo-600">{item.lote_cliente}</td>
+                        <td className="p-4 text-xs text-slate-500">
+                          {item.fecha_ingreso ? item.fecha_ingreso.substring(0, 10) : 'N/A'}
                         </td>
-                        <td className="p-4 text-xs font-mono">
-                          {ctr.fecha_inicio} a {ctr.fecha_fin}
+                        <td className="p-4 font-bold text-slate-800">{item.bultos_actuales}</td>
+                        <td className="p-4 font-black text-emerald-700">
+                          {Number(item.peso_neto_actual_kg).toFixed(2)} Kg
                         </td>
-                        <td className="p-4">
-                          <span
-                            className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                              ctr.estado === 'VIGENTE'
-                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                                : 'bg-slate-700 text-slate-300'
-                            }`}
-                          >
-                            {ctr.estado}
-                          </span>
-                        </td>
-                        <td className="p-4 text-center space-x-2">
+                        <td className="p-4 text-center">
                           <button
                             onClick={() => {
-                              if (clienteData) {
-                                coldStoragePdfService.generarPdfContratoAlquiler(ctr, clienteData, cfData);
-                              }
+                              setSelectedItemForDespacho(item);
+                              setShowDespachoModal(true);
                             }}
-                            className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-400 border border-white/10"
-                            title="Descargar Contrato PDF"
+                            className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition-all"
                           >
-                            <Download className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => {
-                              setSelectedContratoForCausacion(ctr);
-                              setNuevaCausacion({
-                                contrato_id: ctr.id || '',
-                                periodo_inicio: ctr.fecha_inicio,
-                                periodo_fin: ctr.fecha_fin,
-                                recargo_sobrecupo: 0,
-                                porcentaje_retefuente: 4.0,
-                              });
-                              setShowCausacionModal(true);
-                            }}
-                            className="p-2 rounded-lg bg-emerald-950/60 hover:bg-emerald-900 text-emerald-400 border border-emerald-500/30"
-                            title="Causar Ingreso (4155)"
-                          >
-                            <DollarSign className="w-4 h-4" />
+                            Retirar / Despachar
                           </button>
                         </td>
                       </tr>
@@ -721,195 +1563,195 @@ export const ColdStorageRentalView: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 3: CLIENTES & CATÁLOGO 3PL */}
+      {/* CONTENIDO TAB 3: CARTERA Y COBRO EN CAJA */}
       {/* ========================================================================= */}
-      {activeTab === 'clientes_productos' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Clientes 3PL */}
-          <div className="p-6 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <Users className="w-5 h-5 text-sky-400" />
-                Clientes de Custodia 3PL
-              </h2>
-              <button
-                onClick={() => setShowClienteModal(true)}
-                className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs"
-              >
-                <Plus className="w-4 h-4" />
-                Nuevo Cliente
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              {clientes.map((c) => (
-                <div key={c.id} className="p-4 rounded-xl bg-slate-950/60 border border-white/5 space-y-1">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="font-semibold text-white">{c.razon_social}</h4>
-                      <span className="text-xs font-mono text-slate-400">
-                        {c.tipo_identificacion}: {c.numero_identificacion}
-                      </span>
-                    </div>
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                        c.estado === 'ACTIVO'
-                          ? 'bg-emerald-500/10 text-emerald-400'
-                          : 'bg-rose-500/10 text-rose-400'
-                      }`}
-                    >
-                      {c.estado}
-                    </span>
-                  </div>
-                  <div className="text-xs text-slate-400 flex gap-4 pt-1">
-                    <span>Contacto: {c.responsable_contacto || 'N/A'}</span>
-                    <span>Tel: {c.telefono || 'N/A'}</span>
-                  </div>
-                </div>
-              ))}
+      {activeTab === 'cartera' && (
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-lg font-black text-slate-900">Cartera y Facturación de Alquiler (Cuenta 4155)</h2>
+              <p className="text-xs text-slate-500">
+                Liquidación de servicios de frío, estados de pago y emisión de recibos oficiales.
+              </p>
             </div>
           </div>
 
-          {/* Catálogo de SKUs de Clientes */}
-          <div className="p-6 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <Box className="w-5 h-5 text-emerald-400" />
-                Catálogo de SKUs en Custodia
-              </h2>
-              <button
-                onClick={() => setShowProductoModal(true)}
-                className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs"
-              >
-                <Plus className="w-4 h-4" />
-                Nuevo SKU
-              </button>
-            </div>
+          <div className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+            <table className="w-full text-left text-sm text-slate-800">
+              <thead className="bg-slate-100 text-xs uppercase tracking-wider text-slate-600 border-b border-slate-200">
+                <tr>
+                  <th className="p-4">Consecutivo</th>
+                  <th className="p-4">Cliente</th>
+                  <th className="p-4">Periodo</th>
+                  <th className="p-4">Subtotal</th>
+                  <th className="p-4">IVA (19%)</th>
+                  <th className="p-4">Total a Cobrar</th>
+                  <th className="p-4">Estado</th>
+                  <th className="p-4 text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {causaciones.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="p-8 text-center text-slate-400">
+                      No hay causaciones contables registradas.
+                    </td>
+                  </tr>
+                ) : (
+                  causaciones.map((caus) => {
+                    const cl = clientes.find((c) => c.id === caus.cliente_id);
 
-            <div className="space-y-3">
-              {productos.map((p) => {
-                const clienteData = clientes.find((c) => c.id === p.cliente_id);
-                return (
-                  <div key={p.id} className="p-4 rounded-xl bg-slate-950/60 border border-white/5 space-y-1">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h4 className="font-semibold text-white">{p.nombre}</h4>
-                        <span className="text-xs text-sky-400">Cliente: {clienteData?.razon_social || 'N/A'}</span>
-                      </div>
-                      <span className="px-2 py-0.5 rounded-full text-xs font-mono bg-slate-800 text-slate-300">
-                        {p.modalidad_medicion}
-                      </span>
-                    </div>
-                    <div className="text-xs text-slate-400 flex gap-4 pt-1">
-                      <span>Empaque: {p.tipo_empaque}</span>
-                      {p.peso_unitario_nominal && <span>Nominal: {p.peso_unitario_nominal} Kg</span>}
-                      <span>Temp: {p.temperatura_optima}</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                    return (
+                      <tr key={caus.id} className="hover:bg-slate-50/80">
+                        <td className="p-4 font-mono font-bold text-indigo-600">{caus.consecutivo_causacion}</td>
+                        <td className="p-4 font-bold text-slate-900">{cl?.razon_social || 'Cliente'}</td>
+                        <td className="p-4 text-xs text-slate-500">
+                          {caus.periodo_inicio} al {caus.periodo_fin}
+                        </td>
+                        <td className="p-4 font-semibold text-slate-700">
+                          ${Number(caus.subtotal).toLocaleString('es-CO')}
+                        </td>
+                        <td className="p-4 text-slate-500">${Number(caus.iva_19).toLocaleString('es-CO')}</td>
+                        <td className="p-4 font-black text-slate-900">
+                          ${Number(caus.total).toLocaleString('es-CO')}
+                        </td>
+                        <td className="p-4">
+                          <span
+                            className={`px-2.5 py-1 rounded-full text-xs font-bold ${
+                              caus.estado_pago === 'PAGADA'
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : 'bg-rose-100 text-rose-800'
+                            }`}
+                          >
+                            {caus.estado_pago}
+                          </span>
+                        </td>
+                        <td className="p-4 text-center space-x-2">
+                          {caus.estado_pago === 'PENDIENTE' && (
+                            <button
+                              onClick={() => {
+                                setCobroData({
+                                  clienteId: caus.cliente_id,
+                                  clienteNombre: cl?.razon_social || 'Cliente',
+                                  contratoId: caus.contrato_id,
+                                  causacionId: caus.id,
+                                  monto: Number(caus.total),
+                                  concepto: `Causación Alquiler ${caus.consecutivo_causacion}`,
+                                  modalidad: 'MESES',
+                                });
+                                setShowCobroModal(true);
+                              }}
+                              className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all"
+                            >
+                              Recibir Pago
+                            </button>
+                          )}
+                          <button
+                            onClick={() => {
+                              if (cl) {
+                                coldStoragePdfService.generarPdfReciboPagoAlquiler({
+                                  consecutivo: caus.consecutivo_causacion,
+                                  cliente: cl,
+                                  concepto: `Comprobante de Servicio de Alquiler Frigorífico`,
+                                  periodo: `${caus.periodo_inicio} a ${caus.periodo_fin}`,
+                                  subtotal: caus.subtotal,
+                                  iva: caus.iva_19,
+                                  totalPagar: caus.total,
+                                  metodoPago: 'REGISTRADO',
+                                });
+                              }
+                            }}
+                            className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300"
+                            title="Descargar Comprobante PDF"
+                          >
+                            <Download className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 4: BÁSCULA & MOVIMIENTOS */}
+      {/* CONTENIDO TAB 4: MOVIMIENTOS Y BÁSCULA */}
       {/* ========================================================================= */}
-      {activeTab === 'bascula_movimientos' && (
+      {activeTab === 'movimientos' && (
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <Scale className="w-5 h-5 text-sky-400" />
-              Actas de Recepción e Ingreso / Despacho y Salida
-            </h2>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setShowRecepcionModal(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm"
-              >
-                <Plus className="w-4 h-4" />
-                Entrada (Recepción)
-              </button>
+            <div>
+              <h2 className="text-lg font-black text-slate-900">Historial de Báscula (Entradas y Salidas)</h2>
+              <p className="text-xs text-slate-500">
+                Actas oficiales firmadas de recepción y despacho de mercancía en cuartos fríos.
+              </p>
             </div>
           </div>
 
-          <div className="rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 overflow-hidden">
-            <table className="w-full text-left text-sm text-slate-300">
-              <thead className="bg-slate-950/80 text-xs uppercase tracking-wider text-slate-400 border-b border-white/10">
+          <div className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+            <table className="w-full text-left text-sm text-slate-800">
+              <thead className="bg-slate-100 text-xs uppercase tracking-wider text-slate-600 border-b border-slate-200">
                 <tr>
                   <th className="p-4">Acta</th>
                   <th className="p-4">Tipo</th>
-                  <th className="p-4">Fecha/Hora</th>
+                  <th className="p-4">Fecha y Hora</th>
                   <th className="p-4">Bultos</th>
-                  <th className="p-4">Bruto (Kg)</th>
-                  <th className="p-4">Tara (Kg)</th>
-                  <th className="p-4">Neto (Kg)</th>
-                  <th className="p-4">Merma (Kg)</th>
-                  <th className="p-4">Transportador</th>
+                  <th className="p-4">Peso Bruto</th>
+                  <th className="p-4">Tara</th>
+                  <th className="p-4">Peso Neto</th>
+                  <th className="p-4">Conductor / Placa</th>
                   <th className="p-4 text-center">PDF</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-slate-100">
                 {movimientos.length === 0 ? (
                   <tr>
-                    <td colSpan={10} className="p-8 text-center text-slate-500">
-                      No hay actas de movimientos registradas.
+                    <td colSpan={9} className="p-8 text-center text-slate-400">
+                      No se han registrado movimientos de báscula aún.
                     </td>
                   </tr>
                 ) : (
                   movimientos.map((m) => (
-                    <tr key={m.id} className="hover:bg-card border-white/5/[0.02]">
-                      <td className="p-4 font-mono font-bold text-white">{m.consecutivo_acta}</td>
+                    <tr key={m.id} className="hover:bg-slate-50/80">
+                      <td className="p-4 font-mono font-bold text-indigo-600">{m.consecutivo_acta}</td>
                       <td className="p-4">
                         <span
-                          className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                          className={`px-2.5 py-1 rounded-full text-xs font-bold ${
                             m.tipo_movimiento === 'ENTRADA'
-                              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                              : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-amber-100 text-amber-800'
                           }`}
                         >
                           {m.tipo_movimiento}
                         </span>
                       </td>
-                      <td className="p-4 text-xs font-mono">{new Date(m.fecha_movimiento).toLocaleString('es-CO')}</td>
-                      <td className="p-4 font-semibold">{m.bultos}</td>
-                      <td className="p-4">{Number(m.peso_bruto_kg).toFixed(2)}</td>
-                      <td className="p-4">{Number(m.peso_tara_kg).toFixed(2)}</td>
-                      <td className="p-4 font-bold text-sky-400">{Number(m.peso_neto_kg).toFixed(2)}</td>
-                      <td className="p-4 font-mono text-rose-400">{Number(m.merma_kg).toFixed(2)}</td>
-                      <td className="p-4 text-xs">
-                        {m.transportador_nombre} <span className="text-slate-500">({m.placa_vehiculo})</span>
+                      <td className="p-4 text-xs text-slate-500">
+                        {new Date(m.fecha_movimiento).toLocaleString('es-CO')}
+                      </td>
+                      <td className="p-4 font-bold">{m.bultos}</td>
+                      <td className="p-4 font-mono">{Number(m.peso_bruto_kg).toFixed(2)} Kg</td>
+                      <td className="p-4 font-mono text-slate-500">{Number(m.peso_tara_kg).toFixed(2)} Kg</td>
+                      <td className="p-4 font-mono font-black text-slate-900">
+                        {Number(m.peso_neto_kg).toFixed(2)} Kg
+                      </td>
+                      <td className="p-4 text-xs text-slate-600">
+                        {m.transportador_nombre} ({m.placa_vehiculo})
                       </td>
                       <td className="p-4 text-center">
                         <button
                           onClick={() => {
-                            const invItem = inventario.find((i) => i.id === m.inventario_custodia_id);
-                            const clData = clientes.find((c) => c.id === invItem?.cliente_id);
-                            const prData = productos.find((p) => p.id === invItem?.producto_custodia_id);
-
-                            if (m.tipo_movimiento === 'ENTRADA' && invItem && clData && prData) {
-                              coldStoragePdfService.generarPdfActaRecepcion({
-                                movimiento: m,
-                                inventario: invItem,
-                                cliente: clData,
-                                producto: prData,
-                              });
-                            } else if (m.tipo_movimiento === 'SALIDA' && invItem && clData && prData) {
-                              coldStoragePdfService.generarPdfActaDespacho({
-                                movimiento: m,
-                                inventario: invItem,
-                                cliente: clData,
-                                producto: prData,
-                                remanenteBultos: invItem.bultos_actuales,
-                                remanentePesoKg: Number(invItem.peso_neto_actual_kg),
-                              });
-                            }
+                            Swal.fire({
+                              icon: 'info',
+                              title: 'Acta Generada',
+                              text: `Consecutivo: ${m.consecutivo_acta}`,
+                            });
                           }}
-                          className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-400"
-                          title="Descargar Acta PDF"
+                          className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300"
                         >
-                          <Download className="w-4 h-4" />
+                          <Printer className="w-4 h-4" />
                         </button>
                       </td>
                     </tr>
@@ -922,114 +1764,91 @@ export const ColdStorageRentalView: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 5: EXISTENCIAS EN CUSTODIA */}
+      {/* CONTENIDO TAB 5: CONTRATOS */}
       {/* ========================================================================= */}
-      {activeTab === 'existencias' && (
+      {activeTab === 'contratos' && (
         <div className="space-y-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <Box className="w-5 h-5 text-emerald-400" />
-              Inventario de Terceros en Custodia (Aislado de Cuenta 1435)
-            </h2>
-
-            <div className="flex items-center gap-3">
-              <select
-                value={selectedClienteFilter}
-                onChange={(e) => setSelectedClienteFilter(e.target.value)}
-                className="px-3.5 py-2 rounded-xl bg-slate-900 border border-white/10 text-sm text-slate-200"
-              >
-                <option value="">Todos los Clientes</option>
-                {clientes.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.razon_social}
-                  </option>
-                ))}
-              </select>
-
-              <button
-                onClick={() => {
-                  if (!selectedClienteFilter) {
-                    Swal.fire({
-                      icon: 'info',
-                      title: 'Selecciona un Cliente',
-                      text: 'Por favor selecciona un cliente en el filtro para emitir su Certificado Oficial de Existencias.',
-                      background: '#0f172a',
-                      color: '#f8fafc',
-                    });
-                    return;
-                  }
-                  const cli = clientes.find((c) => c.id === selectedClienteFilter);
-                  const items = inventario.filter((i) => i.cliente_id === selectedClienteFilter);
-                  if (cli) {
-                    coldStoragePdfService.generarPdfCertificadoCustodia({
-                      cliente: cli,
-                      inventarioItems: items,
-                      fechaCorte: new Date().toISOString().substring(0, 10),
-                    });
-                  }
-                }}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-medium text-sm"
-              >
-                <FileText className="w-4 h-4" />
-                Certificado Oficial PDF
-              </button>
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-lg font-black text-slate-900">Contratos de Custodia Activos</h2>
+              <p className="text-xs text-slate-500">
+                Condiciones de alquiler por días o mensualidades de 800 kg por posición.
+              </p>
             </div>
+            <button
+              onClick={() => setShowClienteModal(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-sm transition-all"
+            >
+              <Plus className="w-4 h-4" />
+              Nuevo Contrato
+            </button>
           </div>
 
-          <div className="rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 overflow-hidden">
-            <table className="w-full text-left text-sm text-slate-300">
-              <thead className="bg-slate-950/80 text-xs uppercase tracking-wider text-slate-400 border-b border-white/10">
+          <div className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+            <table className="w-full text-left text-sm text-slate-800">
+              <thead className="bg-slate-100 text-xs uppercase tracking-wider text-slate-600 border-b border-slate-200">
                 <tr>
-                  <th className="p-4">Lote Cliente</th>
+                  <th className="p-4">Consecutivo</th>
                   <th className="p-4">Cliente</th>
-                  <th className="p-4">Producto</th>
-                  <th className="p-4">Fecha Ingreso</th>
-                  <th className="p-4">Bultos Actuales</th>
-                  <th className="p-4">Kilos Actuales</th>
-                  <th className="p-4 text-center">Acciones</th>
+                  <th className="p-4">Modalidad</th>
+                  <th className="p-4">Posiciones</th>
+                  <th className="p-4">Tarifa</th>
+                  <th className="p-4">Vigencia</th>
+                  <th className="p-4">Estado</th>
+                  <th className="p-4 text-center">Contrato PDF</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
-                {inventario.length === 0 ? (
+              <tbody className="divide-y divide-slate-100">
+                {contratos.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="p-8 text-center text-slate-500">
-                      No hay inventario activo en custodia.
+                    <td colSpan={8} className="p-8 text-center text-slate-400">
+                      No hay contratos activos registrados.
                     </td>
                   </tr>
                 ) : (
-                  inventario
-                    .filter((i) => !selectedClienteFilter || i.cliente_id === selectedClienteFilter)
-                    .map((item) => (
-                      <tr key={item.id} className="hover:bg-card border-white/5/[0.02]">
-                        <td className="p-4 font-mono font-bold text-sky-400">{item.lote_cliente}</td>
-                        <td className="p-4 text-white font-medium">{item.cliente?.razon_social || 'Cliente'}</td>
-                        <td className="p-4">{item.producto?.nombre || 'Producto'}</td>
-                        <td className="p-4 text-xs font-mono">{item.fecha_ingreso ? item.fecha_ingreso.substring(0, 10) : 'N/A'}</td>
-                        <td className="p-4 font-semibold">{item.bultos_actuales}</td>
-                        <td className="p-4 font-bold text-emerald-400">{Number(item.peso_neto_actual_kg).toFixed(2)} Kg</td>
+                  contratos.map((ctr) => {
+                    const cl = clientes.find((c) => c.id === ctr.cliente_id);
+                    const cf = cuartosFrios.find((f) => f.id === ctr.cuarto_frio_id);
+
+                    return (
+                      <tr key={ctr.id} className="hover:bg-slate-50/80">
+                        <td className="p-4 font-mono font-bold text-indigo-600">{ctr.consecutivo}</td>
+                        <td className="p-4 font-bold text-slate-900">{cl?.razon_social || 'Cliente'}</td>
+                        <td className="p-4">
+                          <span className="px-2 py-0.5 rounded-md font-bold text-xs bg-slate-100 text-slate-700 border border-slate-200">
+                            {ctr.modalidad_tiempo}
+                          </span>
+                        </td>
+                        <td className="p-4 font-bold text-indigo-700">
+                          {ctr.posiciones_contratadas} pos. ({ctr.posiciones_contratadas * 800} Kg)
+                        </td>
+                        <td className="p-4 font-bold text-slate-900">
+                          ${Number(ctr.tarifa_unitaria).toLocaleString('es-CO')}
+                        </td>
+                        <td className="p-4 text-xs text-slate-500">
+                          {ctr.fecha_inicio} a {ctr.fecha_fin}
+                        </td>
+                        <td className="p-4">
+                          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+                            {ctr.estado}
+                          </span>
+                        </td>
                         <td className="p-4 text-center">
                           <button
                             onClick={() => {
-                              setSelectedInvForDespacho(item);
-                              setNuevoDespacho({
-                                inventario_id: item.id,
-                                bultos_despacho: item.bultos_actuales,
-                                peso_bruto_salida: Number(item.peso_neto_actual_kg) + 10,
-                                peso_tara_salida: 10,
-                                transportador_nombre: '',
-                                transportador_cedula: '',
-                                placa_vehiculo: '',
-                                observaciones: '',
-                              });
-                              setShowDespachoModal(true);
+                              if (cl) {
+                                coldStoragePdfService.generarPdfContratoAlquiler(ctr, cl, cf);
+                              }
                             }}
-                            className="px-3 py-1.5 rounded-lg bg-rose-600/20 text-rose-400 border border-rose-500/30 hover:bg-rose-600 hover:text-white text-xs font-medium"
+                            className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300"
+                            title="Descargar Contrato PDF"
                           >
-                            Despachar (Salida)
+                            <Download className="w-4 h-4 text-indigo-600" />
                           </button>
                         </td>
                       </tr>
-                    ))
+                    );
+                  })
                 )}
               </tbody>
             </table>
@@ -1038,698 +1857,160 @@ export const ColdStorageRentalView: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 6: CAUSACIÓN CONTABLE (4155) */}
+      {/* MODAL 1: REGISTRAR CLIENTE / CONTRATO RÁPIDO (PASO 1) */}
       {/* ========================================================================= */}
-      {activeTab === 'contabilidad' && (
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-amber-400" />
-              Causaciones Contables de Almacenamiento (Ingresos 4155 / IVA 2408 / Cartera 1305)
-            </h2>
-          </div>
+      {showClienteModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 max-w-xl w-full space-y-4 shadow-2xl animate-in fade-in zoom-in-95">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                <Users className="w-5 h-5 text-indigo-600" />
+                Paso 1: Registrar Nuevo Cliente 3PL & Contrato
+              </h3>
+              <button
+                onClick={() => setShowClienteModal(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold"
+              >
+                ✕
+              </button>
+            </div>
 
-          <div className="rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 overflow-hidden">
-            <table className="w-full text-left text-sm text-slate-300">
-              <thead className="bg-slate-950/80 text-xs uppercase tracking-wider text-slate-400 border-b border-white/10">
-                <tr>
-                  <th className="p-4">Consecutivo</th>
-                  <th className="p-4">Periodo</th>
-                  <th className="p-4">Subtotal (4155)</th>
-                  <th className="p-4">Sobrecupo</th>
-                  <th className="p-4">Base Gravable</th>
-                  <th className="p-4">IVA 19% (2408)</th>
-                  <th className="p-4">Retefuente</th>
-                  <th className="p-4">Total a Cobrar (1305)</th>
-                  <th className="p-4">Estado</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {causaciones.length === 0 ? (
-                  <tr>
-                    <td colSpan={9} className="p-8 text-center text-slate-500">
-                      No hay causaciones liquidadas todavía.
-                    </td>
-                  </tr>
-                ) : (
-                  causaciones.map((c) => (
-                    <tr key={c.id} className="hover:bg-card border-white/5/[0.02]">
-                      <td className="p-4 font-mono font-bold text-sky-400">{c.consecutivo_causacion}</td>
-                      <td className="p-4 text-xs font-mono">
-                        {c.periodo_inicio} a {c.periodo_fin}
-                      </td>
-                      <td className="p-4">${Number(c.subtotal).toLocaleString('es-CO')}</td>
-                      <td className="p-4 text-amber-400">${Number(c.recargo_sobrecupo).toLocaleString('es-CO')}</td>
-                      <td className="p-4 font-semibold">${Number(c.base_gravable).toLocaleString('es-CO')}</td>
-                      <td className="p-4">${Number(c.iva_19).toLocaleString('es-CO')}</td>
-                      <td className="p-4 text-rose-400">-${Number(c.retefuente).toLocaleString('es-CO')}</td>
-                      <td className="p-4 font-bold text-emerald-400">${Number(c.total).toLocaleString('es-CO')}</td>
-                      <td className="p-4">
-                        <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                          {c.estado_pago}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* MODAL: REGISTRAR CONTRATO */}
-      {/* ========================================================================= */}
-      {showContratoModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 max-w-xl w-full space-y-4 shadow-2xl">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <FileText className="w-5 h-5 text-sky-400" />
-              Nuevo Contrato de Alquiler de Cuarto Frío
-            </h3>
-
-            <form onSubmit={handleGuardarContrato} className="space-y-4 text-sm">
+            <form onSubmit={handleGuardarClienteYContrato} className="space-y-4 text-sm">
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Cliente (3PL)</label>
-                  <select
-                    required
-                    value={nuevoContrato.cliente_id}
-                    onChange={(e) => setNuevoContrato({ ...nuevoContrato, cliente_id: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                  >
-                    <option value="">Selecciona Cliente...</option>
-                    {clientes.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.razon_social}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Cuarto Frío</label>
-                  <select
-                    required
-                    value={nuevoContrato.cuarto_frio_id}
-                    onChange={(e) => setNuevoContrato({ ...nuevoContrato, cuarto_frio_id: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                  >
-                    <option value="">Selecciona Cuarto Frío...</option>
-                    {cuartosFrios.map((cf) => (
-                      <option key={cf.id} value={cf.id}>
-                        {cf.nombre} ({cf.temperatura_setpoint} °C)
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Posiciones (800 Kg)</label>
-                  <input
-                    type="number"
-                    min="1"
-                    required
-                    value={nuevoContrato.posiciones_contratadas}
-                    onChange={(e) =>
-                      setNuevoContrato({ ...nuevoContrato, posiciones_contratadas: Number(e.target.value) })
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                  />
-                  <span className="text-[11px] text-sky-400 font-mono">
-                    = {nuevoContrato.posiciones_contratadas * 800} Kg asegurados
-                  </span>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Modalidad Tiempo</label>
-                  <select
-                    value={nuevoContrato.modalidad_tiempo}
-                    onChange={(e) =>
-                      setNuevoContrato({ ...nuevoContrato, modalidad_tiempo: e.target.value as any })
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                  >
-                    <option value="MESES">Meses</option>
-                    <option value="DIAS">Días</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Tarifa Unitaria ($)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    required
-                    value={nuevoContrato.tarifa_unitaria}
-                    onChange={(e) => setNuevoContrato({ ...nuevoContrato, tarifa_unitaria: Number(e.target.value) })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Fecha Inicio</label>
-                  <input
-                    type="date"
-                    required
-                    value={nuevoContrato.fecha_inicio}
-                    onChange={(e) => setNuevoContrato({ ...nuevoContrato, fecha_inicio: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Fecha Fin</label>
-                  <input
-                    type="date"
-                    required
-                    value={nuevoContrato.fecha_fin}
-                    onChange={(e) => setNuevoContrato({ ...nuevoContrato, fecha_fin: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
-                <button
-                  type="button"
-                  onClick={() => setShowContratoModal(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="px-5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-medium"
-                >
-                  {loading ? 'Guardando...' : 'Crear Contrato'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* MODAL: RECEPCIÓN BÁSCULA */}
-      {/* ========================================================================= */}
-      {showRecepcionModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 max-w-2xl w-full space-y-4 shadow-2xl">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <Scale className="w-5 h-5 text-emerald-400" />
-              Operación de Báscula: Recepción / Ingreso en Custodia
-            </h3>
-
-            <form onSubmit={handleGuardarRecepcion} className="space-y-4 text-sm">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Contrato Vigente</label>
-                  <select
-                    required
-                    value={nuevaRecepcion.contrato_id}
-                    onChange={(e) => setNuevaRecepcion({ ...nuevaRecepcion, contrato_id: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                  >
-                    <option value="">Selecciona Contrato...</option>
-                    {contratos.map((ctr) => {
-                      const cl = clientes.find((c) => c.id === ctr.cliente_id);
-                      return (
-                        <option key={ctr.id} value={ctr.id}>
-                          {ctr.consecutivo} - {cl?.razon_social} ({ctr.posiciones_contratadas * 800} Kg)
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Producto / SKU</label>
-                  <select
-                    required
-                    value={nuevaRecepcion.producto_custodia_id}
-                    onChange={(e) =>
-                      setNuevaRecepcion({ ...nuevaRecepcion, producto_custodia_id: e.target.value })
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                  >
-                    <option value="">Selecciona SKU...</option>
-                    {productos.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.nombre} ({p.tipo_empaque})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Lote del Cliente</label>
+                <div className="col-span-2">
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Razón Social / Nombre Completo *
+                  </label>
                   <input
                     type="text"
                     required
-                    placeholder="LOT-2026-..."
-                    value={nuevaRecepcion.lote_cliente}
-                    onChange={(e) => setNuevaRecepcion({ ...nuevaRecepcion, lote_cliente: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
+                    placeholder="Ej. Pescados y Mariscos La Bahía S.A.S."
+                    value={nuevoCliente.razon_social}
+                    onChange={(e) => setNuevoCliente({ ...nuevoCliente, razon_social: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 focus:ring-2 focus:ring-indigo-500 font-medium"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Bultos / Cajas</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">NIT o Cédula *</label>
                   <input
-                    type="number"
-                    min="1"
+                    type="text"
                     required
-                    value={nuevaRecepcion.bultos}
-                    onChange={(e) => setNuevaRecepcion({ ...nuevaRecepcion, bultos: Number(e.target.value) })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
+                    placeholder="Ej. 901.234.567-8"
+                    value={nuevoCliente.numero_identificacion}
+                    onChange={(e) => setNuevoCliente({ ...nuevoCliente, numero_identificacion: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 focus:ring-2 focus:ring-indigo-500 font-medium"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Temp. Ingreso (°C)</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Teléfono / WhatsApp *</label>
                   <input
-                    type="number"
-                    step="0.1"
-                    value={nuevaRecepcion.temperatura}
-                    onChange={(e) => setNuevaRecepcion({ ...nuevaRecepcion, temperatura: Number(e.target.value) })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
+                    type="text"
+                    required
+                    placeholder="Ej. 310 123 4567"
+                    value={nuevoCliente.telefono}
+                    onChange={(e) => setNuevoCliente({ ...nuevoCliente, telefono: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 focus:ring-2 focus:ring-indigo-500 font-medium"
                   />
                 </div>
               </div>
 
-              {/* Báscula */}
-              <div className="p-4 rounded-xl bg-slate-950/80 border border-emerald-500/20 grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Peso Bruto (Kg)</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    required
-                    value={nuevaRecepcion.peso_bruto_kg}
-                    onChange={(e) =>
-                      setNuevaRecepcion({ ...nuevaRecepcion, peso_bruto_kg: Number(e.target.value) })
+              {/* Selector de Modalidad (Días vs Meses) */}
+              <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-200 space-y-3">
+                <label className="block text-xs font-black uppercase tracking-wider text-indigo-900">
+                  ¿Cómo va a guardar la mercancía?
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setNuevoCliente({
+                        ...nuevoCliente,
+                        modalidad_preferida: 'MESES',
+                        tarifa_acordada: 650000,
+                      })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-white/10 text-white font-mono"
-                  />
+                    className={`p-3 rounded-xl border text-left transition-all ${
+                      nuevoCliente.modalidad_preferida === 'MESES'
+                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className="font-black text-sm">📅 Por Meses</div>
+                    <div className="text-xs opacity-90 mt-0.5">Mensualidad fija de 800 Kg</div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setNuevoCliente({
+                        ...nuevoCliente,
+                        modalidad_preferida: 'DIAS',
+                        tarifa_acordada: 25000,
+                      })
+                    }
+                    className={`p-3 rounded-xl border text-left transition-all ${
+                      nuevoCliente.modalidad_preferida === 'DIAS'
+                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className="font-black text-sm">☀️ Por Días</div>
+                    <div className="text-xs opacity-90 mt-0.5">Cobro diario por peso/posición</div>
+                  </button>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Tara Estibas (Kg)</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={nuevaRecepcion.peso_tara_kg}
-                    onChange={(e) =>
-                      setNuevaRecepcion({ ...nuevaRecepcion, peso_tara_kg: Number(e.target.value) })
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-white/10 text-white font-mono"
-                  />
-                </div>
+                <div className="grid grid-cols-2 gap-3 pt-2">
+                  <div>
+                    <label className="block text-xs font-bold text-indigo-950 mb-1">
+                      {nuevoCliente.modalidad_preferida === 'MESES'
+                        ? 'Tarifa Mensual ($ COP)'
+                        : 'Tarifa Diaria ($ COP)'}
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      value={nuevoCliente.tarifa_acordada}
+                      onChange={(e) =>
+                        setNuevoCliente({ ...nuevoCliente, tarifa_acordada: Number(e.target.value) })
+                      }
+                      className="w-full px-3 py-2 rounded-xl bg-white border border-indigo-300 font-bold text-slate-900"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-medium text-emerald-400 mb-1">Peso Neto Calculado</label>
-                  <div className="text-xl font-bold font-mono text-emerald-400 pt-2">
-                    {Math.max(0, nuevaRecepcion.peso_bruto_kg - nuevaRecepcion.peso_tara_kg).toFixed(2)} Kg
+                  <div>
+                    <label className="block text-xs font-bold text-indigo-950 mb-1">
+                      Posiciones (800 Kg c/u)
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      required
+                      value={nuevoCliente.posiciones}
+                      onChange={(e) =>
+                        setNuevoCliente({ ...nuevoCliente, posiciones: Number(e.target.value) })
+                      }
+                      className="w-full px-3 py-2 rounded-xl bg-white border border-indigo-300 font-bold text-slate-900"
+                    />
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Conductor</label>
-                  <input
-                    type="text"
-                    required
-                    value={nuevaRecepcion.transportador_nombre}
-                    onChange={(e) =>
-                      setNuevaRecepcion({ ...nuevaRecepcion, transportador_nombre: e.target.value })
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Cédula</label>
-                  <input
-                    type="text"
-                    required
-                    value={nuevaRecepcion.transportador_cedula}
-                    onChange={(e) =>
-                      setNuevaRecepcion({ ...nuevaRecepcion, transportador_cedula: e.target.value })
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Placa Vehículo</label>
-                  <input
-                    type="text"
-                    required
-                    value={nuevaRecepcion.placa_vehiculo}
-                    onChange={(e) =>
-                      setNuevaRecepcion({ ...nuevaRecepcion, placa_vehiculo: e.target.value })
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
-                <button
-                  type="button"
-                  onClick={() => setShowRecepcionModal(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium"
-                >
-                  {loading ? 'Procesando Báscula...' : 'Confirmar Recepción e Imprimir Acta'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* MODAL: DESPACHO BÁSCULA */}
-      {/* ========================================================================= */}
-      {showDespachoModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 max-w-xl w-full space-y-4 shadow-2xl">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <Scale className="w-5 h-5 text-rose-400" />
-              Operación de Báscula: Despacho / Retiro de Custodia
-            </h3>
-
-            {selectedInvForDespacho && (
-              <div className="p-3 bg-slate-950/80 rounded-xl border border-white/5 text-xs space-y-1">
-                <p>
-                  Lote: <b className="text-sky-400">{selectedInvForDespacho.lote_cliente}</b> | Producto:{' '}
-                  <b className="text-white">{selectedInvForDespacho.producto?.nombre}</b>
-                </p>
-                <p>
-                  Disponible en Bodega:{' '}
-                  <b className="text-emerald-400">
-                    {selectedInvForDespacho.peso_neto_actual_kg} Kg ({selectedInvForDespacho.bultos_actuales} bultos)
-                  </b>
-                </p>
-              </div>
-            )}
-
-            <form onSubmit={handleGuardarDespacho} className="space-y-4 text-sm">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Bultos a Despachar</label>
-                  <input
-                    type="number"
-                    min="1"
-                    max={selectedInvForDespacho?.bultos_actuales}
-                    required
-                    value={nuevoDespacho.bultos_despacho}
-                    onChange={(e) =>
-                      setNuevoDespacho({ ...nuevoDespacho, bultos_despacho: Number(e.target.value) })
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Peso Bruto Salida (Kg)</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    required
-                    value={nuevoDespacho.peso_bruto_salida}
-                    onChange={(e) =>
-                      setNuevoDespacho({ ...nuevoDespacho, peso_bruto_salida: Number(e.target.value) })
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white font-mono"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Conductor</label>
-                  <input
-                    type="text"
-                    required
-                    value={nuevoDespacho.transportador_nombre}
-                    onChange={(e) =>
-                      setNuevoDespacho({ ...nuevoDespacho, transportador_nombre: e.target.value })
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Cédula</label>
-                  <input
-                    type="text"
-                    required
-                    value={nuevoDespacho.transportador_cedula}
-                    onChange={(e) =>
-                      setNuevoDespacho({ ...nuevoDespacho, transportador_cedula: e.target.value })
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Placa Vehículo</label>
-                  <input
-                    type="text"
-                    required
-                    value={nuevoDespacho.placa_vehiculo}
-                    onChange={(e) => setNuevoDespacho({ ...nuevoDespacho, placa_vehiculo: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
-                <button
-                  type="button"
-                  onClick={() => setShowDespachoModal(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-medium"
-                >
-                  {loading ? 'Despachando...' : 'Confirmar Salida e Imprimir Acta'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* MODAL: CAUSACIÓN CONTABLE */}
-      {/* ========================================================================= */}
-      {showCausacionModal && selectedContratoForCausacion && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 max-w-lg w-full space-y-4 shadow-2xl">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-amber-400" />
-              Causación Contable de Ingresos (4155 / 2408 / 1305)
-            </h3>
-
-            <div className="p-3 bg-slate-950 rounded-xl border border-white/5 text-xs space-y-1">
-              <p>
-                Contrato: <b className="text-sky-400">{selectedContratoForCausacion.consecutivo}</b>
-              </p>
-              <p>
-                Posiciones: <b>{selectedContratoForCausacion.posiciones_contratadas}</b> | Tarifa:{' '}
-                <b>${Number(selectedContratoForCausacion.tarifa_unitaria).toLocaleString('es-CO')}</b>
-              </p>
-            </div>
-
-            <form onSubmit={handleGuardarCausacion} className="space-y-4 text-sm">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Periodo Desde</label>
-                  <input
-                    type="date"
-                    required
-                    value={nuevaCausacion.periodo_inicio}
-                    onChange={(e) => setNuevaCausacion({ ...nuevaCausacion, periodo_inicio: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Periodo Hasta</label>
-                  <input
-                    type="date"
-                    required
-                    value={nuevaCausacion.periodo_fin}
-                    onChange={(e) => setNuevaCausacion({ ...nuevaCausacion, periodo_fin: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Recargo Sobrecupo ($)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={nuevaCausacion.recargo_sobrecupo}
-                    onChange={(e) =>
-                      setNuevaCausacion({ ...nuevaCausacion, recargo_sobrecupo: Number(e.target.value) })
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white font-mono"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">% Retefuente</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="0.1"
-                    value={nuevaCausacion.porcentaje_retefuente}
-                    onChange={(e) =>
-                      setNuevaCausacion({ ...nuevaCausacion, porcentaje_retefuente: Number(e.target.value) })
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white font-mono"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
-                <button
-                  type="button"
-                  onClick={() => setShowCausacionModal(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-medium"
-                >
-                  {loading ? 'Generando Asiento...' : 'Registrar Causación Contable'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* MODAL: NUEVO CLIENTE */}
-      {/* ========================================================================= */}
-      {showClienteModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <Users className="w-5 h-5 text-sky-400" />
-              Nuevo Cliente de Custodia (3PL)
-            </h3>
-
-            <form onSubmit={handleGuardarCliente} className="space-y-4 text-sm">
-              <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">Razón Social</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Distribuidora del Caribe SAS"
-                  value={nuevoCliente.razon_social}
-                  onChange={(e) => setNuevoCliente({ ...nuevoCliente, razon_social: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Tipo ID</label>
-                  <select
-                    value={nuevoCliente.tipo_identificacion}
-                    onChange={(e) => setNuevoCliente({ ...nuevoCliente, tipo_identificacion: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                  >
-                    <option value="NIT">NIT</option>
-                    <option value="CC">Cédula</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Número ID</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="900.123.456-7"
-                    value={nuevoCliente.numero_identificacion}
-                    onChange={(e) =>
-                      setNuevoCliente({ ...nuevoCliente, numero_identificacion: e.target.value })
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Contacto</label>
-                  <input
-                    type="text"
-                    placeholder="Carlos Pérez"
-                    value={nuevoCliente.responsable_contacto}
-                    onChange={(e) =>
-                      setNuevoCliente({ ...nuevoCliente, responsable_contacto: e.target.value })
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Teléfono</label>
-                  <input
-                    type="text"
-                    placeholder="300 123 4567"
-                    value={nuevoCliente.telefono}
-                    onChange={(e) => setNuevoCliente({ ...nuevoCliente, telefono: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+              <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setShowClienteModal(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700"
+                  className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-medium"
+                  className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-sm"
                 >
-                  {loading ? 'Guardando...' : 'Registrar Cliente'}
+                  {loading ? 'Guardando...' : 'Guardar y Continuar'}
                 </button>
               </div>
             </form>
@@ -1738,90 +2019,1457 @@ export const ColdStorageRentalView: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL: NUEVO PRODUCTO SKU */}
+      {/* MODAL 2: RECEPCIÓN BÁSCULA + TARA INTELIGENTE (PASO 2) */}
       {/* ========================================================================= */}
-      {showProductoModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <Box className="w-5 h-5 text-emerald-400" />
-              Nuevo SKU para Custodia
-            </h3>
-
-            <form onSubmit={handleGuardarProducto} className="space-y-4 text-sm">
+      {/* ========================================================================= */}
+      {/* MODAL 2: RECEPCIÓN Y PLANILLA DE PESAJE EN BÁSCULA (PASO 2) */}
+      {/* ========================================================================= */}
+      {showRecepcionModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 max-w-4xl w-full space-y-5 shadow-2xl animate-in fade-in zoom-in-95 max-h-[92vh] overflow-y-auto">
+            {/* Cabecera del Modal */}
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">Cliente Propietario</label>
-                <select
-                  required
-                  value={nuevoProducto.cliente_id}
-                  onChange={(e) => setNuevoProducto({ ...nuevoProducto, cliente_id: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
+                <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
+                  <Scale className="w-6 h-6 text-emerald-600" />
+                  Paso 2: Planilla de Pesaje y Recepción en Frío
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Registra múltiples pesadas para el mismo camión o cliente con taras heterogéneas en una sola acta.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowRecepcionModal(false);
+                  setPartidasPlanilla([]);
+                }}
+                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-lg"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Selector de Cliente / Contrato con Botón Express in-line */}
+            <div className="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-200/80 space-y-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <label className="block text-xs font-black uppercase tracking-wider text-indigo-950">
+                  Cliente Depositante y Contrato Activo *
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowClienteRapidoSubmodal(true)}
+                  className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs flex items-center gap-1.5 transition-all self-start sm:self-auto"
                 >
-                  <option value="">Selecciona Cliente...</option>
-                  {clientes.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.razon_social}
-                    </option>
-                  ))}
-                </select>
+                  <Zap className="w-3.5 h-3.5 text-amber-300" />
+                  + Nuevo Cliente Rápido (15s)
+                </button>
               </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">Nombre del Producto</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Filete de Salmón Congelado"
-                  value={nuevoProducto.nombre}
-                  onChange={(e) => setNuevoProducto({ ...nuevoProducto, nombre: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                />
+              <select
+                required
+                value={recepcionForm.contrato_id}
+                onChange={(e) => setRecepcionForm({ ...recepcionForm, contrato_id: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-indigo-300 text-slate-900 focus:ring-2 focus:ring-indigo-500 font-bold text-sm shadow-xs"
+              >
+                <option value="">-- Elige el cliente que entrega la mercancía --</option>
+                {contratos
+                  .filter((c) => c.estado === 'VIGENTE')
+                  .map((ctr) => {
+                    const cl = clientes.find((c) => c.id === ctr.cliente_id);
+                    return (
+                      <option key={ctr.id} value={ctr.id}>
+                        {cl?.razon_social} (Contrato: {ctr.consecutivo} • {ctr.modalidad_tiempo} •{' '}
+                        {ctr.posiciones_contratadas * 800} Kg nominales)
+                      </option>
+                    );
+                  })}
+              </select>
+            </div>
+
+            {/* SECCIÓN 1: FORMULARIO DE PARTIDA ACTUAL EN BÁSCULA */}
+            <div className="p-5 rounded-2xl bg-white border-2 border-emerald-300 shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b border-emerald-100 pb-2">
+                <span className="text-xs font-black uppercase tracking-wider text-emerald-800 flex items-center gap-2">
+                  <Scale className="w-4 h-4 text-emerald-600" /> 1. Pesaje de la Partida Actual en Báscula
+                </span>
+                <span className="text-xs text-slate-500 font-medium">
+                  Configura empaque y peso bruto de esta pesada
+                </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Modalidad de Medición</label>
-                  <select
-                    value={nuevoProducto.modalidad_medicion}
-                    onChange={(e) =>
-                      setNuevoProducto({ ...nuevoProducto, modalidad_medicion: e.target.value as any })
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white"
-                  >
-                    <option value="SOLO_PESO">Solo Peso Variable</option>
-                    <option value="PESO_ESTABLE">Peso Estable (Fijo)</option>
-                    <option value="MIXTO_BULTOS_PESO">Mixto (Bultos + Peso)</option>
-                  </select>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-bold text-slate-700">
+                      Nombre del Producto / Especie *
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProductoRapidoForm({
+                          nombre: partidaActual.producto_nombre || '',
+                          tipo_empaque: partidaActual.tipo_empaque,
+                          tara_unitaria_kg: partidaActual.tara_unitaria_kg,
+                        });
+                        setShowProductoRapidoSubmodal(true);
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-[11px] font-black flex items-center gap-1 transition-all shadow-xs cursor-pointer"
+                      title="Registrar 1 o múltiples productos/especies asociados a este cliente en lote"
+                    >
+                      <Zap className="w-3.5 h-3.5 text-emerald-600" />
+                      + Registrar Productos (Lote)
+                    </button>
+                  </div>
+
+                  <input
+                    type="text"
+                    required
+                    list="productos-cliente-datalist"
+                    placeholder="Ej. Corvina Entera, Camarón, Atún, Filete..."
+                    value={partidaActual.producto_nombre}
+                    onChange={(e) => {
+                      const nuevoNombre = e.target.value;
+                      const match = productosClienteActivo.find(
+                        (p) => p.nombre.toLowerCase() === nuevoNombre.trim().toLowerCase()
+                      );
+                      if (match) {
+                        const esCajaFija =
+                          match.modalidad_medicion === 'PESO_ESTABLE' ||
+                          (typeof match.peso_unitario_nominal === 'number' && match.peso_unitario_nominal > 0);
+                        const empaqueMatch = (['CANASTILLAS', 'CAJAS', 'GRANEL'].includes(match.tipo_empaque)
+                          ? match.tipo_empaque
+                          : esCajaFija
+                          ? 'CAJAS'
+                          : 'CANASTILLAS') as TipoEmpaqueCustodia;
+                        const taraMatch =
+                          (match as any).tara_unitaria_kg ??
+                          (empaqueMatch === 'CANASTILLAS' ? 2.0 : empaqueMatch === 'CAJAS' ? 0.8 : 0.0);
+                        setPartidaActual((prev) => ({
+                          ...prev,
+                          producto_nombre: match.nombre,
+                          tipo_empaque: empaqueMatch,
+                          tara_unitaria_kg: taraMatch,
+                          es_peso_fijo_caja: esCajaFija,
+                          peso_nominal_caja_kg: match.peso_unitario_nominal || prev.peso_nominal_caja_kg || 10.0,
+                        }));
+                      } else {
+                        setPartidaActual((prev) => ({ ...prev, producto_nombre: nuevoNombre }));
+                      }
+                    }}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 font-bold focus:ring-2 focus:ring-emerald-500"
+                  />
+
+                  {/* Datalist con productos asociados */}
+                  <datalist id="productos-cliente-datalist">
+                    {productosClienteActivo.map((prod) => (
+                      <option key={prod.id || prod.nombre} value={prod.nombre}>
+                        {prod.tipo_empaque} ({prod.modalidad_medicion})
+                      </option>
+                    ))}
+                  </datalist>
+
+                  {/* Chips táctiles rápidos de productos del cliente (1-toque) */}
+                  {productosClienteActivo.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1.5 items-center">
+                      <span className="text-[10px] uppercase font-bold text-slate-400 mr-1 flex items-center gap-1">
+                        <Fish className="w-3 h-3 text-emerald-600" /> Habituales:
+                      </span>
+                      {productosClienteActivo.slice(0, 5).map((prod) => {
+                        const esSeleccionado = partidaActual.producto_nombre.toLowerCase() === prod.nombre.toLowerCase();
+                        const esCajaFija =
+                          prod.modalidad_medicion === 'PESO_ESTABLE' ||
+                          (typeof prod.peso_unitario_nominal === 'number' && prod.peso_unitario_nominal > 0);
+                        return (
+                          <button
+                            key={prod.id || prod.nombre}
+                            type="button"
+                            onClick={() => {
+                              const empaque = (['CANASTILLAS', 'CAJAS', 'GRANEL'].includes(prod.tipo_empaque)
+                                ? prod.tipo_empaque
+                                : esCajaFija
+                                ? 'CAJAS'
+                                : 'CANASTILLAS') as TipoEmpaqueCustodia;
+                              const tara =
+                                (prod as any).tara_unitaria_kg ??
+                                (empaque === 'CANASTILLAS' ? 2.0 : empaque === 'CAJAS' ? 0.8 : 0.0);
+                              setPartidaActual((prev) => ({
+                                ...prev,
+                                producto_nombre: prod.nombre,
+                                tipo_empaque: empaque,
+                                tara_unitaria_kg: tara,
+                                es_peso_fijo_caja: esCajaFija,
+                                peso_nominal_caja_kg: prod.peso_unitario_nominal || prev.peso_nominal_caja_kg || 10.0,
+                              }));
+                            }}
+                            className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition-all flex items-center gap-1 cursor-pointer ${
+                              esSeleccionado
+                                ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                                : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200 hover:border-slate-300'
+                            }`}
+                          >
+                            <span>{esCajaFija ? '📦' : '🐟'}</span>
+                            <span>{prod.nombre}</span>
+                            {esCajaFija && prod.peso_unitario_nominal && (
+                              <span className="text-[10px] opacity-80">({prod.peso_unitario_nominal}kg)</span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Peso Nominal (Kg)</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Lote del Cliente (Opcional)</label>
                   <input
-                    type="number"
-                    step="0.1"
-                    value={nuevoProducto.peso_unitario_nominal}
-                    onChange={(e) =>
-                      setNuevoProducto({ ...nuevoProducto, peso_unitario_nominal: Number(e.target.value) })
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white font-mono"
+                    type="text"
+                    placeholder="Ej. LOTE-OCT-01 o N/A"
+                    value={partidaActual.lote_cliente}
+                    onChange={(e) => setPartidaActual({ ...partidaActual, lote_cliente: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 font-medium focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+              {/* Selector Visual de Empaque y Modalidad */}
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-200">
+                  <label className="text-xs font-black text-slate-800 flex items-center gap-1.5">
+                    <Layers className="w-4 h-4 text-emerald-600" /> Modalidad de Medición:
+                  </label>
+                  <div className="flex bg-slate-200/80 p-0.5 rounded-xl text-xs font-bold">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setPartidaActual((prev) => ({
+                          ...prev,
+                          es_peso_fijo_caja: false,
+                        }))
+                      }
+                      className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                        !partidaActual.es_peso_fijo_caja
+                          ? 'bg-white text-emerald-800 font-black shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      ⚖️ Granel / Báscula
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setPartidaActual((prev) => ({
+                          ...prev,
+                          es_peso_fijo_caja: true,
+                          tipo_empaque: 'CAJAS',
+                          tara_unitaria_kg: prev.tara_unitaria_kg || 0.8,
+                        }))
+                      }
+                      className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                        partidaActual.es_peso_fijo_caja
+                          ? 'bg-emerald-600 text-white font-black shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      📦 Cajas Peso Fijo (10 Kg)
+                    </button>
+                  </div>
+                </div>
+
+                {/* Si está en modo cajas de peso fijo cerrado */}
+                {partidaActual.es_peso_fijo_caja ? (
+                  <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-300 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black text-emerald-900 flex items-center gap-1.5">
+                        <Box className="w-4 h-4 text-emerald-700" /> Cajas con Peso Cerrado Estandarizado
+                      </span>
+                      <span className="text-[10px] font-bold text-emerald-700 bg-white px-2 py-0.5 rounded-full border border-emerald-200">
+                        Cálculo Automático
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2.5">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Cantidad de Cajas *</label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={partidaActual.cantidad_bultos}
+                          onChange={(e) =>
+                            setPartidaActual({ ...partidaActual, cantidad_bultos: Number(e.target.value) })
+                          }
+                          className="w-full px-3 py-2 rounded-xl bg-white border border-emerald-400 font-black text-emerald-900 text-base"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Peso Nominal por Caja (Kg) *</label>
+                        <input
+                          type="number"
+                          step="0.05"
+                          min="0.1"
+                          value={partidaActual.peso_nominal_caja_kg}
+                          onChange={(e) =>
+                            setPartidaActual({ ...partidaActual, peso_nominal_caja_kg: Number(e.target.value) })
+                          }
+                          className="w-full px-3 py-2 rounded-xl bg-white border border-emerald-400 font-black text-emerald-900 text-base font-mono"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Tara por Caja (Kg)</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={partidaActual.tara_unitaria_kg}
+                          onChange={(e) =>
+                            setPartidaActual({ ...partidaActual, tara_unitaria_kg: Number(e.target.value) })
+                          }
+                          className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 font-bold text-slate-900 text-base"
+                        />
+                      </div>
+                    </div>
+
+                    <p className="text-[11px] text-emerald-800 font-medium">
+                      💡 <b>{partidaActual.cantidad_bultos} cajas</b> × <b>{partidaActual.peso_nominal_caja_kg} Kg</b> = <b className="text-emerald-950 font-black text-xs">{(partidaActual.cantidad_bultos * partidaActual.peso_nominal_caja_kg).toFixed(2)} Kg Netos</b> registrados sin forzar pesaje unitario en báscula.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <label className="block text-xs font-bold text-slate-700">Tipo de Empaque y Tara Unitaria:</label>
+                    <div className="grid grid-cols-3 gap-2.5">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPartidaActual({
+                            ...partidaActual,
+                            tipo_empaque: 'CANASTILLAS',
+                            tara_unitaria_kg: 2.0,
+                          })
+                        }
+                        className={`p-3 rounded-xl border text-center transition-all ${
+                          partidaActual.tipo_empaque === 'CANASTILLAS'
+                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm font-black'
+                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 font-bold'
+                        }`}
+                      >
+                        <div className="text-xl">🧺</div>
+                        <div className="text-xs mt-1">Canastillas (2.0 Kg)</div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPartidaActual({
+                            ...partidaActual,
+                            tipo_empaque: 'CAJAS',
+                            tara_unitaria_kg: 0.8,
+                          })
+                        }
+                        className={`p-3 rounded-xl border text-center transition-all ${
+                          partidaActual.tipo_empaque === 'CAJAS'
+                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm font-black'
+                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 font-bold'
+                        }`}
+                      >
+                        <div className="text-xl">📦</div>
+                        <div className="text-xs mt-1">Cajas (0.8 Kg)</div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPartidaActual({
+                            ...partidaActual,
+                            tipo_empaque: 'SUELTO',
+                            cantidad_bultos: 0,
+                            tara_unitaria_kg: 0.0,
+                          })
+                        }
+                        className={`p-3 rounded-xl border text-center transition-all ${
+                          partidaActual.tipo_empaque === 'SUELTO'
+                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm font-black'
+                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 font-bold'
+                        }`}
+                      >
+                        <div className="text-xl">🐟</div>
+                        <div className="text-xs mt-1">Suelto / Granel (0 Kg)</div>
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 pt-1">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          {partidaActual.tipo_empaque === 'CANASTILLAS'
+                            ? 'Cantidad de Canastillas'
+                            : partidaActual.tipo_empaque === 'CAJAS'
+                            ? 'Cantidad de Cajas'
+                            : 'Bultos (0 para granel)'}
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={partidaActual.cantidad_bultos}
+                          onChange={(e) =>
+                            setPartidaActual({ ...partidaActual, cantidad_bultos: Number(e.target.value) })
+                          }
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 font-black text-slate-900 text-base"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Tara por Unidad (Kg)</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={partidaActual.tara_unitaria_kg}
+                          onChange={(e) =>
+                            setPartidaActual({ ...partidaActual, tara_unitaria_kg: Number(e.target.value) })
+                          }
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 font-bold text-slate-900 text-base"
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Pantalla en Vivo de Báscula Calibrada */}
+              <div className="p-4 rounded-2xl bg-slate-900 text-white space-y-3 shadow-md">
+                <div className="flex justify-between items-center border-b border-slate-800 pb-1.5">
+                  <span className="text-xs font-mono font-bold text-emerald-400 flex items-center gap-1.5">
+                    <Scale className="w-4 h-4" /> BÁSCULA ELECTRÓNICA CALIBRADA
+                  </span>
+                  <span className="text-xs font-mono text-slate-400">
+                    {partidaActual.es_peso_fijo_caja
+                      ? 'MODO CAJAS PESO CERRADO (BÁSCULA OPCIONAL)'
+                      : 'TARA DESCONTADA EN VIVO'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-center">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">
+                      {partidaActual.es_peso_fijo_caja
+                        ? 'Peso Bruto en Báscula (Opcional si varía)'
+                        : 'Peso Bruto en Báscula (Kg) *'}
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      placeholder={partidaActual.es_peso_fijo_caja ? `${(gravimetriaPartidaActual as any)?.pesoBrutoKg || '0.00'}` : '0.00'}
+                      value={partidaActual.peso_bruto_kg || ''}
+                      onChange={(e) =>
+                        setPartidaActual({ ...partidaActual, peso_bruto_kg: Number(e.target.value) })
+                      }
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-800 border-2 border-emerald-500 text-emerald-400 font-mono font-black text-2xl outline-hidden"
+                    />
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-right">
+                    <div className="text-xs text-slate-400">
+                      Tara Calculada: -{gravimetriaPartidaActual.taraTotalKg.toFixed(2)} Kg
+                    </div>
+                    <div className="text-xs uppercase text-slate-400 font-bold mt-1">Peso Neto Resultante:</div>
+                    <div className="text-2xl font-black font-mono text-emerald-400 tracking-tight">
+                      {gravimetriaPartidaActual.pesoNetoKg.toFixed(2)}{' '}
+                      <span className="text-xs font-sans text-slate-400">Kg</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Botón de Agregar Partida */}
+              <button
+                type="button"
+                onClick={handleAgregarPartida}
+                disabled={!partidaActual.producto_nombre.trim() || !gravimetriaPartidaActual.esValido}
+                className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-black text-sm shadow-md flex items-center justify-center gap-2 transition-all"
+              >
+                <Plus className="w-5 h-5" />
+                Agregar Partida a la Planilla de Pesaje
+              </button>
+            </div>
+
+            {/* SECCIÓN 2: PLANILLA DE PESAJE EN VIVO ACUMULADA */}
+            <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                <span className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
+                  <ListChecks className="w-4 h-4 text-indigo-600" /> 2. Planilla Acumulada del Camión (
+                  {partidasPlanilla.length} {partidasPlanilla.length === 1 ? 'partida' : 'partidas'})
+                </span>
+                {partidasPlanilla.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setPartidasPlanilla([])}
+                    className="text-xs text-rose-600 hover:underline font-bold"
+                  >
+                    Limpiar toda la planilla
+                  </button>
+                )}
+              </div>
+
+              {partidasPlanilla.length === 0 ? (
+                <div className="p-6 text-center rounded-xl bg-white border border-dashed border-slate-300 text-slate-500 space-y-1">
+                  <Scale className="w-8 h-8 text-slate-400 mx-auto" />
+                  <p className="text-xs font-bold text-slate-700">Aún no hay pesadas agregadas a la planilla.</p>
+                  <p className="text-xs text-slate-500">
+                    Ingresa el producto, empaque y peso bruto arriba y presiona "Agregar Partida".
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-xs">
+                    <table className="w-full text-xs text-left">
+                      <thead className="bg-slate-100 text-slate-700 uppercase font-black text-[11px] border-b border-slate-200">
+                        <tr>
+                          <th className="p-2.5">#</th>
+                          <th className="p-2.5">Producto</th>
+                          <th className="p-2.5">Empaque</th>
+                          <th className="p-2.5 text-center">Bultos</th>
+                          <th className="p-2.5 text-right">Tara Tot (Kg)</th>
+                          <th className="p-2.5 text-right">Bruto (Kg)</th>
+                          <th className="p-2.5 text-right">Neto Real (Kg)</th>
+                          <th className="p-2.5 text-center">Acción</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 font-medium">
+                        {partidasPlanilla.map((p, idx) => (
+                          <tr key={p.id || idx} className="hover:bg-slate-50 transition-colors">
+                            <td className="p-2.5 font-bold text-slate-500">{idx + 1}</td>
+                            <td className="p-2.5 font-bold text-slate-900">{p.producto_nombre}</td>
+                            <td className="p-2.5 text-slate-700">{p.tipo_empaque}</td>
+                            <td className="p-2.5 text-center font-bold text-slate-800">{p.cantidad_bultos}</td>
+                            <td className="p-2.5 text-right font-mono text-slate-600">
+                              -{p.peso_tara_total_kg.toFixed(2)}
+                            </td>
+                            <td className="p-2.5 text-right font-mono text-slate-700">
+                              {p.peso_bruto_kg.toFixed(2)}
+                            </td>
+                            <td className="p-2.5 text-right font-mono font-black text-emerald-700 text-sm">
+                              {p.peso_neto_kg.toFixed(2)} Kg
+                            </td>
+                            <td className="p-2.5 text-center">
+                              <button
+                                type="button"
+                                onClick={() => handleEliminarPartida(idx)}
+                                title="Eliminar pesada"
+                                className="p-1 rounded-lg hover:bg-rose-100 text-rose-600 transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Barra de Totales Gravimétricos Consolidados */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-300 text-slate-900">
+                    <div>
+                      <div className="text-[11px] font-bold text-emerald-900 uppercase">Total Bultos:</div>
+                      <div className="text-lg font-black text-emerald-950 font-mono">
+                        {totalesPlanilla.totalBultos} bultos
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[11px] font-bold text-emerald-900 uppercase">Total Bruto:</div>
+                      <div className="text-lg font-bold text-slate-800 font-mono">
+                        {totalesPlanilla.totalPesoBrutoKg.toFixed(2)} Kg
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[11px] font-bold text-emerald-900 uppercase">Total Tara:</div>
+                      <div className="text-lg font-bold text-slate-800 font-mono">
+                        -{totalesPlanilla.totalTaraTotalKg.toFixed(2)} Kg
+                      </div>
+                    </div>
+                    <div className="p-2 rounded-lg bg-emerald-600 text-white text-right">
+                      <div className="text-[10px] uppercase font-bold tracking-wider text-emerald-100">
+                        Total Neto Consolidado:
+                      </div>
+                      <div className="text-xl font-black font-mono tracking-tight">
+                        {totalesPlanilla.totalPesoNetoKg.toFixed(2)} Kg
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* SECCIÓN 3: TRANSPORTE Y GUARDADO FINAL */}
+            <form onSubmit={handleGuardarRecepcionMultiple} className="space-y-4 pt-2">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                <span className="text-xs font-black uppercase tracking-wider text-slate-800 block">
+                  3. Datos de Transporte y Conductor
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Nombre del Conductor *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Ej. Pedro Picapiedra"
+                      value={recepcionForm.transportador_nombre}
+                      onChange={(e) =>
+                        setRecepcionForm({ ...recepcionForm, transportador_nombre: e.target.value })
+                      }
+                      className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 font-bold text-slate-900 text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Cédula del Conductor *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Ej. 1098765432"
+                      value={recepcionForm.transportador_cedula}
+                      onChange={(e) =>
+                        setRecepcionForm({ ...recepcionForm, transportador_cedula: e.target.value })
+                      }
+                      className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 font-bold text-slate-900 text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Placa del Vehículo *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Ej. WKL-890"
+                      value={recepcionForm.placa_vehiculo}
+                      onChange={(e) =>
+                        setRecepcionForm({ ...recepcionForm, placa_vehiculo: e.target.value })
+                      }
+                      className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 font-bold text-slate-900 text-xs uppercase"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Observaciones de Recepción</label>
+                  <input
+                    type="text"
+                    placeholder="Ej. Descargue en rampa frigorífica 1, pescado en congelación profunda..."
+                    value={recepcionForm.observaciones}
+                    onChange={(e) => setRecepcionForm({ ...recepcionForm, observaciones: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 font-medium text-slate-900 text-xs"
+                  />
+                </div>
+              </div>
+
+              {/* Botones de Acción */}
+              <div className="flex justify-end gap-3 pt-2 border-t border-slate-200">
                 <button
                   type="button"
-                  onClick={() => setShowProductoModal(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700"
+                  onClick={() => {
+                    setShowRecepcionModal(false);
+                    setPartidasPlanilla([]);
+                  }}
+                  className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading || partidasPlanilla.length === 0}
+                  className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-black text-sm shadow-md flex items-center gap-2 transition-all"
+                >
+                  {loading ? 'Guardando...' : `💾 Guardar Recepción Consolidada (${partidasPlanilla.length} Partidas)`}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* SUB-MODAL EXPRESS: CREACIÓN RÁPIDA DE CLIENTE (15 SEGUNDOS) */}
+      {/* ========================================================================= */}
+      {showClienteRapidoSubmodal && (
+        <div className="fixed inset-0 z-[9999] bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border-2 border-indigo-400 rounded-3xl p-6 max-w-lg w-full space-y-4 shadow-2xl animate-in fade-in zoom-in-95">
+            <div className="flex justify-between items-center border-b border-indigo-100 pb-3">
+              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                <Zap className="w-5 h-5 text-amber-500" />
+                Crear Cliente y Activar Contrato (15 Segundos)
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowClienteRapidoSubmodal(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-500">
+              Registra el cliente al vuelo sin salir del modal de pesaje. Se creará automáticamente un contrato activo.
+            </p>
+
+            <form onSubmit={handleGuardarClienteRapido} className="space-y-3.5 text-sm">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Razón Social o Nombre Completo *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ej. Distribuidora del Mar SAS / Juan Perez"
+                  value={clienteRapidoForm.razon_social}
+                  onChange={(e) =>
+                    setClienteRapidoForm({ ...clienteRapidoForm, razon_social: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 font-bold text-slate-900"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">NIT o Cédula *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej. 901234567-8"
+                    value={clienteRapidoForm.numero_identificacion}
+                    onChange={(e) =>
+                      setClienteRapidoForm({ ...clienteRapidoForm, numero_identificacion: e.target.value })
+                    }
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 font-bold text-slate-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Teléfono Celular *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej. 3101234567"
+                    value={clienteRapidoForm.telefono}
+                    onChange={(e) =>
+                      setClienteRapidoForm({ ...clienteRapidoForm, telefono: e.target.value })
+                    }
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 font-bold text-slate-900"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Modalidad de Tiempo *</label>
+                  <select
+                    value={clienteRapidoForm.modalidad_tiempo}
+                    onChange={(e) =>
+                      setClienteRapidoForm({
+                        ...clienteRapidoForm,
+                        modalidad_tiempo: e.target.value as 'DIAS' | 'MESES',
+                        tarifa_pactada: e.target.value === 'DIAS' ? 45000 : 650000,
+                      })
+                    }
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 font-bold text-slate-900"
+                  >
+                    <option value="DIAS">Por DÍAS (Temporal)</option>
+                    <option value="MESES">Por MESES (Mensualidad)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Tarifa Pactada COP ({clienteRapidoForm.modalidad_tiempo === 'DIAS' ? '$/día' : '$/mes'}) *
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    value={clienteRapidoForm.tarifa_pactada}
+                    onChange={(e) =>
+                      setClienteRapidoForm({
+                        ...clienteRapidoForm,
+                        tarifa_pactada: Number(e.target.value),
+                      })
+                    }
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 font-black text-indigo-700 font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2.5 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowClienteRapidoSubmodal(false)}
+                  className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 text-xs"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium"
+                  className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs shadow-md flex items-center gap-1.5"
                 >
-                  {loading ? 'Guardando...' : 'Crear Producto'}
+                  <Zap className="w-4 h-4 text-amber-300" />
+                  {loading ? 'Activando...' : '⚡ Activar Cliente y Contrato'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* SUBMODAL: CREAR PRODUCTO(S) ASOCIADO(S) AL CLIENTE EN BATCH / LOTE */}
+      {/* ========================================================================= */}
+      {showProductoRapidoSubmodal && (
+        <div className="fixed inset-0 z-[9999] bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border-2 border-emerald-400 rounded-3xl p-6 max-w-xl w-full space-y-4 shadow-2xl animate-in fade-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+            {/* Header del Modal */}
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+              <div>
+                <span className="text-[10px] uppercase font-black tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                  Alta Rápida (1 a N Productos)
+                </span>
+                <h4 className="text-lg font-black text-slate-900 mt-1 flex items-center gap-1.5">
+                  <Fish className="w-5 h-5 text-emerald-600" />
+                  Registro de Productos para el Cliente
+                </h4>
+                <p className="text-xs text-slate-500 font-medium">
+                  {clienteActivoRecepcion
+                    ? `Se asociarán a: ${clienteActivoRecepcion.razon_social}`
+                    : 'Catálogo de custodia del cliente activo'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowProductoRapidoSubmodal(false);
+                  setProductosLoteLista([]);
+                }}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-sm cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Formulario de Entrada Rápida de Línea */}
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-bold text-slate-700">
+                  Especie o Producto a Agregar *
+                </label>
+                <span className="text-[10px] text-slate-400 font-medium">
+                  Tip: Separa con comas para agregar varios (Ej. Corvina, Pargo, Camarón)
+                </span>
+              </div>
+
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  autoFocus
+                  placeholder="Ej. Corvina Entera, Camarón Tití, Filete Robalo..."
+                  value={productoRapidoForm.nombre}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAgregarProductoAlLote();
+                    }
+                  }}
+                  onChange={(e) =>
+                    setProductoRapidoForm({ ...productoRapidoForm, nombre: e.target.value })
+                  }
+                  className="flex-1 px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500"
+                />
+                <button
+                  type="button"
+                  onClick={handleAgregarProductoAlLote}
+                  className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-xs flex items-center gap-1 cursor-pointer transition-all"
+                >
+                  <Plus className="w-4 h-4" />
+                  + Agregar al Lote
+                </button>
+              </div>
+
+              {/* Selector Visual de Empaque para este producto */}
+              <div>
+                <label className="block text-[11px] font-bold text-slate-600 mb-1.5">
+                  Empaque y Tara Habitual:
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setProductoRapidoForm({
+                        ...productoRapidoForm,
+                        tipo_empaque: 'CANASTILLAS',
+                        tara_unitaria_kg: 2.0,
+                      })
+                    }
+                    className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
+                      productoRapidoForm.tipo_empaque === 'CANASTILLAS'
+                        ? 'bg-emerald-600 text-white border-emerald-600 font-black shadow-xs'
+                        : 'bg-white text-slate-700 border-slate-200 font-bold hover:bg-slate-100'
+                    }`}
+                  >
+                    <div className="text-base">🧺</div>
+                    <div className="text-[11px]">Canastilla (2.0 kg)</div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setProductoRapidoForm({
+                        ...productoRapidoForm,
+                        tipo_empaque: 'CAJAS',
+                        tara_unitaria_kg: 0.8,
+                      })
+                    }
+                    className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
+                      productoRapidoForm.tipo_empaque === 'CAJAS'
+                        ? 'bg-emerald-600 text-white border-emerald-600 font-black shadow-xs'
+                        : 'bg-white text-slate-700 border-slate-200 font-bold hover:bg-slate-100'
+                    }`}
+                  >
+                    <div className="text-base">📦</div>
+                    <div className="text-[11px]">Caja (0.8 kg)</div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setProductoRapidoForm({
+                        ...productoRapidoForm,
+                        tipo_empaque: 'SUELTO',
+                        tara_unitaria_kg: 0.0,
+                      })
+                    }
+                    className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
+                      productoRapidoForm.tipo_empaque === 'SUELTO'
+                        ? 'bg-emerald-600 text-white border-emerald-600 font-black shadow-xs'
+                        : 'bg-white text-slate-700 border-slate-200 font-bold hover:bg-slate-100'
+                    }`}
+                  >
+                    <div className="text-base">🐟</div>
+                    <div className="text-[11px]">Granel / Suelto (0 kg)</div>
+                  </button>
+                </div>
+              </div>
+
+              {/* Ajuste de tara fina */}
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-[11px] text-slate-500 font-semibold">
+                  Tara Unitaria Específica (Kg):
+                </span>
+                <input
+                  type="number"
+                  step="0.05"
+                  min="0"
+                  value={productoRapidoForm.tara_unitaria_kg}
+                  onChange={(e) =>
+                    setProductoRapidoForm({
+                      ...productoRapidoForm,
+                      tara_unitaria_kg: Number(e.target.value),
+                    })
+                  }
+                  className="w-28 px-3 py-1 rounded-lg bg-white border border-slate-300 font-bold font-mono text-emerald-700 text-right text-xs"
+                />
+              </div>
+            </div>
+
+            {/* Lista Acumulada de Productos en el Lote */}
+            {productosLoteLista.length > 0 && (
+              <div className="p-3.5 rounded-2xl bg-emerald-50/60 border border-emerald-200 space-y-2">
+                <div className="flex items-center justify-between border-b border-emerald-200/60 pb-1.5">
+                  <span className="text-xs font-black text-emerald-900 flex items-center gap-1.5">
+                    <ListChecks className="w-4 h-4 text-emerald-700" />
+                    {productosLoteLista.length} Producto(s) en la Lista para Asociar:
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setProductosLoteLista([])}
+                    className="text-[10px] font-bold text-rose-600 hover:text-rose-800 underline cursor-pointer"
+                  >
+                    Limpiar lista
+                  </button>
+                </div>
+
+                <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                  {productosLoteLista.map((item, idx) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between p-2 rounded-xl bg-white border border-emerald-100 shadow-2xs"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-emerald-800">#{idx + 1}</span>
+                        <span className="text-sm font-black text-slate-900">{item.nombre}</span>
+                        <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
+                          {item.tipo_empaque} ({item.tara_unitaria_kg} kg)
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleEliminarProductoDelLote(item.id)}
+                        className="text-slate-400 hover:text-rose-600 p-1 rounded-lg hover:bg-rose-50 transition-all cursor-pointer"
+                        title="Eliminar de la lista"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Footer de Acciones */}
+            <div className="flex justify-between items-center pt-3 border-t border-slate-100">
+              <span className="text-xs text-slate-400 font-medium">
+                {productosLoteLista.length > 0
+                  ? `Total: ${productosLoteLista.length + (productoRapidoForm.nombre.trim() ? 1 : 0)} producto(s) a guardar`
+                  : 'Listo para guardar 1 o múltiples'}
+              </span>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowProductoRapidoSubmodal(false);
+                    setProductosLoteLista([]);
+                  }}
+                  className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 text-xs cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => handleGuardarProductoRapido()}
+                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  <Zap className="w-4 h-4 text-amber-300" />
+                  {loading
+                    ? 'Guardando...'
+                    : productosLoteLista.length > 0
+                    ? `⚡ Guardar ${productosLoteLista.length + (productoRapidoForm.nombre.trim() ? 1 : 0)} Productos y Usar en Báscula`
+                    : '⚡ Guardar Producto y Usar en Báscula'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+
+      {/* ========================================================================= */}
+      {/* MODAL 3: DESPACHO CONSOLIDADO CON CHECKLIST MULTI-LOTE (PASO 3) */}
+      {/* ========================================================================= */}
+      {showDespachoModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 max-w-3xl w-full space-y-4 shadow-2xl animate-in fade-in zoom-in-95 max-h-[92vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
+                  <Truck className="w-6 h-6 text-amber-600" />
+                  Paso 3: Despacho Consolidado de Mercancía en Custodia
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Selecciona los lotes activos a retirar con retiro total o parcial en una sola Acta de Salida.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowDespachoModal(false)}
+                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-lg"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Selector de Cliente */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Cliente Depositante que Retira la Mercancía *
+              </label>
+              <select
+                required
+                value={despachoClienteId}
+                onChange={(e) => {
+                  setDespachoClienteId(e.target.value);
+                  // Reinicializar selección para el nuevo cliente
+                  const itemsDelCliente = inventario.filter((i) => i.cliente_id === e.target.value && i.activo);
+                  const nuevoMap: Record<
+                    string,
+                    { seleccionado: boolean; bultos_a_retirar: number; peso_neto_a_retirar: number; es_retiro_total: boolean }
+                  > = {};
+                  itemsDelCliente.forEach((i) => {
+                    nuevoMap[i.id] = {
+                      seleccionado: true,
+                      bultos_a_retirar: i.bultos_actuales,
+                      peso_neto_a_retirar: Number(i.peso_neto_actual_kg),
+                      es_retiro_total: true,
+                    };
+                  });
+                  setDespachoItemsSeleccionados(nuevoMap);
+                }}
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 font-bold text-sm focus:ring-2 focus:ring-amber-500"
+              >
+                <option value="">-- Elige un cliente --</option>
+                {clientes.map((cl) => {
+                  const itemsCount = inventario.filter((i) => i.cliente_id === cl.id && i.activo).length;
+                  return (
+                    <option key={cl.id} value={cl.id}>
+                      {cl.razon_social} ({itemsCount} lotes activos en frío)
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+
+            {/* Checklist de Lotes Activos del Cliente */}
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <span className="text-xs font-black uppercase tracking-wider text-slate-900 block">
+                    Existencias Activas en Cuarto Frío:
+                  </span>
+                  <span className="text-[11px] text-slate-500 font-medium">
+                    Control bimodal: Canastillas/Cajas físicas y Kilogramos netos
+                  </span>
+                </div>
+
+                {inventario.filter((i) => i.cliente_id === despachoClienteId && i.activo).length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleDespacharTodoSaldoCliente}
+                      className="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-black text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                      title="Marcar el 100% de los bultos y kilos restantes de todos los lotes del cliente para salida inmediata"
+                    >
+                      <Zap className="w-3.5 h-3.5 text-amber-200" />
+                      ⚡ Despachar Todo el Saldo
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDeseleccionarTodoCliente}
+                      className="text-xs font-semibold text-slate-500 hover:text-slate-800 underline cursor-pointer"
+                    >
+                      Desmarcar todos
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {inventario.filter((i) => i.cliente_id === despachoClienteId && i.activo).length === 0 ? (
+                <div className="p-6 text-center rounded-xl bg-slate-50 border border-slate-200 text-slate-500 text-xs">
+                  No hay inventario activo en custodia para este cliente.
+                </div>
+              ) : (
+                <div className="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+                  {inventario
+                    .filter((i) => i.cliente_id === despachoClienteId && i.activo)
+                    .map((item) => {
+                      const sel = despachoItemsSeleccionados[item.id] || {
+                        seleccionado: false,
+                        bultos_a_retirar: item.bultos_actuales,
+                        peso_neto_a_retirar: Number(item.peso_neto_actual_kg),
+                        es_retiro_total: true,
+                      };
+
+                      return (
+                        <div
+                          key={item.id}
+                          className={`p-3.5 rounded-xl border transition-all ${
+                            sel.seleccionado
+                              ? 'bg-amber-50/70 border-amber-300 shadow-xs'
+                              : 'bg-white border-slate-200 opacity-70 hover:opacity-100'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-3">
+                            <label className="flex items-center gap-2.5 cursor-pointer flex-1">
+                              <input
+                                type="checkbox"
+                                checked={sel.seleccionado}
+                                onChange={() => handleToggleSeleccionDespacho(item.id)}
+                                className="w-5 h-5 rounded-md text-amber-600 focus:ring-amber-500"
+                              />
+                              <div>
+                                <span className="font-bold text-slate-900 text-sm block">
+                                  {item.producto?.nombre || 'Pescado en Custodia'}
+                                </span>
+                                <span className="text-xs text-slate-500">
+                                  Lote: <b className="text-slate-700">{item.lote_cliente}</b> • Empaque:{' '}
+                                  {item.producto?.tipo_empaque || 'Estándar'} • Saldo:{' '}
+                                  <b className="text-emerald-700 font-bold">{item.peso_neto_actual_kg} Kg</b> (
+                                  {item.bultos_actuales} bultos/canastillas)
+                                </span>
+                              </div>
+                            </label>
+
+                            <button
+                              type="button"
+                              onClick={() => handleRetiroTotalItem(item)}
+                              className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-black text-xs shrink-0 flex items-center gap-1 shadow-xs cursor-pointer transition-all"
+                              title="Retirar todo el restante de este lote de manera rápida"
+                            >
+                              <Zap className="w-3.5 h-3.5 text-amber-200" />
+                              ⚡ Retirar Restante
+                            </button>
+                          </div>
+
+                          {sel.seleccionado && (
+                            <div className="mt-3 pt-2.5 border-t border-amber-200/80 grid grid-cols-2 gap-3 text-xs">
+                              <div>
+                                <label className="block text-slate-700 font-bold mb-1">
+                                  Canastillas / Cajas a Retirar (Máx: {item.bultos_actuales})
+                                </label>
+                                <input
+                                  type="number"
+                                  min="1"
+                                  max={item.bultos_actuales}
+                                  value={sel.bultos_a_retirar}
+                                  onChange={(e) => {
+                                    const val = Math.max(0, Math.min(item.bultos_actuales, Number(e.target.value)));
+                                    const estimacion = calcularEstimacionProporcionalSalida({
+                                      pesoNetoActualKg: Number(item.peso_neto_actual_kg),
+                                      bultosActuales: item.bultos_actuales,
+                                      bultosARetirar: val,
+                                    });
+                                    setDespachoItemsSeleccionados((prev) => ({
+                                      ...prev,
+                                      [item.id]: {
+                                        ...sel,
+                                        bultos_a_retirar: val,
+                                        peso_neto_a_retirar: estimacion.pesoSugeridoKg,
+                                        es_retiro_total: estimacion.esRetiroTotal,
+                                      },
+                                    }));
+                                  }}
+                                  className="w-full px-3 py-1.5 rounded-lg bg-white border border-amber-300 font-bold text-slate-900"
+                                />
+                                {sel.bultos_a_retirar < item.bultos_actuales && (
+                                  <span className="text-[10px] text-amber-800 font-bold block mt-0.5">
+                                    ⚡ Sugerido: {calcularEstimacionProporcionalSalida({
+                                      pesoNetoActualKg: Number(item.peso_neto_actual_kg),
+                                      bultosActuales: item.bultos_actuales,
+                                      bultosARetirar: sel.bultos_a_retirar,
+                                    }).pesoSugeridoKg} Kg (editable)
+                                  </span>
+                                )}
+                              </div>
+
+                              <div>
+                                <label className="block text-slate-700 font-bold mb-1">
+                                  Peso Neto a Retirar Kg (Báscula de Salida)
+                                </label>
+                                <input
+                                  type="number"
+                                  step="0.01"
+                                  min="0.1"
+                                  max={Number(item.peso_neto_actual_kg)}
+                                  value={sel.peso_neto_a_retirar}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    setDespachoItemsSeleccionados((prev) => ({
+                                      ...prev,
+                                      [item.id]: {
+                                        ...sel,
+                                        peso_neto_a_retirar: val,
+                                        es_retiro_total:
+                                          sel.bultos_a_retirar >= item.bultos_actuales &&
+                                          val >= Number(item.peso_neto_actual_kg),
+                                      },
+                                    }));
+                                  }}
+                                  className="w-full px-3 py-1.5 rounded-lg bg-white border border-amber-300 font-black text-slate-900 font-mono"
+                                />
+                                {sel.es_retiro_total ? (
+                                  <span className="text-[10px] text-emerald-700 font-black block mt-0.5">
+                                    ✓ Vaciado completo del lote (saldo 0)
+                                  </span>
+                                ) : (
+                                  <span className="text-[10px] text-slate-500 font-semibold block mt-0.5">
+                                    Saldo restante: {Math.max(0, Math.round((Number(item.peso_neto_actual_kg) - sel.peso_neto_a_retirar) * 100) / 100)} Kg ({Math.max(0, item.bultos_actuales - sel.bultos_a_retirar)} canastillas)
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
+
+              {/* Barra de Totales a Retirar */}
+              <div className="flex justify-between items-center p-3.5 rounded-xl bg-amber-50 border border-amber-300">
+                <div>
+                  <span className="text-xs text-amber-900 font-bold block uppercase">Total a Despachar:</span>
+                  <span className="text-sm text-slate-700">
+                    {totalesDespachoSeleccionado.totalSeleccionados} lotes marcados •{' '}
+                    <b>{totalesDespachoSeleccionado.totalBultos} bultos</b>
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="text-xs text-amber-800 font-bold block">PESO NETO SALIDA:</span>
+                  <span className="text-2xl font-black font-mono text-amber-800">
+                    {totalesDespachoSeleccionado.totalPesoKg.toFixed(2)} Kg
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Formulario de Transporte */}
+            <form onSubmit={handleGuardarDespachoMultiple} className="space-y-4 pt-1">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Conductor Receptor *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej. Roberto Martinez"
+                    value={despachoForm.transportador_nombre}
+                    onChange={(e) => setDespachoForm({ ...despachoForm, transportador_nombre: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 font-bold text-slate-900 text-xs"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Cédula del Conductor *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej. 79888999"
+                    value={despachoForm.transportador_cedula}
+                    onChange={(e) => setDespachoForm({ ...despachoForm, transportador_cedula: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 font-bold text-slate-900 text-xs"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Placa del Vehículo *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej. SST-345"
+                    value={despachoForm.placa_vehiculo}
+                    onChange={(e) => setDespachoForm({ ...despachoForm, placa_vehiculo: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 font-bold text-slate-900 text-xs uppercase"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Observaciones</label>
+                <input
+                  type="text"
+                  placeholder="Ej. Salida autorizada para distribución local..."
+                  value={despachoForm.observaciones}
+                  onChange={(e) => setDespachoForm({ ...despachoForm, observaciones: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 font-medium text-slate-900 text-xs"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowDespachoModal(false)}
+                  className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-bold text-sm hover:bg-slate-200"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading || totalesDespachoSeleccionado.totalSeleccionados === 0}
+                  className="px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white font-black text-sm shadow-md flex items-center gap-2"
+                >
+                  {loading ? 'Despachando...' : '🚚 Confirmar Despacho Consolidado y Emitir Acta'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL 4: COBRO EN CAJA EXPRESS & RECIBO OFICIAL (PASO 4) */}
+      {/* ========================================================================= */}
+      {showCobroModal && cobroData && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 max-w-lg w-full space-y-4 shadow-2xl animate-in fade-in zoom-in-95">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-indigo-600" />
+                Paso 4: Recibir Pago en Caja & Generar Recibo
+              </h3>
+              <button
+                onClick={() => setShowCobroModal(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-indigo-50 border border-indigo-200 space-y-1">
+              <div className="text-xs font-bold text-indigo-900 uppercase">Cliente:</div>
+              <div className="text-base font-black text-slate-900">{cobroData.clienteNombre}</div>
+              <div className="text-xs text-slate-600">{cobroData.concepto}</div>
+              <div className="text-2xl font-black text-indigo-700 pt-2 border-t border-indigo-200 mt-2">
+                ${Math.round(cobroData.monto).toLocaleString('es-CO')}{' '}
+                <span className="text-xs font-sans text-slate-600 font-semibold">COP Total</span>
+              </div>
+            </div>
+
+            <form onSubmit={handleConfirmarCobroEnCaja} className="space-y-4 text-sm">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Método de Pago *
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {(['EFECTIVO', 'TRANSFERENCIA', 'DATAFONO'] as MetodoPago[]).map((metodo) => (
+                    <button
+                      key={metodo}
+                      type="button"
+                      onClick={() => setPagoForm({ ...pagoForm, metodoPago: metodo })}
+                      className={`py-2.5 rounded-xl border font-bold text-xs transition-all ${
+                        pagoForm.metodoPago === metodo
+                          ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                          : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                      }`}
+                    >
+                      {metodo === 'EFECTIVO' ? '💵 Efectivo' : metodo === 'TRANSFERENCIA' ? '📱 Nequi / Bancolombia' : '💳 Datáfono'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Turno de Caja Abierto
+                </label>
+                <select
+                  value={pagoForm.turnoId || turnosAbiertos[0]?.id || ''}
+                  onChange={(e) => setPagoForm({ ...pagoForm, turnoId: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 font-bold text-slate-900"
+                >
+                  {turnosAbiertos.length === 0 ? (
+                    <option value="">No hay turnos abiertos (Se asentará como cobro directo)</option>
+                  ) : (
+                    turnosAbiertos.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        Caja Principal • Turno #{t.id.slice(-6)} (Saldo: ${t.saldoTeoricoGlobal.toLocaleString('es-CO')})
+                      </option>
+                    ))
+                  )}
+                </select>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowCobroModal(false)}
+                  className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black shadow-md flex items-center gap-2"
+                >
+                  {loading ? 'Asentando...' : '✓ Asentar en Caja & Emitir Recibo'}
                 </button>
               </div>
             </form>

@@ -19,13 +19,184 @@ Cada vez que un agente de IA finalice una sesión de trabajo, debe agregar una e
 
 ## Registros Diarios
 
+### [2026-10-13 08:35] - Antigravity (Protocol Coordinator, POS Specialist & QA/DevOps Lead)
+- **Módulo:** POS Punto de Venta & Catálogo de Productos (Especificación SDD 009)
+- **Acción:** Implementación completa y certificación de:
+  1. *Redondeo Estricto a Enteros en COP:* Todos los valores monetarios calculados (unitario, línea, subtotal, base gravable, IVA y total final) se redondean con `Math.round` sin centavos ni desfases de $1 peso.
+  2. *Tratamiento Determinista de IVA Incluido con Modificación de Precio:* Desglose exacto $\text{Base} = \text{round}(\text{Total} / (1 + \text{tarifa}/100))$ y $\text{IVA} = \text{Total} - \text{Base}$, garantizando que $\text{Base} + \text{IVA} \equiv \text{Total}$ (ej. $10.000 -> $9.000 con 19%: base $7.563 + IVA $1.437 = $9.000 exactos).
+  3. *Diferenciación Visual y Operativa de Productos (Unidades vs Kilos):*
+     - Badges de alto contraste: `⚖️ KILOS` (azul) vs `📦 UNIDAD` (esmeralda) en catálogo y carrito.
+     - Rotulación explícita de precio: `$XX.XXX / kg` vs `$XX.XXX / und`.
+     - Stock contextual por bodega mostrando unidad correspondiente (`kg` o `und`).
+     - Botón de balanza exclusivo para productos pesables; productos por unidad con paso entero `step="1"`.
+  4. *Incorporación de Productos de Prueba Requeridos:*
+     - `Camaron Crudo 41-50` (`CAM-CRU-41-50`, Materia Prima, venta por peso en kilos, compra $28.500, venta POS $38.000, IVA 0%).
+     - `Camaron Crudo 41-50 x 500 gr` (`CAM-CRU-41-50-500G`, Producto Final, venta por unidades, costo de compra $14.250 derivado proporcionalmente de MP [$28.500 * 0.5], venta POS $22.000, IVA 0%).
+     - Sincronización automática en `INITIAL_PRODUCTS`, inicialización de stock y migración sin colisiones.
+  5. *Desglose en Resumen de Totales y Ticket:* `DiscountPanel.tsx` y `usePOSPrinter.ts` reflejan base gravable e IVA en enteros cuando aplican tributos.
+  6. *Certificación TDD & DevTools Loop:*
+     - Suite unitaria `src/tests/posPricingAndTaxCop.test.ts` pasando 10/10 al 100%.
+     - Suite E2E `src/tests/posComprehensiveLifecycleE2E.test.ts` pasando 6/6 al 100%.
+     - Verificación interactiva en Chrome DevTools MCP con 0 errores y 0 warnings en consola JS y renderizado responsivo a 375 px móvil.
+- **Archivos Modificados:**
+  - `src/services/posService.ts`
+  - `src/types/pos.types.ts`
+  - `src/hooks/usePOSCart.ts`
+  - `src/hooks/usePOSPrinter.ts`
+  - `src/views/pos/components/ProductSearchPanel.tsx`
+  - `src/views/pos/components/LineaVentaRow.tsx`
+  - `src/views/pos/components/DiscountPanel.tsx`
+  - `src/views/pos/components/CartPanel.tsx`
+  - `src/views/POSView.tsx`
+  - `src/App.tsx`
+  - `src/tests/posPricingAndTaxCop.test.ts`
+  - `specs/009-redondeo-entero-cop-iva-y-productos-prueba/tasks.md`
+  - `MEMORY.md`
+
+### [2026-10-13 07:30] - Antigravity (Protocol Coordinator, POS Specialist & QA/DevOps Lead)
+- **Módulo:** POS Punto de Venta & Cartera/Inventario (Especificación SDD 008)
+- **Acción:** Implementación completa y certificación de Modificación de Precios en Venta y Suite Exhaustiva E2E de 6 Pilares:
+  1. *Edición Táctil de Precios Unitarios en Carrito (Moneda COP):*
+     - Métodos inmutables `updateItemPrice(productoId, newPrice)` y `resetItemPrice(productoId)` en `usePOSCart.ts`.
+     - Botón táctil ergonómico ✏️ (`Edit3`, $\ge 44\text{ px}$) en `LineaVentaRow.tsx`, diálogo modal SweetAlert2 adaptado a pesos colombianos (COP).
+     - Corrección de restricción HTML5: configurado `step: 'any'` y `min: '0'` con `inputValidator` para permitir valores estándar enteros en COP (ej. $31.000, $25.000) eliminando el error del navegador por múltiplos residuales ("30901 y 31001").
+     - Redondeo entero a pesos colombianos y etiquetas contextuales en COP.
+     - Advertencia de rentabilidad si `nuevoPrecio < linea.precioCompra` con confirmación explícita para margen negativo.
+     - Badge visual `✏️ Modificado (Base: $XX.XXX)` y enlace `Restablecer` al diferir del catálogo maestro.
+     - Propagación reactiva a través de `CartPanel.tsx` y conexión en `POSView.tsx`.
+     - Corrección en el mapeo de compatibilidad del POS para asegurar que `precioOverride` y `precioUnitario` tomen `linea.precioFinal` sin sobreescrituras indeseadas.
+     - Actualización automática de tarifas históricas (`lastClientPrices`) para clientes identificados.
+  2. *Suite de Pruebas E2E de Ciclo Completo (`src/tests/posComprehensiveLifecycleE2E.test.ts`):*
+     - **Flujo 1:** Apertura de Turno de Caja con base inicial de $150.000 en gaveta.
+     - **Flujo 2:** Venta multi-presentación (KG a granel y UNIDAD) a Consumidor Final con pago en efectivo y cambio exacto.
+     - **Flujo 3:** Venta guardada en espera (`saveDraft`), vaciado de carrito, recuperación intacta del borrador y liquidación con pago mixto ($50k Efectivo + $40k Nequi).
+     - **Flujo 4:** Venta con precios modificados y actualización reactiva de tarifas históricas del cliente.
+     - **Flujo 5:** Venta a crédito con validación de cupo y generación de cuenta por cobrar `InvoiceAR`.
+     - **Flujo 6:** Solicitud de reabastecimiento POS hacia Bodega Principal vía `internalTransferService`.
+  3. *Certificación Vitest & DevTools MCP en Vivo:*
+     - 17/17 pruebas verdes (6 E2E + 11 unitarias de carrito).
+     - Verificación DevTools en vivo en `http://127.0.0.1:3000/`: **0 errores y 0 warnings en consola JS**.
+     - Renderizado móvil responsivo verificado en viewport **375 px**.
+     - Análisis de impacto con GitNexus (`detect-changes`): 0 riesgos críticos (nivel medio, esperado).
+- **Archivos Creados/Modificados:** `src/hooks/usePOSCart.ts`, `src/views/pos/components/LineaVentaRow.tsx`, `src/views/pos/components/CartPanel.tsx`, `src/views/POSView.tsx`, `src/services/cashService.ts`, `src/services/posDraftService.ts`, `src/services/internalTransferService.ts`, `src/tests/posComprehensiveLifecycleE2E.test.ts`, `src/tests/usePOSCart.test.ts`, `specs/008-pos-edicion-precios-y-flujos-e2e/spec.md`, `specs/008-pos-edicion-precios-y-flujos-e2e/plan.md`, `specs/008-pos-edicion-precios-y-flujos-e2e/tasks.md`, `MEMORY.md`, `CHANGELOG_AGENTS.md`.
+- **Mejoras UX/UI (Design System):** Light Mode WCAG 2.2 AA+, botones táctiles ergonómicos $\ge 44\text{ px}$, feedback SweetAlert2 sin bloqueos.
+- **Notas/Bloqueos:** Ninguno. 100% de requerimientos completados bajo el arnés Spec Kit / SDD.
+- **Módulo:** WMS Alquiler de Cuarto Frío & Custodia 3PL (Especificación SDD 007)
+- **Acción:** Implementación completa y certificación de Cajas de Peso Fijo Nominal, Granel Bimodal en Canastillas y Salidas Rápidas:
+  1. *Cajas de Peso Fijo Nominal (`PESO_ESTABLE`):*
+     - Soporte para productos que ingresan en cajas estandarizadas (ej. papas a la francesa en cajas de 10 kg).
+     - Selector táctil `[📦 Cajas Peso Fijo (10 Kg)]` vs `[⚖️ Granel / Báscula]` en el modal de recepción.
+     - Función matemática determinista `calcularPesoCajasNominal` para autocalcular peso neto y tara nominal al escribir las cajas sin obligar a pesaje en báscula.
+  2. *Granel Bimodal en Canastillas (`MIXTO_BULTOS_PESO`):*
+     - Control bimodal estricto tanto de canastillas físicas como de kilos netos (ej. 40 canastillas de capón de carne con 843.3 kg).
+     - En el modal de despacho, al cambiar la cantidad de canastillas a retirar (ej. 30 de 40), cálculo automático del peso proporcional sugerido ($632.48\text{ kg}$) mediante `calcularEstimacionProporcionalSalida`, manteniendo el input editable para pesaje en báscula real de salida (ej. $630.0\text{ kg}$).
+     - Actualización y descuento atómico de saldos: 10 canastillas y $213.3\text{ kg}$ restantes.
+  3. *Botones de Salida Rápida (Restante & Vaciado Total):*
+     - Botón individual `[⚡ Retirar Restante]` en cada lote del checklist para liquidar el 100% de canastillas y kilos de ese producto en 1 toque.
+     - Botón global `[⚡ Despachar Todo el Saldo]` en la cabecera del cliente para marcar todos los lotes activos al 100% de una sola vez.
+  4. *Suite TDD & Pruebas Unitarias:*
+     - Agregada suite de 5 tests en `src/tests/coldStorageRental.test.ts` cubriendo el caso de uso exacto del usuario y casos límite.
+  5. *Bucle DevTools MCP en Vivo:*
+     - Verificado en el navegador con **0 errores en consola JS**.
+     - Verificado en viewport móvil (375 px) con renderizado responsivo óptimo.
+- **Archivos Modificados:** `packages/validation-schemas/src/coldStorageRental.schema.ts`, `src/services/coldStorageRentalService.ts`, `src/views/coldStorageRental/ColdStorageRentalView.tsx`, `src/tests/coldStorageRental.test.ts`, `specs/007-alquiler-frio-peso-fijo-granel-salida-rapida/tasks.md`, `MEMORY.md`, `CHANGELOG_AGENTS.md`.
+- **Mejoras UX/UI (Design System):** Ergonomía táctil, chips con badges ámbar/esmeralda, botones de 1-toque `[⚡ Retirar Restante]` y `[⚡ Despachar Todo el Saldo]`, Light Mode WCAG 2.2 AA+.
+- **Notas/Bloqueos:** Ninguno. 100% de los requerimientos satisfechos y verificados.
+
+### [2026-10-10 13:10] - Antigravity (Quality Engineer & Full-Lifecycle Auditor)
+- **Módulo:** WMS Alquiler de Cuarto Frío & Custodia 3PL (Suite E2E Integral de Ciclo de Vida)
+- **Acción:** Creación, ejecución y certificación de la suite de pruebas E2E `src/tests/coldStorageFullLifecycleE2E.test.ts` cubriendo el 100% del ciclo operativo:
+  1. *Fase 1 (Directorio Unificado de Clientes & Contratos):* Registro del cliente depositante ("Comercializadora Océano Azul SAS"), activación atómica de contrato de alquiler por Días (tarifa pactada: $45.000, 2 posiciones = 1.600 kg nominales) y validación de consulta en el directorio general de clientes.
+  2. *Fase 2 (Mercancía Asociada al Cliente):* Registro individual y múltiple (batch) de productos asociados al depositante ("Corvina Entera Fresca", "Pargo Rojo Platero", "Camarón Tití Congelado", "Filete de Robalo") con aislamiento de catálogo por `cliente_id`.
+  3. *Fase 3 (Entradas y Báscula Multi-Partida):* Recepción consolidada de 3 pesadas sucesivas con taras heterogéneas (Canastillas a 2.0 kg, Cajas a 0.8 kg, Suelto a 0.0 kg), totales gravimétricos exactos (39 bultos, 40 kg tara, 980 kg neto), creación de existencias activas en inventario y generación del Acta de Recepción PDF (`coldStoragePdfService.generarActaRecepcionConsolidadaPdf`).
+  4. *Fase 4 (Despacho Consolidado y Salidas Multi-Lote):* Retiro total de un lote y parcial de otro con checklist de existencias, validación de saldos descontados (0 y 200 kg netos restantes), cálculo de merma y generación del Acta de Salida PDF (`coldStoragePdfService.generarActaDespachoConsolidadaPdf`).
+  5. *Fase 5 (Flujo de Caja, Liquidación con IVA 19% & Recibos):* Liquidación de causación contable ($650.000 subtotal + $123.500 IVA = $773.500 COP), asentamiento en turno de caja activo mediante `cashService.registrarMovimiento` (efectivo/nequi), transición de estado a `PAGADA`, y generación de Recibo Carta PDF y Ticket Térmico 80mm.
+  6. *Verificación DevTools en Vivo:* Ejecutado y validado en el runtime del navegador sobre la aplicación real con **0 errores en consola JS**.
+- **Archivos Creados/Modificados:** `src/tests/coldStorageFullLifecycleE2E.test.ts`, `MEMORY.md`, `CHANGELOG_AGENTS.md`.
+- **Notas/Bloqueos:** 100% de los requerimientos satisfechos y verificados.
+
+### [2026-10-10 13:00] - Antigravity (Protocol Coordinator & UI/UX Specialist)
+- **Módulo:** WMS Alquiler de Cuarto Frío & Custodia 3PL (Registro Múltiple de Productos en Báscula)
+- **Acción:** Implementación completa y certificación de la creación rápida individual y múltiple (batch) de productos asociados al cliente depositante:
+  1. *Esquemas Zod:* Incorporados `ProductoRapidoItemSchema` y `ProductosClienteBatchInputSchema` en `packages/validation-schemas/src/coldStorageRental.schema.ts`.
+  2. *Servicio Transaccional Batch:* Agregado `crearProductosCustodiaBatch` en `coldStorageRentalService.ts` con persistencia dual (Supabase + sincronización fallback a `localStorage['pezcaderia_productos_custodia']`), asociando cada SKU al `cliente_id` del depositante.
+  3. *Submodal Flotante de Alta Rápida (`z-[9999]`):*
+     - Soporte para agregar productos uno a uno con empaques y taras independientes (Canastillas 2.0 kg, Cajas 0.8 kg, Granel 0 kg).
+     - Entrada rápida múltiple separando por comas o saltos de línea (ej. "Corvina Entera, Pargo Rojo, Camarón Tití") desglosando los SKUs en lote al instante.
+     - Grilla compacta con contador dinámico, botón de eliminación individual y guardado en bloque `[⚡ Guardar N Productos y Usar en Báscula]`.
+  4. *Ergonomía Táctil en Báscula:*
+     - Chips táctiles de acceso directo (1-toque) para seleccionar al vuelo entre los productos habituales del cliente durante el pesaje sucesivo.
+     - Datalist inteligente con autocompletado en el input de especie.
+     - Autoselección inmediata del producto y empaque en la pesada actual sin perder datos gravimétricos.
+  5. *Validación Integral TDD & DevTools:*
+     - Suites unitarias adicionales en Vitest (`coldStorageRental.test.ts`) probando validación Zod y creación en batch del servicio.
+     - Verificación DevTools interactiva en vivo (escritorio y vista móvil 375 px) con **0 errores en consola JS**.
+- **Archivos Modificados:** `packages/validation-schemas/src/coldStorageRental.schema.ts`, `src/services/coldStorageRentalService.ts`, `src/views/coldStorageRental/ColdStorageRentalView.tsx`, `src/tests/coldStorageRental.test.ts`, `MEMORY.md`, `CHANGELOG_AGENTS.md`.
+- **Mejoras UX/UI (Design System):** Alta densidad, modal `z-[9999]` con backdrop suave, retroalimentación en vivo con SweetAlert2 y chips de selección táctil para operarios con guantes o prisa en patio.
+- **Notas/Bloqueos:** 100% verificado y listo.
+
+### [2026-10-10 12:15] - Antigravity (Protocol Coordinator & Lead Engineer)
+- **Módulo:** WMS Alquiler de Cuarto Frío & Custodia 3PL (Especificación SDD 006)
+- **Acción:** Ejecución, validación y certificación completa de la especificación Brownfield SDD `specs/006-alquiler-frio-multi-item-ui-unification/`:
+  1. *Esquemas Gravimétricos & Zod:* Definición de `PartidaRecepcionSchema`, `RecepcionMultipleInputSchema`, `ClienteRapidoInputSchema`, `ItemDespachoCustodiaSchema`, `DespachoMultipleInputSchema` y función `calcularTotalesPartidasRecepcion` con soporte para pesajes múltiples de un mismo producto bajo empaques heterogéneos (Canastillas: 2.0 kg, Cajas: 0.8 kg, Suelto: 0.0 kg).
+  2. *Creación Express de Clientes In-Situ (15 Segundos):* Submodal táctil express en báscula que crea el cliente y su contrato activo de forma atómica y lo autoselecciona sin interrumpir el pesaje.
+  3. *Despacho Consolidado con Checklist:* Modal interactivo de retiro que lista todas las existencias activas del cliente con selector total/parcial, control estricto de saldos y emisión de una sola Acta de Salida.
+  4. *Resiliencia de Datos & Persistencia:* Lecturas y escrituras seguras con doble capa (Supabase + fallback offline a `localStorage`), garantizando cero excepciones no controladas.
+  5. *Generación de Documentos PDF:* Actas oficiales consolidadas de recepción y despacho multi-partida generadas con jsPDF en `coldStoragePdfService.ts`.
+  6. *Validación Integral TDD & DevTools:*
+     - `npx tsc --noEmit`: 0 errores de tipado.
+     - `npx vitest run`: 49 suites de prueba ejecutadas, **321 tests pasando al 100%** (incluyendo 44 tests de frío).
+     - **Bucle DevTools MCP en Vivo:** Probado en escritorio (1280x800) y móvil (375 px) con **0 errores y 0 warnings en consola JS**.
+- **Archivos Modificados:** `packages/validation-schemas/src/coldStorageRental.schema.ts`, `packages/validation-schemas/src/index.ts`, `src/services/coldStorageRentalService.ts`, `src/services/coldStoragePdfService.ts`, `src/views/coldStorageRental/ColdStorageRentalView.tsx`, `src/tests/coldStorageRental.test.ts`, `specs/006-alquiler-frio-multi-item-ui-unification/tasks.md`, `MEMORY.md`, `CHANGELOG_AGENTS.md`.
+- **Mejoras UX/UI (Design System):** Cumplimiento estricto Light Mode WCAG 2.2 AA+ (fondos slate-50 `#f8fafc`, tarjetas `#ffffff`, tipografía `#0f172a`, bordes `#cbd5e1`, inputs puros blancos y botones táctiles $\ge 44\text{ px}$). Flujo asistido autoexplicativo ("Regla de los 12 Años").
+- **Notas/Bloqueos:** Tarea 100% completada y lista para commit y push.
+- **Módulo:** Plan de Implementación SDD 006 (Alquiler de Frío Multi-Producto, Taras & Unificación UI/UX Global)
+- **Acción:** Creación y articulación formal del plan técnico de ingeniería Brownfield SDD `specs/006-alquiler-frio-multi-item-ui-unification/` listo para ejecución autónoma inmediata en la siguiente sesión tras `git pull`:
+  1. *Alineación de Diseño (/grill-me):* Resueltas 5 ramas del árbol de diseño para el flujo de pesaje en ticket acumulativo, creación express de clientes en 15 segundos sin perder contexto, despacho por checklist de existencias activas, estrategia modular de unificación UI/UX y formato de especificación.
+  2. *Especificación Formal (spec.md):* Requerimientos en notación EARS (`EARS-U`, `EARS-E`, `EARS-S`, `EARS-W`), reglas para partidas múltiples del mismo producto con taras heterogéneas y criterios de aceptación.
+  3. *Arquitectura Técnica (plan.md):* Contratos Zod (`PartidaRecepcionSchema`, `RecepcionMultipleInputSchema`, `ClienteRapidoInputSchema`, `DespachoMultipleInputSchema`), cálculo determinista con `Number.EPSILON`, extensión de servicios y orquestación multi-agente (`SoftwareArchitect`, `DataEngineer`, `UIReviewer`, `QualityEngineer`).
+  4. *Checklist Atómico (tasks.md):* 6 fases desglosadas en tareas `[ ]` con criterios TDD y bucle Chrome DevTools obligatorio.
+  5. *Memoria Activa:* Sincronización de `MEMORY.md` para arranque instantáneo de cualquier agente que inicie sesión.
+- **Archivos Creados/Modificados:** `specs/006-alquiler-frio-multi-item-ui-unification/spec.md`, `specs/006-alquiler-frio-multi-item-ui-unification/plan.md`, `specs/006-alquiler-frio-multi-item-ui-unification/tasks.md`, `MEMORY.md`, `CHANGELOG_AGENTS.md`.
+- **Notas/Bloqueos:** 100% listo para ser tomado y ejecutado por el equipo de agentes en la siguiente sesión de trabajo.
+
+### [2026-10-10 07:35] - Antigravity (Protocol Coordinator & Lead Engineer)
+- **Módulo:** Dashboard Ejecutivo & Calendario de Obligaciones (Reajuste de Contrastes y UI/UX Light Mode)
+- **Acción:** Reajuste radical de contrastes, visibilidad y jerarquía visual del Dashboard Ejecutivo y Calendario de Obligaciones tras análisis y reporte del usuario:
+  1. *Agency Swarm UIReviewer & Gemini:* Orquestación de `/swarm` con especialista `UIReviewer` (Google AI Studio - `gemini-2.5-flash`), recomendando paleta WCAG AA+ estricta, celdas de cuadrícula con bordes definidos y eliminación de contenedores oscuros anidados.
+  2. *KPI Cards Ejecutivas:* Tarjetas blancas elevadas (`bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-md`) con iconos destacados por temática (Ventas: esmeralda, Caja Chica: azul, Digital: púrpura, Notas Crédito: rosa), cifras en negro intenso `#0f172a` y badges de subtítulo contrastados con bordes.
+  3. *Calendario Operativo:* Reemplazo de la cabecera oscura por cabecera ejecutiva `bg-slate-50 border-b border-slate-200` con badge azul de icono, cuadrícula con separación 1px (`grid grid-cols-7 bg-slate-200 gap-px`) que garantiza bordes visibles en todas las celdas, días de la semana nítidos en slate-700, día actual resaltado con anillo azul e indicador `HOY`, y píldoras de obligaciones en colores pastel con bordes de alto contraste.
+  4. *Panel Lateral de Evento:* Rediseñado a tarjeta blanca `bg-white border border-slate-200 shadow-xl` con tipografía de alto impacto.
+  5. *Ajuste Global en index.css:* Inclusión de `.bg-slate-900\/40` y `.border-white\/5` en las reglas de sobrescritura Light Mode y consolidación de `.glass-panel`.
+- **Archivos Modificados:** `src/index.css`, `src/views/DashboardView.tsx`, `src/views/dashboard/CalendarGrid.tsx`, `src/views/dashboard/EventSidePanel.tsx`, `tools/agency-swarm/config.py`, `tools/agency-swarm/.env`, `MEMORY.md`.
+- **Mejoras UX/UI (Design System):** Eliminación total del aspecto lavado/invisible del calendario y los números flotantes sin bordes. Cumplimiento WCAG 2.2 AA+ en toda la vista ejecutiva.
+- **Validación y Pruebas:** 49/49 suites de prueba aprobadas (314 tests verdes en Vitest), `tsc --noEmit` con 0 errores, y loop en vivo Chrome DevTools MCP verificado en escritorio y móvil (375 px) con 0 errores y 0 warnings en consola JS.
+
+### [2026-10-10 07:15] - Antigravity (Protocol Coordinator & Lead Engineer)
+- **Módulo:** WMS Alquiler de Cuarto Frío & Custodia 3PL (`wms-cold-storage-rental`)
+- **Acción:** Implementación y optimización integral del ciclo de vida operativo del módulo de alquiler de cuarto frío y custodia de mercancía de terceros (3PL):
+  1. *Registro y Contratos:* Modelo dual de custodia por Días (liquidación contra retiro por peso neto) y Meses (posiciones fijas de 800 kg con corte mensual y semáforos de mora/cartera vencida).
+  2. *Báscula y Taras con Precisión Milimétrica:* Motor gravimétrico exacto (`calcularTaraYNetoExacto`) con deducción de peso de empaque (Canastillas: 2.0 kg, Cajas: 0.8 kg, Suelto) y memoria de preset por cliente sin errores de redondeo IEEE 754 (`Number.EPSILON`).
+  3. *Flujo Asistido "Regla de los 12 Años":* Header operativo de 4 pasos visuales e interactivos (1: Nuevo Cliente/Contrato, 2: Recibir Mercancía en Báscula, 3: Retirar Lote, 4: Cobrar en Caja).
+  4. *Cobro en Caja Directo:* Conexión directa a `cashService.registrarMovimiento` depositando en el turno de cajero activo de forma atómica.
+  5. *Documentos PDF de Alto Nivel:* Actas de Ingreso, Actas de Salida, Contratos, Recibo de Pago Oficial (Carta) y Ticket Térmico POS 80mm en `coldStoragePdfService.ts`.
+- **Archivos Modificados:** `packages/validation-schemas/src/coldStorageRental.schema.ts`, `src/services/coldStorageRentalService.ts`, `src/services/coldStoragePdfService.ts`, `src/views/coldStorageRental/ColdStorageRentalView.tsx`, `src/tests/coldStorageRental.test.ts`, `specs/wms-cold-storage-rental/spec.md`, `specs/wms-cold-storage-rental/tasks.md`, `MEMORY.md`.
+- **Mejoras UX/UI (Design System):** Rediseño total a Light Mode de alto contraste WCAG AA+ (`bg-slate-50`, `#0f172a`, cards blancas `#ffffff`), badges de embalaje con cálculo automático de tara en vivo, banner de cartera en mora y alerta preventiva en retiros con botón instantáneo de cobro.
+- **Validación y Pruebas:** 37/37 tests unitarios en Vitest aprobados (100% verdes en 212ms), `tsc --noEmit` con 0 errores de tipado, y bucle Chrome DevTools MCP verificado en vista de escritorio y móvil (375 px) con 0 errores y 0 warnings en consola JS.
+
+### [2026-10-10 06:30] - Antigravity (Protocol Coordinator & Lead Engineer)
+- **Módulo:** Inicio de Sesión / Rediseño Light Mode & Verificación de Agentes y Workflows
+- **Acción:** Inicio de nueva sesión de trabajo con reactivación completa del ecosistema de agentes (Protocolo Brownfield v2.2 y ECC). Sincronización con `git pull origin main` (incorporando `549b033` con hook de Husky y saneamiento de skills obsoletas). Activación del servidor Vite dev en `127.0.0.1:3000`. Auditoría en vivo mediante Chrome DevTools MCP en resolución de escritorio y móvil (375 px) confirmando 0 errores en consola JS y renderizado impecable en Light Mode de alto contraste (WCAG 2.2 AA+).
+- **Archivos Modificados:** `MEMORY.md`, `CHANGELOG_AGENTS.md`, `src/App.tsx`, `src/index.css`, `src/views/POSView.tsx`, `src/views/cash/CashFlowView.tsx`, `src/views/coldStorageRental/ColdStorageRentalView.tsx`.
+- **Mejoras UX/UI (Design System):** Verificación de legibilidad integral de inputs con fondo blanco puro (`#ffffff`), tipografía `#0f172a`, bordes `#cbd5e1`, y validación visual de módulos POS, Control de Cajas y Alquiler de Cuarto Frío WMS 3PL.
+- **Notas/Bloqueos:** Sistema 100% operativo y en sincronía con remoto. Listo para abordar el siguiente módulo operativo según prioridades de negocio.
+
 ### [2026-10-09 12:20] - Antigravity (UIReviewer & DataEngineer / Swarm)
 - **Módulo:** Ventas POS (Punto de Venta) - Módulo 001 / SDD
 - **Acción:** Implementación completa del componente `PosDashboard.tsx` para cobro táctil en frío y persistencia de arquitectura Offline-First. Creación del hook `useOutboxSync.ts` para IndexedDB local. Además, se integró el **Flujo de Traslado Rápido a Punto de Venta (Mostrador)** en `BucaramangaReceivingWizard`, permitiendo mover mercancía recibida directamente a sucursales usando un modelo FEFO asíncrono para el POS.
 - **Archivos Modificados:** `src/components/pos/PosDashboard.tsx`, `src/hooks/useOutboxSync.ts`, `packages/database-shared/package.json`, `packages/validation-schemas/src/purchasesBucaramanga.schema.ts`, `src/views/inventory/components/BucaramangaReceivingWizard.tsx`, `src/services/purchasesBucaramangaService.ts`.
 - **Mejoras UX/UI (Design System):** Interfaz enfocada en la robustez táctil offline: botones de sync gigantes (12 años rule), estado animado de sincronización de datos y refactor a Dark Glassmorphism / Light UI según directrices de Stitch. Iconografía corregida (lucide-react).
 - **Notas/Bloqueos:** Esperando integración end-to-end con backend Supabase. El HMR de Vite validó el front con éxito.
-
 
 ### [2026-10-09 08:30] - Antigravity (ProjectManager & PrincipalEngineer)
 - **Módulo:** Categorías Rápidas e Inteligentes de Egresos de Caja (Módulo 005 / SDD)

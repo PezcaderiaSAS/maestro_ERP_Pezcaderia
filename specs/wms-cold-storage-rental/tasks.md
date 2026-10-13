@@ -46,7 +46,18 @@
 ---
 
 ## 🧪 Fase 5: Pruebas E2E y Aseguramiento de Calidad
-- [x] **Tarea 5.1**: Suite de pruebas unitarias y de integración `src/tests/coldStorageRental.test.ts` (22/22 tests pasando).
+- [x] **Tarea 5.1**: Suite de pruebas unitarias y de integración `src/tests/coldStorageRental.test.ts` (37/37 tests pasando al 100%).
 - [x] **Tarea 5.2**: Verificación de tipos estricta con TypeScript (`npx tsc --noEmit` superado sin advertencias ni errores).
-- [x] **Tarea 5.3**: Suite completa de regresión del ERP (26 archivos de test, 130 tests pasando al 100%).
+- [x] **Tarea 5.3**: Suite completa de regresión del ERP (26 archivos de test, 145 tests pasando al 100%).
 - [x] **Tarea 5.4**: Registro normativo y formal en `ARCHITECT_GOVERNANCE.md` (Sección 10).
+
+---
+
+## 🚀 Fase 6: Optimización Operativa Integral y "La Regla de los 12 Años" (Aprobada en /grill-me)
+- [x] **Tarea 6.1**: Motor determinista de cálculo de tara para Cajas, Canastillas y Suelto (`calcularTaraYNetoExacto`).
+- [x] **Tarea 6.2**: Motor de liquidación para clientes por días vs meses (`calcularLiquidacionDias`).
+- [x] **Tarea 6.3**: Semáforo visual de cartera y envejecimiento de deuda (`evaluarCarteraYVencimiento`).
+- [x] **Tarea 6.4**: Generación de Recibo Oficial de Caja (Carta) y Ticket Térmico 80mm POS en `coldStoragePdfService`.
+- [x] **Tarea 6.5**: Integración de cobro en caja con `cashService.registrarMovimiento`.
+- [ ] **Tarea 6.6**: Rediseño de UI con "Asistente Operativo 1-2-3-4" en `ColdStorageRentalView.tsx` (Light Mode, WCAG AA+, tarjetas táctiles).
+- [ ] **Tarea 6.7**: Verificación en vivo con Chrome DevTools (0 errores JS, vista 375px móvil y escritorio).

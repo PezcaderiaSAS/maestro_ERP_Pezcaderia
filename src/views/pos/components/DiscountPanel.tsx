@@ -6,6 +6,8 @@ interface DiscountPanelProps {
   totalItems: number;
   descuentoPct: number;
   descuentoValor: number;
+  totalIva?: number;
+  subtotalBaseGravable?: number;
   onDescuentoClick: () => void;
 }
 
@@ -14,17 +16,25 @@ export const DiscountPanel: React.FC<DiscountPanelProps> = ({
   totalItems,
   descuentoPct,
   descuentoValor,
+  totalIva = 0,
+  subtotalBaseGravable,
   onDescuentoClick,
 }) => {
   return (
     <div className="pos-discount-panel" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
       <div className="summary-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#64748B' }}>
-        <span>Subtotal ({totalItems} ítems)</span>
+        <span>Subtotal ({totalItems} {totalItems === 1 ? 'ítem' : 'ítems'})</span>
         <span style={{ fontWeight: 600, color: '#0F172A' }}>${subtotal.toLocaleString('es-CO')}</span>
       </div>
+      {totalIva > 0 && subtotalBaseGravable !== undefined && (
+        <div className="summary-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#64748B' }}>
+          <span>Base Gravable</span>
+          <span style={{ fontWeight: 500, color: '#475569' }}>${subtotalBaseGravable.toLocaleString('es-CO')}</span>
+        </div>
+      )}
       <div className="summary-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#64748B' }}>
-        <span>Impuestos (0%)</span>
-        <span style={{ fontWeight: 600, color: '#0F172A' }}>$0</span>
+        <span>{totalIva > 0 ? 'IVA Incluido' : 'Impuestos (0%)'}</span>
+        <span style={{ fontWeight: 600, color: '#0F172A' }}>${totalIva.toLocaleString('es-CO')}</span>
       </div>
       <div 
         className="summary-row" 
