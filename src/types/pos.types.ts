@@ -37,6 +37,8 @@ export interface VentaPOS {
   estadoSiigo: 'NO_REQUERIDO' | 'PENDIENTE' | 'ENVIADO' | 'FALLIDO';
   idempotencyKey: string;   // UUID generado en frontend — RN-07
   turnoActivoId?: string;   // ID del turno bajo el cual se registró la venta
+  sucursalId?: string;      // ID de la sucursal/bodega de punto de venta (SDD 010)
+  bodegaId?: string;        // Alias directo de bodegaId
   
   // Compatibilidad con impresión y logs
   actor?: string;

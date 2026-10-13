@@ -9,8 +9,13 @@ export const setWarehouseDataService = (ds: IDataService) => { dataService = ds;
 export interface Bodega {
   id: string;
   nombre: string;
+  codigo?: string;
   ubicacion?: string;
+  tipo?: 'PRINCIPAL' | 'PUNTO_VENTA' | 'SECUNDARIA' | 'TRANSITO' | 'AVERIAS';
+  bodegaPadreId?: string | null;
+  esPuntoVenta?: boolean;
   activa: boolean;
+  esencial?: boolean;
   metadata?: Record<string, string>;
 }
 

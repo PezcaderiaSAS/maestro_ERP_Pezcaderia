@@ -42,6 +42,7 @@ import { StockMatrizTable } from './inventory/components/StockMatrizTable';
 import { KardexTable } from './inventory/components/KardexTable';
 import { WarehouseTransferPanel } from './inventory/components/WarehouseTransferPanel';
 import { WarehouseConfigManager } from './inventory/components/WarehouseConfigManager';
+import { BranchSalesReport } from './inventory/components/BranchSalesReport';
 import { BulkUploadModal } from '../components/BulkUploadModal';
 import { TableSkeleton } from '../components/ui/ShimmerSkeleton';
 import { InventoryDataTable } from '../components/inventory/InventoryDataTable';
@@ -86,6 +87,7 @@ export interface InventoryViewProps {
     | 'recepcion_devoluciones'
     | 'configuracion_bodegas'
     | 'reportes_compra'
+    | 'reportes_sucursales'
     | 'wms_avanzado';
 }
 
@@ -119,6 +121,7 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
     | 'recepcion_devoluciones'
     | 'configuracion_bodegas'
     | 'reportes_compra'
+    | 'reportes_sucursales'
     | 'wms_avanzado'
   >(initialViewMode);
 
@@ -1743,6 +1746,19 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
           8. WMS Avanzado
         </button>
 
+        <button
+          id="tab-reportes-sucursales"
+          onClick={() => setViewMode('reportes_sucursales')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            viewMode === 'reportes_sucursales'
+              ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-lg shadow-sky-500/10'
+              : 'bg-slate-900/60 text-slate-400 hover:text-white border border-white/5'
+          }`}
+        >
+          <Building2 className="w-4 h-4" />
+          9. Reportes Sucursales POS
+        </button>
+
         <div className="h-4 w-px bg-card border-white/5/10 mx-1 shrink-0" />
 
         <button
@@ -2132,6 +2148,10 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
           stock={stock}
           products={products}
         />
+      )}
+
+      {viewMode === 'reportes_sucursales' && (
+        <BranchSalesReport />
       )}
       {/* MODALES GLOBALES DE INVENTARIO */}
       <BulkUploadModal 

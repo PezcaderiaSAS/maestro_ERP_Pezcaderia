@@ -34,11 +34,18 @@ export interface Categoria {
   clase: string;   // Nivel 3 (ej: "Entero")
 }
 
+export type TipoBodega = 'PRINCIPAL' | 'PUNTO_VENTA' | 'SECUNDARIA' | 'TRANSITO' | 'AVERIAS';
+
 export interface Bodega {
   readonly id: string;
   nombre: string;
-  ubicacion: string;
+  codigo?: string;
+  ubicacion?: string;
+  tipo?: TipoBodega;
+  bodegaPadreId?: string | null;
+  esPuntoVenta?: boolean;
   activa: boolean;
+  esencial?: boolean;
 }
 
 // ---------------------------------------------------------------------------

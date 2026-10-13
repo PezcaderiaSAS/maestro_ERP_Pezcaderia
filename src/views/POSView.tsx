@@ -38,6 +38,7 @@ import { useDynamicFieldStore } from '../store/useDynamicFieldStore.ts';
 import * as localDb from '../services/localDb.ts';
 import { PosDraftService } from '../services/posDraftService.ts';
 import type { CartDraft } from '../types/pos.types.ts';
+import { ejecutarAbastecimientoInmediato, validarAbastecimientoSucursal } from '../services/branchInventoryService.ts';
 
 interface CartItem {
   product: Product;
@@ -638,6 +639,88 @@ export default function POSView({
       }
     }
 
+    // SDD 010: Validación estricta de stock local con Bypass Guiado desde Bodega Principal
+    const bodegasState = useWarehouseStore.getState().bodegas;
+    const bodegaPrincipalObj = bodegasState.find((b) => b.tipo === 'PRINCIPAL' || b.id === 'b-1' || b.esencial) || {
+      id: 'b-1',
+      nombre: 'Bodega Principal Central',
+    };
+
+    for (const cartItem of cartLineas) {
+      const sku = cartItem.sku;
+      const cantPedida = Number(cartItem.cantidad);
+      const stockLocal = stock[bodegaActivaId]?.[sku] || stock[bodegaActivaNombre]?.[sku] || 0;
+
+      if (cantPedida > stockLocal) {
+        const faltante = Math.round((cantPedida - stockLocal) * 1000) / 1000;
+        const stockCentral = stock[bodegaPrincipalObj.id]?.[sku] || 0;
+
+        if (stockCentral < faltante) {
+          await Swal.fire({
+            icon: 'error',
+            title: 'Stock Insuficiente Global',
+            text: `No hay existencias suficientes de "${cartItem.nombre}". Mostrador: ${stockLocal} ${cartItem.unidad}. Bodega Principal: ${stockCentral} ${cartItem.unidad}.`,
+            confirmButtonColor: 'var(--primary-color)',
+          });
+          return;
+        }
+
+        // Modal de Bypass Guiado
+        const bypassConfirm = await Swal.fire({
+          icon: 'warning',
+          title: 'Stock Local Insuficiente',
+          html: `
+            <div style="font-family: inherit; text-align: left;">
+              <p style="font-size: 14px; color: #334155; margin-bottom: 8px;">El mostrador dispone de <b>${stockLocal}</b> ${cartItem.unidad} de <b>${cartItem.nombre}</b> (Faltan <b>${faltante}</b> ${cartItem.unidad}).</p>
+              <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 10px; margin-bottom: 10px;">
+                <p style="margin: 0; color: #166534; font-weight: bold; font-size: 13px;">⚡ Existencia en Bodega Principal:</p>
+                <p style="margin: 4px 0 0 0; font-size: 15px; color: #15803d; font-weight: 700;">${stockCentral} ${cartItem.unidad} disponibles en ${bodegaPrincipalObj.nombre}</p>
+              </div>
+              <p style="font-size: 13px; color: #64748b; margin: 0;">¿Desea autorizar el traslado rápido de <b>${faltante} ${cartItem.unidad}</b> a este Punto de Venta para completar la venta?</p>
+            </div>
+          `,
+          showCancelButton: true,
+          confirmButtonText: '⚡ Autorizar Traslado y Cobrar',
+          cancelButtonText: 'Cancelar Venta',
+          confirmButtonColor: '#0ea5e9',
+          cancelButtonColor: '#64748b',
+        });
+
+        if (!bypassConfirm.isConfirmed) {
+          return;
+        }
+
+        // Ejecución inmediata del traslado atómico
+        const transferRes = ejecutarAbastecimientoInmediato({
+          bodegaPrincipalId: bodegaPrincipalObj.id,
+          sucursalId: bodegaActivaId,
+          productoId: cartItem.productoId,
+          cantidad: faltante,
+          usuarioResponsable: userRole || 'cajero-pos',
+          motivo: 'BYPASS_VENTA_MOSTRADOR',
+        });
+
+        if (transferRes.error) {
+          await Swal.fire({
+            icon: 'error',
+            title: 'Error en Abastecimiento',
+            text: transferRes.error,
+          });
+          return;
+        }
+
+        // Reflejar de inmediato en el estado reactivo de stock del componente
+        setStock((prev: Record<string, Record<string, number>>) => {
+          const updated = { ...prev };
+          if (!updated[bodegaPrincipalObj.id]) updated[bodegaPrincipalObj.id] = {};
+          if (!updated[bodegaActivaId]) updated[bodegaActivaId] = {};
+          updated[bodegaPrincipalObj.id][sku] = transferRes.data!.stockOrigenRestante;
+          updated[bodegaActivaId][sku] = transferRes.data!.stockSucursalNuevo;
+          return updated;
+        });
+      }
+    }
+
     const orderNo = 'PED-' + Math.floor(100000 + Math.random() * 900000);
     const vtaId = generateId('vta');
 
@@ -669,12 +752,14 @@ export default function POSView({
     const multipleMethods = pagos.length > 1;
     const paymentString = pagos.map(p => `${p.metodo}`).join(' + ');
 
-    const newVenta: Venta = {
+    const newVenta: Venta & { sucursalId?: string; bodegaId?: string } = {
       id: vtaId,
       clienteId: cliente ? cliente.id : null,
       clienteNombre: cliente ? cliente.nombre : 'Consumidor Final',
       clienteIdentificacion: cliente ? cliente.identificacion : '',
       fecha: new Date().toISOString(),
+      sucursalId: bodegaActivaId,
+      bodegaId: bodegaActivaId,
       items: cart.map(item => {
         const unitPrice = item.precioOverride !== undefined ? item.precioOverride : getProductPrice(item.product);
         return {
@@ -699,6 +784,13 @@ export default function POSView({
     };
 
     setVentas((prev: Venta[]) => [newVenta, ...prev]);
+
+    // Persistir venta en colecciones pos_orders para reportes multi-sucursal
+    try {
+      const posGuardados = localDb.load<any[]>('pos_orders', []);
+      localDb.save('pos_orders', [{ ...newVenta, lineas: cartLineas, totalFinal }, ...posGuardados]);
+    } catch {}
+
     setUltimoTicket({
       venta: { ...newVenta, items: cartLineas },
       cliente: cliente ? { nombre: cliente.nombre, identificacion: cliente.identificacion } : null

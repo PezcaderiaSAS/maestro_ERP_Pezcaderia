@@ -8,6 +8,10 @@ export interface Bodega {
   nombre: string;
   codigo: string;
   descripcion?: string;
+  ubicacion?: string;
+  tipo?: 'PRINCIPAL' | 'PUNTO_VENTA' | 'SECUNDARIA' | 'TRANSITO' | 'AVERIAS';
+  bodegaPadreId?: string | null;
+  esPuntoVenta?: boolean;
   activa: boolean;
   esencial: boolean;
 }

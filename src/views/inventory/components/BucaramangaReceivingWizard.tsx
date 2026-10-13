@@ -37,8 +37,9 @@ import {
 } from '../../../../packages/validation-schemas/src/purchasesBucaramanga.schema';
 import { useInventoryStore } from '../../../store/useInventoryStore';
 import { useMovementStore } from '../../../store/useMovementStore';
-import { useSupplierStore } from '../../../store/useSupplierStore';
 import { useWarehouseStore } from '../../../store/useWarehouseStore';
+import { load } from '../../../services/localDb';
+import { ejecutarAbastecimientoInmediato } from '../../../services/branchInventoryService';
 
 interface BucaramangaReceivingWizardProps {
   onFinalizado?: () => void;
@@ -281,7 +282,19 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
       }
     }
 
-    Swal.fire({
+    // Si ya se marco traslado durante el paso 3, ejecutarlo de inmediato
+    if (transferirMostrador && transferPOSId && parseFloat(cantidadTransferir) > 0) {
+      ejecutarAbastecimientoInmediato({
+        bodegaPrincipalId: 'b-1',
+        sucursalId: transferPOSId,
+        productoId: crates[0]?.sku || 'PESCADO-MIX',
+        cantidad: parseFloat(cantidadTransferir),
+        usuarioResponsable: inspectorName,
+        motivo: 'TRASLADO_DIRECTO_RECEPCION_COMPRA',
+      });
+    }
+
+    const confirmAlert = await Swal.fire({
       icon: 'success',
       title: '¡Pescado Guardado en el Frío!',
       html: `
@@ -293,9 +306,69 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
           ${textoEgresos}
         </div>
       `,
+      showCancelButton: !transferirMostrador,
       confirmButtonText: 'Entendido',
+      cancelButtonText: '⚡ Trasladar a Sucursal / POS',
       confirmButtonColor: '#059669',
+      cancelButtonColor: '#0ea5e9',
     });
+
+    // Flujo Dual: si no habia transferido antes y pulsa el boton rapido
+    if (!transferirMostrador && confirmAlert.dismiss === Swal.DismissReason.cancel) {
+      const bodegasDisponibles = load<any[]>('bodegas', []);
+      const sucursales = bodegasDisponibles.filter(
+        (b) => b.esPuntoVenta || b.tipo === 'PUNTO_VENTA' || (b.id && b.id.includes('pos'))
+      );
+      const optionsHtml = (sucursales.length > 0 ? sucursales : [
+        { id: 'b-pos-1', nombre: 'Punto de Venta Mostrador' },
+        { id: 'b-pos-2', nombre: 'Punto de Venta Norte' }
+      ])
+        .map((s) => `<option value="${s.id}">${s.nombre}</option>`)
+        .join('');
+
+      const { value: transferVals } = await Swal.fire({
+        title: 'Abastecimiento Rápido a Sucursal',
+        html: `
+          <div style="text-align: left; font-family: inherit;">
+            <label style="font-size: 12px; font-weight: bold; color: #475569;">Punto de Venta / Sucursal:</label>
+            <select id="swal-branch-id" class="swal2-select" style="width: 100%; margin: 6px 0 12px 0;">${optionsHtml}</select>
+            <label style="font-size: 12px; font-weight: bold; color: #475569;">Cantidad a Trasladar (kg):</label>
+            <input id="swal-branch-qty" type="number" step="any" max="${liquidacion.totalNetWeightKg}" class="swal2-input" placeholder="Ej: 20" style="width: 100%; margin: 6px 0 0 0;" />
+          </div>
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: '⚡ Confirmar Traslado',
+        confirmButtonColor: '#0ea5e9',
+        preConfirm: () => {
+          const bId = (document.getElementById('swal-branch-id') as HTMLSelectElement)?.value;
+          const qty = parseFloat((document.getElementById('swal-branch-qty') as HTMLInputElement)?.value || '0');
+          if (!bId || isNaN(qty) || qty <= 0 || qty > liquidacion.totalNetWeightKg) {
+            Swal.showValidationMessage('Ingrese una cantidad válida menor o igual a los kilos del lote');
+            return false;
+          }
+          return { bId, qty };
+        },
+      });
+
+      if (transferVals) {
+        ejecutarAbastecimientoInmediato({
+          bodegaPrincipalId: 'b-1',
+          sucursalId: transferVals.bId,
+          productoId: crates[0]?.sku || 'PESCADO-MIX',
+          cantidad: transferVals.qty,
+          usuarioResponsable: inspectorName,
+          motivo: 'TRASLADO_RAPIDO_POST_COMPRA',
+        });
+        Swal.fire({
+          icon: 'success',
+          title: '¡Traslado Exitoso!',
+          text: `Se trasladaron ${transferVals.qty} kg a la sucursal seleccionada.`,
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      }
+    }
 
     // Resetear Wizard
     setCrates([]);

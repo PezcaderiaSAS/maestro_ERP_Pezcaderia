@@ -1,33 +1,25 @@
 # Memoria Activa - La Pezcadería ERP
 
-## Contexto Actual & Estado Global (Light Mode WCAG AA+ & SDD 006 / 007 / 008 / 009 Completados)
+## Contexto Actual & Estado Global (Light Mode WCAG AA+ & SDD 006 a 010 Completados)
 - **Estado Global:** Sistema 100% en Modo Claro (Light Mode) de alto contraste con tokens WCAG 2.2 AA+ (`.agents/skills/erp-pos-design-tokens/SKILL.md`).
 - **Verificación Completa:**
-  - 50+ suites de prueba ejecutadas al 100% (unitarias y E2E de ciclo completo).
+  - 53 suites de prueba ejecutadas al 100% (**357/357 tests verdes en Vitest**).
+  - TypeScript estricto con **0 errores (`tsc --noEmit`)**.
   - **Bucle DevTools MCP en Vivo:** Verificado en escritorio y móvil (375 px) con **0 errores en consola JS**.
 
-## Módulo POS Offline & Traslado Rápido WMS
-- **Vistas y Componentes Desarrollados:**
-  - `PosDashboard.tsx`: Panel principal del POS, adaptado a táctil y diseñado para operar sin internet con patrón Outbox.
-  - `useOutboxSync.ts`: Sincronización vía IndexedDB para capturar ventas y encolarlas asíncronamente.
-  - `BucaramangaReceivingWizard.tsx`: Integración de Traslado Rápido a mostrador al liquidar recepción de compra.
-- **Backend & Deducción FEFO:**
-  - Migración SQL `20261009124000_pos_fefo_sync.sql` con `rpc_pos_sync_fefo` para deducción por vencimiento y soporte de stock negativo.
+## SDD 010: Inventario Multi-Sucursal, Abastecimiento y Reportes POS (Completado)
+- **Flujo Dual de Abastecimiento:**
+  - Traslado rápido inmediato post-liquidación en `BucaramangaReceivingWizard.tsx`.
+  - Pestaña permanente `9. Reportes Sucursales POS` (`BranchSalesReport.tsx`) en `InventoryView.tsx`.
+- **Servicios Transaccionales:**
+  - `branchInventoryService.ts`: `validarAbastecimientoSucursal`, `ejecutarAbastecimientoInmediato` con Kardex atómico, `obtenerStockPorSucursal`.
+  - `branchReportsService.ts`: Métricas deterministas COP (`Math.round`), deduplicación por ID de venta, exportación CSV (UTF-8 BOM) y PDF (`jsPDF`).
+- **Control de Stock POS con Bypass Guiado:**
+  - `POSView.tsx`: Impide venta con saldo local negativo; ante stock faltante ofrece bypass asistido que consulta la Bodega Principal y traslada al instante.
+  - Trazabilidad aislada de órdenes con `sucursalId` y persistencia en `pos_orders`.
 
-## SDD 009: Redondeo Entero COP, IVA Incluido y Diferenciación Unidad vs Kilos
-- **Redondeo Estricto a Enteros en COP:** Todos los precios, subtotales, descuentos, bases gravables e IVA son enteros exactos (`Math.round`), eliminando centavos y descuadres de $1 peso en balances contables.
-- **Desglose Determinista de IVA Incluido:** Fórmula canónica ante descuentos y cambios de precio ($10.000 -> $9.000 con 19%):
-  $\text{Base} = \text{round}(\text{Total} / (1 + \text{tarifa}/100)) = \$7.563$, $\text{IVA} = \text{Total} - \text{Base} = \$1.437$, garantizando que $\text{Base} + \text{IVA} \equiv \text{Total}$.
-- **Diferenciación Visual & Operativa:**
-  - `⚖️ KILOS`: Badge azul en catálogo y carrito, rotulado `$XX.XXX / kg`, botón de balanza activo, admisión de peso decimal.
-  - `📦 UNIDAD`: Badge esmeralda, rotulado `$XX.XXX / und`, paso entero (`step="1"`), sin botón de balanza.
-- **Productos de Prueba Sembrados en Catálogo:**
-  1. `Camaron Crudo 41-50` (`CAM-CRU-41-50`): Materia Prima, venta por kilos, compra $28.500, venta POS $38.000.
-  2. `Camaron Crudo 41-50 x 500 gr` (`CAM-CRU-41-50-500G`): Producto Final por unidades, compra $14.250 (derivado proporcionalmente: $28.500 * 0.5), venta POS $22.000.
-
-## Módulo POS — Precios en Venta & Suite de 6 Flujos E2E (SDD 008)
-- **Edición Ágil de Precios en Carrito:** Botón ✏️ en cada fila, confirmación de rentabilidad si precio < costo, badge `✏️ Modificado (Base: $X)`.
-- **6 Pilares E2E Certificados:** Apertura de caja, venta multi-presentación, venta guardada/retomada con pago mixto, venta con precio modificado, venta a crédito, y solicitud de reabastecimiento POS a Bodega Principal.
-
-## Gobernanza UI/UX
-- Ergonomía táctil $\ge 44\text{ px}$, alto contraste WCAG AA+, tipografías claras, cero errores de consola.
+## Automatización de Ciclo de Vida Git (Hooks & Token-Saving Triad)
+- **Pipeline de Activación:**
+  - `git pull` / `.husky/post-merge` (`session:pull`): Sincroniza Graphify, reindexa GitNexus, valida TS y comprueba Vite (3000).
+  - `git push` / `.husky/pre-push` (`session:push`): Quality Gate con `tsc --noEmit`, Vitest (357 tests) y blast radius en GitNexus.
+- **Tríada Canónica de Ahorro de Tokens:** Graphify (`graphify query`), GitNexus (`gitnexus impact / detect-changes`), Agency Swarm (`/swarm`).

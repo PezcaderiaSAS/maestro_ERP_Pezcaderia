@@ -53,7 +53,10 @@ export const DB_KEYS = {
   theme: 'pezcaderia_theme',
   pos_drafts: 'pezca_pos_drafts_v1',
   purchases_bcm_orders: 'pezcaderia_purchases_bcm_orders',
-  purchases_bcm_receptions: 'pezcaderia_purchases_bcm_receptions'
+  purchases_bcm_receptions: 'pezcaderia_purchases_bcm_receptions',
+  branch_replenishment_requests: 'pezcaderia_branch_replenishment_requests',
+  pos_orders: 'pezcaderia_pos_orders',
+  sales_orders: 'pezcaderia_sales_orders',
 } as const;
 
 export type DbKey = keyof typeof DB_KEYS;

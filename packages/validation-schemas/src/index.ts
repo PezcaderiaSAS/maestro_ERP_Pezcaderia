@@ -10,3 +10,4 @@ export * from './fishProductionYield.schema';
 export * from './purchasesBucaramanga.schema';
 
 export * from './wms.schema';
+export * from './branchInventory.schema';
