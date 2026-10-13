@@ -16,7 +16,13 @@ interface CartPanelProps {
     cliente: ClientePOS | null;
   descuentoGlobalPct: number;
   descuentoGlobalValor: number;
-  totales: { subtotal: number; descuento: number; totalFinal: number };
+  totales: {
+    subtotal: number;
+    descuento: number;
+    totalFinal: number;
+    totalIva?: number;
+    subtotalBaseGravable?: number;
+  };
   drafts: CartDraft[];
   activeDraftId: string | null;
 

@@ -3,6 +3,7 @@ import {
   RecepcionBucaramangaSchema,
   calcularLiquidacionBucaramanga,
   type RecepcionBucaramanga,
+  type RecepcionBucaramangaInput,
   type PesajeCanastillaBucaramanga,
   type LiquidacionBucaramangaResult,
 } from '../../packages/validation-schemas/src/purchasesBucaramanga.schema';
@@ -110,7 +111,7 @@ export function obtenerRecepcionesBucaramanga(): RecepcionBucaramangaCompleta[] 
  * Registra la recepción física con pesaje en báscula, prorrateo de flete y liquidación
  */
 export async function registrarRecepcionBucaramanga(
-  datos: RecepcionBucaramanga
+  datos: RecepcionBucaramangaInput | RecepcionBucaramanga
 ): Promise<ResultadoOperacion<{ recepcion: RecepcionBucaramangaCompleta }>> {
   try {
     // 1. Validar esquema Zod (lanza bloqueo sanitario si temp > 4°C en fresco o > -15°C en congelado)
@@ -119,12 +120,13 @@ export async function registrarRecepcionBucaramanga(
       const msg = validacion.error.issues.map((i) => i.message).join(' | ');
       return { data: null, error: `Error de Validación: ${msg}` };
     }
+    const recepcionValida = validacion.data;
 
     // 2. Liquidación matemática determinista y Landed Cost
     const liquidacion = calcularLiquidacionBucaramanga(
-      datos.crates,
-      datos.totalFreightCost,
-      datos.advancePaymentDeducted
+      recepcionValida.crates,
+      recepcionValida.totalFreightCost,
+      recepcionValida.advancePaymentDeducted
     );
 
     const hoyStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
@@ -137,11 +139,11 @@ export async function registrarRecepcionBucaramanga(
       productName: c.productName,
       kilosNetos: c.netWeightKg,
       landedCostKg: c.landedCostKg,
-      bodegaId: datos.crates.find((cr) => cr.crateNumber === c.crateNumber)?.warehouseId || 'cava-principal',
+      bodegaId: recepcionValida.crates.find((cr) => cr.crateNumber === c.crateNumber)?.warehouseId || 'cava-principal',
     }));
 
     const recepcionCompleta: RecepcionBucaramangaCompleta = {
-      ...datos,
+      ...recepcionValida,
       id: recepcionId,
       fechaRecepcion: new Date().toISOString(),
       liquidacion,
@@ -156,17 +158,17 @@ export async function registrarRecepcionBucaramanga(
           p_tenant_id: '00000000-0000-0000-0000-000000000000',
           p_branch_id: '00000000-0000-0000-0000-000000000000',
           p_reception_data: {
-            purchase_order_id: datos.purchaseOrderId || null,
-            reception_number: datos.receptionNumber,
-            supplier_id: datos.supplierId,
-            supplier_name: datos.supplierName,
-            truck_plate: datos.truckPlate,
-            transport_company: datos.transportCompany || '',
-            shipping_guide_number: datos.shippingGuideNumber || '',
-            driver_name: datos.driverName || '',
-            refrigeration_temp_c: datos.refrigerationTempC,
-            sensory_status: datos.sensoryStatus,
-            inspector_name: datos.inspectorName,
+            purchase_order_id: recepcionValida.purchaseOrderId || null,
+            reception_number: recepcionValida.receptionNumber,
+            supplier_id: recepcionValida.supplierId,
+            supplier_name: recepcionValida.supplierName,
+            truck_plate: recepcionValida.truckPlate,
+            transport_company: recepcionValida.transportCompany || '',
+            shipping_guide_number: recepcionValida.shippingGuideNumber || '',
+            driver_name: recepcionValida.driverName || '',
+            refrigeration_temp_c: recepcionValida.refrigerationTempC,
+            sensory_status: recepcionValida.sensoryStatus,
+            inspector_name: recepcionValida.inspectorName,
             total_crates: liquidacion.totalCrates,
             gross_weight_kg: liquidacion.totalGrossWeightKg,
             crate_tare_kg: liquidacion.totalTareKg,
@@ -177,10 +179,10 @@ export async function registrarRecepcionBucaramanga(
             landed_cost_total: liquidacion.landedCostTotal,
             advance_deducted: liquidacion.advancePaymentDeducted,
             balance_to_pay: liquidacion.balanceToPaySupplier,
-            payment_status: datos.paymentStatus,
-            notes: datos.notes || '',
+            payment_status: recepcionValida.paymentStatus,
+            notes: recepcionValida.notes || '',
           },
-          p_crates: datos.crates.map((c) => {
+          p_crates: recepcionValida.crates.map((c) => {
             const calc = liquidacion.cratesCalculadas.find((cc) => cc.crateNumber === c.crateNumber);
             return {
               crate_number: c.crateNumber,
@@ -210,7 +212,7 @@ export async function registrarRecepcionBucaramanga(
     save(STORAGE_KEY_RECEPTIONS, [recepcionCompleta, ...existentes]);
 
     // 5.1. Si se indicó Traslado Rápido a POS, ejecutar el traslado lógico
-    if (datos.transferToPOS && datos.transferPOSId && datos.transferQuantityKg > 0) {
+    if (recepcionValida.transferToPOS && recepcionValida.transferPOSId && (recepcionValida.transferQuantityKg || 0) > 0) {
       try {
         const supabase = getSupabaseClient();
         if (supabase) {
@@ -218,9 +220,9 @@ export async function registrarRecepcionBucaramanga(
           await supabase.rpc('rpc_transfer_stock', {
             p_tenant_id: '00000000-0000-0000-0000-000000000000',
             p_source_warehouse_id: lotesGenerados[0]?.bodegaId || 'cava-principal',
-            p_target_warehouse_id: datos.transferPOSId,
+            p_target_warehouse_id: recepcionValida.transferPOSId,
             p_sku: lotesGenerados[0]?.sku || 'PESCADO-MIX',
-            p_quantity: datos.transferQuantityKg,
+            p_quantity: recepcionValida.transferQuantityKg,
             p_actor_id: '00000000-0000-0000-0000-000000000000',
             p_notes: `Traslado Automático desde Recepción ${recepcionCompleta.receptionNumber}`
           });
@@ -231,10 +233,10 @@ export async function registrarRecepcionBucaramanga(
     }
 
     // 6. Si venía de un pedido previo, actualizar su estado a RECIBIDO_TOTAL
-    if (datos.purchaseOrderId) {
+    if (recepcionValida.purchaseOrderId) {
       const pedidos = obtenerPedidosCompraBucaramanga();
       const pedidosActualizados = pedidos.map((p) =>
-        p.id === datos.purchaseOrderId ? { ...p, estado: 'RECIBIDO_TOTAL' as const } : p
+        p.id === recepcionValida.purchaseOrderId ? { ...p, estado: 'RECIBIDO_TOTAL' as const } : p
       );
       save(STORAGE_KEY_ORDERS, pedidosActualizados);
     }

@@ -72,8 +72,10 @@ export const ProductoCustodiaSchema = z.object({
   tipo_empaque: z.string().max(30).default('CAJA_CARTON'),
   modalidad_medicion: ModalidadMedicionProductoEnum.default('SOLO_PESO'),
   peso_unitario_nominal: z.number().positive('El peso nominal debe ser positivo').optional().nullable(),
+  tara_unitaria_kg: z.number().nonnegative('La tara no puede ser negativa').optional(),
   temperatura_optima: z.string().max(30).default('-18C a -22C'),
   activo: z.boolean().default(true),
+  creado_en: z.string().optional(),
 }).refine((data) => {
   if (data.modalidad_medicion === 'PESO_ESTABLE' && (!data.peso_unitario_nominal || data.peso_unitario_nominal <= 0)) {
     return false;
@@ -509,7 +511,7 @@ export const RecepcionMultipleInputSchema = z.object({
   temperatura_camion_c: z.number().min(-40).max(30).default(-18.0),
   observaciones: z.string().optional().nullable(),
 });
-export type RecepcionMultipleInput = z.infer<typeof RecepcionMultipleInputSchema>;
+export type RecepcionMultipleInput = z.input<typeof RecepcionMultipleInputSchema>;
 
 /**
  * Creación rápida de cliente y contrato in-situ en báscula (15 segundos).
@@ -525,7 +527,7 @@ export const ClienteRapidoInputSchema = z.object({
   capacidad_posiciones: z.number().int().positive().default(1),
   temperatura_acordada: z.number().optional().default(-18.0),
 });
-export type ClienteRapidoInput = z.infer<typeof ClienteRapidoInputSchema>;
+export type ClienteRapidoInput = z.input<typeof ClienteRapidoInputSchema>;
 
 /**
  * Producto individual para creación rápida asociada a cliente
@@ -574,7 +576,7 @@ export const DespachoMultipleInputSchema = z.object({
   observaciones: z.string().optional().nullable(),
   autorizar_salida_mora: z.boolean().optional().default(false),
 });
-export type DespachoMultipleInput = z.infer<typeof DespachoMultipleInputSchema>;
+export type DespachoMultipleInput = z.input<typeof DespachoMultipleInputSchema>;
 
 /**
  * Calcula con precisión milimétrica los totales gravimétricos de una lista de partidas de pesaje.

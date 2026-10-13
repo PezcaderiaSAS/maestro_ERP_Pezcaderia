@@ -96,9 +96,22 @@ class LegacyCashService {
     return this.getTurnos().find(t => t.cajaId === cajaId && t.estado === 'ABIERTO') || null;
   }
 
-  public abrirTurno(cajaId: string, cajeroId: string, baseInicial: number, detalleApertura?: DetalleArqueo, notasApertura?: string): ResultadoOperacion<TurnoCaja> {
+  public abrirTurno(
+    cajaIdOrParams: string | { cajaId: string; cajeroId: string; montoBaseInicial?: number; baseInicial?: number; detalleApertura?: DetalleArqueo; notasApertura?: string },
+    cajeroIdParam?: string,
+    baseInicialParam?: number,
+    detalleAperturaParam?: DetalleArqueo,
+    notasAperturaParam?: string
+  ): ResultadoOperacion<TurnoCaja> & { success: boolean; datos: TurnoCaja | null } {
     try {
-      if (this.getTurnoActivo(cajaId)) return { data: null, error: 'La caja ya tiene un turno abierto' };
+      const isObj = typeof cajaIdOrParams === 'object' && cajaIdOrParams !== null;
+      const cajaId = isObj ? cajaIdOrParams.cajaId : cajaIdOrParams;
+      const cajeroId = isObj ? cajaIdOrParams.cajeroId : (cajeroIdParam || 'cajero-default');
+      const baseInicial = isObj ? (cajaIdOrParams.montoBaseInicial ?? cajaIdOrParams.baseInicial ?? 0) : (baseInicialParam ?? 0);
+      const detalleApertura = isObj ? cajaIdOrParams.detalleApertura : detalleAperturaParam;
+      const notasApertura = isObj ? cajaIdOrParams.notasApertura : notasAperturaParam;
+
+      if (this.getTurnoActivo(cajaId)) return { data: null, datos: null, success: false, error: 'La caja ya tiene un turno abierto' };
       const caja = this.getCajas().find(c => c.id === cajaId);
       const branch_id = caja?.bodegaId || 'default';
 
@@ -124,8 +137,8 @@ class LegacyCashService {
 
       // Notificar al store vía callback (sin importación directa)
       this.callbacks.onTurnoActivo?.(nuevoTurno);
-      return { data: nuevoTurno, error: null };
-    } catch (e: any) { return { data: null, error: e.message || 'Error al abrir el turno' }; }
+      return { data: nuevoTurno, datos: nuevoTurno, success: true, error: null };
+    } catch (e: any) { return { data: null, datos: null, success: false, error: e.message || 'Error al abrir el turno' }; }
   }
 
   public cerrarTurno(turnoId: string, recaudoFisico: { efectivo: number; datafono: number; transferencia: number; detalleEfectivo?: DetalleArqueo }, justificacion: string | null, usuarioId: string): ResultadoOperacion<TurnoCaja> {
@@ -184,6 +197,10 @@ class LegacyCashService {
   public getMovimientos(turnoId?: string): MovimientoCaja[] {
     const todos = localDb.load<MovimientoCaja[]>('movimientosCaja', []);
     return turnoId ? todos.filter(m => m.turnoId === turnoId) : todos;
+  }
+
+  public obtenerMovimientosTurno(turnoId: string): MovimientoCaja[] {
+    return this.getMovimientos(turnoId);
   }
 
   public registrarMovimiento(turnoId: string, cajaId: string, tipo: TipoMovimientoCaja, metodoPago: MetodoPago, monto: number, concepto: string, referenciaId: string | null, usuarioId: string): ResultadoOperacion<MovimientoCaja> {

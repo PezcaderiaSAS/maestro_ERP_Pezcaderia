@@ -19,6 +19,22 @@ Cada vez que un agente de IA finalice una sesión de trabajo, debe agregar una e
 
 ## Registros Diarios
 
+### [2026-10-13 09:40] - Antigravity (Protocol Brownfield & DevOps Lead)
+- **Módulo:** Infraestructura, Entornos, Tipado & Suite de Pruebas General
+- **Acción:** Puesta en marcha de nueva sesión, sincronización git y saneamiento integral de entorno:
+  1. *Git Pull & Sincronización:* Verificada la rama `main` al día con `origin/main`.
+  2. *Saneamiento TypeScript (`tsc --noEmit`):*
+     - Adaptado [FormularioMermaDespiece.tsx](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/components/wms/FormularioMermaDespiece.tsx) a estado React nativo y schema Zod directo, eliminando dependencias externas inexistentes.
+     - Enriquecido [coldStorageRental.schema.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/packages/validation-schemas/src/coldStorageRental.schema.ts) con soporte opcional de `tara_unitaria_kg` y `creado_en` en `ProductoCustodia`.
+     - Ajustado [purchasesBucaramanga.schema.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/packages/validation-schemas/src/purchasesBucaramanga.schema.ts) y [purchasesBucaramangaService.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/services/purchasesBucaramangaService.ts) para soportar inputs opcionales de traslado rápido a POS con defaults y tipado estricto Zod.
+     - Resultado: **0 errores de TypeScript (`tsc --noEmit` código 0)**.
+  3. *Ejecución de Pruebas (Vitest):* **52/52 suites pasando (350/350 tests verdes, 100% de éxito)**.
+  4. *Arranque de Entorno & Dev Server:* Servidor Vite activo en segundo plano en `http://localhost:3000/`.
+  5. *Bucle DevTools Obligatorio:* Verificación interactiva mediante browser subagent:
+     - 0 errores o excepciones no controladas en consola JS.
+     - Vista móvil (375x812) y escritorio (1280x800) validadas con capturas y video de sesión.
+- **Archivos Modificados:** `src/components/wms/FormularioMermaDespiece.tsx`, `packages/validation-schemas/src/coldStorageRental.schema.ts`, `packages/validation-schemas/src/purchasesBucaramanga.schema.ts`, `src/services/purchasesBucaramangaService.ts`, `src/services/coldStorageRentalService.ts`.
+
 ### [2026-10-13 08:35] - Antigravity (Protocol Coordinator, POS Specialist & QA/DevOps Lead)
 - **Módulo:** POS Punto de Venta & Catálogo de Productos (Especificación SDD 009)
 - **Acción:** Implementación completa y certificación de:

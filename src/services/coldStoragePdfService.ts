@@ -660,7 +660,8 @@ export const coldStoragePdfService = {
     doc.text(`NIT / C.C. ${cliente.numero_identificacion}`, 120, y + 10);
 
     aplicarPiePagina(doc);
-    doc.save(`Recibo_Caja_${consecutivo}.pdf`);
+    const nombreArchivoFinal = (params as any).nombreArchivo || ((params as any).modalidadTiempo ? `Recibo_Alquiler_CF_${consecutivo}.pdf` : `Recibo_Caja_${consecutivo}.pdf`);
+    doc.save(nombreArchivoFinal);
     return doc;
   },
 
@@ -767,7 +768,8 @@ export const coldStoragePdfService = {
     doc.setFontSize(6.5);
     doc.text('Gracias por su confianza.', 40, y, { align: 'center' });
 
-    doc.save(`Ticket_${consecutivo}.pdf`);
+    const nombreArchivoTicket = (params as any).nombreArchivo || (consecutivo.startsWith('TCK') ? `Ticket_${consecutivo}.pdf` : `Ticket_Termico_${consecutivo}.pdf`);
+    doc.save(nombreArchivoTicket);
     return doc;
   },
 
@@ -1068,6 +1070,23 @@ export const coldStoragePdfService = {
     aplicarPiePagina(doc);
     doc.save(`Acta_Despacho_Consolidada_${actaConsecutivo}.pdf`);
     return doc;
+  },
+
+  /**
+   * Alias de compatibilidad para Acta Consolidada de Recepción
+   */
+  generarActaRecepcionConsolidadaPdf(params: any) {
+    return this.generarPdfActaRecepcionMultiple({
+      ...params,
+      temperaturaC: params.temperaturaC ?? params.temperaturaCamionC ?? -18,
+    });
+  },
+
+  /**
+   * Alias de compatibilidad para Acta Consolidada de Despacho
+   */
+  generarActaDespachoConsolidadaPdf(params: any) {
+    return this.generarPdfActaDespachoMultiple(params);
   },
 };
 

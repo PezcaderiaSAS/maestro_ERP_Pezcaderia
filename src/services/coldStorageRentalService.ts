@@ -281,13 +281,14 @@ export const coldStorageRentalService = {
         console.warn('[coldStorageRentalService] Supabase no disponible crearProductoCustodia:', err);
       }
     }
-    const nuevo: ProductoCustodia & { tara_unitaria_kg?: number } = {
+    const nuevo: ProductoCustodia = {
       id: crypto.randomUUID(),
       empresa_id: DEFAULT_EMPRESA_ID,
       cliente_id: producto.cliente_id || '00000000-0000-0000-0000-000000000000',
       nombre: producto.nombre || 'Nuevo Producto',
       tipo_empaque: (producto.tipo_empaque as any) || 'CANASTILLAS',
       modalidad_medicion: (producto.modalidad_medicion as any) || 'MIXTO_BULTOS_PESO',
+      temperatura_optima: (producto as any).temperatura_optima || '-18C a -22C',
       activo: true,
       creado_en: new Date().toISOString(),
       tara_unitaria_kg: (producto as any).tara_unitaria_kg,
@@ -406,7 +407,7 @@ export const coldStorageRentalService = {
   /**
    * Consulta el inventario en custodia activo (aislado de cuenta 1435)
    */
-  async getInventarioCustodia(contratoId?: string, clienteId?: string): Promise<InventarioCustodiaItem[]> {
+  async getInventarioCustodia(contratoIdOClienteId?: string, clienteId?: string): Promise<InventarioCustodiaItem[]> {
     const sb = obtenerSupabaseSeguro();
     if (sb) {
       try {
@@ -418,11 +419,13 @@ export const coldStorageRentalService = {
             producto:productos_custodia(nombre, tipo_empaque, modalidad_medicion),
             contrato:contratos_alquiler_cf(consecutivo, cuarto_frio_id, modalidad_tiempo)
           `)
-          .eq('activo', true)
-          .order('fecha_ingreso', { ascending: false });
-
-        if (contratoId) query = query.eq('contrato_id', contratoId);
-        if (clienteId) query = query.eq('cliente_id', clienteId);
+        if (contratoIdOClienteId && clienteId) {
+          query = query.eq('contrato_id', contratoIdOClienteId).eq('cliente_id', clienteId);
+        } else if (contratoIdOClienteId) {
+          query = query.or(`contrato_id.eq.${contratoIdOClienteId},cliente_id.eq.${contratoIdOClienteId}`);
+        } else {
+          query = query.eq('activo', true);
+        }
 
         const { data, error } = await query;
         if (!error && data) return data as InventarioCustodiaItem[];
@@ -434,9 +437,13 @@ export const coldStorageRentalService = {
     try {
       if (typeof localStorage !== 'undefined') {
         let local: InventarioCustodiaItem[] = JSON.parse(localStorage.getItem('pezcaderia_inventario_custodia') || '[]');
-        local = local.filter((i) => i.activo);
-        if (contratoId) local = local.filter((i) => i.contrato_id === contratoId);
-        if (clienteId) local = local.filter((i) => i.cliente_id === clienteId);
+        if (contratoIdOClienteId && clienteId) {
+          local = local.filter((i) => i.contrato_id === contratoIdOClienteId && i.cliente_id === clienteId);
+        } else if (contratoIdOClienteId) {
+          local = local.filter((i) => i.contrato_id === contratoIdOClienteId || i.cliente_id === contratoIdOClienteId);
+        } else {
+          local = local.filter((i) => i.activo);
+        }
         return local;
       }
     } catch {
@@ -581,25 +588,96 @@ export const coldStorageRentalService = {
   },
 
   /**
+   * Crea o registra una causación contable pendiente de pago para el periodo
+   */
+  async crearCausacionIngreso(input: CausacionIngresoInput): Promise<CausacionAlquilerItem> {
+    const ahoraIso = new Date().toISOString();
+    const id = crypto.randomUUID();
+    const consecutivo = `CAUS-CF-${Date.now().toString().slice(-6)}`;
+    
+    let subtotal = 0;
+    const contratos = await this.getContratos();
+    const cto = contratos.find((c) => c.id === input.contrato_id);
+    if (cto) {
+      subtotal = Number(cto.tarifa_unitaria) * Number(cto.posiciones_contratadas);
+    }
+    const recargo = Number(input.recargo_sobrecupo || 0);
+    const base = subtotal + recargo;
+    const iva = Math.round(base * 0.19);
+    const rete = Math.round(base * (Number(input.porcentaje_retefuente || 0) / 100));
+    const total = base + iva - rete;
+
+    const nuevaCausacion: CausacionAlquilerItem = {
+      id,
+      empresa_id: input.empresa_id || DEFAULT_EMPRESA_ID,
+      contrato_id: input.contrato_id,
+      cliente_id: cto?.cliente_id || '00000000-0000-0000-0000-000000000000',
+      consecutivo_causacion: consecutivo,
+      periodo_inicio: input.periodo_inicio,
+      periodo_fin: input.periodo_fin,
+      subtotal,
+      recargo_sobrecupo: recargo,
+      base_gravable: base,
+      iva_19: iva,
+      retefuente: rete,
+      total,
+      estado_pago: 'PENDIENTE',
+      creado_en: ahoraIso,
+    };
+
+    const sb = obtenerSupabaseSeguro();
+    if (sb) {
+      try {
+        await sb.from('causaciones_alquiler_cf').insert(nuevaCausacion);
+      } catch (err) {
+        console.warn('[coldStorageRentalService] Fallback local causacion:', err);
+      }
+    }
+
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const local = JSON.parse(localStorage.getItem('pezcaderia_causaciones_cf') || '[]');
+        local.unshift(nuevaCausacion);
+        localStorage.setItem('pezcaderia_causaciones_cf', JSON.stringify(local));
+      }
+    } catch {
+      // Ignorar
+    }
+
+    return nuevaCausacion;
+  },
+
+  /**
    * Lista las causaciones de alquiler generadas
    */
   async getCausaciones(contratoId?: string): Promise<CausacionAlquilerItem[]> {
-    const sb = getSupabaseClient();
-    let query = sb
-      .from('causaciones_alquiler_cf')
-      .select('*')
-      .order('creado_en', { ascending: false });
+    const sb = obtenerSupabaseSeguro();
+    if (sb) {
+      try {
+        let query = sb
+          .from('causaciones_alquiler_cf')
+          .select('*')
+          .order('creado_en', { ascending: false });
 
-    if (contratoId) query = query.eq('contrato_id', contratoId);
+        if (contratoId) query = query.eq('contrato_id', contratoId);
 
-    const { data, error } = await query;
-    if (error) {
-      console.warn('[coldStorageRentalService] Supabase causaciones no disponibles, usando caché local:', error.message);
-      const local = JSON.parse(localStorage.getItem('pezcaderia_causaciones_cf') || '[]');
-      if (contratoId) return local.filter((c: any) => c.contrato_id === contratoId);
-      return local;
+        const { data, error } = await query;
+        if (!error && data) return data as CausacionAlquilerItem[];
+      } catch (err: any) {
+        console.warn('[coldStorageRentalService] Supabase causaciones no disponibles, usando caché local:', err?.message);
+      }
     }
-    return (data ?? []) as CausacionAlquilerItem[];
+
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const local = JSON.parse(localStorage.getItem('pezcaderia_causaciones_cf') || '[]');
+        if (contratoId) return local.filter((c: any) => c.contrato_id === contratoId);
+        return local;
+      }
+    } catch {
+      // Ignorar
+    }
+    return [];
   },
 
   /**
@@ -691,17 +769,19 @@ export const coldStorageRentalService = {
    * Marca una causación como pagada en Supabase o en el almacenamiento local
    */
   async marcarCausacionPagada(causacionId: string, metodoPago: string, turnoId?: string): Promise<void> {
-    const sb = getSupabaseClient();
-    try {
-      await sb
-        .from('causaciones_alquiler_cf')
-        .update({
-          estado_pago: 'PAGADA',
-          asiento_contable_ref: `PAGO-CAJA-${metodoPago}-${turnoId || 'TURNO'}`,
-        })
-        .eq('id', causacionId);
-    } catch (e) {
-      console.warn('Error actualizando causación en Supabase, actualizando local:', e);
+    const sb = obtenerSupabaseSeguro();
+    if (sb) {
+      try {
+        await sb
+          .from('causaciones_alquiler_cf')
+          .update({
+            estado_pago: 'PAGADA',
+            asiento_contable_ref: `PAGO-CAJA-${metodoPago}-${turnoId || 'TURNO'}`,
+          })
+          .eq('id', causacionId);
+      } catch (e) {
+        console.warn('Error actualizando causación en Supabase, actualizando local:', e);
+      }
     }
 
     try {
@@ -973,6 +1053,10 @@ export const coldStorageRentalService = {
     totalBultosDespachados: number;
     totalPesoDespachadoKg: number;
     itemsProcesados: number;
+    totales: {
+      totalBultosRetirados: number;
+      totalKilosNetosRetirados: number;
+    };
     movimientos: MovimientoCustodiaItem[];
   }> {
     const validated = DespachoMultipleInputSchema.parse(input);
@@ -1115,6 +1199,11 @@ export const coldStorageRentalService = {
       acta_consecutivo: consecutivoActa,
       totalBultosDespachados: totalBultos,
       totalPesoDespachadoKg: totalPeso,
+      itemsProcesados: validated.items.length,
+      totales: {
+        totalBultosRetirados: totalBultos,
+        totalKilosNetosRetirados: totalPeso,
+      },
       movimientos: movimientosCreados,
     };
   },

@@ -17,6 +17,7 @@ import {
   RotateCcw,
   Sparkles,
   Wallet,
+  ShoppingCart,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useBalanza } from '../../../hooks/useBalanza';
