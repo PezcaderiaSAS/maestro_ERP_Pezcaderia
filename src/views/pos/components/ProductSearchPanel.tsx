@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import { Input } from '../../../components/ui/Input';
 import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
+import { ProductAvatar } from '../../../components/common/ProductAvatar';
 
 interface ProductSearchPanelProps {
   activeProducts: any[];
@@ -229,10 +230,13 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
 
                 {/* Semáforo de Stock usando buffer_seguridad dinámico */}
                 <div data-testid={stockPrincipal === 0 ? 'stock-badge-red' : stockPrincipal <= (prod.buffer_seguridad || 4) ? 'stock-badge-yellow' : 'stock-badge-green'} style={{ position: 'absolute', top: '8px', right: '8px', width: '12px', height: '12px', borderRadius: '50%', backgroundColor: stockPrincipal === 0 ? '#EF4444' : stockPrincipal <= (prod.buffer_seguridad || 4) ? '#F59E0B' : '#10B981', border: '2px solid white', zIndex: 10 }} />
-                <img
-                  src={prod.imagen || 'https://images.unsplash.com/photo-1534482421-64566f976cfa?w=300&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'}
-                  alt={prod.nombre}
+                <ProductAvatar
+                  nombre={prod.nombre}
+                  categoria={prod.categoria}
+                  imagen={prod.imagen}
+                  size="full"
                   className="product-image"
+                  alt={prod.nombre}
                 />
               </div>
               <div className="product-info-panel" style={{ padding: '12px', backgroundColor: 'transparent' }}>

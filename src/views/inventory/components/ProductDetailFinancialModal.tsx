@@ -5,6 +5,7 @@ import { useAppStore } from '../../../store/useAppStore';
 import { FinancialAdvisorService } from '../../../services/financialAdvisorService';
 import Swal from 'sweetalert2';
 import { TipoPromocion, EstadoMargen } from '../../../types/erp.types';
+import { ProductAvatar } from '../../../components/common/ProductAvatar';
 
 interface ProductDetailFinancialModalProps {
   product: Producto;
@@ -172,13 +173,14 @@ export const ProductDetailFinancialModal: React.FC<ProductDetailFinancialModalPr
         {/* Header - Dark Glassmorphism */}
         <div className="p-6 border-b border-white/10 bg-slate-800/50 flex justify-between items-start">
           <div className="flex gap-4 items-center">
-            <div className="w-16 h-16 rounded-xl bg-slate-700/50 flex items-center justify-center border border-white/5">
-              {product.imagen ? (
-                <img src={product.imagen} alt={product.nombre} className="w-full h-full object-cover rounded-xl" />
-              ) : (
-                <ImageIcon className="text-slate-500" size={32} />
-              )}
-            </div>
+            <ProductAvatar
+              nombre={product.nombre}
+              categoria={product.categoria}
+              imagen={product.imagen}
+              size="lg"
+              className="w-16 h-16 rounded-xl border border-white/10"
+              alt={product.nombre}
+            />
             <div>
               <div className="flex items-center gap-3">
                 <h2 className="text-2xl font-bold text-white bg-transparent outline-none">

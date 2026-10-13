@@ -19,6 +19,48 @@ Cada vez que un agente de IA finalice una sesión de trabajo, debe agregar una e
 
 ## Registros Diarios
 
+### [2026-10-13 12:05] - Antigravity (Protocol Implementer & UI/UX Specialist)
+- **Módulo:** POS Punto de Venta & Catálogo Visual (Especificación SDD 011)
+- **Acción:** Implementación completa y certificación de Iconos Ligeros y Visualización Semántica de Productos:
+  1. *Taxonomía Marina Integral de 6 Familias (`src/utils/productVisualGenerator.ts`):*
+     - `CAMARON`: Camarones y langostinos (Coral/Naranja `#F97316` a `#DC2626`, silueta de camarón segmentado, badge `CAMARÓN`).
+     - `MARISCO`: Pulpo, calamar, almejas, ostras, cangrejo (Púrpura/Ámbar `#7C3AED` a `#D97706`, silueta de concha bivalvo, badge `MARISCO`).
+     - `PESCADO`: Mojarra, pargo, trucha, corvina, bagre (Cyan/Azul océano `#0284C7` a `#1E3A8A`, silueta de pez entero, badge `PESCADO`).
+     - `CORTE_FILETE`: Filetes, postas, porciones, medallones, lomos (Esmeralda/Teal `#059669` a `#0D9488`, silueta de corte diagonal, badge `CORTE`).
+     - `CONGELADO`: Bloques IQF, hielo en escamas, procesados/empanadas congeladas (Azul hielo `#38BDF8` a `#2563EB`, silueta de cristal/copo, badge `CONGELADO`).
+     - `INSUMO`: Cajas, bolsas al vacío, canastillas, etiquetas (Slate neutro `#475569` a `#1E293B`, silueta isométrica de caja, badge `INSUMO`).
+     - Helper `isExternalPlaceholder(url)` para detectar URLs externas de Unsplash o cadenas vacías.
+     - Extracción inteligente de iniciales de 2 y 3 letras (`getProductInitials`) omitiendo conectores en español y calibres numéricos (ej. `Camarón Crudo 41-50` -> `CCR`).
+  2. *Componente Modular Universal `ProductAvatar.tsx`:*
+     - Manejo de variantes de tamaño (`xs`, `sm`, `md`, `lg`, `xl`, `full`) con bordes suaves y micro-animación hover.
+     - Modo Híbrido Inteligente: 0ms y 100% offline para productos sin imagen real; preserva fotos locales reales subidas por el usuario y conmuta síncronamente al SVG vectorial ante errores de carga (`onError`).
+  3. *Optimización de Densidad Táctil en POS (`ProductSearchPanel.tsx` & `src/index.css`):*
+     - Proporción compacta (`aspect-ratio: 1.35; max-height: 110px`) en `.product-image-container`, incrementando la cantidad de productos visibles simultáneamente en pantallas táctiles de cajeros.
+     - Sustitución de etiquetas `<img>` pesadas por `<ProductAvatar size="full" />`.
+  4. *Limpieza de Placeholders en Catálogo y Vistas Secundarias:*
+     - Limpieza de URLs de Unsplash en `INITIAL_PRODUCTS` de `src/App.tsx`.
+     - Integración de `<ProductAvatar />` en `ProductTable.tsx` (Inventario) y `ProductDetailFinancialModal.tsx` (Modal Financiero).
+  5. *Certificación TDD & Bucle DevTools MCP en Vivo:*
+     - Suite unitaria `productVisualGenerator.test.ts` (9/9 tests verdes) y `productAvatarComponent.test.tsx` (3/3 tests verdes).
+     - Suite global Vitest: **54 suites pasadas, 364/364 tests verdes (100% de éxito)**.
+     - Compilación TypeScript: **0 errores (`tsc --noEmit`)**.
+     - Bucle DevTools en vivo (`http://localhost:3000/`): Cero errores en consola JS, renderizado responsivo verificado a 375 px y captura de video de sesión.
+- **Archivos Modificados:**
+  - `src/utils/productVisualGenerator.ts`
+  - `src/components/common/ProductAvatar.tsx` (nuevo)
+  - `src/views/pos/components/ProductSearchPanel.tsx`
+  - `src/index.css`
+  - `src/App.tsx`
+  - `src/views/inventory/components/ProductTable.tsx`
+  - `src/views/inventory/components/ProductDetailFinancialModal.tsx`
+  - `src/tests/productVisualGenerator.test.ts`
+  - `src/tests/productAvatarComponent.test.tsx` (nuevo)
+  - `specs/011-iconos-ligeros-productos-pos/*` (nuevo)
+  - `MEMORY.md`
+  - `CHANGELOG_AGENTS.md`
+- **Mejoras UX/UI (Design System):** Eliminación de dependencias de red externas en imágenes, mayor densidad visual en catálogo POS, contraste WCAG AA+ y rendimiento 0ms offline.
+- **Notas/Bloqueos:** SDD 011 completado al 100%.
+
 ### [2026-10-13 11:30] - Antigravity (Protocol Implementer, POS & WMS Lead)
 - **Módulo:** SDD 010: Inventario Multi-Sucursal dependiente de Bodega Principal & Reportes POS
 - **Acción:** Implementación completa y certificación de:

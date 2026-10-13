@@ -322,7 +322,7 @@ const INITIAL_PRODUCTS: Product[] = [
     precio_venta_pos: 8000,
     precio_venta_restaurante: 7200,
     precio_venta_mayorista: 6500,
-    imagen: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=300&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    imagen: '',
     activo: true
   },
   {
@@ -335,7 +335,7 @@ const INITIAL_PRODUCTS: Product[] = [
     precio_venta_pos: 8000,
     precio_venta_restaurante: 7200,
     precio_venta_mayorista: 6500,
-    imagen: 'https://images.unsplash.com/photo-1623065422902-30a2ad4dc9b5?w=300&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    imagen: '',
     activo: true
   },
   {
@@ -348,7 +348,7 @@ const INITIAL_PRODUCTS: Product[] = [
     precio_venta_pos: 8000,
     precio_venta_restaurante: 7200,
     precio_venta_mayorista: 6500,
-    imagen: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=300&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    imagen: '',
     activo: true
   },
   {
@@ -361,7 +361,7 @@ const INITIAL_PRODUCTS: Product[] = [
     precio_venta_pos: 8000,
     precio_venta_restaurante: 7200,
     precio_venta_mayorista: 6500,
-    imagen: 'https://images.unsplash.com/photo-1610970881699-44a5587caa90?w=300&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    imagen: '',
     activo: true
   },
   {
@@ -374,7 +374,7 @@ const INITIAL_PRODUCTS: Product[] = [
     precio_venta_pos: 8000,
     precio_venta_restaurante: 7200,
     precio_venta_mayorista: 6500,
-    imagen: 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=300&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    imagen: '',
     activo: true
   },
   {
@@ -387,7 +387,7 @@ const INITIAL_PRODUCTS: Product[] = [
     precio_venta_pos: 5000,
     precio_venta_restaurante: 4500,
     precio_venta_mayorista: 4000,
-    imagen: 'https://images.unsplash.com/photo-1522012147041-30a112008767?w=300&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    imagen: '',
     activo: true
   },
   {
@@ -400,7 +400,7 @@ const INITIAL_PRODUCTS: Product[] = [
     precio_venta_pos: 5000,
     precio_venta_restaurante: 4500,
     precio_venta_mayorista: 4000,
-    imagen: 'https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?w=300&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    imagen: '',
     activo: true
   },
   {
@@ -413,7 +413,7 @@ const INITIAL_PRODUCTS: Product[] = [
     precio_venta_pos: 12000,
     precio_venta_restaurante: 10800,
     precio_venta_mayorista: 9500,
-    imagen: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    imagen: '',
     activo: true
   },
   {
@@ -426,7 +426,7 @@ const INITIAL_PRODUCTS: Product[] = [
     precio_venta_pos: 13000,
     precio_venta_restaurante: 11700,
     precio_venta_mayorista: 10000,
-    imagen: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=300&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    imagen: '',
     activo: true
   },
   {
@@ -439,7 +439,7 @@ const INITIAL_PRODUCTS: Product[] = [
     precio_venta_pos: 12000,
     precio_venta_restaurante: 10800,
     precio_venta_mayorista: 9500,
-    imagen: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    imagen: '',
     activo: true
   },
   {
@@ -452,7 +452,7 @@ const INITIAL_PRODUCTS: Product[] = [
     precio_venta_pos: 12000,
     precio_venta_restaurante: 10800,
     precio_venta_mayorista: 9500,
-    imagen: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=300&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    imagen: '',
     activo: true
   },
   {
@@ -465,7 +465,7 @@ const INITIAL_PRODUCTS: Product[] = [
     precio_venta_pos: 13000,
     precio_venta_restaurante: 11700,
     precio_venta_mayorista: 10000,
-    imagen: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=300&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    imagen: '',
     activo: true
   },
   {
@@ -478,7 +478,7 @@ const INITIAL_PRODUCTS: Product[] = [
     precio_venta_pos: 12000,
     precio_venta_restaurante: 10800,
     precio_venta_mayorista: 9500,
-    imagen: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=300&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    imagen: '',
     activo: true
   },
   {
@@ -491,7 +491,7 @@ const INITIAL_PRODUCTS: Product[] = [
     precio_venta_pos: 15000,
     precio_venta_restaurante: 13500,
     precio_venta_mayorista: 12000,
-    imagen: 'https://images.unsplash.com/photo-1525059696034-4967a8e1dca2?w=300&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    imagen: '',
     activo: true
   },
   {

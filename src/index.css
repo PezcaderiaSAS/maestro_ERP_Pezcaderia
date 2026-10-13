@@ -818,7 +818,8 @@ body {
 }
 
 .product-image-container {
-  aspect-ratio: 1.2;
+  aspect-ratio: 1.35;
+  max-height: 110px;
   overflow: hidden;
   background-color: #F1F5F9;
   position: relative;

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Card } from '../../../components/ui/Card';
 import { Badge } from '../../../components/ui/Badge';
 import { BulkUploadModal } from '../../../components/BulkUploadModal';
+import { ProductAvatar } from '../../../components/common/ProductAvatar';
 
 export function ProductTable({
   products,
@@ -209,13 +210,14 @@ export function ProductTable({
                     style={{ opacity: p.activo ? 1 : 0.6 }}
                   >
                     <td className={getDensityCellClass()}>
-                      <div className="w-10 h-10 rounded-lg overflow-hidden bg-slate-800/60 dark:bg-slate-800 border border-border dark:border-white/10 flex items-center justify-center shrink-0">
-                        {p.imagen ? (
-                          <img src={p.imagen} alt={p.nombre} className="w-full h-full object-cover" />
-                        ) : (
-                          <Package size={20} className="text-slate-400 dark:text-slate-500" />
-                        )}
-                      </div>
+                      <ProductAvatar
+                        nombre={p.nombre}
+                        categoria={p.categoria}
+                        imagen={p.imagen}
+                        size="sm"
+                        className="border border-border dark:border-white/10"
+                        alt={p.nombre}
+                      />
                     </td>
                     <td className={`${getDensityCellClass()} font-mono font-bold text-cyan-600 dark:text-cyan-400`}>
                       {p.sku}
