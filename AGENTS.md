@@ -132,3 +132,42 @@ El proyecto se rige por el protocolo formal de ingeniería brownfield [`protocol
 - `/sdd-flow`: Orquesta el ciclo completo de SDD con loop continuo de DevTools.
 - `/sdd-change`: Gestiona modificaciones sobre especificaciones activas.
 - `/session-sync`: Condensa y depura `MEMORY.md` manteniendo el límite de ~50 líneas.
+
+---
+
+# Flujo Mandatorio e Innegociable Spec Kit (SDD v3.0)
+
+A partir de esta sesión, ante **CADA** solicitud o requerimiento nuevo, la IA DEBE ejecutar sin excepción el siguiente flujo con checkpoints de aprobación humana:
+
+1. **/speckit.specify:**
+   - Define el "Qué" se va a construir y el "Por qué".
+   - Ejecuta `graphify query "<concepto>"` para consultar el grafo local y entender dependencias exactas antes de planificar, evitando lecturas masivas.
+   - **NO generes código todavía.** Espera la aprobación del usuario.
+2. **/speckit.clarify (Control de Calidad 1):**
+   - Realiza preguntas estructuradas para eliminar ambigüedades y mitigar riesgos antes de proponer soluciones técnicas.
+   - Usa `graphify query "..."`.
+   - **NO generes código todavía.** Espera la aprobación del usuario.
+3. **/speckit.checklist:**
+   - Genera una lista de verificación de calidad contra los estándares de la industria.
+   - Usa `graphify query "..."`.
+   - **NO generes código todavía.** Espera la aprobación del usuario.
+4. **/speckit.plan:**
+   - Crea el plan técnico (el "Cómo"): componentes, esquemas de datos y flujos de información respaldados por el grafo.
+   - Usa `graphify query "..."`.
+   - **NO generes código todavía.** Espera la aprobación del usuario.
+5. **/speckit.tasks:**
+   - Traduce el plan en tareas granulares, secuenciales y accionables.
+   - Usa `graphify query "..."`.
+   - **NO generes código todavía.** Espera la aprobación del usuario.
+6. **/speckit.analyze (Control de Calidad 2):**
+   - Reporte de consistencia y alineación cruzada (Spec $\rightarrow$ Plan $\rightarrow$ Tasks) para auditar fisuras antes de programar.
+   - Usa `graphify query "..."`.
+   - **NO generes código todavía.** Espera la aprobación del usuario.
+7. **/speckit.tasks (Actualización post-análisis):**
+   - Actualiza las tareas según el reporte de consistencia anterior.
+   - **NO generes código todavía.** Espera la aprobación del usuario.
+8. **/speckit.implement (Ejecución Quirúrgica TDD):**
+   - **Regla Crítica 1:** Ejecuta **UNA SOLA tarea a la vez**.
+   - **Regla Crítica 2:** Asegúrate de no romper integraciones existentes (100% tests verdes).
+   - **Regla Crítica 3:** Al finalizar el código de cada tarea, **DETENTE INMEDIATAMENTE y espera la confirmación del usuario** antes de continuar.
+   - **Regla Crítica 4:** Bucle DevTools obligatorio (0 errores consola JS y vista 375 px).
