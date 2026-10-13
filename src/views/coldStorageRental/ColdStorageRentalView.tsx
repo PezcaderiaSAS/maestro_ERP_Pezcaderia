@@ -2456,7 +2456,7 @@ export const ColdStorageRentalView: React.FC = () => {
                     <input
                       type="number"
                       step="0.01"
-                      placeholder={partidaActual.es_peso_fijo_caja ? `${gravimetriaPartidaActual.pesoBrutoKg || '0.00'}` : '0.00'}
+                      placeholder={partidaActual.es_peso_fijo_caja ? `${(gravimetriaPartidaActual as any)?.pesoBrutoKg || '0.00'}` : '0.00'}
                       value={partidaActual.peso_bruto_kg || ''}
                       onChange={(e) =>
                         setPartidaActual({ ...partidaActual, peso_bruto_kg: Number(e.target.value) })
@@ -2934,12 +2934,12 @@ export const ColdStorageRentalView: React.FC = () => {
                     onClick={() =>
                       setProductoRapidoForm({
                         ...productoRapidoForm,
-                        tipo_empaque: 'GRANEL',
+                        tipo_empaque: 'SUELTO',
                         tara_unitaria_kg: 0.0,
                       })
                     }
                     className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
-                      productoRapidoForm.tipo_empaque === 'GRANEL'
+                      productoRapidoForm.tipo_empaque === 'SUELTO'
                         ? 'bg-emerald-600 text-white border-emerald-600 font-black shadow-xs'
                         : 'bg-white text-slate-700 border-slate-200 font-bold hover:bg-slate-100'
                     }`}

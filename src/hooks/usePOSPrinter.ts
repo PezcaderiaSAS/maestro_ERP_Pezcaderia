@@ -84,14 +84,20 @@ export function usePOSPrinter() {
 
     // Totales
     if (!omitirDescuentos) {
-      ticket += justify('SUBTOTAL:', `$${venta.subtotal.toLocaleString('es-CO')}`) + '\n';
+      ticket += justify('SUBTOTAL:', `$${Math.round(venta.subtotal || 0).toLocaleString('es-CO')}`) + '\n';
       const descuento = venta.descuento !== undefined ? venta.descuento : (venta.descuentoGlobalValor || 0);
       if (descuento > 0) {
-        ticket += justify('DESCUENTO:', `-$${descuento.toLocaleString('es-CO')}`) + '\n';
+        ticket += justify('DESCUENTO:', `-$${Math.round(descuento).toLocaleString('es-CO')}`) + '\n';
       }
     }
+    const totalIva = venta.totalIva || 0;
+    const baseGravable = venta.subtotalBaseGravable !== undefined ? venta.subtotalBaseGravable : Math.max(0, (venta.subtotal || 0) - totalIva);
+    if (totalIva > 0) {
+      ticket += justify('BASE GRAVABLE:', `$${Math.round(baseGravable).toLocaleString('es-CO')}`) + '\n';
+      ticket += justify('IVA INCLUIDO:', `$${Math.round(totalIva).toLocaleString('es-CO')}`) + '\n';
+    }
     const total = venta.total !== undefined ? venta.total : (venta.totalFinal || 0);
-    ticket += justify('TOTAL FINAL:', `$${total.toLocaleString('es-CO')}`) + '\n';
+    ticket += justify('TOTAL FINAL:', `$${Math.round(total).toLocaleString('es-CO')}`) + '\n';
     ticket += lineDash() + '\n';
 
     // Detalle Pago

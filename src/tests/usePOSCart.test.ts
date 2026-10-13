@@ -156,4 +156,28 @@ describe('usePOSCart Hook', () => {
     expect(result.current.lineas[0].totalLinea).toBe(30000);
     expect(result.current.totales.totalFinal).toBe(30000);
   });
+
+  it('debería restablecer el precio de lista original con resetItemPrice', () => {
+    const { result } = renderHook(() => usePOSCart());
+
+    act(() => {
+      result.current.agregarProducto(mockProducto, 2); // 40000 (2 * 20000)
+    });
+    act(() => {
+      result.current.updateItemPrice('p-1', 14000); // modificado a 14000
+    });
+
+    expect(result.current.lineas[0].precioLista).toBe(14000);
+    expect(result.current.lineas[0].precioModificadoOriginal).toBe(20000);
+    expect(result.current.totales.totalFinal).toBe(28000);
+
+    act(() => {
+      result.current.resetItemPrice('p-1');
+    });
+
+    expect(result.current.lineas[0].precioLista).toBe(20000);
+    expect(result.current.lineas[0].precioModificadoOriginal).toBeUndefined();
+    expect(result.current.lineas[0].totalLinea).toBe(40000);
+    expect(result.current.totales.totalFinal).toBe(40000);
+  });
 });

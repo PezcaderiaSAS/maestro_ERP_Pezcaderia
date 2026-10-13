@@ -493,6 +493,43 @@ const INITIAL_PRODUCTS: Product[] = [
     precio_venta_mayorista: 12000,
     imagen: 'https://images.unsplash.com/photo-1525059696034-4967a8e1dca2?w=300&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
     activo: true
+  },
+  {
+    id: 'p-18',
+    sku: 'CAM-CRU-41-50',
+    nombre: 'Camaron Crudo 41-50',
+    categoria: 'MATERIA PRIMA',
+    unidadMedida: 'kg',
+    precio_compra: 28500,
+    buffer_seguridad: 10,
+    precio_venta_pos: 38000,
+    precio_venta_restaurante: 35000,
+    precio_venta_mayorista: 32000,
+    iva: 0,
+    ivaIncluido: true,
+    activo: true,
+    metadata: { categoria_descriptiva: 'Materia Prima' }
+  },
+  {
+    id: 'p-19',
+    sku: 'CAM-CRU-41-50-500G',
+    nombre: 'Camaron Crudo 41-50 x 500 gr',
+    categoria: 'MARISCOS',
+    unidadMedida: 'und',
+    precio_compra: 14250,
+    buffer_seguridad: 15,
+    precio_venta_pos: 22000,
+    precio_venta_restaurante: 20000,
+    precio_venta_mayorista: 18000,
+    iva: 0,
+    ivaIncluido: true,
+    activo: true,
+    metadata: {
+      categoria_descriptiva: 'Camarones',
+      materia_prima_origen: 'p-18',
+      sku_materia_prima: 'CAM-CRU-41-50',
+      gramaje: '500'
+    }
   }
 ];
 
@@ -692,6 +729,18 @@ export default function App() {
       setProductsCatalog(catalog);
       setProductPricings(pricings);
       localDb.removeRaw('pezcaderia_products');
+    } else {
+      // Sincronizar productos de INITIAL_PRODUCTS que no existan aún en el catálogo local
+      const existingSkus = new Set(savedCat.map(p => p.sku));
+      const missingProducts = INITIAL_PRODUCTS.filter(p => !existingSkus.has(p.sku));
+      if (missingProducts.length > 0) {
+        const { catalog: newItems, pricings: newPrcs } = migrateProductsToCatalogAndPricing(missingProducts, userRole);
+        const updatedCat = [...savedCat, ...newItems];
+        const savedPricings = localDb.load('productPricings', [] as ProductPricing[]);
+        const updatedPrcs = [...savedPricings, ...newPrcs];
+        setProductsCatalog(updatedCat);
+        setProductPricings(updatedPrcs);
+      }
     }
   }, [userRole, setProductsCatalog, setProductPricings]);
 
@@ -735,6 +784,29 @@ export default function App() {
     loadSyncQueue();
     loadLastClientPrices();
   }, [loadOrders, loadBodegas, loadInventory, loadClientes, loadProveedores, loadCategorias, loadConductores, loadEmpleados, loadNominas, loadGastos, loadDynamicFields, loadCartera, loadDevoluciones, loadLogIntegracion, loadParametros, loadStock, loadOrdenesCompra, loadMovimientos, loadEvents, loadSyncQueue, loadLastClientPrices]);
+
+  // Garantizar existencia de stock inicial de prueba para nuevos productos de prueba
+  useEffect(() => {
+    if (stock && Object.keys(stock).length > 0) {
+      const primaryWarehouseKey = bodegas[0]?.id || '1';
+      const secondaryWarehouseKey = bodegas[0]?.nombre || 'Bodega Principal';
+      const targetKey = stock[primaryWarehouseKey] ? primaryWarehouseKey : (stock[secondaryWarehouseKey] ? secondaryWarehouseKey : Object.keys(stock)[0]);
+      
+      if (targetKey && stock[targetKey]) {
+        const currentWhStock = stock[targetKey];
+        if (currentWhStock['CAM-CRU-41-50'] === undefined || currentWhStock['CAM-CRU-41-50-500G'] === undefined) {
+          setStock((prev: any) => ({
+            ...prev,
+            [targetKey]: {
+              ...(prev[targetKey] || {}),
+              'CAM-CRU-41-50': prev[targetKey]?.['CAM-CRU-41-50'] ?? 50,
+              'CAM-CRU-41-50-500G': prev[targetKey]?.['CAM-CRU-41-50-500G'] ?? 30,
+            }
+          }));
+        }
+      }
+    }
+  }, [stock, bodegas, setStock]);
 
   // Normalización del separador decimal para el teclado numérico
   useEffect(() => {

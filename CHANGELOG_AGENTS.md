@@ -19,7 +19,68 @@ Cada vez que un agente de IA finalice una sesión de trabajo, debe agregar una e
 
 ## Registros Diarios
 
-### [2026-10-10 13:35] - Antigravity (Protocol Coordinator, WMS Specialist & UI/UX Engineer)
+### [2026-10-13 08:35] - Antigravity (Protocol Coordinator, POS Specialist & QA/DevOps Lead)
+- **Módulo:** POS Punto de Venta & Catálogo de Productos (Especificación SDD 009)
+- **Acción:** Implementación completa y certificación de:
+  1. *Redondeo Estricto a Enteros en COP:* Todos los valores monetarios calculados (unitario, línea, subtotal, base gravable, IVA y total final) se redondean con `Math.round` sin centavos ni desfases de $1 peso.
+  2. *Tratamiento Determinista de IVA Incluido con Modificación de Precio:* Desglose exacto $\text{Base} = \text{round}(\text{Total} / (1 + \text{tarifa}/100))$ y $\text{IVA} = \text{Total} - \text{Base}$, garantizando que $\text{Base} + \text{IVA} \equiv \text{Total}$ (ej. $10.000 -> $9.000 con 19%: base $7.563 + IVA $1.437 = $9.000 exactos).
+  3. *Diferenciación Visual y Operativa de Productos (Unidades vs Kilos):*
+     - Badges de alto contraste: `⚖️ KILOS` (azul) vs `📦 UNIDAD` (esmeralda) en catálogo y carrito.
+     - Rotulación explícita de precio: `$XX.XXX / kg` vs `$XX.XXX / und`.
+     - Stock contextual por bodega mostrando unidad correspondiente (`kg` o `und`).
+     - Botón de balanza exclusivo para productos pesables; productos por unidad con paso entero `step="1"`.
+  4. *Incorporación de Productos de Prueba Requeridos:*
+     - `Camaron Crudo 41-50` (`CAM-CRU-41-50`, Materia Prima, venta por peso en kilos, compra $28.500, venta POS $38.000, IVA 0%).
+     - `Camaron Crudo 41-50 x 500 gr` (`CAM-CRU-41-50-500G`, Producto Final, venta por unidades, costo de compra $14.250 derivado proporcionalmente de MP [$28.500 * 0.5], venta POS $22.000, IVA 0%).
+     - Sincronización automática en `INITIAL_PRODUCTS`, inicialización de stock y migración sin colisiones.
+  5. *Desglose en Resumen de Totales y Ticket:* `DiscountPanel.tsx` y `usePOSPrinter.ts` reflejan base gravable e IVA en enteros cuando aplican tributos.
+  6. *Certificación TDD & DevTools Loop:*
+     - Suite unitaria `src/tests/posPricingAndTaxCop.test.ts` pasando 10/10 al 100%.
+     - Suite E2E `src/tests/posComprehensiveLifecycleE2E.test.ts` pasando 6/6 al 100%.
+     - Verificación interactiva en Chrome DevTools MCP con 0 errores y 0 warnings en consola JS y renderizado responsivo a 375 px móvil.
+- **Archivos Modificados:**
+  - `src/services/posService.ts`
+  - `src/types/pos.types.ts`
+  - `src/hooks/usePOSCart.ts`
+  - `src/hooks/usePOSPrinter.ts`
+  - `src/views/pos/components/ProductSearchPanel.tsx`
+  - `src/views/pos/components/LineaVentaRow.tsx`
+  - `src/views/pos/components/DiscountPanel.tsx`
+  - `src/views/pos/components/CartPanel.tsx`
+  - `src/views/POSView.tsx`
+  - `src/App.tsx`
+  - `src/tests/posPricingAndTaxCop.test.ts`
+  - `specs/009-redondeo-entero-cop-iva-y-productos-prueba/tasks.md`
+  - `MEMORY.md`
+
+### [2026-10-13 07:30] - Antigravity (Protocol Coordinator, POS Specialist & QA/DevOps Lead)
+- **Módulo:** POS Punto de Venta & Cartera/Inventario (Especificación SDD 008)
+- **Acción:** Implementación completa y certificación de Modificación de Precios en Venta y Suite Exhaustiva E2E de 6 Pilares:
+  1. *Edición Táctil de Precios Unitarios en Carrito (Moneda COP):*
+     - Métodos inmutables `updateItemPrice(productoId, newPrice)` y `resetItemPrice(productoId)` en `usePOSCart.ts`.
+     - Botón táctil ergonómico ✏️ (`Edit3`, $\ge 44\text{ px}$) en `LineaVentaRow.tsx`, diálogo modal SweetAlert2 adaptado a pesos colombianos (COP).
+     - Corrección de restricción HTML5: configurado `step: 'any'` y `min: '0'` con `inputValidator` para permitir valores estándar enteros en COP (ej. $31.000, $25.000) eliminando el error del navegador por múltiplos residuales ("30901 y 31001").
+     - Redondeo entero a pesos colombianos y etiquetas contextuales en COP.
+     - Advertencia de rentabilidad si `nuevoPrecio < linea.precioCompra` con confirmación explícita para margen negativo.
+     - Badge visual `✏️ Modificado (Base: $XX.XXX)` y enlace `Restablecer` al diferir del catálogo maestro.
+     - Propagación reactiva a través de `CartPanel.tsx` y conexión en `POSView.tsx`.
+     - Corrección en el mapeo de compatibilidad del POS para asegurar que `precioOverride` y `precioUnitario` tomen `linea.precioFinal` sin sobreescrituras indeseadas.
+     - Actualización automática de tarifas históricas (`lastClientPrices`) para clientes identificados.
+  2. *Suite de Pruebas E2E de Ciclo Completo (`src/tests/posComprehensiveLifecycleE2E.test.ts`):*
+     - **Flujo 1:** Apertura de Turno de Caja con base inicial de $150.000 en gaveta.
+     - **Flujo 2:** Venta multi-presentación (KG a granel y UNIDAD) a Consumidor Final con pago en efectivo y cambio exacto.
+     - **Flujo 3:** Venta guardada en espera (`saveDraft`), vaciado de carrito, recuperación intacta del borrador y liquidación con pago mixto ($50k Efectivo + $40k Nequi).
+     - **Flujo 4:** Venta con precios modificados y actualización reactiva de tarifas históricas del cliente.
+     - **Flujo 5:** Venta a crédito con validación de cupo y generación de cuenta por cobrar `InvoiceAR`.
+     - **Flujo 6:** Solicitud de reabastecimiento POS hacia Bodega Principal vía `internalTransferService`.
+  3. *Certificación Vitest & DevTools MCP en Vivo:*
+     - 17/17 pruebas verdes (6 E2E + 11 unitarias de carrito).
+     - Verificación DevTools en vivo en `http://127.0.0.1:3000/`: **0 errores y 0 warnings en consola JS**.
+     - Renderizado móvil responsivo verificado en viewport **375 px**.
+     - Análisis de impacto con GitNexus (`detect-changes`): 0 riesgos críticos (nivel medio, esperado).
+- **Archivos Creados/Modificados:** `src/hooks/usePOSCart.ts`, `src/views/pos/components/LineaVentaRow.tsx`, `src/views/pos/components/CartPanel.tsx`, `src/views/POSView.tsx`, `src/services/cashService.ts`, `src/services/posDraftService.ts`, `src/services/internalTransferService.ts`, `src/tests/posComprehensiveLifecycleE2E.test.ts`, `src/tests/usePOSCart.test.ts`, `specs/008-pos-edicion-precios-y-flujos-e2e/spec.md`, `specs/008-pos-edicion-precios-y-flujos-e2e/plan.md`, `specs/008-pos-edicion-precios-y-flujos-e2e/tasks.md`, `MEMORY.md`, `CHANGELOG_AGENTS.md`.
+- **Mejoras UX/UI (Design System):** Light Mode WCAG 2.2 AA+, botones táctiles ergonómicos $\ge 44\text{ px}$, feedback SweetAlert2 sin bloqueos.
+- **Notas/Bloqueos:** Ninguno. 100% de requerimientos completados bajo el arnés Spec Kit / SDD.
 - **Módulo:** WMS Alquiler de Cuarto Frío & Custodia 3PL (Especificación SDD 007)
 - **Acción:** Implementación completa y certificación de Cajas de Peso Fijo Nominal, Granel Bimodal en Canastillas y Salidas Rápidas:
   1. *Cajas de Peso Fijo Nominal (`PESO_ESTABLE`):*

@@ -14,6 +14,10 @@ export interface LineaVenta {
   precioCompra: number;     // Costo del producto para validación de rentabilidad
   esPesoManual: boolean;    // true si el peso se ingresó manualmente — RN-13
   precioModificadoOriginal?: number; // Precio original antes de edición manual
+  iva?: number;              // Tarifa de IVA (ej: 0, 19, 5)
+  ivaIncluido?: boolean;     // true si el precio final ya contiene IVA
+  baseGravableLinea?: number; // Base gravable antes de IVA (entero)
+  cuotaIvaLinea?: number;    // Valor de la cuota de IVA (entero)
 }
 
 export interface VentaPOS {
@@ -26,6 +30,8 @@ export interface VentaPOS {
   descuentoGlobalPct: number;
   descuentoGlobalValor: number;
   totalFinal: number;       // subtotal - descuentoGlobalValor — RN-06
+  subtotalBaseGravable?: number; // Suma de bases gravables (entero)
+  totalIva?: number;        // Suma de cuotas de IVA (entero)
   formaPago: 'EFECTIVO' | 'TRANSFERENCIA' | 'TARJETA' | 'CREDITO' | 'MIXTO';
   requiereFacturaElectronica: boolean;
   estadoSiigo: 'NO_REQUERIDO' | 'PENDIENTE' | 'ENVIADO' | 'FALLIDO';

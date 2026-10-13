@@ -118,6 +118,8 @@ class LegacyCashService {
 
       if (baseInicial > 0) {
         this.registrarMovimiento(nuevoTurno.id, cajaId, 'INGRESO_BASE_INICIAL', 'EFECTIVO', baseInicial, 'Apertura de caja - Base Inicial', null, cajeroId);
+        nuevoTurno.totalEfectivo = baseInicial;
+        nuevoTurno.saldoTeoricoGlobal = baseInicial;
       }
 
       // Notificar al store vía callback (sin importación directa)

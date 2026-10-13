@@ -32,6 +32,8 @@ interface CartPanelProps {
   onWeightRead: (productoId: string, peso: number) => void;
   onLimpiarCarrito: () => void;
   onSetLineas: (lineas: LineaVenta[]) => void;
+  onUpdatePrecio?: (productoId: string, precio: number) => void;
+  onResetItemPrice?: (productoId: string) => void;
 
   // Callbacks de interacción UI
   onSelectCliente: () => void;
@@ -78,6 +80,8 @@ export const CartPanel: React.FC<CartPanelProps> = ({
   onSetDrafts,
   onSetDescuentoGlobal,
   onLimpiarCarrito,
+  onUpdatePrecio,
+  onResetItemPrice,
   isTurnoAbierto,
   onAbrirTurnoRequest,
   onCerrarTurnoClick,
@@ -609,6 +613,8 @@ export const CartPanel: React.FC<CartPanelProps> = ({
                 onWeightRead={onWeightRead}
                 onAplicarPrecioHistorico={handleAplicarPrecioHistorico}
                 onResetPrecio={handleResetPrecio}
+                onUpdatePrecio={onUpdatePrecio}
+                onResetItemPrice={onResetItemPrice}
               />
             );
           })
@@ -641,6 +647,8 @@ export const CartPanel: React.FC<CartPanelProps> = ({
           totalItems={totalItems}
           descuentoPct={descuentoGlobalPct}
           descuentoValor={descuentoGlobalValor}
+          totalIva={totales.totalIva}
+          subtotalBaseGravable={totales.subtotalBaseGravable}
           onDescuentoClick={onDescuentoClick}
         />
 

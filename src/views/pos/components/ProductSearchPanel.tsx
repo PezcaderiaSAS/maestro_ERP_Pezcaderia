@@ -177,9 +177,56 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
           const stockAverias = getProductStock(prod.sku, 'Bodega Averías');
           const totalStock = stockPrincipal + stockSecundaria;
           const isOutOfStock = totalStock <= 0;
+          const unidadNormalizada = (prod.unidadMedida || prod.unidad || '').toString().trim().toUpperCase();
+          const isWeight = unidadNormalizada === 'KG' || unidadNormalizada === 'KILO' || unidadNormalizada === 'KILOS';
+          const unitLabel = isWeight ? 'kg' : 'und';
+
           return (
             <Card glass key={prod.id} className={`product-card flex flex-col p-0 overflow-hidden cursor-pointer ${isOutOfStock ? 'opacity-50 grayscale pointer-events-none' : ''}`} onClick={() => onAddProduct(prod)}>
               <div className="product-image-container" style={{ position: 'relative' }}>
+                {/* Badge visual distintivo Kilos vs Unidad */}
+                <div style={{ position: 'absolute', top: '8px', left: '8px', zIndex: 10 }}>
+                  {isWeight ? (
+                    <span
+                      style={{
+                        fontSize: '10px',
+                        fontWeight: 800,
+                        padding: '2px 7px',
+                        borderRadius: '6px',
+                        backgroundColor: '#0284C7',
+                        color: '#FFFFFF',
+                        border: '1px solid #38BDF8',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '3px',
+                      }}
+                      title="Producto vendido por peso en kilos (pesaje balanza)"
+                    >
+                      ⚖️ KILOS
+                    </span>
+                  ) : (
+                    <span
+                      style={{
+                        fontSize: '10px',
+                        fontWeight: 800,
+                        padding: '2px 7px',
+                        borderRadius: '6px',
+                        backgroundColor: '#059669',
+                        color: '#FFFFFF',
+                        border: '1px solid #34D399',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '3px',
+                      }}
+                      title="Producto vendido por unidades (conteo entero)"
+                    >
+                      📦 UNIDAD
+                    </span>
+                  )}
+                </div>
+
                 {/* Semáforo de Stock usando buffer_seguridad dinámico */}
                 <div data-testid={stockPrincipal === 0 ? 'stock-badge-red' : stockPrincipal <= (prod.buffer_seguridad || 4) ? 'stock-badge-yellow' : 'stock-badge-green'} style={{ position: 'absolute', top: '8px', right: '8px', width: '12px', height: '12px', borderRadius: '50%', backgroundColor: stockPrincipal === 0 ? '#EF4444' : stockPrincipal <= (prod.buffer_seguridad || 4) ? '#F59E0B' : '#10B981', border: '2px solid white', zIndex: 10 }} />
                 <img
@@ -191,7 +238,14 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
               <div className="product-info-panel" style={{ padding: '12px', backgroundColor: 'transparent' }}>
                 <span className="product-card-name">{prod.nombre}</span>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '4px' }}>
-                  <span className="product-card-price-tag">${(getProductPrice(prod) || 0).toLocaleString('es-CO')}</span>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '3px' }}>
+                    <span className="product-card-price-tag font-bold text-base text-slate-900 dark:text-white">
+                      ${(Math.round(getProductPrice(prod)) || 0).toLocaleString('es-CO')}
+                    </span>
+                    <span style={{ fontSize: '11px', color: isWeight ? '#0284C7' : '#059669', fontWeight: 700 }}>
+                      / {unitLabel}
+                    </span>
+                  </div>
                   {cliente && (cliente.tipoPrecio === 'RESTAURANTE' || cliente.tipoPrecio === 'MAYORISTA') && (
                     <span style={{ fontSize: '9px', backgroundColor: 'var(--primary-light)', color: 'var(--primary-color)', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
                       {cliente.tipoPrecio}
@@ -216,19 +270,19 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
                       fontWeight: 700,
                       color: stockPrincipal === 0 ? '#EF4444' : stockPrincipal <= (prod.buffer_seguridad || 4) ? '#F59E0B' : '#10B981'
                     }}>
-                      {stockPrincipal} uds
+                      {stockPrincipal} {unitLabel}
                     </span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px' }}>
                     <span style={{ color: '#64748B', fontWeight: 500 }}>Bod. Secundaria:</span>
                     <span style={{ color: '#475569', fontWeight: 600 }}>
-                      {stockSecundaria} uds
+                      {stockSecundaria} {unitLabel}
                     </span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px' }}>
                     <span style={{ color: '#64748B', fontWeight: 500 }}>Bod. Averías:</span>
                     <span style={{ color: '#E11D48', fontWeight: 600 }}>
-                      {stockAverias} uds
+                      {stockAverias} {unitLabel}
                     </span>
                   </div>
                 </div>
