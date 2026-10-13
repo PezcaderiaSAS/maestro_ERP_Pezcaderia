@@ -17,7 +17,9 @@
     "test:e2e:headed": "playwright test --headed",
     "repomix": "repomix",
     "repomix:app": "repomix --include \"src/**,package.json,vite.config.ts,tsconfig*.json,tailwind.config.js,index.html,database/**\" -o repomix-app.md",
-    "prepare": "husky install"
+    "session:pull": "git pull origin main && node scripts/lifecycle/post-pull.cjs",
+    "session:push": "node scripts/lifecycle/pre-push.cjs && git push origin main",
+    "prepare": "husky"
   },
   "dependencies": {
     "@google/genai": "^2.25.0",

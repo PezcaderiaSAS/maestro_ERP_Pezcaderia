@@ -61,3 +61,7 @@ repomix-*.md
 
 
 /src/generated/prisma
+
+# Graphify cache & temporary files
+graphify-out/cache/
+graphify-out/.graphify_*

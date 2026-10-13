@@ -1,7 +1,7 @@
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **maestro_ERP_Pezcaderia** (150689 symbols, 279877 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **maestro_ERP_Pezcaderia** (16703 symbols, 21232 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
@@ -70,6 +70,34 @@ El proyecto cuenta con un ecosistema formal de habilidades y comandos slash de u
 | `/scientific-skills` | [`.agents/skills/scientific-agent-analytics/SKILL.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agents/skills/scientific-agent-analytics/SKILL.md) | **Obligatorio:** Algoritmos Pareto ABC (80/20), mermas de despiece y conversión gramos/kilos. |
 | `/ponytail` | [`.agents/skills/ponytail-harness/SKILL.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agents/skills/ponytail-harness/SKILL.md) | Harness de pipelines de tareas encadenadas con checkpoints de verificación. |
 | `/ui-tools` | [`.agents/skills/ui-ux-ecosystem/SKILL.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agents/skills/ui-ux-ecosystem/SKILL.md) | Hub consolidado de Awesome-Design-Tools, Awesome-UI y Awesome-Styleguides. |
+| `/swarm` | [`tools/agency-swarm/`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/tools/agency-swarm/) | Enjambre multi-agente en Python (Gemini 2.5 Flash Lite) a costo $0 para ideación técnica especializada. |
+
+---
+
+# Tríada Canónica de Ahorro de Tokens y Navegación Estructural
+
+El proyecto implementa una tríada jerárquica obligatoria para optimizar consumo de contexto y evitar lecturas masivas de archivos:
+
+1. **Exploración Conceptual Rápida:** `graphify query "<concepto>"`
+   - Fuente primaria constitucional para entender módulos y dependencias temáticas a costo mínimo de tokens (`--budget 2000`).
+2. **Blast Radius & Call-Graph de Código:** `npx gitnexus impact <simbolo> -r maestro_ERP_Pezcaderia`
+   - Obligatorio antes de editar cualquier símbolo TypeScript para conocer callers, callees y flujos afectados.
+   - Verificación de alcance con `npx gitnexus detect-changes -r maestro_ERP_Pezcaderia`.
+3. **Ideación Técnica Especializada a Costo $0:** `/swarm` (Agency Swarm)
+   - Ejecución mediante `python tools/agency-swarm/run_cli.py -a [data|architect|ui|quality] -p "<requerimiento>"` para diseñar SQL, RLS, esquemas Zod o arquitectura sin gastar cuota del LLM principal.
+
+---
+
+# Pipeline Automatizado de Ciclo de Vida Git (Hooks & Scripts)
+
+- **Post-Pull (Puesta en Marcha):**
+  - Hook automático: `.husky/post-merge`
+  - Comando npm: `npm run session:pull`
+  - Acciones: Sincronización Graphify $\rightarrow$ Reindexación GitNexus $\rightarrow$ Verificación `tsc --noEmit` $\rightarrow$ Comprobación de servidor Vite (`http://localhost:3000/`).
+- **Pre-Push (Quality Gate de Cierre):**
+  - Hook automático: `.husky/pre-push`
+  - Comando npm: `npm run session:push`
+  - Acciones: `tsc --noEmit` estricto $\rightarrow$ Suite Vitest completa (100% pasando) $\rightarrow$ `gitnexus detect-changes` (reporte de blast radius). Si falla cualquiera, **bloquea el push a GitHub**.
 
 **Reglas de Gobernanza Preceptiva:** Ver [`.agent/rules/design-governance.md`](file:///c:/Users/Personal/Documents/Yurgen/Maestro_Pezcaderia_ERP/maestro_ERP_Pezcaderia/.agent/rules/design-governance.md) y [`DOCS/ecosistema_herramientas_agentes_uiux.md`](file:///c:/Users/Personal/Documents/Yurgen/Maestro_Pezcaderia_ERP/maestro_ERP_Pezcaderia/DOCS/ecosistema_herramientas_agentes_uiux.md).
 
@@ -104,4 +132,3 @@ El proyecto se rige por el protocolo formal de ingeniería brownfield [`protocol
 - `/sdd-flow`: Orquesta el ciclo completo de SDD con loop continuo de DevTools.
 - `/sdd-change`: Gestiona modificaciones sobre especificaciones activas.
 - `/session-sync`: Condensa y depura `MEMORY.md` manteniendo el límite de ~50 líneas.
-

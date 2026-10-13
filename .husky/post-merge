@@ -1,1 +1,2 @@
-node .agent/scripts/sync-agents.cjs
+#!/usr/bin/env sh
+node scripts/lifecycle/post-pull.cjs
