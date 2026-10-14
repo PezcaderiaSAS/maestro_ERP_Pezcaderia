@@ -190,7 +190,7 @@ export const RouteIncidentSchema = z.object({
   pedidoId: z.string().optional(),
   tipoIncidencia: TipoIncidenciaRutaEnum,
   descripcion: z.string().min(3, 'Debe describir la eventualidad').max(500),
-  horaReporte: z.string().default(() => new Date().toISOString()),
+  horaReporte: z.string().optional(),
   latitud: z.number().optional(),
   longitud: z.number().optional(),
 });

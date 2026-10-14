@@ -22,6 +22,8 @@ export interface Empleado {
   email: string;
   riesgoARL: 'I' | 'II' | 'III' | 'IV' | 'V';
   aplicaExoneracion: boolean;
+  pinAcceso?: string; // PIN de 4 dígitos numéricos para acceso rápido POS
+  avatarColor?: string; // Gradiente o color para identificación táctil
 }
 
 export interface NominaRegistro {

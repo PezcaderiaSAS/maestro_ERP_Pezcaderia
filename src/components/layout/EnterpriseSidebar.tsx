@@ -26,26 +26,10 @@ import {
   Building2,
 } from 'lucide-react';
 
-export type ERPViewKey =
-  | 'dashboard'
-  | 'pos'
-  | 'pos_offline'
-  | 'precios'
-  | 'clientes'
-  | 'crm'
-  | 'compras'
-  | 'cartera'
-  | 'inventario'
-  | 'alistamiento'
-  | 'despachos'
-  | 'alquiler_cf'
-  | 'caja'
-  | 'contabilidad'
-  | 'rrhh'
-  | 'compras_muelle'
-  | 'despiece'
-  | 'configuracion_bodegas'
-  | 'kardex';
+import { AppRouteId, type ERPViewKey } from '../../routes/AppRoute';
+
+export type { ERPViewKey };
+export { AppRouteId };
 
 interface NavItem {
   key: ERPViewKey;

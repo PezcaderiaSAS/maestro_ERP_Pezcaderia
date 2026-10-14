@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, X, Check, CreditCard, FileText, Truck, RefreshCw, AlertTriangle, AlertCircle, Menu, Trash2, Edit2 } from 'lucide-react';
+import { Plus, X, Check, CreditCard, FileText, Truck, RefreshCw, AlertTriangle, AlertCircle, Menu, Trash2, Edit2, UserCheck } from 'lucide-react';
 import Swal from 'sweetalert2';
 import type { Product, Cliente, Venta, Conductor, DevolucionPedido } from '../types/erp.types';
 import type { DynamicField } from '../store/useDynamicFieldStore';
@@ -39,6 +39,8 @@ import * as localDb from '../services/localDb.ts';
 import { PosDraftService } from '../services/posDraftService.ts';
 import type { CartDraft } from '../types/pos.types.ts';
 import { ejecutarAbastecimientoInmediato, validarAbastecimientoSucursal } from '../services/branchInventoryService.ts';
+import { getInitials } from '../utils/roleMapper.ts';
+import { UserSwitchModal } from '../components/layout/UserSwitchModal.tsx';
 
 interface CartItem {
   product: Product;
@@ -63,7 +65,9 @@ export default function POSView({
   const { stock, setStock } = useInventoryStore();
   const publishEvent = useEventStore((s) => s.publishEvent);
   const userRole = useAppStore((s) => s.userRole);
+  const currentUser = useAppStore((s) => s.currentUser);
   const setCurrentView = useAppStore((s) => s.setCurrentView);
+  const [showUserSwitchModal, setShowUserSwitchModal] = useState<boolean>(false);
   const { clientes, setClientes, lastClientPrices, updateLastClientPrice } = useClientStore();
   const { cartera, setCartera } = useARStore();
 
@@ -99,9 +103,9 @@ export default function POSView({
   const [b2bFilter, setB2bFilter] = useState<'Listo' | 'Todos'>('Listo');
   const [tempRealQuantities, setTempRealQuantities] = useState<Record<string, number | string>>({});
 
-  // Turno Management State
-  const { turnoActivo, loadTurnoActivoPorCajero } = useCashStore();
-  const isTurnoAbierto = turnoActivo !== null && turnoActivo.estado === 'ABIERTO' && turnoActivo.cajeroId === userRole;
+  // Turno Management State (Turno físico compartido por sucursal / caja)
+  const { turnoActivo, loadTurnoActivoPorCajero, loadTurnoActivo } = useCashStore();
+  const isTurnoAbierto = turnoActivo !== null && turnoActivo.estado === 'ABIERTO';
   
   const [showAperturaModal, setShowAperturaModal] = useState<boolean>(false);
   const [showArqueoModal, setShowArqueoModal] = useState<boolean>(false);
@@ -109,8 +113,14 @@ export default function POSView({
   const [showHamburger, setShowHamburger] = useState<boolean>(false);
 
   useEffect(() => {
-    loadTurnoActivoPorCajero(userRole);
-  }, [userRole, showAperturaModal, loadTurnoActivoPorCajero]);
+    if (!turnoActivo || turnoActivo.estado !== 'ABIERTO') {
+      loadTurnoActivo('caja-1').then(() => {
+        if (!useCashStore.getState().turnoActivo) {
+          loadTurnoActivoPorCajero(currentUser?.empleadoId || userRole);
+        }
+      });
+    }
+  }, [userRole, currentUser?.empleadoId, showAperturaModal, loadTurnoActivo, loadTurnoActivoPorCajero]);
 
   const { bodegas, getPrimaryBodega, activaId } = useWarehouseStore();
   const bodegaActivaId = activaId || getPrimaryBodega()?.id || 'b1';
@@ -598,6 +608,19 @@ export default function POSView({
       return;
     }
 
+    // SPEC-013: Validación obligatoria de Vendedor Identificado
+    if (!currentUser) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Vendedor No Identificado',
+        text: 'Debes seleccionar tu perfil de vendedor e ingresar tu PIN de 4 dígitos antes de facturar.',
+        confirmButtonText: 'Identificarse Ahora',
+        confirmButtonColor: '#4f46e5',
+      });
+      setShowUserSwitchModal(true);
+      return;
+    }
+
     // RN-07 y RN-01 se validan en PaymentPanel, pero si llegamos aquí, el carrito tiene items.
     let transfer = 0;
     let card = 0;
@@ -780,7 +803,15 @@ export default function POSView({
       montoPagadoTarjeta: card,
       montoPagadoCredito: credit,
       cambioEntregado: 0,
-      actor: userRole
+      actor: currentUser.nombre,
+      vendedorId: currentUser.empleadoId,
+      vendedorNombre: currentUser.nombre,
+      cajeroId: turnoActivo.cajeroId || currentUser.empleadoId,
+      cajeroNombre: (turnoActivo as any).cajeroNombre || currentUser.nombre,
+      metadata: {
+        vendedor_id: currentUser.empleadoId,
+        vendedor_nombre: currentUser.nombre,
+      },
     };
 
     setVentas((prev: Venta[]) => [newVenta, ...prev]);
@@ -833,17 +864,17 @@ export default function POSView({
     if (turnoActivo) {
       if (cash > 0) {
         cashService.registrarMovimiento(
-          turnoActivo.id, turnoActivo.cajaId, 'INGRESO_VENTA', 'EFECTIVO', cash, `Cobro POS (Venta: ${orderNo})`, vtaId, userRole
+          turnoActivo.id, turnoActivo.cajaId, 'INGRESO_VENTA', 'EFECTIVO', cash, `Cobro POS (Venta: ${orderNo} - Vendedor: ${currentUser.nombre})`, vtaId, currentUser.empleadoId
         );
       }
       if (transfer > 0) {
         cashService.registrarMovimiento(
-          turnoActivo.id, turnoActivo.cajaId, 'INGRESO_VENTA', 'TRANSFERENCIA', transfer, `Cobro POS (Venta: ${orderNo})`, vtaId, userRole
+          turnoActivo.id, turnoActivo.cajaId, 'INGRESO_VENTA', 'TRANSFERENCIA', transfer, `Cobro POS (Venta: ${orderNo} - Vendedor: ${currentUser.nombre})`, vtaId, currentUser.empleadoId
         );
       }
       if (card > 0) {
         cashService.registrarMovimiento(
-          turnoActivo.id, turnoActivo.cajaId, 'INGRESO_VENTA', 'DATAFONO', card, `Cobro POS (Venta: ${orderNo})`, vtaId, userRole
+          turnoActivo.id, turnoActivo.cajaId, 'INGRESO_VENTA', 'DATAFONO', card, `Cobro POS (Venta: ${orderNo} - Vendedor: ${currentUser.nombre})`, vtaId, currentUser.empleadoId
         );
       }
     }
@@ -1678,8 +1709,36 @@ export default function POSView({
             <span className="hidden sm:inline">Reabastecer POS</span>
           </button>
 
-          <div className="text-xs text-slate-500 hidden md:block font-medium">
-            Rol: <span className="text-indigo-600 font-bold uppercase">{userRole}</span>
+          {/* Banner de Vendedor Activo (SPEC-013) */}
+          <div
+            id="pos-seller-badge"
+            className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200/90 border border-slate-200/90 rounded-xl px-2.5 py-1 transition-all"
+          >
+            <div
+              className={`w-7 h-7 rounded-lg bg-gradient-to-tr ${
+                currentUser?.avatarColor || 'from-indigo-600 to-blue-700'
+              } text-white font-bold text-xs flex items-center justify-center shadow-2xs shrink-0`}
+            >
+              {getInitials(currentUser?.nombre || 'Vendedor')}
+            </div>
+            <div className="flex flex-col text-left leading-tight">
+              <span className="text-xs font-bold text-slate-800 truncate max-w-[110px] sm:max-w-[150px]">
+                {currentUser?.nombre || 'Sin Asignar'}
+              </span>
+              <span className="text-[10px] font-mono text-indigo-600 uppercase font-bold">
+                {currentUser?.rol || userRole}
+              </span>
+            </div>
+            <button
+              type="button"
+              id="pos-btn-cambiar-vendedor"
+              onClick={() => setShowUserSwitchModal(true)}
+              className="ml-1 px-2 py-1 rounded-lg bg-white border border-slate-200 text-[11px] font-semibold text-slate-700 hover:text-indigo-600 hover:border-indigo-300 transition-colors shadow-2xs cursor-pointer flex items-center gap-1 active:scale-95"
+              title="Cambiar vendedor o identificarse con PIN"
+            >
+              <UserCheck size={12} className="text-indigo-600" />
+              <span className="hidden sm:inline">Cambiar</span>
+            </button>
           </div>
 
           <div className="relative">
@@ -2674,6 +2733,14 @@ export default function POSView({
         products={products}
         bodegaDestinoId="bodega-pos"
         bodegaDestinoNombre="Punto de Venta Mostrador"
+      />
+
+      {/* Modal Táctil de Conmutación de Vendedor con PIN (SPEC-013) */}
+      <UserSwitchModal
+        isOpen={showUserSwitchModal}
+        onClose={() => setShowUserSwitchModal(false)}
+        title="Cambiar Vendedor en POS"
+        subtitle="Identifícate con tu PIN de 4 dígitos para atribuir tus ventas"
       />
     </div>
   );

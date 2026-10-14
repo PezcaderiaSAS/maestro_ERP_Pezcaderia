@@ -1389,51 +1389,6 @@ export default function App() {
     }
   };
 
-  const getBreadcrumbs = () => {
-    switch (currentView) {
-      case 'alquiler_cf':
-        return { cat: 'WMS & Logística', sub: 'Alquiler Cuarto Frío (3PL)' };
-      case 'dashboard':
-        return { cat: 'Administrativo', sub: 'Panel de Control' };
-      case 'pos':
-        return { cat: 'Comercial', sub: 'Punto de Venta (POS)' };
-      case 'pos_offline':
-        return { cat: 'Comercial', sub: 'POS Offline V2' };
-      case 'inventario':
-        return { cat: 'Inventario y Planta', sub: 'Bodegas & WMS' };
-      case 'configuracion_bodegas':
-        return { cat: 'Inventario y Planta', sub: 'Gestión y Creación de Bodegas' };
-      case 'kardex':
-        return { cat: 'Inventario y Planta', sub: 'Kardex Contable Multibodega' };
-      case 'alistamiento':
-        return { cat: 'Inventario y Planta', sub: 'Alistamiento de Bodega' };
-      case 'despachos':
-        return { cat: 'Logística', sub: 'Despachos y Rutas' };
-      case 'precios':
-        return { cat: 'Comercial', sub: 'Precios y Cotizaciones' };
-      case 'rrhh':
-        return { cat: 'Administrativo', sub: 'Recursos Humanos' };
-      case 'cartera':
-        return { cat: 'Comercial', sub: 'Cartera de Clientes' };
-      case 'clientes':
-        return { cat: 'Comercial', sub: 'Directorio de Clientes' };
-      case 'compras':
-        return { cat: 'Administrativo', sub: 'Compras y Gastos' };
-      case 'compras_muelle':
-        return { cat: 'Abastecimiento y Planta', sub: 'Llegada de Camión (Bucaramanga)' };
-      case 'kanban':
-        return { cat: 'Logística', sub: 'Despachos / Kanban' };
-      case 'crm':
-        return { cat: 'Comercial', sub: 'CRM (Twenty)' };
-      case 'caja':
-        return { cat: 'Comercial', sub: 'Gestión de Cajas' };
-      case 'contabilidad':
-        return { cat: 'Administrativo', sub: 'Libro Mayor' };
-      default:
-        return { cat: 'General', sub: 'ERP' };
-    }
-  };
-
   return (
     <div 
       className="flex h-screen w-screen overflow-hidden bg-slate-50 text-slate-900 font-sans select-none" 

@@ -16,7 +16,11 @@ import {
   Check,
 } from 'lucide-react';
 import type { ERPViewKey } from './EnterpriseSidebar';
+import { getRouteBreadcrumbs, AppRouteId } from '../../routes/AppRoute';
 import { NetworkSyncStatusBadge } from './NetworkSyncStatusBadge';
+import { useAppStore } from '../../store/useAppStore';
+import { getInitials } from '../../utils/roleMapper';
+import { UserSwitchModal } from './UserSwitchModal';
 
 export const THEMES_CONFIG = [
   {
@@ -75,51 +79,11 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
   onOpenOmnibox,
 }) => {
   const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
+  const [isUserSwitchOpen, setIsUserSwitchOpen] = useState(false);
+  const currentUser = useAppStore((s) => s.currentUser);
   const currentThemeConfig = THEMES_CONFIG.find((t) => t.id === theme) || THEMES_CONFIG[0];
 
-  // Breadcrumb dinámico por dominio
-  const getBreadcrumb = (): { domain: string; sub: string } => {
-    switch (currentView) {
-      case 'inventario':
-        return { domain: 'Operaciones & WMS', sub: 'Bodegas & WMS (Inventario Multibodega)' };
-      case 'configuracion_bodegas':
-        return { domain: 'Operaciones & WMS', sub: 'Gestión de Bodegas & Cuartos Fríos' };
-      case 'kardex':
-        return { domain: 'Operaciones & WMS', sub: 'Kardex Contable Multibodega (NIIF)' };
-      case 'alistamiento':
-        return { domain: 'Operaciones & WMS', sub: 'Alistamiento de Pedidos B2B' };
-      case 'despachos':
-        return { domain: 'Operaciones & WMS', sub: 'Despachos, Rutas & Liquidación OTIF' };
-      case 'alquiler_cf':
-        return { domain: 'Operaciones & WMS', sub: 'Alquiler de Cuartos Fríos (3PL)' };
-      case 'compras_muelle':
-        return { domain: 'Abastecimiento & Planta', sub: 'Compras de Muelle & Liquidación' };
-      case 'despiece':
-        return { domain: 'Abastecimiento & Planta', sub: 'Transformación, Fileteo & Yield KPI' };
-      case 'compras':
-        return { domain: 'Abastecimiento & Planta', sub: 'Órdenes de Compra a Proveedores' };
-      case 'pos':
-        return { domain: 'Ventas & Comercial', sub: 'Punto de Venta (POS Mostrador)' };
-      case 'precios':
-        return { domain: 'Ventas & Comercial', sub: 'Cotizaciones B2B & Precios' };
-      case 'clientes':
-        return { domain: 'Ventas & Comercial', sub: 'Directorio de Clientes' };
-      case 'crm':
-        return { domain: 'Ventas & Comercial', sub: 'CRM Comercial' };
-      case 'caja':
-        return { domain: 'Finanzas & Admin', sub: 'Control de Cajas & Arqueo Ciego' };
-      case 'cartera':
-        return { domain: 'Finanzas & Admin', sub: 'Cartera & Cuentas por Cobrar' };
-      case 'contabilidad':
-        return { domain: 'Finanzas & Admin', sub: 'Contabilidad NIIF (Libro Mayor)' };
-      case 'rrhh':
-        return { domain: 'Finanzas & Admin', sub: 'Personal & Nómina (RRHH)' };
-      default:
-        return { domain: 'Panel General', sub: 'Dashboard Ejecutivo' };
-    }
-  };
-
-  const breadcrumb = getBreadcrumb();
+  const breadcrumb = getRouteBreadcrumbs(currentView as AppRouteId);
 
   return (
     <header className="h-16 flex items-center justify-between px-4 lg:px-6 bg-white/95 backdrop-blur-xl border-b border-slate-200 text-slate-800 select-none z-30 sticky top-0 shadow-sm">
@@ -247,10 +211,36 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
           )}
         </div>
 
-        {/* Avatar Usuario Compacto */}
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-white font-bold text-xs flex items-center justify-center ring-2 ring-slate-200 shrink-0 shadow-sm">
-          Yu
-        </div>
+        {/* Botón Perfil de Usuario y Cambio Rápido de Sesión */}
+        <button
+          type="button"
+          aria-label={`Perfil de usuario: ${currentUser?.nombre || 'Usuario'}`}
+          onClick={() => setIsUserSwitchOpen(true)}
+          className="flex items-center gap-2 p-1 pl-1.5 pr-2.5 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-all cursor-pointer shadow-xs active:scale-95 group"
+          title={`Usuario activo: ${currentUser?.nombre || 'Desconocido'} (${currentUser?.rol || 'Sin Rol'}). Clic para cambiar de usuario.`}
+        >
+          <div
+            className={`w-8 h-8 rounded-full bg-gradient-to-tr ${
+              currentUser?.avatarColor || 'from-indigo-600 to-blue-700'
+            } text-white font-bold text-xs flex items-center justify-center ring-2 ring-white shrink-0 shadow-sm group-hover:scale-105 transition-transform`}
+          >
+            {getInitials(currentUser?.nombre || 'US')}
+          </div>
+          <div className="hidden lg:flex flex-col text-left leading-none pr-1">
+            <span className="text-xs font-bold text-slate-800 truncate max-w-[100px]">
+              {currentUser?.nombre ? currentUser.nombre.split(' ')[0] : 'Usuario'}
+            </span>
+            <span className="text-[10px] font-mono text-indigo-600 font-bold uppercase mt-0.5">
+              {currentUser?.rol || 'vendedor'}
+            </span>
+          </div>
+        </button>
+
+        {/* Modal Táctil de Conmutación de Usuario */}
+        <UserSwitchModal
+          isOpen={isUserSwitchOpen}
+          onClose={() => setIsUserSwitchOpen(false)}
+        />
       </div>
     </header>
   );

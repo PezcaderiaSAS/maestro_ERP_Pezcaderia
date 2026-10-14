@@ -12,9 +12,11 @@
 
 | 📋 Por hacer (To Do) | ⚙️ En proceso (In Progress) `[WIP: 0/1]` | 🔍 En revisión (In Review) | ✅ Terminado (Done) |
 | :--- | :--- | :--- | :--- |
-| **CARD-012-06:** Modal de Liquidación de Tesorería (`RouteSettlementModal`) e Integración con `cashService` | *(Listo para asignar en próxima sesión tras git pull)* | *(Sin tareas en revisión)* | **CARD-012-05:** Portal Móvil Chofer 375px (`DeliveryDriverPortalModal`) + Firma Digital Canvas + Outbox Offline (50 tests verdes, tsc 0 errores, DevTools 375px verificado) |
-| **CARD-012-07:** Tablero de Gobernanza y Métricas OTIF (`DeliveryGovernanceTab`) con Exportación | | | **CARD-012-04:** Torre de Control `DispatchView.tsx`, Creador de Manifiestos y Hoja de Ruta PDF (43 tests verdes, tsc 0 errores, capacidad kg) |
-| **CARD-012-08:** Bucle DevTools MCP en Vivo (Consola 0 errores, Vista 375px) y Quality Gate Pre-Push | | | **CARD-012-03:** Integración Bidireccional `OrderKanbanView.tsx` (Pedidos Listos a En Despacho y sincronización a Entregado - 7 tests verdes) |
+| **CARD-012-08:** Bucle DevTools MCP en Vivo (Consola 0 errores, Vista 375px) y Quality Gate Pre-Push | *(Listo para asignar en próxima tarjeta)* | *(Sin tareas en revisión)* | **CARD-012-07:** Tablero de Gobernanza y Métricas OTIF (`DeliveryGovernanceTab`) con Exportación (4 tests unitarios verdes, tsc 0 errores, semáforo y CSV listos) |
+| | | | **CARD-012-06:** Modal de Liquidación de Tesorería (`RouteSettlementModal`) e Integración con `cashService` (4 tests integración verdes, tsc 0 errores, DevTools 375px verificado) |
+| | | | **CARD-012-05:** Portal Móvil Chofer 375px (`DeliveryDriverPortalModal`) + Firma Digital Canvas + Outbox Offline (50 tests verdes, tsc 0 errores, DevTools 375px verificado) |
+| | | | **CARD-012-04:** Torre de Control `DispatchView.tsx`, Creador de Manifiestos y Hoja de Ruta PDF (43 tests verdes, tsc 0 errores, capacidad kg) |
+| | | | **CARD-012-03:** Integración Bidireccional `OrderKanbanView.tsx` (Pedidos Listos a En Despacho y sincronización a Entregado - 7 tests verdes) |
 | | | | **CARD-012-02:** Servicios Core y Suite TDD (`deliveryRouteService.ts` + `deliveryRoute.test.ts` - 20 tests verdes) |
 | | | | **CARD-012-01:** Esquemas Zod y Tipos TypeScript (`deliveryRoute.schema.ts` - 11 tests verdes) |
 | | | | **DOCS-012:** Los 6 Documentos Base aprobados (PRD, TRD, App Flow, Design Brief, Backend Schema, Plan) |

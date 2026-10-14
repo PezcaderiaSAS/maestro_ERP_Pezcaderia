@@ -19,6 +19,49 @@ Cada vez que un agente de IA finalice una sesión de trabajo, debe agregar una e
 
 ## Registros Diarios
 
+### [2026-10-14 12:50] - Antigravity (Principal Software Engineer & SDD Lead)
+- **Módulo:** Abstracción Central de Navegación `AppRoute` & Identidad/Vendedor Obligatorio en POS (SPEC-013)
+- **Acción:** Implementación completa, refactorización y certificación SDD:
+  1. *Centralización de Navegación (AppRoute):*
+     - Definición canónica en [src/routes/AppRoute.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/routes/AppRoute.ts) y [src/routes/index.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/routes/index.ts) con 21 rutas fuertemente tipadas, `RouteParamsMap`, RBAC y deep linking bidireccional.
+     - Limpieza de dead code en `EnterpriseTopbar.tsx` y `App.tsx` (switch de 40 líneas sustituido por `getRouteBreadcrumbs`).
+     - Suite unitaria [src/tests/appRoute.test.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/tests/appRoute.test.ts) (9/9 tests verdes).
+  2. *SPEC-013 (Vendedor Obligatorio & Identidad en POS):*
+     - [src/utils/roleMapper.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/utils/roleMapper.ts): Mapeo determinista de roles de RRHH (`RolAccesoEmpleado` a `UserRole`), extracción infalible de iniciales para avatares y colaborador seeds con PIN `'1234'`.
+     - [src/store/useEmployeeStore.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/store/useEmployeeStore.ts): Extensión de `Empleado` con `pinAcceso?: string` y `avatarColor?: string`.
+     - [src/store/useAppStore.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/store/useAppStore.ts) & [src/services/localDb.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/services/localDb.ts): Gestión y persistencia reactiva de `currentUser: ActiveUserSession | null` y sincronización inmediata de `userRole`.
+     - [src/components/layout/UserSwitchModal.tsx](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/components/layout/UserSwitchModal.tsx): Modal táctil de 2 fases (Regla 12 Años) con tarjetas de colaboradores y keypad 0-9 $\ge 56\text{ px}$, 4 bullets enmascarados, animación shake y validación de PIN.
+     - [src/components/layout/EnterpriseTopbar.tsx](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/components/layout/EnterpriseTopbar.tsx): Botón accesible de perfil con iniciales dinámicas y apertura de modal conmutador.
+     - [src/views/POSView.tsx](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/views/POSView.tsx): Banner táctil `#pos-seller-badge`, botón `#pos-btn-cambiar-vendedor`, turno de caja física compartido para la estación y estampado obligatorio de `vendedorId`, `vendedorNombre`, `cajeroId` en ventas y movimientos de caja.
+     - [src/types/erp.types.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/types/erp.types.ts): Extensión de `Venta` con `vendedorId`, `vendedorNombre`, `cajeroId`, `cajeroNombre` y metadata tipada.
+     - Suite TDD [src/tests/posSellerAssignment.test.tsx](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/tests/posSellerAssignment.test.tsx) (12/12 tests verdes).
+  3. *Quality Gate & Métricas Globales:*
+     - TypeScript estricto: **0 errores (`tsc --noEmit`)**.
+     - Vitest: **61 suites pasadas, 424 tests verdes al 100%**.
+- **Notas/Próximos Pasos (Sesión Siguiente tras Git Pull):**
+  - **Tarea 2:** Simplificación de interfaces de usuario bajo la regla del niño de 12 años.
+  - **Tarea 3:** Pruebas de flujo B2B (cotizaciones -> pedidos -> alistamiento en bodega -> despacho con trazabilidad de operario/conductor).
+  - **Tarea 4:** Facturación electrónica exclusiva para POS.
+
+### [2026-10-14 11:10] - Antigravity (Protocol Implementer & Governance Lead)
+- **Módulo:** Despachos B2B, Liquidación de Tesorería & Gobernanza OTIF (Spec 012 - Continuous-Kanban-Flow)
+- **Acción:** Culminación y certificación de `CARD-012-06` y `CARD-012-07`:
+  1. *CARD-012-06 (Liquidación Tesorería):*
+     - Creación de suite TDD [src/tests/routeSettlementModal.test.tsx](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/tests/routeSettlementModal.test.tsx) (4 tests verdes).
+     - Validación del cuadre en 4 cuadrantes (Efectivo, Digital, Crédito, Devoluciones) y deducción de gastos en ruta.
+     - Integración con `cashService.ts` (`INGRESO_VENTA` y ajustes `AJUSTE_FALTANTE`/`AJUSTE_SOBRANTE`).
+     - Segregación de inventario en `inventoryService.ts` a cuarentena o bodega principal.
+  2. *CARD-012-07 (Tablero de Gobernanza OTIF & Exportación):*
+     - Actualización de [DeliveryGovernanceTab.tsx](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/views/inventory/components/DeliveryGovernanceTab.tsx) con semáforo de tiempos de ciclo (Verde <=30m, Amarillo 31-60m, Rojo >60m).
+     - Implementación de exportación profesional de auditoría a Excel / CSV con BOM UTF-8 y delimitador `;`.
+     - Suite unitaria [src/tests/deliveryGovernanceTab.test.tsx](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/tests/deliveryGovernanceTab.test.tsx) (4 tests verdes).
+  3. *Métricas Globales:*
+     - TypeScript `tsc --noEmit`: 0 errores.
+     - Vitest Global: **59 suites pasadas, 403/403 tests verdes (100%)**.
+     - Tablero Kanban: `CARD-012-01` a `CARD-012-07` en `Done`.
+- **Archivos Modificados:** `DeliveryGovernanceTab.tsx`, `RouteSettlementModal.tsx`, `deliveryRoute.schema.ts`, `kanban-board.md`, `MEMORY.md`, `routeSettlementModal.test.tsx`, `deliveryGovernanceTab.test.tsx`.
+- **Notas/Bloqueos:** Listo para `CARD-012-08` (Bucle DevTools MCP en Vivo, E2E Final y Quality Gate Pre-Push).
+
 ### [2026-10-13 12:20] - Antigravity (Protocol Architect & Governance Lead)
 - **Módulo:** Gobernanza Constitucional, SDD v3.0 (Spec Kit) & Cierre de Sesión
 - **Acción:** Institucionalización obligatoria y preceptiva del ciclo Spec Kit ante cualquier requerimiento:

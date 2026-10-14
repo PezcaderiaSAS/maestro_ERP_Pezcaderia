@@ -28,6 +28,7 @@ export const DB_KEYS = {
   // Nuevas colecciones para Caja y Turnos (Fase 2)
   usuarios: 'pezcaderia_usuarios',
   sesionActiva: 'pezcaderia_sesion_activa',
+  currentUser: 'pezcaderia_current_user',
   cajas: 'pezcaderia_cajas',
   turnos: 'pezcaderia_turnos',
   transacciones_caja: 'pezcaderia_transacciones_caja',

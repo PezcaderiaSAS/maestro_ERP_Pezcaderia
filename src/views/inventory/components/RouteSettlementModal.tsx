@@ -206,7 +206,7 @@ export const RouteSettlementModal: React.FC<RouteSettlementModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="w-10 h-10 rounded-xl bg-card border-white/5/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-card border-white/5/10"
+            className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -395,10 +395,11 @@ export const RouteSettlementModal: React.FC<RouteSettlementModalProps> = ({
               </div>
 
               <div className="p-4 rounded-xl bg-slate-800/80 border border-indigo-500/40 shadow-inner">
-                <label className="text-xs font-bold text-indigo-400 block mb-1">
+                <label htmlFor="efectivoFisicoEntregado" className="text-xs font-bold text-indigo-400 block mb-1">
                   Efectivo Físico Entregado ($)
                 </label>
                 <input
+                  id="efectivoFisicoEntregado"
                   type="number"
                   value={efectivoEntregado}
                   onChange={(e) => setEfectivoEntregado(Number(e.target.value))}
@@ -423,7 +424,11 @@ export const RouteSettlementModal: React.FC<RouteSettlementModalProps> = ({
                     : '▼ Faltante de Caja'}
                 </span>
                 <span className="text-2xl font-bold font-mono">
-                  {diferencia > 0 ? `+$${diferencia.toLocaleString('es-CO')}` : `$${diferencia.toLocaleString('es-CO')}`}
+                  {diferencia > 0
+                    ? `+$${diferencia.toLocaleString('es-CO')}`
+                    : diferencia < 0
+                    ? `-$${Math.abs(diferencia).toLocaleString('es-CO')}`
+                    : '$0'}
                 </span>
               </div>
             </div>
@@ -448,7 +453,7 @@ export const RouteSettlementModal: React.FC<RouteSettlementModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2.5 rounded-xl border border-white/10 text-slate-300 hover:bg-card border-white/5/5 font-semibold text-sm transition-colors"
+            className="px-5 py-2.5 rounded-xl border border-white/10 text-slate-300 hover:bg-white/10 font-semibold text-sm transition-colors"
           >
             Cancelar
           </button>

@@ -2,8 +2,9 @@ import React, { useState, useMemo } from 'react';
 import { 
   Award, Clock, AlertTriangle, ShieldCheck, Thermometer, Filter, 
   Search, ArrowUpRight, CheckCircle2, XCircle, TrendingUp, 
-  MapPin, User, Calendar, Truck, ShieldAlert, FileSpreadsheet
+  MapPin, User, Calendar, Truck, ShieldAlert, FileSpreadsheet, Download
 } from 'lucide-react';
+import Swal from 'sweetalert2';
 import { deliveryRouteService } from '../../../services/deliveryRouteService';
 
 export const DeliveryGovernanceTab: React.FC = () => {
@@ -28,6 +29,90 @@ export const DeliveryGovernanceTab: React.FC = () => {
     });
   }, [metricas, filtroSLA, searchTerm]);
 
+  /**
+   * Semáforo de tiempos de ciclo según estándar de gobernanza:
+   * Verde <= 30 min | Amarillo 31-60 min | Rojo > 60 min
+   */
+  const getSemaforoColor = (minutos?: number) => {
+    if (!minutos || minutos <= 0) return 'text-slate-400';
+    if (minutos <= 30) return 'text-emerald-400';
+    if (minutos <= 60) return 'text-amber-400';
+    return 'text-rose-400 font-bold';
+  };
+
+  /**
+   * Exporta los registros filtrados en formato CSV con BOM UTF-8 y delimitador ';'
+   * para compatibilidad nativa con Microsoft Excel en español.
+   */
+  const exportarExcelCSV = () => {
+    if (registrosFiltrados.length === 0) {
+      Swal.fire({
+        title: 'Sin datos para exportar',
+        text: 'No hay registros de auditoría disponibles con los filtros actuales.',
+        icon: 'info',
+        confirmButtonColor: '#3B82F6',
+      });
+      return;
+    }
+
+    const headers = [
+      'Pedido',
+      'Cliente',
+      'Conductor',
+      'Placa',
+      'Zona',
+      'Manifiesto',
+      'Temp Salida C',
+      'Fecha Requerida',
+      'Jornada',
+      'Hora Salida',
+      'Hora Llegada Puerta',
+      'Hora Entrega Efectiva',
+      'Tiempo Transito Min',
+      'Tiempo Atencion Min',
+      'Estatus SLA OTIF',
+      'Forma Pago',
+      'Monto Cobrado COP',
+      'Estado Entrega',
+      'Tiene Devolucion',
+      'Incidencias Registradas',
+    ];
+
+    const rows = registrosFiltrados.map((r) => [
+      `"${r.numeroPedido}"`,
+      `"${(r.clienteNombre || '').replace(/"/g, '""')}"`,
+      `"${(r.conductor || '').replace(/"/g, '""')}"`,
+      `"${r.vehiculoPlaca}"`,
+      `"${r.zonaRuta}"`,
+      `"${r.numeroManifiesto}"`,
+      r.temperaturaSalida !== undefined ? `${r.temperaturaSalida}` : '',
+      `"${r.fechaRequerida || ''}"`,
+      `"${r.jornadaRequerida || ''}"`,
+      r.horaSalida ? `"${new Date(r.horaSalida).toLocaleTimeString()}"` : '',
+      r.horaLlegada ? `"${new Date(r.horaLlegada).toLocaleTimeString()}"` : '',
+      r.horaEntrega ? `"${new Date(r.horaEntrega).toLocaleTimeString()}"` : '',
+      r.tiempoTransitoMin || 0,
+      r.tiempoAtencionMin || 0,
+      `"${r.cumplimientoSLA}"`,
+      `"${r.formaPago || ''}"`,
+      r.montoCobrado || 0,
+      `"${r.estadoEntrega}"`,
+      r.tieneDevolucion ? 'SI' : 'NO',
+      r.incidencias.length > 0 ? `"${r.incidencias.map((i) => i.tipoIncidencia).join(', ')}"` : 'NINGUNA',
+    ]);
+
+    const csvContent = '\uFEFF' + [headers.join(';'), ...rows.map((row) => row.join(';'))].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Gobernanza_Rutas_OTIF_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header y Resumen Ejecutivo */}
@@ -41,6 +126,15 @@ export const DeliveryGovernanceTab: React.FC = () => {
             Métricas de cumplimiento de tiempos pactados con el cliente, control de frío y trazabilidad de eventualidades.
           </p>
         </div>
+
+        <button
+          type="button"
+          onClick={exportarExcelCSV}
+          className="min-h-[40px] px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 hover:text-emerald-300 font-bold text-xs flex items-center gap-2 border border-emerald-500/20 shadow-md transition-all self-start sm:self-auto"
+        >
+          <FileSpreadsheet className="w-4 h-4" />
+          <span>Exportar a Excel / CSV</span>
+        </button>
       </div>
 
       {/* KPI Cards de Gobernanza */}
@@ -238,13 +332,19 @@ export const DeliveryGovernanceTab: React.FC = () => {
                       )}
                     </td>
 
-                    {/* Tiempos de Ciclo */}
+                    {/* Tiempos de Ciclo con Semáforo OTIF */}
                     <td className="p-3.5 text-[11px]">
                       <div>
-                        Tránsito: <b className="text-sky-300">{reg.tiempoTransitoMin ? `${reg.tiempoTransitoMin} min` : '-'}</b>
+                        Tránsito:{' '}
+                        <b className={getSemaforoColor(reg.tiempoTransitoMin)}>
+                          {reg.tiempoTransitoMin ? `${reg.tiempoTransitoMin} min` : '-'}
+                        </b>
                       </div>
                       <div>
-                        Atención: <b className="text-teal-300">{reg.tiempoAtencionMin ? `${reg.tiempoAtencionMin} min` : '-'}</b>
+                        Atención:{' '}
+                        <b className={getSemaforoColor(reg.tiempoAtencionMin)}>
+                          {reg.tiempoAtencionMin ? `${reg.tiempoAtencionMin} min` : '-'}
+                        </b>
                       </div>
                     </td>
 

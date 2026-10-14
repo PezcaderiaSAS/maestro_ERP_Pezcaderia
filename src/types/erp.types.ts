@@ -324,10 +324,17 @@ export interface Venta {
   metodoPago: 'CONTADO' | 'CREDITO' | 'MIXTO';
   facturaCarteraId?: string;   // Si hay crédito → referencia a InvoiceAR
   actor: string;
+  vendedorId?: string;
+  vendedorNombre?: string;
+  cajeroId?: string;
+  cajeroNombre?: string;
   metadata?: {
     id_pedido_externo?: string;
     canal?: string;
     metodo_pago_codigo?: string;
+    vendedor_id?: string;
+    vendedor_nombre?: string;
+    [key: string]: any;
   };
   clienteIdentificacion?: string;
   descuento?: number;
