@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { 
   X, Truck, MapPin, Package, Check, Calendar, AlertCircle, 
-  ChevronRight, Hash, DollarSign, Scale, User, Phone
+  ChevronRight, ChevronUp, ChevronDown, Hash, DollarSign, Scale, User, Phone, AlertTriangle
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { Pedido } from '../../../types/orders.types';
@@ -15,12 +15,13 @@ interface RouteManifestBuilderModalProps {
   getClientName: (clienteId: string) => string;
   getClientAddress: (clienteId: string) => string;
   onManifestCreated: (manifest: DeliveryRouteRecord) => void;
+  initialSelectedIds?: string[];
 }
 
 const CONDUCTORES_PREDETERMINADOS = [
-  { id: 'cond-01', nombre: 'Carlos Mendoza', telefono: '3104567890', placa: 'WOP-482', vehiculo: 'Furgón Refrigerado Thermo King (BCM)' },
-  { id: 'cond-02', nombre: 'Andrés Gómez', telefono: '3209876543', placa: 'SKL-913', vehiculo: 'Camión Isotérmico 3.5T (Santander)' },
-  { id: 'cond-03', nombre: 'Jhonatan Rivas', telefono: '3151122334', placa: 'MVZ-504', vehiculo: 'Furgón Mediano Frío (Metropolitana)' },
+  { id: 'cond-01', nombre: 'Carlos Mendoza', telefono: '3104567890', placa: 'WOP-482', vehiculo: 'Furgón Refrigerado Thermo King (BCM)', capacidadKg: 1200 },
+  { id: 'cond-02', nombre: 'Andrés Gómez', telefono: '3209876543', placa: 'SKL-913', vehiculo: 'Camión Isotérmico 3.5T (Santander)', capacidadKg: 3500 },
+  { id: 'cond-03', nombre: 'Jhonatan Rivas', telefono: '3151122334', placa: 'MVZ-504', vehiculo: 'Furgón Mediano Frío (Metropolitana)', capacidadKg: 800 },
 ];
 
 const ZONAS_PREDETERMINADAS = [
@@ -39,18 +40,26 @@ export const RouteManifestBuilderModal: React.FC<RouteManifestBuilderModalProps>
   getClientName,
   getClientAddress,
   onManifestCreated,
+  initialSelectedIds = [],
 }) => {
   const [selectedConductorId, setSelectedConductorId] = useState<string>('cond-01');
   const [conductorNombre, setConductorNombre] = useState<string>(CONDUCTORES_PREDETERMINADOS[0].nombre);
   const [conductorTelefono, setConductorTelefono] = useState<string>(CONDUCTORES_PREDETERMINADOS[0].telefono);
   const [vehiculoPlaca, setVehiculoPlaca] = useState<string>(CONDUCTORES_PREDETERMINADOS[0].placa);
   const [vehiculoTipo, setVehiculoTipo] = useState<string>(CONDUCTORES_PREDETERMINADOS[0].vehiculo);
+  const [vehiculoCapacidadKg, setVehiculoCapacidadKg] = useState<number>(CONDUCTORES_PREDETERMINADOS[0].capacidadKg);
   const [zonaRuta, setZonaRuta] = useState<string>(ZONAS_PREDETERMINADAS[0]);
   const [observaciones, setObservaciones] = useState<string>('');
   
-  // Pedidos seleccionados (IDs)
-  const [selectedPedidoIds, setSelectedPedidoIds] = useState<string[]>([]);
+  // Pedidos seleccionados (IDs ordenados según secuencia de paradas)
+  const [selectedPedidoIds, setSelectedPedidoIds] = useState<string[]>(initialSelectedIds);
   const [searchTerm, setSearchTerm] = useState<string>('');
+
+  React.useEffect(() => {
+    if (isOpen && initialSelectedIds && initialSelectedIds.length > 0) {
+      setSelectedPedidoIds(initialSelectedIds);
+    }
+  }, [isOpen, initialSelectedIds]);
 
   if (!isOpen) return null;
 
@@ -62,6 +71,7 @@ export const RouteManifestBuilderModal: React.FC<RouteManifestBuilderModalProps>
       setConductorTelefono(cond.telefono);
       setVehiculoPlaca(cond.placa);
       setVehiculoTipo(cond.vehiculo);
+      setVehiculoCapacidadKg(cond.capacidadKg);
     }
   };
 
@@ -69,6 +79,19 @@ export const RouteManifestBuilderModal: React.FC<RouteManifestBuilderModalProps>
     setSelectedPedidoIds((prev) =>
       prev.includes(id) ? prev.filter((pId) => pId !== id) : [...prev, id]
     );
+  };
+
+  const moverParada = (index: number, direccion: 'UP' | 'DOWN', e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedPedidoIds((prev) => {
+      const next = [...prev];
+      const targetIndex = direccion === 'UP' ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= next.length) return prev;
+      const temp = next[index];
+      next[index] = next[targetIndex];
+      next[targetIndex] = temp;
+      return next;
+    });
   };
 
   const selectAllPedidos = () => {
@@ -88,22 +111,32 @@ export const RouteManifestBuilderModal: React.FC<RouteManifestBuilderModalProps>
     });
   }, [pedidosDisponibles, searchTerm, getClientName]);
 
-  // Totales de la selección
+  // Totales de la selección y capacidad vehicular
   const statsSeleccion = useMemo(() => {
-    const seleccionados = pedidosDisponibles.filter((p) => selectedPedidoIds.includes(p.id));
+    const seleccionados = selectedPedidoIds
+      .map((id) => pedidosDisponibles.find((p) => p.id === id))
+      .filter(Boolean) as Pedido[];
+
     const totalDinero = seleccionados.reduce((acc, p) => acc + (p.totalFinal || 0), 0);
     const totalItems = seleccionados.reduce((acc, p) => acc + (p.lineas?.length || 0), 0);
     const totalPesoKg = seleccionados.reduce((acc, p) => {
       const pesoPedido = p.lineas?.reduce((subAcc, item) => subAcc + (Number(item.pesoReal || item.pesoEstimado || item.cantidadSolicitada) || 0), 0) || 0;
       return acc + pesoPedido;
     }, 0);
+
+    const pesoFinal = Math.round(totalPesoKg * 100) / 100;
+    const porcentajeCarga = vehiculoCapacidadKg > 0 ? Math.round((pesoFinal / vehiculoCapacidadKg) * 100) : 0;
+    const estaSobrecargado = pesoFinal > vehiculoCapacidadKg;
+
     return {
       cantidad: seleccionados.length,
       totalDinero,
       totalItems,
-      totalPesoKg: Math.round(totalPesoKg * 100) / 100,
+      totalPesoKg: pesoFinal,
+      porcentajeCarga,
+      estaSobrecargado,
     };
-  }, [pedidosDisponibles, selectedPedidoIds]);
+  }, [pedidosDisponibles, selectedPedidoIds, vehiculoCapacidadKg]);
 
   const handleCrearManifiesto = () => {
     if (selectedPedidoIds.length === 0) {
@@ -126,6 +159,28 @@ export const RouteManifestBuilderModal: React.FC<RouteManifestBuilderModalProps>
       return;
     }
 
+    if (statsSeleccion.estaSobrecargado) {
+      Swal.fire({
+        title: '⚠️ Advertencia de Sobrecarga',
+        text: `El peso total (${statsSeleccion.totalPesoKg} kg) supera la capacidad nominal del furgón (${vehiculoCapacidadKg} kg). ¿Deseas autorizar el despacho con sobrecupo?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#F59E0B',
+        cancelButtonColor: '#6B7280',
+        confirmButtonText: 'Sí, autorizar despacho',
+        cancelButtonText: 'Ajustar pedidos',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          procederCreacionManifiesto();
+        }
+      });
+      return;
+    }
+
+    procederCreacionManifiesto();
+  };
+
+  const procederCreacionManifiesto = () => {
     const payload: CreateRouteManifest = {
       conductorId: selectedConductorId || 'cond-custom',
       conductorNombre,
@@ -137,10 +192,11 @@ export const RouteManifestBuilderModal: React.FC<RouteManifestBuilderModalProps>
       observaciones: observaciones.trim() || undefined,
     };
 
-    // Mapeo detallado de pedidos para el servicio
-    const pedidosDetallados = pedidosDisponibles
-      .filter((p) => selectedPedidoIds.includes(p.id))
-      .map((p) => ({
+    // Mapeo detallado preservando el orden exacto de paradas
+    const pedidosDetallados = selectedPedidoIds
+      .map((id) => pedidosDisponibles.find((p) => p.id === id))
+      .filter(Boolean)
+      .map((p: any) => ({
         id: p.id,
         numeroPedido: p.numeroPedido,
         clienteId: p.clienteId,
@@ -149,9 +205,9 @@ export const RouteManifestBuilderModal: React.FC<RouteManifestBuilderModalProps>
         clienteTelefono: '',
         totalNeto: p.totalFinal || 0,
         formaPago: p.formaPago === 'CREDITO' ? 'CREDITO' : 'EFECTIVO',
-        items: p.lineas?.map((l) => ({
-          sku: l.productoId,
-          nombre: l.productoId,
+        items: p.lineas?.map((l: any) => ({
+          sku: l.productoId || l.sku,
+          nombre: l.productoNombre || l.productoId,
           cantidad: l.pesoReal || l.pesoEstimado || l.cantidadSolicitada,
           precioUnitario: l.precioPactado,
         })) || [],
@@ -332,13 +388,42 @@ export const RouteManifestBuilderModal: React.FC<RouteManifestBuilderModalProps>
               </div>
             </div>
 
-            <div className="bg-slate-800/60 border border-white/5 rounded-2xl p-3.5 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-sky-500/20 flex items-center justify-center text-sky-400">
-                <Scale className="w-5 h-5" />
+            <div className="bg-slate-800/60 border border-white/5 rounded-2xl p-3.5 flex flex-col justify-between">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                  statsSeleccion.estaSobrecargado ? 'bg-rose-500/20 text-rose-400' : 'bg-sky-500/20 text-sky-400'
+                }`}>
+                  <Scale className="w-5 h-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] text-slate-400 font-medium">Capacidad Ocupada</span>
+                    <span className={`text-[10px] font-bold font-mono px-1.5 py-0.2 rounded ${
+                      statsSeleccion.estaSobrecargado ? 'bg-rose-500/20 text-rose-300' : 'bg-sky-500/20 text-sky-300'
+                    }`}>
+                      {statsSeleccion.porcentajeCarga}%
+                    </span>
+                  </div>
+                  <span className={`text-base font-bold font-mono ${
+                    statsSeleccion.estaSobrecargado ? 'text-rose-400' : 'text-sky-400'
+                  }`}>
+                    {statsSeleccion.totalPesoKg} / {vehiculoCapacidadKg} Kg
+                  </span>
+                </div>
               </div>
-              <div>
-                <span className="text-[11px] text-slate-400 block font-medium">Peso Estimado</span>
-                <span className="text-xl font-bold text-sky-400">{statsSeleccion.totalPesoKg} Kg</span>
+
+              {/* Barra de progreso de carga */}
+              <div className="w-full bg-slate-900 rounded-full h-1.5 mt-2 overflow-hidden">
+                <div 
+                  className={`h-full rounded-full transition-all ${
+                    statsSeleccion.estaSobrecargado 
+                      ? 'bg-rose-500' 
+                      : statsSeleccion.porcentajeCarga > 85 
+                      ? 'bg-amber-500' 
+                      : 'bg-emerald-500'
+                  }`}
+                  style={{ width: `${Math.min(statsSeleccion.porcentajeCarga, 100)}%` }}
+                />
               </div>
             </div>
 
@@ -409,13 +494,42 @@ export const RouteManifestBuilderModal: React.FC<RouteManifestBuilderModalProps>
                           {isSelected && <Check className="w-4 h-4 stroke-[3]" />}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono text-xs font-bold text-indigo-400">
-                              #{pedido.numeroPedido}
-                            </span>
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-card border-white/5/5 text-slate-300">
-                              {pedido.jornada || 'AM'}
-                            </span>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono text-xs font-bold text-indigo-400">
+                                #{pedido.numeroPedido}
+                              </span>
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-card border-white/5/5 text-slate-300">
+                                {pedido.jornada || 'AM'}
+                              </span>
+                            </div>
+
+                            {/* Controles de Secuencia de Parada si está seleccionado */}
+                            {isSelected && (
+                              <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                                  Parada #{selectedPedidoIds.indexOf(pedido.id) + 1}
+                                </span>
+                                <button
+                                  type="button"
+                                  disabled={selectedPedidoIds.indexOf(pedido.id) === 0}
+                                  onClick={(e) => moverParada(selectedPedidoIds.indexOf(pedido.id), 'UP', e)}
+                                  className="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                                  title="Mover parada antes"
+                                >
+                                  <ChevronUp className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={selectedPedidoIds.indexOf(pedido.id) === selectedPedidoIds.length - 1}
+                                  onClick={(e) => moverParada(selectedPedidoIds.indexOf(pedido.id), 'DOWN', e)}
+                                  className="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                                  title="Mover parada después"
+                                >
+                                  <ChevronDown className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            )}
                           </div>
                           <h4 className="text-sm font-bold text-white truncate mt-0.5">
                             {clienteNombre}

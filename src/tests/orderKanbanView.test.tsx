@@ -1,12 +1,14 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import OrderKanbanView from '../views/OrderKanbanView';
 import { useOrderStore, setOrderDataService } from '../store/useOrderStore';
+import { deliveryRouteService } from '../services/deliveryRouteService';
 
 describe('OrderKanbanView Suite (Paso 3)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    localStorage.clear();
 
     // Mock seguro del data service
     setOrderDataService({
@@ -19,7 +21,6 @@ describe('OrderKanbanView Suite (Paso 3)', () => {
 
     useOrderStore.setState({
       quotations: [
-
         {
           id: 'quote-101',
           numeroPedido: 'PED-101',
@@ -56,6 +57,24 @@ describe('OrderKanbanView Suite (Paso 3)', () => {
           ],
           totalFinal: 2880000,
           prioridad: 'ALTA',
+        },
+        {
+          id: 'quote-103',
+          numeroPedido: 'PED-103',
+          clientName: 'Pescadería del Mar',
+          estado: 'LISTO',
+          fecha: '2026-09-30',
+          lineas: [
+            {
+              id: 'l-3',
+              nombre: 'Camarón Tigre',
+              sku: 'CAM-003',
+              cantidadSolicitada: 20,
+              pesoReal: 20,
+              precioPactado: 50000,
+            },
+          ],
+          totalFinal: 1000000,
         },
       ] as any,
       ventas: [] as any,
@@ -104,6 +123,7 @@ describe('OrderKanbanView Suite (Paso 3)', () => {
     expect(screen.getByText('Listos para Despacho')).toBeInTheDocument();
     expect(screen.getByText('En Ruta / Despachados')).toBeInTheDocument();
     expect(screen.getByText('Entregados en Destino')).toBeInTheDocument();
+    expect(screen.getByText('Pescadería del Mar')).toBeInTheDocument();
   });
 
   it('debe permitir avanzar una orden mediante el botón directo de avance táctil', () => {
@@ -118,5 +138,91 @@ describe('OrderKanbanView Suite (Paso 3)', () => {
     // El estado del pedido se actualiza
     const updatedQuotation = useOrderStore.getState().quotations.find((q: any) => q.id === 'quote-101');
     expect(updatedQuotation?.estado).toBe('EN_FILETEO');
+  });
+
+  it('debe permitir seleccionar pedidos listos en Despachos y mostrar la barra contextual con kilos y COP', () => {
+    render(<OrderKanbanView onEditOrder={() => {}} />);
+
+    // Cambiar a pestaña Despacho
+    const despachoTab = screen.getByRole('button', { name: /2\. Despachos/i });
+    fireEvent.click(despachoTab);
+
+    // Encontrar el checkbox del pedido listo PED-103
+    const checkbox = screen.getByTestId('checkbox-select-quote-103');
+    expect(checkbox).toBeInTheDocument();
+
+    // Seleccionar
+    fireEvent.click(checkbox);
+
+    // Debe aparecer la barra flotante con kilos y COP
+    expect(screen.getByText((content) => content.includes('1 pedidos listos seleccionados'))).toBeInTheDocument();
+    expect(screen.getByText((content) => content.includes('20.0 kg totales'))).toBeInTheDocument();
+    expect(screen.getByText((content) => content.includes('1.000.000 COP'))).toBeInTheDocument();
+  });
+
+  it('debe sincronizar reactivamente un pedido a ENTREGADO cuando deliveryRouteService registra entrega', async () => {
+    // Configuramos un pedido en EN_DESPACHO
+    useOrderStore.setState({
+      quotations: [
+        {
+          id: 'quote-200',
+          numeroPedido: 'PED-200',
+          clientName: 'Cevichería Central',
+          estado: 'EN_DESPACHO',
+          fecha: '2026-09-30',
+          lineas: [],
+          totalFinal: 450000,
+        },
+      ] as any,
+      ventas: [] as any,
+    });
+
+    // Creamos un manifiesto ficticio donde el pedido está ENTREGADO_TOTAL
+    const res = deliveryRouteService.crearManifiestoRuta(
+      {
+        conductorId: 'cond-01',
+        conductorNombre: 'Carlos Ruiz',
+        conductorTelefono: '3101234567',
+        vehiculoPlaca: 'TRK-987',
+        zonaRuta: 'Bogotá Norte',
+        pedidosIds: ['quote-200'],
+      },
+      [
+        {
+          id: 'quote-200',
+          numeroPedido: 'PED-200',
+          clienteId: 'cli-99',
+          clienteNombre: 'Cevichería Central',
+          clienteDireccion: 'Calle 100 # 15-20',
+          total: 450000,
+          items: [{ sku: 'PROD-1', cantidad: 15, precioUnitario: 30000 }],
+        },
+      ]
+    );
+
+    const manifiesto = res.data!;
+    deliveryRouteService.iniciarRuta(manifiesto.id);
+    const regRes = deliveryRouteService.registrarEntregaPedido({
+      manifiestoId: manifiesto.id,
+      pedidoId: 'quote-200',
+      estadoEntrega: 'ENTREGADO_TOTAL',
+      formaPago: 'EFECTIVO',
+      montoOriginal: 450000,
+      montoCobradoFinal: 450000,
+      montoEfectivo: 450000,
+      montoDigital: 0,
+      firmaClienteUrl: 'data:image/png;base64,mockSign',
+    });
+    expect(regRes.success).toBe(true);
+
+    // Renderizamos el componente
+    render(<OrderKanbanView onEditOrder={() => {}} />);
+
+    // El pedido debe haber sido promovido reactivamente a ENTREGADO
+    await waitFor(() => {
+      const qActualizado = useOrderStore.getState().quotations.find((q: any) => q.id === 'quote-200');
+      expect(qActualizado?.estado).toBe('ENTREGADO');
+      expect(qActualizado?.firmaClienteUrl).toBe('data:image/png;base64,mockSign');
+    });
   });
 });

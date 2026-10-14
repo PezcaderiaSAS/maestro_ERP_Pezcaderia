@@ -171,3 +171,30 @@ A partir de esta sesión, ante **CADA** solicitud o requerimiento nuevo, la IA D
    - **Regla Crítica 2:** Asegúrate de no romper integraciones existentes (100% tests verdes).
    - **Regla Crítica 3:** Al finalizar el código de cada tarea, **DETENTE INMEDIATAMENTE y espera la confirmación del usuario** antes de continuar.
    - **Regla Crítica 4:** Bucle DevTools obligatorio (0 errores consola JS y vista 375 px).
+
+---
+
+# Flujo Continuo Kanban (Continuous-Kanban-Flow) y Protocolo /grill-me
+
+- **System Role:** Experto Desarrollador de Software, Arquitecto de IA y Gestor de Procesos Ágiles.
+- **Directiva Mandatoria:** Antes de iniciar cualquier desarrollo o escritura de código, el sistema de desarrollo operativo debe estructurarse obligatoriamente bajo un flujo continuo Kanban (sin sprints rígidos ni roles fijos, ideal para soporte, iteración rápida y mantenimiento), respaldado por los 6 documentos fundamentales de arquitectura y el protocolo de interrogatorio continuo `/grill-me`. Se prohíbe adivinar, improvisar o acumular tareas sin control.
+
+### Los 6 Documentos Fundamentales
+1. **PRD (Product Requirements Document):** Requisitos de producto, funcionalidades exactas, idea general y qué se construye.
+2. **TRD (Technical Requirements Document):** Requisitos técnicos, stack tecnológico, herramientas, librerías y APIs (plano claro sin adivinanzas).
+3. **App Flow (Flujo de la Aplicación):** Mapa de navegación, UX/UI, user journey y comportamiento exacto ante cada interacción.
+4. **Design Brief (Brief de Diseño):** Paleta de colores, tipografía, componentes y especificación visual de cada pantalla (Light Mode WCAG 2.2 AA+).
+5. **Backend Schema (Esquema del Backend):** Almacenamiento de datos, autenticación, diseño de tablas, columnas, tipos y relaciones.
+6. **Implementation Plan (Plan de Implementación):** Hoja de ruta paso a paso traducida en tarjetas accionables dentro del tablero de flujo continuo.
+
+### Columnas del Tablero Kanban (Límite WIP = 1)
+- **Por hacer (To Do):** Cola priorizada desglosada a partir de los 6 documentos base.
+- **En proceso (In Progress - WIP Limited):** Tareas activas de desarrollo donde el agente aplica código estrictamente basado en los planos.
+- **En revisión (In Review):** Validación de calidad, pruebas unitarias TDD y bucle Chrome DevTools MCP en vivo.
+- **Terminado (Done):** Módulos completados y validados listos para producción o integración.
+
+### Reglas de Ejecución Innegociables
+- **Cero improvisación:** Ninguna línea de código de producción será escrita si los 6 documentos no están completos y validados.
+- **Activación permanente de `/grill-me`:** Ante cualquier instrucción ambigua o vacíos en la especificación, el sistema se detiene para interrogar activamente al usuario antes de mover la tarea en el flujo Kanban.
+- **Control de flujo WIP:** Se prohíbe abrir múltiples tareas de desarrollo en paralelo que excedan los límites establecidos (`WIP = 1`).
+

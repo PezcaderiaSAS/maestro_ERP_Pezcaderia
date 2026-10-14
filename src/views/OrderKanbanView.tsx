@@ -34,6 +34,9 @@ import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { WeightPackingModal } from './inventory/components/WeightPackingModal';
 import { WmsRemisionModal } from './inventory/components/WmsRemisionModal';
+import { RouteManifestBuilderModal } from './inventory/components/RouteManifestBuilderModal';
+import { deliveryRouteService, DeliveryRouteRecord } from '../services/deliveryRouteService';
+import { useClientStore } from '../store/useClientStore';
 
 interface OrderKanbanViewProps {
   onEditOrder: (quote: any) => void;
@@ -74,6 +77,26 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
     item: any;
   } | null>(null);
   const [dispatchModalOrder, setDispatchModalOrder] = useState<any | null>(null);
+  const [isRouteManifestModalOpen, setIsRouteManifestModalOpen] = useState(false);
+  const [selectedReadyOrderIds, setSelectedReadyOrderIds] = useState<string[]>([]);
+  const clientes = useClientStore((s) => s.clientes);
+
+  const getClientName = (clienteId: string) => {
+    const c = clientes.find((x) => x.id === clienteId || x.identificacion === clienteId);
+    return c?.nombre || clienteId || 'Cliente B2B';
+  };
+
+  const getClientAddress = (clienteId: string) => {
+    const c = clientes.find((x) => x.id === clienteId || x.identificacion === clienteId);
+    return c?.direccion || 'Dirección de Entrega';
+  };
+
+  const toggleSelectReadyOrder = (orderId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedReadyOrderIds((prev) =>
+      prev.includes(orderId) ? prev.filter((x) => x !== orderId) : [...prev, orderId]
+    );
+  };
 
   const combinedOrders = useMemo(() => {
     const map = new Map<string, any>();
@@ -90,6 +113,82 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
     });
     return Array.from(map.values());
   }, [ventas, quotations]);
+
+  const pedidosListos = useMemo(() => {
+    return combinedOrders.filter((o) => ['LISTO', 'Listo', 'listo'].includes(o.estado));
+  }, [combinedOrders]);
+
+  const selectedReadyOrders = useMemo(() => {
+    return pedidosListos.filter((o) => selectedReadyOrderIds.includes(o.id));
+  }, [pedidosListos, selectedReadyOrderIds]);
+
+  const totalKgSeleccionados = useMemo(() => {
+    return selectedReadyOrders.reduce((acc, o) => {
+      const lines = o.lineas || o.items || [];
+      const peso = lines.reduce(
+        (sum: number, l: any) => sum + (Number(l.pesoReal || l.cantidadAlistada || l.cantidadSolicitada) || 0),
+        0
+      );
+      return acc + peso;
+    }, 0);
+  }, [selectedReadyOrders]);
+
+  const totalPesosSeleccionados = useMemo(() => {
+    return selectedReadyOrders.reduce((acc, o) => acc + Number(o.totalFinal || o.total || 0), 0);
+  }, [selectedReadyOrders]);
+
+  const handleManifestCreated = (manifest: DeliveryRouteRecord) => {
+    manifest.pedidos.forEach((p) => {
+      persistOrderUpdate(p.pedidoId, {
+        estado: 'EN_DESPACHO',
+        numeroManifiesto: manifest.numeroManifiesto,
+        manifiestoRutaId: manifest.id,
+        conductor: manifest.conductorNombre,
+        placaVehiculo: manifest.vehiculoPlaca,
+        fechaActualizacionKanban: new Date().toISOString(),
+      });
+      publishEvent(
+        'QUOTE_STATUS_CHANGED',
+        userRole,
+        `Pedido ${p.numeroPedido} asignado a ruta ${manifest.numeroManifiesto}`,
+        { quoteId: p.pedidoId, nuevoEstado: 'EN_DESPACHO' }
+      );
+    });
+
+    setSelectedReadyOrderIds([]);
+    setIsRouteManifestModalOpen(false);
+
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: '¡Manifiesto de Carga Asignado!',
+      text: `${manifest.totalPedidos} pedidos listos pasaron a En Ruta (${manifest.numeroManifiesto}).`,
+      timer: 2500,
+      showConfirmButton: false,
+    });
+  };
+
+  // Sincronización reactiva bidireccional con deliveryRouteService: pedidos entregados en ruta
+  React.useEffect(() => {
+    const manifiestos = deliveryRouteService.obtenerManifiestos();
+    combinedOrders.forEach((o) => {
+      if (['EN_DESPACHO', 'En Despacho'].includes(o.estado)) {
+        for (const m of manifiestos) {
+          const p = m.pedidos.find((x) => x.pedidoId === o.id || x.numeroPedido === o.numeroPedido);
+          if (p && (p.estadoEntrega === 'ENTREGADO_TOTAL' || p.estadoEntrega === 'ENTREGADO_PARCIAL')) {
+            persistOrderUpdate(o.id, {
+              estado: 'ENTREGADO',
+              horaEntrega: p.horaEntrega,
+              firmaClienteUrl: p.firmaClienteUrl,
+              fechaActualizacionKanban: new Date().toISOString(),
+            });
+            break;
+          }
+        }
+      }
+    });
+  }, [combinedOrders]);
 
   // Definición de Columnas para ambas pestañas
   const bodegaColumns: {
@@ -586,6 +685,46 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
         </div>
       </div>
 
+      {/* Barra de Acciones Contextuales para Despachos / Manifiestos */}
+      {selectedReadyOrderIds.length > 0 && (
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 bg-gradient-to-r from-purple-900/90 via-slate-900/90 to-blue-900/90 rounded-2xl border border-purple-400/40 shadow-2xl backdrop-blur-xl animate-fade-in text-white">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-purple-500/20 rounded-xl border border-purple-400/30">
+              <Truck className="w-5 h-5 text-purple-300" />
+            </div>
+            <div>
+              <div className="text-sm font-black flex items-center gap-2">
+                <span>{selectedReadyOrderIds.length} pedidos listos seleccionados</span>
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-purple-400/20 font-mono text-purple-200 border border-purple-400/30 font-bold">
+                  {totalKgSeleccionados.toFixed(1)} kg totales
+                </span>
+              </div>
+              <div className="text-xs text-purple-200/80 mt-0.5">
+                Total facturado estimado: ${Math.round(totalPesosSeleccionados).toLocaleString('es-CO')} COP
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 self-end sm:self-center">
+            <button
+              type="button"
+              onClick={() => setSelectedReadyOrderIds([])}
+              className="px-3 py-1.5 text-xs text-slate-300 hover:text-white rounded-xl hover:bg-white/10 transition-colors cursor-pointer"
+            >
+              Deseleccionar
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsRouteManifestModalOpen(true)}
+              className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-xl text-xs font-black shadow-lg shadow-purple-600/30 flex items-center gap-2 cursor-pointer transition-all active:scale-95"
+            >
+              <Truck className="w-4 h-4" />
+              <span>🚚 Crear Manifiesto de Carga ({selectedReadyOrderIds.length})</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Tablero Kanban con Columnas Reactivas de Drag-and-Drop */}
       <div className="flex gap-4 sm:gap-5 flex-1 overflow-x-auto pb-4 select-none">
         {currentColumns.map((column) => {
@@ -702,12 +841,25 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                         className={`p-4 rounded-xl transition-all cursor-grab active:cursor-grabbing flex flex-col gap-2.5 group relative ${
                           isDraggingThis
                             ? 'opacity-40 scale-95 border-dashed border-2 border-cyan-400 bg-cyan-950/30'
+                            : selectedReadyOrderIds.includes(quote.id)
+                            ? 'bg-purple-950/30 border-2 border-purple-500 ring-2 ring-purple-500/40 shadow-lg shadow-purple-500/20'
                             : 'bg-slate-950/85 border border-white/10 hover:border-cyan-500/50 hover:shadow-xl hover:shadow-cyan-500/10 hover:-translate-y-0.5'
                         }`}
                       >
-                        {/* Cabecera Tarjeta con SLA OTIF */}
+                        {/* Cabecera Tarjeta con SLA OTIF y Checkbox para Manifiestos */}
                         <div className="flex justify-between items-start gap-2">
-                          <div className="min-w-0">
+                          {column.id === 'listos' && (
+                            <input
+                              type="checkbox"
+                              data-testid={`checkbox-select-${quote.id}`}
+                              checked={selectedReadyOrderIds.includes(quote.id)}
+                              onChange={(e) => toggleSelectReadyOrder(quote.id, e as any)}
+                              onClick={(e) => e.stopPropagation()}
+                              className="w-4 h-4 mt-0.5 rounded border-purple-400 text-purple-600 focus:ring-purple-500 cursor-pointer shrink-0"
+                              title="Seleccionar para manifiesto de carga"
+                            />
+                          )}
+                          <div className="min-w-0 flex-1">
                             <div className="text-xs font-mono font-bold text-cyan-400 flex items-center gap-1.5">
                               <span>{quote.numeroPedido || quote.numeroCotizacion || quote.id}</span>
                             </div>
@@ -832,7 +984,12 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
 
                         {activeTab === 'despacho' && (
                           <div className="pt-2 border-t border-white/5 flex items-center justify-between">
-                            {quote.remisionWmsNumero ? (
+                            {quote.numeroManifiesto ? (
+                              <span className="text-[11px] font-mono font-semibold text-purple-300 bg-purple-500/20 px-2 py-0.5 rounded border border-purple-500/30 flex items-center gap-1">
+                                <Truck size={12} className="text-purple-400" />
+                                <span>{quote.numeroManifiesto}</span>
+                              </span>
+                            ) : quote.remisionWmsNumero ? (
                               <span className="text-[11px] font-mono font-semibold text-purple-400 flex items-center gap-1">
                                 <QrCode size={12} /> {quote.remisionWmsNumero}
                               </span>
@@ -910,6 +1067,19 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
           onClose={() => setDispatchModalOrder(null)}
           pedido={dispatchModalOrder}
           onDispatchConfirmed={handleDispatchConfirmed}
+        />
+      )}
+
+      {/* Modal Generador de Manifiesto de Carga y Ruta */}
+      {isRouteManifestModalOpen && (
+        <RouteManifestBuilderModal
+          isOpen={isRouteManifestModalOpen}
+          onClose={() => setIsRouteManifestModalOpen(false)}
+          pedidosDisponibles={pedidosListos as any}
+          getClientName={getClientName}
+          getClientAddress={getClientAddress}
+          initialSelectedIds={selectedReadyOrderIds}
+          onManifestCreated={handleManifestCreated}
         />
       )}
     </div>

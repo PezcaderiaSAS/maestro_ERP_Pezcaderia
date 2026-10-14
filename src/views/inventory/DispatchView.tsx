@@ -1,14 +1,16 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Truck, Package, Clock, MapPin, CheckCircle, Search, User, 
   Plus, CheckSquare, Smartphone, Award, Fuel, CheckCheck, 
-  ArrowRight, ShieldCheck, AlertTriangle, Calendar, DollarSign
+  ArrowRight, ShieldCheck, AlertTriangle, Calendar, DollarSign,
+  Printer, FileDown
 } from 'lucide-react';
 import { useOrderStore } from '../../store/useOrderStore';
 import { useClientStore } from '../../store/useClientStore';
 import { useAppStore } from '../../store/useAppStore';
 import { Pedido } from '../../types/orders.types';
 import { deliveryRouteService, DeliveryRouteRecord } from '../../services/deliveryRouteService';
+import { routeManifestPdfService } from '../../services/routeManifestPdfService';
 import { RouteManifestBuilderModal } from './components/RouteManifestBuilderModal';
 import { DeliveryDriverPortalModal } from './components/DeliveryDriverPortalModal';
 import { RouteSettlementModal } from './components/RouteSettlementModal';
@@ -17,7 +19,7 @@ import { DeliveryGovernanceTab } from './components/DeliveryGovernanceTab';
 type TabView = 'PEDIDOS_LISTOS' | 'RUTAS_ACTIVAS' | 'RUTAS_LIQUIDADAS' | 'GOBERNANZA_OTIF';
 
 export const DispatchView: React.FC = () => {
-  const { ventas } = useOrderStore();
+  const { ventas, quotations } = useOrderStore();
   const { getClienteById } = useClientStore();
   const userRole = useAppStore((s) => s.userRole);
 
@@ -38,6 +40,13 @@ export const DispatchView: React.FC = () => {
     setManifiestos(deliveryRouteService.obtenerManifiestos());
   };
 
+  useEffect(() => {
+    recargarManifiestos();
+    const handleStorage = () => recargarManifiestos();
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
   // Pedidos listos (no incluidos en rutas activas)
   const pedidosEnRutaIds = useMemo(() => {
     const ids = new Set<string>();
@@ -49,17 +58,38 @@ export const DispatchView: React.FC = () => {
     return ids;
   }, [manifiestos]);
 
+  // Unificación de pedidos (ventas + cotizaciones en estado LISTO)
+  const combinedOrders = useMemo(() => {
+    const map = new Map<string, any>();
+    (quotations || []).forEach((q: any) => {
+      if (q && q.id) map.set(q.id, { ...q, _source: 'quotation' });
+    });
+    (ventas || []).forEach((v: any) => {
+      if (v && v.id) {
+        const existing = map.get(v.id);
+        map.set(v.id, { ...existing, ...v, _source: 'venta' });
+      }
+    });
+    return Array.from(map.values());
+  }, [ventas, quotations]);
+
   const pedidosListos = useMemo(() => {
-    return ventas
-      .filter((o) => o.estado === 'LISTO')
+    return combinedOrders
+      .filter((o) => ['LISTO', 'Listo', 'listo'].includes(o.estado))
       .filter((o) => !pedidosEnRutaIds.has(o.id))
-      .filter(
-        (o) =>
-          o.numeroPedido.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          getClienteById(o.clienteId)?.nombre?.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-      .sort((a, b) => new Date(a.fechaEntrega).getTime() - new Date(b.fechaEntrega).getTime());
-  }, [ventas, pedidosEnRutaIds, searchTerm, getClienteById]);
+      .filter((o) => {
+        const num = (o.numeroPedido || o.numeroCotizacion || o.id || '').toLowerCase();
+        const clienteObj = getClienteById(o.clienteId);
+        const cliName = (o.clientName || o.clienteNombre || clienteObj?.nombre || '').toLowerCase();
+        const term = searchTerm.toLowerCase();
+        return num.includes(term) || cliName.includes(term);
+      })
+      .sort((a, b) => {
+        const dateA = new Date(a.fechaEntrega || a.fecha || 0).getTime();
+        const dateB = new Date(b.fechaEntrega || b.fecha || 0).getTime();
+        return dateA - dateB;
+      });
+  }, [combinedOrders, pedidosEnRutaIds, searchTerm, getClienteById]);
 
   // Rutas activas
   const rutasActivas = useMemo(() => {
@@ -297,24 +327,34 @@ export const DispatchView: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Acciones de la Ruta */}
-                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/5">
+                    {/* Acciones de la Ruta (con ergonomía táctil >= 44px) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-white/5">
+                      <button
+                        type="button"
+                        onClick={() => routeManifestPdfService.descargarManifiestoPDF(m)}
+                        className="min-h-[44px] py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 hover:text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors border border-sky-500/20"
+                        title="Descargar Hoja de Ruta oficial e Imprimir"
+                      >
+                        <Printer className="w-4 h-4 text-sky-400" />
+                        <span>Imprimir Ruta</span>
+                      </button>
+
                       <button
                         type="button"
                         onClick={() => setActivePortalManifest(m)}
-                        className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
+                        className="min-h-[44px] py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors border border-indigo-500/20"
                       >
                         <Smartphone className="w-4 h-4" />
-                        <span>Abrir Portal Conductor</span>
+                        <span>Portal Conductor</span>
                       </button>
 
                       <button
                         type="button"
                         onClick={() => setActiveSettlementManifest(m)}
-                        className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs shadow-md shadow-indigo-500/20 flex items-center justify-center gap-1.5 transition-all"
+                        className="min-h-[44px] py-2.5 px-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs shadow-md shadow-indigo-500/20 flex items-center justify-center gap-1.5 transition-all"
                       >
                         <CheckCheck className="w-4 h-4" />
-                        <span>Liquidar y Cuadrar Ruta</span>
+                        <span>Liquidar Ruta</span>
                       </button>
                     </div>
                   </div>
@@ -389,6 +429,15 @@ export const DispatchView: React.FC = () => {
                       </b>
                     </div>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => routeManifestPdfService.descargarManifiestoPDF(m)}
+                    className="w-full min-h-[40px] py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors border border-white/10"
+                  >
+                    <FileDown className="w-3.5 h-3.5 text-indigo-400" />
+                    <span>Descargar Acta / PDF</span>
+                  </button>
                 </div>
               ))}
             </div>

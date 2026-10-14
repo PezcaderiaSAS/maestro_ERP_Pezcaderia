@@ -17,6 +17,7 @@ import {
   ArrivalCheckinSchema,
 } from '../../packages/validation-schemas/src/deliveryRoute.schema';
 import { cashService } from './cashService';
+import { registrarEntrada } from './inventoryService';
 
 export interface DeliveryOrderItem {
   id: string;
@@ -65,7 +66,7 @@ export interface DeliveryRouteRecord {
   vehiculoPlaca: string;
   vehiculoTipo?: string;
   zonaRuta: string;
-  estado: 'PLANIFICADA' | 'EN_RUTA' | 'LIQUIDADA' | 'CANCELADA';
+  estado: 'PLANIFICADA' | 'EN_RUTA' | 'EN_LIQUIDACION' | 'LIQUIDADA' | 'CANCELADA';
   totalPedidos: number;
   totalPesoKg: number;
   totalFacturadoEsperado: number;
@@ -84,10 +85,16 @@ export interface DeliveryRouteRecord {
   creadoEn: string;
   salidaEn?: string;
   liquidadoEn?: string;
-  // Checklist de recepción de carga y frío
+  // Checklist de recepción de carga, frío y odometría
   temperaturaSalidaCelsius?: number;
   cargaVerificadaEnBodega?: boolean;
   horaInicioCarga?: string;
+  kilometrajeInicial?: number;
+  kilometrajeFinal?: number;
+  temperaturaRetornoCelsius?: number;
+  horaRetornoBodega?: string;
+  observacionesRetorno?: string;
+  bodegaDespachoId?: string;
   incidenciasRuta?: RouteIncident[];
 }
 
@@ -171,7 +178,7 @@ export const deliveryRouteService = {
         estado: 'PLANIFICADA',
         totalPedidos: pedidosMapeados.length,
         totalPesoKg: Math.round(totalPeso * 100) / 100,
-        totalFacturadoEsperado: Math.round(totalFacturado * 100) / 100,
+        totalFacturadoEsperado: Math.round(totalFacturado),
         totalRecaudadoEfectivo: 0,
         totalRecaudadoDigital: 0,
         totalCreditoFirmado: 0,
@@ -185,6 +192,9 @@ export const deliveryRouteService = {
         devolucionesGlobales: [],
         creadoEn: new Date().toISOString(),
         cargaVerificadaEnBodega: false,
+        kilometrajeInicial: validated.kilometrajeInicial,
+        temperaturaSalidaCelsius: validated.temperaturaSalidaCelsius ?? (validated as any).temperaturaCavaSalida,
+        bodegaDespachoId: (input as any).bodegaDespachoId || '1',
         incidenciasRuta: [],
       };
 
@@ -248,6 +258,7 @@ export const deliveryRouteService = {
     if (idx === -1) return { success: false, error: 'Manifiesto no encontrado' };
 
     manifiestos[idx].estado = 'EN_RUTA';
+    manifiestos[idx].cargaVerificadaEnBodega = true;
     manifiestos[idx].salidaEn = new Date().toISOString();
     save(STORAGE_KEY, manifiestos);
     return { success: true };
@@ -419,8 +430,64 @@ export const deliveryRouteService = {
   },
 
   /**
+   * Finalización del recorrido del chofer al regresar a bodega:
+   * Valida odómetro final obligatorio, temperatura opcional y pasa el manifiesto a EN_LIQUIDACION.
+   */
+  finalizarRecorridoChofer(input: {
+    manifiestoId: string;
+    kilometrajeFinal: number;
+    temperaturaRetornoCelsius?: number;
+    observacionesRetorno?: string;
+  }): { success: boolean; data?: DeliveryRouteRecord; error?: string } {
+    try {
+      const manifiestos = this.obtenerManifiestos();
+      const idx = manifiestos.findIndex((m) => m.id === input.manifiestoId);
+      if (idx === -1) return { success: false, error: 'Manifiesto no encontrado' };
+
+      const manifiesto = manifiestos[idx];
+      if (manifiesto.estado !== 'EN_RUTA' && manifiesto.estado !== 'PLANIFICADA') {
+        return { success: false, error: `No se puede finalizar una ruta en estado ${manifiesto.estado}` };
+      }
+
+      if (
+        input.kilometrajeFinal === undefined ||
+        input.kilometrajeFinal === null ||
+        isNaN(input.kilometrajeFinal) ||
+        input.kilometrajeFinal < 0
+      ) {
+        return { success: false, error: 'El kilometraje final es obligatorio y debe ser mayor o igual a cero' };
+      }
+
+      if (
+        manifiesto.kilometrajeInicial !== undefined &&
+        input.kilometrajeFinal < manifiesto.kilometrajeInicial
+      ) {
+        return {
+          success: false,
+          error: `El kilometraje final (${input.kilometrajeFinal} km) no puede ser inferior al inicial (${manifiesto.kilometrajeInicial} km)`,
+        };
+      }
+
+      const now = new Date().toISOString();
+      manifiesto.kilometrajeFinal = input.kilometrajeFinal;
+      if (input.temperaturaRetornoCelsius !== undefined) {
+        manifiesto.temperaturaRetornoCelsius = input.temperaturaRetornoCelsius;
+      }
+      manifiesto.observacionesRetorno = input.observacionesRetorno;
+      manifiesto.horaRetornoBodega = now;
+      manifiesto.estado = 'EN_LIQUIDACION';
+
+      save(STORAGE_KEY, manifiestos);
+      return { success: true, data: manifiesto };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Error al finalizar recorrido' };
+    }
+  },
+
+  /**
    * Cierre y liquidación final del transportador:
-   * Calcula arqueo, deducción de gastos soportados y cuadre de caja general.
+   * Calcula arqueo en enteros COP, deducción de gastos soportados, cuadre de caja general,
+   * integra con cashService y segrega devoluciones de inventario.
    */
   async liquidarRutaTransportador(
     input: SettleRouteManifest
@@ -440,7 +507,7 @@ export const deliveryRouteService = {
             ...g,
             id: g.id || crypto.randomUUID?.() || `gasto-${Date.now()}`,
           });
-          manifiesto.totalGastosRuta += g.monto;
+          manifiesto.totalGastosRuta = Math.round(manifiesto.totalGastosRuta + g.monto);
         }
       }
 
@@ -460,25 +527,108 @@ export const deliveryRouteService = {
         }
       }
 
+      // Redondeo estricto a números enteros en COP (Math.round)
+      totalEfectivo = Math.round(totalEfectivo);
+      totalDigital = Math.round(totalDigital);
+      totalCredito = Math.round(totalCredito);
+      const totalGastosRuta = Math.round(manifiesto.totalGastosRuta);
+
       // Efectivo Neto Esperado = Total Efectivo Recaudado - Total Gastos de Ruta
-      const efectivoEsperado = Math.round((totalEfectivo - manifiesto.totalGastosRuta) * 100) / 100;
-      const diferenciaCuadre = Math.round((validated.efectivoFisicoEntregado - efectivoEsperado) * 100) / 100;
+      const efectivoEsperado = Math.round(totalEfectivo - totalGastosRuta);
+      const efectivoEntregado = Math.round(validated.efectivoFisicoEntregado);
+      const diferenciaCuadre = Math.round(efectivoEntregado - efectivoEsperado);
 
       manifiesto.estado = 'LIQUIDADA';
-      manifiesto.totalRecaudadoEfectivo = Math.round(totalEfectivo * 100) / 100;
-      manifiesto.totalRecaudadoDigital = Math.round(totalDigital * 100) / 100;
-      manifiesto.totalCreditoFirmado = Math.round(totalCredito * 100) / 100;
-      manifiesto.efectivoNetoEntregado = validated.efectivoFisicoEntregado;
+      manifiesto.totalRecaudadoEfectivo = totalEfectivo;
+      manifiesto.totalRecaudadoDigital = totalDigital;
+      manifiesto.totalCreditoFirmado = totalCredito;
+      manifiesto.efectivoNetoEntregado = efectivoEntregado;
       manifiesto.diferenciaCuadre = diferenciaCuadre;
       manifiesto.observacionesLiquidacion = validated.observacionesLiquidacion;
       manifiesto.liquidadoEn = new Date().toISOString();
 
+      // Integración Tesorería: cashService
+      try {
+        const turnos = cashService.getTurnos();
+        const turnoActivo = turnos.find((t) => t.estado === 'ABIERTO');
+        if (turnoActivo) {
+          const cajaId = turnoActivo.cajaId;
+          const usuarioId = validated.liquidadoPor || turnoActivo.cajeroId || turnoActivo.createdBy || 'sistema';
+
+          // 1. Ingreso por efectivo recaudado entregado físicamente
+          if (efectivoEntregado > 0) {
+            cashService.registrarMovimiento(
+              turnoActivo.id,
+              cajaId,
+              'INGRESO_VENTA',
+              'EFECTIVO',
+              efectivoEntregado,
+              `Liquidación recaudo ruta manifiesto ${manifiesto.numeroManifiesto} - Conductor ${manifiesto.conductorNombre}`,
+              manifiesto.id,
+              usuarioId
+            );
+          }
+
+          // 2. Ajuste por descuadre
+          if (diferenciaCuadre < 0) {
+            // Faltante en caja -> AJUSTE_FALTANTE (Deducible a cargo del conductor)
+            const montoFaltante = Math.abs(diferenciaCuadre);
+            cashService.registrarMovimiento(
+              turnoActivo.id,
+              cajaId,
+              'AJUSTE_FALTANTE',
+              'EFECTIVO',
+              montoFaltante,
+              `Faltante en liquidación ruta ${manifiesto.numeroManifiesto} (Deducible a cargo del conductor: ${manifiesto.conductorNombre})`,
+              manifiesto.id,
+              usuarioId
+            );
+          } else if (diferenciaCuadre > 0) {
+            // Sobrante en caja -> AJUSTE_SOBRANTE
+            cashService.registrarMovimiento(
+              turnoActivo.id,
+              cajaId,
+              'AJUSTE_SOBRANTE',
+              'EFECTIVO',
+              diferenciaCuadre,
+              `Sobrante en liquidación ruta ${manifiesto.numeroManifiesto} - Conductor ${manifiesto.conductorNombre}`,
+              manifiesto.id,
+              usuarioId
+            );
+          }
+        }
+      } catch (cashErr) {
+        console.warn('[DeliveryRouteService] Warning al registrar movimiento en cashService:', cashErr);
+      }
+
+      // Segregación de Devoluciones en Inventario:
+      // REINGRESO_STOCK -> Bodega Principal de Despacho (bodegaId = '1' o bodegaDespachoId)
+      // CUARENTENA_CALIDAD / MERMA_DESCARTE -> Bodega Averías (bodegaId = '2')
+      if (manifiesto.devolucionesGlobales && manifiesto.devolucionesGlobales.length > 0) {
+        const bodegaPrincipalId = manifiesto.bodegaDespachoId || '1';
+        const bodegaAveriasId = '2';
+
+        for (const dev of manifiesto.devolucionesGlobales) {
+          const destinoBodega = dev.destinoBodega === 'REINGRESO_STOCK' ? bodegaPrincipalId : bodegaAveriasId;
+          try {
+            registrarEntrada({
+              bodegaId: destinoBodega,
+              productoId: dev.productoId,
+              cantidad: dev.cantidadDevueltaKg,
+              referenciaId: `${manifiesto.numeroManifiesto}-${dev.loteFefo || 'DEV'}`,
+            });
+          } catch (invErr) {
+            console.warn('[DeliveryRouteService] Warning al segregar devolución en inventario:', invErr);
+          }
+        }
+      }
+
       save(STORAGE_KEY, manifiestos);
 
-      // Sincronizar en Supabase si está disponible
-      const supabase = getSupabaseClient();
-      if (supabase) {
-        try {
+      // Sincronizar en Supabase si está disponible (resiliente ante falta de credenciales en tests/offline)
+      try {
+        const supabase = getSupabaseClient();
+        if (supabase) {
           await supabase.rpc('fn_liquidar_ruta_transportador', {
             p_manifiesto_id: manifiesto.id,
             p_liquidado_por: validated.liquidadoPor,
@@ -486,9 +636,9 @@ export const deliveryRouteService = {
             p_gastos: manifiesto.gastos,
             p_observaciones: validated.observacionesLiquidacion || null,
           });
-        } catch (sbErr) {
-          console.warn('[DeliveryRouteService] Sync Supabase opcional fallback a localDb:', sbErr);
         }
+      } catch (sbErr) {
+        // Fallback silencioso cuando Supabase no está inicializado (tests o modo 100% offline)
       }
 
       return { success: true, data: manifiesto };

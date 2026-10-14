@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const EstadoManifiestoEnum = z.enum([
   'PLANIFICADA',
   'EN_RUTA',
+  'EN_LIQUIDACION',
   'LIQUIDADA',
   'CANCELADA',
 ]);
@@ -52,6 +53,13 @@ export const DestinoDevolucionEnum = z.enum([
 ]);
 export type DestinoDevolucion = z.infer<typeof DestinoDevolucionEnum>;
 
+export const CumplimientoSLAEnum = z.enum([
+  'A_TIEMPO',
+  'DEMORADO',
+  'ANTICIPADO',
+]);
+export type CumplimientoSLA = z.infer<typeof CumplimientoSLAEnum>;
+
 /**
  * Esquema para gastos de ruta (gasolina, peajes, hielo, etc.)
  */
@@ -92,6 +100,9 @@ export const CreateRouteManifestSchema = z.object({
   vehiculoPlaca: z.string().min(5, 'La placa del vehículo es requerida').max(10),
   vehiculoTipo: z.string().optional(),
   zonaRuta: z.string().min(1, 'La zona de la ruta es requerida'),
+  kilometrajeInicial: z.number().min(0).optional(),
+  temperaturaCavaSalida: z.number().min(-30).max(15).optional(),
+  temperaturaSalidaCelsius: z.number().min(-30).max(15).optional(),
   observaciones: z.string().max(500).optional(),
   pedidosIds: z.array(z.string().min(1)).min(1, 'Debe asignar al menos un pedido a la ruta'),
 });
@@ -111,8 +122,15 @@ export const RegisterDeliveryExecutionSchema = z.object({
   montoDigital: z.number().min(0).default(0),
   referenciaDigital: z.string().optional(),
   firmaClienteUrl: z.string().optional(),
+  receptorNombre: z.string().max(150).optional(),
+  receptorDocumento: z.string().max(50).optional(),
+  tiempoTransitoMinutos: z.number().min(0).optional(),
+  tiempoAtencionMinutos: z.number().min(0).optional(),
+  cumplimientoSLA: CumplimientoSLAEnum.optional(),
   novedadObservaciones: z.string().max(500).optional(),
-  devoluciones: z.array(RouteReturnItemSchema).optional().default([]),
+  devoluciones: z.array(RouteReturnItemSchema).optional(),
+  latitud: z.number().optional(),
+  longitud: z.number().optional(),
 }).refine((data) => {
   // Si la forma de pago es digital, se debe exigir referencia o comprobante
   if (data.formaPago === 'TRANSFERENCIA_DIGITAL' && data.montoCobradoFinal > 0) {
@@ -143,6 +161,8 @@ export const SettleRouteManifestSchema = z.object({
   manifiestoId: z.string().min(1, 'El ID de manifiesto es requerido'),
   liquidadoPor: z.string().min(1, 'El responsable de tesorería/caja es requerido'),
   efectivoFisicoEntregado: z.number().min(0, 'El efectivo entregado no puede ser negativo'),
+  kilometrajeFinal: z.number().min(0).optional(),
+  temperaturaCavaRetorno: z.number().min(-30).max(15).optional(),
   gastos: z.array(RouteExpenseSchema).optional().default([]),
   observacionesLiquidacion: z.string().max(500).optional(),
 });
@@ -202,3 +222,29 @@ export const ArrivalCheckinSchema = z.object({
   longitud: z.number().optional(),
 });
 export type ArrivalCheckin = z.infer<typeof ArrivalCheckinSchema>;
+
+/**
+ * Esquema de Eventos Outbox para Sincronización Offline-First
+ */
+export const TipoEventoOutboxEnum = z.enum([
+  'CHECKIN_LLEGADA',
+  'ENTREGA_CONFIRMADA',
+  'FIRMA_CAPTURADA',
+  'GASTO_REGISTRADO',
+  'INCIDENCIA_REPORTADA',
+  'CIERRE_RUTA_CHOFER',
+]);
+export type TipoEventoOutbox = z.infer<typeof TipoEventoOutboxEnum>;
+
+export const DeliveryOutboxEventSchema = z.object({
+  id: z.string().optional(),
+  tenantId: z.string().min(1, 'El tenant ID es requerido'),
+  rutaId: z.string().min(1, 'La ruta ID es requerida'),
+  eventoTipo: TipoEventoOutboxEnum,
+  payload: z.record(z.any()),
+  estado: z.enum(['PENDIENTE', 'PROCESADO', 'ERROR']).default('PENDIENTE'),
+  timestampCliente: z.string(),
+  procesadoEn: z.string().optional(),
+  errorMensaje: z.string().optional(),
+});
+export type DeliveryOutboxEvent = z.infer<typeof DeliveryOutboxEventSchema>;
