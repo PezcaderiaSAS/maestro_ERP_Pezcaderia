@@ -1,28 +1,15 @@
 import { create } from 'zustand';
 import type { IDataService } from '../types/services.types';
 import { LocalDataService } from '../services/LocalDataService';
-import { Pedido } from '../types/orders.types';
+import { Pedido, type Cotizacion, type EstadoCotizacion } from '../types/orders.types';
 import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
 import { getSupabaseClient } from '../lib/supabase';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
+export type { Cotizacion, EstadoCotizacion };
+
 let dataService: IDataService = new LocalDataService();
 export const setOrderDataService = (ds: IDataService) => { dataService = ds; };
-
-export interface Cotizacion {
-  id: string;
-  fecha: string;
-  cliente: string;
-  clienteId?: string;
-  total: number;
-  items?: any[];
-  lineas?: any[];
-  montoTotal?: number;
-  subtotal?: number;
-  estado?: string;
-  fechaActualizacion?: string;
-  [key: string]: any;
-}
 
 interface OrderState {
   ventas: Pedido[];
@@ -58,12 +45,12 @@ export const useOrderStore = create<OrderState>()(
   },
 
   addVenta: (venta) => {
-    dataService.create('ventas', venta);
+    dataService.create('ventas', venta).catch?.(() => {});
     set((state) => ({ ventas: [...state.ventas, venta] }));
   },
 
   updateVenta: (id, data) => {
-    dataService.update('ventas', id, data);
+    dataService.update('ventas', id, data).catch?.(() => {});
     set((state) => ({
       ventas: state.ventas.map(v => v.id === id ? { ...v, ...data } : v),
     }));
@@ -75,12 +62,12 @@ export const useOrderStore = create<OrderState>()(
   }),
 
   addQuotation: (quotation) => {
-    dataService.create('cotizaciones', quotation);
+    dataService.create('cotizaciones', quotation).catch?.(() => {});
     set((state) => ({ quotations: [...state.quotations, quotation] }));
   },
 
   updateQuotation: (id, data) => {
-    dataService.update('cotizaciones', id, data);
+    dataService.update('cotizaciones', id, data).catch?.(() => {});
     set((state) => ({
       quotations: state.quotations.map(q => q.id === id ? { ...q, ...data } : q),
     }));

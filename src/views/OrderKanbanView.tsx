@@ -19,6 +19,8 @@ import {
   Search,
   Filter,
   X,
+  UserCheck,
+  User,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { b2bService } from '../services/b2bService';
@@ -885,6 +887,60 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                           </span>
                         </div>
 
+                        {/* Trazabilidad Tripartita de Actores B2B (Vendedor, Alistador, Conductor) */}
+                        <div className="flex flex-wrap items-center gap-1.5 text-[11px] pt-0.5">
+                          {/* Actor 1: Vendedor Comercial */}
+                          {(quote.vendedorNombre || quote.vendedorId) ? (
+                            <span
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-semibold bg-blue-500/15 text-blue-300 border border-blue-500/30"
+                              title={`Vendedor Comercial Asignado: ${quote.vendedorNombre || quote.vendedorId}`}
+                            >
+                              <UserCheck size={11} className="text-blue-400 shrink-0" />
+                              <span className="truncate max-w-[110px]">V: {quote.vendedorNombre || quote.vendedorId}</span>
+                            </span>
+                          ) : (
+                            <span
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-medium bg-slate-800 text-slate-400 border border-white/5"
+                              title="Venta Directa sin vendedor formal"
+                            >
+                              <User size={11} className="text-slate-500 shrink-0" />
+                              <span>V: Directo</span>
+                            </span>
+                          )}
+
+                          {/* Actor 2: Operario Alistador WMS */}
+                          {(quote.operarioAlistadorNombre || quote.operarioAlistadorId) ? (
+                            <span
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30"
+                              title={`Operario de Alistamiento & Báscula: ${quote.operarioAlistadorNombre || quote.operarioAlistadorId}`}
+                            >
+                              <Scale size={11} className="text-amber-400 shrink-0" />
+                              <span className="truncate max-w-[110px]">A: {quote.operarioAlistadorNombre || quote.operarioAlistadorId}</span>
+                            </span>
+                          ) : (
+                            ['EN_ALISTAMIENTO', 'EN_PESAJE', 'LISTO', 'EN_DESPACHO', 'ENTREGADO'].includes(quote.estado) && (
+                              <span
+                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md font-medium bg-amber-500/10 text-amber-400/70 border border-dashed border-amber-500/30 text-[10px]"
+                                title="Pendiente asignación de alistador de cuarto frío"
+                              >
+                                <Scale size={10} className="shrink-0" />
+                                <span>A: En turno</span>
+                              </span>
+                            )
+                          )}
+
+                          {/* Actor 3: Conductor Repartidor / Ruta */}
+                          {(quote.conductorRepartidorNombre || quote.conductor || quote.conductorRepartidorId) ? (
+                            <span
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
+                              title={`Conductor de Reparto Refrigerado: ${quote.conductorRepartidorNombre || quote.conductor || quote.conductorRepartidorId}`}
+                            >
+                              <Truck size={11} className="text-emerald-400 shrink-0" />
+                              <span className="truncate max-w-[110px]">C: {quote.conductorRepartidorNombre || quote.conductor || quote.conductorRepartidorId}</span>
+                            </span>
+                          ) : null}
+                        </div>
+
                         {/* Metadatos de Productos y Catch Weight */}
                         <div className="flex flex-wrap gap-1.5 text-[11px]">
                           <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-white/5 flex items-center gap-1">
@@ -907,9 +963,57 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                           )}
                         </div>
 
-                        {/* Estado de Pesaje / Botón de Acción Rápida */}
+                        {/* Semáforo de Tolerancia Catch Weight ±5% */}
+                        {(() => {
+                          const linesArr = quote.lineas || quote.items || [];
+                          const totNominal = linesArr.reduce((acc: number, l: any) => acc + (Number(l.pesoNominalKg || l.cantidadSolicitada || l.pesoEstimado) || 0), 0);
+                          const totReal = linesArr.reduce((acc: number, l: any) => acc + (Number(l.pesoReal || l.cantidadAlistada) || 0), 0);
+                          const hasSomeReal = linesArr.some((l: any) => l.pesoReal !== undefined && l.pesoReal !== null && Number(l.pesoReal) > 0);
+
+                          if (hasSomeReal && totNominal > 0) {
+                            const varPct = Number((((totReal - totNominal) / totNominal) * 100).toFixed(1));
+                            const inTol = Math.abs(varPct) <= 5.0;
+
+                            return (
+                              <div
+                                className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold flex items-center justify-between border ${
+                                  inTol
+                                    ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                                    : 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+                                }`}
+                                title={`Variación báscula vs pactado: ${varPct > 0 ? `+${varPct}` : varPct}% (Tolerancia ±5%)`}
+                              >
+                                <span className="flex items-center gap-1.5">
+                                  <Scale size={13} className={inTol ? 'text-emerald-400' : 'text-amber-400'} />
+                                  <span>Nom: {totNominal.toFixed(1)}k <span className="opacity-60">→</span> Real: {totReal.toFixed(1)}k</span>
+                                </span>
+                                <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-extrabold ${
+                                  inTol ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'
+                                }`}>
+                                  {inTol ? '✓' : '⚠'} {varPct > 0 ? `+${varPct}%` : `${varPct}%`}
+                                </span>
+                              </div>
+                            );
+                          }
+
+                          if (totNominal > 0) {
+                            return (
+                              <div className="px-2.5 py-1 rounded-lg text-xs font-mono text-slate-400 bg-slate-900/60 border border-white/5 flex items-center justify-between">
+                                <span className="flex items-center gap-1">
+                                  <Scale size={12} className="text-slate-500" />
+                                  <span>Nominal: {totNominal.toFixed(1)} KG</span>
+                                </span>
+                                <span className="text-[10px] text-slate-500 font-sans italic">Por pesar</span>
+                              </div>
+                            );
+                          }
+
+                          return null;
+                        })()}
+
+                        {/* Estado de Pesaje / Botón de Acción Rápida con Targets Táctiles >= 48px */}
                         {activeTab === 'bodega' && (
-                          <div className="pt-2 border-t border-white/5 flex items-center justify-between">
+                          <div className="pt-2 border-t border-white/5 flex items-center justify-between gap-2">
                             <span className="text-xs text-slate-400 font-mono">
                               {hasWeight ? (
                                 <span className="text-emerald-400 font-semibold flex items-center gap-1">
@@ -920,8 +1024,8 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                               )}
                             </span>
 
-                            <div className="flex items-center gap-1.5">
-                              {/* Botón Pesar si está en pesaje o fileteo */}
+                            <div className="flex items-center gap-2">
+                              {/* Botón Pesar si está en pesaje o fileteo con touch target >= 48px */}
                               {column.id === 'en_pesaje' && (
                                 <button
                                   type="button"
@@ -956,14 +1060,14 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                                       });
                                     }
                                   }}
-                                  className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 border border-amber-500/30 transition-all flex items-center gap-1 cursor-pointer"
+                                  className="min-h-[48px] px-3.5 py-2.5 rounded-xl text-xs font-bold bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 border border-amber-500/40 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm active:scale-95 touch-manipulation"
                                   title="Pesar en báscula digital"
                                 >
-                                  <Scale size={11} /> Pesar
+                                  <Scale size={14} /> <span>Pesar</span>
                                 </button>
                               )}
 
-                              {/* Botón de Avance Directo (Micro-interacción táctil) */}
+                              {/* Botón de Avance Directo (Touch Target >= 48px) */}
                               {column.nextColumnId && (
                                 <button
                                   type="button"
@@ -971,11 +1075,11 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                                     e.stopPropagation();
                                     moveOrderToColumn(quote.id, column.nextColumnId!);
                                   }}
-                                  className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-blue-600/30 hover:bg-blue-600 text-blue-300 hover:text-white border border-blue-500/30 transition-all flex items-center gap-1 cursor-pointer"
+                                  className="min-h-[48px] px-4 py-2.5 rounded-xl text-xs font-bold bg-blue-600/30 hover:bg-blue-600 text-blue-300 hover:text-white border border-blue-500/40 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm active:scale-95 touch-manipulation"
                                   title={`Avanzar a ${column.nextStepLabel}`}
                                 >
                                   <span>{column.nextStepLabel}</span>
-                                  <ArrowRight size={11} />
+                                  <ArrowRight size={14} />
                                 </button>
                               )}
                             </div>
@@ -983,15 +1087,15 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                         )}
 
                         {activeTab === 'despacho' && (
-                          <div className="pt-2 border-t border-white/5 flex items-center justify-between">
+                          <div className="pt-2 border-t border-white/5 flex items-center justify-between gap-2">
                             {quote.numeroManifiesto ? (
-                              <span className="text-[11px] font-mono font-semibold text-purple-300 bg-purple-500/20 px-2 py-0.5 rounded border border-purple-500/30 flex items-center gap-1">
-                                <Truck size={12} className="text-purple-400" />
+                              <span className="text-[11px] font-mono font-semibold text-purple-300 bg-purple-500/20 px-2.5 py-1.5 rounded-lg border border-purple-500/30 flex items-center gap-1">
+                                <Truck size={13} className="text-purple-400" />
                                 <span>{quote.numeroManifiesto}</span>
                               </span>
                             ) : quote.remisionWmsNumero ? (
                               <span className="text-[11px] font-mono font-semibold text-purple-400 flex items-center gap-1">
-                                <QrCode size={12} /> {quote.remisionWmsNumero}
+                                <QrCode size={13} /> {quote.remisionWmsNumero}
                               </span>
                             ) : column.id === 'listos' ? (
                               <button
@@ -1000,9 +1104,9 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                                   e.stopPropagation();
                                   setDispatchModalOrder(quote);
                                 }}
-                                className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-purple-600/30 hover:bg-purple-600 text-purple-300 hover:text-white border border-purple-500/30 transition-all flex items-center gap-1 cursor-pointer shadow-sm shadow-purple-600/20"
+                                className="min-h-[48px] px-4 py-2.5 rounded-xl text-xs font-bold bg-purple-600/30 hover:bg-purple-600 text-purple-300 hover:text-white border border-purple-500/40 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm shadow-purple-600/20 active:scale-95 touch-manipulation"
                               >
-                                <Truck size={12} /> Despachar WMS
+                                <Truck size={14} /> <span>Despachar WMS</span>
                               </button>
                             ) : null}
 
@@ -1014,10 +1118,10 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                                     e.stopPropagation();
                                     moveOrderToColumn(quote.id, column.nextColumnId!);
                                   }}
-                                  className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-purple-600/30 hover:bg-purple-600 text-purple-300 hover:text-white border border-purple-500/30 transition-all flex items-center gap-1 cursor-pointer"
+                                  className="min-h-[48px] px-4 py-2.5 rounded-xl text-xs font-bold bg-purple-600/30 hover:bg-purple-600 text-purple-300 hover:text-white border border-purple-500/40 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm active:scale-95 touch-manipulation"
                                 >
                                   <span>{column.nextStepLabel}</span>
-                                  <ArrowRight size={11} />
+                                  <ArrowRight size={14} />
                                 </button>
                               )}
 

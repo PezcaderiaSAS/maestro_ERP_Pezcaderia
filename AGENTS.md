@@ -1,7 +1,7 @@
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **maestro_ERP_Pezcaderia** (16703 symbols, 21232 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **maestro_ERP_Pezcaderia** (17468 symbols, 22446 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
@@ -197,4 +197,3 @@ A partir de esta sesión, ante **CADA** solicitud o requerimiento nuevo, la IA D
 - **Cero improvisación:** Ninguna línea de código de producción será escrita si los 6 documentos no están completos y validados.
 - **Activación permanente de `/grill-me`:** Ante cualquier instrucción ambigua o vacíos en la especificación, el sistema se detiene para interrogar activamente al usuario antes de mover la tarea en el flujo Kanban.
 - **Control de flujo WIP:** Se prohíbe abrir múltiples tareas de desarrollo en paralelo que excedan los límites establecidos (`WIP = 1`).
-

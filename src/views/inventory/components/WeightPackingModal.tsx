@@ -57,7 +57,7 @@ export const WeightPackingModal: React.FC<WeightPackingModalProps> = ({
   const pesoRealNum = parseFloat(pesoInput) || 0;
   const piezasNum = parseInt(piezasInput) || 1;
   const tempNum = parseFloat(temperaturaInput) || 2.0;
-  const tolPct = item.toleranciaPorcentaje || 10;
+  const tolPct = item.toleranciaPorcentaje || 5;
 
   // Cálculo reactivo de tolerancia
   const toleranceResult = useMemo(() => {
@@ -181,7 +181,7 @@ export const WeightPackingModal: React.FC<WeightPackingModalProps> = ({
                     </span>
                   </div>
                   <span className="text-[11px] font-semibold">
-                    {toleranceResult.isWithinTolerance ? 'Dentro de Tolerancia ±10%' : 'FUERA DE TOLERANCIA'}
+                    {toleranceResult.isWithinTolerance ? `Dentro de Tolerancia ±${tolPct}%` : 'FUERA DE TOLERANCIA'}
                   </span>
                 </div>
               )}
@@ -194,13 +194,13 @@ export const WeightPackingModal: React.FC<WeightPackingModalProps> = ({
                   key={key}
                   type="button"
                   onClick={() => handleKeypadPress(key)}
-                  className={`h-12 rounded-xl font-mono text-lg font-semibold flex items-center justify-center transition-all ${
+                  className={`min-h-[50px] h-13 rounded-xl font-mono text-xl font-bold flex items-center justify-center transition-all touch-manipulation ${
                     key === 'BACK'
                       ? 'bg-slate-800 text-rose-400 hover:bg-slate-700 active:scale-95'
                       : 'bg-slate-800/80 text-white border border-white/5 hover:bg-slate-700 active:scale-95'
                   }`}
                 >
-                  {key === 'BACK' ? <Delete className="w-5 h-5" /> : key}
+                  {key === 'BACK' ? <Delete className="w-6 h-6" /> : key}
                 </button>
               ))}
             </div>
@@ -371,12 +371,12 @@ export const WeightPackingModal: React.FC<WeightPackingModalProps> = ({
 
         </div>
 
-        {/* Acciones */}
+        {/* Acciones Táctiles >= 48px */}
         <div className="mt-6 pt-4 border-t border-white/10 flex justify-end gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold rounded-xl text-slate-300 bg-slate-800 hover:bg-slate-700 transition-colors"
+            className="min-h-[48px] px-5 py-2.5 text-xs font-semibold rounded-xl text-slate-300 bg-slate-800 hover:bg-slate-700 transition-colors touch-manipulation"
           >
             Cancelar
           </button>
@@ -384,9 +384,9 @@ export const WeightPackingModal: React.FC<WeightPackingModalProps> = ({
             type="button"
             disabled={!puedeConfirmar}
             onClick={handleConfirm}
-            className={`px-5 py-2 text-xs font-bold rounded-xl text-white transition-all shadow-lg ${
+            className={`min-h-[48px] px-6 py-2.5 text-xs font-bold rounded-xl text-white transition-all shadow-lg touch-manipulation ${
               puedeConfirmar
-                ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 shadow-emerald-500/20'
+                ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 shadow-emerald-500/20 active:scale-95 cursor-pointer'
                 : 'bg-slate-800 text-slate-500 cursor-not-allowed opacity-50'
             }`}
           >

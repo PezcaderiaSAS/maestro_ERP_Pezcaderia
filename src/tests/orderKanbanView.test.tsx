@@ -225,4 +225,53 @@ describe('OrderKanbanView Suite (Paso 3)', () => {
       expect(qActualizado?.firmaClienteUrl).toBe('data:image/png;base64,mockSign');
     });
   });
+
+  it('debe mostrar los badges de trazabilidad tripartita (Vendedor, Alistador, Conductor) y semáforo catch weight', () => {
+    useOrderStore.setState({
+      quotations: [
+        {
+          id: 'quote-301',
+          numeroPedido: 'PED-301',
+          clientName: 'Restaurante El Pescador',
+          estado: 'EN_PESAJE',
+          fecha: '2026-10-15',
+          vendedorNombre: 'Camilo Vendedor',
+          operarioAlistadorNombre: 'Pedro Alistador',
+          conductorRepartidorNombre: 'Hernan Conductor',
+          lineas: [
+            {
+              id: 'l-301',
+              nombre: 'Pargo Rojo',
+              sku: 'PAR-001',
+              pesoNominalKg: 10,
+              pesoReal: 10.3, // Variación +3% (en tolerancia ±5%)
+              precioPactado: 40000,
+            },
+          ],
+          totalFinal: 412000,
+        },
+      ] as any,
+      ventas: [] as any,
+    });
+
+    render(<OrderKanbanView onEditOrder={() => {}} />);
+
+    // Verificar insignias de los 3 actores
+    expect(screen.getByText(/V: Camilo Vendedor/i)).toBeInTheDocument();
+    expect(screen.getByText(/A: Pedro Alistador/i)).toBeInTheDocument();
+    expect(screen.getByText(/C: Hernan Conductor/i)).toBeInTheDocument();
+
+    // Verificar semáforo de tolerancia (en tolerancia +3%)
+    expect(screen.getByText(/\+3%/i)).toBeInTheDocument();
+    expect(screen.getByText(/Nom: 10.0k/i)).toBeInTheDocument();
+    expect(screen.getByText(/Real: 10.3k/i)).toBeInTheDocument();
+  });
+
+  it('debe contar con botones de acción ergonómicos con clase min-h-[48px] y touch-manipulation', () => {
+    render(<OrderKanbanView onEditOrder={() => {}} />);
+
+    const advanceBtn = screen.getByRole('button', { name: /a fileteo/i });
+    expect(advanceBtn).toHaveClass('min-h-[48px]');
+    expect(advanceBtn).toHaveClass('touch-manipulation');
+  });
 });

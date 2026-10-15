@@ -19,6 +19,115 @@ Cada vez que un agente de IA finalice una sesión de trabajo, debe agregar una e
 
 ## Registros Diarios
 
+### [2026-10-15 12:45] - Antigravity (Principal Software Engineer & SDD Lead)
+- **Módulo:** Flujo Integral B2B — Suite E2E Vitest, Quality Gate DevTools MCP & Certificación SPEC-015 (SPEC-015)
+- **Acción:** Culminación y certificación final de `TASK-015-06` y cierre exitoso de **`SPEC-015` (100% COMPLETADO)**:
+  1. *Suite End-to-End Integral [src/tests/b2bIntegrationFlowE2E.test.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/tests/b2bIntegrationFlowE2E.test.ts):*
+     - Prueba 1: Happy path completo de los 3 actores encadenados ($\text{Cotización Comercial} \rightarrow \text{Pedido con NIIF} \rightarrow \text{Alistamiento Báscula Frío FEFO} \rightarrow \text{Remisión WMS con QR} \rightarrow \text{Despacho Termo-furgón} \rightarrow \text{Entrega con Firma Digital} \rightarrow \text{Liquidación de Ruta}$).
+     - Prueba 2: Gobernanza financiera: pausa preventiva automática (`PAUSADO_POR_CREDITO`) si el cliente supera su cupo de crédito otorgado.
+     - Prueba 3: Gobernanza de cuarto frío: detección y bloqueo por desvío de tolerancia Catch Weight ($\pm 5\%$) sin aprobación explícita de supervisor.
+     - Prueba 4: Trazabilidad térmica de cadena de frío: rechazo y bloqueo de despacho si la temperatura del termo-furgón supera $4^\circ\text{C}$.
+     - Prueba 5: Validez jurídica y comercial: bloqueo estricto de entrega en sitio si falta la firma digital táctil del cliente en remisión.
+     - Prueba 6: Cuadre y conciliación contable de ruta: recaudo en efectivo, deducción de gastos de ruta (peajes/combustible) y cuadre exacto contra el arqueo de Tesorería (`cashService`).
+  2. *Quality Gate DevTools MCP & Accesibilidad:*
+     - Inspección en vivo mediante subagente navegador sobre `http://localhost:3000/`: **0 errores de JavaScript** en consola.
+     - Certificación de renderizado en viewport de escritorio (1280x800) y vista responsive móvil (375x812) en módulo de pedidos / alistamiento Kanban.
+     - Targets táctiles ergonómicos $\ge 48\text{ px}$ verificados con `touch-manipulation`.
+     - Grabación de sesión guardada en `b2b_kanban_audit_1792085423953.webp` y capturas `desktop_kanban` y `mobile_kanban`.
+  3. *Métricas Finales de Certificación:*
+     - Ecosistema B2B: **61/61 pruebas unitarias e integrales pasando en 9 suites**.
+     - Suite global de pruebas: **72 archivos de prueba pasados (72/72), 480 pruebas pasadas (480/480)** con 0 errores en Vitest.
+     - Compilador TypeScript: `npx tsc --noEmit` compilado con **0 errores**.
+- **Notas para la Próxima Sesión / Post-Pull:**
+  - `SPEC-015` queda 100% finalizada, sellada y documentada.
+  - Al iniciar sesión tras el próximo `git pull`, ejecutar el hook/script canónico `npm run session:pull`.
+  - El sistema reactivará automáticamente todos los flujos, agentes de Agency Swarm y grafo de conocimiento.
+  - Siguiente requerimiento priorizado en el roadmap Kanban: **Prioridad 2 (Facturación Electrónica POS con validación DIAN - SPEC-016)**.
+
+### [2026-10-15 12:10] - Antigravity (Principal Software Engineer & SDD Lead)
+- **Módulo:** Flujo Integral B2B — UI & Kanban Integration: Badges 3 Actores, Catch Weight $\pm 5\%$ & Touch Targets $\ge 48\text{ px}$ (SPEC-015)
+- **Acción:** Culminación y certificación de `TASK-015-05` (UI & Kanban Integration):
+  1. *Componente [src/views/OrderKanbanView.tsx](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/views/OrderKanbanView.tsx):*
+     - Badges de trazabilidad tripartita integrados en cada tarjeta de pedido con tokens de accesibilidad Light Mode WCAG 2.2 AA+: Vendedor (`V: {nombre}` en azul/índigo), Operario Alistador (`A: {nombre}` en ámbar/amarillo) y Conductor Repartidor (`C: {nombre}` en esmeralda/verde).
+     - Semáforo reactivo de tolerancia Catch Weight $\pm 5\%$: comparación nominal vs real en kg con cálculo porcentual dinámico y pills de alta legibilidad (`✓ En tolerancia` / `⚠ Fuera de tolerancia`).
+     - Botones de acción táctiles ergonómicos $\ge 48\text{ px}$ (`min-h-[48px]`, `px-4 py-2.5`, `rounded-xl`, `touch-manipulation` y transiciones activas) para operaciones de frío y guantes ("Pesar", "Avanzar a...", "Despachar WMS").
+  2. *Componente [src/views/inventory/components/WeightPackingModal.tsx](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/views/inventory/components/WeightPackingModal.tsx):*
+     - Tolerancia Catch Weight por defecto ajustada a $\pm 5\%$ per SPEC-015.
+     - Teclado numérico táctil optimizado a `min-h-[50px]` con `touch-manipulation`.
+     - Botones de acción "Cancelar" y "Confirmar Pesaje & Empaque" expandidos a `min-h-[48px]` con retroalimentación háptica/táctil.
+  3. *Certificación TDD & Quality Gate:*
+     - Suite [src/tests/orderKanbanView.test.tsx](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/tests/orderKanbanView.test.tsx) ampliada y verificada (9/9 tests verdes).
+     - Suite acumulada B2B + Kanban: **55/55 tests verdes al 100%**.
+     - TypeScript estricto: `npx tsc --noEmit` compilado con **0 errores**.
+- **Siguiente Tarea:** `TASK-015-06` (Suite Integral E2E Vitest & Quality Gate DevTools MCP: validación de extremo a extremo del flujo comercial, alistamiento, despacho y auditoría con Chrome DevTools en `http://localhost:3000/`).
+
+### [2026-10-15 11:55] - Antigravity (Principal Software Engineer & SDD Lead)
+- **Módulo:** Flujo Integral B2B — Fase 3 Despacho: Manifiesto, Check-in Furgón, Entrega en Sitio, Cuarentena & Liquidación (SPEC-015)
+- **Acción:** Culminación y certificación de `TASK-015-04` (Orquestador B2B Fase 3 Despacho):
+  1. *Servicio Orquestador Central [src/services/b2bIntegrationService.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/services/b2bIntegrationService.ts):*
+     - `crearYDespacharManifiesto(input: DespacharManifiestoInput)`: Verificación de temperatura de termógrafo de furgón ($\le 4^\circ\text{C}$ refrigerado / $-18^\circ\text{C}$ congelado), validación de que todos los pedidos estén en estado `LISTO` con precintos y remisiones WMS, estampa inmutable de `conductorRepartidorId`, `conductorRepartidorNombre`, `manifiestoRutaId`, hora de despacho y pase a `EN_RUTA`.
+     - `registrarEntregaEnSitio(input: RegistrarEntregaSitioInput)`: Firma digital táctil del cliente requerida (`firmaClienteUrl`), registro de cobro en sitio (efectivo/transferencia), conciliación de devoluciones por temperatura/calidad (`CADENA_FRIO`), segregación inmediata a bodega virtual `CUARENTENA_CALIDAD`, recálculo de valor neto cobrado y transición a `ENTREGADO`.
+     - `liquidarManifiestoRuta(input: LiquidarManifiestoInput)`: Cierre de ruta con odómetro final, validación de devoluciones y conciliación contable de recaudos contra `cashService` (Tesorería), estampando evento inmutable en `useEventStore`.
+  2. *Ampliación de Contratos [src/types/orders.types.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/types/orders.types.ts):*
+     - Integración de campos de auditoría de despacho: `horaDespachoRuta`, `horaLlegadaCliente`, `horaEntregaEfectiva`, `firmaClienteUrl`.
+  3. *Certificación TDD & Quality Gate:*
+     - Suite [src/tests/b2bDeliveryFlow.test.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/tests/b2bDeliveryFlow.test.ts) (7/7 tests verdes).
+     - Suite acumulada B2B: [src/tests/b2bContracts.test.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/tests/b2bContracts.test.ts) (2/2) + [src/tests/b2bCommercialFlow.test.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/tests/b2bCommercialFlow.test.ts) (6/6) + [src/tests/b2bPickingFlow.test.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/tests/b2bPickingFlow.test.ts) (6/6) + [src/tests/b2bDeliveryFlow.test.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/tests/b2bDeliveryFlow.test.ts) (7/7) (**21/21 tests verdes al 100%**).
+     - TypeScript estricto: `npx tsc --noEmit` compilado con **0 errores**.
+- **Siguiente Tarea:** `TASK-015-05` (UI & Kanban Integration: Badges de los 3 Actores en `OrderKanbanView.tsx` WCAG AA+, Pesaje Real vs Nominal Catch Weight $\pm 5\%$ y Botones Táctiles $\ge 48\text{ px}$).
+
+### [2026-10-15 11:40] - Antigravity (Principal Software Engineer & SDD Lead)
+- **Módulo:** Flujo Integral B2B — Fase 2 WMS: Alistamiento, Báscula de Frío, FEFO & Remisión (SPEC-015)
+- **Acción:** Culminación y certificación de `TASK-015-03` (Orquestador B2B Fase 2 WMS):
+  1. *Servicio Orquestador Central [src/services/b2bIntegrationService.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/services/b2bIntegrationService.ts):*
+     - `iniciarAlistamiento(input: IniciarAlistamientoInput)`: Transición estricta a `EN_ALISTAMIENTO`, validación contra `PAUSADO_POR_CREDITO`, estampado de `operarioAlistadorId`, `operarioAlistadorNombre`, `horaInicioAlistamiento` y evento `b2b_alistamiento_iniciado`.
+     - `registrarPesajeLinea(input: RegistrarPesajeLineaInput)`: Conciliación en báscula de cuarto frío con `b2bDispatchService.conciliarPesajeB2B`, asignación de lote FEFO y temperatura en empaque, tolerancia $\pm 5\%$, recálculo de subtotales por peso real ($COP = \text{pesoReal} \times \text{precioPactado}$) y retenciones NIIF. Transición automática a `PAUSADO` si la variación excede $\pm 5\%$ sin forzar aprobación.
+     - `finalizarAlistamiento(input: FinalizarAlistamientoInput)`: Validación obligatoria de pesaje y lote FEFO en el 100% de las líneas, emisión de Remisión WMS (`WmsDispatchRemision`) con token QR único, precinto de canastilla de seguridad (`precintoCanastilla`), deducción de existencias (`inventarioDescontado: true`) y pase a estado `LISTO`.
+  2. *Infraestructura Offline Resiliente:*
+     - [src/services/b2bDispatchService.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/services/b2bDispatchService.ts): Implementado helper `safeGetSupabaseClient()` para garantizar ejecución offline determinista sin depender de variables `.env` en entornos de prueba o almacén desconectado.
+  3. *Certificación TDD & Quality Gate:*
+     - Suite [src/tests/b2bPickingFlow.test.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/tests/b2bPickingFlow.test.ts) (6/6 tests verdes).
+     - Suite acumulada B2B: [src/tests/b2bContracts.test.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/tests/b2bContracts.test.ts) + [src/tests/b2bCommercialFlow.test.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/tests/b2bCommercialFlow.test.ts) + [src/tests/b2bPickingFlow.test.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/tests/b2bPickingFlow.test.ts) (**14/14 tests verdes al 100%**).
+     - TypeScript estricto: `npx tsc --noEmit` compilado con **0 errores**.
+     - GitNexus blast radius auditado: cambios consistentes y controlados.
+- **Siguiente Tarea:** `TASK-015-04` (Orquestador B2B: Fase 3 Despacho — Manifiesto de Carga, Check-in Furgón Refrigerado $\le 4^\circ\text{C} / -18^\circ\text{C}$, Entrega en Sitio con Firma Digital Táctil, Cobro y Segregación a `CUARENTENA_CALIDAD`).
+
+### [2026-10-15 11:25] - Antigravity (Principal Software Engineer & SDD Lead)
+- **Módulo:** Flujo Integral B2B — Fase 1 Comercial: Cotizaciones a Pedidos con Cupo & NIIF (SPEC-015)
+- **Acción:** Culminación y certificación de `TASK-015-02` (Orquestador B2B Fase 1 Comercial):
+  1. *Servicio Orquestador Central [src/services/b2bIntegrationService.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/services/b2bIntegrationService.ts):*
+     - Implementado `convertirCotizacionAPedido(input: ConvertirCotizacionInput)` con validación de existencia, integridad de líneas y prevención de doble conversión.
+     - Integración con `B2BSalesService.verificarCupoCredito`: si la forma de pago es `CREDITO` y el monto supera el cupo disponible, se marca automáticamente como `PAUSADO_POR_CREDITO`.
+     - Integración con `B2BSalesService.calcularTotalesCotizacionNIIF`: cálculo y retención de Retefuente (2.5%) y ReteICA (0.414%) con redondeo fiscal en pesos colombianos para Grandes Contribuyentes y Autorretenedores.
+     - Inyección inmutable de identidad del vendedor (`vendedorId`, `vendedorNombre`), referencia de trazabilidad `cotizacionIdOriginal` y fecha exacta ISO.
+     - Persistencia sincronizada en `useOrderStore` (creación de pedido y actualización de cotización a `CONVERTIDA_A_PEDIDO`) con salvaguarda defensiva ante errores asíncronos.
+     - Publicación de evento de dominio inmutable en `useEventStore` con metadata (`b2b_pedido_creado_desde_cotizacion`).
+  2. *Refactorizaciones y Robustecimiento de Infraestructura:*
+     - [src/services/b2bSalesService.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/services/b2bSalesService.ts): Precisión fiscal con `Math.round` para centavos en COP.
+     - [src/store/useOrderStore.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/store/useOrderStore.ts): Protección de promesas `dataService` contra Unhandled Rejections.
+  3. *Certificación TDD & Quality Gate:*
+     - Suite [src/tests/b2bCommercialFlow.test.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/tests/b2bCommercialFlow.test.ts) (6/6 tests verdes).
+     - Suite acumulada B2B: [src/tests/b2bContracts.test.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/tests/b2bContracts.test.ts) + [src/tests/b2bCommercialFlow.test.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/tests/b2bCommercialFlow.test.ts) (8/8 tests verdes).
+     - TypeScript estricto: `npx tsc --noEmit` compilado con **0 errores**.
+     - GitNexus blast radius auditado: riesgo controlado y consistente.
+- **Siguiente Tarea:** `TASK-015-03` (Orquestador B2B: Fase 2 WMS — Alistamiento en Bodega, Pesaje Real en Báscula de Cuarto Frío, Catch Weight $\pm 5\%$, FEFO, Mermas de Picking y Emisión de Remisión WMS con QR y Precinto).
+
+### [2026-10-15 11:05] - Antigravity (Principal Software Engineer & SDD Lead)
+- **Módulo:** Flujo Integral B2B — Trazabilidad Tripartita & Catch Weight (SPEC-015)
+- **Acción:** Culminación y certificación de `TASK-015-01` (Tipos y Contratos TypeScript):
+  1. *Contratos en [src/types/orders.types.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/types/orders.types.ts):*
+     - `Pedido`: Incorporados los 3 actores operativos (`vendedorId`, `vendedorNombre`, `cotizacionIdOriginal`, `operarioAlistadorId`, `operarioAlistadorNombre`, `horaInicioAlistamiento`, `horaFinAlistamiento`, `remisionId`, `tokenQrRemision`, `precintoCanastilla`, `conductorRepartidorId`, `conductorRepartidorNombre`, `manifiestoRutaId`, retenciones NIIF `retefuenteValor`, `reteicaValor`).
+     - `LineaPedido`: Soporte de báscula en cuarto frío con `pesoReal`, `variacionPesoPct`, `toleranciaAceptada` y `subtotalRealAjustado`.
+     - `EstadoPedido`: Ampliado con `'PLANIFICADA'`, `'EN_RUTA'`, `'EN_LIQUIDACION'`.
+     - `Cotizacion`: Tipado estricto con `EstadoCotizacion` (`'CONVERTIDA_A_PEDIDO'`) y estampa de vendedor.
+  2. *Re-exportación & Máquina de Estados:*
+     - [src/store/useOrderStore.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/store/useOrderStore.ts): Centralizada la exportación de `Cotizacion` y `EstadoCotizacion`.
+     - [src/services/b2bService.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/services/b2bService.ts): Actualizada la matriz de `transicionesValidas` para soportar el ciclo de ruta y despacho sin huecos de tipado.
+  3. *Verificación:*
+     - Suite [src/tests/b2bContracts.test.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/tests/b2bContracts.test.ts) (2/2 tests verdes).
+     - `npx tsc --noEmit` compilado con 0 errores.
+- **Siguiente Tarea:** `TASK-015-02` (Orquestador B2B: Fase 1 Comercial - Conversión de Cotización a Pedido con Cupo & NIIF).
+
 ### [2026-10-14 12:50] - Antigravity (Principal Software Engineer & SDD Lead)
 - **Módulo:** Abstracción Central de Navegación `AppRoute` & Identidad/Vendedor Obligatorio en POS (SPEC-013)
 - **Acción:** Implementación completa, refactorización y certificación SDD:

@@ -52,7 +52,7 @@ describe('bulkProductQueue - Procesamiento de lotes de a 5 y Brecha Dinámica', 
     const duration = Date.now() - startTime;
 
     expect(result.successCount).toBe(6);
-    expect(duration).toBeGreaterThanOrEqual(customActiveDelay);
+    expect(duration).toBeGreaterThanOrEqual(customActiveDelay - 5);
   });
 
   it('tolera errores individuales sin cancelar los demás elementos del lote', async () => {

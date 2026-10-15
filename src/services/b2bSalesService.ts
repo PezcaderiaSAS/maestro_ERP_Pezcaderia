@@ -37,14 +37,14 @@ export class B2BSalesService {
    * @param totalIva Total IVA del pedido
    * @param cliente El cliente a evaluar
    */
-  static calcularTotalesCotizacionNIIF(baseSinIva: number, totalIva: number, cliente: Cliente) {
+  static calcularTotalesCotizacionNIIF(baseSinIva: number, totalIva: number, cliente?: Partial<Cliente>) {
     const totalFactura = baseSinIva + totalIva;
     let valorRetefuente = 0;
     let valorReteIca = 0;
 
-    if (cliente.isGranContribuyente || cliente.isAutoretenedor) {
-      valorRetefuente = baseSinIva * (RETEFUENTE_PCT / 100);
-      valorReteIca = baseSinIva * (RETEICA_PCT / 100);
+    if (cliente?.isGranContribuyente || cliente?.isAutoretenedor) {
+      valorRetefuente = Math.round(baseSinIva * (RETEFUENTE_PCT / 100));
+      valorReteIca = Math.round(baseSinIva * (RETEICA_PCT / 100));
     }
 
     const totalRetenciones = valorRetefuente + valorReteIca;

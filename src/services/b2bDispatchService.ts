@@ -33,6 +33,14 @@ export interface RemisionCreationResult {
   temperatura_salida_c: number;
 }
 
+function safeGetSupabaseClient() {
+  try {
+    return getSupabaseClient();
+  } catch {
+    return null;
+  }
+}
+
 export const b2bDispatchService = {
   /**
    * Registra y concilia el pesaje de una línea de pedido B2B
@@ -40,7 +48,7 @@ export const b2bDispatchService = {
    */
   async conciliarPesajeB2B(input: PesajeAlistamiento): Promise<ConciliacionPesajeResult> {
     const validated = PesajeAlistamientoSchema.parse(input);
-    const supabase = getSupabaseClient();
+    const supabase = safeGetSupabaseClient();
 
     if (supabase) {
       try {
@@ -113,7 +121,7 @@ export const b2bDispatchService = {
    */
   async crearRemisionDespachoWMS(input: WmsDispatchRemision): Promise<RemisionCreationResult> {
     const validated = WmsDispatchRemisionSchema.parse(input);
-    const supabase = getSupabaseClient();
+    const supabase = safeGetSupabaseClient();
 
     if (supabase) {
       try {
@@ -159,7 +167,7 @@ export const b2bDispatchService = {
    * Consulta remisiones existentes para un pedido
    */
   async obtenerRemisionesPorPedido(pedidoId: string): Promise<WmsDispatchRemision[]> {
-    const supabase = getSupabaseClient();
+    const supabase = safeGetSupabaseClient();
     if (!supabase) return [];
 
     const { data, error } = await supabase
