@@ -16,12 +16,15 @@
    - `TASK-015-05` [DONE]: UI & Kanban Integration (Badges 3 Actores WCAG AA+, Pesaje Real vs Nominal Catch Weight $\pm 5\%$ y Botones $\ge 48\text{ px}$). 9/9 tests verdes.
    - `TASK-015-06` [DONE]: Suite Integral E2E Vitest (6/6 tests verdes) & Quality Gate DevTools MCP (0 errores JS, 1280px y móvil 375px).
    - **Métricas Ecosistema B2B:** 61/61 tests verdes en 9 suites dedicadas.
-3. **Próximo Hito (Prioridad 2):** Facturación electrónica exclusiva para el módulo POS con validación DIAN (`SPEC-016`).
+3. **SPEC-016 (En Curso - TASK-016-01 Completada):** Sistema de Ventas B2B para Bodega Principal (Regla Niño de 12 Años). Ruta `AppRouteId.B2B_EXTERNAL_SALES = 'ventas_b2b'` en Dominio Comercial, método `crearPedidoVentaExternaB2B()`, Catch Weight nominal y validación de cupo. 7/7 tests verdes en `b2bExternalSalesService.test.ts`. Siguiente: `TASK-016-02` (B2BClientSelectorStep).
+4. **SPEC-017 (Completada 100% - CERTIFICADA):** Guardián de Arquitectura Supremo y Auditoría Continua SOLID Post-Git-Pull (Master Architect).
+   - Política vinculante `MANDATORY_GLOBAL_ENFORCEMENT` en `.agent/rules/master-architect-solid.md` y `AGENTS.md`.
+   - Motor ultraligero `scripts/architecture/audit-solid-boundaries.cjs` (analiza 304 archivos en < 500 ms con 0 violaciones críticas).
+   - Integración nativa en `scripts/lifecycle/post-pull.cjs` (paso 4/5) y script npm `"audit:architecture"`.
+   - 9/9 tests verdes en `architecturalBoundaries.test.ts`.
 
 ## Protocolo Brownfield al Abrir Sesión
-- Ejecutar `npm run session:pull`.
-- Los flujos, agentes y scripts de sincronización (`.husky`, `session:pull`, `gitnexus`, `graphify`) se activan automáticamente.
-- Handoff y roadmap de tareas pendientes: [`DOCS/HANDOFF_PROXIMA_SESION.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/DOCS/HANDOFF_PROXIMA_SESION.md).
-- Verificar `npx tsc --noEmit` y bucle DevTools en `http://localhost:3000/`.
+- Ejecutar `npm run session:pull` (corre Graphify, GitNexus, `tsc --noEmit`, Auditoría Master Architect y chequeo servidor).
+- Quality Gate: `tsc --noEmit` en 0 errores, Vitest 100% verde y bucle DevTools en `http://localhost:3000/`.
 
 

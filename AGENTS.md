@@ -93,13 +93,13 @@ El proyecto implementa una tríada jerárquica obligatoria para optimizar consum
 - **Post-Pull (Puesta en Marcha):**
   - Hook automático: `.husky/post-merge`
   - Comando npm: `npm run session:pull`
-  - Acciones: Sincronización Graphify $\rightarrow$ Reindexación GitNexus $\rightarrow$ Verificación `tsc --noEmit` $\rightarrow$ Comprobación de servidor Vite (`http://localhost:3000/`).
+  - Acciones: Sincronización Graphify $\rightarrow$ Reindexación GitNexus $\rightarrow$ Verificación `tsc --noEmit` $\rightarrow$ **Auditoría Master Architect (SOLID & Boundaries: `scripts/architecture/audit-solid-boundaries.cjs`)** $\rightarrow$ Comprobación de servidor Vite (`http://localhost:3000/`).
 - **Pre-Push (Quality Gate de Cierre):**
   - Hook automático: `.husky/pre-push`
   - Comando npm: `npm run session:push`
   - Acciones: `tsc --noEmit` estricto $\rightarrow$ Suite Vitest completa (100% pasando) $\rightarrow$ `gitnexus detect-changes` (reporte de blast radius). Si falla cualquiera, **bloquea el push a GitHub**.
 
-**Reglas de Gobernanza Preceptiva:** Ver [`.agent/rules/design-governance.md`](file:///c:/Users/Personal/Documents/Yurgen/Maestro_Pezcaderia_ERP/maestro_ERP_Pezcaderia/.agent/rules/design-governance.md) y [`DOCS/ecosistema_herramientas_agentes_uiux.md`](file:///c:/Users/Personal/Documents/Yurgen/Maestro_Pezcaderia_ERP/maestro_ERP_Pezcaderia/DOCS/ecosistema_herramientas_agentes_uiux.md).
+**Reglas de Gobernanza Preceptiva:** Ver [`.agent/rules/master-architect-solid.md`](file:///c:/Users/Personal/Documents/Yurgen/Maestro_Pezcaderia_ERP/maestro_ERP_Pezcaderia/.agent/rules/master-architect-solid.md), [`.agent/rules/design-governance.md`](file:///c:/Users/Personal/Documents/Yurgen/Maestro_Pezcaderia_ERP/maestro_ERP_Pezcaderia/.agent/rules/design-governance.md) y [`DOCS/ecosistema_herramientas_agentes_uiux.md`](file:///c:/Users/Personal/Documents/Yurgen/Maestro_Pezcaderia_ERP/maestro_ERP_Pezcaderia/DOCS/ecosistema_herramientas_agentes_uiux.md).
 
 ---
 

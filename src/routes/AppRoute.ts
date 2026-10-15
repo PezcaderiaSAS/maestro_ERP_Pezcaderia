@@ -26,6 +26,7 @@ export enum AppRouteId {
   CLIENTS = 'clientes',
   CRM = 'crm',
   ORDERS_KANBAN = 'kanban',
+  B2B_EXTERNAL_SALES = 'ventas_b2b',
 
   // Dominio Operaciones & WMS
   INVENTORY = 'inventario',
@@ -71,6 +72,7 @@ export const COMMERCIAL_ROUTES: readonly AppRouteId[] = [
   AppRouteId.CLIENTS,
   AppRouteId.CRM,
   AppRouteId.ORDERS_KANBAN,
+  AppRouteId.B2B_EXTERNAL_SALES,
 ] as const;
 
 export const WMS_ROUTES: readonly AppRouteId[] = [
@@ -121,6 +123,10 @@ export interface RouteParamsMap {
   [AppRouteId.ORDERS_KANBAN]: {
     orderId?: string;
     statusFilter?: string;
+  } | undefined;
+  [AppRouteId.B2B_EXTERNAL_SALES]: {
+    clienteId?: string;
+    step?: number;
   } | undefined;
   [AppRouteId.INVENTORY]: {
     initialViewMode?: 'kardex' | 'configuracion_bodegas' | 'compras_muelle' | 'despiece';
@@ -283,6 +289,18 @@ export const APP_ROUTES_METADATA: Record<AppRouteId, AppRouteMetadata<AppRouteId
     allowedRoles: ['admin', 'vendedor', 'bodega', 'administrativo'],
     isPrimaryNav: true,
     testId: 'nav-kanban',
+  },
+  [AppRouteId.B2B_EXTERNAL_SALES]: {
+    id: AppRouteId.B2B_EXTERNAL_SALES,
+    path: '/ventas/b2b-externo',
+    title: 'Ventas B2B Bodega Principal',
+    domain: RouteDomain.COMMERCIAL,
+    subtitle: 'Pedidos Externos & Fricción Cero',
+    description: 'Terminal móvil de toma de pedidos para vendedor externo con stock de Bodega Principal, piezas/calibre y validación de cupo.',
+    iconName: 'Truck',
+    allowedRoles: ['admin', 'vendedor', 'administrativo'],
+    isPrimaryNav: true,
+    testId: 'nav-ventas-b2b',
   },
 
   // WMS / Operaciones

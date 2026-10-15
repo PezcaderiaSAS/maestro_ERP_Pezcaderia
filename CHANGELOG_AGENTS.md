@@ -19,7 +19,43 @@ Cada vez que un agente de IA finalice una sesión de trabajo, debe agregar una e
 
 ## Registros Diarios
 
-### [2026-10-15 12:45] - Antigravity (Principal Software Engineer & SDD Lead)
+### [2026-10-15 18:42] - Antigravity (Master Architect & Senior Fullstack Engineer)
+- **Módulos:** Gobernanza de Agentes (SPEC-017) & Ventas Externas B2B (SPEC-016)
+- **Acción:** Culminación completa de SPEC-017 e inicio exitoso de SPEC-016 bajo Spec Kit SDD v3.0:
+  1. *SPEC-017 (Completada 100% - CERTIFICADA):*
+     - Institucionalización del rol *Master Architect & Guardián del Código* en `.agent/rules/master-architect-solid.md` y `AGENTS.md` bajo `MANDATORY_GLOBAL_ENFORCEMENT`.
+     - Motor determinista `scripts/architecture/audit-solid-boundaries.cjs` (304 archivos analizados en 484 ms, 0 violaciones críticas de límites de capas).
+     - Integración automática en `scripts/lifecycle/post-pull.cjs` (paso 4/5) y script npm `"audit:architecture"`.
+     - Suite TDD `src/tests/architecturalBoundaries.test.ts` con 9/9 tests verdes.
+  2. *SPEC-016 (TASK-016-01 Completada):*
+     - Registro canónico de la ruta `AppRouteId.B2B_EXTERNAL_SALES = 'ventas_b2b'` en `src/routes/AppRoute.ts` (Dominio Comercial, roles `admin`, `vendedor`, `administrativo`).
+     - Método transaccional `crearPedidoVentaExternaB2B()` en `src/services/b2bIntegrationService.ts` con Catch Weight nominal (piezas x calibre en gramos $\rightarrow$ kg nominales), semáforo de crédito (`PAUSADO_POR_CREDITO`), asignación a Bodega 1 y retenciones NIIF automáticas.
+     - Suite TDD `src/tests/b2bExternalSalesService.test.ts` (7/7 tests verdes) y actualización de `src/tests/appRoute.test.ts` (9/9 tests verdes).
+  3. *Quality Gate de Cierre:*
+     - `tsc --noEmit` completado con **0 errores**.
+     - Vitest: 25/25 tests ejecutados en verde.
+     - Chrome DevTools: Servidor Vite respondiendo en `http://127.0.0.1:3000/` con **0 errores JS**.
+- **Notas/Bloqueos para la Próxima Sesión:** Retomar directamente con `npm run session:pull` y continuar en **`TASK-016-02`: Creación del componente `B2BClientSelectorStep.tsx`**.
+
+### [2026-10-15 18:35] - Antigravity (Senior Software Architect & Code Reviewer)
+- **Módulo:** B2B Enterprise & WMS — Refactorización Arquitectónica Integral SOLID (/orch-build-mvp)
+- **Acción:** Culminación exitosa de las 7 tareas del plan de refactorización arquitectónica SOLID (S, O, L, I, D) del ecosistema B2B:
+  1. *Contratos & Segregación de Interfaces (ISP & DIP):* Creación de `src/contracts/b2b.contracts.ts` con interfaces segregadas por rol (`IOrderCommercialView`, `IOrderWmsPreparationView`, `IOrderDeliveryView`), contratos de repositorio (`IOrderRepository`) y publicador de eventos (`IDomainEventPublisher`).
+  2. *Adaptadores de Infraestructura (DIP):* Creación de `ZustandOrderRepositoryAdapter.ts` y `ZustandEventPublisherAdapter.ts` aislando el estado Zustand de la lógica de dominio.
+  3. *Estrategias de Recaudo Extensibles (OCP):* Implementación del patrón Strategy con `PaymentStrategyRegistry`, `CashPaymentStrategy`, `DigitalTransferPaymentStrategy`, `CreditB2BPaymentStrategy` y `MixedPaymentStrategy`.
+  4. *Descomposición en Servicios Especializados (SRP & LSP):*
+     - `B2BCommercialOrderService.ts`: Fase 1 Comercial (conversión, ventas externas y NIIF).
+     - `B2BWmsPreparationService.ts`: Fase 2 WMS (pesaje Catch Weight $\pm 5\%$, FEFO, remisión QR y cliente real eliminando `clienteDummy` - LSP resuelto).
+     - `B2BRouteDeliveryService.ts`: Fase 3 Despacho (cadena de frío $\le 4^\circ\text{C}$, firma digital, cuarentena y liquidación con tesorería).
+  5. *Fachada Compatible (Zero Breaking Changes):* `b2bIntegrationService.ts` reducido de +1.100 a ~100 líneas operando como fachada delegadora 100% retrocompatible.
+  6. *Suites Unitarias TDD Certificadas:*
+     - `src/tests/b2bContracts.test.ts` (ISP & DIP).
+     - `src/tests/b2bAdaptersAndStrategies.test.ts` (DIP & OCP).
+     - `src/tests/b2bCommercialOrderService.test.ts` (SRP Comercial).
+     - `src/tests/b2bWmsPreparationService.test.ts` (SRP WMS & Báscula).
+     - `src/tests/b2bRouteDeliveryService.test.ts` (SRP Logística & Despacho).
+- **Notas/Bloqueos:** Arquitectura 100% saneada, flexible, modular y lista para el próximo hito (`SPEC-016`: Facturación Electrónica DIAN POS).
+
 - **Módulo:** Flujo Integral B2B — Suite E2E Vitest, Quality Gate DevTools MCP & Certificación SPEC-015 (SPEC-015)
 - **Acción:** Culminación y certificación final de `TASK-015-06` y cierre exitoso de **`SPEC-015` (100% COMPLETADO)**:
   1. *Suite End-to-End Integral [src/tests/b2bIntegrationFlowE2E.test.ts](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/src/tests/b2bIntegrationFlowE2E.test.ts):*

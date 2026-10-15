@@ -91,4 +91,113 @@ describe('TASK-015-01: Tipos y Contratos TypeScript (Trazabilidad B2B de 3 Actor
     expect(cotizacion.vendedorId).toBe('emp-vend-01');
     expect(cotizacion.vendedorNombre).toBe('Carlos Mostrador');
   });
+
+  it('debe certificar la segregación de interfaces (ISP) para vistas Comercial, WMS y Reparto', async () => {
+    const pedidoDemo: Pedido = {
+      id: 'ped-isp-01',
+      numeroPedido: 'PED-ISP-100',
+      fecha: '2026-10-15T12:00:00Z',
+      origen: 'VISITA',
+      clienteId: 'cli-01',
+      bodegaId: 'bod-01',
+      branch_id: 'suc-01',
+      vendedorId: 'vend-01',
+      vendedorNombre: 'Vendedor Demo',
+      formaPago: 'CREDITO',
+      tipoEntrega: 'EN_RUTA',
+      fechaEntrega: '2026-10-16',
+      jornada: 'MANANA',
+      estado: 'LISTO',
+      observaciones: 'Test ISP',
+      lineas: [
+        {
+          productoId: 'p1',
+          cantidadSolicitada: 5,
+          cantidadAlistada: 5.1,
+          cantidadDespachada: 5.1,
+          estadoLinea: 'COMPLETO',
+          precioPactado: 20000,
+          totalLinea: 102000,
+          pesoReal: 5.1,
+          loteSeleccionado: 'LOT-01',
+        },
+      ],
+      subtotal: 100000,
+      descuentoGlobalPct: 0,
+      descuentoGlobalValor: 0,
+      totalFinal: 102000,
+      idempotencyKey: 'key-isp-1',
+      rutaId: 'ruta-1',
+      facturacionElectronica: false,
+      idSiigo: null,
+      operarioAlistadorId: 'op-01',
+      operarioAlistadorNombre: 'Operario Demo',
+      precintoCanastilla: 'PREC-01',
+      remisionId: 'REM-01',
+      conductorRepartidorId: 'rep-01',
+      conductorRepartidorNombre: 'Chofer Demo',
+      manifiestoRutaId: 'MAN-01',
+    };
+
+    // 1. Proyección a Rol Comercial (ISP)
+    const vistaComercial: import('../contracts/b2b.contracts').IOrderCommercialView = {
+      id: pedidoDemo.id,
+      numeroPedido: pedidoDemo.numeroPedido,
+      fecha: pedidoDemo.fecha,
+      clienteId: pedidoDemo.clienteId,
+      vendedorId: pedidoDemo.vendedorId,
+      vendedorNombre: pedidoDemo.vendedorNombre,
+      formaPago: pedidoDemo.formaPago,
+      subtotal: pedidoDemo.subtotal,
+      totalFinal: pedidoDemo.totalFinal,
+      estado: pedidoDemo.estado,
+    };
+    expect(vistaComercial.vendedorId).toBe('vend-01');
+    expect(vistaComercial.totalFinal).toBe(102000);
+
+    // 2. Proyección a Rol WMS Alistamiento (ISP)
+    const vistaWms: import('../contracts/b2b.contracts').IOrderWmsPreparationView = {
+      id: pedidoDemo.id,
+      numeroPedido: pedidoDemo.numeroPedido,
+      estado: pedidoDemo.estado,
+      operarioAlistadorId: pedidoDemo.operarioAlistadorId,
+      operarioAlistadorNombre: pedidoDemo.operarioAlistadorNombre,
+      precintoCanastilla: pedidoDemo.precintoCanastilla,
+      remisionId: pedidoDemo.remisionId,
+      lineas: pedidoDemo.lineas,
+    };
+    expect(vistaWms.operarioAlistadorId).toBe('op-01');
+    expect(vistaWms.precintoCanastilla).toBe('PREC-01');
+
+    // 3. Proyección a Rol Chofer Repartidor (ISP)
+    const vistaReparto: import('../contracts/b2b.contracts').IOrderDeliveryView = {
+      id: pedidoDemo.id,
+      numeroPedido: pedidoDemo.numeroPedido,
+      estado: pedidoDemo.estado,
+      conductorRepartidorId: pedidoDemo.conductorRepartidorId,
+      conductorRepartidorNombre: pedidoDemo.conductorRepartidorNombre,
+      manifiestoRutaId: pedidoDemo.manifiestoRutaId,
+      formaPago: pedidoDemo.formaPago,
+      totalFinal: pedidoDemo.totalFinal,
+    };
+    expect(vistaReparto.conductorRepartidorId).toBe('rep-01');
+    expect(vistaReparto.manifiestoRutaId).toBe('MAN-01');
+  });
+
+  it('debe certificar el contrato de Inversión de Dependencias (DIP) para IOrderRepository', async () => {
+    const mockRepo: import('../contracts/b2b.contracts').IOrderRepository = {
+      obtenerPedidoPorId: (id: string) => undefined,
+      obtenerCotizacionPorId: (id: string) => undefined,
+      guardarPedido: () => {},
+      actualizarPedido: () => {},
+      actualizarCotizacion: () => {},
+      obtenerPedidos: () => [],
+      obtenerCotizaciones: () => [],
+    };
+
+    expect(typeof mockRepo.guardarPedido).toBe('function');
+    expect(typeof mockRepo.actualizarPedido).toBe('function');
+    expect(mockRepo.obtenerPedidos()).toEqual([]);
+  });
 });
+
