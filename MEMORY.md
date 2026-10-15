@@ -1,30 +1,25 @@
-# Memoria Activa - La Pezcadería ERP
+# Memoria Activa - La Pezcaderia ERP
 
-## Contexto Actual & Estado Global (Sesión 2026-10-14 - Entorno 100% Sincronizado)
+## Contexto Actual & Estado Global (Sesión 2026-10-15 - Sincronizada)
 - **Estado Global:** Sistema 100% en Modo Claro (Light Mode) WCAG 2.2 AA+ con tokens de diseño consolidados.
-- **Git & Lifecycle Post-Pull:** Sincronizado. Al abrir nueva sesión tras `git pull`, ejecutar `npm run session:pull`.
-- **Herramientas & Agentes en Marcha:**
-  - Agency Swarm en Python 3.13 (`tools/agency-swarm/`) con 4 agentes (architect, data, ui, quality) operativos.
-  - Impeccable UI Engine v0.1.14 y agentes integrados en `.agents/`.
-  - GitNexus AST Index actualizado y servidor Vite en `http://localhost:3000/`.
-- **Quality Gate:** TypeScript estricto **0 errores (`tsc --noEmit`)**, 61 suites Vitest (424 tests) 100% verdes.
+- **Git & Lifecycle Post-Pull:** Sincronizado. Al reanudar sesión tras `git pull`, ejecutar `npm run session:pull`.
+- **Quality Gate:** TypeScript estricto **0 errores (`tsc --noEmit`)**, suites Vitest 100% verdes (61 suites, 424 tests).
+- **Servidor Dev:** Vite activo en `http://localhost:3000/`.
 
-## Módulos y Tareas Completadas Recientemente
-1. **Abstracción Central `AppRoute` (Completada):**
-   - 21 rutas fuertemente tipadas en `src/routes/AppRoute.ts` con `RouteParamsMap`, RBAC declarativo y deep linking.
-   - Limpieza de dead code en `EnterpriseTopbar.tsx` y `App.tsx`. 9/9 tests dedicados verdes.
-2. **SPEC-013: Vendedor y Roles Obligatorios en POS (Completada):**
-   - Mapeo estricto de roles de RRHH a `UserRole` en `src/utils/roleMapper.ts` con PIN por defecto `'1234'`.
-   - Sesión de usuario persistente en `useAppStore` (`currentUser`) con sincronización reactiva en IndexedDB.
-   - Componente táctil `UserSwitchModal.tsx` con keypad numérico $\ge 56\text{ px}$, 4 bullets enmascarados y shake en error.
-   - Integración en `EnterpriseTopbar.tsx` (avatar interactivo con iniciales) y `POSView.tsx` (banner `#pos-seller-badge`).
-   - Trazabilidad estricta de `vendedorId`, `vendedorNombre`, `cajeroId` en ventas y movimientos de caja. 12/12 tests verdes.
+## Módulos y Especificaciones en Marcha
+1. **SPEC-014 (Completada 100%):** Simplificación radical de UI POS - Regla del Niño de 12 Años. Pesaje manual táctil asistido en `ManualWeightModal.tsx`, auto-foco continuo, targets $\ge 48\text{ px}$, botón `COBRAR` gigante $56\text{ px}$ esmeralda. 27/27 tests verdes.
+2. **SPEC-015 (Fase de Diseño & Auditoría 100% Completada):** Flujo Completo de Integración B2B (Cotizaciones $\rightarrow$ Pedidos $\rightarrow$ Alistamiento en Bodega $\rightarrow$ Despacho a Rutas).
+   - Documentación completa en `specs/015-flujo-integral-b2b-cotizaciones-pedidos-bodega-rutas/` (`spec.md`, `clarify.md`, `checklist.md`, `plan.md`, `tasks.md`, `analyze.md`).
+   - Aprobado unánimemente por los 4 agentes de Agency Swarm (`SoftwareArchitect`, `DataEngineer`, `UIReviewer`, `QualityEngineer`).
+   - Trazabilidad estricta de 3 actores (`vendedorId`, `operarioAlistadorId`, `conductorRepartidorId`).
+   - Liquidación por peso real de lote en cuarto frío (Catch Weight $\pm 5\%$), retenciones NIIF y devoluciones a `CUARENTENA_CALIDAD`.
 
-## Cola Priorizada para la Próxima Sesión (Iniciar tras git pull)
-1. **Tarea 2 (Prioridad 1):** Ajustar las interfaces de usuario para que sean más simplificadas, recordando la regla del niño de 12 años (eliminar fricciones, aumentar áreas táctiles $\ge 48\text{ px}$, inputs auto-enfocados y feedback instantáneo).
-2. **Tarea 3 (Prioridad 2):** Pruebas y flujo completo de cotizaciones B2B $\rightarrow$ pedidos de clientes $\rightarrow$ alistamiento en bodega $\rightarrow$ despacho a rutas, con trazabilidad de vendedor, operario alistador y conductor repartidor.
-3. **Tarea 4 (Prioridad 3):** Facturación electrónica exclusiva para el módulo POS con validación DIAN.
+## Punto de Partida Inmediato para la Próxima Sesión
+1. **Ejecución TDD Kanban (Límite WIP = 1) - Tarea Inmediata:**
+   - Iniciar `TASK-015-01`: Tipos y Contratos TypeScript (`Pedido`, `LineaPedido` y `Cotizacion`) en `src/types/orders.types.ts` y `src/store/useOrderStore.ts`.
+   - Continuar en orden estricto con `TASK-015-02` (Fase 1 Comercial), `TASK-015-03` (Fase 2 WMS), `TASK-015-04` (Fase 3 Despacho), `TASK-015-05` (UI Kanban) y `TASK-015-06` (E2E Vitest & DevTools).
+2. **Prioridad 2 (Posterior):** Facturación electrónica exclusiva para el módulo POS con validación DIAN.
 
-## Protocolo de Arranque Post-Pull
-- Ejecutar `npm run session:pull` (reindexa Graphify, GitNexus, valida `tsc --noEmit` y verifica Vite).
-- Iniciar la **Tarea 2** invocando `/speckit.specify` con el enjambre de especialistas `/swarm` y `/grill-me`.
+## Protocolo Brownfield al Abrir Sesión
+- Ejecutar `npm run session:pull`.
+- Verificar `npx tsc --noEmit` y bucle DevTools en `http://localhost:3000/`.

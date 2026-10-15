@@ -112,12 +112,14 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
           <Input
             ref={searchRef}
             type="text"
-            id="search-input-f2"
+            id="pos-product-search-input"
+            data-testid="pos-product-search-input"
             placeholder="Buscar por nombre o SKU..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            leftIcon={<Search size={18} />}
+            leftIcon={<Search size={20} />}
             fullWidth
+            className="min-h-[48px] text-base font-semibold shadow-sm"
           />
         </div>
 
@@ -129,16 +131,17 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
               placeholder="Código de Barras..."
               value={barcodeInput}
               onChange={(e) => setBarcodeInput(e.target.value)}
-              leftIcon={<Barcode size={18} />}
+              leftIcon={<Barcode size={20} />}
               fullWidth
+              className="min-h-[48px] text-base"
             />
           </div>
           <Button
             type="button"
             variant="secondary"
             onClick={simulateBarcodeScan}
-            leftIcon={<Barcode size={16} />}
-            className="whitespace-nowrap"
+            leftIcon={<Barcode size={18} />}
+            className="min-h-[48px] px-4 whitespace-nowrap text-sm font-bold active:scale-95 transition-transform"
           >
             Simular Scan
           </Button>
@@ -151,8 +154,8 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
             key={cat}
             variant={selectedCategory === cat ? 'primary' : 'secondary'}
             onClick={() => setSelectedCategory(cat)}
-            className="whitespace-nowrap rounded-full shadow-none"
-            size="sm"
+            className="min-h-[48px] px-5 py-2.5 text-sm font-bold whitespace-nowrap rounded-2xl shadow-sm transition-all active:scale-95"
+            size="md"
           >
             {cat}
           </Button>

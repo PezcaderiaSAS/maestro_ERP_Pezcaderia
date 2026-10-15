@@ -479,19 +479,19 @@ export const CartPanel: React.FC<CartPanelProps> = ({
 
   return (
     <div className="pos-cart-panel flex flex-col h-full min-h-0 overflow-y-auto pr-1">
-      {/* ── HEADER: Selector de cliente + Borradores + En Espera ── */}
+      {/* ── HEADER: Selector de cliente + Borradores + En Espera (Targets >= 48px) ── */}
       <div
-        className="pos-cart-header flex flex-wrap justify-between items-center gap-2 py-2 px-3 border-b border-white/10 bg-slate-900/60 shrink-0 rounded-t-xl"
+        className="pos-cart-header flex flex-wrap justify-between items-center gap-2 py-2 px-3 border-b border-slate-200 bg-slate-50 shrink-0 rounded-t-xl"
       >
         {/* Selector de cliente */}
         {cliente ? (
           <Button
             variant="outline"
             onClick={onSelectCliente}
-            leftIcon={<Check size={16} />}
+            leftIcon={<Check size={18} />}
             rightIcon={
               <X
-                size={14}
+                size={16}
                 className="hover:text-red-500 transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -499,7 +499,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
                 }}
               />
             }
-            className="text-xs h-9 py-1 px-2.5 max-w-[200px]"
+            className="text-sm min-h-[48px] h-12 py-1 px-3 max-w-[220px] font-bold"
           >
             <span className="truncate">
               {cliente.nombre.slice(0, 18)} ({cliente.identificacion})
@@ -509,8 +509,8 @@ export const CartPanel: React.FC<CartPanelProps> = ({
           <Button 
             variant="outline" 
             onClick={onSelectCliente} 
-            rightIcon={<Plus size={16} />}
-            className="text-xs h-9 py-1 px-2.5"
+            rightIcon={<Plus size={18} />}
+            className="text-sm min-h-[48px] h-12 py-1 px-3 font-bold"
           >
             Agregar Cliente
           </Button>
@@ -522,7 +522,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
             <Button
               variant="danger"
               onClick={onCerrarTurnoClick}
-              className="text-xs py-1 px-2.5 h-9"
+              className="text-xs min-h-[48px] h-12 py-1 px-3 font-bold"
             >
               Cerrar Turno
             </Button>
@@ -533,11 +533,11 @@ export const CartPanel: React.FC<CartPanelProps> = ({
             type="button"
             onClick={onGuardarBorrador}
             disabled={lineas.length === 0}
-            className="flex items-center gap-1.5 px-3 py-1.5 h-9 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+            className="flex items-center gap-1.5 px-3.5 min-h-[48px] h-12 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 shadow-sm"
             title="Poner pedido actual en espera (Atajo: F6)"
             aria-label="Poner pedido actual en espera (Atajo F6)"
           >
-            <PauseCircle size={15} />
+            <PauseCircle size={18} />
             <span className="hidden sm:inline">En Espera</span>
           </button>
 
@@ -545,7 +545,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
           <button
             type="button"
             onClick={handleOpenBorradores}
-            className={`relative flex items-center gap-1.5 px-3 py-1.5 h-9 rounded-xl border text-xs font-bold transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
+            className={`relative flex items-center gap-1.5 px-3.5 min-h-[48px] h-12 rounded-xl border text-xs font-bold transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
               drafts.length > 0
                 ? 'bg-amber-50 border-amber-300 text-amber-800 hover:bg-amber-100 shadow-sm'
                 : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-sm'
@@ -553,11 +553,11 @@ export const CartPanel: React.FC<CartPanelProps> = ({
             title="Ver pedidos guardados en espera"
             aria-label={`Ver ${drafts.length} pedidos guardados en espera`}
           >
-            <Archive size={14} className={drafts.length > 0 ? 'text-amber-600' : 'text-slate-500'} />
+            <Archive size={16} className={drafts.length > 0 ? 'text-amber-600' : 'text-slate-500'} />
             <span>Borradores</span>
             {drafts.length > 0 && (
               <span 
-                className="flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-amber-500 text-slate-950 font-black rounded-full text-[10px] animate-pulse"
+                className="flex items-center justify-center min-w-[20px] h-[20px] px-1 bg-amber-500 text-slate-950 font-black rounded-full text-[11px] animate-pulse"
                 aria-live="polite"
               >
                 {drafts.length}
@@ -631,18 +631,18 @@ export const CartPanel: React.FC<CartPanelProps> = ({
       <div
         className="pos-cart-footer shrink-0 sticky bottom-0 bg-slate-50/95 backdrop-blur-md p-2.5 border-t border-slate-200 flex flex-col gap-2 rounded-b-xl shadow-inner"
       >
-        {/* Total prominente táctil */}
+        {/* Total prominente táctil con micro-animación y alto contraste */}
         {lineas.length > 0 && (
-          <div className="flex justify-between items-center py-1 px-1">
+          <div className="flex justify-between items-center py-2 px-3 bg-white rounded-xl border border-slate-200/90 shadow-sm transition-all duration-200">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">TOTAL</span>
+              <span className="text-xs font-black uppercase tracking-wider text-slate-500">TOTAL</span>
               <span 
-                className={`bg-indigo-50 text-indigo-700 border border-indigo-200 text-[11px] font-bold px-2 py-0.5 rounded-full ${isBouncing ? 'animate-bounce' : ''}`}
+                className={`bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-black px-2.5 py-0.5 rounded-full ${isBouncing ? 'animate-bounce' : ''}`}
               >
-                {totalItems} ítems
+                {totalItems} {totalItems === 1 ? 'ítem' : 'ítems'}
               </span>
             </div>
-            <strong className="text-2xl font-black text-indigo-600 font-mono tracking-tight tabular-nums">
+            <strong className="text-3xl font-black text-indigo-700 font-mono tracking-tight tabular-nums transition-transform duration-150 active:scale-95">
               ${totales.totalFinal.toLocaleString('es-CO')}
             </strong>
           </div>

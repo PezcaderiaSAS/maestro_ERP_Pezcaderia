@@ -16,7 +16,7 @@ describe('CARD-012-07: DeliveryGovernanceTab Suite (Métricas OTIF & Auditoría 
     localStorage.clear();
     vi.clearAllMocks();
 
-    // Crear manifiesto con datos ricos para auditar métricas OTIF
+    const hoy = new Date().toISOString().slice(0, 10);
     const res = deliveryRouteService.crearManifiestoRuta(
       {
         conductorId: 'cond-01',
@@ -35,7 +35,7 @@ describe('CARD-012-07: DeliveryGovernanceTab Suite (Métricas OTIF & Auditoría 
           numeroPedido: 'PED-201',
           clienteNombre: 'Restaurante Gourmet',
           clienteDireccion: 'Calle 48 # 28-12',
-          fechaEntrega: '2026-10-14',
+          fechaEntrega: hoy,
           jornada: 'AM',
           totalNeto: 450000,
           items: [{ sku: 'ROB-01', nombre: 'Róbalo', cantidad: 10, precioUnitario: 45000 }],
@@ -45,7 +45,7 @@ describe('CARD-012-07: DeliveryGovernanceTab Suite (Métricas OTIF & Auditoría 
           numeroPedido: 'PED-202',
           clienteNombre: 'Cevichería Central',
           clienteDireccion: 'Carrera 33 # 52-19',
-          fechaEntrega: '2026-10-14',
+          fechaEntrega: hoy,
           jornada: 'AM',
           totalNeto: 250000,
           items: [{ sku: 'CAM-01', nombre: 'Camarón', cantidad: 5, precioUnitario: 50000 }],

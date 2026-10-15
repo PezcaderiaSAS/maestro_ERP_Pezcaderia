@@ -235,6 +235,11 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
         await imprimirTicket(ventaProcesada, cliente);
         onLimpiarCarrito();
         setEfectivoRecibido(0);
+        // Regla del Niño de 12 Años: Retorno inmediato de foco al buscador para la siguiente venta
+        const searchInput = document.getElementById('pos-product-search-input');
+        if (searchInput) {
+          searchInput.focus();
+        }
       }
     } catch (err) {
       console.error('Error durante el cobro:', err);
@@ -314,14 +319,14 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
                   key={m.id}
                   onClick={() => setMetodoPago(m.id)}
                   title={`Seleccionar ${m.label} (Alt+${m.keyNum})`}
-                  className={`flex flex-col sm:flex-row items-center justify-center gap-1 py-1.5 px-2 rounded-lg border text-center transition-all ${
+                  className={`flex flex-col sm:flex-row items-center justify-center gap-1.5 min-h-[48px] h-12 py-1.5 px-2.5 rounded-xl border text-center transition-all cursor-pointer active:scale-95 ${
                     isSelected
-                      ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-400 font-bold'
+                      ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm ring-2 ring-indigo-400 font-bold'
                       : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-sm font-semibold'
                   }`}
                 >
-                  <Icon size={14} className={isSelected ? 'text-indigo-600 shrink-0' : 'text-slate-500 shrink-0'} />
-                  <span className="text-[11px] font-bold truncate leading-tight">{m.label}</span>
+                  <Icon size={16} className={isSelected ? 'text-indigo-600 shrink-0' : 'text-slate-500 shrink-0'} />
+                  <span className="text-xs font-bold truncate leading-tight">{m.label}</span>
                 </button>
               );
             })}
@@ -329,60 +334,61 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
 
           {/* Panel de Efectivo y Cambio Compacto para Laptops */}
           {metodoPago === 'EFECTIVO' && (
-            <div className="flex flex-col gap-2 p-2.5 bg-slate-50 border border-slate-200 rounded-xl shadow-sm">
+            <div className="flex flex-col gap-2.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl shadow-sm">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600">
                   Efectivo Recibido
                 </span>
-                <span className="text-[11px] text-slate-600 font-medium">
+                <span className="text-xs text-slate-600 font-medium">
                   Cobro: <b className="text-slate-900 font-black">${totalFinal.toLocaleString('es-CO')}</b>
                 </span>
               </div>
 
-              {/* Input de Efectivo + Botón Exacto en Línea */}
-              <div className="flex gap-1.5">
+              {/* Input de Efectivo + Botón Exacto en Línea (Targets >= 48px) */}
+              <div className="flex gap-2 items-stretch">
                 <div className="relative flex-1">
                   <NumericFormat
                     getInputRef={efectivoInputRef}
                     value={efectivoRecibido || ''}
                     onValueChange={(values) => setEfectivoRecibido(values.floatValue || 0)}
+                    onFocus={(e) => (e.target as HTMLInputElement).select()}
                     thousandSeparator="."
                     decimalSeparator=","
                     decimalScale={0}
                     allowNegative={false}
                     prefix="$ "
                     placeholder="$ 0"
-                    className="w-full h-10 px-3 rounded-lg border-2 border-slate-300 bg-white text-lg font-black text-slate-900 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all tabular-nums shadow-sm"
+                    className="w-full min-h-[48px] h-12 px-3 rounded-xl border-2 border-slate-300 bg-white text-xl font-black text-slate-900 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all tabular-nums shadow-sm"
                   />
                 </div>
                 <button
                   type="button"
                   onClick={() => setEfectivoRecibido(totalFinal)}
-                  className="px-3 h-10 text-xs font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg transition-colors whitespace-nowrap flex items-center gap-1.5 shadow-sm cursor-pointer"
+                  className="px-4 min-h-[48px] h-12 text-sm font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5 shadow-sm cursor-pointer active:scale-95"
                   title="Pagar con monto exacto (Espacio)"
                 >
                   <span>Exacto</span>
-                  <kbd className="px-1 py-0.2 bg-white border border-indigo-200 rounded text-[9px] font-mono text-indigo-700 font-bold">Space</kbd>
+                  <kbd className="px-1.5 py-0.5 bg-white border border-indigo-200 rounded text-[10px] font-mono text-indigo-700 font-bold">Space</kbd>
                 </button>
               </div>
 
-              {/* Botones de Denominación Rápida Compactos */}
-              <div className="grid grid-cols-4 gap-1">
+              {/* Botones de Denominación Rápida Táctiles (Targets >= 48px) */}
+              <div className="grid grid-cols-4 gap-1.5">
                 {BILLETES_RAPIDOS_SUGERIDOS.map((denom) => (
                   <button
                     key={denom}
                     type="button"
                     onClick={() => setEfectivoRecibido(denom)}
-                    className="py-1.5 px-1 text-xs font-bold rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 transition-colors tabular-nums text-center shadow-sm cursor-pointer"
+                    className="min-h-[48px] h-12 px-1 text-sm font-black rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 transition-all tabular-nums text-center shadow-sm cursor-pointer active:scale-95"
                   >
                     ${(denom / 1000).toLocaleString('es-CO')}k
                   </button>
                 ))}
               </div>
 
-              {/* Visor de Cambio (Vuelto) Compacto en 1 sola franja horizontal */}
+              {/* Visor de Cambio (Vuelto) con altura cómoda */}
               <div
-                className={`py-1.5 px-3 rounded-lg border flex items-center justify-between transition-all ${
+                className={`min-h-[48px] py-2 px-3.5 rounded-xl border flex items-center justify-between transition-all ${
                   calculoCambio.valido && calculoCambio.cambio > 0
                     ? 'bg-emerald-50 border-emerald-300 text-emerald-800 font-bold shadow-sm'
                     : calculoCambio.valido && calculoCambio.cambio === 0
@@ -390,7 +396,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
                     : 'bg-rose-50 border-rose-300 text-rose-800 font-bold shadow-sm'
                 }`}
               >
-                <span className="text-[11px] font-black uppercase tracking-wider">
+                <span className="text-xs font-black uppercase tracking-wider">
                   {calculoCambio.valido
                     ? calculoCambio.cambio === 0
                       ? '✓ Pago Exacto'
@@ -398,7 +404,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
                     : '⚠ Faltante:'}
                 </span>
                 <span
-                  className="text-lg font-black tracking-tight tabular-nums"
+                  className="text-xl font-black tracking-tight tabular-nums font-mono"
                 >
                   ${(calculoCambio.valido ? calculoCambio.cambio : calculoCambio.faltante).toLocaleString('es-CO')}
                 </span>
@@ -471,44 +477,45 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
         </div>
       )}
 
-      {/* Botones de Acción Compactos con Hints de Atajos */}
-      <div className="flex gap-2">
+      {/* Botones de Acción Táctiles Gigantes (Regla del Niño de 12 Años: Cobrar >= 56px, Borrador >= 48px) */}
+      <div className="flex gap-2.5 items-stretch mt-1">
         <Button
           variant="outline"
           onClick={onGuardarBorrador}
           disabled={isDisabled}
-          leftIcon={<Save size={16} />}
-          className="flex-1 h-11 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 hover:text-slate-900 text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+          leftIcon={<Save size={18} />}
+          className="flex-1 min-h-[48px] h-12 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 hover:text-slate-900 text-sm font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
           title="Guardar pedido como borrador / en espera (Atajo: F6)"
           aria-label="Poner pedido actual en espera (Atajo F6)"
         >
           <span>Borrador</span>
-          <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-slate-100 border border-slate-200 rounded text-slate-600 font-bold">F6</kbd>
+          <kbd className="px-1.5 py-0.5 text-[11px] font-mono bg-slate-100 border border-slate-200 rounded text-slate-600 font-bold">F6</kbd>
         </Button>
 
         {!isTurnoAbierto ? (
           <Button
             variant="primary"
             onClick={handleCobrarClick}
-            className="flex-[2] h-11 text-sm font-black bg-amber-500 hover:bg-amber-600 text-slate-950 border-0 flex items-center justify-center gap-1.5 shadow-md focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+            className="flex-[2] min-h-[56px] h-14 text-base font-black bg-amber-500 hover:bg-amber-600 text-slate-950 border-0 flex items-center justify-center gap-2 shadow-md active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-amber-500/50"
             title="Abrir turno de caja (Atajo: Enter)"
             aria-label="Abrir turno de caja (Atajo Enter)"
           >
             <span>Abrir Turno Caja</span>
-            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-black/20 rounded text-slate-950 font-bold">Enter</kbd>
+            <kbd className="px-2 py-0.5 text-xs font-mono bg-black/20 rounded text-slate-950 font-bold">Enter</kbd>
           </Button>
         ) : (
           <Button
             variant="primary"
             onClick={handleCobrarClick}
             disabled={isDisabled || (metodoPago === 'EFECTIVO' && !isModoMixto && !calculoCambio.valido)}
-            className="flex-[2] h-11 text-sm font-black bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-md text-white flex items-center justify-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+            className="flex-[2] min-h-[56px] h-14 text-base font-black bg-emerald-600 hover:bg-emerald-700 shadow-lg text-white flex items-center justify-center gap-2 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-emerald-400"
             data-testid="btn-cobrar"
             title="Procesar cobro del pedido (Atajo: F2 o Enter)"
             aria-label={`Cobrar pedido por valor de ${totalFinal.toLocaleString('es-CO')} pesos (Atajo F2 o Enter)`}
           >
-            <span>Cobrar: ${totalFinal.toLocaleString('es-CO')}</span>
-            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-black/30 rounded text-white font-bold">F2 / ↵</kbd>
+            <span className="tracking-tight">Cobrar:</span>
+            <span className="font-mono text-lg font-black tracking-normal">${totalFinal.toLocaleString('es-CO')}</span>
+            <kbd className="px-2 py-0.5 text-xs font-mono bg-black/25 rounded text-white font-bold ml-1">F2 / ↵</kbd>
           </Button>
         )}
       </div>

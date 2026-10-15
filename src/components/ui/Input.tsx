@@ -46,7 +46,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           <input
             ref={ref}
             disabled={disabled}
-            className="w-full bg-transparent p-0 border-none focus:ring-0 outline-none text-[var(--text-primary)] placeholder:text-slate-400"
+            className="w-full min-h-[48px] bg-transparent p-0 border-none focus:ring-0 outline-none text-[var(--text-primary)] placeholder:text-slate-400"
             {...props}
           />
           {rightIcon && (

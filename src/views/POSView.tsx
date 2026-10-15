@@ -41,6 +41,7 @@ import type { CartDraft } from '../types/pos.types.ts';
 import { ejecutarAbastecimientoInmediato, validarAbastecimientoSucursal } from '../services/branchInventoryService.ts';
 import { getInitials } from '../utils/roleMapper.ts';
 import { UserSwitchModal } from '../components/layout/UserSwitchModal.tsx';
+import { ManualWeightModal } from './pos/components/ManualWeightModal.tsx';
 
 interface CartItem {
   product: Product;
@@ -111,6 +112,11 @@ export default function POSView({
   const [showArqueoModal, setShowArqueoModal] = useState<boolean>(false);
   const [showRetiroModal, setShowRetiroModal] = useState<boolean>(false);
   const [showHamburger, setShowHamburger] = useState<boolean>(false);
+  const [productForWeight, setProductForWeight] = useState<{
+    product: Product;
+    pesoInicial?: number;
+    precioUnitario: number;
+  } | null>(null);
 
   useEffect(() => {
     if (!turnoActivo || turnoActivo.estado !== 'ABIERTO') {
@@ -204,40 +210,27 @@ export default function POSView({
     return product.precio_venta_pos;
   };
 
-  const handleAddProduct = async (product: Product) => {
-    const isWeighable = product.unidadMedida === 'kg' || product.unidadMedida === 'gr';
-    
-    if (isWeighable) {
-      const { value: weight } = await Swal.fire({
-        title: 'Ingreso de Peso',
-        input: 'number',
-        inputLabel: `Ingrese el peso exacto en ${product.unidadMedida}`,
-        inputPlaceholder: 'Ej: 1.5',
-        inputAttributes: {
-          min: '0.01',
-          step: 'any'
-        },
-        showCancelButton: true,
-        confirmButtonText: 'Agregar al carrito',
-        cancelButtonText: 'Cancelar',
-        confirmButtonColor: 'var(--primary-color)'
-      });
+  const handleAddProduct = (product: Product) => {
+    const unidadNormalizada = (product.unidadMedida || (product as any).unidad || '').toString().trim().toUpperCase();
+    const isWeighable =
+      unidadNormalizada === 'KG' ||
+      unidadNormalizada === 'KILO' ||
+      unidadNormalizada === 'KILOS' ||
+      unidadNormalizada === 'GR' ||
+      unidadNormalizada === 'GRAMOS';
 
-      if (weight) {
-        const parsedWeight = parseFloat(weight);
-        if (!isNaN(parsedWeight) && parsedWeight > 0) {
-          agregarProducto(product as any, parsedWeight);
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Peso inválido',
-            text: 'Debe ingresar un valor numérico mayor a 0.',
-            confirmButtonColor: 'var(--primary-color)'
-          });
-        }
-      }
+    if (isWeighable) {
+      setProductForWeight({
+        product,
+        pesoInicial: 1.0,
+        precioUnitario: getProductPrice(product),
+      });
     } else {
       agregarProducto(product as any, 1);
+      setTimeout(() => {
+        const searchInput = document.getElementById('pos-product-search-input');
+        if (searchInput) searchInput.focus();
+      }, 50);
     }
   };
 
@@ -887,11 +880,12 @@ export default function POSView({
     );
 
     Swal.fire({
+      toast: true,
+      position: 'top-end',
       icon: 'success',
       title: 'Venta Procesada',
       text: `Total: $${totalFinal.toLocaleString('es-CO')} (${paymentString})`,
-      confirmButtonColor: 'var(--primary-color)',
-      timer: 1500,
+      timer: 1000,
       showConfirmButton: false
     });
 
@@ -2741,6 +2735,29 @@ export default function POSView({
         onClose={() => setShowUserSwitchModal(false)}
         title="Cambiar Vendedor en POS"
         subtitle="Identifícate con tu PIN de 4 dígitos para atribuir tus ventas"
+      />
+
+      {/* Modal Táctil de Pesaje Manual Asistido (SPEC-014 Regla 12 Años) */}
+      <ManualWeightModal
+        isOpen={productForWeight !== null}
+        producto={productForWeight?.product || null}
+        precioUnitario={productForWeight?.precioUnitario || 0}
+        pesoInicial={productForWeight?.pesoInicial || 1.0}
+        onConfirm={(prod, peso) => {
+          agregarProducto(prod as any, peso);
+          setProductForWeight(null);
+          setTimeout(() => {
+            const searchInput = document.getElementById('pos-product-search-input');
+            if (searchInput) searchInput.focus();
+          }, 50);
+        }}
+        onClose={() => {
+          setProductForWeight(null);
+          setTimeout(() => {
+            const searchInput = document.getElementById('pos-product-search-input');
+            if (searchInput) searchInput.focus();
+          }, 50);
+        }}
       />
     </div>
   );

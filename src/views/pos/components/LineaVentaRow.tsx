@@ -339,9 +339,9 @@ export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
         )}
       </div>
 
-      {/* Columna derecha: controles táctiles (44x44px ergonomics) */}
+      {/* Columna derecha: controles táctiles ergonómicos (>= 48px WCAG AAA) */}
       <div
-        className="cart-item-controls flex items-center gap-1.5 sm:gap-2 self-center shrink-0"
+        className="cart-item-controls flex items-center gap-2 self-center shrink-0"
       >
         {/* Botón balanza — solo para productos KG (RN-13) */}
         <BalanzaButton
@@ -349,25 +349,26 @@ export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
           onWeightRead={(peso) => onWeightRead(linea.productoId, peso)}
         />
 
-        {/* Botón decrementar */}
-        <Button
-          variant="secondary"
-          className="qty-btn min-w-[44px] min-h-[44px] w-11 h-11 p-0 flex items-center justify-center rounded-lg active:scale-95 transition-all text-secondary dark:text-slate-200 bg-slate-800/60 hover:bg-slate-700/60 dark:bg-slate-800 dark:hover:bg-slate-700 border border-white/10 dark:border-white/10 cursor-pointer"
+        {/* Botón decrementar (-) >= 48px */}
+        <button
+          type="button"
+          className="qty-btn min-w-[48px] min-h-[48px] w-12 h-12 p-0 flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 border border-slate-300 font-bold active:scale-95 transition-all cursor-pointer shadow-sm"
           onClick={() => handleQtyDelta(-1)}
           title="Disminuir cantidad"
           aria-label="Disminuir cantidad"
         >
-          <Minus size={16} />
-        </Button>
+          <Minus size={18} className="stroke-[2.5]" />
+        </button>
 
-        {/* Input cantidad */}
-        <div className="w-16">
+        {/* Input cantidad >= 48px con auto-selección total */}
+        <div className="w-20">
           <Input
             type="number"
             value={linea.cantidad}
             onChange={handleInputChange}
             onBlur={handleInputBlur}
-            className="w-full text-center border border-white/10 dark:border-white/15 rounded-lg text-base font-bold h-11 px-1 bg-card border-white/5 dark:bg-slate-900 text-primary dark:text-white tabular-nums shadow-inner"
+            onFocus={(e) => e.target.select()}
+            className="w-full text-center border-2 border-slate-200 focus:border-cyan-500 rounded-xl text-base font-black h-12 min-h-[48px] px-1 bg-white text-slate-900 font-mono tabular-nums shadow-sm"
             step={linea.unidad === 'KG' ? 'any' : '1'}
             min={linea.unidad === 'KG' ? '0.001' : '1'}
             inputMode={linea.unidad === 'KG' ? 'decimal' : 'numeric'}
@@ -375,27 +376,27 @@ export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
           />
         </div>
 
-        {/* Botón incrementar */}
-        <Button
-          variant="secondary"
-          className="qty-btn min-w-[44px] min-h-[44px] w-11 h-11 p-0 flex items-center justify-center rounded-lg active:scale-95 transition-all text-secondary dark:text-slate-200 bg-slate-800/60 hover:bg-slate-700/60 dark:bg-slate-800 dark:hover:bg-slate-700 border border-white/10 dark:border-white/10 cursor-pointer"
+        {/* Botón incrementar (+) >= 48px */}
+        <button
+          type="button"
+          className="qty-btn min-w-[48px] min-h-[48px] w-12 h-12 p-0 flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 border border-slate-300 font-bold active:scale-95 transition-all cursor-pointer shadow-sm"
           onClick={() => handleQtyDelta(1)}
           title="Aumentar cantidad"
           aria-label="Aumentar cantidad"
         >
-          <Plus size={16} />
-        </Button>
+          <Plus size={18} className="stroke-[2.5]" />
+        </button>
 
-        {/* Botón eliminar */}
-        <Button
-          variant="danger"
-          className="delete-cart-item-btn min-w-[44px] min-h-[44px] w-11 h-11 p-0 flex items-center justify-center rounded-lg active:scale-95 transition-all bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/30 cursor-pointer shadow-none"
+        {/* Botón eliminar >= 48px */}
+        <button
+          type="button"
+          className="delete-cart-item-btn min-w-[48px] min-h-[48px] w-12 h-12 p-0 flex items-center justify-center rounded-xl bg-rose-50 hover:bg-rose-100 active:bg-rose-200 text-rose-600 border border-rose-200 font-bold active:scale-95 transition-all cursor-pointer shadow-sm"
           onClick={() => onRemove(linea.productoId)}
           title="Eliminar producto del carrito"
           aria-label="Eliminar producto del carrito"
         >
-          <X size={16} />
-        </Button>
+          <X size={20} className="stroke-[2.5]" />
+        </button>
       </div>
     </div>
   );
