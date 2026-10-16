@@ -114,7 +114,12 @@ export class B2BRouteDeliveryService {
     });
 
     this.routeService.iniciarRuta(manifiesto.id);
-    manifiesto.estado = 'EN_RUTA';
+    const manifiestoActualizado = (typeof this.routeService.obtenerManifiestoPorId === 'function' ? this.routeService.obtenerManifiestoPorId(manifiesto.id) : undefined) || {
+      ...manifiesto,
+      estado: 'EN_RUTA' as const,
+      cargaVerificadaEnBodega: true,
+      temperaturaSalidaCelsius: input.temperaturaFurgonCelsius,
+    };
 
     // 5. Transicionar pedidos a EN_RUTA y estampar conductor y ruta
     const pedidosDespachados: Pedido[] = [];
@@ -136,11 +141,11 @@ export class B2BRouteDeliveryService {
     await this.eventPublisher.publicarEvento(
       'QUOTE_STATUS_CHANGED',
       input.conductorNombre,
-      `Manifiesto ${manifiesto.numeroManifiesto} despachado en ruta con ${pedidosDespachados.length} pedidos. Vehículo ${input.vehiculoPlaca} a ${input.temperaturaFurgonCelsius}°C`,
+      `Manifiesto ${manifiestoActualizado.numeroManifiesto} despachado en ruta con ${pedidosDespachados.length} pedidos. Vehículo ${input.vehiculoPlaca} a ${input.temperaturaFurgonCelsius}°C`,
       {
         evento: 'b2b_pedidos_despachados_en_ruta',
-        manifiestoId: manifiesto.id,
-        numeroManifiesto: manifiesto.numeroManifiesto,
+        manifiestoId: manifiestoActualizado.id,
+        numeroManifiesto: manifiestoActualizado.numeroManifiesto,
         conductorId: input.conductorId,
         conductorNombre: input.conductorNombre,
         vehiculoPlaca: input.vehiculoPlaca,
@@ -149,7 +154,7 @@ export class B2BRouteDeliveryService {
       }
     );
 
-    return { manifiesto, pedidosDespachados };
+    return { manifiesto: manifiestoActualizado, pedidosDespachados };
   }
 
   /**
@@ -235,6 +240,7 @@ export class B2BRouteDeliveryService {
     const pedidoEntregado: Pedido = {
       ...pedido,
       estado: 'ENTREGADO',
+      totalFinal: montoCalculado,
       firmaClienteUrl: input.firmaClienteUrl,
       horaEntregaEfectiva: ahora,
       horaLlegadaCliente: input.horaLlegada || ahora,

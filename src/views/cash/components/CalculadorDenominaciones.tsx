@@ -25,14 +25,22 @@ const DENOMINACIONES_MONEDAS = [
 ] as const;
 
 const getThemeColors = (theme: string) => {
-  switch(theme) {
-    case 'green': return { bg: '#ecfdf5', border: '#a7f3d0', text: '#065f46', iconBg: '#d1fae5', iconColor: '#059669' };
-    case 'purple': return { bg: '#faf5ff', border: '#e9d5ff', text: '#6b21a8', iconBg: '#f3e8ff', iconColor: '#7e22ce' };
-    case 'orange': return { bg: '#fff7ed', border: '#fed7aa', text: '#9a3412', iconBg: '#ffedd5', iconColor: '#c2410c' };
-    case 'rose': return { bg: '#fff1f2', border: '#fecdd3', text: '#9f1239', iconBg: '#ffe4e6', iconColor: '#be123c' };
-    case 'amber': return { bg: '#fffbeb', border: '#fde68a', text: '#92400e', iconBg: '#fef3c7', iconColor: '#b45309' };
-    case 'blue': return { bg: '#eff6ff', border: '#bfdbfe', text: '#1e40af', iconBg: '#dbeafe', iconColor: '#1d4ed8' };
-    case 'slate': default: return { bg: '#f8fafc', border: '#e2e8f0', text: '#334155', iconBg: '#f1f5f9', iconColor: '#475569' };
+  switch (theme) {
+    case 'green':
+      return { bg: '#ecfdf5', border: '#a7f3d0', text: '#065f46', badgeBg: '#d1fae5', badgeText: '#059669' };
+    case 'purple':
+      return { bg: '#faf5ff', border: '#e9d5ff', text: '#6b21a8', badgeBg: '#f3e8ff', badgeText: '#7e22ce' };
+    case 'orange':
+      return { bg: '#fff7ed', border: '#fed7aa', text: '#9a3412', badgeBg: '#ffedd5', badgeText: '#c2410c' };
+    case 'rose':
+      return { bg: '#fff1f2', border: '#fecdd3', text: '#9f1239', badgeBg: '#ffe4e6', badgeText: '#be123c' };
+    case 'amber':
+      return { bg: '#fffbeb', border: '#fde68a', text: '#92400e', badgeBg: '#fef3c7', badgeText: '#b45309' };
+    case 'blue':
+      return { bg: '#eff6ff', border: '#bfdbfe', text: '#1e40af', badgeBg: '#dbeafe', badgeText: '#1d4ed8' };
+    case 'slate':
+    default:
+      return { bg: '#f8fafc', border: '#cbd5e1', text: '#334155', badgeBg: '#e2e8f0', badgeText: '#475569' };
   }
 };
 
@@ -66,7 +74,7 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
     return (
       <div
         key={item.key}
-        className="isolate flex flex-col justify-between p-3.5 rounded-xl border-2 shadow-sm transition-all hover:shadow-md dark:bg-slate-900/80 dark:border-slate-800"
+        className="isolate flex flex-col justify-between p-3.5 rounded-2xl border-2 shadow-sm transition-all hover:shadow-md bg-white"
         style={{
           backgroundColor: colors.bg,
           borderColor: colors.border,
@@ -77,23 +85,23 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
         <div className="flex justify-between items-center mb-2.5 gap-2 w-full">
           <span className="font-extrabold text-base md:text-lg shrink-0 tracking-tight">{item.label}</span>
           <div className="text-right shrink-0">
-            <span className="text-[10px] uppercase tracking-wider font-bold opacity-70 block">Subtotal</span>
-            <span className="font-black text-sm md:text-base text-primary dark:text-slate-100 tabular-nums" title={`$${subtotal.toLocaleString()}`}>
-              ${subtotal.toLocaleString()}
+            <span className="text-[10px] uppercase tracking-wider font-bold opacity-75 block">Subtotal</span>
+            <span className="font-black text-sm md:text-base text-slate-900 tabular-nums font-mono" title={`$${subtotal.toLocaleString('es-CO')}`}>
+              ${subtotal.toLocaleString('es-CO')}
             </span>
           </div>
         </div>
 
-        {/* Input de Cantidad con Botones Táctiles de 44x44px (WCAG 2.2 AA / Apple HIG) */}
+        {/* Input de Cantidad con Botones Táctiles Gigantes >= 48px (Regla del Niño de 12 Años) */}
         <div className="flex items-center gap-2 mt-auto w-full">
-          <label htmlFor={inputId} className="opacity-75 font-bold text-xs shrink-0 mr-0.5">
+          <label htmlFor={inputId} className="opacity-75 font-black text-xs shrink-0 mr-0.5">
             CANT.
           </label>
           {!readOnly && (
             <button
               type="button"
               onClick={decrement}
-              className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-lg bg-card border-white/5 dark:bg-slate-800 border-2 border-white/10 dark:border-slate-700 flex items-center justify-center text-primary dark:text-slate-100 font-extrabold text-xl hover:bg-slate-800/60 dark:hover:bg-slate-700 active:scale-95 transition-all shrink-0 select-none shadow-sm cursor-pointer"
+              className="min-w-[48px] min-h-[48px] w-12 h-12 rounded-xl bg-white border-2 border-slate-300 flex items-center justify-center text-slate-900 font-black text-2xl hover:bg-slate-100 active:scale-95 transition-all shrink-0 select-none shadow-sm cursor-pointer"
               title="Disminuir (Táctil)"
               aria-label={`Disminuir ${item.label}`}
             >
@@ -112,13 +120,13 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
             onKeyDown={handleKeyDown}
             onFocus={(e) => e.target.select()}
             placeholder="0"
-            className="w-full flex-1 min-w-[55px] h-11 text-center bg-card border-white/5 dark:bg-slate-900 border-2 border-white/10 dark:border-slate-700 rounded-lg font-extrabold text-lg text-primary dark:text-slate-100 tabular-nums transition-all outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 dark:focus:ring-cyan-900/50 disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none shadow-inner"
+            className="w-full flex-1 min-w-[55px] min-h-[48px] h-12 text-center bg-white border-2 border-slate-300 rounded-xl font-black text-xl text-slate-900 tabular-nums font-mono transition-all outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none shadow-inner"
           />
           {!readOnly && (
             <button
               type="button"
               onClick={increment}
-              className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-lg bg-card border-white/5 dark:bg-slate-800 border-2 border-white/10 dark:border-slate-700 flex items-center justify-center text-primary dark:text-slate-100 font-extrabold text-xl hover:bg-slate-800/60 dark:hover:bg-slate-700 active:scale-95 transition-all shrink-0 select-none shadow-sm cursor-pointer"
+              className="min-w-[48px] min-h-[48px] w-12 h-12 rounded-xl bg-white border-2 border-slate-300 flex items-center justify-center text-slate-900 font-black text-2xl hover:bg-slate-100 active:scale-95 transition-all shrink-0 select-none shadow-sm cursor-pointer"
               title="Aumentar (Táctil)"
               aria-label={`Aumentar ${item.label}`}
             >
@@ -131,9 +139,8 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
   };
 
   return (
-    <div className="bg-card border-white/5/80 backdrop-blur-sm rounded-2xl border border-border shadow-sm overflow-hidden w-full">
-      <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100">
-
+    <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-sm overflow-hidden w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200">
         {/* Columna Billetes */}
         <div className="p-4 md:p-5 flex flex-col gap-4">
           <div className="flex items-center gap-2 px-1">
@@ -145,7 +152,7 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             </div>
-            <h3 className="font-bold text-lg text-primary m-0">Billetes</h3>
+            <h3 className="font-extrabold text-lg text-slate-900 m-0">Billetes en Efectivo</h3>
           </div>
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
             {DENOMINACIONES_BILLETES.map(renderCard)}
@@ -153,7 +160,7 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
         </div>
 
         {/* Columna Monedas */}
-        <div className="p-4 md:p-5 flex flex-col gap-4 bg-slate-800/40/50">
+        <div className="p-4 md:p-5 flex flex-col gap-4 bg-slate-50/60">
           <div className="flex items-center gap-2 px-1">
             <div
               className="w-8 h-8 rounded-full flex items-center justify-center shadow-sm shrink-0"
@@ -163,13 +170,12 @@ export const CalculadorDenominaciones: React.FC<Props> = ({ valores, onChange, r
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 className="font-bold text-lg text-primary m-0">Monedas</h3>
+            <h3 className="font-extrabold text-lg text-slate-900 m-0">Monedas</h3>
           </div>
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
             {DENOMINACIONES_MONEDAS.map(renderCard)}
           </div>
         </div>
-
       </div>
     </div>
   );

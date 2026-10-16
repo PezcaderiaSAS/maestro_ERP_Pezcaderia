@@ -87,6 +87,7 @@ describe('TASK-SOLID-05: B2BRouteDeliveryService (SRP, DIP & OCP)', () => {
       iniciarRuta: vi.fn().mockReturnValue({ success: true }),
       registrarEntregaPedido: vi.fn().mockReturnValue({ success: true }),
       obtenerManifiestos: vi.fn().mockReturnValue([manifiestoMock]),
+      obtenerManifiestoPorId: vi.fn().mockReturnValue(manifiestoMock),
       finalizarRecorridoChofer: vi.fn().mockReturnValue({ success: true }),
       liquidarRutaTransportador: vi.fn().mockResolvedValue({
         success: true,

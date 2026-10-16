@@ -147,3 +147,98 @@ flowchart TD
 ---
 
 **Siguiente Paso del Flujo:** Esperar la aprobación del usuario sobre esta Especificación (`/speckit.specify`) para proceder con el Control de Calidad 1 (`/speckit.clarify`).
+
+
+
+<!-- MANDATORY MULTI-PHASE SYSTEM MODELING (Mermaid.js) -->
+## 5 Diagramas de Ingeniería Obligatorios (Mermaid.js)
+
+### 1. Flujo de Procesos: Ciclo de Vida Operativo (`1_process_flowcharts`)
+```mermaid
+flowchart TD
+    A[Inicio: Solicitud de Operación] --> B[Validación Previa de Estado y Tenant]
+    B --> C[Procesamiento del Caso de Uso en Servicio]
+    C --> D[Transacción Atómica en Base de Datos]
+    D --> E[Emisión de Evento / Notificación SweetAlert2]
+    E --> F[Fin del Proceso Operativo]
+```
+
+### 2. Rombos de Decisión: Lógica Condicional y Edge Cases (`2_decision_logic_diagrams`)
+```mermaid
+flowchart TD
+    A[Recepción de Datos de Entrada] --> B{¿Cumple Validación de Esquema Zod?}
+    B -- No --> C[Retornar Error 400: Datos Inválidos]
+    B -- Sí --> D{¿Cuenta con Autorización y RLS?}
+    D -- No --> E[Bloqueo 403: Violación de Seguridad RLS]
+    D -- Sí --> F{¿Stock / Cupo Suficiente Disponible?}
+    F -- No --> G[Alerta: Desvío a Backorder o Cuarentena]
+    F -- Sí --> H[Aprobar y Ejecutar Transacción]
+```
+
+### 3. Modelo Entidad-Relación: Persistencia y Llaves (`3_entity_relationship_diagrams`)
+```mermaid
+erDiagram
+    TENANT ||--o{ PRODUCTO : "posee"
+    PRODUCTO ||--o{ MOVIMIENTO_INVENTARIO : "registra"
+    PRODUCTO {
+        uuid id PK
+        uuid tenant_id FK
+        string nombre
+        numeric precio_base
+        numeric stock_actual
+        timestamp created_at
+    }
+    MOVIMIENTO_INVENTARIO {
+        uuid id PK
+        uuid producto_id FK
+        uuid tenant_id FK
+        string tipo_movimiento
+        numeric cantidad_kg
+        timestamp fecha
+    }
+```
+
+### 4. Diagrama de Secuencia: Mensajería entre Capas y Servicios (`4_sequence_diagrams`)
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Usuario (POS / Operativo)
+    participant UI as Vista React (Component / Hook)
+    participant SVC as Servicio de Dominio (Service)
+    participant DB as Supabase PostgreSQL (RLS)
+    participant CACHE as Upstash Redis (L3 Cache)
+
+    U->>UI: Interacción (Submit / Confirmar)
+    UI->>SVC: Invocación de Caso de Uso con DTO
+    SVC->>CACHE: Validar Lock Distribuido / Caché
+    CACHE-->>SVC: Lock Adquirido
+    SVC->>DB: Query / Mutación con JWT autenticado
+    DB-->>SVC: Confirmación de fila afectada
+    SVC-->>UI: Respuesta tipada exitosa
+    UI-->>U: Feedback Visual en Pantalla (Toast / Swal)
+```
+
+### 5. Arquitectura de Componentes y Límites de Capas (`5_component_architecture_diagrams`)
+```mermaid
+flowchart TB
+    subgraph Presentacion["1. Capa de Presentación (UI / React 18)"]
+        V[Vistas y Componentes Atómicos]
+        H[Custom Hooks y Stores Zustand]
+        V --> H
+    end
+
+    subgraph Dominio["2. Capa de Dominio y Casos de Uso"]
+        SVC[Servicios de Negocio Deterministas]
+        ZOD[Validación y Contratos Zod]
+        H --> SVC
+        SVC --> ZOD
+    end
+
+    subgraph Infraestructura["3. Capa de Datos e Infraestructura"]
+        SB[Supabase Client + RLS]
+        REDIS[Upstash Redis L3 Client]
+        SVC --> SB
+        SVC --> REDIS
+    end
+```
+<!-- END MANDATORY MULTI-PHASE SYSTEM MODELING -->

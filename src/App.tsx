@@ -18,6 +18,7 @@ import { DispatchView } from './views/inventory/DispatchView';
 import { DevTestDashboard } from './dev/DevTestDashboard';
 import AccountingView from './views/AccountingView';
 import { ColdStorageRentalView } from './views/coldStorageRental/ColdStorageRentalView';
+import { B2BExternalSalesView } from './views/b2b/B2BExternalSalesView';
 import { EnterpriseSidebar, type ERPViewKey } from './components/layout/EnterpriseSidebar';
 import { EnterpriseTopbar } from './components/layout/EnterpriseTopbar';
 import { GlobalOmniboxModal } from './components/layout/GlobalOmniboxModal';
@@ -1384,6 +1385,8 @@ export default function App() {
         return <AccountingView />;
       case 'alquiler_cf':
         return <ColdStorageRentalView />;
+      case 'ventas_b2b':
+        return <B2BExternalSalesView onNavigateToKanban={() => setCurrentView('kanban')} />;
       default:
         return <DashboardView />;
     }

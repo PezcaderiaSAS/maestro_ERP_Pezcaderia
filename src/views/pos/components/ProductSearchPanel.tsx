@@ -186,7 +186,7 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
           const unitLabel = isWeight ? 'kg' : 'und';
 
           return (
-            <Card glass key={prod.id} className={`product-card flex flex-col p-0 overflow-hidden cursor-pointer ${isOutOfStock ? 'opacity-50 grayscale pointer-events-none' : ''}`} onClick={() => onAddProduct(prod)}>
+            <Card glass key={prod.id} className={`product-card min-h-[72px] flex flex-col p-0 overflow-hidden cursor-pointer active:scale-95 transition-transform duration-100 ${isOutOfStock ? 'opacity-50 grayscale pointer-events-none' : ''}`} onClick={() => onAddProduct(prod)}>
               <div className="product-image-container" style={{ position: 'relative' }}>
                 {/* Badge visual distintivo Kilos vs Unidad */}
                 <div style={{ position: 'absolute', top: '8px', left: '8px', zIndex: 10 }}>
@@ -238,6 +238,7 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
                   categoria={prod.categoria}
                   imagen={prod.imagen}
                   size="full"
+                  vectorOnly={true}
                   className="product-image"
                   alt={prod.nombre}
                 />

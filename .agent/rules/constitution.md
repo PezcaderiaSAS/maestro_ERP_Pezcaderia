@@ -20,10 +20,10 @@ trigger: always_on
 ### Protocolo Preceptivo e Innegociable: Flujo Spec Kit (SDD)
 Ante CADA nueva solicitud o requerimiento, es OBLIGATORIO seguir este ciclo secuencial con aprobaciones humanas intermedias:
 
-1. **/speckit.specify:** Crea la especificación base del requerimiento. Responde al "Qué" se va a construir y "Por qué". Usa `graphify query "..."` para consultar el grafo de conocimiento local antes de planificar. **PROHIBIDO generar código. Espera la aprobación del usuario.**
+1. **/speckit.specify:** Crea la especificación base del requerimiento. Responde al "Qué" se va a construir y "Por qué". Usa `graphify query "..."` para consultar el grafo de conocimiento local antes de planificar. **MANDATORIO:** Incluir los 5 diagramas de ingeniería en Mermaid (Flujo de Procesos, Rombos de Decisión, ERD, Secuencia y Arquitectura de Componentes). **PROHIBIDO generar código. Espera la aprobación del usuario.**
 2. **/speckit.clarify (Control de Calidad 1):** Realiza preguntas estructuradas para eliminar ambigüedades y mitigar riesgos antes de proponer soluciones técnicas. Usa `graphify query "..."`. **PROHIBIDO generar código. Espera la aprobación del usuario.**
 3. **/speckit.checklist:** Genera una lista de verificación de calidad contra los estándares de la industria. Usa `graphify query "..."`. **PROHIBIDO generar código. Espera la aprobación del usuario.**
-4. **/speckit.plan:** Crea el plan de implementación técnica (el "Cómo"). Define componentes, esquemas de datos y flujos de información respaldados por el grafo vía `graphify query "..."`. **PROHIBIDO generar código. Espera la aprobación del usuario.**
+4. **/speckit.plan:** Crea el plan de implementación técnica (el "Cómo"). Define componentes, esquemas de datos y flujos de información respaldados por los 5 diagramas Mermaid validados. **PROHIBIDO generar código. Espera la aprobación del usuario.**
 5. **/speckit.tasks:** Traduce el plan técnico en tareas granulares, secuenciales y accionables. Usa `graphify query "..."`. **PROHIBIDO generar código. Espera la aprobación del usuario.**
 6. **/speckit.analyze (Control de Calidad 2):** Reporte de consistencia y alineación cruzada (Spec -> Plan -> Tasks) para detectar fisuras antes de programar. Usa `graphify query "..."`. **PROHIBIDO generar código. Espera la aprobación del usuario.**
 7. **/speckit.tasks (Actualización):** Actualiza y ajusta las tareas según el reporte de consistencia anterior. **PROHIBIDO generar código. Espera la aprobación del usuario.**

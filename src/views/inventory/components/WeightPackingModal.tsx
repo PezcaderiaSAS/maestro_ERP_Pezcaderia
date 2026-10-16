@@ -1,5 +1,17 @@
 import React, { useState, useMemo } from 'react';
-import { X, Scale, Thermometer, ShieldAlert, CheckCircle2, AlertTriangle, Layers, Delete } from 'lucide-react';
+import {
+  X,
+  Scale,
+  Thermometer,
+  ShieldAlert,
+  CheckCircle2,
+  AlertTriangle,
+  Layers,
+  Delete,
+  Lock,
+  ShieldCheck,
+  CheckSquare
+} from 'lucide-react';
 import {
   validateWeightTolerance,
   validateCalibrePieceWeight,
@@ -32,6 +44,7 @@ interface WeightPackingModalProps {
     lineaPedidoId: string;
     pesoRealKg: number;
     piezasAlistadas?: number;
+    precintoCanastilla?: string;
     subtotalAjustado: number;
     temperaturaC: number;
     loteFefo: string;
@@ -48,9 +61,15 @@ export const WeightPackingModal: React.FC<WeightPackingModalProps> = ({
   const [pesoInput, setPesoInput] = useState<string>('');
   const [piezasInput, setPiezasInput] = useState<string>(item.piezasSolicitadas?.toString() || '1');
   const [temperaturaInput, setTemperaturaInput] = useState<string>('2.0');
-  const [loteFefo, setLoteFefo] = useState<string>(item.loteSugerido || `LOTE-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`);
+  const [loteFefo, setLoteFefo] = useState<string>(
+    item.loteSugerido || `LOTE-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`
+  );
+  const [precintoCanastilla, setPrecintoCanastilla] = useState<string>('');
   const [autorizadoExceso, setAutorizadoExceso] = useState<boolean>(false);
   const [observaciones, setObservaciones] = useState<string>('');
+  const [checkInocuidadTemp, setCheckInocuidadTemp] = useState<boolean>(true);
+  const [checkCanastillaLimpia, setCheckCanastillaLimpia] = useState<boolean>(true);
+  const [checkPrecintoColocado, setCheckPrecintoColocado] = useState<boolean>(false);
 
   if (!isOpen) return null;
 
@@ -74,7 +93,7 @@ export const WeightPackingModal: React.FC<WeightPackingModalProps> = ({
 
   const subtotalCalculado = calculateCatchWeightTotal(pesoRealNum, item.precioUnitarioPactado);
 
-  // Teclado numérico táctil
+  // Teclado numérico táctil (targets >= 48px)
   const handleKeypadPress = (val: string) => {
     if (val === 'CLEAR') {
       setPesoInput('');
@@ -104,6 +123,7 @@ export const WeightPackingModal: React.FC<WeightPackingModalProps> = ({
       lineaPedidoId: item.lineaPedidoId,
       pesoRealKg: pesoRealNum,
       piezasAlistadas: item.modalidad === 'CATCH_WEIGHT_PIEZAS' ? piezasNum : undefined,
+      precintoCanastilla: precintoCanastilla.trim() || undefined,
       subtotalAjustado: subtotalCalculado,
       temperaturaC: tempNum,
       loteFefo: loteFefo.trim(),
@@ -114,7 +134,7 @@ export const WeightPackingModal: React.FC<WeightPackingModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
-      <div className="relative w-full max-w-3xl bg-slate-900 border border-white/10 rounded-2xl shadow-2xl p-6 text-white overflow-hidden">
+      <div className="relative w-full max-w-3xl bg-slate-900 border border-white/10 rounded-2xl shadow-2xl p-6 text-white overflow-hidden my-8">
         
         {/* Encabezado */}
         <div className="flex items-center justify-between pb-4 border-b border-white/10">
@@ -138,13 +158,44 @@ export const WeightPackingModal: React.FC<WeightPackingModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            aria-label="Cerrar modal"
+            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="mt-5 grid grid-cols-1 md:grid-cols-12 gap-6">
+        {/* Ficha de Especificaciones Pactadas */}
+        <div className="mt-4 p-3 bg-slate-950/60 rounded-xl border border-white/5 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="text-slate-400">Corte:</span>
+            <span className="font-semibold text-slate-200">
+              {item.corte ? item.corte.replace(/_/g, ' ') : 'Estándar'}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-slate-400">Empaque:</span>
+            <span className="font-semibold text-slate-200">
+              {item.empaque ? item.empaque.replace(/_/g, ' ') : 'Canastilla Plástica'}
+            </span>
+          </div>
+          {item.calibreMinGramos && item.calibreMaxGramos && (
+            <div className="flex items-center gap-2">
+              <span className="text-slate-400">Rango Pactado:</span>
+              <span className="font-bold text-cyan-400">
+                {item.calibreMinGramos}g - {item.calibreMaxGramos}g
+              </span>
+            </div>
+          )}
+          {item.piezasSolicitadas && (
+            <div className="flex items-center gap-2">
+              <span className="text-slate-400">Piezas solicitadas:</span>
+              <span className="font-bold text-emerald-400">{item.piezasSolicitadas} und</span>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-12 gap-6">
           
           {/* Columna Izquierda: Visor Báscula + Teclado Táctil */}
           <div className="md:col-span-7 space-y-4">
@@ -187,7 +238,7 @@ export const WeightPackingModal: React.FC<WeightPackingModalProps> = ({
               )}
             </div>
 
-            {/* Teclado Numérico Táctil */}
+            {/* Teclado Numérico Táctil con Target Size >= 48px */}
             <div className="grid grid-cols-3 gap-2">
               {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'BACK'].map((key) => (
                 <button
@@ -209,14 +260,14 @@ export const WeightPackingModal: React.FC<WeightPackingModalProps> = ({
               <button
                 type="button"
                 onClick={() => setPesoInput(item.pesoNominalKg.toString())}
-                className="flex-1 py-2 px-3 text-xs font-semibold rounded-xl bg-slate-800 text-blue-300 hover:bg-slate-700 border border-blue-500/20"
+                className="flex-1 min-h-[48px] py-2 px-3 text-xs font-semibold rounded-xl bg-slate-800 text-blue-300 hover:bg-slate-700 border border-blue-500/20 touch-manipulation flex items-center justify-center"
               >
                 Copiar Peso Nominal ({item.pesoNominalKg} kg)
               </button>
               <button
                 type="button"
                 onClick={() => handleKeypadPress('CLEAR')}
-                className="py-2 px-4 text-xs font-semibold rounded-xl bg-slate-800 text-slate-400 hover:bg-slate-700"
+                className="min-h-[48px] py-2 px-4 text-xs font-semibold rounded-xl bg-slate-800 text-slate-400 hover:bg-slate-700 touch-manipulation flex items-center justify-center"
               >
                 Limpiar
               </button>
@@ -224,7 +275,7 @@ export const WeightPackingModal: React.FC<WeightPackingModalProps> = ({
 
           </div>
 
-          {/* Columna Derecha: Parámetros de Calibre, FEFO, Cadena de Frío y Resumen */}
+          {/* Columna Derecha: Parámetros de Calibre, FEFO, Cadena de Frío, Precinto y Resumen */}
           <div className="md:col-span-5 space-y-4">
             
             {/* Panel Catch Weight de Piezas y Calibre */}
@@ -236,7 +287,7 @@ export const WeightPackingModal: React.FC<WeightPackingModalProps> = ({
                     Piezas y Calibre Solicitado
                   </span>
                   <span className="text-slate-300 font-normal">
-                    {item.calibreMinGramos || 0}g - {item.calibreMaxGramos || 0}g / pieza
+                    Rango: {item.calibreMinGramos || 0} a {item.calibreMaxGramos || 0} g/und
                   </span>
                 </div>
 
@@ -247,7 +298,7 @@ export const WeightPackingModal: React.FC<WeightPackingModalProps> = ({
                     min="1"
                     value={piezasInput}
                     onChange={(e) => setPiezasInput(e.target.value)}
-                    className="w-20 px-2 py-1 bg-slate-900 border border-slate-700 rounded-lg text-white font-mono text-center font-bold text-sm"
+                    className="w-20 px-2 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-white font-mono text-center font-bold text-sm min-h-[44px]"
                   />
                   {calibreResult && (
                     <div className="text-xs text-slate-300 flex-1 text-right">
@@ -257,17 +308,21 @@ export const WeightPackingModal: React.FC<WeightPackingModalProps> = ({
                 </div>
 
                 {calibreResult && (
-                  <div className={`p-2 rounded-lg text-[11px] flex items-center gap-1.5 ${
+                  <div className={`p-2.5 rounded-xl text-xs flex items-center gap-2 border ${
                     calibreResult.isWithinCalibre
-                      ? 'bg-emerald-900/40 text-emerald-300 border border-emerald-500/30'
-                      : 'bg-amber-900/40 text-amber-300 border border-amber-500/30'
+                      ? 'bg-emerald-950/40 text-emerald-300 border-emerald-500/30'
+                      : 'bg-amber-950/40 text-amber-300 border-amber-500/30'
                   }`}>
                     {calibreResult.isWithinCalibre ? (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                     ) : (
-                      <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                      <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
                     )}
-                    <span>{calibreResult.isWithinCalibre ? 'Calibre Verificado Correcto ✅' : calibreResult.motivo}</span>
+                    <span>
+                      {calibreResult.isWithinCalibre
+                        ? 'Calibre Verificado Correcto ✅'
+                        : `Calibre Inferior o fuera de rango: ${calibreResult.motivo}`}
+                    </span>
                   </div>
                 )}
               </div>
@@ -284,7 +339,7 @@ export const WeightPackingModal: React.FC<WeightPackingModalProps> = ({
                   value={loteFefo}
                   onChange={(e) => setLoteFefo(e.target.value)}
                   placeholder="Ej. LOTE-2026-09-001"
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white font-mono text-xs focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white font-mono text-xs focus:ring-2 focus:ring-blue-500 min-h-[44px]"
                 />
               </div>
 
@@ -299,25 +354,84 @@ export const WeightPackingModal: React.FC<WeightPackingModalProps> = ({
                     step="0.1"
                     value={temperaturaInput}
                     onChange={(e) => setTemperaturaInput(e.target.value)}
-                    className="w-24 px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-xl text-white font-mono text-center font-bold text-sm focus:ring-2 focus:ring-cyan-500"
+                    className="w-24 px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-xl text-white font-mono text-center font-bold text-sm focus:ring-2 focus:ring-cyan-500 min-h-[44px]"
                   />
                   <div className="flex gap-1.5 text-xs">
                     <button
                       type="button"
                       onClick={() => setTemperaturaInput('2.0')}
-                      className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/20"
+                      className="px-2.5 py-1 min-h-[44px] rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/20 flex items-center"
                     >
                       Fresco (2°C)
                     </button>
                     <button
                       type="button"
                       onClick={() => setTemperaturaInput('-18.0')}
-                      className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-indigo-500/20"
+                      className="px-2.5 py-1 min-h-[44px] rounded-lg bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-indigo-500/20 flex items-center"
                     >
                       Congelado (-18°C)
                     </button>
                   </div>
                 </div>
+              </div>
+
+              {/* Precinto Numerado de Canastilla & Checklist Inocuidad */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Lock className="w-4 h-4 text-amber-400" />
+                    Precinto Numerado de Canastilla
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-normal">WMS Inocuidad</span>
+                </label>
+                <input
+                  data-testid="b2b-input-precinto"
+                  type="text"
+                  value={precintoCanastilla}
+                  onChange={(e) => {
+                    setPrecintoCanastilla(e.target.value);
+                    if (e.target.value.trim().length > 0) {
+                      setCheckPrecintoColocado(true);
+                    }
+                  }}
+                  placeholder="Ej. PREC-CAN-01 o PREC-998877"
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white font-mono text-xs focus:ring-2 focus:ring-amber-500 uppercase tracking-wider min-h-[44px]"
+                />
+              </div>
+
+              {/* Checklist de Inocuidad y Empaque */}
+              <div className="p-2.5 bg-slate-950/70 border border-white/5 rounded-xl space-y-1.5 text-[11px] text-slate-300">
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  Checklist de Empaque en Cuarto Frío
+                </div>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={checkInocuidadTemp}
+                    onChange={(e) => setCheckInocuidadTemp(e.target.checked)}
+                    className="rounded border-slate-700 text-emerald-500 focus:ring-0"
+                  />
+                  <span>Temperatura adecuada de cadena de frío verificada</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={checkCanastillaLimpia}
+                    onChange={(e) => setCheckCanastillaLimpia(e.target.checked)}
+                    className="rounded border-slate-700 text-emerald-500 focus:ring-0"
+                  />
+                  <span>Canastilla plástica lavada y desinfectada con hielo</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={checkPrecintoColocado}
+                    onChange={(e) => setCheckPrecintoColocado(e.target.checked)}
+                    className="rounded border-slate-700 text-emerald-500 focus:ring-0"
+                  />
+                  <span>Precinto de seguridad puesto y registrado</span>
+                </label>
               </div>
 
               <div>
@@ -329,7 +443,7 @@ export const WeightPackingModal: React.FC<WeightPackingModalProps> = ({
                   value={observaciones}
                   onChange={(e) => setObservaciones(e.target.value)}
                   placeholder="Ej. 'Caja sellada con doble cincho'"
-                  className="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs"
+                  className="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs min-h-[44px]"
                 />
               </div>
             </div>
@@ -376,7 +490,7 @@ export const WeightPackingModal: React.FC<WeightPackingModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="min-h-[48px] px-5 py-2.5 text-xs font-semibold rounded-xl text-slate-300 bg-slate-800 hover:bg-slate-700 transition-colors touch-manipulation"
+            className="min-h-[48px] px-5 py-2.5 text-xs font-semibold rounded-xl text-slate-300 bg-slate-800 hover:bg-slate-700 transition-colors touch-manipulation flex items-center justify-center"
           >
             Cancelar
           </button>
@@ -384,7 +498,7 @@ export const WeightPackingModal: React.FC<WeightPackingModalProps> = ({
             type="button"
             disabled={!puedeConfirmar}
             onClick={handleConfirm}
-            className={`min-h-[48px] px-6 py-2.5 text-xs font-bold rounded-xl text-white transition-all shadow-lg touch-manipulation ${
+            className={`min-h-[48px] px-6 py-2.5 text-xs font-bold rounded-xl text-white transition-all shadow-lg touch-manipulation flex items-center justify-center ${
               puedeConfirmar
                 ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 shadow-emerald-500/20 active:scale-95 cursor-pointer'
                 : 'bg-slate-800 text-slate-500 cursor-not-allowed opacity-50'

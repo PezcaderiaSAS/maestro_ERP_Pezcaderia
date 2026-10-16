@@ -189,6 +189,14 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
           testId: 'nav-pos-offline',
         },
         {
+          key: 'ventas_b2b',
+          label: 'Ventas B2B Bodega',
+          icon: ShoppingBag,
+          badge: 'B2B',
+          badgeVariant: 'cyan',
+          testId: 'nav-ventas-b2b',
+        },
+        {
           key: 'precios',
           label: 'Cotizaciones B2B',
           icon: DollarSign,

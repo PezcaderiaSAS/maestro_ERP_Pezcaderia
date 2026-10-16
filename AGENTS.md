@@ -142,6 +142,12 @@ A partir de esta sesión, ante **CADA** solicitud o requerimiento nuevo, la IA D
 1. **/speckit.specify:**
    - Define el "Qué" se va a construir y el "Por qué".
    - Ejecuta `graphify query "<concepto>"` para consultar el grafo local y entender dependencias exactas antes de planificar, evitando lecturas masivas.
+   - **MANDATORIO MULTI-PHASE SYSTEM MODELING (Mermaid.js):** Generar obligatoriamente los 5 diagramas de ingeniería:
+     1. `1_process_flowcharts`: Flujo de procesos y ciclo de vida secuencial.
+     2. `2_decision_logic_diagrams`: Rombos de decisión `{...}` con bifurcaciones y edge cases.
+     3. `3_entity_relationship_diagrams`: Modelo ER `erDiagram` con PK, FK y cardinalidad.
+     4. `4_sequence_diagrams`: Diagrama de secuencia temporal `sequenceDiagram`.
+     5. `5_component_architecture_diagrams`: Arquitectura por capas (Presentación, Lógica, Acceso a Datos).
    - **NO generes código todavía.** Espera la aprobación del usuario.
 2. **/speckit.clarify (Control de Calidad 1):**
    - Realiza preguntas estructuradas para eliminar ambigüedades y mitigar riesgos antes de proponer soluciones técnicas.
@@ -152,7 +158,7 @@ A partir de esta sesión, ante **CADA** solicitud o requerimiento nuevo, la IA D
    - Usa `graphify query "..."`.
    - **NO generes código todavía.** Espera la aprobación del usuario.
 4. **/speckit.plan:**
-   - Crea el plan técnico (el "Cómo"): componentes, esquemas de datos y flujos de información respaldados por el grafo.
+   - Crea el plan técnico (el "Cómo"): componentes, esquemas de datos y flujos de información respaldados por los 5 diagramas Mermaid aprobados.
    - Usa `graphify query "..."`.
    - **NO generes código todavía.** Espera la aprobación del usuario.
 5. **/speckit.tasks:**

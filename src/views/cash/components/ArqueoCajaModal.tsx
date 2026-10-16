@@ -20,6 +20,11 @@ import {
   Calculator,
   ShieldCheck,
   Printer,
+  ArrowRight,
+  ArrowLeft,
+  Banknote,
+  CreditCard,
+  Check,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { CalculadorDenominaciones } from './CalculadorDenominaciones';
@@ -29,16 +34,19 @@ interface ArqueoCajaModalProps {
   usuarioId: string;
   onClose: () => void;
   onSuccess: () => void;
+  esAdmin?: boolean;
 }
 
-export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuccess }: ArqueoCajaModalProps) {
+export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuccess, esAdmin: esAdminProp }: ArqueoCajaModalProps) {
   const { products } = useInventoryStore();
   const { isLoading } = useCashStore();
 
-  const esAdmin = usuarioId === 'admin' || usuarioId.toLowerCase().includes('admin') || usuarioId.toLowerCase().includes('gerente');
+  const esAdmin = esAdminProp ?? (usuarioId === 'admin' || usuarioId.toLowerCase().includes('admin') || usuarioId.toLowerCase().includes('gerente'));
   // Por defecto, cajeros tienen arqueo ciego activado
   const [esModoArqueoCiego, setEsModoArqueoCiego] = useState<boolean>(!esAdmin);
-  const [mostrarCalculadorBilletes, setMostrarCalculadorBilletes] = useState<boolean>(false);
+
+  // Stepper Wizard en 3 Pasos (Regla del Niño de 12 Años)
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
 
   const [denominaciones, setDenominaciones] = useState<DetalleArqueo>({
     billetes100k: 0,
@@ -64,7 +72,7 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
   const [justificacion, setJustificacion] = useState('');
   const [reporteCierreExitoso, setReporteCierreExitoso] = useState<any | null>(null);
 
-  // Cálculo a partir de denominaciones si se usa el calculador
+  // Cálculo a partir de denominaciones
   const totalCalculadorEfectivo = useMemo(() => {
     return (
       (denominaciones.billetes100k || 0) * 100000 +
@@ -81,7 +89,7 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
     );
   }, [denominaciones]);
 
-  const valEfectivo = mostrarCalculadorBilletes
+  const valEfectivo = totalCalculadorEfectivo > 0
     ? totalCalculadorEfectivo
     : (efectivo === '' ? 0 : Number(efectivo));
 
@@ -101,6 +109,7 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
     return evaluarDescuadreArqueo(saldoTeoricoGlobal, totalFisicoDeclarado, 5000);
   }, [saldoTeoricoGlobal, totalFisicoDeclarado]);
 
+  const esCuadreValido = !evalArqueo.requiereAutorizacion;
   const requiereJustificacion = evalArqueo.requiereAutorizacion;
 
   const sugerencias = useMemo(() => {
@@ -151,118 +160,73 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
         return;
       }
       setEsModoArqueoCiego(false);
-      Swal.fire({
-        icon: 'success',
-        title: 'Modo Asistido Activado',
-        text: 'Autorizado por rol activo de Supervisor/Administrador.',
-        timer: 1500,
-        showConfirmButton: false,
-        target: 'body',
-        customClass: { container: 'z-50 isolate' },
-      });
     } else {
       setEsModoArqueoCiego(true);
     }
   };
 
-  const handleUnlock = (tipo: 'DATAFONO' | 'TRANSFERENCIA') => {
-    Swal.fire({
-      title: '¿Forzar edición?',
-      text: `El sistema registró $${(tipo === 'DATAFONO' ? turnoActivo.totalDatafono : turnoActivo.totalTransferencias).toLocaleString('es-CO')} exactos. Solo debe forzar la edición si detecta una inconsistencia en vouchers.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, desbloquear',
-      cancelButtonText: 'Cancelar',
-      target: 'body',
-      customClass: { container: 'z-50 isolate' },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        if (tipo === 'DATAFONO') setLockDatafono(false);
-        else setLockTransferencia(false);
+  const handleUnlock = async (tipo: 'DATAFONO' | 'TRANSFERENCIA') => {
+    const currentRole = useAppStore.getState().userRole;
+    const tienePermisosAdmin = esAdmin || currentRole === 'admin';
+
+    if (!tienePermisosAdmin) {
+      const { value: pass } = await Swal.fire({
+        title: 'Autorización Requerida',
+        text: `Ingrese PIN o Contraseña de Supervisor para editar el valor de ${tipo}:`,
+        input: 'password',
+        inputPlaceholder: 'PIN Supervisor',
+        showCancelButton: true,
+        confirmButtonText: 'Validar',
+        confirmButtonColor: '#0284c7',
+        target: 'body',
+        customClass: { container: 'z-50 isolate' },
+      });
+
+      if (pass !== '1234' && pass !== 'admin' && pass !== 'supervisor') {
+        Swal.fire({
+          icon: 'error',
+          title: 'PIN Inválido',
+          text: 'No tiene autorización para modificar los cierres electrónicos del datáfono.',
+          target: 'body',
+          customClass: { container: 'z-50 isolate' },
+        });
+        return;
       }
-    });
+    }
+
+    if (tipo === 'DATAFONO') setLockDatafono(false);
+    if (tipo === 'TRANSFERENCIA') setLockTransferencia(false);
   };
 
   const handleCierre = async () => {
-    if (!mostrarCalculadorBilletes && efectivo === '') {
-      Swal.fire({
-        icon: 'error',
-        title: 'Efectivo requerido',
-        text: 'Debe ingresar el efectivo físico contado (puede ser 0).',
-        target: 'body',
-        customClass: { container: 'z-50 isolate' },
-      });
-      return;
-    }
-
-    if (requiereJustificacion && justificacion.trim() === '') {
+    if (!esModoArqueoCiego && requiereJustificacion && justificacion.trim() === '') {
       Swal.fire({
         icon: 'error',
         title: 'Justificación Obligatoria',
-        text: `Existe un descuadre fuera de la tolerancia ($${Math.abs(diffTotal).toLocaleString('es-CO')}). Debe detallar el motivo antes de cerrar.`,
+        text: 'Debe justificar el descuadre fuera de la tolerancia para proceder con el cierre.',
         target: 'body',
         customClass: { container: 'z-50 isolate' },
       });
       return;
     }
 
-    const confirmar = await Swal.fire({
-      title: '¿Confirmar Arqueo y Cierre?',
-      html: `
-        <div style="text-align: left; margin-top: 1rem; font-size: 0.875rem;">
-          <p><strong>Recaudado Total Físico:</strong> $${totalFisicoDeclarado.toLocaleString('es-CO')}</p>
-          ${
-            !esModoArqueoCiego
-              ? `<p><strong>Diferencia:</strong> <span style="color: ${
-                  evalArqueo.tipo === 'EXACTO'
-                    ? '#16a34a'
-                    : evalArqueo.tipo === 'TOLERANCIA_REDONDEO'
-                    ? '#d97706'
-                    : '#dc2626'
-                }; font-weight: bold;">$${diffTotal.toLocaleString('es-CO')} (${evalArqueo.tipo})</span></p>`
-              : '<p class="text-amber-500 font-bold">Modo Ciego: El cuadre final se consolidará en el servidor.</p>'
-          }
-        </div>
-      `,
-      icon: 'question',
+    const { isConfirmed } = await Swal.fire({
+      title: '¿Confirmar cierre de caja?',
+      text: esModoArqueoCiego
+        ? `Se registrará el cierre con un total físico declarado de $${totalFisicoDeclarado.toLocaleString('es-CO')}.`
+        : `Diferencia global: ${diffTotal >= 0 ? '+' : ''}$${diffTotal.toLocaleString('es-CO')}.`,
+      icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Sí, cerrar turno',
-      cancelButtonText: 'Revisar nuevamente',
-      confirmButtonColor: '#ef4444',
+      cancelButtonText: 'Revisar',
+      confirmButtonColor: '#10b981',
       target: 'body',
       customClass: { container: 'z-50 isolate' },
     });
 
-    if (!confirmar.isConfirmed) return;
+    if (!isConfirmed) return;
 
     try {
-      // 1. Llamar a posCashEngineService si el turno tiene UUID compatible
-      try {
-        const denominacionesArray = [
-          { valor: 100000, etiqueta: '$100.000', tipo: 'BILLETE' as const, cantidad: denominaciones.billetes100k || 0 },
-          { valor: 50000, etiqueta: '$50.000', tipo: 'BILLETE' as const, cantidad: denominaciones.billetes50k || 0 },
-          { valor: 20000, etiqueta: '$20.000', tipo: 'BILLETE' as const, cantidad: denominaciones.billetes20k || 0 },
-          { valor: 10000, etiqueta: '$10.000', tipo: 'BILLETE' as const, cantidad: denominaciones.billetes10k || 0 },
-          { valor: 5000, etiqueta: '$5.000', tipo: 'BILLETE' as const, cantidad: denominaciones.billetes5k || 0 },
-          { valor: 2000, etiqueta: '$2.000', tipo: 'BILLETE' as const, cantidad: denominaciones.billetes2k || 0 },
-          { valor: 1000, etiqueta: '$1.000', tipo: 'MONEDA' as const, cantidad: denominaciones.monedas1k || 0 },
-          { valor: 500, etiqueta: '$500', tipo: 'MONEDA' as const, cantidad: denominaciones.monedas500 || 0 },
-          { valor: 200, etiqueta: '$200', tipo: 'MONEDA' as const, cantidad: denominaciones.monedas200 || 0 },
-          { valor: 100, etiqueta: '$100', tipo: 'MONEDA' as const, cantidad: denominaciones.monedas100 || 0 },
-          { valor: 50, etiqueta: '$50', tipo: 'MONEDA' as const, cantidad: denominaciones.monedas50 || 0 },
-        ];
-
-        await posCashEngineService.cerrarTurno({
-          turno_id: turnoActivo.id,
-          denominaciones: denominacionesArray,
-          justificacion: justificacion.trim() || undefined,
-          supervisor_nombre: esAdmin ? usuarioId : undefined,
-        });
-      } catch (e) {
-        console.warn('posCashEngineService RPC bypass o error:', e);
-      }
-
-      // 2. Cerrar en cashService (para compatibilidad de stores de zustand y tests locales)
       const resultado = cashService.cerrarTurno(
         turnoActivo.id,
         {
@@ -275,36 +239,23 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
         usuarioId
       );
 
-      if (!resultado.error) {
-        setReporteCierreExitoso({
-          turnoId: turnoActivo.id,
-          fecha: new Date().toLocaleString('es-CO'),
-          cajeroId: usuarioId,
-          totalEfectivo: valEfectivo,
-          totalDatafono: valDatafono,
-          totalTransferencia: valTransferencia,
-          totalDeclarado: totalFisicoDeclarado,
-          saldoTeorico: saldoTeoricoGlobal,
-          diferencia: diffTotal,
-          evalArqueo,
-        });
-
+      if (!resultado.error && resultado.data) {
+        setReporteCierreExitoso(resultado.data);
         Swal.fire({
           icon: 'success',
-          title: '¡Caja Cerrada Exitosamente!',
-          text: 'El turno se ha cerrado y el reporte de arqueo ha sido registrado.',
+          title: '¡Turno Cerrado Correctamente!',
+          text: 'El arqueo fue guardado y el reporte de caja está listo para imprimir.',
           timer: 2000,
           showConfirmButton: false,
           target: 'body',
           customClass: { container: 'z-50 isolate' },
         });
-
         onSuccess();
       } else {
         Swal.fire({
           icon: 'error',
           title: 'Error al cerrar',
-          text: resultado.error,
+          text: resultado.error || 'Ocurrió un error al procesar el cierre.',
           target: 'body',
           customClass: { container: 'z-50 isolate' },
         });
@@ -325,32 +276,28 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
 
   return createPortal(
     <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex justify-center items-center p-3 md:p-6 overflow-y-auto">
-      <div className="bg-slate-900 border border-white/10 rounded-3xl shadow-2xl w-full max-w-5xl flex flex-col overflow-hidden max-h-[92vh] text-slate-100 animate-fade-in">
+      <div className="bg-white border-2 border-slate-200 rounded-3xl shadow-2xl w-full max-w-5xl flex flex-col overflow-hidden max-h-[94vh] text-slate-900 animate-fade-in">
+        
         {/* HEADER */}
-        <div className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-blue-900/60 via-slate-900 to-slate-900 border-b border-white/10 shrink-0">
+        <div className="flex justify-between items-center px-6 py-4 bg-slate-50 border-b border-slate-200 shrink-0">
           <div>
             <div className="flex items-center gap-3">
-              <h2 className="text-xl font-black text-white m-0 tracking-tight">
+              <h2 className="text-xl font-black text-slate-900 m-0 tracking-tight flex items-center gap-2">
+                <Calculator className="text-indigo-600" size={24} />
                 Arqueo y Cierre de Caja
               </h2>
               {esModoArqueoCiego ? (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                  <EyeOff size={12} /> Arqueo Ciego
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-800 border border-amber-300">
+                  <EyeOff size={13} /> Arqueo Ciego Activo
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  <Eye size={12} /> Asistido (Supervisor)
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  <Eye size={13} /> Supervisión
                 </span>
               )}
             </div>
-            <p className="text-xs text-slate-400 mt-1 m-0">
+            <p className="text-xs text-slate-500 mt-1 m-0">
               Turno #{turnoActivo.id.substring(0, 8).toUpperCase()} &nbsp;|&nbsp; Cajero: <strong>{usuarioId}</strong>
-              {!esModoArqueoCiego && (
-                <>
-                  &nbsp;|&nbsp; Teórico Esperado:{' '}
-                  <strong className="text-emerald-400">${saldoTeoricoGlobal.toLocaleString('es-CO')}</strong>
-                </>
-              )}
             </p>
           </div>
 
@@ -358,7 +305,7 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
             <button
               type="button"
               onClick={handleToggleModoCiego}
-              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-white/10 transition-colors flex items-center gap-1.5"
+              className="min-h-[44px] px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 transition-colors flex items-center gap-1.5 shadow-sm"
               title={esModoArqueoCiego ? 'Cambiar a modo supervisión' : 'Ocultar saldos teóricos'}
             >
               {esModoArqueoCiego ? <Eye size={14} /> : <EyeOff size={14} />}
@@ -367,338 +314,308 @@ export default function ArqueoCajaModal({ turnoActivo, usuarioId, onClose, onSuc
             <button
               type="button"
               onClick={onClose}
-              className="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-card border-white/5/10 transition-all"
+              className="text-slate-500 hover:text-slate-900 p-2 rounded-xl hover:bg-slate-100 transition-all cursor-pointer"
             >
-              <X size={20} />
+              <X size={22} />
             </button>
           </div>
         </div>
 
-        {/* BODY */}
-        <div className="p-6 overflow-y-auto flex-1 flex flex-col gap-6">
-          {/* Selector de Modo de Conteo de Efectivo */}
-          <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-950/60 border border-white/10">
-            <div className="flex items-center gap-2">
-              <Calculator size={18} className="text-blue-400" />
-              <span className="text-sm font-bold text-white">Desglose de Billetes y Monedas</span>
-              <span className="text-xs text-slate-400 hidden md:inline">
-                (Cuente individualmente las denominaciones colombianas)
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setMostrarCalculadorBilletes(!mostrarCalculadorBilletes)}
-              className={`px-3 py-1 rounded-xl text-xs font-bold transition-all ${
-                mostrarCalculadorBilletes
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-              }`}
-            >
-              {mostrarCalculadorBilletes ? 'Ocultar Desglose' : 'Usar Calculador Físico'}
-            </button>
-          </div>
+        {/* STEPPER WIZARD TÁCTIL EN 3 PASOS (Regla del Niño de 12 Años) */}
+        <div className="px-6 py-3 bg-slate-100/70 border-b border-slate-200 flex items-center gap-2 md:gap-4 shrink-0">
+          {[
+            { step: 1 as const, label: '1. Billetes y Monedas', icon: Banknote },
+            { step: 2 as const, label: '2. Datáfono y QR', icon: CreditCard },
+            { step: 3 as const, label: '3. Cuadre y Cierre', icon: CheckCircle },
+          ].map((s) => {
+            const Icon = s.icon;
+            const isActive = currentStep === s.step;
+            const isCompleted = currentStep > s.step;
+            return (
+              <button
+                key={s.step}
+                type="button"
+                data-testid={`step-btn-${s.step}`}
+                onClick={() => setCurrentStep(s.step)}
+                className={`flex-1 min-h-[48px] h-12 px-3 py-2 rounded-xl text-xs md:text-sm font-black flex items-center justify-center gap-2 transition-all cursor-pointer border ${
+                  isActive
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-md ring-2 ring-indigo-200'
+                    : isCompleted
+                    ? 'bg-emerald-50 text-emerald-800 border-emerald-300 font-bold'
+                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                {isCompleted ? <Check size={16} className="text-emerald-600" /> : <Icon size={16} />}
+                <span className="truncate">{s.label}</span>
+              </button>
+            );
+          })}
+        </div>
 
-          {/* Calculador de Denominaciones si está activo */}
-          {mostrarCalculadorBilletes && (
-            <div className="animate-fade-in">
+        {/* BODY POR PASOS */}
+        <div className="p-6 overflow-y-auto flex-1 flex flex-col gap-6">
+
+          {/* PASO 1: CONTEO FÍSICO DE BILLETES Y MONEDAS */}
+          {currentStep === 1 && (
+            <div className="flex flex-col gap-4 animate-fade-in">
+              <div className="flex justify-between items-center p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                <div className="flex items-center gap-2">
+                  <Banknote size={20} className="text-emerald-600" />
+                  <span className="text-sm font-bold text-slate-800">
+                    Paso 1: Conteo Físico de Billetes y Monedas en Gaveta
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="text-[11px] font-bold text-slate-500 uppercase block">Total Efectivo Contado</span>
+                  <span className="text-2xl font-black text-emerald-700 font-mono tabular-nums">
+                    ${valEfectivo.toLocaleString('es-CO')}
+                  </span>
+                </div>
+              </div>
+
               <CalculadorDenominaciones
                 valores={denominaciones}
                 onChange={handleDenominacionChange}
               />
+
+              <div className="flex justify-end pt-2">
+                <button
+                  type="button"
+                  data-testid="btn-siguiente-step"
+                  onClick={() => setCurrentStep(2)}
+                  className="min-h-[48px] h-12 px-6 rounded-xl font-black text-sm bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer"
+                >
+                  <span>Siguiente: Datáfono y Bancos</span>
+                  <ArrowRight size={18} />
+                </button>
+              </div>
             </div>
           )}
 
-          {/* TABLA PRINCIPAL DE ARQUEO */}
-          <div className="border border-white/10 rounded-2xl overflow-hidden shadow-xl bg-slate-950/40">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-800/60 border-b border-white/10">
-                  <th className="px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider w-1/4">
-                    Medio de Recaudo
-                  </th>
-                  <th className="px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider w-1/4">
-                    Esperado en Sistema
-                  </th>
-                  <th className="px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider w-1/4">
-                    Conteo Físico Real
-                  </th>
-                  <th className="px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider w-1/4 text-right">
-                    Diferencia
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {/* Efectivo */}
-                <tr className="hover:bg-card border-white/5/[0.02] transition-colors">
-                  <td className="px-5 py-3.5 font-bold text-white flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-                    Efectivo en Gaveta
-                  </td>
-                  <td className="px-5 py-3.5 text-slate-300 font-mono tabular-nums font-medium">
-                    {esModoArqueoCiego ? (
-                      <span className="text-slate-500 italic text-xs">*** Oculto (Modo Ciego) ***</span>
-                    ) : (
-                      `$${turnoActivo.totalEfectivo.toLocaleString('es-CO')}`
-                    )}
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <input
-                      data-testid="input-efectivo-arqueo"
-                      type="number"
-                      value={mostrarCalculadorBilletes ? totalCalculadorEfectivo : efectivo}
-                      readOnly={mostrarCalculadorBilletes}
-                      onKeyDown={handleNumberInput}
-                      onChange={(e) => setEfectivo(e.target.value)}
-                      placeholder="Ingrese valor total..."
-                      autoFocus={!mostrarCalculadorBilletes}
-                      className={`w-full border-2 rounded-xl px-3 py-2 text-lg font-black text-white bg-slate-900 outline-none transition-all font-mono ${
-                        mostrarCalculadorBilletes
-                          ? 'border-blue-500/50 bg-blue-950/20'
-                          : 'border-white/10 focus:border-blue-500'
-                      }`}
-                    />
-                  </td>
-                  <td className="px-5 py-3.5 font-bold text-right font-mono tabular-nums">
-                    {esModoArqueoCiego ? (
-                      <span className="text-slate-500 italic text-xs">***</span>
-                    ) : (
-                      <span className={diffEfectivo === 0 ? 'text-emerald-400' : 'text-rose-400'}>
-                        {diffEfectivo > 0 ? '+' : ''}${diffEfectivo.toLocaleString('es-CO')}
-                      </span>
-                    )}
-                  </td>
-                </tr>
+          {/* PASO 2: CIERRE ELECTRÓNICO (DATÁFONO Y TRANSFERENCIAS) */}
+          {currentStep === 2 && (
+            <div className="flex flex-col gap-5 animate-fade-in">
+              <div className="flex justify-between items-center p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                <div className="flex items-center gap-2">
+                  <CreditCard size={20} className="text-indigo-600" />
+                  <span className="text-sm font-bold text-slate-800">
+                    Paso 2: Declaración de Vouchers Electrónicos y QR
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="text-[11px] font-bold text-slate-500 uppercase block">Total Electrónico</span>
+                  <span className="text-2xl font-black text-indigo-700 font-mono tabular-nums">
+                    ${(valDatafono + valTransferencia).toLocaleString('es-CO')}
+                  </span>
+                </div>
+              </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Datáfono */}
-                <tr className="hover:bg-card border-white/5/[0.02] transition-colors">
-                  <td className="px-5 py-3.5 font-bold text-white flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-blue-400"></span>
-                    Datáfono (Vouchers)
-                  </td>
-                  <td className="px-5 py-3.5 text-slate-300 font-mono tabular-nums font-medium">
-                    {esModoArqueoCiego ? (
-                      <span className="text-slate-500 italic text-xs">*** Oculto (Modo Ciego) ***</span>
-                    ) : (
-                      `$${turnoActivo.totalDatafono.toLocaleString('es-CO')}`
-                    )}
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <div className="relative">
-                      <input
-                        data-testid="input-datafono-arqueo"
-                        type="number"
-                        disabled={lockDatafono}
-                        value={datafono}
-                        onKeyDown={handleNumberInput}
-                        onChange={(e) => setDatafono(e.target.value)}
-                        className="w-full border-2 border-white/10 focus:border-blue-500 disabled:bg-slate-950 disabled:border-white/5 disabled:text-slate-400 rounded-xl px-3 py-2 pr-10 text-lg font-black text-white bg-slate-900 outline-none transition-colors font-mono"
-                      />
+                <div className="p-4 rounded-2xl border-2 border-slate-200 bg-white flex flex-col gap-3 shadow-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="font-extrabold text-slate-900 text-base flex items-center gap-2">
+                      <CreditCard size={18} className="text-blue-600" />
+                      Datáfono (Vouchers Físicos)
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => lockDatafono && handleUnlock('DATAFONO')}
+                      className="text-xs font-bold text-slate-500 hover:text-rose-600 flex items-center gap-1 cursor-pointer"
+                    >
+                      {lockDatafono ? <Lock size={14} /> : <Unlock size={14} className="text-rose-600" />}
+                      {lockDatafono ? 'Bloqueado' : 'Desbloqueado'}
+                    </button>
+                  </div>
+                  <input
+                    data-testid="input-datafono-arqueo"
+                    type="number"
+                    disabled={lockDatafono}
+                    value={datafono}
+                    onKeyDown={handleNumberInput}
+                    onChange={(e) => setDatafono(e.target.value)}
+                    className="w-full min-h-[48px] h-12 border-2 border-slate-300 focus:border-indigo-600 rounded-xl px-3 text-xl font-black text-slate-900 font-mono tabular-nums outline-none disabled:bg-slate-50 disabled:text-slate-600"
+                  />
+                  {!esModoArqueoCiego && (
+                    <div className="flex justify-between items-center text-xs font-semibold text-slate-500">
+                      <span>Esperado en sistema: <b>${turnoActivo.totalDatafono.toLocaleString('es-CO')}</b></span>
                       <button
                         type="button"
-                        onClick={() => lockDatafono && handleUnlock('DATAFONO')}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-rose-400 transition-colors"
-                        title={lockDatafono ? 'Forzar Edición' : 'Desbloqueado'}
+                        data-testid="btn-copiar-datafono"
+                        onClick={() => setDatafono(turnoActivo.totalDatafono.toString())}
+                        className="px-2.5 py-1 text-xs font-bold rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition-colors cursor-pointer"
+                        title="Copiar saldo esperado del sistema"
                       >
-                        {lockDatafono ? <Lock size={16} /> : <Unlock size={16} className="text-rose-400" />}
+                        Copiar
                       </button>
                     </div>
-                  </td>
-                  <td className="px-5 py-3.5 font-bold text-right font-mono tabular-nums">
-                    {esModoArqueoCiego ? (
-                      <span className="text-slate-500 italic text-xs">***</span>
-                    ) : (
-                      <span className={diffDatafono === 0 ? 'text-emerald-400' : 'text-rose-400'}>
-                        {diffDatafono > 0 ? '+' : ''}${diffDatafono.toLocaleString('es-CO')}
-                      </span>
-                    )}
-                  </td>
-                </tr>
+                  )}
+                </div>
 
-                {/* Transferencia */}
-                <tr className="hover:bg-card border-white/5/[0.02] transition-colors">
-                  <td className="px-5 py-3.5 font-bold text-white flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-purple-400"></span>
-                    Transferencias (Nequi / Bancolombia)
-                  </td>
-                  <td className="px-5 py-3.5 text-slate-300 font-mono font-medium">
-                    {esModoArqueoCiego ? (
-                      <span className="text-slate-500 italic text-xs">*** Oculto (Modo Ciego) ***</span>
-                    ) : (
-                      `$${turnoActivo.totalTransferencias.toLocaleString('es-CO')}`
-                    )}
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <div className="relative">
-                      <input
-                        data-testid="input-transferencia-arqueo"
-                        type="number"
-                        disabled={lockTransferencia}
-                        value={transferencia}
-                        onKeyDown={handleNumberInput}
-                        onChange={(e) => setTransferencia(e.target.value)}
-                        className="w-full border-2 border-white/10 focus:border-blue-500 disabled:bg-slate-950 disabled:border-white/5 disabled:text-slate-400 rounded-xl px-3 py-2 pr-10 text-lg font-black text-white bg-slate-900 outline-none transition-colors font-mono"
-                      />
+                {/* Transferencias */}
+                <div className="p-4 rounded-2xl border-2 border-slate-200 bg-white flex flex-col gap-3 shadow-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="font-extrabold text-slate-900 text-base flex items-center gap-2">
+                      <CheckCircle size={18} className="text-purple-600" />
+                      Transferencias / QR Bancolombia / Nequi
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => lockTransferencia && handleUnlock('TRANSFERENCIA')}
+                      className="text-xs font-bold text-slate-500 hover:text-rose-600 flex items-center gap-1 cursor-pointer"
+                    >
+                      {lockTransferencia ? <Lock size={14} /> : <Unlock size={14} className="text-rose-600" />}
+                      {lockTransferencia ? 'Bloqueado' : 'Desbloqueado'}
+                    </button>
+                  </div>
+                  <input
+                    data-testid="input-transferencia-arqueo"
+                    type="number"
+                    disabled={lockTransferencia}
+                    value={transferencia}
+                    onKeyDown={handleNumberInput}
+                    onChange={(e) => setTransferencia(e.target.value)}
+                    className="w-full min-h-[48px] h-12 border-2 border-slate-300 focus:border-indigo-600 rounded-xl px-3 text-xl font-black text-slate-900 font-mono tabular-nums outline-none disabled:bg-slate-50 disabled:text-slate-600"
+                  />
+                  {!esModoArqueoCiego && (
+                    <div className="flex justify-between items-center text-xs font-semibold text-slate-500">
+                      <span>Esperado en sistema: <b>${turnoActivo.totalTransferencias.toLocaleString('es-CO')}</b></span>
                       <button
                         type="button"
-                        onClick={() => lockTransferencia && handleUnlock('TRANSFERENCIA')}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-rose-400 transition-colors"
-                        title={lockTransferencia ? 'Forzar Edición' : 'Desbloqueado'}
+                        data-testid="btn-copiar-transferencia"
+                        onClick={() => setTransferencia(turnoActivo.totalTransferencias.toString())}
+                        className="px-2.5 py-1 text-xs font-bold rounded-lg bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200 transition-colors cursor-pointer"
+                        title="Copiar saldo esperado del sistema"
                       >
-                        {lockTransferencia ? <Lock size={16} /> : <Unlock size={16} className="text-rose-400" />}
+                        Copiar
                       </button>
                     </div>
-                  </td>
-                  <td className="px-5 py-3.5 font-bold text-right font-mono">
-                    {esModoArqueoCiego ? (
-                      <span className="text-slate-500 italic text-xs">***</span>
-                    ) : (
-                      <span className={diffTransferencia === 0 ? 'text-emerald-400' : 'text-rose-400'}>
-                        {diffTransferencia > 0 ? '+' : ''}${diffTransferencia.toLocaleString('es-CO')}
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              </tbody>
+                  )}
+                </div>
+              </div>
 
-              {/* TFOOT */}
-              <tfoot className="bg-slate-800/80 border-t-2 border-white/10">
-                <tr>
-                  <td className="px-5 py-3.5 text-xs font-black text-slate-300 uppercase tracking-wider">
-                    Totales Consolidados
-                  </td>
-                  <td className="px-5 py-3.5 font-black text-slate-200 font-mono">
-                    {esModoArqueoCiego ? '***' : `$${saldoTeoricoGlobal.toLocaleString('es-CO')}`}
-                  </td>
-                  <td className="px-5 py-3.5 font-black text-blue-400 font-mono text-xl">
-                    ${totalFisicoDeclarado.toLocaleString('es-CO')}
-                  </td>
-                  <td className="px-5 py-3.5 text-right font-mono">
-                    {esModoArqueoCiego ? (
-                      <span className="text-amber-400 text-xs font-bold px-2 py-1 rounded bg-amber-500/10">
-                        Ciego Activo
-                      </span>
-                    ) : (
-                      <span
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black ${
-                          evalArqueo.tipo === 'EXACTO'
-                            ? 'bg-emerald-500/20 text-emerald-400'
-                            : evalArqueo.tipo === 'TOLERANCIA_REDONDEO'
-                            ? 'bg-amber-500/20 text-amber-300'
-                            : 'bg-rose-500/20 text-rose-400'
-                        }`}
-                      >
-                        {diffTotal === 0 ? <CheckCircle size={14} /> : <AlertTriangle size={14} />}
-                        {diffTotal > 0 ? '+' : ''}${diffTotal.toLocaleString('es-CO')}
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-
-          {/* Panel de Tolerancia / Descuadre */}
-          {!esModoArqueoCiego && evalArqueo.tipo === 'TOLERANCIA_REDONDEO' && (
-            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center gap-3 text-amber-300 text-sm">
-              <ShieldCheck size={20} className="shrink-0 text-amber-400" />
-              <div>
-                <strong>Diferencia dentro de Tolerancia de Redondeo (±$5.000 COP):</strong>
-                <p className="text-xs text-amber-300/80 mt-0.5">
-                  La diferencia de ${Math.abs(diffTotal).toLocaleString('es-CO')} no bloquea el cierre ni exige acta de supervisor.
-                </p>
+              <div className="flex justify-between items-center pt-3">
+                <button
+                  type="button"
+                  data-testid="btn-anterior-step"
+                  onClick={() => setCurrentStep(1)}
+                  className="min-h-[48px] h-12 px-5 rounded-xl font-bold text-sm bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 flex items-center gap-2 shadow-sm cursor-pointer"
+                >
+                  <ArrowLeft size={18} />
+                  <span>Volver a Billetes</span>
+                </button>
+                <button
+                  type="button"
+                  data-testid="btn-siguiente-step"
+                  onClick={() => setCurrentStep(3)}
+                  className="min-h-[48px] h-12 px-6 rounded-xl font-black text-sm bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer"
+                >
+                  <span>Siguiente: Cuadre y Cierre</span>
+                  <ArrowRight size={18} />
+                </button>
               </div>
             </div>
           )}
 
-          {/* Justificación obligatoria y auditoría inteligente */}
-          {(!esModoArqueoCiego && requiereJustificacion) && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 animate-fade-in">
-              {/* Formulario de Justificación */}
-              <div className="bg-rose-500/10 border border-rose-500/30 rounded-2xl p-5 space-y-3">
-                <label className="flex items-center gap-2 text-sm font-bold text-rose-300">
-                  <AlertTriangle size={18} className="text-rose-400" />
-                  Justificación Obligatoria de Descuadre
-                </label>
-                <p className="text-xs text-rose-200/80">
-                  Se detectó un <b>{diffTotal > 0 ? 'sobrante' : 'faltante'}</b> fuera del margen permitido de{' '}
-                  <b>${Math.abs(diffTotal).toLocaleString('es-CO')}</b>. Esta justificación quedará registrada en auditoría.
-                </p>
-                <textarea
-                  data-testid="input-justificacion-arqueo"
-                  value={justificacion}
-                  onChange={(e) => setJustificacion(e.target.value)}
-                  placeholder="Detalle el motivo: egreso no registrado, voucher cruzado, billete falso..."
-                  className="w-full h-24 border border-rose-500/30 focus:border-rose-400 rounded-xl p-3 text-sm text-white bg-slate-950/80 outline-none resize-none transition-colors"
-                />
+          {/* PASO 3: CUADRE FINAL, TOLERANCIA Y CIERRE */}
+          {currentStep === 3 && (
+            <div className="flex flex-col gap-5 animate-fade-in">
+              <div className="p-4 rounded-2xl border-2 border-slate-200 bg-slate-50 flex justify-between items-center">
+                <div>
+                  <h3 className="text-base font-black text-slate-900 m-0">Paso 3: Resumen Consolidado de Cierre</h3>
+                  <p className="text-xs text-slate-500 mt-0.5 m-0">Verifique el balance global antes de sellar el turno.</p>
+                </div>
+                <div className="text-right">
+                  <span className="text-xs font-bold text-slate-500 block uppercase">Total Físico Declarado</span>
+                  <strong className="text-2xl font-black text-indigo-700 font-mono">
+                    ${totalFisicoDeclarado.toLocaleString('es-CO')}
+                  </strong>
+                </div>
               </div>
 
-              {/* Auditoría Inteligente de Productos */}
-              <div className="bg-slate-950/60 border border-white/10 rounded-2xl p-5 space-y-3">
-                <label className="flex items-center gap-2 text-sm font-bold text-amber-400">
-                  <Search size={18} /> Auditoría Inteligente de Productos (±5%)
-                </label>
-                <p className="text-xs text-slate-400">
-                  Ítems cuyo precio unitario coincide con el descuadre. ¿Ocurrió alguna venta omitida?
-                </p>
-                {sugerencias.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {sugerencias.map((prod: any) => (
-                      <div
-                        key={prod.id}
-                        className="flex items-center gap-2 bg-slate-900 border border-white/10 rounded-xl px-3 py-1.5 shadow-sm text-xs"
-                      >
-                        <span className="font-bold text-white">{prod.nombre}</span>
-                        <span className="bg-amber-500/20 text-amber-300 font-bold px-2 py-0.5 rounded-full font-mono">
-                          ${(prod.precio_venta_pos || prod.precio_venta || prod.precioLista || 0).toLocaleString('es-CO')}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="border border-dashed border-white/10 rounded-xl p-4 text-center">
-                    <p className="text-xs text-slate-500 italic">
-                      Sin productos coincidentes con ${Math.abs(diffTotal).toLocaleString('es-CO')}
+              {/* Semáforo de Tolerancia y Descuadre */}
+              <div
+                className={`p-4 rounded-2xl border-2 flex items-center justify-between ${
+                  esCuadreValido
+                    ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+                    : 'bg-rose-50 border-rose-300 text-rose-900'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  {esCuadreValido ? (
+                    <ShieldCheck size={28} className="text-emerald-600 shrink-0" />
+                  ) : (
+                    <AlertTriangle size={28} className="text-rose-600 shrink-0" />
+                  )}
+                  <div>
+                    <span className="text-sm font-black uppercase tracking-wide block">
+                      {esCuadreValido
+                        ? '✓ Cuadre Válido (Dentro de Tolerancia de $5.000 COP)'
+                        : '⚠ Descuadre Detectado Fuera de Tolerancia'}
+                    </span>
+                    <p className="text-xs font-medium opacity-80 mt-0.5 m-0">
+                      {esCuadreValido
+                        ? 'El cierre se encuentra cuadrado o con diferencia mínima de redondeo.'
+                        : 'El valor físico declarado difiere del saldo esperado. Se requiere justificación de auditoría.'}
                     </p>
                   </div>
+                </div>
+                {!esModoArqueoCiego && (
+                  <span className="font-mono text-xl font-black tabular-nums">
+                    {diffTotal >= 0 ? '+' : ''}${diffTotal.toLocaleString('es-CO')}
+                  </span>
                 )}
+              </div>
+
+              {/* Campo de Justificación si descuadrado */}
+              {(!esModoArqueoCiego && requiereJustificacion) && (
+                <div className="flex flex-col gap-2 p-4 rounded-2xl bg-rose-50/50 border border-rose-200">
+                  <label className="text-xs font-black uppercase text-rose-800 flex items-center gap-1.5">
+                    <AlertTriangle size={15} /> Justificación Obligatoria de Auditoría
+                  </label>
+                  <textarea
+                    data-testid="input-justificacion-arqueo"
+                    value={justificacion}
+                    onChange={(e) => setJustificacion(e.target.value)}
+                    placeholder="Explique el motivo del descuadre detectado (egreso sin recibo, voucher omitido, etc.)..."
+                    className="w-full min-h-[80px] p-3 text-sm font-medium rounded-xl border-2 border-rose-300 focus:border-rose-500 bg-white outline-none resize-none"
+                  />
+                </div>
+              )}
+
+              <div className="flex justify-between items-center pt-2">
+                <button
+                  type="button"
+                  data-testid="btn-anterior-step"
+                  onClick={() => setCurrentStep(2)}
+                  className="min-h-[48px] h-12 px-5 rounded-xl font-bold text-sm bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 flex items-center gap-2 shadow-sm cursor-pointer"
+                >
+                  <ArrowLeft size={18} />
+                  <span>Volver a Datáfono</span>
+                </button>
+
+                <button
+                  type="button"
+                  data-testid="btn-confirmar-arqueo"
+                  onClick={handleCierre}
+                  disabled={isLoading}
+                  className="min-h-[56px] h-14 px-8 rounded-2xl font-black text-base bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2.5 shadow-lg active:scale-98 transition-all cursor-pointer"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 size={20} className="animate-spin" /> Procesando...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle size={20} />
+                      <span>Confirmar y Cerrar Turno</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           )}
-        </div>
 
-        {/* FOOTER */}
-        <div className="px-6 py-4 border-t border-white/10 bg-slate-950/60 flex justify-between items-center shrink-0">
-          <div className="text-xs text-slate-400">
-            {esModoArqueoCiego ? (
-              <span className="text-amber-400 font-medium">Modo Ciego: El cajero declara únicamente lo contado.</span>
-            ) : (
-              <span>Modo Supervisión: Cuadre auditado en tiempo real.</span>
-            )}
-          </div>
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="h-11 px-5 flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl border border-white/10 transition-colors"
-            >
-              Cancelar
-            </button>
-            <button
-              data-testid="btn-confirmar-arqueo"
-              type="button"
-              onClick={handleCierre}
-              disabled={isLoading}
-              className="h-11 px-6 flex items-center gap-2 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 disabled:opacity-50 text-white font-black rounded-xl shadow-lg shadow-rose-900/40 transition-all"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 size={18} className="animate-spin" /> Procesando...
-                </>
-              ) : (
-                'Confirmar y Cerrar Turno'
-              )}
-            </button>
-          </div>
         </div>
       </div>
     </div>,

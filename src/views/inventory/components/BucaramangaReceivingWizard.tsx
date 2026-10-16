@@ -378,33 +378,33 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
     if (onFinalizado) onFinalizado();
   };
 
-  // Semáforo de temperatura para Bucaramanga
+  // Semáforo de temperatura para Bucaramanga en Light Mode WCAG 2.2 AA+
   const tempStatus = useMemo(() => {
     if (tipoProducto === 'FRESCO') {
-      if (refrigerationTempC <= 2.0) return { color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30', label: '🟢 ÓPTIMA (0°C a 2°C)' };
-      if (refrigerationTempC <= 4.0) return { color: 'text-amber-400 bg-amber-500/10 border-amber-500/30', label: '🟡 PRECAUCIÓN (2.1°C a 4.0°C)' };
-      return { color: 'text-rose-400 bg-rose-500/10 border-rose-500/30', label: '🔴 ALERTA SANITARIA (> 4.0°C)' };
+      if (refrigerationTempC <= 2.0) return { color: 'text-emerald-800 bg-emerald-50 border-emerald-300 font-bold', label: '🟢 ÓPTIMA (0°C a 2°C)' };
+      if (refrigerationTempC <= 4.0) return { color: 'text-amber-800 bg-amber-50 border-amber-300 font-bold', label: '🟡 PRECAUCIÓN (2.1°C a 4.0°C)' };
+      return { color: 'text-rose-800 bg-rose-50 border-rose-300 font-bold', label: '🔴 ALERTA SANITARIA (> 4.0°C)' };
     } else {
-      if (refrigerationTempC <= -18.0) return { color: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/30', label: '🔵 ÓPTIMA (<= -18°C)' };
-      if (refrigerationTempC <= -15.0) return { color: 'text-amber-400 bg-amber-500/10 border-amber-500/30', label: '🟡 LÍMITE (-15°C a -18°C)' };
-      return { color: 'text-rose-400 bg-rose-500/10 border-rose-500/30', label: '🔴 DESCONGELAMIENTO (> -15°C)' };
+      if (refrigerationTempC <= -18.0) return { color: 'text-cyan-800 bg-cyan-50 border-cyan-300 font-bold', label: '🔵 ÓPTIMA (<= -18°C)' };
+      if (refrigerationTempC <= -15.0) return { color: 'text-amber-800 bg-amber-50 border-amber-300 font-bold', label: '🟡 LÍMITE (-15°C a -18°C)' };
+      return { color: 'text-rose-800 bg-rose-50 border-rose-300 font-bold', label: '🔴 DESCONGELAMIENTO (> -15°C)' };
     }
   }, [refrigerationTempC, tipoProducto]);
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6">
-      {/* Cabecera Operativa - "Regla de los 12 Años" */}
-      <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 backdrop-blur-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    <div className="w-full max-w-7xl mx-auto space-y-6 text-slate-900">
+      {/* Cabecera Operativa - "Regla del Niño de 12 Años" */}
+      <div className="bg-white border-2 border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-cyan-500/10 border border-cyan-500/30 rounded-xl text-cyan-400">
+            <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-2xl text-indigo-600">
               <Truck className="w-8 h-8" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white tracking-tight">
+              <h1 className="text-2xl font-black text-slate-900 tracking-tight m-0">
                 Llegada de Furgón y Descargue (Bucaramanga)
               </h1>
-              <p className="text-sm text-slate-400">
+              <p className="text-sm font-medium text-slate-500 mt-1 m-0">
                 Paso a paso táctil para pesar canastillas, revisar frío y guardar en la cava sin errores.
               </p>
             </div>
@@ -413,10 +413,12 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
 
         <div className="flex items-center gap-3">
           <button
+            type="button"
+            data-testid="btn-toggle-historial"
             onClick={() => setMostrarHistorial(!mostrarHistorial)}
-            className="min-h-[44px] px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-medium border border-slate-700 transition flex items-center gap-2"
+            className="min-h-[48px] h-12 px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-sm font-bold border-2 border-slate-200 transition flex items-center gap-2 shadow-sm cursor-pointer"
           >
-            <FileText className="w-4 h-4 text-cyan-400" />
+            <FileText className="w-4 h-4 text-indigo-600" />
             {mostrarHistorial ? 'Ocultar Historial' : 'Ver Descargues Anteriores'}
           </button>
         </div>
@@ -424,27 +426,27 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
 
       {/* Historial Plegable */}
       {mostrarHistorial && (
-        <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 space-y-4">
-          <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-emerald-400" />
+        <div className="bg-white border-2 border-slate-200 rounded-3xl p-6 space-y-4 shadow-sm animate-fade-in">
+          <h3 className="text-lg font-black text-slate-900 flex items-center gap-2 m-0">
+            <CheckCircle className="w-5 h-5 text-emerald-600" />
             Últimas Recepciones en Bodega Bucaramanga
           </h3>
           {historialRecepciones.length === 0 ? (
-            <p className="text-sm text-slate-500">No hay recepciones registradas en el dispositivo.</p>
+            <p className="text-sm font-medium text-slate-500 m-0">No hay recepciones registradas en el dispositivo.</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {historialRecepciones.map((rec) => (
-                <div key={rec.id} className="p-4 bg-slate-950/60 border border-slate-800 rounded-xl space-y-2">
+                <div key={rec.id} className="p-4 bg-slate-50 border-2 border-slate-200 rounded-2xl space-y-2">
                   <div className="flex justify-between items-start">
-                    <span className="font-bold text-cyan-400 text-sm">{rec.receptionNumber}</span>
-                    <span className="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
+                    <span className="font-black text-indigo-700 text-sm">{rec.receptionNumber}</span>
+                    <span className="text-xs px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-800 font-mono font-bold">
                       {rec.truckPlate}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-300 font-medium truncate">{rec.supplierName}</p>
-                  <div className="flex justify-between text-xs text-slate-400 pt-2 border-t border-slate-800/80">
-                    <span>{rec.liquidacion.totalNetWeightKg.toLocaleString()} kg netos</span>
-                    <span className="text-emerald-400 font-semibold font-mono">
+                  <p className="text-xs text-slate-700 font-bold truncate m-0">{rec.supplierName}</p>
+                  <div className="flex justify-between text-xs text-slate-600 pt-2 border-t border-slate-200">
+                    <span className="font-semibold">{rec.liquidacion.totalNetWeightKg.toLocaleString()} kg netos</span>
+                    <span className="text-emerald-700 font-black font-mono">
                       ${rec.liquidacion.balanceToPaySupplier.toLocaleString()} COP
                     </span>
                   </div>
@@ -458,51 +460,57 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
       {/* Indicador Visual de 3 Pasos (WIZARD) */}
       <div className="grid grid-cols-3 gap-3">
         <button
+          type="button"
+          data-testid="step-btn-furgon"
           onClick={() => setCurrentStep(1)}
-          className={`min-h-[56px] p-4 rounded-xl border flex items-center justify-center gap-3 transition text-base font-bold ${
+          className={`min-h-[56px] h-14 p-4 rounded-2xl border-2 flex items-center justify-center gap-3 transition text-sm md:text-base font-black cursor-pointer ${
             currentStep === 1
-              ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 shadow-lg shadow-cyan-500/10'
-              : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-slate-200'
+              ? 'bg-indigo-600 border-indigo-600 text-white shadow-md'
+              : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
           }`}
         >
-          <Truck className="w-6 h-6 text-cyan-400" />
-          <span>1. El Furgón</span>
+          <Truck className={`w-5 h-5 md:w-6 md:h-6 ${currentStep === 1 ? 'text-white' : 'text-slate-500'}`} />
+          <span className="truncate">1. El Furgón</span>
         </button>
 
         <button
+          type="button"
+          data-testid="step-btn-bascula"
           onClick={() => setCurrentStep(2)}
-          className={`min-h-[56px] p-4 rounded-xl border flex items-center justify-center gap-3 transition text-base font-bold ${
+          className={`min-h-[56px] h-14 p-4 rounded-2xl border-2 flex items-center justify-center gap-3 transition text-sm md:text-base font-black cursor-pointer ${
             currentStep === 2
-              ? 'bg-blue-500/20 border-blue-400 text-blue-300 shadow-lg shadow-blue-500/10'
-              : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-slate-200'
+              ? 'bg-indigo-600 border-indigo-600 text-white shadow-md'
+              : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
           }`}
         >
-          <Scale className="w-6 h-6 text-blue-400" />
-          <span>2. La Báscula ({crates.length})</span>
+          <Scale className={`w-5 h-5 md:w-6 md:h-6 ${currentStep === 2 ? 'text-white' : 'text-slate-500'}`} />
+          <span className="truncate">2. La Báscula ({crates.length})</span>
         </button>
 
         <button
+          type="button"
+          data-testid="step-btn-frio"
           onClick={() => setCurrentStep(3)}
-          className={`min-h-[56px] p-4 rounded-xl border flex items-center justify-center gap-3 transition text-base font-bold ${
+          className={`min-h-[56px] h-14 p-4 rounded-2xl border-2 flex items-center justify-center gap-3 transition text-sm md:text-base font-black cursor-pointer ${
             currentStep === 3
-              ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300 shadow-lg shadow-emerald-500/10'
-              : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-slate-200'
+              ? 'bg-indigo-600 border-indigo-600 text-white shadow-md'
+              : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
           }`}
         >
-          <Snowflake className="w-6 h-6 text-emerald-400" />
-          <span>3. El Frío y la Plata</span>
+          <Snowflake className={`w-5 h-5 md:w-6 md:h-6 ${currentStep === 3 ? 'text-white' : 'text-slate-500'}`} />
+          <span className="truncate">3. El Frío y la Plata</span>
         </button>
       </div>
 
       {/* CONTENIDO DEL PASO 1: EL FURGÓN */}
       {currentStep === 1 && (
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-6">
-          <div className="border-b border-slate-800 pb-4">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <Truck className="w-6 h-6 text-cyan-400" />
+        <div className="bg-white border-2 border-slate-200 rounded-3xl p-6 space-y-6 shadow-sm animate-fade-in">
+          <div className="border-b border-slate-200 pb-4">
+            <h2 className="text-xl font-black text-slate-900 flex items-center gap-2 m-0">
+              <Truck className="w-6 h-6 text-indigo-600" />
               Paso 1: ¿De dónde viene el camión y cómo llegó el frío?
             </h2>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm font-medium text-slate-500 mt-1 m-0">
               Seleccione el pedido acordado con la costa o ingrese los datos del transporte que está en la rampa.
             </p>
           </div>
@@ -510,28 +518,29 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
           {/* Pedidos previos acordados */}
           {pedidos.length > 0 && (
             <div className="space-y-3">
-              <label className="text-sm font-semibold text-slate-300">
+              <label className="text-xs font-black uppercase text-slate-700 tracking-wider">
                 Pedidos en Camino (Costa / Criaderos):
               </label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {pedidos.map((p) => (
                   <button
                     key={p.id}
+                    type="button"
                     onClick={() => seleccionarPedido(p)}
-                    className={`min-h-[56px] p-4 rounded-xl border text-left transition ${
+                    className={`min-h-[56px] p-4 rounded-2xl border-2 text-left transition cursor-pointer ${
                       selectedPedidoId === p.id
-                        ? 'bg-cyan-500/15 border-cyan-400 text-white'
-                        : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
+                        ? 'bg-indigo-50 border-indigo-600 text-slate-900 shadow-sm'
+                        : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
                     }`}
                   >
                     <div className="flex justify-between items-center mb-1">
-                      <span className="font-bold text-cyan-400 text-sm">{p.consecutivo}</span>
-                      <span className="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300">
+                      <span className="font-black text-indigo-600 text-sm">{p.consecutivo}</span>
+                      <span className="text-xs px-2 py-0.5 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 font-bold">
                         {p.ciudadOrigen}
                       </span>
                     </div>
-                    <p className="text-sm font-medium text-slate-200">{p.proveedorNombre}</p>
-                    <p className="text-xs text-slate-400 mt-1">
+                    <p className="text-sm font-bold text-slate-900 m-0">{p.proveedorNombre}</p>
+                    <p className="text-xs font-semibold text-slate-500 mt-1 m-0">
                       Anticipo consignado: ${p.anticipoMonto.toLocaleString()} COP | Flete: ${p.fleteEstimadoTotal.toLocaleString()} COP
                     </p>
                   </button>
@@ -543,26 +552,26 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
           {/* Formulario táctil del vehículo */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-300">Placa del Furgón / Camión:</label>
+              <label className="text-xs font-black uppercase text-slate-700">Placa del Furgón / Camión:</label>
               <input
                 type="text"
                 value={truckPlate}
                 onChange={(e) => setTruckPlate(e.target.value)}
                 placeholder="Ej. WDF-452"
-                className="w-full min-h-[48px] px-4 bg-slate-950 border border-slate-700 rounded-xl text-lg font-bold text-white uppercase focus:border-cyan-400 outline-none"
+                className="w-full min-h-[48px] h-12 px-4 bg-white border-2 border-slate-300 focus:border-indigo-600 rounded-xl text-lg font-black text-slate-900 uppercase outline-none"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-300">Tipo de Conservación:</label>
+              <label className="text-xs font-black uppercase text-slate-700">Tipo de Conservación:</label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setTipoProducto('FRESCO')}
-                  className={`min-h-[48px] rounded-xl font-bold text-sm border transition ${
+                  className={`min-h-[48px] h-12 rounded-xl font-black text-xs md:text-sm border-2 transition cursor-pointer ${
                     tipoProducto === 'FRESCO'
-                      ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300'
-                      : 'bg-slate-950 border-slate-800 text-slate-400'
+                      ? 'bg-emerald-50 border-emerald-500 text-emerald-800 shadow-sm'
+                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
                 >
                   Fresco (con Hielo)
@@ -570,10 +579,10 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
                 <button
                   type="button"
                   onClick={() => setTipoProducto('CONGELADO')}
-                  className={`min-h-[48px] rounded-xl font-bold text-sm border transition ${
+                  className={`min-h-[48px] h-12 rounded-xl font-black text-xs md:text-sm border-2 transition cursor-pointer ${
                     tipoProducto === 'CONGELADO'
-                      ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300'
-                      : 'bg-slate-950 border-slate-800 text-slate-400'
+                      ? 'bg-blue-50 border-blue-500 text-blue-800 shadow-sm'
+                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
                 >
                   Congelado (-18°C)
@@ -582,9 +591,9 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-300 flex items-center justify-between">
+              <label className="text-xs font-black uppercase text-slate-700 flex items-center justify-between">
                 <span>Temperatura al Abrir Furgón:</span>
-                <span className={`text-xs px-2 py-0.5 rounded border ${tempStatus.color}`}>
+                <span className={`text-[11px] px-2.5 py-0.5 rounded-lg border font-bold ${tempStatus.color}`}>
                   {tempStatus.label}
                 </span>
               </label>
@@ -594,48 +603,50 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
                   step="0.1"
                   value={refrigerationTempC}
                   onChange={(e) => setRefrigerationTempC(parseFloat(e.target.value) || 0)}
-                  className="w-full min-h-[48px] px-4 bg-slate-950 border border-slate-700 rounded-xl text-xl font-bold text-white focus:border-cyan-400 outline-none"
+                  className="w-full min-h-[48px] h-12 px-4 bg-white border-2 border-slate-300 focus:border-indigo-600 rounded-xl text-xl font-black text-slate-900 font-mono outline-none"
                 />
-                <span className="absolute right-4 top-3 text-slate-500 font-bold">°C</span>
+                <span className="absolute right-4 top-3 text-slate-400 font-black">°C</span>
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-300">Empresa de Transporte / Flete:</label>
+              <label className="text-xs font-black uppercase text-slate-700">Empresa de Transporte / Flete:</label>
               <input
                 type="text"
                 value={transportCompany}
                 onChange={(e) => setTransportCompany(e.target.value)}
                 placeholder="Ej. Transfrío / Particular"
-                className="w-full min-h-[48px] px-4 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white focus:border-cyan-400 outline-none"
+                className="w-full min-h-[48px] h-12 px-4 bg-white border-2 border-slate-300 focus:border-indigo-600 rounded-xl text-sm font-bold text-slate-900 outline-none"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-300">Costo Total del Flete (Transporte):</label>
+              <label className="text-xs font-black uppercase text-slate-700">Costo Total del Flete (Transporte):</label>
               <input
                 type="number"
                 value={totalFreightCost}
                 onChange={(e) => setTotalFreightCost(parseFloat(e.target.value) || 0)}
-                className="w-full min-h-[48px] px-4 bg-slate-950 border border-slate-700 rounded-xl text-lg font-bold text-amber-400 focus:border-cyan-400 outline-none"
+                className="w-full min-h-[48px] h-12 px-4 bg-white border-2 border-slate-300 focus:border-indigo-600 rounded-xl text-lg font-black text-amber-800 font-mono outline-none"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-300">Anticipo Ya Consignado al Proveedor:</label>
+              <label className="text-xs font-black uppercase text-slate-700">Anticipo Ya Consignado al Proveedor:</label>
               <input
                 type="number"
                 value={advancePaymentDeducted}
                 onChange={(e) => setAdvancePaymentDeducted(parseFloat(e.target.value) || 0)}
-                className="w-full min-h-[48px] px-4 bg-slate-950 border border-slate-700 rounded-xl text-lg font-bold text-emerald-400 focus:border-cyan-400 outline-none"
+                className="w-full min-h-[48px] h-12 px-4 bg-white border-2 border-slate-300 focus:border-indigo-600 rounded-xl text-lg font-black text-emerald-800 font-mono outline-none"
               />
             </div>
           </div>
 
           <div className="pt-4 flex justify-end">
             <button
+              type="button"
+              data-testid="btn-continuar-bascula"
               onClick={() => setCurrentStep(2)}
-              className="min-h-[52px] px-8 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-base shadow-lg shadow-emerald-600/20 transition flex items-center gap-3"
+              className="min-h-[56px] h-14 px-8 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl text-base shadow-lg shadow-emerald-600/20 active:scale-95 transition flex items-center gap-3 cursor-pointer"
             >
               <span>Continuar a la Báscula</span>
               <ArrowRight className="w-5 h-5" />
@@ -646,32 +657,32 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
 
       {/* CONTENIDO DEL PASO 2: LA BÁSCULA */}
       {currentStep === 2 && (
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-6">
-          <div className="border-b border-slate-800 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="bg-white border-2 border-slate-200 rounded-3xl p-6 space-y-6 shadow-sm animate-fade-in">
+          <div className="border-b border-slate-200 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <Scale className="w-6 h-6 text-blue-400" />
+              <h2 className="text-xl font-black text-slate-900 flex items-center gap-2 m-0">
+                <Scale className="w-6 h-6 text-indigo-600" />
                 Paso 2: Pesaje Canastilla por Canastilla
               </h2>
-              <p className="text-sm text-slate-400">
+              <p className="text-sm font-medium text-slate-500 mt-1 m-0">
                 Ponga la canastilla en la báscula, capture el peso y pulse agregar. La tara y el hielo se descuentan solos.
               </p>
             </div>
 
-            <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-xl text-right">
-              <span className="text-xs text-blue-300 font-semibold block">Kilos Netos Acumulados:</span>
-              <span className="text-2xl font-black text-white font-mono">
+            <div className="p-3.5 bg-indigo-50 border-2 border-indigo-200 rounded-2xl text-right">
+              <span className="text-xs text-indigo-700 font-black uppercase tracking-wider block">Kilos Netos Acumulados:</span>
+              <span className="text-2xl font-black text-indigo-900 font-mono tabular-nums">
                 {liquidacion.totalNetWeightKg.toLocaleString()} kg
               </span>
             </div>
           </div>
 
           {/* Panel de Pesaje Rápido */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 bg-slate-950/70 p-6 rounded-2xl border border-slate-800">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 bg-slate-50 p-6 rounded-3xl border-2 border-slate-200">
             <div className="lg:col-span-7 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-400">Especie a Pesar:</label>
+                  <label className="text-xs font-black uppercase text-slate-700">Especie a Pesar:</label>
                   <select
                     value={currentSku}
                     onChange={(e) => {
@@ -679,7 +690,7 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
                       const opt = e.target.options[e.target.selectedIndex];
                       setCurrentProductName(opt.text);
                     }}
-                    className="w-full min-h-[48px] px-3 bg-slate-900 border border-slate-700 rounded-xl text-white font-medium outline-none"
+                    className="w-full min-h-[48px] h-12 px-3 bg-white border-2 border-slate-300 focus:border-indigo-600 rounded-xl text-slate-900 font-bold outline-none"
                   >
                     <option value="SIERRA-01">Sierra Entera Fresca</option>
                     <option value="PARGO-01">Pargo Rojo Entero</option>
@@ -692,12 +703,12 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-400">Precio Compra Pactado ($/kg):</label>
+                  <label className="text-xs font-black uppercase text-slate-700">Precio Compra Pactado ($/kg):</label>
                   <input
                     type="number"
                     value={currentUnitCost}
                     onChange={(e) => setCurrentUnitCost(parseFloat(e.target.value) || 0)}
-                    className="w-full min-h-[48px] px-3 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold font-mono outline-none"
+                    className="w-full min-h-[48px] h-12 px-3 bg-white border-2 border-slate-300 focus:border-indigo-600 rounded-xl text-slate-900 font-black font-mono outline-none"
                   />
                 </div>
               </div>
@@ -706,49 +717,50 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
                 <button
                   type="button"
+                  data-testid="btn-capturar-bascula"
                   onClick={handleCapturarBascula}
                   disabled={readingScale}
-                  className="min-h-[56px] w-full bg-cyan-600 hover:bg-cyan-500 active:scale-95 text-white font-bold rounded-xl text-lg flex items-center justify-center gap-3 shadow-lg shadow-cyan-600/20 transition"
+                  className="min-h-[56px] h-14 w-full bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-black rounded-2xl text-lg flex items-center justify-center gap-3 shadow-md transition cursor-pointer"
                 >
                   <Scale className="w-6 h-6" />
                   <span>{readingScale ? 'Leyendo Báscula...' : 'Capturar Peso Báscula'}</span>
                 </button>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-400">Peso Bruto en Báscula (kg):</label>
+                  <label className="text-xs font-black uppercase text-slate-700">Peso Bruto en Báscula (kg):</label>
                   <input
                     type="number"
                     step="0.01"
                     value={currentGrossWeight}
                     onChange={(e) => setCurrentGrossWeight(e.target.value === '' ? '' : parseFloat(e.target.value))}
                     placeholder="0.00"
-                    className="w-full min-h-[56px] px-4 bg-slate-900 border-2 border-cyan-500/40 rounded-xl text-3xl font-black text-cyan-300 font-mono text-center outline-none"
+                    className="w-full min-h-[56px] h-14 px-4 bg-white border-2 border-indigo-400 focus:border-indigo-600 rounded-2xl text-3xl font-black text-indigo-700 font-mono text-center outline-none"
                   />
                 </div>
               </div>
 
               {/* Descuentos de Tara e Hielo */}
               <div className="grid grid-cols-2 gap-4 pt-2">
-                <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800">
-                  <span className="text-xs text-slate-400 block mb-1">Tara Canastilla Plástica:</span>
+                <div className="p-3.5 bg-white rounded-2xl border-2 border-slate-200 shadow-sm">
+                  <span className="text-xs font-bold text-slate-500 block mb-1">Tara Canastilla Plástica:</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-amber-400 font-mono">- {currentCrateTare} kg</span>
-                    <span className="text-xs text-slate-500">(Estándar)</span>
+                    <span className="text-lg font-black text-amber-800 font-mono">- {currentCrateTare} kg</span>
+                    <span className="text-xs text-slate-400 font-bold">(Estándar)</span>
                   </div>
                 </div>
 
-                <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800">
-                  <span className="text-xs text-slate-400 block mb-1">Descuento Hielo / Agua:</span>
+                <div className="p-3.5 bg-white rounded-2xl border-2 border-slate-200 shadow-sm">
+                  <span className="text-xs font-bold text-slate-500 block mb-1">Descuento Hielo / Agua:</span>
                   <div className="flex gap-2">
                     {[0, 2, 3, 5].map((pct) => (
                       <button
                         key={pct}
                         type="button"
                         onClick={() => setCurrentIceDeductionPct(pct)}
-                        className={`px-3 py-1 text-xs font-bold rounded-lg border transition ${
+                        className={`min-w-[48px] min-h-[48px] w-12 h-12 text-xs font-black rounded-xl border-2 transition cursor-pointer flex items-center justify-center ${
                           currentIceDeductionPct === pct
-                            ? 'bg-blue-500/20 border-blue-400 text-blue-300'
-                            : 'bg-slate-950 border-slate-800 text-slate-400'
+                            ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm'
+                            : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'
                         }`}
                       >
                         {pct}%
@@ -760,24 +772,25 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
             </div>
 
             {/* Visor Gigante de Resultado de la Canastilla */}
-            <div className="lg:col-span-5 flex flex-col justify-between bg-slate-900/90 p-6 rounded-xl border border-slate-800">
+            <div className="lg:col-span-5 flex flex-col justify-between bg-white p-6 rounded-3xl border-2 border-slate-200 shadow-sm">
               <div className="space-y-2 text-center">
-                <span className="text-xs font-bold text-slate-400 tracking-wider uppercase">
+                <span className="text-xs font-black text-slate-500 tracking-wider uppercase">
                   Canastilla #{crates.length + 1} - Peso Neto Real
                 </span>
-                <div className="text-5xl font-black text-emerald-400 font-mono py-4">
+                <div className="text-5xl font-black text-emerald-700 font-mono py-4">
                   {previewNetWeight.toFixed(2)} <span className="text-2xl text-slate-400 font-sans">kg</span>
                 </div>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs font-bold text-slate-500 m-0">
                   Subtotal Compra: ${(previewNetWeight * currentUnitCost).toLocaleString()} COP
                 </p>
               </div>
 
               <button
                 type="button"
+                data-testid="btn-guardar-pesada"
                 onClick={handleAgregarCanastilla}
                 disabled={previewNetWeight <= 0}
-                className="min-h-[56px] w-full mt-4 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl text-lg flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition"
+                className="min-h-[56px] h-14 w-full mt-4 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-black rounded-2xl text-lg flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 active:scale-95 transition cursor-pointer"
               >
                 <Plus className="w-6 h-6" />
                 <span>+ Guardar Pesada Canastilla</span>
@@ -788,16 +801,16 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
           {/* Tabla Táctil de Canastillas Pesadas */}
           {crates.length > 0 && (
             <div className="space-y-3">
-              <h3 className="text-base font-bold text-white flex items-center justify-between">
+              <h3 className="text-base font-black text-slate-900 flex items-center justify-between m-0">
                 <span>Canastillas Registradas en el Lote ({crates.length})</span>
-                <span className="text-xs text-slate-400 font-normal">
+                <span className="text-xs text-slate-500 font-bold">
                   Total Bruto: {liquidacion.totalGrossWeightKg} kg | Taras e Hielo: -{(liquidacion.totalTareKg + liquidacion.totalIceKg).toFixed(1)} kg
                 </span>
               </h3>
 
-              <div className="overflow-x-auto rounded-xl border border-slate-800">
-                <table className="w-full text-left text-sm text-slate-300">
-                  <thead className="bg-slate-950 text-xs font-semibold text-slate-400 uppercase">
+              <div className="overflow-x-auto rounded-2xl border-2 border-slate-200 bg-white shadow-sm">
+                <table className="w-full text-left text-sm text-slate-700">
+                  <thead className="bg-slate-100 text-xs font-black text-slate-700 uppercase">
                     <tr>
                       <th className="px-4 py-3">#</th>
                       <th className="px-4 py-3">Especie</th>
@@ -809,24 +822,26 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
                       <th className="px-4 py-3 text-right">Acción</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800 bg-slate-900/50 font-mono">
+                  <tbody className="divide-y divide-slate-200 font-mono">
                     {crates.map((c, index) => {
                       const net = (c.grossWeightKg - c.crateTareKg) * (1 - c.iceDeductionPct / 100);
                       return (
-                        <tr key={index} className="hover:bg-slate-800/40">
-                          <td className="px-4 py-3 font-bold text-cyan-400">{c.crateNumber}</td>
-                          <td className="px-4 py-3 font-sans text-white font-medium">{c.productName}</td>
-                          <td className="px-4 py-3">{c.grossWeightKg.toFixed(2)} kg</td>
-                          <td className="px-4 py-3 text-amber-400">-{c.crateTareKg} kg</td>
-                          <td className="px-4 py-3 font-bold text-emerald-400">{net.toFixed(2)} kg</td>
-                          <td className="px-4 py-3">${c.unitCostOriginKg.toLocaleString()}</td>
-                          <td className="px-4 py-3 font-bold">${(net * c.unitCostOriginKg).toLocaleString()}</td>
+                        <tr key={index} className="hover:bg-slate-50 transition-colors">
+                          <td className="px-4 py-3 font-black text-indigo-700">{c.crateNumber}</td>
+                          <td className="px-4 py-3 font-sans text-slate-900 font-bold">{c.productName}</td>
+                          <td className="px-4 py-3 font-bold">{c.grossWeightKg.toFixed(2)} kg</td>
+                          <td className="px-4 py-3 text-amber-800 font-bold">-{c.crateTareKg} kg</td>
+                          <td className="px-4 py-3 font-black text-emerald-700">{net.toFixed(2)} kg</td>
+                          <td className="px-4 py-3 font-bold">${c.unitCostOriginKg.toLocaleString()}</td>
+                          <td className="px-4 py-3 font-black text-slate-900">${(net * c.unitCostOriginKg).toLocaleString()}</td>
                           <td className="px-4 py-3 text-right">
                             <button
+                              type="button"
                               onClick={() => handleEliminarCanastilla(index)}
-                              className="p-2 text-rose-400 hover:bg-rose-500/10 rounded-lg transition"
+                              className="min-w-[48px] min-h-[48px] w-12 h-12 text-rose-600 hover:bg-rose-50 rounded-xl transition inline-flex items-center justify-center cursor-pointer"
+                              title="Eliminar pesada de canastilla"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="w-5 h-5" />
                             </button>
                           </td>
                         </tr>
@@ -841,17 +856,20 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
           {/* Navegación entre pasos */}
           <div className="pt-4 flex justify-between">
             <button
+              type="button"
               onClick={() => setCurrentStep(1)}
-              className="min-h-[52px] px-6 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-base transition flex items-center gap-2"
+              className="min-h-[48px] h-12 px-6 bg-white hover:bg-slate-100 text-slate-700 border-2 border-slate-200 font-bold rounded-xl text-sm transition flex items-center gap-2 cursor-pointer shadow-sm"
             >
               <ArrowLeft className="w-5 h-5" />
               <span>Volver al Furgón</span>
             </button>
 
             <button
+              type="button"
+              data-testid="btn-ir-frio-liquidar"
               onClick={() => setCurrentStep(3)}
               disabled={crates.length === 0}
-              className="min-h-[52px] px-8 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold rounded-xl text-base shadow-lg shadow-emerald-600/20 transition flex items-center gap-3"
+              className="min-h-[56px] h-14 px-8 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-black rounded-2xl text-base shadow-lg shadow-emerald-600/20 active:scale-95 transition flex items-center gap-3 cursor-pointer"
             >
               <span>Ir al Frío y Liquidar</span>
               <ArrowRight className="w-5 h-5" />
@@ -862,13 +880,13 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
 
       {/* CONTENIDO DEL PASO 3: EL FRÍO Y LA PLATA */}
       {currentStep === 3 && (
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-6">
-          <div className="border-b border-slate-800 pb-4">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <Snowflake className="w-6 h-6 text-emerald-400" />
+        <div className="bg-white border-2 border-slate-200 rounded-3xl p-6 space-y-6 shadow-sm animate-fade-in">
+          <div className="border-b border-slate-200 pb-4">
+            <h2 className="text-xl font-black text-slate-900 flex items-center gap-2 m-0">
+              <Snowflake className="w-6 h-6 text-indigo-600" />
               Paso 3: ¿A qué Cuarto Frío va y cómo se liquida la cuenta?
             </h2>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm font-medium text-slate-500 mt-1 m-0">
               Asigne la cava de almacenamiento y revise la cuenta final con el flete prorrateado y el saldo a pagar.
             </p>
           </div>
@@ -877,57 +895,57 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
             {/* Asignación de Cuarto Frío */}
             <div className="lg:col-span-6 space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-300">
+                <label className="text-xs font-black uppercase text-slate-700">
                   Cuarto Frío / Cava de Destino (Bucaramanga):
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <button
                     type="button"
                     onClick={() => setCurrentWarehouseId('cava-principal')}
-                    className={`min-h-[56px] p-4 rounded-xl border text-left transition ${
+                    className={`min-h-[56px] p-4 rounded-2xl border-2 text-left transition cursor-pointer ${
                       currentWarehouseId === 'cava-principal'
-                        ? 'bg-blue-500/20 border-blue-400 text-white'
-                        : 'bg-slate-950 border-slate-800 text-slate-400'
+                        ? 'bg-indigo-50 border-indigo-600 text-slate-900 shadow-sm'
+                        : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
                     }`}
                   >
-                    <div className="flex items-center gap-2 font-bold text-blue-300">
+                    <div className="flex items-center gap-2 font-black text-indigo-700">
                       <Snowflake className="w-5 h-5" />
                       <span>Cava Principal (Fresco 0°C)</span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-1">Capacidad: 12.000 kg | FEFO Activo</p>
+                    <p className="text-xs text-slate-500 mt-1 font-semibold m-0">Capacidad: 12.000 kg | FEFO Activo</p>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setCurrentWarehouseId('cava-congelados')}
-                    className={`min-h-[56px] p-4 rounded-xl border text-left transition ${
+                    className={`min-h-[56px] p-4 rounded-2xl border-2 text-left transition cursor-pointer ${
                       currentWarehouseId === 'cava-congelados'
-                        ? 'bg-cyan-500/20 border-cyan-400 text-white'
-                        : 'bg-slate-950 border-slate-800 text-slate-400'
+                        ? 'bg-blue-50 border-blue-600 text-slate-900 shadow-sm'
+                        : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
                     }`}
                   >
-                    <div className="flex items-center gap-2 font-bold text-cyan-300">
+                    <div className="flex items-center gap-2 font-black text-blue-700">
                       <Snowflake className="w-5 h-5" />
                       <span>Cava 2 (Congelados -18°C)</span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-1">Capacidad: 8.000 kg | Larga estancia</p>
+                    <p className="text-xs text-slate-500 mt-1 font-semibold m-0">Capacidad: 8.000 kg | Larga estancia</p>
                   </button>
                 </div>
               </div>
 
               {/* Forma de Pago del Saldo */}
               <div className="space-y-2 pt-2">
-                <label className="text-sm font-semibold text-slate-300">
+                <label className="text-xs font-black uppercase text-slate-700">
                   Forma de Pago del Saldo al Proveedor:
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
                     onClick={() => setPaymentStatus('PAGADO_CONTADO')}
-                    className={`min-h-[48px] rounded-xl font-bold text-sm border transition ${
+                    className={`min-h-[48px] h-12 rounded-xl font-black text-xs md:text-sm border-2 transition cursor-pointer ${
                       paymentStatus === 'PAGADO_CONTADO'
-                        ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300'
-                        : 'bg-slate-950 border-slate-800 text-slate-400'
+                        ? 'bg-emerald-50 border-emerald-500 text-emerald-800 shadow-sm'
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                     }`}
                   >
                     Contado (Sale de Caja/Banco Hoy)
@@ -936,10 +954,10 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
                   <button
                     type="button"
                     onClick={() => setPaymentStatus('CREDITO')}
-                    className={`min-h-[48px] rounded-xl font-bold text-sm border transition ${
+                    className={`min-h-[48px] h-12 rounded-xl font-black text-xs md:text-sm border-2 transition cursor-pointer ${
                       paymentStatus === 'CREDITO'
-                        ? 'bg-amber-500/20 border-amber-400 text-amber-300'
-                        : 'bg-slate-950 border-slate-800 text-slate-400'
+                        ? 'bg-amber-50 border-amber-500 text-amber-800 shadow-sm'
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                     }`}
                   >
                     Queda Debiendo (A Crédito 15-30 Días)
@@ -948,23 +966,23 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
               </div>
 
               {/* Opciones de Débito Inmediato en Caja */}
-              <div className="p-4 bg-slate-950/80 border border-slate-800 rounded-2xl space-y-3">
-                <div className="flex items-center gap-2 text-sm font-bold text-white">
-                  <Wallet className="w-4 h-4 text-emerald-400" />
+              <div className="p-4 bg-slate-50 border-2 border-slate-200 rounded-2xl space-y-3">
+                <div className="flex items-center gap-2 text-sm font-black text-slate-900">
+                  <Wallet className="w-4 h-4 text-emerald-600" />
                   <span>Salida de Dinero desde Caja de Hoy:</span>
                 </div>
 
                 {/* Opción Flete */}
-                <div className="flex items-center justify-between p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs">
+                <div className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl text-xs">
                   <div>
-                    <span className="font-bold text-slate-200">Pagar Flete del Camión ($ {totalFreightCost.toLocaleString()} COP)</span>
-                    <p className="text-[11px] text-slate-400">Sale de caja para pagar al transportador</p>
+                    <span className="font-bold text-slate-900 block">Pagar Flete del Camión ($ {totalFreightCost.toLocaleString()} COP)</span>
+                    <p className="text-[11px] text-slate-500 mt-0.5 m-0">Sale de caja para pagar al transportador</p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     <select
                       value={metodoPagoFlete}
                       onChange={(e) => setMetodoPagoFlete(e.target.value as any)}
-                      className="bg-slate-950 border border-slate-700 text-slate-300 rounded-lg px-2 py-1 text-xs outline-none"
+                      className="bg-white border border-slate-300 text-slate-700 rounded-lg px-2 py-1 text-xs outline-none font-bold"
                     >
                       <option value="EFECTIVO">Efectivo</option>
                       <option value="TRANSFERENCIA">Transferencia</option>
@@ -973,23 +991,23 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
                       type="checkbox"
                       checked={debitarCajaFlete}
                       onChange={(e) => setDebitarCajaFlete(e.target.checked)}
-                      className="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-400"
+                      className="w-5 h-5 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
                     />
                   </div>
                 </div>
 
                 {/* Opción Proveedor si es de Contado */}
                 {paymentStatus === 'PAGADO_CONTADO' && (
-                  <div className="flex items-center justify-between p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs">
+                  <div className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl text-xs">
                     <div>
-                      <span className="font-bold text-emerald-300">Pagar Pescado de Contado ($ {liquidacion.balanceToPaySupplier.toLocaleString()} COP)</span>
-                      <p className="text-[11px] text-slate-400">Debitar de caja/bancos para el proveedor</p>
+                      <span className="font-bold text-emerald-800 block">Pagar Pescado de Contado ($ {liquidacion.balanceToPaySupplier.toLocaleString()} COP)</span>
+                      <p className="text-[11px] text-slate-500 mt-0.5 m-0">Debitar de caja/bancos para el proveedor</p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       <select
                         value={metodoPagoProveedor}
                         onChange={(e) => setMetodoPagoProveedor(e.target.value as any)}
-                        className="bg-slate-950 border border-slate-700 text-slate-300 rounded-lg px-2 py-1 text-xs outline-none"
+                        className="bg-white border border-slate-300 text-slate-700 rounded-lg px-2 py-1 text-xs outline-none font-bold"
                       >
                         <option value="TRANSFERENCIA">Transferencia</option>
                         <option value="EFECTIVO">Efectivo</option>
@@ -998,7 +1016,7 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
                         type="checkbox"
                         checked={debitarCajaProveedor}
                         onChange={(e) => setDebitarCajaProveedor(e.target.checked)}
-                        className="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-400"
+                        className="w-5 h-5 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
                       />
                     </div>
                   </div>
@@ -1006,21 +1024,21 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-400">Observaciones del Descargue:</label>
+                <label className="text-xs font-black uppercase text-slate-700">Observaciones del Descargue:</label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Detalles de calidad, estado de canastillas o novedades del viaje..."
                   rows={3}
-                  className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white outline-none focus:border-cyan-400"
+                  className="w-full p-3 bg-white border-2 border-slate-300 rounded-xl text-sm font-medium text-slate-900 outline-none focus:border-indigo-600"
                 />
               </div>
 
               {/* TRASLADO RÁPIDO A MOSTRADOR */}
-              <div className="p-4 bg-blue-950/30 border border-blue-900/50 rounded-2xl space-y-3 mt-4">
+              <div className="p-4 bg-indigo-50/50 border-2 border-indigo-200 rounded-2xl space-y-3 mt-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm font-bold text-blue-300">
-                    <ShoppingCart className="w-5 h-5" />
+                  <div className="flex items-center gap-2 text-sm font-black text-indigo-900">
+                    <ShoppingCart className="w-5 h-5 text-indigo-600" />
                     <span>Traslado Rápido a Punto de Venta (Mostrador)</span>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
@@ -1035,18 +1053,18 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
                         }
                       }}
                     />
-                    <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                    <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
                   </label>
                 </div>
 
                 {transferirMostrador && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3 animate-fade-in">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-400 mb-1">Punto de Venta Destino:</label>
+                      <label className="block text-xs font-black uppercase text-slate-700 mb-1">Punto de Venta Destino:</label>
                       <select
                         value={transferPOSId}
                         onChange={(e) => setTransferPOSId(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-700 text-slate-300 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
+                        className="w-full min-h-[48px] h-12 bg-white border-2 border-slate-300 text-slate-900 font-bold rounded-xl px-3 text-sm outline-none focus:border-indigo-600"
                       >
                         {mostradoresSucursal.map(m => (
                           <option key={m.id} value={m.id}>{m.nombre}</option>
@@ -1054,18 +1072,18 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-400 mb-1">Cantidad a Trasladar (kg):</label>
+                      <label className="block text-xs font-black uppercase text-slate-700 mb-1">Cantidad a Trasladar (kg):</label>
                       <div className="relative">
                         <input
                           type="number"
                           step="0.01"
                           value={cantidadTransferir}
                           onChange={(e) => setCantidadTransferir(e.target.value)}
-                          className="w-full bg-slate-950 border border-blue-500/50 text-white rounded-xl px-3 py-2 text-sm font-mono outline-none focus:border-blue-400"
+                          className="w-full min-h-[48px] h-12 bg-white border-2 border-indigo-300 focus:border-indigo-600 text-slate-900 rounded-xl px-3 text-base font-black font-mono outline-none"
                         />
-                        <span className="absolute right-3 top-2.5 text-xs text-slate-500 font-bold">kg</span>
+                        <span className="absolute right-3 top-3 text-xs text-slate-400 font-black">kg</span>
                       </div>
-                      <p className="text-[10px] text-slate-500 mt-1">Máx disponible: {liquidacion.totalNetWeightKg} kg</p>
+                      <p className="text-[10px] font-bold text-slate-500 mt-1">Máx disponible: {liquidacion.totalNetWeightKg} kg</p>
                     </div>
                   </div>
                 )}
@@ -1073,65 +1091,66 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
             </div>
 
             {/* Liquidación Económica en Detalle Transparente */}
-            <div className="lg:col-span-6 bg-slate-950/80 p-6 rounded-2xl border border-slate-800 space-y-4">
-              <h3 className="text-base font-bold text-white flex items-center justify-between border-b border-slate-800 pb-3">
+            <div className="lg:col-span-6 bg-slate-50 p-6 rounded-3xl border-2 border-slate-200 space-y-4">
+              <h3 className="text-base font-black text-slate-900 flex items-center justify-between border-b border-slate-200 pb-3 m-0">
                 <span>Resumen de Liquidación Puesto en Bucaramanga</span>
-                <span className="text-xs px-2 py-0.5 rounded bg-blue-500/10 text-blue-300 font-mono">
+                <span className="text-xs px-2.5 py-1 rounded-lg bg-indigo-100 text-indigo-800 font-bold font-mono">
                   {liquidacion.totalCrates} canastillas
                 </span>
               </h3>
 
               <div className="space-y-3 text-sm">
-                <div className="flex justify-between text-slate-300">
-                  <span>Kilos Netos de Pescado:</span>
-                  <span className="font-bold font-mono">{liquidacion.totalNetWeightKg.toLocaleString()} kg</span>
+                <div className="flex justify-between text-slate-700">
+                  <span className="font-semibold">Kilos Netos de Pescado:</span>
+                  <span className="font-black font-mono text-slate-900">{liquidacion.totalNetWeightKg.toLocaleString()} kg</span>
                 </div>
 
-                <div className="flex justify-between text-slate-300">
-                  <span>Costo Compra en Origen:</span>
-                  <span className="font-bold font-mono">${liquidacion.totalPurchaseCost.toLocaleString()} COP</span>
+                <div className="flex justify-between text-slate-700">
+                  <span className="font-semibold">Costo Compra en Origen:</span>
+                  <span className="font-black font-mono text-slate-900">${liquidacion.totalPurchaseCost.toLocaleString()} COP</span>
                 </div>
 
-                <div className="flex justify-between text-amber-400">
+                <div className="flex justify-between text-amber-800 font-bold">
                   <span>+ Flete de Transporte Furgón:</span>
-                  <span className="font-bold font-mono">+ ${liquidacion.totalFreightCost.toLocaleString()} COP</span>
+                  <span className="font-mono">+ ${liquidacion.totalFreightCost.toLocaleString()} COP</span>
                 </div>
 
-                <div className="flex justify-between text-blue-300 font-semibold pt-1 border-t border-slate-800/80">
+                <div className="flex justify-between text-indigo-700 font-bold pt-1 border-t border-slate-200">
                   <span>Flete Prorrateado por Kilo:</span>
                   <span className="font-mono">${liquidacion.proratedFreightPerKg.toLocaleString()} COP / kg</span>
                 </div>
 
-                <div className="flex justify-between text-white font-bold pt-2 border-t border-slate-800">
+                <div className="flex justify-between text-slate-900 font-black pt-2 border-t border-slate-200 text-base">
                   <span>Costo Real Total (Landed Cost):</span>
-                  <span className="font-mono text-cyan-400">${liquidacion.landedCostTotal.toLocaleString()} COP</span>
+                  <span className="font-mono text-indigo-700">${liquidacion.landedCostTotal.toLocaleString()} COP</span>
                 </div>
 
-                <div className="flex justify-between text-rose-400 font-semibold">
+                <div className="flex justify-between text-rose-700 font-bold">
                   <span>- Anticipo Consignado Previo:</span>
                   <span className="font-mono">- ${liquidacion.advancePaymentDeducted.toLocaleString()} COP</span>
                 </div>
               </div>
 
               {/* Saldo Final Gigante */}
-              <div className="p-4 bg-emerald-950/30 border border-emerald-500/30 rounded-xl text-center space-y-1 mt-4">
-                <span className="text-xs font-bold text-emerald-300 tracking-wider uppercase">
+              <div className="p-5 bg-emerald-50 border-2 border-emerald-300 rounded-2xl text-center space-y-1 mt-4">
+                <span className="text-xs font-black text-emerald-800 tracking-wider uppercase block">
                   Saldo Neto a Pagar al Proveedor:
                 </span>
-                <div className="text-4xl font-black text-emerald-400 font-mono">
+                <div className="text-4xl font-black text-emerald-700 font-mono">
                   ${liquidacion.balanceToPaySupplier.toLocaleString()}{' '}
-                  <span className="text-lg text-emerald-300 font-sans">COP</span>
+                  <span className="text-lg text-emerald-800 font-sans">COP</span>
                 </div>
-                <span className="text-xs text-slate-400">
+                <span className="text-xs font-bold text-slate-500 block">
                   {paymentStatus === 'CREDITO' ? 'Se registrará en Cuentas por Pagar' : 'Se liquidará contra Caja/Banco'}
                 </span>
               </div>
 
               <button
                 type="button"
+                data-testid="btn-finalizar-recepcion"
                 onClick={handleFinalizarRecepcion}
                 disabled={isSaving}
-                className="min-h-[56px] w-full bg-emerald-600 hover:bg-emerald-500 active:scale-95 disabled:opacity-50 text-white font-black rounded-xl text-lg flex items-center justify-center gap-3 shadow-xl shadow-emerald-600/25 transition mt-4"
+                className="min-h-[56px] h-14 w-full bg-emerald-600 hover:bg-emerald-700 active:scale-95 disabled:opacity-50 text-white font-black rounded-2xl text-lg flex items-center justify-center gap-3 shadow-lg shadow-emerald-600/20 transition mt-4 cursor-pointer"
               >
                 <CheckCircle className="w-6 h-6" />
                 <span>{isSaving ? 'Guardando Lotes en Cava...' : '✓ Guardar en el Frío y Finalizar'}</span>
@@ -1142,8 +1161,9 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
           {/* Navegación hacia atrás */}
           <div className="pt-2">
             <button
+              type="button"
               onClick={() => setCurrentStep(2)}
-              className="min-h-[48px] px-6 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-sm transition flex items-center gap-2"
+              className="min-h-[48px] h-12 px-6 bg-white hover:bg-slate-100 text-slate-700 border-2 border-slate-200 font-bold rounded-xl text-sm transition flex items-center gap-2 cursor-pointer shadow-sm"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Volver a la Báscula</span>

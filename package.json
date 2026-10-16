@@ -20,6 +20,10 @@
     "session:pull": "git pull origin main && node scripts/lifecycle/post-pull.cjs",
     "session:push": "node scripts/lifecycle/pre-push.cjs && git push origin main",
     "audit:architecture": "node scripts/architecture/audit-solid-boundaries.cjs",
+    "audit:diagrams": "node scripts/architecture/audit-diagrams-compliance.cjs",
+    "scaffold:diagrams": "node scripts/architecture/audit-diagrams-compliance.cjs --scaffold",
+    "verify:env": "node scripts/lifecycle/verify-env-connections.cjs",
+    "verify:env:strict": "node scripts/lifecycle/verify-env-connections.cjs --strict",
     "prepare": "husky"
   },
   "dependencies": {

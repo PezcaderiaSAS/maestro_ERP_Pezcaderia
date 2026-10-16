@@ -10,6 +10,7 @@ import {
   QrCode,
   CheckCircle,
   Coins,
+  Zap,
 } from 'lucide-react';
 import { NumericFormat } from 'react-number-format';
 import { Button } from '../../../components/ui/Button';
@@ -116,12 +117,24 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
           '6': 'CREDITO',
         };
         if (map[e.key]) setMetodoPago(map[e.key]);
+      } else if (e.key === 'F8') {
+        e.preventDefault();
+        handleCobroEfectivoExactoDirecto();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [totalFinal, efectivoRecibido, isTurnoAbierto, isDisabled, isModoMixto, pagosMixtos, metodoPago]);
+
+  const handleCobroEfectivoExactoDirecto = () => {
+    if (!isTurnoAbierto) {
+      if (onAbrirTurnoRequest) onAbrirTurnoRequest();
+      return;
+    }
+    if (isDisabled || totalFinal <= 0) return;
+    onPagar([{ metodo: 'EFECTIVO', monto: totalFinal }]);
+  };
 
   const handleCobrarClick = async () => {
     if (!isTurnoAbierto) {
@@ -476,6 +489,26 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
           )}
         </div>
       )}
+
+      {/* Botón de Cobro Fricción Cero en 1 Clic (Regla del Niño de 12 Años: 1-Tap Checkout) */}
+      <button
+        type="button"
+        onClick={handleCobroEfectivoExactoDirecto}
+        disabled={isDisabled || !isTurnoAbierto || totalFinal <= 0}
+        data-testid="btn-efectivo-exacto-directo"
+        className={`w-full min-h-[48px] h-12 px-4 rounded-xl font-black text-sm flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98] cursor-pointer ${
+          !isTurnoAbierto || isDisabled || totalFinal <= 0
+            ? 'bg-slate-200 text-slate-400 border border-slate-300 cursor-not-allowed opacity-60'
+            : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white border border-emerald-500 shadow-emerald-600/20 ring-2 ring-emerald-500/20'
+        }`}
+        title="Cobrar en 1 solo clic con total contado (Atajo: F8)"
+        aria-label={`Cobro directo en un toque por ${totalFinal.toLocaleString('es-CO')} pesos (Atajo F8)`}
+      >
+        <Zap size={18} className={isTurnoAbierto && totalFinal > 0 ? 'text-amber-300 animate-pulse shrink-0' : 'text-slate-400 shrink-0'} />
+        <span>⚡ Cobro Rápido 1-Tap</span>
+        <span className="font-mono text-base font-extrabold ml-1">(${totalFinal.toLocaleString('es-CO')})</span>
+        <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-black/25 rounded text-white font-bold ml-1.5">F8</kbd>
+      </button>
 
       {/* Botones de Acción Táctiles Gigantes (Regla del Niño de 12 Años: Cobrar >= 56px, Borrador >= 48px) */}
       <div className="flex gap-2.5 items-stretch mt-1">
