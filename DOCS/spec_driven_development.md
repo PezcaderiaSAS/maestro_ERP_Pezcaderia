@@ -141,8 +141,24 @@ DOCS/
 
 ---
 
+## Gobernanza Automatizada: RULE-SDD-001
+
+A partir de la versión 1.0.0 de las reglas de gobernanza, el sistema ejecuta de forma obligatoria la regla **`RULE-SDD-001`**:
+- **Archivo de Regla:** [`.antigravity-rules.json`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.antigravity-rules.json)
+- **Disparadores:** Eventos de Git (`post-merge`, `post-checkout`) y disparadores cognitivos (cambio en `package.json`, incertidumbre técnica < 0.95).
+- **Herramientas de Investigación:** Integración de **Brave Search API** (`Brave_Search_MCP_Server_API_KEY`) y Agency Swarm / Gemini 2.5 Flash Lite a Costo $0.
+- **Protocolo de 3 Fases:**
+  1. *Fase 1 (Assessment):* Evaluación de delta de dependencias y confianza.
+  2. *Fase 2 (Research Execution):* Búsqueda en vivo de documentación oficial, guías de migración y CVEs.
+  3. *Fase 3 (Enterprise Guardrails):* Síntesis de 4 guardrails obligatorios (Firmas de API, Seguridad/CVEs, Rendimiento/Memoria, Linter Overrides).
+- **Automatización:** Ejecutado en `.git/hooks/post-merge`, `.husky/post-merge` y en el ciclo post-pull unificado (`scripts/lifecycle/post-pull.cjs`).
+- **Reportes:** Persistidos en `specs/sdd_verification_reports/sdd_verification_latest.md`.
+
+---
+
 ## Regla de Oro
 
 > **La IA implementa. El SPEC decide.**
 >
 > Nunca le pidas a la IA que diseñe la arquitectura de un módulo en una conversación. Eso es trabajo del SPEC. Una vez que el SPEC está aprobado, la IA es extremadamente eficiente ejecutándolo.
+

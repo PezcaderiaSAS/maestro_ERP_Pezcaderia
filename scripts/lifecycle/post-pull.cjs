@@ -27,31 +27,35 @@ function run(cmd, desc, ignoreError = false) {
 }
 
 // 1. Verificación de Variables de Entorno y Conexiones Reales
-console.log('🔍 [1/7] Verificando variables de entorno y conectividad real...');
+console.log('🔍 [1/8] Verificando variables de entorno y conectividad real...');
 run('node scripts/lifecycle/verify-env-connections.cjs', 'Verificación de Entorno y Conexiones Reales');
 
-// 2. Actualización de Grafo de Conocimiento (Graphify)
-console.log('📊 [2/7] Sincronizando grafo estructural con Graphify...');
+// 2. Investigación de Dependencias y Gobernanza SDD (Swarm / Brave Search)
+console.log('🛡️ [2/8] Validando dependencias y documentación oficial (RULE-SDD-001)...');
+run('python scripts/investigar_entorno.py --rules .antigravity-rules.json', 'Agente Investigador SDD', true);
+
+// 3. Actualización de Grafo de Conocimiento (Graphify)
+console.log('📊 [3/8] Sincronizando grafo estructural con Graphify...');
 run('graphify update .', 'Actualización de Graphify', true);
 
-// 3. Verificación de Índice de Símbolos AST (GitNexus)
-console.log('🕸️ [3/7] Verificando índice AST con GitNexus...');
+// 4. Verificación de Índice de Símbolos AST (GitNexus)
+console.log('🕸️ [4/8] Verificando índice AST con GitNexus...');
 run('node .gitnexus/run.cjs status', 'Comprobación de Índice GitNexus', true);
 
-// 4. Verificación de Tipos TypeScript
-console.log('🔷 [4/7] Verificando compilación TypeScript (tsc --noEmit)...');
+// 5. Verificación de Tipos TypeScript
+console.log('🔷 [5/8] Verificando compilación TypeScript (tsc --noEmit)...');
 run('npx --no-install tsc --noEmit', 'Verificación TypeScript', true);
 
-// 5. Auditoría de Diagramas de Ingeniería Obligatorios (Mermaid.js)
-console.log('📐 [5/7] Verificando 5 Diagramas de Ingeniería Obligatorios (Mermaid.js)...');
+// 6. Auditoría de Diagramas de Ingeniería Obligatorios (Mermaid.js)
+console.log('📐 [6/8] Verificando 5 Diagramas de Ingeniería Obligatorios (Mermaid.js)...');
 run('node scripts/architecture/audit-diagrams-compliance.cjs', 'Auditoría de Diagramas Obligatorios', false);
 
-// 6. Auditoría Master Architect (SOLID & Boundaries)
-console.log('🏛️ [6/7] Ejecutando Auditoría Master Architect (SOLID & Boundaries)...');
+// 7. Auditoría Master Architect (SOLID & Boundaries)
+console.log('🏛️ [7/8] Ejecutando Auditoría Master Architect (SOLID & Boundaries)...');
 run('node scripts/architecture/audit-solid-boundaries.cjs', 'Auditoría Master Architect', true);
 
-// 7. Verificación de Servidor Vite (Puerto 3000)
-console.log('🌐 [7/7] Comprobando disponibilidad del servidor en http://localhost:3000/...');
+// 8. Verificación de Servidor Vite (Puerto 3000)
+console.log('🌐 [8/8] Comprobando disponibilidad del servidor en http://localhost:3000/...');
 const req = http.get('http://localhost:3000/', (res) => {
   console.log(`✅ Servidor Vite activo y respondiendo (HTTP ${res.statusCode}).`);
   console.log('\n🎉 [LIFECYCLE] Entorno 100% sincronizado y listo para trabajar.\n');

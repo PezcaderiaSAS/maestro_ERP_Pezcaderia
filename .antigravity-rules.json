@@ -1,0 +1,53 @@
+{
+  "rule_metadata": {
+    "rule_id": "RULE-SDD-001",
+    "rule_name": "Mandatory Official Documentation Research & Enterprise Guardrails",
+    "version": "1.0.0",
+    "enforcement_level": "CRITICAL"
+  },
+  "activation_triggers": {
+    "git_events": [
+      "post-merge",
+      "post-checkout"
+    ],
+    "cognitive_triggers": [
+      "Lack of absolute technical certainty regarding a framework, library, or API signature",
+      "Introduction of new dependencies or semantic versions in package.json/requirements.txt/go.mod",
+      "Implementation of business-critical logic or enterprise security patterns"
+    ]
+  },
+  "agent_protocol": {
+    "phase_1_assessment": {
+      "instruction": "Before writing or modifying any block of code, evaluate your confidence index (0.0 to 1.0) and dependency delta.",
+      "action": "If confidence < 0.95 OR a new dependency/version is detected, halt code generation immediately and transition to Phase 2."
+    },
+    "phase_2_research_execution": {
+      "mandatory_tools": [
+        "parallel-search",
+        "mcp-doc-search",
+        "crawl4ai"
+      ],
+      "execution_steps": [
+        "1. Extract the exact technology name and semantic version from the environment configuration.",
+        "2. Query official documentation repositories using the Parallel Search MCP server to find official migration guides, security advisories, and API references.",
+        "3. Parse raw HTML/Markdown into clean, structured context using crawl4ai or unified-docs-hub.",
+        "4. Strict Constraint: NEVER rely on internal pre-trained knowledge if the framework version is newer than your training cutoff date."
+      ]
+    },
+    "phase_3_enterprise_guardrails": {
+      "output_requirements": {
+        "format": "Markdown / JSON Rule Delta",
+        "required_sections": [
+          "Official API Signature Verification",
+          "Enterprise Security Patterns & Vulnerability Check",
+          "Performance & Memory Allocation Constraints",
+          "Generated Linter/Static Analysis Overrides"
+        ]
+      }
+    }
+  },
+  "error_handling": {
+    "on_tool_failure": "If MCP servers or internet access fail, enter a degraded safe-state. Terminate the execution loop, log a CRITICAL-0403 error, and prompt the human architect for manual offline specifications.",
+    "on_compliance_violation": "Reject any pull request or local commit that generates code without an accompanying verification log from the Research Agent."
+  }
+}

@@ -16,6 +16,11 @@ export interface ClientePOS {
   tipoPrecio: 'POS' | 'RESTAURANTE' | 'MAYORISTA';
   cupoCredito: number;
   activo: boolean;
+  email?: string;
+  telefono?: string;
+  direccion?: string;
+  ciudad?: string;
+  exigeFacturaElectronica?: boolean;
 }
 
 export function usePOSCart(initialCliente: ClientePOS | null = null) {

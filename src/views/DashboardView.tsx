@@ -8,6 +8,7 @@ import { Badge } from '../components/ui/Badge';
 import { useCalendarEvents } from '../services/calendarService';
 import { CalendarGrid } from './dashboard/CalendarGrid';
 import { EventSidePanel } from './dashboard/EventSidePanel';
+import { ExecutiveTrafficLightWidget } from './dashboard/components/ExecutiveTrafficLightWidget';
 import type { CalendarEvent } from '../types/calendar.types';
 
 interface MetricCardProps {
@@ -105,6 +106,9 @@ export default function DashboardView({ ventas = [], parametros: _parametros = {
           Panel de Control y Obligaciones
         </h2>
       </div>
+
+      {/* Semáforo Operativo Ejecutivo (Regla del Niño de 12 Años - TASK-018-11) */}
+      <ExecutiveTrafficLightWidget cajaDisponibleOverride={isolatedCajaFisica > 0 ? isolatedCajaFisica : undefined} />
  
       {/* Grid de Metricas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-5">

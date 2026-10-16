@@ -44,9 +44,14 @@ export function usePOSPrinter() {
     
     // Info Factura
     const fecha = venta.fecha ? new Date(venta.fecha).toLocaleString('es-CO') : new Date().toLocaleString('es-CO');
-    ticket += `Factura: ${venta.id.toUpperCase()}\n`;
-    ticket += `Fecha  : ${fecha}\n`;
-    ticket += `Cajero : ${venta.actor || 'Sistema'}\n`;
+    if (venta.consecutivoFiscal) {
+      ticket += `FACTURA ELEC: ${venta.consecutivoFiscal}\n`;
+      ticket += `TIRILLA CTL : ${venta.consecutivoInterno || venta.id.toUpperCase()}\n`;
+    } else {
+      ticket += `TIRILLA CTL : ${venta.consecutivoInterno || venta.id.toUpperCase()}\n`;
+    }
+    ticket += `Fecha       : ${fecha}\n`;
+    ticket += `Cajero      : ${venta.actor || 'Sistema'}\n`;
     ticket += lineDash() + '\n';
 
     // Info Cliente

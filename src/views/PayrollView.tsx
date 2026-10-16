@@ -1,38 +1,16 @@
-import { useState, useMemo, useEffect } from 'react';
-import { FileText, Calculator, CheckCircle, Shield, Briefcase, ArrowLeft, Sun, XOctagon } from 'lucide-react';
+import React, { useState } from 'react';
+import { FileText, Calculator, CheckCircle, ArrowLeft, Sun, XOctagon, Zap } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { generateId } from '../lib/utils';
 import type { NominaRegistro } from '../store/useEmployeeStore';
 import type { Gasto } from '../store/useExpenseStore';
-import { useEmployeeStore } from '../store/useEmployeeStore.ts';
-import { useExpenseStore } from '../store/useExpenseStore.ts';
-import { useAppStore } from '../store/useAppStore.ts';
+import { useEmployeeStore } from '../store/useEmployeeStore';
+import { useExpenseStore } from '../store/useExpenseStore';
+import { useAppStore } from '../store/useAppStore';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
-
-const calcDiasComerciales = (inicio: string, fin: string) => {
-  if (!inicio || !fin) return 0;
-  const fInicio = new Date(inicio);
-  const fFin = new Date(fin);
-  if (fFin < fInicio) return 0;
-
-  let d1 = fInicio.getUTCDate();
-  const m1 = fInicio.getUTCMonth();
-  const y1 = fInicio.getUTCFullYear();
-
-  let d2 = fFin.getUTCDate();
-  const m2 = fFin.getUTCMonth();
-  const y2 = fFin.getUTCFullYear();
-
-  if (d1 === 31) d1 = 30;
-  if (d2 === 31) d2 = 30;
-  
-  if (m1 === 1 && d1 >= 28) d1 = 30;
-  if (m2 === 1 && d2 >= 28) d2 = 30;
-
-  return (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1) + 1;
-};
+import { PayrollWizard3Steps } from './payroll/components/PayrollWizard3Steps';
 
 export default function PayrollView() {
   const { empleados, nominas, setNominas } = useEmployeeStore();
@@ -41,184 +19,13 @@ export default function PayrollView() {
   const [wizardType, setWizardType] = useState<'REGULAR' | 'VACACIONES' | 'LIQUIDACION_FINAL' | null>(null);
   const [selectedEmpleadoId, setSelectedEmpleadoId] = useState<string>('');
 
-  const [form, setForm] = useState({
-    periodoInicio: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
-    periodoFin: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0],
-    diasTrabajados: 30,
-    cantidadHorasExtrasDiurnas: 0,
-    cantidadHorasExtrasNocturnas: 0,
-    bonificaciones: 0,
-    viaticos: 0,
-    prestamosDeduccion: 0,
-    otrasDeducciones: 0,
-    // Específicos para Liquidación
-    liqDiasCesantias: 0,
-    liqDiasPrima: 0,
-    liqDiasVacaciones: 0
-  });
-
-  const selectedEmpleado = useMemo(() => {
-    return empleados.find(e => e.id === selectedEmpleadoId);
-  }, [empleados, selectedEmpleadoId]);
-
-  useEffect(() => {
-    if (form.periodoInicio && form.periodoFin) {
-      const dias = calcDiasComerciales(form.periodoInicio, form.periodoFin);
-      if (wizardType === 'LIQUIDACION_FINAL') {
-        setForm(f => ({ ...f, diasTrabajados: dias, liqDiasCesantias: dias, liqDiasPrima: dias, liqDiasVacaciones: dias }));
-      } else {
-        setForm(f => ({ ...f, diasTrabajados: Math.min(30, dias) }));
-      }
-    }
-  }, [form.periodoInicio, form.periodoFin, wizardType]);
-
-  const isPrestacion = selectedEmpleado?.tipoContrato === 'PRESTACION_SERVICIOS';
-  const isAprendiz = selectedEmpleado?.tipoContrato === 'APRENDIZAJE';
-
-  // ================= CÁLCULOS NÓMINA REGULAR / VACACIONES =================
-  const calcSalarioProporcional = () => {
-    if (!selectedEmpleado) return 0;
-    return (selectedEmpleado.salarioBase / 30) * form.diasTrabajados;
-  };
-
-  const calcAuxilioTransporte = () => {
-    if (!selectedEmpleado || isPrestacion || isAprendiz || selectedEmpleado.salarioBase > (1300000 * 2)) return 0;
-    if (wizardType === 'VACACIONES') return 0; // No auxilio en vacaciones
-    return (selectedEmpleado.auxilioTransporte / 30) * form.diasTrabajados;
-  };
-
-  const calcHorasExtras = () => {
-    if (!selectedEmpleado) return 0;
-    const valorHoraOrdinaria = selectedEmpleado.salarioBase / 240;
-    const valorHED = valorHoraOrdinaria * 1.25 * form.cantidadHorasExtrasDiurnas;
-    const valorHEN = valorHoraOrdinaria * 1.75 * form.cantidadHorasExtrasNocturnas;
-    return valorHED + valorHEN;
-  };
-
-  const salarioProporcional = calcSalarioProporcional();
-  const auxilioTransporte = calcAuxilioTransporte();
-  const horasExtrasMonetario = wizardType === 'REGULAR' ? calcHorasExtras() : 0;
-  const bonificaciones = wizardType === 'REGULAR' ? form.bonificaciones : 0;
-  const viaticos = wizardType === 'REGULAR' ? form.viaticos : 0;
-  
-  const totalDevengado = salarioProporcional + auxilioTransporte + horasExtrasMonetario + bonificaciones + viaticos;
-  const baseCotizacion = isPrestacion ? 0 : isAprendiz ? 1300000 : (salarioProporcional + horasExtrasMonetario + bonificaciones);
-  
-  const saludDeduccion = isPrestacion || isAprendiz ? 0 : baseCotizacion * 0.04;
-  const pensionDeduccion = isPrestacion || isAprendiz ? 0 : baseCotizacion * 0.04;
-  const totalDeducido = saludDeduccion + pensionDeduccion + form.prestamosDeduccion + form.otrasDeducciones;
-  let netoAPagar = totalDevengado - totalDeducido;
-
-  let aporteSaludEmpresa = 0;
-  let aportePensionEmpresa = 0;
-  let aporteARL = 0;
-  let aporteCCF = 0;
-  let aporteSENAICBF = 0;
-
-  let provisionCesantias = 0;
-  let provisionInteresesCesantias = 0;
-  let provisionPrima = 0;
-  let provisionVacaciones = 0;
-
-  if (selectedEmpleado && wizardType !== 'LIQUIDACION_FINAL') {
-    const riesgosPorcentajes = { 'I': 0.00522, 'II': 0.01044, 'III': 0.02436, 'IV': 0.04350, 'V': 0.06960 };
-    const arlPorcentaje = riesgosPorcentajes[selectedEmpleado.riesgoARL || 'I'];
-
-    if (isAprendiz) {
-      aporteSaludEmpresa = baseCotizacion * 0.125;
-      aporteARL = baseCotizacion * arlPorcentaje;
-    } else if (!isPrestacion) {
-      aporteSaludEmpresa = selectedEmpleado.aplicaExoneracion ? 0 : baseCotizacion * 0.085;
-      aportePensionEmpresa = baseCotizacion * 0.12;
-      aporteARL = wizardType === 'VACACIONES' ? 0 : baseCotizacion * arlPorcentaje;
-      aporteCCF = baseCotizacion * 0.04;
-      aporteSENAICBF = selectedEmpleado.aplicaExoneracion ? 0 : baseCotizacion * 0.05;
-
-      const basePrestaciones = baseCotizacion + auxilioTransporte;
-      provisionCesantias = basePrestaciones * 0.0833;
-      provisionInteresesCesantias = provisionCesantias * 0.12;
-      provisionPrima = basePrestaciones * 0.0833;
-      provisionVacaciones = baseCotizacion * 0.0417;
-    }
-  }
-
-  // ================= CÁLCULOS LIQUIDACIÓN FINAL =================
-  let liqCesantias = 0;
-  let liqIntereses = 0;
-  let liqPrima = 0;
-  let liqVacaciones = 0;
-
-  if (wizardType === 'LIQUIDACION_FINAL' && selectedEmpleado) {
-    const baseLiq = selectedEmpleado.salarioBase + selectedEmpleado.auxilioTransporte;
-    liqCesantias = (baseLiq * form.liqDiasCesantias) / 360;
-    liqIntereses = (liqCesantias * form.liqDiasCesantias * 0.12) / 360;
-    liqPrima = (baseLiq * form.liqDiasPrima) / 360;
-    liqVacaciones = (selectedEmpleado.salarioBase * form.liqDiasVacaciones) / 720;
-    netoAPagar = liqCesantias + liqIntereses + liqPrima + liqVacaciones;
-  }
-
-  const costoTotalEmpresa = wizardType === 'LIQUIDACION_FINAL' 
-    ? netoAPagar 
-    : (totalDevengado + provisionCesantias + provisionInteresesCesantias + provisionPrima + provisionVacaciones + aportePensionEmpresa + aporteSaludEmpresa + aporteARL + aporteCCF + aporteSENAICBF);
-
-  const handleGeneratePayroll = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedEmpleado) {
-      Swal.fire({ icon: 'error', title: 'Error', text: 'Debe seleccionar un empleado.' });
+  const handleOpenWizard = (type: 'REGULAR' | 'VACACIONES' | 'LIQUIDACION_FINAL') => {
+    if (empleados.length === 0) {
+      Swal.fire('Error', 'No hay colaboradores registrados en el sistema.', 'error');
       return;
     }
-
-    let conceptoGasto = `Pago Nómina`;
-    if (wizardType === 'VACACIONES') conceptoGasto = `Disfrute Vacaciones`;
-    if (wizardType === 'LIQUIDACION_FINAL') conceptoGasto = `Liquidación Definitiva de Contrato`;
-
-    const nuevaNomina: NominaRegistro = {
-      id: generateId('nom'),
-      empleadoId: selectedEmpleado.id,
-      empleadoNombre: selectedEmpleado.nombre,
-      fechaEmision: new Date().toISOString(),
-      periodoInicio: form.periodoInicio,
-      periodoFin: form.periodoFin,
-      diasTrabajados: wizardType === 'LIQUIDACION_FINAL' ? form.liqDiasCesantias : form.diasTrabajados,
-      tipoLiquidacion: wizardType || 'REGULAR',
-      
-      salarioBaseProporcional: wizardType === 'LIQUIDACION_FINAL' ? liqCesantias + liqPrima + liqVacaciones : salarioProporcional,
-      auxilioTransporte: wizardType === 'LIQUIDACION_FINAL' ? liqIntereses : auxilioTransporte, // Hack para guardar el valor
-      horasExtrasDevengado: horasExtrasMonetario,
-      bonificaciones,
-      viaticos,
-      totalDevengado: wizardType === 'LIQUIDACION_FINAL' ? netoAPagar : totalDevengado,
-      
-      saludDeduccion,
-      pensionDeduccion,
-      prestamosDeduccion: form.prestamosDeduccion,
-      otrasDeducciones: form.otrasDeducciones,
-      totalDeducido: wizardType === 'LIQUIDACION_FINAL' ? 0 : totalDeducido,
-      
-      netoAPagar,
-      estadoPago: 'PENDIENTE',
-
-      baseCotizacionIBC: baseCotizacion,
-      provisionCesantias,
-      provisionInteresesCesantias,
-      provisionPrima,
-      provisionVacaciones,
-      aportePensionEmpresa,
-      aporteSaludEmpresa,
-      aporteARL,
-      aporteCCF,
-      aporteSENAICBF,
-      costoTotalEmpresa
-    };
-
-    setNominas([nuevaNomina, ...nominas]);
-    setWizardType(null);
-    Swal.fire({
-      icon: 'success',
-      title: `${conceptoGasto} Generada`,
-      text: 'La liquidación ha sido calculada con éxito.',
-      confirmButtonColor: '#00B171'
-    });
+    setSelectedEmpleadoId(empleados[0].id);
+    setWizardType(type);
   };
 
   const handlePagar = (id: string) => {
@@ -226,8 +33,8 @@ export default function PayrollView() {
     if (!nom) return;
 
     Swal.fire({
-      title: 'Confirmar Pago',
-      html: `¿Registrar salida de <b>$${Math.round(nom.netoAPagar).toLocaleString('es-CO')}</b> a ${nom.empleadoNombre}?`,
+      title: 'Confirmar Desembolso',
+      html: `¿Registrar salida de <b>$${Math.round(nom.netoAPagar).toLocaleString('es-CO')}</b> para <b>${nom.empleadoNombre}</b>?`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Sí, Pagar y Contabilizar',
@@ -261,355 +68,173 @@ export default function PayrollView() {
           }
           return n;
         }));
-        Swal.fire('Pago Contabilizado', `Gasto registrado en Flujo de Caja.`, 'success');
+        Swal.fire('Pago Contabilizado', 'Gasto registrado correctamente en el Flujo de Caja.', 'success');
       }
     });
   };
 
   return (
-    <div className="hr-layout animate-fade-in" style={{ padding: '24px' }}>
-      <div className="hr-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+    <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto animate-fade-in" data-testid="payroll-view-container">
+      {/* Cabecera Ergonómica */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="flex items-center gap-3">
           {setView && (
-            <Button 
-              variant="outline"
+            <button 
+              type="button"
               onClick={() => setView('rrhh')}
-              icon={<ArrowLeft size={20} />}
+              className="p-2.5 min-h-[48px] min-w-[48px] rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 flex items-center justify-center transition-all active:scale-95 touch-manipulation"
               title="Volver a Personal"
-              className="p-2 border-none rounded-full"
+              aria-label="Volver a Personal"
             >
-            </Button>
+              <ArrowLeft size={20} />
+            </button>
           )}
           <div>
-            <span style={{ fontSize: '14px', color: 'var(--text-secondary, #64748B)', fontWeight: 500 }}>Motor Contable</span>
-            <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px', letterSpacing: '-0.5px', color: 'var(--primary-color)' }}>Liquidación de Nómina & Prestaciones</h2>
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Motor Contable & Laboral</span>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              Liquidación de Nómina & Prestaciones
+            </h2>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <Button 
-            variant="primary"
-            onClick={() => {
-              if (empleados.length === 0) {
-                Swal.fire('Error', 'No hay empleados', 'error');
-                return;
-              }
-              setSelectedEmpleadoId(empleados[0].id);
-              setWizardType('REGULAR');
-            }}
-            icon={<Calculator size={16} />}
+
+        {/* Acciones de 1-Toque */}
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <button 
+            type="button"
+            onClick={() => handleOpenWizard('REGULAR')}
+            className="px-4 py-3 min-h-[48px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-sm flex items-center gap-2 shadow-sm transition-all active:scale-95 touch-manipulation"
+            data-testid="btn-open-payroll-wizard"
           >
-            Nómina Regular
-          </Button>
-          <Button 
-            variant="outline"
-            onClick={() => {
-              if (empleados.length === 0) {
-                Swal.fire('Error', 'No hay empleados', 'error');
-                return;
-              }
-              setSelectedEmpleadoId(empleados[0].id);
-              setWizardType('VACACIONES');
-            }}
-            icon={<Sun size={16} />}
+            <Zap size={18} />
+            <span>Nómina Rápida (3 Pasos)</span>
+          </button>
+
+          <button 
+            type="button"
+            onClick={() => handleOpenWizard('VACACIONES')}
+            className="px-3.5 py-3 min-h-[48px] rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all active:scale-95 touch-manipulation"
           >
-            Vacaciones
-          </Button>
-          <Button 
-            variant="danger"
-            onClick={() => {
-              if (empleados.length === 0) {
-                Swal.fire('Error', 'No hay empleados', 'error');
-                return;
-              }
-              setSelectedEmpleadoId(empleados[0].id);
-              setWizardType('LIQUIDACION_FINAL');
-            }}
-            icon={<XOctagon size={16} />}
+            <Sun size={16} className="text-amber-600" />
+            <span>Vacaciones</span>
+          </button>
+
+          <button 
+            type="button"
+            onClick={() => handleOpenWizard('LIQUIDACION_FINAL')}
+            className="px-3.5 py-3 min-h-[48px] rounded-xl border border-rose-300 bg-rose-50 hover:bg-rose-100 text-rose-900 font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all active:scale-95 touch-manipulation"
           >
-            Liq. Definitiva
-          </Button>
+            <XOctagon size={16} className="text-rose-600" />
+            <span>Liq. Definitiva</span>
+          </button>
         </div>
       </div>
 
-      <Card glass style={{ overflow: 'hidden', padding: 0 }}>
-        <table className="hr-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '2px solid #E2E8F0' }}>
-              <th style={{ padding: '16px', fontWeight: 600, color: '#475569', fontSize: '14px' }}>Tipo / Empleado</th>
-              <th style={{ padding: '16px', fontWeight: 600, color: '#475569', fontSize: '14px' }}>Período / Base</th>
-              <th style={{ padding: '16px', fontWeight: 600, color: '#475569', fontSize: '14px' }}>Costo Empresa</th>
-              <th style={{ padding: '16px', fontWeight: 600, color: '#475569', fontSize: '14px' }}>Neto a Pagar</th>
-              <th style={{ padding: '16px', fontWeight: 600, color: '#475569', fontSize: '14px' }}>Estado</th>
-              <th style={{ padding: '16px', fontWeight: 600, color: '#475569', fontSize: '14px' }}>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {nominas.map(nom => (
-              <tr key={nom.id} style={{ borderBottom: '1px solid #E2E8F0' }}>
-                <td style={{ padding: '16px' }}>
-                  <span style={{ fontSize: '10px', fontWeight: 800, backgroundColor: nom.tipoLiquidacion === 'LIQUIDACION_FINAL' ? '#FEE2E2' : nom.tipoLiquidacion === 'VACACIONES' ? '#FEF3C7' : '#F1F5F9', color: nom.tipoLiquidacion === 'LIQUIDACION_FINAL' ? '#991B1B' : nom.tipoLiquidacion === 'VACACIONES' ? '#92400E' : '#475569', padding: '2px 6px', borderRadius: '4px', marginBottom: '4px', display: 'inline-block' }}>
-                    {nom.tipoLiquidacion || 'REGULAR'}
-                  </span>
-                  <div style={{ fontWeight: 700, color: '#0F172A' }}>{nom.empleadoNombre}</div>
-                  <div style={{ fontSize: '12px', color: '#64748B', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
-                    <FileText size={12} /> Ref: {nom.id.split('-')[1].toUpperCase()}
-                  </div>
-                </td>
-                <td style={{ padding: '16px' }}>
-                  <div style={{ fontSize: '13px', color: '#334155', fontWeight: 500 }}>
-                    {nom.periodoInicio} al {nom.periodoFin}
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#64748B', marginTop: '2px' }}>{nom.diasTrabajados} Días base</div>
-                </td>
-                <td style={{ padding: '16px' }}>
-                  <div style={{ color: '#0F172A', fontWeight: 700 }}>
-                    ${Math.round(nom.costoTotalEmpresa).toLocaleString('es-CO')}
-                  </div>
-                </td>
-                <td style={{ padding: '16px' }}>
-                  <div style={{ fontSize: '15px', fontWeight: 800, color: '#00B171' }}>
-                    ${Math.round(nom.netoAPagar).toLocaleString('es-CO')}
-                  </div>
-                </td>
-                <td style={{ padding: '16px' }}>
-                  <Badge variant={nom.estadoPago === 'PAGADO' ? 'success' : 'warning'}>
-                    {nom.estadoPago}
-                  </Badge>
-                </td>
-                <td style={{ padding: '16px' }}>
-                  {nom.estadoPago === 'PENDIENTE' && (
-                    <Button 
-                      variant="primary" 
-                      onClick={() => handlePagar(nom.id)} 
-                      icon={<CheckCircle size={14} />}
-                    >
-                      Pagar Gasto
-                    </Button>
-                  )}
-                  {nom.estadoPago === 'PAGADO' && (
-                    <div style={{ fontSize: '12px', color: '#64748B' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><CheckCircle size={12} color="#00B171" /> Pago Contabilizado</div>
-                    </div>
-                  )}
-                </td>
+      {/* Tabla Histórica de Liquidaciones */}
+      <Card glass className="overflow-hidden p-0 border border-slate-200 shadow-sm rounded-2xl bg-white">
+        <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+          <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">
+            Histórico de Liquidaciones ({nominas.length})
+          </h3>
+          <span className="text-xs text-slate-500 font-medium">Actualizado en tiempo real</span>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse" data-testid="payroll-history-table">
+            <thead>
+              <tr className="bg-slate-50/80 border-b border-slate-200 text-xs font-bold text-slate-600">
+                <th className="p-4">Tipo / Colaborador</th>
+                <th className="p-4">Período / Días</th>
+                <th className="p-4">Costo Empresa</th>
+                <th className="p-4">Neto a Pagar</th>
+                <th className="p-4">Estado</th>
+                <th className="p-4 text-right">Acciones</th>
               </tr>
-            ))}
-            {nominas.length === 0 && (
-              <tr><td colSpan={6} style={{ padding: '32px', textAlign: 'center', color: '#64748B' }}>No hay registros de nómina liquidados.</td></tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-slate-200 text-sm">
+              {nominas.map(nom => (
+                <tr key={nom.id} className="hover:bg-slate-50/60 transition-colors">
+                  <td className="p-4">
+                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-full inline-block mb-1 ${
+                      nom.tipoLiquidacion === 'LIQUIDACION_FINAL' 
+                        ? 'bg-rose-100 text-rose-800' 
+                        : nom.tipoLiquidacion === 'VACACIONES' 
+                        ? 'bg-amber-100 text-amber-800' 
+                        : 'bg-emerald-100 text-emerald-800'
+                    }`}>
+                      {nom.tipoLiquidacion || 'REGULAR'}
+                    </span>
+                    <div className="font-bold text-slate-900">{nom.empleadoNombre}</div>
+                    <div className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+                      <FileText size={12} /> Ref: {nom.id.slice(-6).toUpperCase()}
+                    </div>
+                  </td>
+
+                  <td className="p-4">
+                    <div className="text-xs font-medium text-slate-700">
+                      {nom.periodoInicio} al {nom.periodoFin}
+                    </div>
+                    <div className="text-xs text-slate-500 mt-0.5">{nom.diasTrabajados} Días liquidados</div>
+                  </td>
+
+                  <td className="p-4">
+                    <div className="font-bold text-slate-900">
+                      ${Math.round(nom.costoTotalEmpresa).toLocaleString('es-CO')}
+                    </div>
+                  </td>
+
+                  <td className="p-4">
+                    <div className="text-base font-black text-emerald-700">
+                      ${Math.round(nom.netoAPagar).toLocaleString('es-CO')}
+                    </div>
+                  </td>
+
+                  <td className="p-4">
+                    <Badge variant={nom.estadoPago === 'PAGADO' ? 'success' : 'warning'}>
+                      {nom.estadoPago}
+                    </Badge>
+                  </td>
+
+                  <td className="p-4 text-right">
+                    {nom.estadoPago === 'PENDIENTE' ? (
+                      <button 
+                        type="button"
+                        onClick={() => handlePagar(nom.id)} 
+                        className="px-3.5 py-2 min-h-[44px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 ml-auto transition-all active:scale-95 touch-manipulation shadow-sm"
+                        data-testid={`btn-pagar-nomina-${nom.id}`}
+                      >
+                        <CheckCircle size={14} />
+                        <span>Pagar Gasto</span>
+                      </button>
+                    ) : (
+                      <div className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-200">
+                        <CheckCircle size={14} className="text-emerald-600" />
+                        <span>Desembolsado</span>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+
+              {nominas.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="p-8 text-center text-slate-500 text-sm">
+                    No hay liquidaciones registradas en el histórico. Utiliza el botón superior para liquidar la nómina.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </Card>
 
-      {/* WIZARD MODAL */}
-      {wizardType && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.7)', backdropFilter: 'blur(4px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
-        }}>
-          <Card glass className="animate-fade-in" style={{
-            padding: '32px',
-            width: '800px',
-            maxHeight: '90vh', overflowY: 'auto'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
-              <h3 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)' }}>
-                {wizardType === 'REGULAR' && 'Nómina Regular'}
-                {wizardType === 'VACACIONES' && 'Disfrute de Vacaciones'}
-                {wizardType === 'LIQUIDACION_FINAL' && 'Liquidación Definitiva'}
-              </h3>
-              <Button variant="outline" onClick={() => setWizardType(null)} icon={<ArrowLeft size={16} />}>
-                Regresar
-              </Button>
-            </div>
-
-            <form onSubmit={handleGeneratePayroll}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '16px' }}>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label" style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>Seleccionar Empleado *</label>
-                  <select
-                    className="form-control"
-                    style={{ width: '100%', padding: '8px 12px', border: '1px solid #CBD5E1', borderRadius: '6px' }}
-                    value={selectedEmpleadoId}
-                    onChange={e => setSelectedEmpleadoId(e.target.value)}
-                    required
-                  >
-                    {empleados.map(e => <option key={e.id} value={e.id}>{e.nombre} - {e.tipoContrato}</option>)}
-                  </select>
-                </div>
-              </div>
-
-              {/* Selector de Fechas Base */}
-              <div style={{ padding: '12px', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0', marginBottom: '16px' }}>
-                <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                  <div style={{ flex: 1 }}>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#64748B', marginBottom: '4px' }}>Desde</label>
-                    <input type="date" value={form.periodoInicio} onChange={e => setForm({...form, periodoInicio: e.target.value})} style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid #CBD5E1' }} required />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#64748B', marginBottom: '4px' }}>Hasta</label>
-                    <input type="date" value={form.periodoFin} onChange={e => setForm({...form, periodoFin: e.target.value})} style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid #CBD5E1' }} required />
-                  </div>
-                  <div style={{ width: '100px' }}>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#64748B', marginBottom: '4px' }}>Días Calend.</label>
-                    <div style={{ padding: '6px', borderRadius: '4px', border: '1px solid #E2E8F0', backgroundColor: '#E2E8F0', color: '#475569', fontWeight: 600, textAlign: 'center' }}>
-                      {calcDiasComerciales(form.periodoInicio, form.periodoFin)}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: wizardType === 'LIQUIDACION_FINAL' ? '1fr' : '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
-                
-                {/* WIZARD: NÓMINA REGULAR & VACACIONES */}
-                {(wizardType === 'REGULAR' || wizardType === 'VACACIONES') && (
-                  <>
-                    <div>
-                      <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', borderBottom: '1px solid #E2E8F0', paddingBottom: '8px', marginBottom: '12px' }}>Detalle de Pagos al Empleado</h4>
-                      
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '8px' }}>
-                        <span style={{ color: '#64748B' }}>{wizardType === 'VACACIONES' ? 'Sueldo Vacaciones (+):' : 'Salario Proporcional (+):'}</span>
-                        <span style={{ fontWeight: 600, color: '#0F172A' }}>${Math.round(salarioProporcional).toLocaleString('es-CO')}</span>
-                      </div>
-                      
-                      {wizardType === 'REGULAR' && (
-                        <>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '12px' }}>
-                            <span style={{ color: '#64748B' }}>Auxilio Transporte (+):</span>
-                            <span style={{ fontWeight: 600, color: '#0F172A' }}>${Math.round(auxilioTransporte).toLocaleString('es-CO')}</span>
-                          </div>
-
-                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
-                            <div>
-                              <label style={{ fontSize: '11px', fontWeight: 600, color: '#334155' }}>Cant. Extras Diurnas</label>
-                              <input type="number" value={form.cantidadHorasExtrasDiurnas} onChange={e => setForm({...form, cantidadHorasExtrasDiurnas: parseInt(e.target.value)||0})} style={{ width: '100%', padding: '4px 6px', borderRadius: '4px', border: '1px solid #CBD5E1', fontSize: '12px' }} />
-                            </div>
-                            <div>
-                              <label style={{ fontSize: '11px', fontWeight: 600, color: '#334155' }}>Cant. Extras Nocturnas</label>
-                              <input type="number" value={form.cantidadHorasExtrasNocturnas} onChange={e => setForm({...form, cantidadHorasExtrasNocturnas: parseInt(e.target.value)||0})} style={{ width: '100%', padding: '4px 6px', borderRadius: '4px', border: '1px solid #CBD5E1', fontSize: '12px' }} />
-                            </div>
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '8px' }}>
-                            <span style={{ color: '#64748B' }}>Valor Horas Extras (+):</span>
-                            <span style={{ fontWeight: 600, color: '#0F172A' }}>${Math.round(horasExtrasMonetario).toLocaleString('es-CO')}</span>
-                          </div>
-                        </>
-                      )}
-
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '8px', borderTop: '1px dashed #E2E8F0', paddingTop: '8px' }}>
-                        <span style={{ color: '#64748B' }}>Salud EPS (4%) (-):</span>
-                        <span style={{ fontWeight: 600, color: '#EF4444' }}>${Math.round(saludDeduccion).toLocaleString('es-CO')}</span>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '8px' }}>
-                        <span style={{ color: '#64748B' }}>Pensión (4%) (-):</span>
-                        <span style={{ fontWeight: 600, color: '#EF4444' }}>${Math.round(pensionDeduccion).toLocaleString('es-CO')}</span>
-                      </div>
-                    </div>
-
-                    <div style={{ backgroundColor: '#F8FAFC', padding: '16px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
-                      <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', borderBottom: '1px solid #CBD5E1', paddingBottom: '8px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <Briefcase size={16} /> Costos Asumidos Empresa
-                      </h4>
-                      {isPrestacion ? (
-                        <div style={{ fontSize: '12px', color: '#64748B', fontStyle: 'italic' }}>Prestación de Servicios. Sin cargas adicionales.</div>
-                      ) : (
-                        <>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
-                            <span style={{ color: '#64748B' }}>Salud Empresa:</span>
-                            <span style={{ fontWeight: 600 }}>${Math.round(aporteSaludEmpresa).toLocaleString('es-CO')}</span>
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
-                            <span style={{ color: '#64748B' }}>Pensión Empresa:</span>
-                            <span style={{ fontWeight: 600 }}>${Math.round(aportePensionEmpresa).toLocaleString('es-CO')}</span>
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
-                            <span style={{ color: '#64748B' }}>Parafiscales:</span>
-                            <span style={{ fontWeight: 600 }}>${Math.round(aporteCCF + aporteSENAICBF).toLocaleString('es-CO')}</span>
-                          </div>
-                          {wizardType === 'REGULAR' && (
-                            <>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
-                                <span style={{ color: '#64748B' }}>ARL:</span>
-                                <span style={{ fontWeight: 600 }}>${Math.round(aporteARL).toLocaleString('es-CO')}</span>
-                              </div>
-                              <div style={{ borderTop: '1px dashed #CBD5E1', margin: '8px 0' }} />
-                              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
-                                <span style={{ color: '#64748B' }}>Provisión Prestaciones:</span>
-                                <span style={{ fontWeight: 600 }}>${Math.round(provisionCesantias + provisionInteresesCesantias + provisionPrima + provisionVacaciones).toLocaleString('es-CO')}</span>
-                              </div>
-                            </>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  </>
-                )}
-
-                {/* WIZARD: LIQUIDACIÓN FINAL */}
-                {wizardType === 'LIQUIDACION_FINAL' && (
-                  <div style={{ backgroundColor: '#FEF2F2', padding: '24px', borderRadius: '12px', border: '1px solid #FCA5A5' }}>
-                    <h4 style={{ fontSize: '16px', fontWeight: 800, color: '#991B1B', marginBottom: '16px' }}>Base de Liquidación Definitiva</h4>
-                    <p style={{ fontSize: '13px', color: '#7F1D1D', marginBottom: '16px' }}>Revise y ajuste los días pendientes a liquidar por cada concepto. Los días base se calcularon automáticamente según las fechas ingresadas.</p>
-                    
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '16px' }}>
-                      <div style={{ backgroundColor: 'white', padding: '12px', borderRadius: '8px', border: '1px solid #F87171' }}>
-                        <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#991B1B', marginBottom: '4px' }}>Días Cesantías</label>
-                        <input type="number" value={form.liqDiasCesantias} onChange={e => setForm({...form, liqDiasCesantias: parseInt(e.target.value)||0})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #FCA5A5', fontWeight: 700 }} />
-                        <div style={{ fontSize: '16px', fontWeight: 900, color: '#0F172A', marginTop: '8px' }}>${Math.round(liqCesantias).toLocaleString('es-CO')}</div>
-                      </div>
-                      
-                      <div style={{ backgroundColor: 'white', padding: '12px', borderRadius: '8px', border: '1px solid #F87171' }}>
-                        <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#991B1B', marginBottom: '4px' }}>Días Int. Cesant.</label>
-                        <input type="number" disabled value={form.liqDiasCesantias} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #FCA5A5', backgroundColor: '#FEE2E2', fontWeight: 700 }} />
-                        <div style={{ fontSize: '16px', fontWeight: 900, color: '#0F172A', marginTop: '8px' }}>${Math.round(liqIntereses).toLocaleString('es-CO')}</div>
-                      </div>
-
-                      <div style={{ backgroundColor: 'white', padding: '12px', borderRadius: '8px', border: '1px solid #F87171' }}>
-                        <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#991B1B', marginBottom: '4px' }}>Días Prima</label>
-                        <input type="number" value={form.liqDiasPrima} onChange={e => setForm({...form, liqDiasPrima: parseInt(e.target.value)||0})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #FCA5A5', fontWeight: 700 }} />
-                        <div style={{ fontSize: '16px', fontWeight: 900, color: '#0F172A', marginTop: '8px' }}>${Math.round(liqPrima).toLocaleString('es-CO')}</div>
-                      </div>
-
-                      <div style={{ backgroundColor: 'white', padding: '12px', borderRadius: '8px', border: '1px solid #F87171' }}>
-                        <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#991B1B', marginBottom: '4px' }}>Días Vacaciones</label>
-                        <input type="number" value={form.liqDiasVacaciones} onChange={e => setForm({...form, liqDiasVacaciones: parseInt(e.target.value)||0})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #FCA5A5', fontWeight: 700 }} />
-                        <div style={{ fontSize: '16px', fontWeight: 900, color: '#0F172A', marginTop: '8px' }}>${Math.round(liqVacaciones).toLocaleString('es-CO')}</div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
-                <div style={{ backgroundColor: '#DCFCE7', padding: '16px', borderRadius: '8px', border: '1px solid #86EFAC', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <div style={{ fontSize: '12px', color: '#166534', fontWeight: 700, textTransform: 'uppercase' }}>Neto a Pagar Empleado</div>
-                    <div style={{ fontSize: '11px', color: '#166534' }}>A Desembolsar de Caja</div>
-                  </div>
-                  <div style={{ fontSize: '24px', fontWeight: 900, color: '#166534' }}>${Math.round(netoAPagar).toLocaleString('es-CO')}</div>
-                </div>
-                
-                {wizardType !== 'LIQUIDACION_FINAL' && (
-                  <div style={{ backgroundColor: '#F1F5F9', padding: '16px', borderRadius: '8px', border: '1px solid #CBD5E1', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <div style={{ fontSize: '12px', color: '#334155', fontWeight: 700, textTransform: 'uppercase' }}>Costo Real Empresa</div>
-                      <div style={{ fontSize: '11px', color: '#64748B' }}>Pago + Seguridad + Provisiones</div>
-                    </div>
-                    <div style={{ fontSize: '24px', fontWeight: 900, color: '#0F172A' }}>${Math.round(costoTotalEmpresa).toLocaleString('es-CO')}</div>
-                  </div>
-                )}
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid #E2E8F0', paddingTop: '16px' }}>
-                <button type="submit" style={{ padding: '12px 24px', border: 'none', borderRadius: '8px', backgroundColor: wizardType === 'LIQUIDACION_FINAL' ? '#EF4444' : '#0F172A', color: 'white', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '15px' }}>
-                  <Shield size={18} /> Aprobar {wizardType === 'LIQUIDACION_FINAL' ? 'Liquidación' : 'Pago'}
-                </button>
-              </div>
-            </form>
-          </Card>
-        </div>
-      )}
+      {/* Modal Wizard de Nómina en 3 Pasos */}
+      <PayrollWizard3Steps
+        isOpen={!!wizardType}
+        onClose={() => setWizardType(null)}
+        initialType={wizardType || 'REGULAR'}
+        preselectedEmpleadoId={selectedEmpleadoId}
+        onSuccess={() => setWizardType(null)}
+      />
     </div>
   );
 }

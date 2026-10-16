@@ -45,7 +45,7 @@ interface CartPanelProps {
   onSelectCliente: () => void;
   onClearCliente: () => void;
   onDescuentoClick: () => void;
-  onPagar: (pagos: { metodo: MetodoCobroPos; monto: number }[]) => Promise<any> | void;
+  onPagar: (pagos: { metodo: MetodoCobroPos; monto: number }[], options?: { requiereFacturaElectronica?: boolean }) => Promise<any> | void;
   onGuardarBorrador: () => void;
   onSetActiveDraftId: (id: string | null) => void;
   onSetDrafts: (fn: (prev: any[]) => any[]) => void;

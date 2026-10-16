@@ -12,6 +12,7 @@ import { cashService } from '../services/cashService.ts';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
+import { QuickAbonoModal } from './ar/components/QuickAbonoModal';
 
 export interface PaymentAR {
   id: string;
@@ -45,6 +46,8 @@ export default function ARView() {
   const [statusFilter, setStatusFilter] = useState<'TODAS' | 'PENDIENTES' | 'CANCELADAS'>('PENDIENTES');
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceAR | null>(null);
   const [selectedDev, setSelectedDev] = useState<DevolucionPedido | null>(null);
+  const [isAbonoModalOpen, setIsAbonoModalOpen] = useState(false);
+  const [invoiceParaAbono, setInvoiceParaAbono] = useState<InvoiceAR | null>(null);
 
 
   /**
@@ -130,294 +133,9 @@ export default function ARView() {
   });
 
 
-  const handleRegistrarAbono = async (invoice: InvoiceAR) => {
-    const { value: formValues } = await Swal.fire({
-      title: `Registrar Abono a ${invoice.id}`,
-      html: `
-        <div style="text-align: left; font-size: 14px; color: var(--text-primary);">
-          <div style="margin-bottom: 12px; display: flex; justify-content: space-between;">
-            <strong>Cliente:</strong> <span>${invoice.clienteNombre}</span>
-          </div>
-          <div style="margin-bottom: 12px; display: flex; justify-content: space-between;">
-            <strong>Total Factura:</strong> <span>$${invoice.total.toLocaleString('es-CO')}</span>
-          </div>
-          <div style="margin-bottom: 12px; display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px dashed #CBD5E1;">
-            <strong>Saldo Pendiente:</strong> <span style="color: #EF4444; font-weight: bold;">$${invoice.saldo.toLocaleString('es-CO')}</span>
-          </div>
-          
-          <div style="margin-bottom: 12px;">
-            <label style="display: block; font-weight: bold; margin-bottom: 6px;">Tipo de Abono:</label>
-            <div style="display: flex; gap: 10px;">
-              <label style="flex: 1; border: 1px solid #E2E8F0; padding: 8px; border-radius: 6px; cursor: pointer; text-align: center;" id="label-tipo-total">
-                <input type="radio" name="tipoAbono" id="tipo-total" value="TOTAL" checked style="margin-right: 4px;" />
-                Abono Total
-              </label>
-              <label style="flex: 1; border: 1px solid #E2E8F0; padding: 8px; border-radius: 6px; cursor: pointer; text-align: center;" id="label-tipo-parcial">
-                <input type="radio" name="tipoAbono" id="tipo-parcial" value="PARCIAL" style="margin-right: 4px;" />
-                Abono Parcial
-              </label>
-            </div>
-          </div>
-
-          <div style="margin-bottom: 10px;">
-            <label style="display: block; font-weight: 600; margin-bottom: 4px;">Abonar con Transferencia ($):</label>
-            <input id="abono-transfer" type="number" class="swal2-input" style="margin: 0; width: 100%; box-sizing: border-box;" value="0" />
-          </div>
-
-          <div style="margin-bottom: 10px;">
-            <label style="display: block; font-weight: 600; margin-bottom: 4px;">Abonar con Datáfono ($):</label>
-            <input id="abono-card" type="number" class="swal2-input" style="margin: 0; width: 100%; box-sizing: border-box;" value="0" />
-          </div>
-
-          <div style="margin-bottom: 10px;">
-            <label style="display: block; font-weight: 600; margin-bottom: 4px;">Abonar con Efectivo ($):</label>
-            <input id="abono-cash" type="number" class="swal2-input" style="margin: 0; width: 100%; box-sizing: border-box;" value="${invoice.saldo}" />
-          </div>
-
-          <div style="margin-top: 16px; padding: 12px; background-color: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-              <span>Total a Abonar:</span>
-              <strong id="abono-total-amount" style="color: var(--primary-color); font-size: 16px;">$0</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between;">
-              <span id="abono-validation-label">Estado de Validación:</span>
-              <strong id="abono-validation-status" style="color: #10B981;">Válido</strong>
-            </div>
-          </div>
-        </div>
-      `,
-      focusConfirm: false,
-      showCancelButton: true,
-      confirmButtonText: 'Procesar Abono',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: 'var(--primary-color)',
-      didOpen: () => {
-        const radioTotal = document.getElementById('tipo-total') as HTMLInputElement;
-        const radioParcial = document.getElementById('tipo-parcial') as HTMLInputElement;
-        const inputTransfer = document.getElementById('abono-transfer') as HTMLInputElement;
-        const inputCard = document.getElementById('abono-card') as HTMLInputElement;
-        const inputCash = document.getElementById('abono-cash') as HTMLInputElement;
-        const labelTotal = document.getElementById('label-tipo-total');
-        const labelParcial = document.getElementById('label-tipo-parcial');
-        const totalAmountEl = document.getElementById('abono-total-amount');
-        const validationStatusEl = document.getElementById('abono-validation-status');
-
-        if (labelTotal && labelParcial) {
-          labelTotal.style.borderColor = 'var(--primary-color)';
-          labelTotal.style.backgroundColor = '#ECFDF5';
-        }
-
-        const updateCalculations = () => {
-          const transfer = parseFloat(inputTransfer.value) || 0;
-          const card = parseFloat(inputCard.value) || 0;
-          const cash = parseFloat(inputCash.value) || 0;
-          const totalPaid = transfer + card + cash;
-
-          if (totalAmountEl) {
-            totalAmountEl.innerText = '$' + totalPaid.toLocaleString('es-CO');
-          }
-
-          const isTotal = radioTotal.checked;
-          if (validationStatusEl) {
-            if (isTotal) {
-              if (totalPaid === invoice.saldo) {
-                validationStatusEl.innerText = 'Válido (Abono Total)';
-                validationStatusEl.style.color = '#10B981';
-              } else {
-                validationStatusEl.innerText = `Incorrecto (Debe sumar $${invoice.saldo.toLocaleString('es-CO')})`;
-                validationStatusEl.style.color = '#EF4444';
-              }
-            } else {
-              if (totalPaid <= 0) {
-                validationStatusEl.innerText = 'Ingrese un monto mayor a $0';
-                validationStatusEl.style.color = '#EF4444';
-              } else if (totalPaid > invoice.saldo) {
-                validationStatusEl.innerText = `Excede el saldo ($${invoice.saldo.toLocaleString('es-CO')})`;
-                validationStatusEl.style.color = '#EF4444';
-              } else {
-                validationStatusEl.innerText = 'Monto Parcial Válido';
-                validationStatusEl.style.color = '#10B981';
-              }
-            }
-          }
-        };
-
-        radioTotal.addEventListener('change', () => {
-          if (radioTotal.checked) {
-            inputCash.value = invoice.saldo.toString();
-            inputTransfer.value = '0';
-            inputCard.value = '0';
-            if (labelTotal && labelParcial) {
-              labelTotal.style.borderColor = 'var(--primary-color)';
-              labelTotal.style.backgroundColor = '#ECFDF5';
-              labelParcial.style.borderColor = '#E2E8F0';
-              labelParcial.style.backgroundColor = 'transparent';
-            }
-            updateCalculations();
-          }
-        });
-
-        radioParcial.addEventListener('change', () => {
-          if (radioParcial.checked) {
-            inputCash.value = '0';
-            inputTransfer.value = '0';
-            inputCard.value = '0';
-            if (labelTotal && labelParcial) {
-              labelParcial.style.borderColor = 'var(--primary-color)';
-              labelParcial.style.backgroundColor = '#ECFDF5';
-              labelTotal.style.borderColor = '#E2E8F0';
-              labelTotal.style.backgroundColor = 'transparent';
-            }
-            updateCalculations();
-          }
-        });
-
-        [inputTransfer, inputCard, inputCash].forEach(input => {
-          input.addEventListener('input', updateCalculations);
-          input.addEventListener('focus', () => {
-            if (input.value === '0') input.value = '';
-          });
-          input.addEventListener('blur', () => {
-            if (input.value === '') input.value = '0';
-          });
-        });
-
-        updateCalculations();
-      },
-      preConfirm: () => {
-        const radioTotal = (document.getElementById('tipo-total') as HTMLInputElement).checked;
-        const transfer = parseFloat((document.getElementById('abono-transfer') as HTMLInputElement).value) || 0;
-        const card = parseFloat((document.getElementById('abono-card') as HTMLInputElement).value) || 0;
-        const cash = parseFloat((document.getElementById('abono-cash') as HTMLInputElement).value) || 0;
-        const totalAbonado = transfer + card + cash;
-
-        if (totalAbonado <= 0) {
-          Swal.showValidationMessage('El monto total del abono debe ser mayor a $0.');
-          return false;
-        }
-
-        if (radioTotal && totalAbonado !== invoice.saldo) {
-          Swal.showValidationMessage(`Para un Abono Total, la suma debe ser exactamente igual al saldo pendiente ($${invoice.saldo.toLocaleString('es-CO')}).`);
-          return false;
-        }
-
-        if (!radioTotal && totalAbonado > invoice.saldo) {
-          Swal.showValidationMessage(`El abono total ($${totalAbonado.toLocaleString('es-CO')}) no puede ser superior al saldo pendiente ($${invoice.saldo.toLocaleString('es-CO')}).`);
-          return false;
-        }
-
-        return { transfer, card, cash, totalAbonado };
-      }
-    });
-
-    if (formValues) {
-      const { transfer, card, cash, totalAbonado } = formValues;
-
-      setCartera((prev: InvoiceAR[]) => prev.map((inv: InvoiceAR) => {
-        if (inv.id === invoice.id) {
-          const nuevosPagos: PaymentAR[] = [];
-          if (transfer > 0) {
-            nuevosPagos.push({
-              id: 'pgo-t-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
-              fecha: new Date().toISOString(),
-              monto: transfer,
-              metodo: 'Transferencia'
-            });
-          }
-          if (card > 0) {
-            nuevosPagos.push({
-              id: 'pgo-c-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
-              fecha: new Date().toISOString(),
-              monto: card,
-              metodo: 'Datáfono'
-            });
-          }
-          if (cash > 0) {
-            nuevosPagos.push({
-              id: 'pgo-cs-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
-              fecha: new Date().toISOString(),
-              monto: cash,
-              metodo: 'Efectivo'
-            });
-          }
-
-          const nuevoSaldo = Math.max(0, inv.saldo - totalAbonado);
-          const nuevoPagado = inv.pagado + totalAbonado;
-          const detallesPago = nuevosPagos.map(p => `$${p.monto.toLocaleString('es-CO')} (${p.metodo})`).join(', ');
-
-          publishEvent(
-            'SALE_COMPLETED',
-            userRole,
-            `Abono de $${totalAbonado.toLocaleString('es-CO')} registrado a la factura ${invoice.id} [${detallesPago}] para el cliente ${invoice.clienteNombre}`,
-            { invoiceId: invoice.id, totalAbonado, nuevosPagos, saldoRestante: nuevoSaldo }
-          );
-
-          return {
-            ...inv,
-            saldo: nuevoSaldo,
-            pagado: nuevoPagado,
-            pagos: [...inv.pagos, ...nuevosPagos]
-          };
-        }
-        return inv;
-      }));
-
-      // Registrar sincronización con Flujo de Caja (cashService)
-      try {
-        cashService.seedCajasParaBodegas();
-        const todosTurnos = cashService.getTurnos();
-        const turnoActivo = todosTurnos.find(t => t.estado === 'ABIERTO');
-
-        if (turnoActivo) {
-          const clientName = resolveClienteName(invoice);
-          if (cash > 0) {
-            cashService.registrarMovimiento(
-              turnoActivo.id,
-              turnoActivo.cajaId,
-              'INGRESO_ABONO',
-              'EFECTIVO',
-              cash,
-              `Abono Cartera Factura ${invoice.id} (${clientName})`,
-              invoice.id,
-              userRole
-            );
-          }
-          if (card > 0) {
-            cashService.registrarMovimiento(
-              turnoActivo.id,
-              turnoActivo.cajaId,
-              'INGRESO_ABONO',
-              'DATAFONO',
-              card,
-              `Abono Cartera Factura ${invoice.id} (${clientName})`,
-              invoice.id,
-              userRole
-            );
-          }
-          if (transfer > 0) {
-            cashService.registrarMovimiento(
-              turnoActivo.id,
-              turnoActivo.cajaId,
-              'INGRESO_ABONO',
-              'TRANSFERENCIA',
-              transfer,
-              `Abono Cartera Factura ${invoice.id} (${clientName})`,
-              invoice.id,
-              userRole
-            );
-          }
-        }
-      } catch (cashErr) {
-        console.error('Error al sincronizar abono de cartera con flujo de caja:', cashErr);
-      }
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Abono Registrado',
-        text: `Se aplicó un abono total de $${totalAbonado.toLocaleString('es-CO')} a la factura ${invoice.id}.`,
-        confirmButtonColor: 'var(--primary-color)'
-      });
-    }
+  const handleRegistrarAbono = (invoice: InvoiceAR) => {
+    setInvoiceParaAbono(invoice);
+    setIsAbonoModalOpen(true);
   };
 
   return (
@@ -887,6 +605,31 @@ export default function ARView() {
         </div>
 
       </div>
+
+      {/* Modal Táctil de Abono Rápido a Cartera (Regla del Niño de 12 Años) */}
+      <QuickAbonoModal
+        isOpen={isAbonoModalOpen}
+        onClose={() => {
+          setIsAbonoModalOpen(false);
+          setInvoiceParaAbono(null);
+        }}
+        invoice={invoiceParaAbono}
+        clienteNombre={invoiceParaAbono ? resolveClienteName(invoiceParaAbono) : undefined}
+        clienteIdentificacion={invoiceParaAbono ? resolveClienteIdentificacion(invoiceParaAbono) : undefined}
+        onAbonoSuccess={(invoiceId, monto) => {
+          if (selectedInvoice && selectedInvoice.id === invoiceId) {
+            setSelectedInvoice((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    saldo: Math.max(0, prev.saldo - monto),
+                    pagado: prev.pagado + monto,
+                  }
+                : null
+            );
+          }
+        }}
+      />
 
     </div>
   );

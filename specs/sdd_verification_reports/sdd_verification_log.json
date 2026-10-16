@@ -1,0 +1,23 @@
+{
+  "rule_id": "RULE-SDD-001",
+  "timestamp": "2026-10-16 12:13:42",
+  "enforcement_level": "CRITICAL",
+  "confidence_index": 1.0,
+  "verified_packages": {
+    "react": {
+      "version": "^18.2.0",
+      "sources": [
+        "https://penninetechnolabs.com/blog/react-18-to-19-migration-guide/",
+        "https://react.dev/blog/2022/03/08/react-18-upgrade-guide",
+        "https://react.dev/blog/2024/04/25/react-19-upgrade-guide",
+        "https://www.cve.org/CVERecord/SearchResults?query=react"
+      ],
+      "guardrails": {
+        "api_signature_verification": "React 18 introduced root creation via createRoot instead of ReactDOM.render, and automatic batching for state updates. Migration guides toward React 19 highlight new hooks wrapping actions for pending status and resource hints like preinit and preload.",
+        "security_patterns_vulnerabilities": "No direct critical CVEs reported for react ^18.2.0 in the provided search results. Standard mitigation includes avoiding outdated third-party renderers and maintaining strict dependency updates.",
+        "performance_constraints": "Automatic batching in React 18 reduces unnecessary re-renders. Resource discovery and preloading APIs introduced in newer versions help move hints earlier to optimize browser loading times.",
+        "linter_overrides": "Use strict TypeScript typings compatible with React 18 createRoot API. Ensure ESLint rules enforce modern hooks usage and prevent legacy patterns like string refs or deprecated lifecycle methods."
+      }
+    }
+  }
+}

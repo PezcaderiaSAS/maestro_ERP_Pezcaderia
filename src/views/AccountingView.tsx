@@ -4,10 +4,15 @@ import { useWarehouseStore } from '../store/useWarehouseStore';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card } from '../components/ui/Card';
-import { BookOpen, Search, RefreshCw, AlertCircle, DollarSign } from 'lucide-react';
+import { BookOpen, Search, RefreshCw, AlertCircle, DollarSign, FileCheck, Layers } from 'lucide-react';
+import ResolucionesConfigView from './settings/ResolucionesConfigView';
+import { SiigoQueueMonitorModal } from './pos/components/SiigoQueueMonitorModal';
+
 export default function AccountingView() {
   const { summary, loading, error, fetchAccounts, fetchEntriesByDateRange } = useAccountingStore();
   const { bodegas } = useWarehouseStore();
+  const [seccionContable, setSeccionContable] = useState<'MAYOR' | 'RESOLUCIONES'>('MAYOR');
+  const [showSiigoModal, setShowSiigoModal] = useState(false);
   
   const [startDate, setStartDate] = useState(() => {
     const d = new Date();
@@ -62,15 +67,56 @@ export default function AccountingView() {
 
   return (
     <div className="pos-layout flex animate-fade-in" style={{ flexDirection: 'column', gap: '20px', padding: '20px', overflowY: 'auto' }}>
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-slate-200 pb-4">
         <div>
           <h1 className="text-2xl font-bold text-primary flex items-center gap-2">
             <BookOpen className="text-blue-600" />
-            Libro Mayor Simplificado
+            Contabilidad & Facturación
           </h1>
-          <p className="text-slate-500 text-sm mt-1">Consulte los saldos de cuentas por periodo</p>
+          <p className="text-slate-500 text-sm mt-1">Libro Mayor, Resoluciones de Facturación DIAN y Sincronización SIIGO Nube</p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setSeccionContable('MAYOR')}
+            className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+              seccionContable === 'MAYOR'
+                ? 'bg-indigo-600 text-white shadow-sm ring-2 ring-indigo-500/20'
+                : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            <BookOpen size={16} />
+            <span>Libro Mayor</span>
+          </button>
+
+          <button
+            onClick={() => setSeccionContable('RESOLUCIONES')}
+            data-testid="tab-resoluciones-dian"
+            className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+              seccionContable === 'RESOLUCIONES'
+                ? 'bg-indigo-600 text-white shadow-sm ring-2 ring-indigo-500/20'
+                : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            <FileCheck size={16} />
+            <span>Resoluciones DIAN & SIIGO</span>
+          </button>
+
+          <button
+            onClick={() => setShowSiigoModal(true)}
+            data-testid="btn-monitor-siigo-contabilidad"
+            className="min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-all flex items-center gap-2 cursor-pointer shadow-sm"
+          >
+            <Layers size={16} className="text-indigo-600" />
+            <span>Monitor Outbox SIIGO</span>
+          </button>
         </div>
       </div>
+
+      {seccionContable === 'RESOLUCIONES' ? (
+        <ResolucionesConfigView />
+      ) : (
+        <>
 
       <Card glass className="flex flex-wrap gap-4 items-end mb-6" style={{ padding: '16px' }}>
         <div className="flex-1 min-w-[200px]">
@@ -164,6 +210,13 @@ export default function AccountingView() {
           </div>
         )}
       </div>
+      </>
+      )}
+
+      <SiigoQueueMonitorModal
+        isOpen={showSiigoModal}
+        onClose={() => setShowSiigoModal(false)}
+      />
     </div>
   );
 }

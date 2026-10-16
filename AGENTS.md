@@ -91,9 +91,9 @@ El proyecto implementa una tríada jerárquica obligatoria para optimizar consum
 # Pipeline Automatizado de Ciclo de Vida Git (Hooks & Scripts)
 
 - **Post-Pull (Puesta en Marcha):**
-  - Hook automático: `.husky/post-merge`
+  - Hook automático: `.husky/post-merge` y `.git/hooks/post-merge`
   - Comando npm: `npm run session:pull`
-  - Acciones: Sincronización Graphify $\rightarrow$ Reindexación GitNexus $\rightarrow$ Verificación `tsc --noEmit` $\rightarrow$ **Auditoría Master Architect (SOLID & Boundaries: `scripts/architecture/audit-solid-boundaries.cjs`)** $\rightarrow$ Comprobación de servidor Vite (`http://localhost:3000/`).
+  - Acciones: Verificación de entorno $\rightarrow$ **Investigador SDD de Dependencias y Documentación Oficial ([`.antigravity-rules.json`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.antigravity-rules.json) con Brave Search API)** $\rightarrow$ Sincronización Graphify $\rightarrow$ Reindexación GitNexus $\rightarrow$ Verificación `tsc --noEmit` $\rightarrow$ Auditoría de 5 Diagramas Mermaid $\rightarrow$ **Auditoría Master Architect (SOLID & Boundaries: `scripts/architecture/audit-solid-boundaries.cjs`)** $\rightarrow$ Comprobación de servidor Vite (`http://localhost:3000/`).
 - **Pre-Push (Quality Gate de Cierre):**
   - Hook automático: `.husky/pre-push`
   - Comando npm: `npm run session:push`

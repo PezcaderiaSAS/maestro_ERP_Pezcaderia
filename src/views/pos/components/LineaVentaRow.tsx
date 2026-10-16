@@ -3,7 +3,6 @@ import { Minus, Plus, X, Edit3 } from 'lucide-react';
 import type { LineaVenta } from '../../../types/pos.types';
 import { BalanzaButton } from './BalanzaButton';
 import { Button } from '../../../components/ui/Button';
-import { Input } from '../../../components/ui/Input';
 import Swal from 'sweetalert2';
 interface LineaVentaRowProps {
   linea: LineaVenta;
@@ -154,39 +153,27 @@ export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
 
   return (
     <div
-      className="cart-item-row"
-      style={{
-        minHeight: '72px',
-        height: 'auto',
-        padding: '10px 12px',
-        display: 'flex',
-        alignItems: 'flex-start',
-        gap: '8px',
-        borderBottom: '1px solid #F1F5F9',
-      }}
+      className="cart-item-row flex flex-col gap-2 p-2.5 sm:p-3 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/40 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors rounded-lg"
     >
-      {/* Columna izquierda: nombre, precio y badges */}
-      <div
-        className="cart-item-left"
-        style={{ display: 'flex', flexDirection: 'column', gap: '3px', flex: 1 }}
-      >
-        {/* Nombre, badge de unidad y badge peso manual */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-          <span className="cart-item-name" style={{ fontWeight: 700, fontSize: '13px' }}>
+      {/* ── Tier 1: Cabecera con Nombre Completo, Badges y Botón Eliminar ── */}
+      <div className="flex items-start justify-between gap-2 w-full">
+        {/* Título y Badges */}
+        <div className="flex items-center gap-1.5 flex-wrap min-w-0 flex-1">
+          <span className="cart-item-name font-bold text-xs sm:text-sm text-slate-900 dark:text-slate-100 tracking-tight leading-snug break-words">
             {linea.nombre}
           </span>
 
           {/* Badge distintivo de tipo de venta (Kilos vs Unidades) */}
           {linea.unidad === 'KG' ? (
             <span
-              className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-50 text-sky-700 border border-sky-200 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800"
+              className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-50 text-sky-700 border border-sky-200 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800 shrink-0"
               title="Producto vendido por peso en Kilogramos"
             >
               ⚖️ KILOS
             </span>
           ) : (
             <span
-              className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800"
+              className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800 shrink-0"
               title="Producto vendido por Unidades enteras"
             >
               📦 UNIDAD
@@ -196,207 +183,161 @@ export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
           {linea.esPesoManual && (
             <span
               title="Peso ingresado manualmente (RN-13)"
-              style={{
-                fontSize: '10px',
-                backgroundColor: '#FEF3C7',
-                color: '#D97706',
-                padding: '1px 5px',
-                borderRadius: '4px',
-                fontWeight: 700,
-              }}
+              className="inline-flex items-center text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800 px-1.5 py-0.5 rounded shrink-0"
             >
               ⚖️ Manual
             </span>
           )}
         </div>
 
-        {/* Precio total línea + precio unitario */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
-          <span className="cart-item-price font-mono tabular-nums tracking-tight" style={{ color: 'var(--primary-color)', fontWeight: 700 }}>
-            ${totalLinea.toLocaleString('es-CO')}
-          </span>
-          <button
-            type="button"
-            onClick={handleEditarPrecioClick}
-            title="Haga clic para editar el precio de venta unitario"
-            className="group inline-flex items-center gap-1 font-mono tabular-nums text-[11px] font-semibold px-1.5 py-0.5 rounded border border-slate-200 bg-white hover:bg-indigo-50 hover:border-indigo-300 text-slate-600 hover:text-indigo-600 transition-all cursor-pointer shadow-2xs"
-          >
-            <span>(${precioFinalDisplay.toLocaleString('es-CO')} / {linea.unidad === 'KG' ? 'kg' : 'und'})</span>
-            <Edit3 size={11} className="text-slate-400 group-hover:text-indigo-600" />
-          </button>
-          {isPrecioModificado && (
-            <span
-              style={{
-                fontSize: '10px',
-                padding: '1px 5px',
-                borderRadius: '4px',
-                backgroundColor: '#FEF3C7',
-                color: '#D97706',
-                fontWeight: 700,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '2px',
-              }}
-              title={`Precio base de catálogo: $${linea.precioModificadoOriginal?.toLocaleString('es-CO')}`}
-            >
-              ✏️ Modificado (Base: ${linea.precioModificadoOriginal?.toLocaleString('es-CO')})
-            </span>
-          )}
-          {isPrecioModificado && onResetItemPrice && (
-            <button
-              type="button"
-              onClick={() => onResetItemPrice(linea.productoId)}
-              className="text-[10px] text-amber-600 hover:text-amber-800 underline font-semibold cursor-pointer"
-              title="Restablecer al precio original de catálogo"
-            >
-              Restablecer
-            </button>
-          )}
-          {tieneDescuentoLinea && (
-            <span
-              style={{
-                fontSize: '10px',
-                padding: '1px 5px',
-                borderRadius: '4px',
-                backgroundColor: '#DCFCE7',
-                color: '#16A34A',
-                fontWeight: 600,
-              }}
-            >
-              -{linea.descuentoPct}%
-            </span>
-          )}
-          {/* Badge de stock */}
-          <span
-            style={{
-              fontSize: '10px',
-              padding: '2px 6px',
-              borderRadius: '4px',
-              backgroundColor: isInsufficient ? '#FEE2E2' : '#F1F5F9',
-              color: isInsufficient ? '#EF4444' : '#64748B',
-              fontWeight: 600,
-            }}
-          >
-            Stock: {stockDisponible} {linea.unidad === 'KG' ? 'kg' : 'und'} {isInsufficient && '⚠️ Insuficiente'}
-          </span>
-        </div>
-
-        {/* Precio histórico del cliente */}
-        {lastClientPrice !== undefined && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
-            {lastClientPrice === precioFinalDisplay ? (
-              <span
-                style={{
-                  fontSize: '10px',
-                  padding: '2px 6px',
-                  borderRadius: '4px',
-                  backgroundColor: '#D1FAE5',
-                  color: '#065F46',
-                  fontWeight: 'bold',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '2px',
-                }}
-              >
-                ✓ Tarifa histórica aplicada
-              </span>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleAplicarHistorico}
-                style={{
-                  fontSize: '10px',
-                  padding: '2px 6px',
-                  borderColor: '#F59E0B',
-                  backgroundColor: '#FEF3C7',
-                  color: '#D97706',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '2px',
-                }}
-              >
-                💡 Último precio: ${lastClientPrice.toLocaleString('es-CO')} (Aplicar)
-              </Button>
-            )}
-
-            {tieneDescuentoLinea && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onResetPrecio(linea.productoId)}
-                style={{
-                  fontSize: '10px',
-                  padding: '2px 4px',
-                  color: '#EF4444',
-                  textDecoration: 'underline',
-                }}
-              >
-                Restablecer
-              </Button>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Columna derecha: controles táctiles ergonómicos (>= 48px WCAG AAA) */}
-      <div
-        className="cart-item-controls flex items-center gap-2 self-center shrink-0"
-      >
-        {/* Botón balanza — solo para productos KG (RN-13) */}
-        <BalanzaButton
-          unidadMedida={linea.unidad}
-          onWeightRead={(peso) => onWeightRead(linea.productoId, peso)}
-        />
-
-        {/* Botón decrementar (-) >= 48px */}
+        {/* Botón eliminar >= 48px en la esquina superior derecha */}
         <button
           type="button"
-          className="qty-btn min-w-[48px] min-h-[48px] w-12 h-12 p-0 flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 border border-slate-300 font-bold active:scale-95 transition-all cursor-pointer shadow-sm"
-          onClick={() => handleQtyDelta(-1)}
-          title="Disminuir cantidad"
-          aria-label="Disminuir cantidad"
-        >
-          <Minus size={18} className="stroke-[2.5]" />
-        </button>
-
-        {/* Input cantidad >= 48px con auto-selección total */}
-        <div className="w-20">
-          <Input
-            type="number"
-            value={linea.cantidad}
-            onChange={handleInputChange}
-            onBlur={handleInputBlur}
-            onFocus={(e) => e.target.select()}
-            className="w-full text-center border-2 border-slate-200 focus:border-cyan-500 rounded-xl text-base font-black h-12 min-h-[48px] px-1 bg-white text-slate-900 font-mono tabular-nums shadow-sm"
-            step={linea.unidad === 'KG' ? 'any' : '1'}
-            min={linea.unidad === 'KG' ? '0.001' : '1'}
-            inputMode={linea.unidad === 'KG' ? 'decimal' : 'numeric'}
-            aria-label={`Cantidad del producto en ${linea.unidad === 'KG' ? 'kilos' : 'unidades'}`}
-          />
-        </div>
-
-        {/* Botón incrementar (+) >= 48px */}
-        <button
-          type="button"
-          className="qty-btn min-w-[48px] min-h-[48px] w-12 h-12 p-0 flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 border border-slate-300 font-bold active:scale-95 transition-all cursor-pointer shadow-sm"
-          onClick={() => handleQtyDelta(1)}
-          title="Aumentar cantidad"
-          aria-label="Aumentar cantidad"
-        >
-          <Plus size={18} className="stroke-[2.5]" />
-        </button>
-
-        {/* Botón eliminar >= 48px */}
-        <button
-          type="button"
-          className="delete-cart-item-btn min-w-[48px] min-h-[48px] w-12 h-12 p-0 flex items-center justify-center rounded-xl bg-rose-50 hover:bg-rose-100 active:bg-rose-200 text-rose-600 border border-rose-200 font-bold active:scale-95 transition-all cursor-pointer shadow-sm"
+          className="delete-cart-item-btn min-w-[48px] min-h-[48px] w-12 h-12 p-0 flex items-center justify-center rounded-xl bg-rose-50 hover:bg-rose-100 active:bg-rose-200 text-rose-600 border border-rose-200 dark:bg-rose-950/40 dark:border-rose-900/60 dark:text-rose-400 font-bold active:scale-95 transition-all cursor-pointer shadow-2xs shrink-0"
           onClick={() => onRemove(linea.productoId)}
           title="Eliminar producto del carrito"
           aria-label="Eliminar producto del carrito"
         >
           <X size={20} className="stroke-[2.5]" />
         </button>
+      </div>
+
+      {/* ── Tier 2: Precios, Stock y Controles de Cantidad ── */}
+      <div className="flex items-center justify-between gap-2 flex-wrap pt-1.5 border-t border-slate-100 dark:border-slate-800/60">
+        {/* Precios (total línea, unitario y stock) */}
+        <div className="flex flex-col gap-1 min-w-0">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span
+              className="cart-item-price font-mono font-black text-sm sm:text-base tracking-tight tabular-nums text-blue-600 dark:text-blue-400"
+            >
+              ${totalLinea.toLocaleString('es-CO')}
+            </span>
+
+            {/* Precio unitario editable */}
+            <button
+              type="button"
+              onClick={handleEditarPrecioClick}
+              title="Haga clic para editar el precio de venta unitario"
+              className="group inline-flex items-center gap-1 font-mono tabular-nums text-[11px] font-semibold px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 hover:bg-indigo-50 hover:border-indigo-300 text-slate-600 dark:text-slate-300 hover:text-indigo-600 transition-all cursor-pointer shadow-2xs"
+            >
+              <span>(${precioFinalDisplay.toLocaleString('es-CO')} / {linea.unidad === 'KG' ? 'kg' : 'und'})</span>
+              <Edit3 size={11} className="text-slate-400 group-hover:text-indigo-600" />
+            </button>
+
+            {isPrecioModificado && (
+              <span
+                className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800"
+                title={`Precio base de catálogo: $${linea.precioModificadoOriginal?.toLocaleString('es-CO')}`}
+              >
+                ✏️ Modificado (Base: ${linea.precioModificadoOriginal?.toLocaleString('es-CO')})
+              </span>
+            )}
+
+            {isPrecioModificado && onResetItemPrice && (
+              <button
+                type="button"
+                onClick={() => onResetItemPrice(linea.productoId)}
+                className="text-[10px] text-amber-600 hover:text-amber-800 underline font-semibold cursor-pointer"
+                title="Restablecer al precio original de catálogo"
+              >
+                Restablecer
+              </button>
+            )}
+
+            {tieneDescuentoLinea && (
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800">
+                -{linea.descuentoPct}%
+              </span>
+            )}
+          </div>
+
+          {/* Stock disponible y Tarifa histórica */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span
+              className={`text-[10px] px-1.5 py-0.5 rounded font-semibold ${
+                isInsufficient
+                  ? 'bg-red-50 text-red-600 border border-red-200 dark:bg-red-950/50 dark:text-red-300 dark:border-red-800'
+                  : 'bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
+              }`}
+            >
+              Stock: {stockDisponible} {linea.unidad === 'KG' ? 'kg' : 'und'} {isInsufficient && '⚠️ Insuficiente'}
+            </span>
+
+            {lastClientPrice !== undefined && (
+              <div className="flex items-center gap-1">
+                {lastClientPrice === precioFinalDisplay ? (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800">
+                    ✓ Tarifa histórica aplicada
+                  </span>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAplicarHistorico}
+                    className="text-[10px] px-1.5 py-0.5 border-amber-300 bg-amber-50 text-amber-800 h-6 font-bold"
+                  >
+                    💡 Histórico: ${lastClientPrice.toLocaleString('es-CO')}
+                  </Button>
+                )}
+                {tieneDescuentoLinea && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onResetPrecio(linea.productoId)}
+                    className="text-[10px] px-1 text-red-600 underline h-6"
+                  >
+                    Restablecer
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Controles de Cantidad y Balanza */}
+        <div className="cart-item-controls flex items-center gap-1.5 shrink-0 ml-auto">
+          {/* Botón balanza — solo para productos KG (RN-13) */}
+          <BalanzaButton
+            unidadMedida={linea.unidad}
+            onWeightRead={(peso) => onWeightRead(linea.productoId, peso)}
+          />
+
+          {/* Botón decrementar (-) >= 48px */}
+          <button
+            type="button"
+            className="qty-btn min-w-[48px] min-h-[48px] w-12 h-12 p-0 flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 border border-slate-300 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 font-bold active:scale-95 transition-all cursor-pointer shadow-2xs"
+            onClick={() => handleQtyDelta(-1)}
+            title="Disminuir cantidad"
+            aria-label="Disminuir cantidad"
+          >
+            <Minus size={18} className="stroke-[2.5]" />
+          </button>
+
+          {/* Input cantidad >= 48px sin contenedor doble */}
+          <input
+            type="number"
+            value={linea.cantidad}
+            onChange={handleInputChange}
+            onBlur={handleInputBlur}
+            onFocus={(e) => e.target.select()}
+            className="w-16 h-12 min-h-[48px] text-center font-mono font-black text-base text-slate-900 dark:text-white bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 rounded-xl outline-none tabular-nums shadow-2xs"
+            step={linea.unidad === 'KG' ? 'any' : '1'}
+            min={linea.unidad === 'KG' ? '0.001' : '1'}
+            inputMode={linea.unidad === 'KG' ? 'decimal' : 'numeric'}
+            aria-label={`Cantidad del producto en ${linea.unidad === 'KG' ? 'kilos' : 'unidades'}`}
+          />
+
+          {/* Botón incrementar (+) >= 48px */}
+          <button
+            type="button"
+            className="qty-btn min-w-[48px] min-h-[48px] w-12 h-12 p-0 flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 border border-slate-300 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 font-bold active:scale-95 transition-all cursor-pointer shadow-2xs"
+            onClick={() => handleQtyDelta(1)}
+            title="Aumentar cantidad"
+            aria-label="Aumentar cantidad"
+          >
+            <Plus size={18} className="stroke-[2.5]" />
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -69,3 +69,51 @@ class CodeAndBestPracticesSearch(BaseTool):
                     return f"No se encontraron repositorios relevantes para '{self.query}'."
             except Exception as e:
                 return f"Error en búsqueda técnica alternativa: {str(e)}"
+
+class BraveDocumentationSearch(BaseTool):
+    """
+    Busca documentación oficial, guías de migración y avisos de seguridad (CVE)
+    en tiempo real mediante la API oficial de Brave Search (RULE-SDD-001).
+    """
+    query: str = Field(..., description="Consulta técnica o nombre de paquete y versión a investigar.")
+    count: int = Field(5, description="Número de resultados a recuperar (1 a 10).")
+
+    def run(self):
+        import os
+        api_key = os.getenv("BRAVE_API_KEY") or os.getenv("Brave_Search_MCP_Server_API_KEY")
+        if not api_key:
+            return "Error: No se encontró BRAVE_API_KEY ni Brave_Search_MCP_Server_API_KEY en variables de entorno."
+
+        url = "https://api.search.brave.com/res/v1/web/search"
+        params = urllib.parse.urlencode({
+            "q": self.query,
+            "count": min(max(self.count, 1), 10)
+        })
+        full_url = f"{url}?{params}"
+        req = urllib.request.Request(
+            full_url,
+            headers={
+                "Accept": "application/json",
+                "X-Subscription-Token": api_key,
+                "User-Agent": "Pezcaderia-Swarm-SDD/1.0"
+            }
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                results = data.get("web", {}).get("results", [])
+                if not results:
+                    return f"No se encontraron resultados en Brave Search para '{self.query}'."
+                
+                output = [f"Resultados de Brave Search para '{self.query}':\n"]
+                for r in results:
+                    title = r.get("title", "")
+                    res_url = r.get("url", "")
+                    desc = r.get("description", "")
+                    output.append(f"### {title}")
+                    output.append(f"- URL: {res_url}")
+                    output.append(f"- Resumen: {desc}\n")
+                return "\n".join(output)
+        except Exception as e:
+            return f"Error ejecutando búsqueda en Brave Search: {str(e)}"
+

@@ -37,33 +37,83 @@
     - Botones de acción principal (Continuar a Báscula, Capturar Peso Báscula, + Guardar Pesada Canastilla, Ir al Frío y Liquidar, ✓ Guardar en el Frío y Finalizar) a `min-h-[56px] h-14`.
     - Botones de porcentaje de hielo y eliminación a `min-w-[48px] min-h-[48px] w-12 h-12`.
   - Suite de pruebas `src/tests/bucaramangaReceivingWizard.test.tsx` (7/7 tests verdes) y `tsc --noEmit` (0 errores).
-- [ ] `TASK-018-06`: **Wizard de Traslados a Sucursales en 2 Toques Ergonómicos**
-  - Simplificar el panel de traslados internos (`WarehouseTransferPanel.tsx` / modal de abastecimiento rápido) a 2 pasos: Selección de sucursal destino $\rightarrow$ Cantidad rápida con selector táctil.
-- [ ] `TASK-018-07`: **Suite de Pruebas y Validación DevTools para Fase 2**
-  - Crear suite `src/tests/warehouseWms12YearsRule.test.tsx` verificando contraste, tamaños táctiles y cálculos de tara/pesaje.
+- [x] `TASK-018-06`: **Wizard de Traslados a Sucursales en 2 Toques Ergonómicos** [COMPLETADA Y CERTIFICADA]
+  - Refactorizado `WarehouseTransferPanel.tsx` a Light Mode WCAG 2.2 AA+ con fondos claros, tarjetas contrastadas y tipografía pizarra de alta legibilidad.
+  - Diseñado Wizard asistido en 2 pasos ergonómicos:
+    1. Paso 1: Tarjetas táctiles de sucursal destino de `min-h-[64px]` con iconos Lucide (`Building2`, `Store`, `Snowflake`) y avance automático inmediato al tocar una sucursal.
+    2. Paso 2: Buscador táctil predictivo `min-h-[48px]`, pre-selección automática de producto, display gigante de stock disponible y botones de incremento rápido `min-h-[48px] h-12` (`+1 Kg`, `+5 Kg`, `+10 Kg`, `+20 Kg`, `Todo el Stock`).
+  - Botón gigante de confirmación de despacho `min-h-[56px] h-14` con fondo esmeralda `bg-emerald-600`, texto "DESPACHAR TRASLADO AHORA", `touch-manipulation` y efecto activo `active:scale-95`.
+  - Validación dinámica de stock disponible en origen que bloquea el despacho en caso de sobre-stock.
+  - Cero imágenes externas (100% SVG con Lucide React).
+  - Pestañas 'En Tránsito' e 'Historial' estandarizadas a Light Mode con badges semánticos contrastados.
+  - Suite de pruebas `src/tests/warehouseTransferPanel.test.tsx` (6/6 tests verdes), `tsc --noEmit` (0 errores) y auditoría Chrome DevTools MCP con 0 errores en consola.
+- [x] `TASK-018-07`: **Suite de Pruebas y Validación DevTools para Fase 2** [COMPLETADA Y CERTIFICADA]
+  - Creada suite integral `src/tests/warehouseWms12YearsRule.test.tsx` (10/10 tests verdes) validando de forma conjunta:
+    1. Cero etiquetas `<img>` externas en ambos módulos operativos (100% iconos Lucide React).
+    2. Cumplimiento estricto de Light Mode WCAG 2.2 AA+ con tipografía pizarra `text-slate-900` sobre fondos limpios.
+    3. Muelle Bucaramanga (`BucaramangaReceivingWizard.tsx`): tara de canastilla plástica ($2.0\text{ kg}$), cálculo de peso neto en báscula, semáforo térmico cromático (óptimo, precaución, alerta sanitaria) y botones del wizard $\ge 56\text{ px}$.
+    4. Traslados Internos (`WarehouseTransferPanel.tsx`): tarjetas de destino $\ge 64\text{ px}$ con avance automático al Paso 2, botones de incremento rápido $\ge 48\text{ px}$, prevención reactiva de sobre-stock y botón gigante de confirmación $\ge 56\text{ px}$ con `active:scale-95`.
+  - Consolidado de la Fase 2: 3 suites dedicadas (`bucaramangaReceivingWizard.test.tsx`, `warehouseTransferPanel.test.tsx`, `warehouseWms12YearsRule.test.tsx`) con 23/23 tests verdes.
+  - `tsc --noEmit` completado con 0 errores.
+  - Auditoría Master Architect SOLID con 0 violaciones críticas (318 archivos analizados en 192 ms).
+  - Bucle de validación Chrome DevTools MCP en vivo (`http://localhost:3000/`) con 0 errores JS en consola y grabación `phase2_wms_audit_1792161668927.webp` en desktop y viewport móvil (375x812 px).
 
 ---
 
 ## Fase 3: Despachos, Rutas B2B y Cartera / Cuentas por Cobrar (AR)
-- [ ] `TASK-018-08`: **Modal Táctil de Abono Rápido a Cartera (QuickAbonoModal.tsx)**
-  - Sustituir los diálogos HTML crudos de `Swal.fire` en `ARView.tsx` por un modal táctil React accesible:
-    - Selección visual de factura con saldo pendiente.
-    - Botones de abono rápido: 'Pagar Total', '50%' o teclado numérico táctil $\ge 48\text{ px}$.
-    - Sincronización atómica instantánea con el flujo de caja del turno activo.
-- [ ] `TASK-018-09`: **Simplificación del Tablero de Despachos a 3 Macro-Estados Operativos**
-  - Simplificar el flujo Kanban de `OrderKanbanView.tsx` en vista táctil y móvil: 1. Preparación WMS $\rightarrow$ 2. En Ruta de Entrega $\rightarrow$ 3. Entregado / Liquidado.
-- [ ] `TASK-018-10`: **Suite de Pruebas y Validación DevTools para Fase 3**
-  - Crear suite `src/tests/arAndDispatch12YearsRule.test.tsx` validando abonos y tablero simplificado.
+- [x] `TASK-018-08`: **Modal Táctil de Abono Rápido a Cartera (QuickAbonoModal.tsx)** [COMPLETADA Y CERTIFICADA]
+  - Creado componente React accesible `QuickAbonoModal.tsx` en `src/views/ar/components/` bajo la Regla del Niño de 12 Años:
+    - Eliminadas más de 280 líneas de código imperativo HTML y DOM manual inyectado en `Swal.fire` dentro de `ARView.tsx`.
+    - Resumen superior con saldo pendiente visible, cliente, total venta y porcentaje ya pagado.
+    - Botones de incremento rápido de 1-toque $\ge 48\text{ px}$ ('Pagar Total 100%', '50% del Saldo', '+$100.000', 'Limpiar $0') e input numérico accesible con display formateado COP.
+    - Selector táctil de método de recaudo $\ge 48\text{ px}$ ('Efectivo', 'Transferencia', 'Datáfono') con campo dinámico de referencia bancaria.
+    - Prevención en vivo de sobre-abono con bloqueo del botón de confirmación si el monto supera el saldo de la factura.
+    - Botón gigante de confirmación $\ge 56\text{ px}$ (`min-h-[56px] h-14 bg-emerald-600 active:scale-95`).
+    - Sincronización transaccional atómica con `useARStore`, evento de dominio `SALE_COMPLETED` y registro de movimiento en el turno activo de `cashService`.
+  - Cero imágenes externas (100% SVG con Lucide React).
+  - Suite TDD `src/tests/quickAbonoModal.test.tsx` (6/6 tests verdes) y `tsc --noEmit` (0 errores).
+  - Auditoría Master Architect SOLID con 0 violaciones críticas (saneamiento de `ARView.tsx` por debajo de 600 líneas útiles).
+  - Calidad certificada con Chrome DevTools MCP en vivo con 0 errores en consola JS y video `cartera_abono_modal_check_1792166100118.webp`.
+- [x] `TASK-018-09`: **Simplificación del Tablero de Despachos a 3 Macro-Estados Operativos**
+  - Implementada en `OrderKanbanView.tsx` la pestaña y visualización canónica de **3 Macro-Estados Operativos**:
+    1. `1. Preparación WMS` (agrupa `CREADO`, `PAUSADO`, `PAUSADO_POR_CREDITO`, `EN_FILETEO`, `EN_PESAJE`).
+    2. `2. En Ruta de Entrega` (agrupa `LISTO`, `EN_DESPACHO`).
+    3. `3. Entregado / Liquidado` (agrupa `ENTREGADO`, `FACTURADO`, `PAGADO`, `ANULADO`).
+  - Botón prominente de 1-toque `⚡ Flujo Táctil (3 Pasos)` (`data-testid="tab-tactil-3-pasos"`) con altura ergonómica táctil $\ge 48\text{ px}$ (`min-h-[48px] h-12`).
+  - Chips de filtro rápido (`TODOS`, `URGENTES`, `CATCH_WEIGHT`, `PAUSADOS`) y barra de búsqueda ajustados a targets ergonómicos $\ge 48\text{ px}$ con micro-animaciones activas `active:scale-95`.
+  - Botones de avance táctil en tarjeta ergonómicos $\ge 48\text{ px}$ (`Pesar`, `A Ruta`, `Remisión QR`, `Marcar Entregado`).
+  - Preservación al 100% de la compatibilidad con las pestañas tradicionales `1. Bodega` y `2. Despachos`.
+  - Suite TDD creada `src/tests/orderKanban3MacroStates.test.tsx` (6/6 tests verdes) y `src/tests/orderKanbanView.test.tsx` (9/9 tests verdes) $\rightarrow$ 15/15 tests verdes.
+  - TypeScript `tsc --noEmit` en 0 errores, Master Architect con 0 violaciones críticas y auditoría DevTools en vivo grabada en `kanban_macro3_audit_1792167201883.webp` con 0 errores JS en consola.
+- [x] `TASK-018-10`: **Suite de Pruebas y Validación DevTools para Fase 3**
+  - Creada suite de integración integral `src/tests/arAndDispatch12YearsRule.test.tsx` con **10/10 tests verdes al 100%**.
+  - Verificación exhaustiva de la Fase 3 consolidada en 4 suites dedicadas (`quickAbonoModal.test.tsx`, `orderKanban3MacroStates.test.tsx`, `orderKanbanView.test.tsx`, `arAndDispatch12YearsRule.test.tsx`) con **31/31 tests verdes al 100%**.
+  - TypeScript estricto `tsc --noEmit` en 0 errores y Master Architect SOLID con 0 violaciones críticas (321 archivos analizados).
+  - Auditoría interactiva con DevTools MCP grabada en `phase3_integral_audit_1792169501650.webp` con 0 errores en consola JS.
+  - **Fase 3 (Despachos, Rutas B2B y Cartera AR) CULMINADA Y CERTIFICADA AL 100%.**
 
 ---
 
 ## Fase 4: Producción/Yield, Nómina, Contabilidad NIIF y Dashboard
-- [ ] `TASK-018-11`: **Dashboard con Semáforo Ejecutivo Consolidado**
-  - Crear widget visual superior en `DashboardView.tsx` con semáforo ejecutivo: Caja Disponible Hoy, Pedidos B2B Listos y Alertas de Stock Crítico en botones táctiles grandes.
-- [ ] `TASK-018-12`: **Wizard de Nómina en 3 Pasos (PayrollView.tsx)**
-  - Reestructurar el formulario denso de nómina en un Wizard guiado de 3 Pasos: 1. Selección de Empleado $\rightarrow$ 2. Novedades / Horas Extras $\rightarrow$ 3. Liquidar y Desembolsar contra Caja.
+- [x] `TASK-018-11`: **Dashboard con Semáforo Ejecutivo Consolidado**
+  - Implementado widget visual superior en `src/views/dashboard/components/ExecutiveTrafficLightWidget.tsx` e integrado en `DashboardView.tsx`.
+  - 3 botones táctiles de 1-toque $\ge 56\text{ px}$ (`min-h-[100px]`, `active:scale-95`, `touch-manipulation`):
+    1. *Caja Disponible Hoy:* Saldo acumulado en efectivo y bancos del turno activo, cálculo de saldo teórico, indicador de salud financiero (verde/ámbar) y redirección táctil a `AppRouteId.CASH_DESK`.
+    2. *Despachos B2B:* Contador de pedidos listos para despacho en cava y pedidos en furgón en ruta, con desglose cuantitativo y redirección a `AppRouteId.ORDERS_KANBAN`.
+    3. *Stock en Cuarto Frío:* Detección de productos bajo buffer de seguridad o agotados, con conteo en tiempo real y redirección táctil a `AppRouteId.INVENTORY`.
+  - Cero imágenes externas (100% SVG con Lucide React), Light Mode WCAG 2.2 AA+ y tipado TypeScript estricto.
+  - Creada suite TDD dedicada `src/tests/dashboardExecutiveTrafficLight.test.tsx` con **8/8 tests verdes al 100%**.
+  - Auditoría interactiva con DevTools MCP grabada en `dashboard_traffic_light_audit_1792170861264.webp` con 0 errores en consola JS.
+- [x] `TASK-018-12`: **Wizard de Nómina en 3 Pasos (PayrollView.tsx)** [COMPLETADA Y CERTIFICADA]
+  - Modularizado `PayrollView.tsx` reduciendo su tamaño de más de 600 líneas a 241 líneas útiles.
+  - Creado componente táctil guiado `src/views/payroll/components/PayrollWizard3Steps.tsx` bajo la Regla del Niño de 12 Años:
+    1. *Paso 1 (Colaborador & Período):* Tarjetas de selección con bordes contrastantes, cálculo automático de días comerciales (base 360/30) y presets de quincena/mes.
+    2. *Paso 2 (Novedades & Extras):* Steppers táctiles de horas extras diurnas/nocturnas, bonificaciones y deducciones con recálculo dinámico en COP.
+    3. *Paso 3 (Liquidar & Desembolsar):* Resumen contrastado de Neto a Pagar y Costo Empresa, selección de medio de pago (Transferencia / Efectivo) y desembolso automático integrado atómicamente con `cashService.registrarMovimiento` en turno activo (`EGRESO_GASTO`).
+  - Suite TDD `src/tests/payroll3StepsWizard.test.tsx` creada con **6/6 tests verdes**.
 - [ ] `TASK-018-13`: **Suite Integral E2E, Auditoría Master Architect y Quality Gate Final**
   - Ejecutar suite Vitest completa (100% pasando).
   - Verificar `tsc --noEmit` (0 errores).
   - Ejecutar `npm run test:boundaries` (0 violaciones de límites arquitectónicos).
   - Comprobación final en vivo con Chrome DevTools MCP.
+

@@ -42,6 +42,11 @@ import { ejecutarAbastecimientoInmediato, validarAbastecimientoSucursal } from '
 import { getInitials } from '../utils/roleMapper.ts';
 import { UserSwitchModal } from '../components/layout/UserSwitchModal.tsx';
 import { ManualWeightModal } from './pos/components/ManualWeightModal.tsx';
+import { resolucionService } from '../services/resolucionService.ts';
+import { SiigoQueueMonitorModal } from './pos/components/SiigoQueueMonitorModal.tsx';
+import { useResolucionStore } from '../store/useResolucionStore.ts';
+import { siigoPayloadMapper } from '../services/siigoPayloadMapper.ts';
+import type { FacturaElectronicaRegistro } from '../types/resoluciones.types.ts';
 
 interface CartItem {
   product: Product;
@@ -69,6 +74,9 @@ export default function POSView({
   const currentUser = useAppStore((s) => s.currentUser);
   const setCurrentView = useAppStore((s) => s.setCurrentView);
   const [showUserSwitchModal, setShowUserSwitchModal] = useState<boolean>(false);
+  const [showSiigoQueueModal, setShowSiigoQueueModal] = useState<boolean>(false);
+  const { colaSiigo } = useResolucionStore();
+  const colaSiigoPendientes = colaSiigo.filter(q => q.estado === 'PENDIENTE').length;
   const { clientes, setClientes, lastClientPrices, updateLastClientPrice } = useClientStore();
   const { cartera, setCartera } = useARStore();
 
@@ -587,7 +595,10 @@ export default function POSView({
     return stock[targetKey]?.[sku] || stock[bodegaKey]?.[sku] || 0;
   };
 
-  const handlePagar = async (pagos: { metodo: MetodoCobroPos, monto: number }[]): Promise<Venta | void> => {
+  const handlePagar = async (
+    pagos: { metodo: MetodoCobroPos; monto: number }[],
+    options?: { requiereFacturaElectronica?: boolean }
+  ): Promise<Venta | void> => {
     // RN-57: Validacion estricta de Turno de Caja Abierto
     if (!isTurnoAbierto || !turnoActivo) {
       Swal.fire({
@@ -620,7 +631,7 @@ export default function POSView({
     let cash = 0;
     let credit = 0;
     let creditDate = '';
-    const requiereFE = false; // Por defecto Fase 1
+    const requiereFE = options?.requiereFacturaElectronica ?? (cliente?.exigeFacturaElectronica || false);
 
     pagos.forEach(p => {
       if (p.metodo === 'EFECTIVO') cash += p.monto;
@@ -737,8 +748,84 @@ export default function POSView({
       }
     }
 
-    const orderNo = 'PED-' + Math.floor(100000 + Math.random() * 900000);
+    const resInterno = resolucionService.consumirConsecutivoInterno();
+    const orderNo = resInterno ? `${resInterno.prefijo}-${resInterno.numero}` : 'VTA-' + Math.floor(100000 + Math.random() * 900000);
     const vtaId = generateId('vta');
+
+    let consecutivoFiscal: string | undefined = undefined;
+    if (requiereFE) {
+      try {
+        const resFiscal = resolucionService.consumirConsecutivoFiscal();
+        consecutivoFiscal = resFiscal.consecutivoCompleto;
+
+        const store = useResolucionStore.getState();
+        const nuevaFactura: FacturaElectronicaRegistro = {
+          id: generateId('fe'),
+          ventaId: vtaId,
+          resolucionId: resFiscal.resolucionId,
+          prefijo: resFiscal.prefijo,
+          numeroConsecutivo: resFiscal.numero,
+          consecutivoCompleto: resFiscal.consecutivoCompleto,
+          fechaEmision: new Date().toISOString(),
+          clienteNit: cliente?.identificacion || '222222222222',
+          clienteNombre: cliente?.nombre || 'Consumidor Final',
+          clienteEmail: cliente?.email || 'consumidorfinal@pezcaderia.com',
+          clienteDireccion: cliente?.direccion,
+          clienteCiudadDane: cliente?.ciudad || '11001',
+          subtotal,
+          totalIva: 0,
+          total: totalFinal,
+          estadoSiigo: 'PENDIENTE',
+        };
+
+        store.addFacturaElectronica(nuevaFactura);
+
+        // Encolar en Outbox para Siigo Nube API v2
+        const resolucionObj = store.getResolucionById(resFiscal.resolucionId);
+        if (resolucionObj) {
+          const payload = siigoPayloadMapper.buildInvoicePayload({
+            venta: {
+              id: vtaId,
+              fecha: new Date().toISOString(),
+              clienteId: cliente ? cliente.id : null,
+              cajeroId: currentUser.empleadoId,
+              lineas: cartLineas,
+              subtotal,
+              descuentoGlobalPct: descuentoGlobal,
+              descuentoGlobalValor,
+              totalFinal,
+              formaPago: 'EFECTIVO',
+              requiereFacturaElectronica: true,
+              estadoSiigo: 'PENDIENTE',
+              idempotencyKey: generateId('idemp'),
+            },
+            cliente: cliente
+              ? {
+                  identificacion: cliente.identificacion,
+                  nombre: cliente.nombre,
+                  email: cliente.email,
+                  direccion: cliente.direccion,
+                  ciudadDane: cliente.ciudad,
+                }
+              : null,
+            resolucion: resolucionObj,
+            consecutivoInterno: orderNo,
+          });
+
+          store.enqueueSiigoItem({
+            facturaElectronicaId: nuevaFactura.id,
+            ventaId: vtaId,
+            consecutivoCompleto: resFiscal.consecutivoCompleto,
+            estado: 'PENDIENTE',
+            maxIntentos: 5,
+            proximoIntento: new Date().toISOString(),
+            payloadSiigo: payload,
+          });
+        }
+      } catch (err: any) {
+        console.error('Error al generar consecutivo fiscal DIAN:', err);
+      }
+    }
 
     // RN-01: Disminuir stock en la bodega activa
     setStock((prev: Record<string, Record<string, number>>) => {
@@ -797,6 +884,9 @@ export default function POSView({
       montoPagadoCredito: credit,
       cambioEntregado: 0,
       actor: currentUser.nombre,
+      consecutivoInterno: orderNo,
+      consecutivoFiscal,
+      requiereFacturaElectronica: requiereFE,
       vendedorId: currentUser.empleadoId,
       vendedorNombre: currentUser.nombre,
       cajeroId: turnoActivo.cajeroId || currentUser.empleadoId,
@@ -816,7 +906,7 @@ export default function POSView({
     } catch {}
 
     setUltimoTicket({
-      venta: { ...newVenta, items: cartLineas },
+      venta: { ...newVenta, items: cartLineas, consecutivoInterno: orderNo, consecutivoFiscal },
       cliente: cliente ? { nombre: cliente.nombre, identificacion: cliente.identificacion } : null
     });
 
@@ -883,9 +973,11 @@ export default function POSView({
       toast: true,
       position: 'top-end',
       icon: 'success',
-      title: 'Venta Procesada',
-      text: `Total: $${totalFinal.toLocaleString('es-CO')} (${paymentString})`,
-      timer: 1000,
+      title: consecutivoFiscal ? `Factura Electrónica ${consecutivoFiscal}` : 'Venta Procesada',
+      text: consecutivoFiscal
+        ? `Tirilla: ${orderNo} | Total: $${totalFinal.toLocaleString('es-CO')}`
+        : `Ticket: ${orderNo} | Total: $${totalFinal.toLocaleString('es-CO')} (${paymentString})`,
+      timer: 2000,
       showConfirmButton: false
     });
 
@@ -1701,6 +1793,21 @@ export default function POSView({
           >
             <Truck size={13} className="text-amber-600" />
             <span className="hidden sm:inline">Reabastecer POS</span>
+          </button>
+
+          <button
+            onClick={() => setShowSiigoQueueModal(true)}
+            data-testid="btn-abrir-cola-siigo"
+            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg border border-indigo-300 bg-indigo-50 text-indigo-800 text-xs font-bold hover:bg-indigo-100 transition-all shadow-sm cursor-pointer"
+            title="Monitor de Facturación Electrónica Siigo Nube"
+          >
+            <FileText size={13} className="text-indigo-600" />
+            <span className="hidden sm:inline">Cola Siigo</span>
+            {colaSiigoPendientes > 0 && (
+              <span className="bg-amber-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">
+                {colaSiigoPendientes}
+              </span>
+            )}
           </button>
 
           {/* Banner de Vendedor Activo (SPEC-013) */}
@@ -2758,6 +2865,12 @@ export default function POSView({
             if (searchInput) searchInput.focus();
           }, 50);
         }}
+      />
+
+      {/* Monitor Outbox de Facturación Electrónica SIIGO Nube */}
+      <SiigoQueueMonitorModal
+        isOpen={showSiigoQueueModal}
+        onClose={() => setShowSiigoQueueModal(false)}
       />
     </div>
   );

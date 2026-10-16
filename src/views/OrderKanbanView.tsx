@@ -62,8 +62,8 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
   const { products, stock, setStock } = useInventoryStore();
   const { addMovimiento } = useMovementStore();
 
-  // Pestañas activas: 'bodega' vs 'despacho'
-  const [activeTab, setActiveTab] = useState<'bodega' | 'despacho'>('bodega');
+  // Pestañas activas: 'bodega' vs 'despacho' vs 'tactil_3_pasos' (Regla del Niño de 12 Años)
+  const [activeTab, setActiveTab] = useState<'bodega' | 'despacho' | 'tactil_3_pasos'>('bodega');
 
   // Filtros de búsqueda en el tablero
   const [searchQuery, setSearchQuery] = useState('');
@@ -292,7 +292,58 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
     },
   ];
 
-  const currentColumns = activeTab === 'bodega' ? bodegaColumns : despachoColumns;
+  // Tablero Táctil Simplificado en 3 Macro-Estados (Regla del Niño de 12 Años)
+  const macro3Columns: {
+    id: ColumnId;
+    title: string;
+    states: string[];
+    color: string;
+    icon: React.ReactNode;
+    nextStepLabel?: string;
+    nextColumnId?: ColumnId;
+  }[] = [
+    {
+      id: 'creados',
+      title: '1. Preparación WMS',
+      states: [
+        'CREADO', 'Creado', 'creado', 'Approved', 'Approved (Pendiente Alistamiento)', 'Sent', 'Draft', 'Aprobado',
+        'PAUSADO', 'PAUSADO_POR_CREDITO', 'Pausado', 'pausado', 'Pausado por Crédito',
+        'EN_FILETEO', 'EN_ALISTAMIENTO', 'En Fileteo', 'Alistamiento',
+        'EN_PESAJE', 'En Pesaje', 'Pesaje',
+      ],
+      color: '#E0F2FE',
+      icon: <Scissors size={18} color="#0284C7" />,
+      nextStepLabel: 'A Despacho / Ruta',
+      nextColumnId: 'en_despacho',
+    },
+    {
+      id: 'en_despacho',
+      title: '2. En Ruta de Entrega',
+      states: ['LISTO', 'Listo', 'listo', 'EN_DESPACHO', 'En Despacho', 'en_despacho'],
+      color: '#EDE9FE',
+      icon: <Truck size={18} color="#8B5CF6" />,
+      nextStepLabel: 'Marcar Entregado',
+      nextColumnId: 'entregados',
+    },
+    {
+      id: 'entregados',
+      title: '3. Entregado / Liquidado',
+      states: [
+        'ENTREGADO', 'Entregado', 'entregado',
+        'FACTURADO', 'Facturado', 'facturado',
+        'PAGADO', 'Pagado', 'pagado', 'ANULADO', 'Anulado', 'anulado', 'Sold', 'Vendida',
+      ],
+      color: '#DCFCE7',
+      icon: <CheckCircle size={18} color="#059669" />,
+    },
+  ];
+
+  const currentColumns =
+    activeTab === 'tactil_3_pasos'
+      ? macro3Columns
+      : activeTab === 'bodega'
+      ? bodegaColumns
+      : despachoColumns;
 
   const persistOrderUpdate = (quoteId: string, updatedFields: Record<string, any>) => {
     if (updatedFields.estado) {
@@ -592,12 +643,34 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
           </p>
         </div>
 
-        {/* Botones de Pestaña Dual */}
-        <div className="flex items-center p-1.5 rounded-2xl bg-slate-900 border border-white/10 shadow-lg">
+        {/* Botones de Pestaña: Flujo Táctil 3 Pasos, Bodega y Despacho */}
+        <div className="flex items-center p-1.5 rounded-2xl bg-slate-900 border border-white/10 shadow-lg flex-wrap gap-1">
+          <button
+            type="button"
+            data-testid="tab-tactil-3-pasos"
+            onClick={() => setActiveTab('tactil_3_pasos')}
+            className={`min-h-[48px] h-12 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer touch-manipulation active:scale-95 ${
+              activeTab === 'tactil_3_pasos'
+                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Sparkles className="w-4 h-4 text-amber-300" />
+            <span className="hidden sm:inline">⚡ Flujo Táctil (3 Pasos)</span>
+            <span className="sm:hidden">⚡ 3 Pasos</span>
+            <span
+              className={`px-2 py-0.5 rounded-full text-[10px] ${
+                activeTab === 'tactil_3_pasos' ? 'bg-emerald-700 text-white' : 'bg-slate-800 text-slate-400'
+              }`}
+            >
+              {combinedOrders.length}
+            </span>
+          </button>
+
           <button
             type="button"
             onClick={() => setActiveTab('bodega')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`min-h-[48px] h-12 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer touch-manipulation active:scale-95 ${
               activeTab === 'bodega'
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
                 : 'text-slate-400 hover:text-white'
@@ -618,7 +691,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
           <button
             type="button"
             onClick={() => setActiveTab('despacho')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`min-h-[48px] h-12 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer touch-manipulation active:scale-95 ${
               activeTab === 'despacho'
                 ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
                 : 'text-slate-400 hover:text-white'
@@ -638,10 +711,10 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
         </div>
       </div>
 
-      {/* Barra de Búsqueda Rápida y Filtros OTIF */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-900/60 p-3 rounded-2xl border border-white/10 backdrop-blur-md">
-        <div className="flex items-center gap-2 bg-slate-950/80 px-3 py-1.5 rounded-xl border border-white/10 flex-1 max-w-md">
-          <Search size={15} className="text-cyan-400 shrink-0" />
+      {/* Barra de Búsqueda Rápida y Filtros OTIF con Targets Táctiles >= 48px */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-900/60 p-3 sm:p-3.5 rounded-2xl border border-white/10 backdrop-blur-md">
+        <div className="flex items-center gap-2.5 bg-slate-950/80 px-3.5 py-2.5 rounded-xl border border-white/10 flex-1 max-w-md min-h-[48px] h-12">
+          <Search size={18} className="text-cyan-400 shrink-0" />
           <input
             type="text"
             value={searchQuery}
@@ -650,14 +723,17 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
             className="bg-transparent text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none w-full"
           />
           {searchQuery && (
-            <button onClick={() => setSearchQuery('')} className="text-slate-400 hover:text-white">
-              <X size={14} />
+            <button
+              onClick={() => setSearchQuery('')}
+              className="min-h-[36px] min-w-[36px] flex items-center justify-center text-slate-400 hover:text-white cursor-pointer"
+            >
+              <X size={16} />
             </button>
           )}
         </div>
 
-        {/* Chips de filtro rápido */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+        {/* Chips de filtro rápido ergonómicos (>= 48px de altura táctil) */}
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
           {(
             [
               { id: 'TODOS', label: 'Todos', icon: undefined },
@@ -672,14 +748,15 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
               <button
                 key={chip.id}
                 type="button"
+                data-testid={`filter-chip-${chip.id.toLowerCase()}`}
                 onClick={() => setQuickFilter(chip.id)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1 cursor-pointer ${
+                className={`min-h-[48px] h-12 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer touch-manipulation active:scale-95 ${
                   isActive
-                    ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm shadow-cyan-500/30'
-                    : 'bg-card border-white/5/5 text-slate-400 hover:text-white hover:bg-card border-white/5/10'
+                    ? 'bg-cyan-500 text-slate-950 font-black shadow-md shadow-cyan-500/30'
+                    : 'bg-slate-800/80 border border-white/10 text-slate-300 hover:text-white hover:bg-slate-800'
                 }`}
               >
-                {Icon && <Icon size={12} />}
+                {Icon && <Icon size={14} />}
                 <span>{chip.label}</span>
               </button>
             );
@@ -1132,16 +1209,140 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                           </div>
                         )}
 
-                        {/* Footer con Fecha y Total si es Bodega */}
-                        {activeTab === 'bodega' && (
+                        {/* Modo Táctil Simplificado (3 Macro-Estados) - Regla del Niño de 12 Años */}
+                        {activeTab === 'tactil_3_pasos' && (
+                          <div className="pt-2.5 border-t border-white/10 flex flex-col gap-2">
+                            {/* Fila de estado rápido */}
+                            <div className="flex items-center justify-between text-xs font-mono">
+                              <span className="text-slate-400">
+                                {hasWeight ? (
+                                  <span className="text-emerald-400 font-bold flex items-center gap-1">
+                                    <Scale size={13} /> {totalKg.toFixed(2)} KG pesados
+                                  </span>
+                                ) : (
+                                  <span className="text-amber-400/90 font-medium flex items-center gap-1">
+                                    <Clock size={13} /> {lines.length} productos
+                                  </span>
+                                )}
+                              </span>
+                              <span className="text-white font-bold text-sm">
+                                ${(quote.totalFinal || quote.total || 0).toLocaleString('es-CO')}
+                              </span>
+                            </div>
+
+                            {/* Botones de acción táctil según la macro-columna (>= 48px de altura táctil) */}
+                            <div className="flex items-center gap-2 pt-1">
+                              {/* 1. Preparación WMS */}
+                              {column.id === 'creados' && (
+                                <>
+                                  <button
+                                    type="button"
+                                    data-testid={`tactil-pesar-${quote.id}`}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const unweighed = lines.find((l: any) => !l.pesoReal) || lines[0];
+                                      if (unweighed) {
+                                        setPackingModalItem({
+                                          orderId: quote.id,
+                                          item: {
+                                            lineaPedidoId: unweighed.id || unweighed.productoId || 'line-1',
+                                            productoId: unweighed.productoId || unweighed.id,
+                                            productoNombre: unweighed.nombre || unweighed.nombreProducto || 'Producto Pesquero',
+                                            sku: unweighed.sku,
+                                            modalidad:
+                                              unweighed.modalidadVenta ||
+                                              (unweighed.piezasSolicitadas ? 'CATCH_WEIGHT_PIEZAS' : 'PESO_DIRECTO'),
+                                            pesoNominalKg: Number(unweighed.cantidadSolicitada || unweighed.pesoEstimado || 2.0),
+                                            piezasSolicitadas: unweighed.piezasSolicitadas,
+                                            calibreMinGramos: unweighed.calibreMinGramos,
+                                            calibreMaxGramos: unweighed.calibreMaxGramos,
+                                            precioUnitarioPactado: Number(unweighed.precioPactado || unweighed.precio || 30000),
+                                            loteSugerido: unweighed.loteSeleccionado,
+                                          },
+                                        });
+                                      }
+                                    }}
+                                    className="min-h-[48px] h-12 flex-1 px-3 py-2 rounded-xl text-xs font-bold bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 border border-amber-500/40 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm active:scale-95 touch-manipulation"
+                                    title="Pesar en báscula digital"
+                                  >
+                                    <Scale size={16} />
+                                    <span>Pesar</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    data-testid={`tactil-advance-despacho-${quote.id}`}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      moveOrderToColumn(quote.id, 'en_despacho');
+                                    }}
+                                    className="min-h-[48px] h-12 flex-1 px-3 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
+                                    title="Avanzar a Ruta de Entrega"
+                                  >
+                                    <span>A Ruta</span>
+                                    <ArrowRight size={16} />
+                                  </button>
+                                </>
+                              )}
+
+                              {/* 2. En Ruta de Entrega */}
+                              {column.id === 'en_despacho' && (
+                                <>
+                                  {!quote.remisionWmsNumero && (
+                                    <button
+                                      type="button"
+                                      data-testid={`tactil-remision-${quote.id}`}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setDispatchModalOrder(quote);
+                                      }}
+                                      className="min-h-[48px] h-12 flex-1 px-3 py-2 rounded-xl text-xs font-bold bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white border border-purple-500/40 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm active:scale-95 touch-manipulation"
+                                      title="Generar remisión WMS con QR"
+                                    >
+                                      <QrCode size={16} />
+                                      <span>Remisión QR</span>
+                                    </button>
+                                  )}
+
+                                  <button
+                                    type="button"
+                                    data-testid={`tactil-advance-entregado-${quote.id}`}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      moveOrderToColumn(quote.id, 'entregados');
+                                    }}
+                                    className="min-h-[48px] h-12 flex-1 px-3 py-2 rounded-xl text-xs font-black bg-purple-600 hover:bg-purple-500 text-white shadow-md shadow-purple-600/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
+                                    title="Marcar como entregado al cliente"
+                                  >
+                                    <CheckCircle size={16} />
+                                    <span>Entregado</span>
+                                  </button>
+                                </>
+                              )}
+
+                              {/* 3. Entregado / Liquidado */}
+                              {column.id === 'entregados' && (
+                                <div className="w-full min-h-[48px] h-12 px-3 py-2 rounded-xl text-xs font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center justify-center gap-2">
+                                  <CheckCircle size={16} />
+                                  <span>✓ Entregado & Liquidado</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Footer con Fecha y Total si es Bodega o Táctil */}
+                        {(activeTab === 'bodega' || activeTab === 'tactil_3_pasos') && (
                           <div className="pt-1.5 flex justify-between items-center text-xs">
                             <span className="text-[11px] text-slate-500 flex items-center gap-1">
                               <Clock size={11} />
                               {quote.fecha || 'Hoy'}
                             </span>
-                            <span className="font-mono font-bold text-white">
-                              ${(quote.totalFinal || quote.total || 0).toLocaleString('es-CO')}
-                            </span>
+                            {activeTab === 'bodega' && (
+                              <span className="font-mono font-bold text-white">
+                                ${(quote.totalFinal || quote.total || 0).toLocaleString('es-CO')}
+                              </span>
+                            )}
                           </div>
                         )}
                       </div>

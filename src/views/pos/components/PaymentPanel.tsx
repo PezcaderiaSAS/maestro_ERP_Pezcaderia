@@ -11,6 +11,8 @@ import {
   CheckCircle,
   Coins,
   Zap,
+  Smartphone,
+  Wallet,
 } from 'lucide-react';
 import { NumericFormat } from 'react-number-format';
 import { Button } from '../../../components/ui/Button';
@@ -23,6 +25,8 @@ import {
   BILLETES_RAPIDOS_SUGERIDOS,
 } from '../../../../packages/validation-schemas/src/posCashEngine.schema';
 
+import { PosElectronicInvoiceToggle } from './PosElectronicInvoiceToggle';
+
 export type MetodoCobroPos = 'EFECTIVO' | 'NEQUI' | 'DAVIPLATA' | 'QR_BANCOLOMBIA' | 'DATAFONO' | 'CREDITO';
 
 export interface PaymentPanelProps {
@@ -33,7 +37,7 @@ export interface PaymentPanelProps {
   bodegaActivaId: string;
   bodegaActivaNombre: string;
   onGuardarBorrador: () => void;
-  onPagar: (pagos: { metodo: MetodoCobroPos; monto: number }[]) => Promise<any> | void;
+  onPagar: (pagos: { metodo: MetodoCobroPos; monto: number }[], options?: { requiereFacturaElectronica?: boolean }) => Promise<any> | void;
   onLimpiarCarrito: () => void;
   isDisabled: boolean;
   isTurnoAbierto: boolean;
@@ -61,10 +65,22 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
   topeMaximoGaveta = 1500000,
 }) => {
   const { imprimirTicket } = usePOSPrinter();
+  const [categoriaActiva, setCategoriaActiva] = useState<'EFECTIVO' | 'TRANSFERENCIA' | 'DATAFONO' | 'CREDITO'>('EFECTIVO');
+  const [subTransferencia, setSubTransferencia] = useState<'NEQUI' | 'DAVIPLATA' | 'QR_BANCOLOMBIA'>('NEQUI');
   const [metodoPago, setMetodoPago] = useState<MetodoCobroPos>('EFECTIVO');
   const [efectivoRecibido, setEfectivoRecibido] = useState<number>(0);
 
   const [isModoMixto, setIsModoMixto] = useState(false);
+  const [requiereFacturaElectronica, setRequiereFacturaElectronica] = useState<boolean>(() => {
+    return cliente?.exigeFacturaElectronica || false;
+  });
+
+  useEffect(() => {
+    if (cliente?.exigeFacturaElectronica) {
+      setRequiereFacturaElectronica(true);
+    }
+  }, [cliente]);
+
   const [pagosMixtos, setPagosMixtos] = useState<Record<MetodoCobroPos, number>>({
     EFECTIVO: 0,
     NEQUI: 0,
@@ -75,6 +91,21 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
   });
 
   const efectivoInputRef = useRef<HTMLInputElement>(null);
+
+  const handleSelectCategoria = (cat: 'EFECTIVO' | 'TRANSFERENCIA' | 'DATAFONO' | 'CREDITO') => {
+    setCategoriaActiva(cat);
+    if (cat === 'TRANSFERENCIA') {
+      setMetodoPago(subTransferencia);
+    } else {
+      setMetodoPago(cat);
+    }
+  };
+
+  const handleSelectSubTransferencia = (sub: 'NEQUI' | 'DAVIPLATA' | 'QR_BANCOLOMBIA') => {
+    setSubTransferencia(sub);
+    setCategoriaActiva('TRANSFERENCIA');
+    setMetodoPago(sub);
+  };
 
   // Al cambiar totalFinal o método a EFECTIVO, sugerir monto exacto si está en cero
   useEffect(() => {
@@ -95,17 +126,45 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
   // Atajos de teclado físico
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Si el foco está en un textarea o modal abierto, ignorar
-      if (['TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
+      const isInput = ['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName);
 
-      if ((e.key === 'Enter' || e.key === 'F4') && !e.shiftKey && !e.ctrlKey) {
+      if ((e.key === 'Enter') && !e.shiftKey && !e.ctrlKey) {
         if (!isDisabled && isTurnoAbierto && totalFinal > 0) {
           e.preventDefault();
           handleCobrarClick();
         }
-      } else if (e.code === 'Space' && (e.target as HTMLElement)?.tagName !== 'INPUT') {
+      } else if (e.code === 'Space' && !isInput) {
         e.preventDefault();
         setEfectivoRecibido(totalFinal);
+      } else if (e.key === 'F1') {
+        e.preventDefault();
+        handleSelectCategoria('EFECTIVO');
+      } else if (e.key === 'F2') {
+        e.preventDefault();
+        if (categoriaActiva === 'TRANSFERENCIA') {
+          const cycle: Record<'NEQUI' | 'DAVIPLATA' | 'QR_BANCOLOMBIA', 'NEQUI' | 'DAVIPLATA' | 'QR_BANCOLOMBIA'> = {
+            NEQUI: 'DAVIPLATA',
+            DAVIPLATA: 'QR_BANCOLOMBIA',
+            QR_BANCOLOMBIA: 'NEQUI',
+          };
+          handleSelectSubTransferencia(cycle[subTransferencia]);
+        } else {
+          handleSelectCategoria('TRANSFERENCIA');
+        }
+      } else if (e.key === 'F3') {
+        e.preventDefault();
+        handleSelectCategoria('DATAFONO');
+      } else if (e.key === 'F4') {
+        e.preventDefault();
+        handleSelectCategoria('CREDITO');
+      } else if (!isInput && categoriaActiva === 'TRANSFERENCIA' && ['1', '2', '3'].includes(e.key)) {
+        e.preventDefault();
+        const subMap: Record<string, 'NEQUI' | 'DAVIPLATA' | 'QR_BANCOLOMBIA'> = {
+          '1': 'NEQUI',
+          '2': 'DAVIPLATA',
+          '3': 'QR_BANCOLOMBIA',
+        };
+        if (subMap[e.key]) handleSelectSubTransferencia(subMap[e.key]);
       } else if (e.altKey && ['1', '2', '3', '4', '5', '6'].includes(e.key)) {
         e.preventDefault();
         const map: Record<string, MetodoCobroPos> = {
@@ -116,7 +175,14 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
           '5': 'DATAFONO',
           '6': 'CREDITO',
         };
-        if (map[e.key]) setMetodoPago(map[e.key]);
+        const target = map[e.key];
+        if (target) {
+          if (target === 'EFECTIVO' || target === 'DATAFONO' || target === 'CREDITO') {
+            handleSelectCategoria(target);
+          } else {
+            handleSelectSubTransferencia(target);
+          }
+        }
       } else if (e.key === 'F8') {
         e.preventDefault();
         handleCobroEfectivoExactoDirecto();
@@ -125,7 +191,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [totalFinal, efectivoRecibido, isTurnoAbierto, isDisabled, isModoMixto, pagosMixtos, metodoPago]);
+  }, [totalFinal, efectivoRecibido, isTurnoAbierto, isDisabled, isModoMixto, pagosMixtos, metodoPago, categoriaActiva, subTransferencia]);
 
   const handleCobroEfectivoExactoDirecto = () => {
     if (!isTurnoAbierto) {
@@ -133,7 +199,11 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
       return;
     }
     if (isDisabled || totalFinal <= 0) return;
-    onPagar([{ metodo: 'EFECTIVO', monto: totalFinal }]);
+    if (requiereFacturaElectronica) {
+      onPagar([{ metodo: 'EFECTIVO', monto: totalFinal }], { requiereFacturaElectronica: true });
+    } else {
+      onPagar([{ metodo: 'EFECTIVO', monto: totalFinal }]);
+    }
   };
 
   const handleCobrarClick = async () => {
@@ -243,7 +313,9 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
     }
 
     try {
-      const ventaProcesada = await onPagar(pagosFinales);
+      const ventaProcesada = requiereFacturaElectronica
+        ? await onPagar(pagosFinales, { requiereFacturaElectronica: true })
+        : await onPagar(pagosFinales);
       if (ventaProcesada) {
         await imprimirTicket(ventaProcesada, cliente);
         onLimpiarCarrito();
@@ -285,7 +357,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
       <div className="flex justify-between items-center px-1">
         <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
           <span>Medio de Pago</span>
-          <kbd className="hidden sm:inline-block px-1 py-0.2 bg-slate-100 border border-slate-300 text-[9px] rounded text-slate-600 font-mono font-bold">F1-F6</kbd>
+          <kbd className="hidden sm:inline-block px-1 py-0.2 bg-slate-100 border border-slate-300 text-[9px] rounded text-slate-600 font-mono font-bold">F1-F4</kbd>
         </label>
         <button
           onClick={() => {
@@ -315,35 +387,148 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
 
       {!isModoMixto ? (
         <>
-          {/* Fila Horizontal Compacta de Medios de Pago (Estilo Tabs / Pills AntD) */}
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-1">
-            {[
-              { id: 'EFECTIVO' as const, label: 'Efectivo', icon: Banknote, keyNum: '1' },
-              { id: 'NEQUI' as const, label: 'Nequi', icon: Phone, keyNum: '2' },
-              { id: 'DAVIPLATA' as const, label: 'Daviplata', icon: Phone, keyNum: '3' },
-              { id: 'QR_BANCOLOMBIA' as const, label: 'QR Banc.', icon: QrCode, keyNum: '4' },
-              { id: 'DATAFONO' as const, label: 'Datáfono', icon: CreditCard, keyNum: '5' },
-              { id: 'CREDITO' as const, label: 'Crédito', icon: Landmark, keyNum: '6' },
-            ].map((m) => {
-              const Icon = m.icon;
-              const isSelected = metodoPago === m.id;
-              return (
+          {/* Grilla Ergonómica 2x2 para Macro-Medios de Pago */}
+          <div className="grid grid-cols-2 gap-2">
+            {/* 1. Efectivo [F1] */}
+            <button
+              type="button"
+              data-testid="btn-metodo-efectivo"
+              onClick={() => handleSelectCategoria('EFECTIVO')}
+              title="Seleccionar Efectivo (F1)"
+              className={`flex items-center justify-between min-h-[50px] h-auto py-2 px-3 rounded-xl border transition-all cursor-pointer select-none active:scale-95 ${
+                categoriaActiva === 'EFECTIVO'
+                  ? 'border-emerald-500 bg-emerald-50/90 text-emerald-800 shadow-sm ring-2 ring-emerald-400 font-bold'
+                  : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-sm font-semibold'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Banknote size={18} className={categoriaActiva === 'EFECTIVO' ? 'text-emerald-600 shrink-0' : 'text-slate-500 shrink-0'} />
+                <span className="text-xs font-bold leading-tight">Efectivo</span>
+              </div>
+              <kbd className="px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-100 border border-slate-200 text-slate-600">F1</kbd>
+            </button>
+
+            {/* 2. Transferencia [F2] */}
+            <button
+              type="button"
+              data-testid="btn-metodo-transferencia"
+              onClick={() => handleSelectCategoria('TRANSFERENCIA')}
+              title="Seleccionar Transferencia (F2: Nequi / Daviplata / QR)"
+              className={`flex items-center justify-between min-h-[50px] h-auto py-2 px-3 rounded-xl border transition-all cursor-pointer select-none active:scale-95 ${
+                categoriaActiva === 'TRANSFERENCIA'
+                  ? 'border-indigo-500 bg-indigo-50/90 text-indigo-800 shadow-sm ring-2 ring-indigo-400 font-bold'
+                  : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-sm font-semibold'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Smartphone size={18} className={categoriaActiva === 'TRANSFERENCIA' ? 'text-indigo-600 shrink-0' : 'text-slate-500 shrink-0'} />
+                <span className="text-xs font-bold leading-tight">Transferencia</span>
+              </div>
+              <kbd className="px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-100 border border-slate-200 text-slate-600">F2</kbd>
+            </button>
+
+            {/* 3. Datáfono [F3] */}
+            <button
+              type="button"
+              data-testid="btn-metodo-datafono"
+              onClick={() => handleSelectCategoria('DATAFONO')}
+              title="Seleccionar Datáfono (F3)"
+              className={`flex items-center justify-between min-h-[50px] h-auto py-2 px-3 rounded-xl border transition-all cursor-pointer select-none active:scale-95 ${
+                categoriaActiva === 'DATAFONO'
+                  ? 'border-sky-500 bg-sky-50/90 text-sky-800 shadow-sm ring-2 ring-sky-400 font-bold'
+                  : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-sm font-semibold'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <CreditCard size={18} className={categoriaActiva === 'DATAFONO' ? 'text-sky-600 shrink-0' : 'text-slate-500 shrink-0'} />
+                <span className="text-xs font-bold leading-tight">Datáfono</span>
+              </div>
+              <kbd className="px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-100 border border-slate-200 text-slate-600">F3</kbd>
+            </button>
+
+            {/* 4. Crédito [F4] */}
+            <button
+              type="button"
+              data-testid="btn-metodo-credito"
+              onClick={() => handleSelectCategoria('CREDITO')}
+              title="Seleccionar Crédito (F4)"
+              className={`flex items-center justify-between min-h-[50px] h-auto py-2 px-3 rounded-xl border transition-all cursor-pointer select-none active:scale-95 ${
+                categoriaActiva === 'CREDITO'
+                  ? 'border-slate-500 bg-slate-100 text-slate-900 shadow-sm ring-2 ring-slate-400 font-bold'
+                  : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-sm font-semibold'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Landmark size={18} className={categoriaActiva === 'CREDITO' ? 'text-slate-700 shrink-0' : 'text-slate-500 shrink-0'} />
+                <span className="text-xs font-bold leading-tight">Crédito</span>
+              </div>
+              <kbd className="px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-100 border border-slate-200 text-slate-600">F4</kbd>
+            </button>
+          </div>
+
+          {/* Sub-Barra de Transferencias (Nequi, Daviplata, QR Bancolombia) */}
+          {categoriaActiva === 'TRANSFERENCIA' && (
+            <div
+              data-testid="sub-pills-transferencias"
+              className="p-2.5 bg-slate-50 border border-indigo-200 rounded-xl flex flex-col gap-2 shadow-sm animate-in fade-in duration-200"
+            >
+              <div className="flex items-center justify-between px-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                  Destino de Transferencia:
+                </span>
+                <span className="text-[10px] font-mono text-slate-500 font-medium">Teclas 1 - 3</span>
+              </div>
+              <div className="grid grid-cols-3 gap-1.5">
+                {/* Nequi */}
                 <button
-                  key={m.id}
-                  onClick={() => setMetodoPago(m.id)}
-                  title={`Seleccionar ${m.label} (Alt+${m.keyNum})`}
-                  className={`flex flex-col sm:flex-row items-center justify-center gap-1.5 min-h-[48px] h-12 py-1.5 px-2.5 rounded-xl border text-center transition-all cursor-pointer active:scale-95 ${
-                    isSelected
-                      ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm ring-2 ring-indigo-400 font-bold'
-                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-sm font-semibold'
+                  type="button"
+                  data-testid="pill-transferencia-nequi"
+                  onClick={() => handleSelectSubTransferencia('NEQUI')}
+                  className={`flex items-center justify-center gap-1.5 min-h-[44px] h-11 py-1 px-2 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
+                    subTransferencia === 'NEQUI'
+                      ? 'bg-fuchsia-50 border-fuchsia-500 text-fuchsia-700 shadow-sm ring-2 ring-fuchsia-300'
+                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                   }`}
                 >
-                  <Icon size={16} className={isSelected ? 'text-indigo-600 shrink-0' : 'text-slate-500 shrink-0'} />
-                  <span className="text-xs font-bold truncate leading-tight">{m.label}</span>
+                  <Smartphone size={15} className={subTransferencia === 'NEQUI' ? 'text-fuchsia-600 shrink-0' : 'text-slate-400 shrink-0'} />
+                  <span>Nequi</span>
+                  <kbd className="text-[9px] font-mono px-1 py-0.2 bg-slate-100 rounded text-slate-500">1</kbd>
                 </button>
-              );
-            })}
-          </div>
+
+                {/* Daviplata */}
+                <button
+                  type="button"
+                  data-testid="pill-transferencia-daviplata"
+                  onClick={() => handleSelectSubTransferencia('DAVIPLATA')}
+                  className={`flex items-center justify-center gap-1.5 min-h-[44px] h-11 py-1 px-2 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
+                    subTransferencia === 'DAVIPLATA'
+                      ? 'bg-rose-50 border-rose-500 text-rose-700 shadow-sm ring-2 ring-rose-300'
+                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  <Wallet size={15} className={subTransferencia === 'DAVIPLATA' ? 'text-rose-600 shrink-0' : 'text-slate-400 shrink-0'} />
+                  <span>Daviplata</span>
+                  <kbd className="text-[9px] font-mono px-1 py-0.2 bg-slate-100 rounded text-slate-500">2</kbd>
+                </button>
+
+                {/* QR Bancolombia */}
+                <button
+                  type="button"
+                  data-testid="pill-transferencia-qr_bancolombia"
+                  onClick={() => handleSelectSubTransferencia('QR_BANCOLOMBIA')}
+                  className={`flex items-center justify-center gap-1.5 min-h-[44px] h-11 py-1 px-2 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
+                    subTransferencia === 'QR_BANCOLOMBIA'
+                      ? 'bg-amber-50 border-amber-500 text-amber-700 shadow-sm ring-2 ring-amber-300'
+                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  <QrCode size={15} className={subTransferencia === 'QR_BANCOLOMBIA' ? 'text-amber-600 shrink-0' : 'text-slate-400 shrink-0'} />
+                  <span className="leading-tight">QR Bancolombia</span>
+                  <kbd className="text-[9px] font-mono px-1 py-0.2 bg-slate-100 rounded text-slate-500">3</kbd>
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Panel de Efectivo y Cambio Compacto para Laptops */}
           {metodoPago === 'EFECTIVO' && (
@@ -451,18 +636,18 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
 
           <div className="grid grid-cols-2 gap-2.5">
             {[
-              { id: 'EFECTIVO' as const, label: 'Efectivo', icon: Banknote },
-              { id: 'NEQUI' as const, label: 'Nequi', icon: Phone },
-              { id: 'DAVIPLATA' as const, label: 'Daviplata', icon: Phone },
-              { id: 'QR_BANCOLOMBIA' as const, label: 'QR Bancolombia', icon: QrCode },
-              { id: 'DATAFONO' as const, label: 'Datáfono', icon: CreditCard },
-              { id: 'CREDITO' as const, label: 'Crédito', icon: Landmark },
+              { id: 'EFECTIVO' as const, label: 'Efectivo', icon: Banknote, color: 'text-emerald-600' },
+              { id: 'NEQUI' as const, label: 'Nequi', icon: Smartphone, color: 'text-fuchsia-600' },
+              { id: 'DAVIPLATA' as const, label: 'Daviplata', icon: Wallet, color: 'text-rose-600' },
+              { id: 'QR_BANCOLOMBIA' as const, label: 'QR Bancolombia', icon: QrCode, color: 'text-amber-600' },
+              { id: 'DATAFONO' as const, label: 'Datáfono', icon: CreditCard, color: 'text-sky-600' },
+              { id: 'CREDITO' as const, label: 'Crédito', icon: Landmark, color: 'text-slate-700' },
             ].map((m) => {
               const Icon = m.icon;
               return (
                 <div key={m.id} className="flex flex-col gap-1">
                   <label className="flex items-center gap-1.5 text-[11px] font-bold text-slate-700 uppercase">
-                    <Icon size={12} className="text-indigo-600" /> {m.label}
+                    <Icon size={13} className={m.color} /> {m.label}
                   </label>
                   <NumericFormat
                     value={pagosMixtos[m.id] || ''}
@@ -473,7 +658,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
                     allowNegative={false}
                     prefix="$ "
                     placeholder="$ 0"
-                    className="w-full h-10 px-3 rounded-xl border border-slate-300 bg-white text-sm font-bold text-slate-900 focus:border-indigo-600 outline-none tabular-nums shadow-sm"
+                    className="w-full min-h-[44px] h-11 px-3 rounded-xl border border-slate-300 bg-white text-sm font-bold text-slate-900 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20 outline-none tabular-nums shadow-xs"
                     disabled={isDisabled}
                   />
                 </div>
@@ -489,6 +674,13 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
           )}
         </div>
       )}
+
+      {/* Selector Dual: Control Interno vs Facturación Electrónica DIAN */}
+      <PosElectronicInvoiceToggle
+        checked={requiereFacturaElectronica}
+        onChange={setRequiereFacturaElectronica}
+        cliente={cliente}
+      />
 
       {/* Botón de Cobro Fricción Cero en 1 Clic (Regla del Niño de 12 Años: 1-Tap Checkout) */}
       <button

@@ -41,6 +41,8 @@ export interface VentaPOS {
   bodegaId?: string;        // Alias directo de bodegaId
   
   // Compatibilidad con impresión y logs
+  consecutivoInterno?: string;
+  consecutivoFiscal?: string;
   actor?: string;
   items?: any[];
   descuento?: number;

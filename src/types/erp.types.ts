@@ -24,6 +24,7 @@ export interface Cliente {
   cupoCreditoUsado?: number;
   isGranContribuyente?: boolean;
   isAutoretenedor?: boolean;
+  exigeFacturaElectronica?: boolean;
   activo: boolean;
 }
 
@@ -343,6 +344,9 @@ export interface Venta {
   montoPagadoTarjeta?: number;
   montoPagadoCredito?: number;
   cambioEntregado?: number;
+  consecutivoInterno?: string;
+  consecutivoFiscal?: string;
+  requiereFacturaElectronica?: boolean;
 }
 
 export interface LogIntegracion {
