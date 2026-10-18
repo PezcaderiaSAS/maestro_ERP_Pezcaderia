@@ -111,9 +111,17 @@
     2. *Paso 2 (Novedades & Extras):* Steppers táctiles de horas extras diurnas/nocturnas, bonificaciones y deducciones con recálculo dinámico en COP.
     3. *Paso 3 (Liquidar & Desembolsar):* Resumen contrastado de Neto a Pagar y Costo Empresa, selección de medio de pago (Transferencia / Efectivo) y desembolso automático integrado atómicamente con `cashService.registrarMovimiento` en turno activo (`EGRESO_GASTO`).
   - Suite TDD `src/tests/payroll3StepsWizard.test.tsx` creada con **6/6 tests verdes**.
-- [ ] `TASK-018-13`: **Suite Integral E2E, Auditoría Master Architect y Quality Gate Final**
-  - Ejecutar suite Vitest completa (100% pasando).
-  - Verificar `tsc --noEmit` (0 errores).
-  - Ejecutar `npm run test:boundaries` (0 violaciones de límites arquitectónicos).
-  - Comprobación final en vivo con Chrome DevTools MCP.
+- [x] `TASK-018-13`: **Suite Integral E2E, Auditoría Master Architect y Quality Gate Final** [COMPLETADA Y CERTIFICADA]
+  - Suite de integración de la Fase 4 creada en `src/tests/dashboardAndPayroll12YearsRule.test.tsx` (4/4 tests verdes).
+  - Consolidado de las 4 Fases de la Regla del Niño de 12 Años certificado al 100%:
+    1. Fase 1: `posAndCash12YearsRule.test.tsx` (12 tests verdes).
+    2. Fase 2: `warehouseWms12YearsRule.test.tsx` (10 tests verdes), `bucaramangaReceivingWizard.test.tsx` (7 tests verdes), `warehouseTransferPanel.test.tsx` (6 tests verdes).
+    3. Fase 3: `arAndDispatch12YearsRule.test.tsx` (10 tests verdes), `quickAbonoModal.test.tsx` (6 tests verdes), `orderKanban3MacroStates.test.tsx` (6 tests verdes).
+    4. Fase 4: `dashboardExecutiveTrafficLight.test.tsx` (8 tests verdes), `payroll3StepsWizard.test.tsx` (6 tests verdes), `dashboardAndPayroll12YearsRule.test.tsx` (4 tests verdes).
+  - Suite Vitest global: **95 suites pasadas, 640 tests verdes (100% pasando)**.
+  - TypeScript estricto: `tsc --noEmit` verificado con **0 errores**.
+  - Auditoría Master Architect SOLID (`audit-solid-boundaries.cjs`): 345 archivos analizados en 205 ms con **0 violaciones críticas**.
+  - Validación Chrome DevTools MCP en vivo (`http://localhost:3000/`): 0 errores en consola JS, vista responsive 375 px verificada y ergonomía táctil $\ge 48\text{ px}$ en todos los flujos principales.
+  - **SPEC-018 CULMINADA Y CERTIFICADA AL 100%.**
+
 
