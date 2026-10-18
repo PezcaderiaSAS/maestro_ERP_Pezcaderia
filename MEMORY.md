@@ -20,6 +20,10 @@
 7. **SPEC-020 (Completada 100% - CERTIFICADA):** Resoluciones de Venta, Consecutivo Dual y Facturación Electrónica DIAN / SIIGO Nube API v2 (Control interno inmutable VTA-xxxx, timbrado fiscal FEVP-xxxx con sincronización correlativa de Siigo, selector táctil >= 48px en checkout POS, modal post-facturación en 1 toque sin duplicar inventario/caja, cola outbox con retry y exportador CSV contable). 12/12 tests verdes en 3 suites dedicadas.
 8. **SPEC-021 (Completada 100% - CERTIFICADA):** Sincronización Resiliente Offline-First, Heartbeat de Conectividad (15s) y Cola Outbox Avanzada para POS y Facturación SIIGO Nube API v2.
    - `TASK-021-01` a `TASK-021-05` [DONE]: IndexedDB `caja_outbox_v2`, idempotencia determinista MD5, Heartbeat dual cada 15s con timeout de 3s, backoff exponencial con jitter, aislamiento de errores 400 (`ERROR_FATAL_DATOS`), actualización atómica en Zustand (`useResolucionStore`), ergonomía táctil $\ge 48\text{ px}$ en `NetworkSyncStatusBadge`, micro-aviso preventivo en POS Checkout sin fricción en mostrador, y bucle Chrome DevTools interactivo. 18/18 tests verdes en `offlineOutboxResilience.test.ts` y 640/640 tests globales del proyecto.
+9. **SPEC-022 (En Proceso - TASK-022-01 CERTIFICADA):** Compras, Proveedores y Recepción con Trazabilidad FEFO en Muelle.
+   - Ciclo SDD v3.0 completado: `spec.md` (5 diagramas Mermaid), `clarify.md` (3 acuerdos), `checklist.md`, `plan.md`, `tasks.md` (WIP=1) y `analyze.md`.
+   - `TASK-022-01` [DONE]: `dockPurchasesReceiving.schema.ts` (tara canastilla 2.0 kg, hielo 0-15%, semáforo térmico HACCP $\le 4^\circ\text{C}$, redondeo entero COP). 12/12 tests verdes en `dockPurchasesReceiving.schema.test.ts`.
+
 
 ## Protocolo Brownfield al Abrir Sesión
 - Ejecutar `npm run session:pull` (8 pasos: Verificación Entorno/Conexiones, Investigador SDD RULE-SDD-001, Graphify, GitNexus, `tsc --noEmit`, Auditoría 5 Diagramas Mermaid, Auditoría Master Architect y chequeo servidor Vite).

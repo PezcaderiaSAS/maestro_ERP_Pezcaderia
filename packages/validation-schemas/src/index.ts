@@ -11,3 +11,4 @@ export * from './purchasesBucaramanga.schema';
 
 export * from './wms.schema';
 export * from './branchInventory.schema';
+export * from './dockPurchasesReceiving.schema';
