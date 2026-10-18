@@ -26,6 +26,7 @@ import {
 } from '../../../../packages/validation-schemas/src/posCashEngine.schema';
 
 import { PosElectronicInvoiceToggle } from './PosElectronicInvoiceToggle';
+import { useNetworkHeartbeat } from '../../../hooks/useNetworkHeartbeat';
 
 export type MetodoCobroPos = 'EFECTIVO' | 'NEQUI' | 'DAVIPLATA' | 'QR_BANCOLOMBIA' | 'DATAFONO' | 'CREDITO';
 
@@ -65,6 +66,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
   topeMaximoGaveta = 1500000,
 }) => {
   const { imprimirTicket } = usePOSPrinter();
+  const { isOffline } = useNetworkHeartbeat();
   const [categoriaActiva, setCategoriaActiva] = useState<'EFECTIVO' | 'TRANSFERENCIA' | 'DATAFONO' | 'CREDITO'>('EFECTIVO');
   const [subTransferencia, setSubTransferencia] = useState<'NEQUI' | 'DAVIPLATA' | 'QR_BANCOLOMBIA'>('NEQUI');
   const [metodoPago, setMetodoPago] = useState<MetodoCobroPos>('EFECTIVO');
@@ -320,6 +322,19 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
         await imprimirTicket(ventaProcesada, cliente);
         onLimpiarCarrito();
         setEfectivoRecibido(0);
+
+        if (isOffline && requiereFacturaElectronica) {
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: 'Venta Registrada en Modo Offline',
+            text: 'Tirilla interna impresa (VTA). Factura Electrónica guardada en Outbox para timbrarse automáticamente al volver internet.',
+            timer: 3500,
+            showConfirmButton: false,
+          });
+        }
+
         // Regla del Niño de 12 Años: Retorno inmediato de foco al buscador para la siguiente venta
         const searchInput = document.getElementById('pos-product-search-input');
         if (searchInput) {
@@ -681,6 +696,19 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
         onChange={setRequiereFacturaElectronica}
         cliente={cliente}
       />
+
+      {/* Micro-Aviso Preventivo en Caso de Facturar en Modo Offline (Regla del Niño de 12 Años) */}
+      {requiereFacturaElectronica && isOffline && (
+        <div
+          data-testid="offline-invoice-notice"
+          className="flex items-center gap-2.5 p-2.5 bg-amber-50 border border-amber-300 rounded-xl text-amber-900 text-xs font-semibold animate-pulse shadow-xs"
+        >
+          <AlertCircle size={16} className="text-amber-600 shrink-0" />
+          <div className="leading-tight">
+            <span className="font-black">Modo Fuera de Línea Activo:</span> Se emitirá tirilla interna física y la Factura Electrónica quedará encolada en Outbox para timbrarse automáticamente al volver internet.
+          </div>
+        </div>
+      )}
 
       {/* Botón de Cobro Fricción Cero en 1 Clic (Regla del Niño de 12 Años: 1-Tap Checkout) */}
       <button
