@@ -384,8 +384,8 @@ export const APP_ROUTES_METADATA: Record<AppRouteId, AppRouteMetadata<AppRouteId
     subtitle: 'Recepción de Camión & Pescadores',
     description: 'Pesaje directo de camión en muelle, liquidación inmediata por especie y merma térmica.',
     iconName: 'Anchor',
-    allowedRoles: ['admin', 'bodega'],
-    isPrimaryNav: false,
+    allowedRoles: ['admin', 'bodega', 'administrativo'],
+    isPrimaryNav: true,
     testId: 'nav-compras-muelle',
   },
   [AppRouteId.MEAT_CUTTING]: {

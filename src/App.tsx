@@ -19,6 +19,7 @@ import { DevTestDashboard } from './dev/DevTestDashboard';
 import AccountingView from './views/AccountingView';
 import { ColdStorageRentalView } from './views/coldStorageRental/ColdStorageRentalView';
 import { B2BExternalSalesView } from './views/b2b/B2BExternalSalesView';
+import { PurchasesReceivingView } from './views/purchases/PurchasesReceivingView';
 import { EnterpriseSidebar, type ERPViewKey } from './components/layout/EnterpriseSidebar';
 import { EnterpriseTopbar } from './components/layout/EnterpriseTopbar';
 import { GlobalOmniboxModal } from './components/layout/GlobalOmniboxModal';
@@ -1346,7 +1347,7 @@ export default function App() {
       case 'kardex':
         return <InventoryView initialViewMode="kardex" />;
       case 'compras_muelle':
-        return <InventoryView initialViewMode="compras_muelle" />;
+        return <PurchasesReceivingView />;
       case 'despiece':
         return <InventoryView initialViewMode="despiece" />;
       case 'alistamiento':

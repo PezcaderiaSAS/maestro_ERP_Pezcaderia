@@ -145,10 +145,10 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
       items: [
         {
           key: 'compras_muelle',
-          label: 'Llegada Camión (BCM)',
-          icon: Truck,
-          badge: 'Nuevo',
-          badgeVariant: 'cyan',
+          label: 'Compras en Muelle',
+          icon: Anchor,
+          badge: 'FEFO',
+          badgeVariant: 'emerald',
           testId: 'nav-compras-muelle',
         },
         {
