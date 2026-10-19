@@ -8,6 +8,7 @@ import {
 import { useOrderStore } from '../../store/useOrderStore';
 import { useClientStore } from '../../store/useClientStore';
 import { useAppStore } from '../../store/useAppStore';
+import { AppRouteId } from '../../routes/AppRoute';
 import { Pedido } from '../../types/orders.types';
 import { deliveryRouteService, DeliveryRouteRecord } from '../../services/deliveryRouteService';
 import { routeManifestPdfService } from '../../services/routeManifestPdfService';
@@ -22,6 +23,7 @@ export const DispatchView: React.FC = () => {
   const { ventas, quotations } = useOrderStore();
   const { getClienteById } = useClientStore();
   const userRole = useAppStore((s) => s.userRole);
+  const setCurrentView = useAppStore((s) => s.setCurrentView);
 
   const [activeTab, setActiveTab] = useState<TabView>('PEDIDOS_LISTOS');
   const [searchTerm, setSearchTerm] = useState('');
@@ -116,6 +118,15 @@ export const DispatchView: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setCurrentView(AppRouteId.DRIVER_PORTAL)}
+            className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 hover:text-white font-bold text-xs sm:text-sm border border-emerald-500/30 transition-all flex items-center gap-2 active:scale-95 shadow-md shadow-emerald-500/10"
+            title="Abrir App PWA Móvil para Conductores y Repartidores"
+          >
+            <Smartphone className="w-4 h-4 text-emerald-400" />
+            <span>App Conductor PWA</span>
+          </button>
+
           <button
             onClick={() => setIsBuilderOpen(true)}
             className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 text-white font-bold text-xs sm:text-sm shadow-lg shadow-indigo-500/20 hover:from-blue-500 hover:to-indigo-600 transition-all flex items-center gap-2"

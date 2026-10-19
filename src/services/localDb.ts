@@ -61,6 +61,8 @@ export const DB_KEYS = {
   branch_replenishment_requests: 'pezcaderia_branch_replenishment_requests',
   pos_orders: 'pezcaderia_pos_orders',
   sales_orders: 'pezcaderia_sales_orders',
+  driver_pwa_session: 'pezcaderia_driver_pwa_session',
+  driver_pwa_active_manifest: 'pezcaderia_driver_pwa_active_manifest',
 } as const;
 
 export type DbKey = keyof typeof DB_KEYS;

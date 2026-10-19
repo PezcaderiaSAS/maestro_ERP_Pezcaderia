@@ -20,6 +20,7 @@ import AccountingView from './views/AccountingView';
 import { ColdStorageRentalView } from './views/coldStorageRental/ColdStorageRentalView';
 import { B2BExternalSalesView } from './views/b2b/B2BExternalSalesView';
 import { PurchasesReceivingView } from './views/purchases/PurchasesReceivingView';
+import { DriverPortalView } from './views/driver/DriverPortalView';
 import { EnterpriseSidebar, type ERPViewKey } from './components/layout/EnterpriseSidebar';
 import { EnterpriseTopbar } from './components/layout/EnterpriseTopbar';
 import { GlobalOmniboxModal } from './components/layout/GlobalOmniboxModal';
@@ -703,6 +704,19 @@ export default function App() {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
+
+  // Sincronización hash URL para PWA standalone de repartidores
+  useEffect(() => {
+    const syncHashRoute = () => {
+      const hash = window.location.hash.replace('#', '').replace('/', '');
+      if (hash === 'repartidor') {
+        setCurrentView('repartidor');
+      }
+    };
+    syncHashRoute();
+    window.addEventListener('hashchange', syncHashRoute);
+    return () => window.removeEventListener('hashchange', syncHashRoute);
+  }, [setCurrentView]);
 
   const { productsCatalog, setProductsCatalog, productPricings, setProductPricings, products, loadInventory } = useInventoryStore();
 
@@ -1388,10 +1402,23 @@ export default function App() {
         return <ColdStorageRentalView />;
       case 'ventas_b2b':
         return <B2BExternalSalesView onNavigateToKanban={() => setCurrentView('kanban')} />;
+      case 'repartidor':
+        return <DriverPortalView />;
       default:
         return <DashboardView />;
     }
   };
+
+  // Modo PWA Standalone para Conductor / Repartidor Móvil
+  if (currentView === 'repartidor') {
+    return (
+      <div className="w-screen h-screen overflow-y-auto bg-slate-950 font-sans select-none">
+        <DriverPortalView />
+        <ConsentGateModal />
+        {import.meta.env.DEV && <DevTestDashboard />}
+      </div>
+    );
+  }
 
   return (
     <div 

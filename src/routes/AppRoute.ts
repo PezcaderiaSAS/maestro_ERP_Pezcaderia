@@ -37,6 +37,7 @@ export enum AppRouteId {
   COLD_STORAGE_RENTAL = 'alquiler_cf',
   DOCK_PURCHASES = 'compras_muelle',
   MEAT_CUTTING = 'despiece',
+  DRIVER_PORTAL = 'repartidor',
 
   // Dominio Finanzas & Tesorería
   CASH_DESK = 'caja',
@@ -84,6 +85,7 @@ export const WMS_ROUTES: readonly AppRouteId[] = [
   AppRouteId.COLD_STORAGE_RENTAL,
   AppRouteId.DOCK_PURCHASES,
   AppRouteId.MEAT_CUTTING,
+  AppRouteId.DRIVER_PORTAL,
 ] as const;
 
 export const FINANCIAL_ROUTES: readonly AppRouteId[] = [
@@ -145,6 +147,10 @@ export interface RouteParamsMap {
   [AppRouteId.DISPATCHES]: {
     routeId?: string;
     activeTab?: 'routes' | 'settlement' | 'governance';
+  } | undefined;
+  [AppRouteId.DRIVER_PORTAL]: {
+    rutaId?: string;
+    conductorId?: string;
   } | undefined;
   [AppRouteId.COLD_STORAGE_RENTAL]: {
     contractId?: string;
@@ -363,6 +369,18 @@ export const APP_ROUTES_METADATA: Record<AppRouteId, AppRouteMetadata<AppRouteId
     allowedRoles: ['admin', 'bodega', 'administrativo'],
     isPrimaryNav: true,
     testId: 'nav-despachos',
+  },
+  [AppRouteId.DRIVER_PORTAL]: {
+    id: AppRouteId.DRIVER_PORTAL,
+    path: '/repartidor',
+    title: 'App Móvil Repartidor',
+    domain: RouteDomain.WMS,
+    subtitle: 'Entregas en Terreno & Rutas B2B',
+    description: 'Terminal móvil para conductores con hoja de ruta, llamada directa, Waze, firma táctil y sincronización offline.',
+    iconName: 'Navigation',
+    allowedRoles: ['admin', 'bodega', 'vendedor', 'administrativo'],
+    isPrimaryNav: false,
+    testId: 'nav-repartidor',
   },
   [AppRouteId.COLD_STORAGE_RENTAL]: {
     id: AppRouteId.COLD_STORAGE_RENTAL,

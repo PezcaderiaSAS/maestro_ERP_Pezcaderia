@@ -15,7 +15,8 @@ export type TipoTransaccionOutbox =
   | 'VENTA_POS_LOCAL'
   | 'GASTO_CAJA'
   | 'ARQUEO_TURNO'
-  | 'POST_FACTURACION_DIAN';
+  | 'POST_FACTURACION_DIAN'
+  | 'ENTREGA_RUTA_PWA';
 
 export type EstadoConectividad = 'ONLINE' | 'OFFLINE' | 'DEGRADED';
 
