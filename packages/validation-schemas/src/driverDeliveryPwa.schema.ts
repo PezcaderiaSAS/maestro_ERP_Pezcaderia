@@ -65,7 +65,8 @@ export const RegistroEjecucionParadaSchema = z
     devoluciones: z.array(DevolucionItemRutaSchema).default([]),
     montoCobradoEfectivo: z.number().min(0, 'El monto en efectivo no puede ser negativo').default(0),
     montoCobradoTransferencia: z.number().min(0, 'El monto en transferencia no puede ser negativo').default(0),
-    comprobanteTransferencia: z.string().trim().optional()
+    comprobanteTransferencia: z.string().trim().optional(),
+    formaPagoEfectuada: z.enum(['CREDITO_B2B', 'EFECTIVO', 'TRANSFERENCIA_DIGITAL', 'MIXTO']).optional()
   })
   .refine(
     (data) => {

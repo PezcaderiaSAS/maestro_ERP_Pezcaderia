@@ -44,6 +44,7 @@ import { useMovementStore } from './store/useMovementStore';
 import { useEventStore } from './store/useEventStore';
 import { useAppStore } from './store/useAppStore';
 import { ConsentGateModal } from './components/legal/ConsentGateModal';
+import { PwaUpdatePromptModal } from './components/pwa/PwaUpdatePromptModal';
 
 import { generateId, toTitleCase } from './lib/utils';
 export { generateId, toTitleCase };
@@ -1465,6 +1466,7 @@ export default function App() {
         onNavigate={(v) => setCurrentView(v as any)}
       />
       <ConsentGateModal />
+      <PwaUpdatePromptModal />
       {import.meta.env.DEV && <DevTestDashboard />}
     </div>
   );

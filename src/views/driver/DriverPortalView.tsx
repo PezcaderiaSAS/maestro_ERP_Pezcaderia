@@ -9,6 +9,8 @@ import { AppRouteId } from '../../routes/AppRoute';
 import { DriverLoginView } from './components/DriverLoginView';
 import { DriverRouteOverview } from './components/DriverRouteOverview';
 import { DriverStopExecutionView } from './components/DriverStopExecutionView';
+import { PwaInstallBannerButton } from '../../components/pwa/PwaInstallBannerButton';
+import { PwaUpdatePromptModal } from '../../components/pwa/PwaUpdatePromptModal';
 import Swal from 'sweetalert2';
 
 /**
@@ -208,6 +210,9 @@ export const DriverPortalView: React.FC = () => {
 
       {/* CONTENIDO PRINCIPAL DINÁMICO */}
       <main className="flex-1 flex flex-col p-4 sm:p-6 max-w-lg mx-auto w-full">
+        {/* Banner Táctil de Instalación PWA (Visible si es instalable y no está en standalone) */}
+        <PwaInstallBannerButton className="mb-4" />
+
         {!session ? (
           /* PANTALLA 1: INICIO DE TURNO */
           <div className="flex-1 flex flex-col justify-center">
@@ -225,6 +230,9 @@ export const DriverPortalView: React.FC = () => {
           </div>
         )}
       </main>
+
+      {/* Modal flotante de actualización */}
+      <PwaUpdatePromptModal />
     </div>
   );
 };

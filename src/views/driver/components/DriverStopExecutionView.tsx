@@ -39,7 +39,10 @@ export const DriverStopExecutionView: React.FC = () => {
   // Devoluciones parciales
   const [devoluciones, setDevoluciones] = useState<DevolucionItemRuta[]>([]);
 
-  // Recaudo
+  // Forma de pago y recaudo
+  const [formaPagoSeleccionada, setFormaPagoSeleccionada] = useState<'CREDITO_B2B' | 'EFECTIVO' | 'TRANSFERENCIA_DIGITAL' | 'MIXTO'>(
+    selectedStop?.formaPago || 'EFECTIVO'
+  );
   const [montoEfectivo, setMontoEfectivo] = useState<number>(
     selectedStop?.formaPago === 'EFECTIVO' ? (selectedStop.montoPedidoOriginal || 0) : 0
   );
@@ -47,6 +50,22 @@ export const DriverStopExecutionView: React.FC = () => {
     selectedStop?.formaPago === 'TRANSFERENCIA_DIGITAL' ? (selectedStop.montoPedidoOriginal || 0) : 0
   );
   const [comprobanteTransferencia, setComprobanteTransferencia] = useState<string>('');
+
+  const cambiarFormaPago = (nueva: 'CREDITO_B2B' | 'EFECTIVO' | 'TRANSFERENCIA_DIGITAL' | 'MIXTO') => {
+    setFormaPagoSeleccionada(nueva);
+    const total = selectedStop?.montoPedidoOriginal || 0;
+    if (nueva === 'CREDITO_B2B') {
+      setMontoEfectivo(0);
+      setMontoDigital(0);
+      setComprobanteTransferencia('');
+    } else if (nueva === 'EFECTIVO') {
+      setMontoEfectivo(total);
+      setMontoDigital(0);
+    } else if (nueva === 'TRANSFERENCIA_DIGITAL') {
+      setMontoDigital(total);
+      setMontoEfectivo(0);
+    }
+  };
 
   const [itemsChecklist, setItemsChecklist] = useState<Record<string, boolean>>({});
   const [errorLocal, setErrorLocal] = useState<string | null>(null);
@@ -114,9 +133,10 @@ export const DriverStopExecutionView: React.FC = () => {
         temperaturaLlegada: temperatura
       },
       devoluciones,
-      montoCobradoEfectivo: montoEfectivo,
-      montoCobradoTransferencia: montoDigital,
-      comprobanteTransferencia: comprobanteTransferencia.trim() || undefined
+      montoCobradoEfectivo: formaPagoSeleccionada === 'CREDITO_B2B' ? 0 : montoEfectivo,
+      montoCobradoTransferencia: formaPagoSeleccionada === 'CREDITO_B2B' ? 0 : montoDigital,
+      comprobanteTransferencia: formaPagoSeleccionada === 'CREDITO_B2B' ? undefined : (comprobanteTransferencia.trim() || undefined),
+      formaPagoEfectuada: formaPagoSeleccionada
     });
 
     if (!res.exito) {
@@ -292,56 +312,128 @@ export const DriverStopExecutionView: React.FC = () => {
         </div>
       </div>
 
-      {/* Recaudo y Cobranza */}
-      {selectedStop.formaPago !== 'CREDITO_B2B' && (
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-md p-4 space-y-3">
+      {/* Recaudo y Medio de Pago en Terreno */}
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-md p-4 space-y-3">
+        <div className="flex items-center justify-between">
           <label className="text-xs font-black text-slate-800 uppercase tracking-wide flex items-center gap-1.5">
             <DollarSign className="w-4 h-4 text-emerald-600" />
-            Recaudo en Terreno (COP)
+            Medio de Pago y Recaudo en Terreno
           </label>
+          <span className="text-xs font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-xl">
+            Total: ${selectedStop.montoPedidoOriginal.toLocaleString('es-CO')}
+          </span>
+        </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="text-[11px] font-bold text-slate-600 block mb-1">
-                Efectivo Físico Recibido
-              </label>
-              <input
-                type="number"
-                value={montoEfectivo}
-                onChange={(e) => setMontoEfectivo(parseFloat(e.target.value) || 0)}
-                className="w-full min-h-[48px] bg-slate-50 border border-slate-300 rounded-2xl px-4 text-base font-mono font-bold text-slate-900 focus:bg-white focus:outline-none"
-              />
-            </div>
+        {/* Selector Táctil de 4 Formas de Pago */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {(
+            [
+              { id: 'EFECTIVO', label: 'Efectivo', icon: '💵' },
+              { id: 'TRANSFERENCIA_DIGITAL', label: 'Transferencia', icon: '📱' },
+              { id: 'CREDITO_B2B', label: 'Crédito', icon: '💳' },
+              { id: 'MIXTO', label: 'Mixto', icon: '🔀' }
+            ] as const
+          ).map((m) => {
+            const isSelected = formaPagoSeleccionada === m.id;
+            return (
+              <button
+                key={m.id}
+                type="button"
+                data-testid={`btn-pago-${m.id.toLowerCase()}`}
+                onClick={() => cambiarFormaPago(m.id)}
+                className={`min-h-[48px] rounded-2xl border text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  isSelected
+                    ? m.id === 'CREDITO_B2B'
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                      : 'bg-emerald-600 text-white border-emerald-600 shadow-md'
+                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                <span>{m.icon}</span>
+                <span>{m.label}</span>
+              </button>
+            );
+          })}
+        </div>
 
+        {/* Panel condicional según la forma de pago */}
+        {formaPagoSeleccionada === 'CREDITO_B2B' ? (
+          <div className="p-3.5 rounded-2xl bg-blue-50 border border-blue-200 text-xs text-blue-900 font-medium flex items-start gap-2.5">
+            <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
             <div>
-              <label className="text-[11px] font-bold text-slate-600 block mb-1">
-                Transferencia Digital (Nequi / Bancolombia)
-              </label>
-              <input
-                type="number"
-                value={montoDigital}
-                onChange={(e) => setMontoDigital(parseFloat(e.target.value) || 0)}
-                className="w-full min-h-[48px] bg-slate-50 border border-slate-300 rounded-2xl px-4 text-base font-mono font-bold text-slate-900 focus:bg-white focus:outline-none"
-              />
+              <div className="font-bold text-blue-950">Venta Entregada a Crédito B2B</div>
+              <div className="text-[11px] text-blue-800 mt-0.5">
+                El cliente recibe la mercancía a satisfacción. El monto se causará en su cuenta por cobrar (cartera) sin exigir recaudo de dinero en efectivo en ruta.
+              </div>
             </div>
           </div>
+        ) : (
+          <div className="space-y-3 pt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {(formaPagoSeleccionada === 'EFECTIVO' || formaPagoSeleccionada === 'MIXTO') && (
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[11px] font-bold text-slate-600">
+                      Efectivo Físico Recibido
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setMontoEfectivo(selectedStop.montoPedidoOriginal)}
+                      className="text-[10px] text-emerald-700 font-bold hover:underline cursor-pointer"
+                    >
+                      Exacto
+                    </button>
+                  </div>
+                  <input
+                    type="number"
+                    value={montoEfectivo}
+                    onChange={(e) => setMontoEfectivo(parseFloat(e.target.value) || 0)}
+                    className="w-full min-h-[48px] bg-slate-50 border border-slate-300 rounded-2xl px-4 text-base font-mono font-bold text-slate-900 focus:bg-white focus:outline-none"
+                  />
+                </div>
+              )}
 
-          {montoDigital > 0 && (
-            <div>
-              <label className="text-[11px] font-bold text-slate-600 block mb-1">
-                # Comprobante de Transferencia *
-              </label>
-              <input
-                type="text"
-                value={comprobanteTransferencia}
-                onChange={(e) => setComprobanteTransferencia(e.target.value)}
-                placeholder="Ej: NEQUI-78219"
-                className="w-full min-h-[48px] bg-slate-50 border border-slate-300 rounded-2xl px-4 text-xs font-mono text-slate-900 focus:bg-white focus:outline-none"
-              />
+              {(formaPagoSeleccionada === 'TRANSFERENCIA_DIGITAL' || formaPagoSeleccionada === 'MIXTO') && (
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[11px] font-bold text-slate-600">
+                      Monto Transferencia (Nequi / Bancolombia)
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setMontoDigital(selectedStop.montoPedidoOriginal)}
+                      className="text-[10px] text-emerald-700 font-bold hover:underline cursor-pointer"
+                    >
+                      Exacto
+                    </button>
+                  </div>
+                  <input
+                    type="number"
+                    value={montoDigital}
+                    onChange={(e) => setMontoDigital(parseFloat(e.target.value) || 0)}
+                    className="w-full min-h-[48px] bg-slate-50 border border-slate-300 rounded-2xl px-4 text-base font-mono font-bold text-slate-900 focus:bg-white focus:outline-none"
+                  />
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      )}
+
+            {(formaPagoSeleccionada === 'TRANSFERENCIA_DIGITAL' || (formaPagoSeleccionada === 'MIXTO' && montoDigital > 0)) && (
+              <div>
+                <label className="text-[11px] font-bold text-slate-600 block mb-1">
+                  # Comprobante / Referencia de Transferencia *
+                </label>
+                <input
+                  type="text"
+                  value={comprobanteTransferencia}
+                  onChange={(e) => setComprobanteTransferencia(e.target.value)}
+                  placeholder="Ej: NEQUI-78219 o BANCOLOMBIA-4512"
+                  className="w-full min-h-[48px] bg-slate-50 border border-slate-300 rounded-2xl px-4 text-xs font-mono text-slate-900 focus:bg-white focus:outline-none"
+                />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* Datos del Receptor y Firma */}
       <div className="bg-white rounded-3xl border border-slate-200 shadow-md p-4 space-y-3">

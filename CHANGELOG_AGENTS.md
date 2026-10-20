@@ -19,6 +19,36 @@ Cada vez que un agente de IA finalice una sesión de trabajo, debe agregar una e
 
 ## Registros Diarios
 
+### [2026-10-20 11:00] - Antigravity (Senior Enterprise Architect & Systems Coordinator)
+- **Módulos:** Service Worker PWA, Web App Manifest, Gestión de Ciclo de Vida Offline y Modo de Pago Crédito B2B para Repartidores (SPEC-024: TASK-024-01 a TASK-024-05).
+- **Acción:**
+  1. *Web App Manifest W3C & Iconos Vectoriales:* Creados `public/manifest.webmanifest` con `start_url: "/"`, `display: "standalone"` y accesos directos a `/repartidor` y `/ventas/pos`. Iconos vectoriales semánticos SVG de alta fidelidad (`icon-192.svg`, `icon-512.svg`, `shortcut-driver.svg`, `shortcut-pos.svg`) a Costo $0 sin dependencias externas (`RULE-SDD-001`). Enlazados en `index.html` con meta tags para iOS/Apple Web App.
+  2. *Service Worker Nativo Resiliente:* Implementado `public/sw.js` con estrategia de triple capa:
+     - Pre-cache de App Shell básico.
+     - `Network-First` con fallback a caché local para navegaciones HTML.
+     - `Stale-While-Revalidate` para assets JS/CSS/fuentes estáticas.
+     - `Network-Only` (bypass absoluto) para llamadas a Supabase y APIs REST.
+     - Gestión del ciclo de vida con evento `message` (`SKIP_WAITING`).
+  3. *Gestor de Ciclo de Vida & Store Zustand:*
+     - Creado `src/services/serviceWorkerRegistration.ts` con registro asíncrono no bloqueante post-load y método `applyServiceWorkerUpdate()`.
+     - Creado `src/store/usePwaStore.ts` para estado reactivo de instalación (`isStandalone`, `isInstallable`, `hasUpdatePending`, `deferredPrompt`).
+     - Inicialización en bootstrap de `src/main.tsx`.
+  4. *Modo de Pago Crédito B2B en Terreno & Modales Táctiles ("Regla del Niño de 12 Años"):*
+     - Selector táctil de 4 botones en `DriverStopExecutionView.tsx`: Efectivo, Transferencia, Crédito B2B y Mixto.
+     - Al seleccionar "Crédito", se ocultan inputs de recaudación física, el monto a cobrar se fija en $0 y se muestra un banner informativo azul de causación contable B2B.
+     - Modal de actualización disponible `PwaUpdatePromptModal.tsx` con botón de 56 px montado en `App.tsx` y `DriverPortalView.tsx`.
+     - Banner táctil de instalación `PwaInstallBannerButton.tsx` (48 px) en `DriverPortalView.tsx`.
+  5. *Quality Gate & Certificación:*
+     - Vitest: **108 suites pasadas (108/108), 736 tests verdes (736/736), 0 fallos** (14 tests dedicados en `pwaServiceWorkerRegistration.test.tsx`).
+     - TypeScript estricto: **0 errores (`tsc --noEmit`)**.
+     - Master Architect SOLID: 383 archivos analizados en 104 ms, **0 violaciones críticas**.
+     - Dependencias: 38 oficiales preservadas al 100% (0 deltas).
+  6. *Preparación para Cierre por Corte Eléctrico & Reanudación Post-Pull:*
+     - Documentación de estado en `MEMORY.md` y artefacto `session_closure_handover_2026_10_20.md`.
+     - Backlog priorizado listo para continuar: `SPEC-025` (Dispatcher HTTP Real SIIGO Nube API v2).
+- **Archivos Modificados / Creados:** `public/manifest.webmanifest`, `public/sw.js`, `public/icons/*`, `index.html`, `src/main.tsx`, `src/App.tsx`, `packages/validation-schemas/src/driverDeliveryPwa.schema.ts`, `src/services/driverDeliveryPwaService.ts`, `src/services/serviceWorkerRegistration.ts`, `src/store/usePwaStore.ts`, `src/components/pwa/*`, `src/views/driver/*`, `src/tests/pwaServiceWorkerRegistration.test.tsx`, `specs/024-pwa-service-worker-offline-manifest/*`.
+- **Notas/Bloqueos para la Próxima Sesión:** Todo sincronizado y limpio en GitHub. Al regresar el suministro eléctrico, ejecutar `git pull` seguido de `npm run session:pull`.
+
 ### [2026-10-19 13:15] - Antigravity (Senior Enterprise Architect & Systems Coordinator)
 - **Módulos:** Calidad Central de Enrutamiento (`AppRoute.ts`), Quality Gate Pre-Push y Cierre de Sesión.
 - **Acción:**

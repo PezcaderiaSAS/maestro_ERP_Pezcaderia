@@ -1,0 +1,66 @@
+{
+  "name": "La Pezcadería ERP - Control Operativo",
+  "short_name": "Pezcadería",
+  "description": "Sistema ERP Data-Driven para control operativo, ventas POS, bodega WMS y rutas de reparto B2B",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#0f172a",
+  "background_color": "#ffffff",
+  "categories": ["business", "finance", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Portal Conductor Repartidor",
+      "short_name": "Conductor",
+      "description": "Entregas en ruta B2B, firma digital táctil y control de devoluciones",
+      "url": "/repartidor",
+      "icons": [
+        {
+          "src": "/icons/shortcut-driver.svg",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Punto de Venta Mostrador",
+      "short_name": "POS Caja",
+      "description": "Venta rápida de mostrador y cobro táctil",
+      "url": "/ventas/pos",
+      "icons": [
+        {
+          "src": "/icons/shortcut-pos.svg",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ]
+}

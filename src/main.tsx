@@ -28,8 +28,14 @@ import { setMovementDataService } from './store/useMovementStore';
 
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './lib/queryClient';
+import { usePwaStore } from './store/usePwaStore';
 
 initLogger();
+
+// Inicialización controlada del Service Worker y listeners PWA
+if (typeof window !== 'undefined') {
+  usePwaStore.getState().initPwaListeners();
+}
 
 if (import.meta.env.DEV || localStorage.getItem('debug')) {
   const wrapped = new LoggableDataService(new LocalDataService());

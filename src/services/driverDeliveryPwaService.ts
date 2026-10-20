@@ -213,6 +213,7 @@ export const driverDeliveryPwaService = {
       route.paradas[stopIndex] = {
         ...route.paradas[stopIndex],
         estadoEntrega: data.estadoFinal,
+        formaPago: data.formaPagoEfectuada || route.paradas[stopIndex].formaPago,
         montoCobradoFinal: totalCobrado,
         montoEfectivo: data.montoCobradoEfectivo,
         montoDigital: data.montoCobradoTransferencia,
@@ -241,6 +242,9 @@ export const driverDeliveryPwaService = {
       const pedidoIdx = manifiestoCentral.pedidos.findIndex((p) => p.id === data.paradaId);
       if (pedidoIdx >= 0) {
         manifiestoCentral.pedidos[pedidoIdx].estadoEntrega = data.estadoFinal;
+        if (data.formaPagoEfectuada) {
+          manifiestoCentral.pedidos[pedidoIdx].formaPago = data.formaPagoEfectuada;
+        }
         manifiestoCentral.pedidos[pedidoIdx].montoCobradoFinal = totalCobrado;
         manifiestoCentral.pedidos[pedidoIdx].montoEfectivo = data.montoCobradoEfectivo;
         manifiestoCentral.pedidos[pedidoIdx].montoDigital = data.montoCobradoTransferencia;
