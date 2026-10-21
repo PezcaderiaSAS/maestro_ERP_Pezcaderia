@@ -30,6 +30,8 @@ import type {
 } from '../../types/resoluciones.types';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { SiigoStatusBadge } from './components/SiigoStatusBadge';
+import { SiigoConfigModal } from './components/SiigoConfigModal';
 
 interface ResolucionesConfigViewProps {
   onClose?: () => void;
@@ -52,6 +54,7 @@ export const ResolucionesConfigView: React.FC<ResolucionesConfigViewProps> = ({
 
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingResolucion, setEditingResolucion] = useState<ResolucionVenta | null>(null);
+  const [isSiigoModalOpen, setIsSiigoModalOpen] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -266,6 +269,7 @@ export const ResolucionesConfigView: React.FC<ResolucionesConfigViewProps> = ({
               <X size={20} />
             </button>
           )}
+          <SiigoStatusBadge onClick={() => setIsSiigoModalOpen(true)} />
           <Button
             variant="primary"
             onClick={handleOpenCreate}
@@ -672,6 +676,11 @@ export const ResolucionesConfigView: React.FC<ResolucionesConfigViewProps> = ({
           </div>
         </div>
       )}
+      {/* ── Modal de Configuración SIIGO Nube API v2 ── */}
+      <SiigoConfigModal
+        isOpen={isSiigoModalOpen}
+        onClose={() => setIsSiigoModalOpen(false)}
+      />
     </div>
   );
 };

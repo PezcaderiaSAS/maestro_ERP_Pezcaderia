@@ -8,6 +8,7 @@ import { OutboxSyncService } from './outboxSyncService';
 import { NetworkConnectivityService } from './networkConnectivityService';
 import { useResolucionStore } from '../store/useResolucionStore';
 import { OfflineOutboxItem } from '../types/offlineSync.types';
+import { SiigoHttpDispatcher } from './siigoHttpDispatcher';
 
 export interface TransmitterResult {
   cufe?: string;
@@ -99,17 +100,7 @@ export class BackgroundSyncWorker {
    * Transmisor predeterminado para SIIGO Nube API v2
    */
   private static async defaultTransmit(item: OfflineOutboxItem): Promise<TransmitterResult> {
-    // Si no hay API key configurada o estamos en entorno local, simular éxito tributario
-    const numFiscal = item.consecutivoFiscal || `FEVP-${Math.floor(1000 + Math.random() * 9000)}`;
-    const cufe = `cufe-${item.idempotencyKey.replace('idemp-', '')}-${Date.now().toString(16)}`;
-    const qrUrl = `https://catalogo-vpfe.dian.gov.co/document/searchqr?documentkey=${cufe}`;
-
-    return {
-      cufe,
-      qrUrl,
-      siigoInvoiceId: `siigo-${Date.now()}`,
-      numeroFiscal: numFiscal,
-    };
+    return SiigoHttpDispatcher.transmitirFactura(item);
   }
 
   /**
