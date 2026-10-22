@@ -238,6 +238,24 @@ const SERVICE_REGISTRY = [
       }
       return { ok: true, elapsedMs: 1, details: 'Clave Hindsight activa en MCP' };
     }
+  },
+  {
+    id: 'google_harness2',
+    name: 'Google Harness² Local Engine (es-419)',
+    category: 'Inteligencia Artificial',
+    requiredVars: ['GEMINI_API_KEY'],
+    checkConnection: async (env) => {
+      const harnessEnvPath = path.join(ROOT_DIR, 'tools/harness2/.env');
+      if (!fs.existsSync(harnessEnvPath)) {
+        return { ok: false, elapsedMs: 0, error: 'tools/harness2/.env no existe' };
+      }
+      const harnessEnv = parseEnvFile(harnessEnvPath);
+      const key = harnessEnv.GEMINI_API_KEY || env.GEMINI_API_KEY;
+      if (!key || key.includes('tu_api_key')) {
+        return { ok: false, elapsedMs: 0, error: 'GEMINI_API_KEY no configurada en tools/harness2/.env' };
+      }
+      return { ok: true, elapsedMs: 1, details: 'Entorno tools/harness2/.env activo y mapeado a gemini-3.8-flash' };
+    }
   }
 ];
 

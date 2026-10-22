@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-10-22T10:58:53.796064",
+  "prompt": "SPEC-026: Dashboard Metricas Logisticas y Tiempos de Entrega OTIF para Despachos B2B",
+  "agent": "architect",
+  "total_duration_seconds": 180.04,
+  "results": {
+    "Google Harness²": {
+      "source": "Google Harness²",
+      "status": "ok",
+      "output": "======================================================================\n🚀 [HARNESS² ESPAÑOL] Iniciando ejecución segura con modelos a Costo $0\n======================================================================\n  • Idioma:          es-419\n  • Proveedor:       google_ai_studio\n  • Modelo Primario: gemini-3.8-flash\n  • Motor IDE:       antigravity-preview-09-2026\n  • Modo Recursión:  sequential (Protección Rate Limit activa)\n  • Presupuesto (k): 1 | Máx Tareas: 1\n======================================================================\n  [accounting] 1/2 skipped      ledger-1\n  [accounting] 2/2 skipped      ledger-2\nLocal demo: 2 tasks completed; 0 failed. C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\demo.json",
+      "returncode": 0,
+      "duration": 0.46
+    },
+    "Agency Swarm": {
+      "source": "Agency Swarm",
+      "status": "exception",
+      "output": "Command '['C:\\\\Python313\\\\python.exe', 'C:\\\\Users\\\\usuario\\\\OneDrive\\\\Documentos\\\\Aplicaciones Pezca\\\\MaestroPescaderia\\\\tools\\\\agency-swarm\\\\run_cli.py', '-p', 'SPEC-026: Dashboard Metricas Logisticas y Tiempos de Entrega OTIF para Despachos B2B', '-a', 'architect']' timed out after 180 seconds",
+      "duration": 180.04
+    }
+  }
+}

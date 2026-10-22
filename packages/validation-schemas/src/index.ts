@@ -14,3 +14,4 @@ export * from './branchInventory.schema';
 export * from './dockPurchasesReceiving.schema';
 export * from './driverDeliveryPwa.schema';
 export * from './siigoConfig.schema';
+export * from './otifMetrics.schema';

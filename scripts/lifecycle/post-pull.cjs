@@ -26,8 +26,12 @@ function run(cmd, desc, ignoreError = false) {
   }
 }
 
+// 0. Sincronización y Setup Interactivo de Harness² (Google AI Studio)
+console.log('🤖 [0/9] Sincronizando entorno interactivo de Harness² y Agency Swarm...');
+run('node scripts/lifecycle/setup-harness2-env.cjs', 'Setup Interactivo de Harness2', true);
+
 // 1. Verificación de Variables de Entorno y Conexiones Reales
-console.log('🔍 [1/8] Verificando variables de entorno y conectividad real...');
+console.log('🔍 [1/9] Verificando variables de entorno y conectividad real...');
 run('node scripts/lifecycle/verify-env-connections.cjs', 'Verificación de Entorno y Conexiones Reales');
 
 // 2. Investigación de Dependencias y Gobernanza SDD (Swarm / Brave Search)
