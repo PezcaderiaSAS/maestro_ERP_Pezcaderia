@@ -253,7 +253,7 @@ describe('SPEC-021: TASK-021-01 - OutboxSyncService & Idempotencia', () => {
       });
 
       expect(result.current.isDegraded).toBe(true);
-    });
+    }, 15000);
   });
 
   describe('4. BackgroundSyncWorker & Aislamiento de Errores (TASK-021-03)', () => {

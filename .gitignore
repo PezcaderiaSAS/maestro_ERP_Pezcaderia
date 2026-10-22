@@ -45,6 +45,10 @@ gemini_api_info.txt
 .venv/
 tools/agency-swarm/.venv/
 tools/agency-swarm/scratch/
+tools/harness2/.venv/
+tools/harness2/runs/
+tools/harness2/.env
+tools/harness2/.git/
 scratch/
 __pycache__/
 *.pyc

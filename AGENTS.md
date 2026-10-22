@@ -71,6 +71,7 @@ El proyecto cuenta con un ecosistema formal de habilidades y comandos slash de u
 | `/ponytail` | [`.agents/skills/ponytail-harness/SKILL.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agents/skills/ponytail-harness/SKILL.md) | Harness de pipelines de tareas encadenadas con checkpoints de verificación. |
 | `/ui-tools` | [`.agents/skills/ui-ux-ecosystem/SKILL.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agents/skills/ui-ux-ecosystem/SKILL.md) | Hub consolidado de Awesome-Design-Tools, Awesome-UI y Awesome-Styleguides. |
 | `/swarm` | [`tools/agency-swarm/`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/tools/agency-swarm/) | Enjambre multi-agente en Python (Gemini 2.5 Flash Lite) a costo $0 para ideación técnica especializada. |
+| `/harness2` | [`.agent/workflows/harness2.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agent/workflows/harness2.md) | Framework de autorreflexión y optimización recursiva de arneses de IA a costo $0 con Gemini Flash y Antigravity en Español. |
 
 ---
 

@@ -396,16 +396,16 @@
     "hash": "0a7e66ebb26b9b40e5a3584ef766393b"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\packages\\validation-schemas\\src\\driverDeliveryPwa.schema.ts": {
-    "mtime": 1792425745.1253088,
-    "hash": "76d050686e69b31f74a3fcef092bc952"
+    "mtime": 1792509768.44886,
+    "hash": "de6c6099df111d7a07a7f9d79911aeec"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\packages\\validation-schemas\\src\\fishProductionYield.schema.ts": {
     "mtime": 1790953734.669056,
     "hash": "0d8182bc3c9f4544add6167d25c2d1a2"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\packages\\validation-schemas\\src\\index.ts": {
-    "mtime": 1792425745.1263103,
-    "hash": "abee36980ddf8438ff7b1531211a1f0d"
+    "mtime": 1792681044.8926692,
+    "hash": "9bbf8ede81e253f67cbb9df4cfa14aca"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\packages\\validation-schemas\\src\\internalTransfer.schema.ts": {
     "mtime": 1790953734.6710546,
@@ -427,9 +427,17 @@
     "mtime": 1791901894.7345104,
     "hash": "a0efb9509923832569a8b8445602069f"
   },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\packages\\validation-schemas\\src\\siigoConfig.schema.ts": {
+    "mtime": 1792681044.8936765,
+    "hash": "a52d2d0050e559899e7ba06c34d26981"
+  },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\packages\\validation-schemas\\src\\wms.schema.ts": {
     "mtime": 1791564345.5739217,
     "hash": "8d1fad58158914b85b650fa7ebe5946a"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\public\\sw.js": {
+    "mtime": 1792509197.7973187,
+    "hash": "36cd8ba393565c6a1a0eb522280a5f39"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\scripts\\build_all_skills.py": {
     "mtime": 1790953734.680054,
@@ -488,12 +496,12 @@
     "hash": "bdddb2346b466fbf37cee64605e6c0b0"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\App.tsx": {
-    "mtime": 1792425745.1383078,
-    "hash": "9ee23fc39509445f14377c12ef14c997"
+    "mtime": 1792510206.170037,
+    "hash": "ddbb0cb733d155ec46a238cee174ca43"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\main.tsx": {
-    "mtime": 1791561859.8237116,
-    "hash": "7279473e501c1f370f95fe003f1c860d"
+    "mtime": 1792509535.990445,
+    "hash": "597e53ce9b0347acbc9bebd90ffdff6a"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\components\\BulkUploadModal.tsx": {
     "mtime": 1790953734.6940546,
@@ -562,6 +570,14 @@
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\components\\pos\\RestockModal.tsx": {
     "mtime": 1791301357.0269983,
     "hash": "e28bbe23c5839e7657061bf331b80add"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\components\\pwa\\PwaInstallBannerButton.tsx": {
+    "mtime": 1792510092.597569,
+    "hash": "4496f5b0986628c1b761e28abff1a6ce"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\components\\pwa\\PwaUpdatePromptModal.tsx": {
+    "mtime": 1792510074.2176287,
+    "hash": "2f84d0db9ae90565752ea74599e2cc50"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\components\\ui\\Badge.tsx": {
     "mtime": 1790956462.0768986,
@@ -740,8 +756,8 @@
     "hash": "d1b85c09101102b98931404cd350cf43"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\services\\backgroundSyncWorker.ts": {
-    "mtime": 1792425745.1433108,
-    "hash": "8889a9d4e6ba53ecf2e3430817bdb079"
+    "mtime": 1792681044.8978612,
+    "hash": "acca9d774d9828a4d795a714479c1050"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\services\\billingService.ts": {
     "mtime": 1788453683.0457983,
@@ -788,8 +804,8 @@
     "hash": "4c27f1f457e837f76d0c0dcac54f18c8"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\services\\driverDeliveryPwaService.ts": {
-    "mtime": 1792425745.1453106,
-    "hash": "2f140b43d57865666f6ecc32940a2f02"
+    "mtime": 1792509877.172274,
+    "hash": "9904063b8474e9260d6c5d614b466adb"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\services\\edgeFunctionService.ts": {
     "mtime": 1790953734.7200537,
@@ -875,9 +891,21 @@
     "mtime": 1788453627.638996,
     "hash": "c686840ad5d6ffbfe34811a897328ddb"
   },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\services\\serviceWorkerRegistration.ts": {
+    "mtime": 1792509448.9537103,
+    "hash": "454c7a07943927eb37051cf72e4f9ee6"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\services\\siigoAuthService.ts": {
+    "mtime": 1792681044.8988621,
+    "hash": "79e52347526841ad72afed04a9cecfb9"
+  },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\services\\siigoExportService.ts": {
     "mtime": 1792168468.5895782,
     "hash": "be708009e08b9393d124b62a03414048"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\services\\siigoHttpDispatcher.ts": {
+    "mtime": 1792681044.8998616,
+    "hash": "fd47cbb172192417cbd95edcdc87cbb9"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\services\\siigoPayloadMapper.ts": {
     "mtime": 1792168457.2164845,
@@ -999,6 +1027,10 @@
     "mtime": 1786718662.3034143,
     "hash": "340a03d575f6a9d5e5471510f0222c4a"
   },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\store\\usePwaStore.ts": {
+    "mtime": 1792509482.7412522,
+    "hash": "2f67a36e17d1beb04324998a8a1de5e6"
+  },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\store\\useResolucionStore.ts": {
     "mtime": 1792168076.5966122,
     "hash": "c9760556cf8b6d812246a01a770438a0"
@@ -1006,6 +1038,10 @@
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\store\\useReturnStore.ts": {
     "mtime": 1784123573.8325267,
     "hash": "2cae1333e26d9fcf2ccbc8f8915c9dc6"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\store\\useSiigoConfigStore.ts": {
+    "mtime": 1792681044.8998616,
+    "hash": "db2c1320616df41f9bf866165e803314"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\store\\useSupplierStore.ts": {
     "mtime": 1784123573.8335264,
@@ -1379,6 +1415,10 @@
     "mtime": 1784733450.0866735,
     "hash": "aeb2333b2c5ab025f8039718deebd7dd"
   },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\pwaServiceWorkerRegistration.test.tsx": {
+    "mtime": 1792510540.0906067,
+    "hash": "29efd811ae018b8f0854dbbe7148f34b"
+  },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\quickAbonoModal.test.tsx": {
     "mtime": 1792164126.6000948,
     "hash": "976d3d5599ad3d3a7a2cb79c018dcf8d"
@@ -1407,9 +1447,29 @@
     "mtime": 1790953734.734054,
     "hash": "c705aac0916dc086efc729665135c9f8"
   },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\siigoAuthService.test.ts": {
+    "mtime": 1792681044.90086,
+    "hash": "5086381d204d7c792df98ca6d45d5156"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\siigoComponents.test.tsx": {
+    "mtime": 1792681044.9018607,
+    "hash": "35b9f1c6efbdf4dc675f8a11c6537dcb"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\siigoConfig.schema.test.ts": {
+    "mtime": 1792681044.9018607,
+    "hash": "91936119bf529edbaeb15f713f1c86b0"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\siigoHttpDispatcher.test.ts": {
+    "mtime": 1792681044.902861,
+    "hash": "7aa6a96caa530ff5f34de709b3933784"
+  },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\siigoPayloadAndExport.test.ts": {
     "mtime": 1792168854.7636507,
     "hash": "2d33184d8b9d7f88f62fb5f5909ef79d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\siigoStoreAndWorker.test.ts": {
+    "mtime": 1792681044.902861,
+    "hash": "8f1bfa483b33fc56bcdcca4a6745c5de"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\tanstackQueryIntegration.test.ts": {
     "mtime": 1790953734.734054,
@@ -1526,6 +1586,10 @@
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\types\\services.types.ts": {
     "mtime": 1784123573.875507,
     "hash": "217e250b81b30610845b3233719d6481"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\types\\siigo.types.ts": {
+    "mtime": 1792681044.903861,
+    "hash": "b85e0622979d6f4bcbc67019c02f4c91"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\utils\\bulkProductQueue.ts": {
     "mtime": 1788277303.4788852,
@@ -1664,8 +1728,8 @@
     "hash": "f6d98a1898a132cf817d7f9db229094c"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\driver\\DriverPortalView.tsx": {
-    "mtime": 1792425745.169309,
-    "hash": "a94f7b42a5a570b386f47596ad058e7a"
+    "mtime": 1792510275.2812722,
+    "hash": "6a2c29d8f0b495db8d1d6684e7f4a656"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\driver\\components\\DriverLoginView.tsx": {
     "mtime": 1792425745.1703084,
@@ -1684,8 +1748,8 @@
     "hash": "ccd25079a8716018b8b02c8bafa5a70c"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\driver\\components\\DriverStopExecutionView.tsx": {
-    "mtime": 1792425745.1723094,
-    "hash": "c28e2fe3db1c678daddd2696aeea092f"
+    "mtime": 1792510055.1269076,
+    "hash": "408133c1cfe448d89b078366081ab1a4"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\driver\\components\\DriverStopHeaderCard.tsx": {
     "mtime": 1792425745.1723094,
@@ -1996,8 +2060,16 @@
     "hash": "14f40165d01ccf711cd36406eb297f05"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\settings\\ResolucionesConfigView.tsx": {
-    "mtime": 1792168557.871399,
-    "hash": "58f059c5c54d74b4440ea069cba18a1a"
+    "mtime": 1792681044.9058616,
+    "hash": "2c33eef52af240290ba8a86184b1be65"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\settings\\components\\SiigoConfigModal.tsx": {
+    "mtime": 1792681044.906862,
+    "hash": "f263cc04f2281ff75d78ecbf4e947573"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\settings\\components\\SiigoStatusBadge.tsx": {
+    "mtime": 1792681044.906862,
+    "hash": "5fc79e826f91a70ea468d9300cfb1157"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\supabase\\functions\\pos-checkout-orchestrator\\index.ts": {
     "mtime": 1790953734.7720542,
@@ -2103,12 +2175,408 @@
     "mtime": 1790953734.778055,
     "hash": "6f7502950a9bc4097079b37f82bb2707"
   },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\run_harness2.ps1": {
+    "mtime": 1792680837.81263,
+    "hash": "876e9f7269a93d8ba4e8baac46264601"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\run_harness2.py": {
+    "mtime": 1792680856.6624286,
+    "hash": "da4056b3a48d1bc3adb3f0710c638735"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\config.py": {
+    "mtime": 1792680318.4394412,
+    "hash": "cc621afb12bb02981a59f92cd49568e9"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\demo.py": {
+    "mtime": 1792680318.4533494,
+    "hash": "4a24381457a93f6e2ae7a12e949fe3af"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\install.py": {
+    "mtime": 1792680318.4543498,
+    "hash": "860d93dbf70e73080f07ae0666df14c3"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\preflight.py": {
+    "mtime": 1792680318.4543498,
+    "hash": "08fc4f329124f631b0f53d4e3bf0333e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\__init__.py": {
+    "mtime": 1792680318.4214394,
+    "hash": "8686e2fb057434abb064585c83bc4d2a"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\benchmarks\\jb_opencode_runner.py": {
+    "mtime": 1792680318.4224386,
+    "hash": "e30dc7d52f3629a2728ca80f3462becc"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\benchmarks\\jobbench.py": {
+    "mtime": 1792680318.4234385,
+    "hash": "9eff0f0d69a289060148141a135a28dc"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\benchmarks\\lab.py": {
+    "mtime": 1792680318.4254408,
+    "hash": "e89cfbf5df2172df7e1c33311f65bdc0"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\benchmarks\\tasks.py": {
+    "mtime": 1792680318.4274392,
+    "hash": "120ca56d5714ce3f3d86af0732117088"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\benchmarks\\wb_render.py": {
+    "mtime": 1792680318.4274392,
+    "hash": "af2d04bde122ded6692f5d4b3346a534"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\benchmarks\\workbuddy.py": {
+    "mtime": 1792680318.42844,
+    "hash": "0b2d8d20faeb744aeef7fa258251fb00"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\benchmarks\\__init__.py": {
+    "mtime": 1792680318.4224386,
+    "hash": "8b312eddc7635b9e09fa9253863c986a"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\cli\\bridge.py": {
+    "mtime": 1792680318.430439,
+    "hash": "ac08ff176e3f067e154b7f8e96c2abc9"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\cli\\check.py": {
+    "mtime": 1792680318.4314392,
+    "hash": "9c421b7e4e71f238a6ac7af6d66413c1"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\cli\\demo.py": {
+    "mtime": 1792680318.4334404,
+    "hash": "9d4da443dc0a7e8da77e220ae1e28cc5"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\cli\\judge.py": {
+    "mtime": 1792680318.4334404,
+    "hash": "385f63a1c75623d34963bce6364c6d33"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\cli\\report.py": {
+    "mtime": 1792680318.4364388,
+    "hash": "a86ebd31920f69a3d53e6552d8c36550"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\cli\\run_sweep.py": {
+    "mtime": 1792680318.4374387,
+    "hash": "e10f6631f44f9f42fcb4a44923f2b508"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\cli\\setup.py": {
+    "mtime": 1792680318.438439,
+    "hash": "5fa5d24a3aeacf7570f19595f09284d1"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\cli\\_common.py": {
+    "mtime": 1792680318.430439,
+    "hash": "43525d034b92efddc4f327a2ba898146"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\cli\\__init__.py": {
+    "mtime": 1792680318.4294393,
+    "hash": "acddad000158a59fcf0daa133d205557"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\core\\context.py": {
+    "mtime": 1792680318.4404392,
+    "hash": "8a10afc8fb4bf2b6fbf3de21e4183892"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\core\\judge.py": {
+    "mtime": 1792680318.4414427,
+    "hash": "ea73d57892803593f476fc4d1ae0e8fa"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\core\\ledger.py": {
+    "mtime": 1792680318.4434412,
+    "hash": "e2afe0b7490cf72614282353c0e34d37"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\core\\library.py": {
+    "mtime": 1792680318.4444406,
+    "hash": "88497c8b9e8307ee544cbe751bc63169"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\core\\prompts.py": {
+    "mtime": 1792680777.6227815,
+    "hash": "6e5ff3b818445e16c7e3a5c6b2620610"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\core\\proposer.py": {
+    "mtime": 1792680318.446441,
+    "hash": "38f409e3ab438b1503d16afe0e0fa98c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\core\\recursion.py": {
+    "mtime": 1792680318.446441,
+    "hash": "a779ce28f8b13e1c5f8c9aa6e6b804bf"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\core\\report.py": {
+    "mtime": 1792680318.44744,
+    "hash": "a43d79a57202b3c0b26b0f32680dc07f"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\core\\runmark.py": {
+    "mtime": 1792680318.4504404,
+    "hash": "031c343fff2bb910f3a8e8c4675c7eea"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\core\\schedule.py": {
+    "mtime": 1792680585.4942794,
+    "hash": "27ed537ad50771c1ca1ef58026fe6203"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\core\\selection.py": {
+    "mtime": 1792680318.451837,
+    "hash": "3fd4570ef76c3e4082b82dfc1021cd3b"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\core\\spec.py": {
+    "mtime": 1792680318.452343,
+    "hash": "04e36309293ca564264819a8cef99fd6"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\core\\tree.py": {
+    "mtime": 1792680318.452343,
+    "hash": "84afc84c77c30debc7f8d764073e50ee"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\core\\__init__.py": {
+    "mtime": 1792680318.4394412,
+    "hash": "44880cf73f1918177c9f8ae1940ca3bf"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\substrate\\base.py": {
+    "mtime": 1792680318.4553509,
+    "hash": "50e5e5eeda28b5564e6435ca6bf53395"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\substrate\\codex.py": {
+    "mtime": 1792680318.4563508,
+    "hash": "fd9719bcf4fe3f5da19c09a2efb023ac"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\substrate\\opencode.py": {
+    "mtime": 1792680318.4573507,
+    "hash": "8ba773e4fd5434b04d4c1c52aef85c19"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\substrate\\__init__.py": {
+    "mtime": 1792680318.4553509,
+    "hash": "cb247a393d06a8dd18d23d96bf10130e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\base\\scripts\\summarize.py": {
+    "mtime": 1792680869.2453444,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680605.437736,
+    "hash": "9fd50a52429273d386e787a0d358db97"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\pool\\dom1\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680604.8952444,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\pool\\inv1\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680604.8952444,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\dom1\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680604.8792439,
+    "hash": "9fd50a52429273d386e787a0d358db97"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\inv1\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680604.8792439,
+    "hash": "9fd50a52429273d386e787a0d358db97"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\base\\scripts\\summarize.py": {
+    "mtime": 1792680604.7722452,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\c1\\scripts\\summarize.py": {
+    "mtime": 1792680605.455184,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\dom1\\scripts\\summarize.py": {
+    "mtime": 1792680604.8952444,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\inv1\\scripts\\summarize.py": {
+    "mtime": 1792680604.8952444,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\base_harness\\scripts\\summarize.py": {
+    "mtime": 1792680604.5891552,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680605.455184,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\c1\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680605.455184,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\dom1\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680604.8952444,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\inv1\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680604.8952444,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\base_harness\\scripts\\summarize.py": {
+    "mtime": 1792680604.5891552,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680605.455184,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\c1\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680605.455184,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\dom1\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680604.8952444,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\inv1\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680604.8952444,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680607.4110036,
+    "hash": "9fd50a52429273d386e787a0d358db97"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\pool\\dom1\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680606.9098547,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\pool\\inv1\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680606.8998523,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\dom1\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680606.8754761,
+    "hash": "9fd50a52429273d386e787a0d358db97"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\inv1\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680606.835485,
+    "hash": "9fd50a52429273d386e787a0d358db97"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\base\\scripts\\summarize.py": {
+    "mtime": 1792680606.751485,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\c1\\scripts\\summarize.py": {
+    "mtime": 1792680607.4222767,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\dom1\\scripts\\summarize.py": {
+    "mtime": 1792680606.9098547,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\inv1\\scripts\\summarize.py": {
+    "mtime": 1792680606.8998523,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\base_harness\\scripts\\summarize.py": {
+    "mtime": 1792680604.5891552,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680607.4222767,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\c1\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680607.4222767,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\dom1\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680606.9098547,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\inv1\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680606.8998523,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\base_harness\\scripts\\summarize.py": {
+    "mtime": 1792680604.5891552,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680607.4222767,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\c1\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680607.4222767,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\dom1\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680606.9098547,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\inv1\\harness\\scripts\\summarize.py": {
+    "mtime": 1792680606.8998523,
+    "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\scripts\\check_provenance.py": {
+    "mtime": 1792680318.4583507,
+    "hash": "983475ada55c0317429abdeb899573e4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\scripts\\check_setup.py": {
+    "mtime": 1792680318.4593506,
+    "hash": "d146aaa3d65c85fa41ad61e9eb9b8c9a"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\scripts\\render_readme_typing.py": {
+    "mtime": 1792680318.4593506,
+    "hash": "0d43d6bfffd6bf62b5d5f25bead8b33b"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\scripts\\setup_benchmark.py": {
+    "mtime": 1792680318.4613504,
+    "hash": "d9266dda98bbfd3b28272977c5b24856"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\scripts\\split_tasks.py": {
+    "mtime": 1792680318.4623506,
+    "hash": "e8eb5ea3bc9ef95600122aa44831b5b0"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\tests\\test_workflow.py": {
+    "mtime": 1792680318.46335,
+    "hash": "baed4fe1d4dea4a302a4442cdc37eba8"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\lab_runner\\adapt_runs_cx\\run_codex_lab.py": {
+    "mtime": 1792680318.4753506,
+    "hash": "31ce7a633023b575cdcd3ffbefdfc02d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\lab_runner\\opencode\\render.py": {
+    "mtime": 1792680318.4823527,
+    "hash": "ba2471a3aa3e7de23e933da0c9f3b1ed"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\lab_runner\\opencode\\render_tree.py": {
+    "mtime": 1792680318.483351,
+    "hash": "62a08821b1e191ec1c663bb60da3e982"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\lab_runner\\opencode\\run_opencode.py": {
+    "mtime": 1792680318.4843526,
+    "hash": "c5ea3e397b4a576c3bdc01f9ffd0598d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\lab_runner\\opencode\\session.py": {
+    "mtime": 1792680318.4853508,
+    "hash": "21e4140a292184285323e2437f449d34"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\lab_runner\\opencode\\__init__.py": {
+    "mtime": 1792680318.4803567,
+    "hash": "79cbc3aef88ce19959837cd6fb74ffae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\lab_runner\\opencode\\scripts\\read_doc.py": {
+    "mtime": 1792680318.4853508,
+    "hash": "104bc672f601110a1b9f2f57c6ab5129"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\lab_runner\\tts_lab\\config.py": {
+    "mtime": 1792680318.4863493,
+    "hash": "73ea4c6fbed39c56c31bb994955811d8"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\lab_runner\\tts_lab\\__init__.py": {
+    "mtime": 1792680318.4863493,
+    "hash": "5e7db275a9089f24a3947a4ed7e21b06"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\wb_runner\\agents\\codex_agent.py": {
+    "mtime": 1792680318.4943502,
+    "hash": "45040370cc2ee716e23f7645261f979d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\wb_runner\\agents\\codex_harness_agent.py": {
+    "mtime": 1792680318.4953501,
+    "hash": "7661542ddd29b3ca604a2dca9fda98e9"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\wb_runner\\agents\\oc_agent.py": {
+    "mtime": 1792680318.4963498,
+    "hash": "4eff14af1216b86ab1de203b6901c937"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\wb_runner\\agents\\oc_harness_agent.py": {
+    "mtime": 1792680318.4963498,
+    "hash": "285c067c50008c9a4998439e4e10d522"
+  },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\ricoui-mcp\\server.js": {
     "mtime": 1788358782.3343644,
     "hash": "bbf56846a9dccae6fffd0adf4fd0038d"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\AGENTS.md": {
-    "mtime": 1792425745.120794,
+    "mtime": 1792681035.591408,
     "hash": "9385938d1e8556236d40e92e2b80343a"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\ARCHITECT_GOVERNANCE.md": {
@@ -2116,8 +2584,8 @@
     "hash": "239ab5dae4a23b0e6440cbf4141e6bf0"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\CHANGELOG_AGENTS.md": {
-    "mtime": 1792433704.1041875,
-    "hash": "342aa0fe0575f0079ffc400098618ec1"
+    "mtime": 1792512203.787606,
+    "hash": "4bf2d6e6177d9df87d010961eca32005"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\CLAUDE.md": {
     "mtime": 1792425745.1223092,
@@ -2136,12 +2604,12 @@
     "hash": "c856495b62af689e4da9b0146d7595b9"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\index.html": {
-    "mtime": 1790955948.1694927,
-    "hash": "60aa2da695b6daf33f7c0e94a6d1c3b4"
+    "mtime": 1792509050.7765625,
+    "hash": "531d30c79f6a0930aea0ee5c9702ef64"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\MEMORY.md": {
-    "mtime": 1792433715.2142808,
-    "hash": "5fb5d014a5cb07bb5a28000e03b3601b"
+    "mtime": 1792681044.8921635,
+    "hash": "fdaba71f480e359d8fc6fcaede00d8a7"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\pnpm-workspace.yaml": {
     "mtime": 1791561859.8085408,
@@ -3251,6 +3719,46 @@
     "mtime": 1792430327.274778,
     "hash": "81b0841c2328e88616a60af03afad920"
   },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\024-pwa-service-worker-offline-manifest\\checklist.md": {
+    "mtime": 1792508581.669318,
+    "hash": "eb038afc90f8abe253fbd0b11fadb82d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\024-pwa-service-worker-offline-manifest\\plan.md": {
+    "mtime": 1792508611.240736,
+    "hash": "ada3ffedf4ea4e4e9b89adfaff0ba137"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\024-pwa-service-worker-offline-manifest\\spec.md": {
+    "mtime": 1792508230.9476826,
+    "hash": "eb9917c58c128e6526b251c65f5bdd93"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\024-pwa-service-worker-offline-manifest\\tasks.md": {
+    "mtime": 1792510805.0126867,
+    "hash": "d7ff7251bdda86a9eaf2993a449de753"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\025-dispatcher-http-siigo-api-v2\\analyze.md": {
+    "mtime": 1792681044.8946753,
+    "hash": "d7fe04c4634f036a81392434ac8943a3"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\025-dispatcher-http-siigo-api-v2\\checklist.md": {
+    "mtime": 1792681044.8946753,
+    "hash": "4366f4f68c1a06840b6f47e157e77fc8"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\025-dispatcher-http-siigo-api-v2\\clarify.md": {
+    "mtime": 1792681044.8956752,
+    "hash": "943f77e4eece28fb0034cee61870bee4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\025-dispatcher-http-siigo-api-v2\\plan.md": {
+    "mtime": 1792681044.896349,
+    "hash": "1b609489bd1122dd2337fcca54c9a860"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\025-dispatcher-http-siigo-api-v2\\spec.md": {
+    "mtime": 1792681044.896854,
+    "hash": "cf51effad6a53c5229156c3e1a5316be"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\025-dispatcher-http-siigo-api-v2\\tasks.md": {
+    "mtime": 1792681044.896854,
+    "hash": "809fccef09db4ddafc188824b27c1ec1"
+  },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\enterprise-hardening-architecture\\plan.md": {
     "mtime": 1790953734.6850548,
     "hash": "31ce3a2c7fa319668ef81f119e76ffa0"
@@ -3311,6 +3819,1854 @@
     "mtime": 1791561859.8796883,
     "hash": "ba62d6d49a24bb452d706df87d498d20"
   },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\CONTRIBUTING.md": {
+    "mtime": 1792680318.3574414,
+    "hash": "ba14b446b8a2251b10b9b952682fc0d2"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\README.md": {
+    "mtime": 1792680318.3594394,
+    "hash": "c699777a2ef652336fdedcb2a92354a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\dependencies\\PINNED.md": {
+    "mtime": 1792680318.4174411,
+    "hash": "3dd58042df9dd491d90d2cca94c3a93b"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\dependencies\\README.md": {
+    "mtime": 1792680318.4184394,
+    "hash": "75d787322e6f41988f0e07cec412d958"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\docs\\BENCHMARKS.md": {
+    "mtime": 1792680318.4194396,
+    "hash": "b0ad63696af8365046dc8d5b7f133ac7"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\docs\\EXPERIMENTS.md": {
+    "mtime": 1792680318.4204392,
+    "hash": "7b7434323ec566f28c98b810eee02307"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\docs\\SETUP.md": {
+    "mtime": 1792680318.4204392,
+    "hash": "0e699ed3f5c26db93758d98bcb473d7e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\base\\guardrails.md": {
+    "mtime": 1792680869.2433436,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\base\\LongTermMEMORY.md": {
+    "mtime": 1792680869.2443447,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\base\\systemprompt.md": {
+    "mtime": 1792680869.2433436,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\base\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680869.2443447,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\executions\\demo-oc-agg1\\ledger-1\\base1\\answer.txt": {
+    "mtime": 1792680604.764244,
+    "hash": "cf83ab9cf24e7b35f1f2ebe15f08ee6d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\executions\\demo-oc-agg1\\ledger-1\\base1\\trajectory.md": {
+    "mtime": 1792680604.764244,
+    "hash": "ccf899f46e7e411495ef82cd91783288"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\executions\\demo-oc-agg1\\ledger-2\\base1\\answer.txt": {
+    "mtime": 1792680606.745485,
+    "hash": "8d2446184cd9bd25b67efd394463043e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\executions\\demo-oc-agg1\\ledger-2\\base1\\trajectory.md": {
+    "mtime": 1792680606.745485,
+    "hash": "2a67a847188446c442222e28f768cfae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\executions\\demo-oc-seq1\\ledger-1\\c1\\answer.txt": {
+    "mtime": 1792680605.6494849,
+    "hash": "cf83ab9cf24e7b35f1f2ebe15f08ee6d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\executions\\demo-oc-seq1\\ledger-1\\c1\\trajectory.md": {
+    "mtime": 1792680605.6494849,
+    "hash": "ccf899f46e7e411495ef82cd91783288"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\executions\\demo-oc-seq1\\ledger-1\\dom1\\answer.txt": {
+    "mtime": 1792680605.0994391,
+    "hash": "cf83ab9cf24e7b35f1f2ebe15f08ee6d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\executions\\demo-oc-seq1\\ledger-1\\dom1\\trajectory.md": {
+    "mtime": 1792680605.1004398,
+    "hash": "ccf899f46e7e411495ef82cd91783288"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\executions\\demo-oc-seq1\\ledger-1\\inv1\\answer.txt": {
+    "mtime": 1792680605.1424394,
+    "hash": "cf83ab9cf24e7b35f1f2ebe15f08ee6d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\executions\\demo-oc-seq1\\ledger-1\\inv1\\trajectory.md": {
+    "mtime": 1792680605.1424394,
+    "hash": "ccf899f46e7e411495ef82cd91783288"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\executions\\demo-oc-seq1\\ledger-2\\c1\\answer.txt": {
+    "mtime": 1792680607.6277387,
+    "hash": "8d2446184cd9bd25b67efd394463043e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\executions\\demo-oc-seq1\\ledger-2\\c1\\trajectory.md": {
+    "mtime": 1792680607.6287386,
+    "hash": "2a67a847188446c442222e28f768cfae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\executions\\demo-oc-seq1\\ledger-2\\dom1\\answer.txt": {
+    "mtime": 1792680607.1296077,
+    "hash": "8d2446184cd9bd25b67efd394463043e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\executions\\demo-oc-seq1\\ledger-2\\dom1\\trajectory.md": {
+    "mtime": 1792680607.1296077,
+    "hash": "2a67a847188446c442222e28f768cfae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\executions\\demo-oc-seq1\\ledger-2\\inv1\\answer.txt": {
+    "mtime": 1792680607.112435,
+    "hash": "8d2446184cd9bd25b67efd394463043e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\executions\\demo-oc-seq1\\ledger-2\\inv1\\trajectory.md": {
+    "mtime": 1792680607.113438,
+    "hash": "2a67a847188446c442222e28f768cfae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\task.md": {
+    "mtime": 1792680605.1594384,
+    "hash": "4770d6fce86d764887dd8445bd67995e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\decisions\\dom1.md": {
+    "mtime": 1792680605.162439,
+    "hash": "2813dd5f19c4633b7fb886941a7ab969"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\decisions\\inv1.md": {
+    "mtime": 1792680605.1614382,
+    "hash": "2813dd5f19c4633b7fb886941a7ab969"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\deliverables\\base1\\answer.txt": {
+    "mtime": 1792680605.1644385,
+    "hash": "cf83ab9cf24e7b35f1f2ebe15f08ee6d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\deliverables\\base1\\INDEX.md": {
+    "mtime": 1792680605.1644385,
+    "hash": "470e91736debe017302ff49f84d0bbe5"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\harness\\guardrails.md": {
+    "mtime": 1792680604.7712462,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680604.7712462,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\harness\\systemprompt.md": {
+    "mtime": 1792680604.7722452,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\harness\\plugin\\README.md": {
+    "mtime": 1792680547.3354857,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\harness\\scripts\\README.md": {
+    "mtime": 1792680547.3344872,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\harness\\skills\\README.md": {
+    "mtime": 1792680547.336492,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680547.3344872,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680604.7732444,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\pool\\dom1\\produced.md": {
+    "mtime": 1792680605.2914386,
+    "hash": "cf83ab9cf24e7b35f1f2ebe15f08ee6d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\pool\\dom1\\rollout.md": {
+    "mtime": 1792680605.2814388,
+    "hash": "ccf899f46e7e411495ef82cd91783288"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\pool\\dom1\\harness\\guardrails.md": {
+    "mtime": 1792680604.894245,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\pool\\dom1\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680604.894245,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\pool\\dom1\\harness\\systemprompt.md": {
+    "mtime": 1792680604.8962448,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\pool\\dom1\\harness\\plugin\\README.md": {
+    "mtime": 1792680547.5120833,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\pool\\dom1\\harness\\scripts\\README.md": {
+    "mtime": 1792680547.510097,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\pool\\dom1\\harness\\skills\\README.md": {
+    "mtime": 1792680547.5126157,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\pool\\dom1\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680547.5116074,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\pool\\dom1\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680604.8962448,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\pool\\inv1\\produced.md": {
+    "mtime": 1792680605.2244418,
+    "hash": "cf83ab9cf24e7b35f1f2ebe15f08ee6d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\pool\\inv1\\rollout.md": {
+    "mtime": 1792680605.2224402,
+    "hash": "ccf899f46e7e411495ef82cd91783288"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\pool\\inv1\\harness\\guardrails.md": {
+    "mtime": 1792680604.894245,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\pool\\inv1\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680604.894245,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\pool\\inv1\\harness\\systemprompt.md": {
+    "mtime": 1792680604.8952444,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\pool\\inv1\\harness\\plugin\\README.md": {
+    "mtime": 1792680547.5161319,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\pool\\inv1\\harness\\scripts\\README.md": {
+    "mtime": 1792680547.515179,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\pool\\inv1\\harness\\skills\\README.md": {
+    "mtime": 1792680547.5161319,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\pool\\inv1\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680547.515179,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\pool\\inv1\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680604.8962448,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\rollouts\\base1.md": {
+    "mtime": 1792680605.1634395,
+    "hash": "ccf899f46e7e411495ef82cd91783288"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\dom1\\task.md": {
+    "mtime": 1792680604.8102443,
+    "hash": "4770d6fce86d764887dd8445bd67995e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\dom1\\deliverables\\base1\\answer.txt": {
+    "mtime": 1792680604.8142455,
+    "hash": "cf83ab9cf24e7b35f1f2ebe15f08ee6d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\dom1\\deliverables\\base1\\INDEX.md": {
+    "mtime": 1792680604.8152463,
+    "hash": "470e91736debe017302ff49f84d0bbe5"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\dom1\\harness\\guardrails.md": {
+    "mtime": 1792680604.7712462,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\dom1\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680604.7712462,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\dom1\\harness\\systemprompt.md": {
+    "mtime": 1792680604.7722452,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\dom1\\harness\\plugin\\README.md": {
+    "mtime": 1792680547.3354857,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\dom1\\harness\\scripts\\README.md": {
+    "mtime": 1792680547.3344872,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\dom1\\harness\\skills\\README.md": {
+    "mtime": 1792680547.336492,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\dom1\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680547.3344872,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\dom1\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680604.7732444,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\dom1\\rollouts\\base1.md": {
+    "mtime": 1792680604.813244,
+    "hash": "ccf899f46e7e411495ef82cd91783288"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\inv1\\task.md": {
+    "mtime": 1792680604.7872496,
+    "hash": "4770d6fce86d764887dd8445bd67995e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\inv1\\deliverables\\base1\\answer.txt": {
+    "mtime": 1792680604.7952442,
+    "hash": "cf83ab9cf24e7b35f1f2ebe15f08ee6d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\inv1\\deliverables\\base1\\INDEX.md": {
+    "mtime": 1792680604.7962434,
+    "hash": "470e91736debe017302ff49f84d0bbe5"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\inv1\\harness\\guardrails.md": {
+    "mtime": 1792680604.7712462,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\inv1\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680604.7712462,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\inv1\\harness\\systemprompt.md": {
+    "mtime": 1792680604.7722452,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\inv1\\harness\\plugin\\README.md": {
+    "mtime": 1792680547.3354857,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\inv1\\harness\\scripts\\README.md": {
+    "mtime": 1792680547.3344872,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\inv1\\harness\\skills\\README.md": {
+    "mtime": 1792680547.336492,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\inv1\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680547.3344872,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\inv1\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680604.7732444,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\inv1\\rollouts\\base1.md": {
+    "mtime": 1792680604.7922444,
+    "hash": "ccf899f46e7e411495ef82cd91783288"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\base\\guardrails.md": {
+    "mtime": 1792680604.7712462,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\base\\LongTermMEMORY.md": {
+    "mtime": 1792680604.7712462,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\base\\systemprompt.md": {
+    "mtime": 1792680604.7722452,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\base\\plugin\\README.md": {
+    "mtime": 1792680547.3354857,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\base\\scripts\\README.md": {
+    "mtime": 1792680547.3344872,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\base\\skills\\README.md": {
+    "mtime": 1792680547.336492,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\base\\sub_agents\\README.md": {
+    "mtime": 1792680547.3344872,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\base\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680604.7732444,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\c1\\guardrails.md": {
+    "mtime": 1792680605.4501834,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\c1\\LongTermMEMORY.md": {
+    "mtime": 1792680605.4511847,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\c1\\systemprompt.md": {
+    "mtime": 1792680605.456185,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\c1\\plugin\\README.md": {
+    "mtime": 1792680548.125643,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\c1\\scripts\\README.md": {
+    "mtime": 1792680548.124643,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\c1\\skills\\README.md": {
+    "mtime": 1792680548.1266422,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\c1\\sub_agents\\README.md": {
+    "mtime": 1792680548.124643,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\c1\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680605.4581845,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\dom1\\guardrails.md": {
+    "mtime": 1792680604.894245,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\dom1\\LongTermMEMORY.md": {
+    "mtime": 1792680604.894245,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\dom1\\systemprompt.md": {
+    "mtime": 1792680604.8962448,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\dom1\\plugin\\README.md": {
+    "mtime": 1792680547.5120833,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\dom1\\scripts\\README.md": {
+    "mtime": 1792680547.510097,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\dom1\\skills\\README.md": {
+    "mtime": 1792680547.5126157,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\dom1\\sub_agents\\README.md": {
+    "mtime": 1792680547.5116074,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\dom1\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680604.8962448,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\inv1\\guardrails.md": {
+    "mtime": 1792680604.894245,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\inv1\\LongTermMEMORY.md": {
+    "mtime": 1792680604.894245,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\inv1\\systemprompt.md": {
+    "mtime": 1792680604.8952444,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\inv1\\plugin\\README.md": {
+    "mtime": 1792680547.5161319,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\inv1\\scripts\\README.md": {
+    "mtime": 1792680547.515179,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\inv1\\skills\\README.md": {
+    "mtime": 1792680547.5161319,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\inv1\\sub_agents\\README.md": {
+    "mtime": 1792680547.515179,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\harnesses\\inv1\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680604.8962448,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\edits.md": {
+    "mtime": 1792680606.5307646,
+    "hash": "e75dfcd04999579d87228e8582cf66dd"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\task.md": {
+    "mtime": 1792680605.7004845,
+    "hash": "4770d6fce86d764887dd8445bd67995e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\base_harness\\guardrails.md": {
+    "mtime": 1792680604.5831547,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\base_harness\\LongTermMEMORY.md": {
+    "mtime": 1792680604.5861557,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\base_harness\\systemprompt.md": {
+    "mtime": 1792680604.582154,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\base_harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680604.5881567,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\decisions\\c1.md": {
+    "mtime": 1792680605.7054873,
+    "hash": "2813dd5f19c4633b7fb886941a7ab969"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\decisions\\dom1.md": {
+    "mtime": 1792680605.7054873,
+    "hash": "2813dd5f19c4633b7fb886941a7ab969"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\decisions\\inv1.md": {
+    "mtime": 1792680605.7044868,
+    "hash": "2813dd5f19c4633b7fb886941a7ab969"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\deliverables\\base1\\answer.txt": {
+    "mtime": 1792680605.709485,
+    "hash": "cf83ab9cf24e7b35f1f2ebe15f08ee6d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\deliverables\\base1\\INDEX.md": {
+    "mtime": 1792680605.7104843,
+    "hash": "470e91736debe017302ff49f84d0bbe5"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\deliverables\\c1\\answer.txt": {
+    "mtime": 1792680605.73649,
+    "hash": "cf83ab9cf24e7b35f1f2ebe15f08ee6d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\deliverables\\c1\\INDEX.md": {
+    "mtime": 1792680605.7374892,
+    "hash": "4d62b5a3ffb284cc8b69cd5487a09c69"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\deliverables\\dom1\\answer.txt": {
+    "mtime": 1792680605.725484,
+    "hash": "cf83ab9cf24e7b35f1f2ebe15f08ee6d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\deliverables\\dom1\\INDEX.md": {
+    "mtime": 1792680605.7264946,
+    "hash": "380de5eae30927385ad1c8115fb73159"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\deliverables\\inv1\\answer.txt": {
+    "mtime": 1792680605.712488,
+    "hash": "cf83ab9cf24e7b35f1f2ebe15f08ee6d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\deliverables\\inv1\\INDEX.md": {
+    "mtime": 1792680605.712488,
+    "hash": "88feb6eefd5d4263789154612cceac6a"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\harness\\guardrails.md": {
+    "mtime": 1792680605.4501834,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680605.4511847,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\harness\\systemprompt.md": {
+    "mtime": 1792680605.456185,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\harness\\plugin\\README.md": {
+    "mtime": 1792680548.125643,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\harness\\scripts\\README.md": {
+    "mtime": 1792680548.124643,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\harness\\skills\\README.md": {
+    "mtime": 1792680548.1266422,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680548.124643,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680605.4581845,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\c1\\produced.md": {
+    "mtime": 1792680605.8464851,
+    "hash": "cf83ab9cf24e7b35f1f2ebe15f08ee6d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\c1\\rollout.md": {
+    "mtime": 1792680605.8454852,
+    "hash": "ccf899f46e7e411495ef82cd91783288"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\c1\\harness\\guardrails.md": {
+    "mtime": 1792680605.4501834,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\c1\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680605.4511847,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\c1\\harness\\systemprompt.md": {
+    "mtime": 1792680605.456185,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\c1\\harness\\plugin\\README.md": {
+    "mtime": 1792680548.125643,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\c1\\harness\\scripts\\README.md": {
+    "mtime": 1792680548.124643,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\c1\\harness\\skills\\README.md": {
+    "mtime": 1792680548.1266422,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\c1\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680548.124643,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\c1\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680605.4581845,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\dom1\\produced.md": {
+    "mtime": 1792680605.8204908,
+    "hash": "cf83ab9cf24e7b35f1f2ebe15f08ee6d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\dom1\\rollout.md": {
+    "mtime": 1792680605.8204908,
+    "hash": "ccf899f46e7e411495ef82cd91783288"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\dom1\\harness\\guardrails.md": {
+    "mtime": 1792680604.894245,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\dom1\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680604.894245,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\dom1\\harness\\systemprompt.md": {
+    "mtime": 1792680604.8962448,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\dom1\\harness\\plugin\\README.md": {
+    "mtime": 1792680547.5120833,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\dom1\\harness\\scripts\\README.md": {
+    "mtime": 1792680547.510097,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\dom1\\harness\\skills\\README.md": {
+    "mtime": 1792680547.5126157,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\dom1\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680547.5116074,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\dom1\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680604.8962448,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\inv1\\produced.md": {
+    "mtime": 1792680605.7934844,
+    "hash": "cf83ab9cf24e7b35f1f2ebe15f08ee6d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\inv1\\rollout.md": {
+    "mtime": 1792680605.7934844,
+    "hash": "ccf899f46e7e411495ef82cd91783288"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\inv1\\harness\\guardrails.md": {
+    "mtime": 1792680604.894245,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\inv1\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680604.894245,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\inv1\\harness\\systemprompt.md": {
+    "mtime": 1792680604.8952444,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\inv1\\harness\\plugin\\README.md": {
+    "mtime": 1792680547.5161319,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\inv1\\harness\\scripts\\README.md": {
+    "mtime": 1792680547.515179,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\inv1\\harness\\skills\\README.md": {
+    "mtime": 1792680547.5161319,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\inv1\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680547.515179,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\pool\\inv1\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680604.8962448,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\rollouts\\base1.md": {
+    "mtime": 1792680605.7074862,
+    "hash": "ccf899f46e7e411495ef82cd91783288"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\rollouts\\c1.md": {
+    "mtime": 1792680605.7324843,
+    "hash": "ccf899f46e7e411495ef82cd91783288"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\rollouts\\dom1.md": {
+    "mtime": 1792680605.7204924,
+    "hash": "ccf899f46e7e411495ef82cd91783288"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1\\rollouts\\inv1.md": {
+    "mtime": 1792680605.711485,
+    "hash": "ccf899f46e7e411495ef82cd91783288"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\task.md": {
+    "mtime": 1792680605.7004845,
+    "hash": "4770d6fce86d764887dd8445bd67995e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\base_harness\\guardrails.md": {
+    "mtime": 1792680604.5831547,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\base_harness\\LongTermMEMORY.md": {
+    "mtime": 1792680604.5861557,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\base_harness\\systemprompt.md": {
+    "mtime": 1792680604.582154,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\base_harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680604.5881567,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\decisions\\c1.md": {
+    "mtime": 1792680605.7054873,
+    "hash": "2813dd5f19c4633b7fb886941a7ab969"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\decisions\\dom1.md": {
+    "mtime": 1792680605.7054873,
+    "hash": "2813dd5f19c4633b7fb886941a7ab969"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\decisions\\inv1.md": {
+    "mtime": 1792680605.7044868,
+    "hash": "2813dd5f19c4633b7fb886941a7ab969"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\deliverables\\base1\\answer.txt": {
+    "mtime": 1792680605.709485,
+    "hash": "cf83ab9cf24e7b35f1f2ebe15f08ee6d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\deliverables\\base1\\INDEX.md": {
+    "mtime": 1792680605.7104843,
+    "hash": "470e91736debe017302ff49f84d0bbe5"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\deliverables\\c1\\answer.txt": {
+    "mtime": 1792680605.73649,
+    "hash": "cf83ab9cf24e7b35f1f2ebe15f08ee6d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\deliverables\\c1\\INDEX.md": {
+    "mtime": 1792680605.7374892,
+    "hash": "4d62b5a3ffb284cc8b69cd5487a09c69"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\deliverables\\dom1\\answer.txt": {
+    "mtime": 1792680605.725484,
+    "hash": "cf83ab9cf24e7b35f1f2ebe15f08ee6d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\deliverables\\dom1\\INDEX.md": {
+    "mtime": 1792680605.7264946,
+    "hash": "380de5eae30927385ad1c8115fb73159"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\deliverables\\inv1\\answer.txt": {
+    "mtime": 1792680605.712488,
+    "hash": "cf83ab9cf24e7b35f1f2ebe15f08ee6d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\deliverables\\inv1\\INDEX.md": {
+    "mtime": 1792680605.712488,
+    "hash": "88feb6eefd5d4263789154612cceac6a"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\harness\\guardrails.md": {
+    "mtime": 1792680605.4501834,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680605.4511847,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\harness\\systemprompt.md": {
+    "mtime": 1792680605.456185,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\harness\\plugin\\README.md": {
+    "mtime": 1792680548.125643,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\harness\\scripts\\README.md": {
+    "mtime": 1792680548.124643,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\harness\\skills\\README.md": {
+    "mtime": 1792680548.1266422,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680548.124643,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680605.4581845,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\c1\\produced.md": {
+    "mtime": 1792680605.8464851,
+    "hash": "cf83ab9cf24e7b35f1f2ebe15f08ee6d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\c1\\rollout.md": {
+    "mtime": 1792680605.8454852,
+    "hash": "ccf899f46e7e411495ef82cd91783288"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\c1\\harness\\guardrails.md": {
+    "mtime": 1792680605.4501834,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\c1\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680605.4511847,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\c1\\harness\\systemprompt.md": {
+    "mtime": 1792680605.456185,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\c1\\harness\\plugin\\README.md": {
+    "mtime": 1792680548.125643,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\c1\\harness\\scripts\\README.md": {
+    "mtime": 1792680548.124643,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\c1\\harness\\skills\\README.md": {
+    "mtime": 1792680548.1266422,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\c1\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680548.124643,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\c1\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680605.4581845,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\dom1\\produced.md": {
+    "mtime": 1792680605.8204908,
+    "hash": "cf83ab9cf24e7b35f1f2ebe15f08ee6d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\dom1\\rollout.md": {
+    "mtime": 1792680605.8204908,
+    "hash": "ccf899f46e7e411495ef82cd91783288"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\dom1\\harness\\guardrails.md": {
+    "mtime": 1792680604.894245,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\dom1\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680604.894245,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\dom1\\harness\\systemprompt.md": {
+    "mtime": 1792680604.8962448,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\dom1\\harness\\plugin\\README.md": {
+    "mtime": 1792680547.5120833,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\dom1\\harness\\scripts\\README.md": {
+    "mtime": 1792680547.510097,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\dom1\\harness\\skills\\README.md": {
+    "mtime": 1792680547.5126157,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\dom1\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680547.5116074,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\dom1\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680604.8962448,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\inv1\\produced.md": {
+    "mtime": 1792680605.7934844,
+    "hash": "cf83ab9cf24e7b35f1f2ebe15f08ee6d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\inv1\\rollout.md": {
+    "mtime": 1792680605.7934844,
+    "hash": "ccf899f46e7e411495ef82cd91783288"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\inv1\\harness\\guardrails.md": {
+    "mtime": 1792680604.894245,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\inv1\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680604.894245,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\inv1\\harness\\systemprompt.md": {
+    "mtime": 1792680604.8952444,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\inv1\\harness\\plugin\\README.md": {
+    "mtime": 1792680547.5161319,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\inv1\\harness\\scripts\\README.md": {
+    "mtime": 1792680547.515179,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\inv1\\harness\\skills\\README.md": {
+    "mtime": 1792680547.5161319,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\inv1\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680547.515179,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\pool\\inv1\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680604.8962448,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\rollouts\\base1.md": {
+    "mtime": 1792680605.7074862,
+    "hash": "ccf899f46e7e411495ef82cd91783288"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\rollouts\\c1.md": {
+    "mtime": 1792680605.7324843,
+    "hash": "ccf899f46e7e411495ef82cd91783288"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\rollouts\\dom1.md": {
+    "mtime": 1792680605.7204924,
+    "hash": "ccf899f46e7e411495ef82cd91783288"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\reflection\\seq1.experience\\rollouts\\inv1.md": {
+    "mtime": 1792680605.711485,
+    "hash": "ccf899f46e7e411495ef82cd91783288"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\task.md": {
+    "mtime": 1792680607.145727,
+    "hash": "4770d6fce86d764887dd8445bd67995e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\decisions\\dom1.md": {
+    "mtime": 1792680607.1487331,
+    "hash": "2813dd5f19c4633b7fb886941a7ab969"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\decisions\\inv1.md": {
+    "mtime": 1792680607.1487331,
+    "hash": "2813dd5f19c4633b7fb886941a7ab969"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\deliverables\\base1\\answer.txt": {
+    "mtime": 1792680607.1507266,
+    "hash": "8d2446184cd9bd25b67efd394463043e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\deliverables\\base1\\INDEX.md": {
+    "mtime": 1792680607.1507266,
+    "hash": "af6b9df0d11c82dde807159a4b7243ae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\harness\\guardrails.md": {
+    "mtime": 1792680606.7504852,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680606.751485,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\harness\\systemprompt.md": {
+    "mtime": 1792680606.7524843,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\harness\\plugin\\README.md": {
+    "mtime": 1792680549.1940506,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\harness\\scripts\\README.md": {
+    "mtime": 1792680549.1930504,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\harness\\skills\\README.md": {
+    "mtime": 1792680549.1960523,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680549.1930504,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680606.7544985,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\pool\\dom1\\produced.md": {
+    "mtime": 1792680607.29818,
+    "hash": "8d2446184cd9bd25b67efd394463043e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\pool\\dom1\\rollout.md": {
+    "mtime": 1792680607.289671,
+    "hash": "2a67a847188446c442222e28f768cfae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\pool\\dom1\\harness\\guardrails.md": {
+    "mtime": 1792680606.9088557,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\pool\\dom1\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680606.9088557,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\pool\\dom1\\harness\\systemprompt.md": {
+    "mtime": 1792680606.9098547,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\pool\\dom1\\harness\\plugin\\README.md": {
+    "mtime": 1792680549.3210049,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\pool\\dom1\\harness\\scripts\\README.md": {
+    "mtime": 1792680549.3190045,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\pool\\dom1\\harness\\skills\\README.md": {
+    "mtime": 1792680549.3210049,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\pool\\dom1\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680549.320007,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\pool\\dom1\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680606.9108536,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\pool\\inv1\\produced.md": {
+    "mtime": 1792680607.2233367,
+    "hash": "8d2446184cd9bd25b67efd394463043e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\pool\\inv1\\rollout.md": {
+    "mtime": 1792680607.221364,
+    "hash": "2a67a847188446c442222e28f768cfae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\pool\\inv1\\harness\\guardrails.md": {
+    "mtime": 1792680606.8988526,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\pool\\inv1\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680606.8998523,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\pool\\inv1\\harness\\systemprompt.md": {
+    "mtime": 1792680606.9008534,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\pool\\inv1\\harness\\plugin\\README.md": {
+    "mtime": 1792680549.3040037,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\pool\\inv1\\harness\\scripts\\README.md": {
+    "mtime": 1792680549.3030045,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\pool\\inv1\\harness\\skills\\README.md": {
+    "mtime": 1792680549.305004,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\pool\\inv1\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680549.3040037,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\pool\\inv1\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680606.9008534,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\c1\\rollouts\\base1.md": {
+    "mtime": 1792680607.1497283,
+    "hash": "2a67a847188446c442222e28f768cfae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\dom1\\task.md": {
+    "mtime": 1792680606.7894862,
+    "hash": "4770d6fce86d764887dd8445bd67995e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\dom1\\deliverables\\base1\\answer.txt": {
+    "mtime": 1792680606.7934844,
+    "hash": "8d2446184cd9bd25b67efd394463043e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\dom1\\deliverables\\base1\\INDEX.md": {
+    "mtime": 1792680606.7944844,
+    "hash": "af6b9df0d11c82dde807159a4b7243ae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\dom1\\harness\\guardrails.md": {
+    "mtime": 1792680606.7504852,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\dom1\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680606.751485,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\dom1\\harness\\systemprompt.md": {
+    "mtime": 1792680606.7524843,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\dom1\\harness\\plugin\\README.md": {
+    "mtime": 1792680549.1940506,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\dom1\\harness\\scripts\\README.md": {
+    "mtime": 1792680549.1930504,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\dom1\\harness\\skills\\README.md": {
+    "mtime": 1792680549.1960523,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\dom1\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680549.1930504,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\dom1\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680606.7544985,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\dom1\\rollouts\\base1.md": {
+    "mtime": 1792680606.792484,
+    "hash": "2a67a847188446c442222e28f768cfae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\inv1\\task.md": {
+    "mtime": 1792680606.7674854,
+    "hash": "4770d6fce86d764887dd8445bd67995e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\inv1\\deliverables\\base1\\answer.txt": {
+    "mtime": 1792680606.7754848,
+    "hash": "8d2446184cd9bd25b67efd394463043e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\inv1\\deliverables\\base1\\INDEX.md": {
+    "mtime": 1792680606.7754848,
+    "hash": "af6b9df0d11c82dde807159a4b7243ae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\inv1\\harness\\guardrails.md": {
+    "mtime": 1792680606.7504852,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\inv1\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680606.751485,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\inv1\\harness\\systemprompt.md": {
+    "mtime": 1792680606.7524843,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\inv1\\harness\\plugin\\README.md": {
+    "mtime": 1792680549.1940506,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\inv1\\harness\\scripts\\README.md": {
+    "mtime": 1792680549.1930504,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\inv1\\harness\\skills\\README.md": {
+    "mtime": 1792680549.1960523,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\inv1\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680549.1930504,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\inv1\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680606.7544985,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\context\\inv1\\rollouts\\base1.md": {
+    "mtime": 1792680606.773485,
+    "hash": "2a67a847188446c442222e28f768cfae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\base\\guardrails.md": {
+    "mtime": 1792680606.7504852,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\base\\LongTermMEMORY.md": {
+    "mtime": 1792680606.751485,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\base\\systemprompt.md": {
+    "mtime": 1792680606.7524843,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\base\\plugin\\README.md": {
+    "mtime": 1792680549.1940506,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\base\\scripts\\README.md": {
+    "mtime": 1792680549.1930504,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\base\\skills\\README.md": {
+    "mtime": 1792680549.1960523,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\base\\sub_agents\\README.md": {
+    "mtime": 1792680549.1930504,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\base\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680606.7544985,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\c1\\guardrails.md": {
+    "mtime": 1792680607.4192693,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\c1\\LongTermMEMORY.md": {
+    "mtime": 1792680607.4212785,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\c1\\systemprompt.md": {
+    "mtime": 1792680607.4222767,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\c1\\plugin\\README.md": {
+    "mtime": 1792680549.7618845,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\c1\\scripts\\README.md": {
+    "mtime": 1792680549.7608855,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\c1\\skills\\README.md": {
+    "mtime": 1792680549.7638898,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\c1\\sub_agents\\README.md": {
+    "mtime": 1792680549.7608855,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\c1\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680607.4232738,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\dom1\\guardrails.md": {
+    "mtime": 1792680606.9088557,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\dom1\\LongTermMEMORY.md": {
+    "mtime": 1792680606.9088557,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\dom1\\systemprompt.md": {
+    "mtime": 1792680606.9098547,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\dom1\\plugin\\README.md": {
+    "mtime": 1792680549.3210049,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\dom1\\scripts\\README.md": {
+    "mtime": 1792680549.3190045,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\dom1\\skills\\README.md": {
+    "mtime": 1792680549.3210049,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\dom1\\sub_agents\\README.md": {
+    "mtime": 1792680549.320007,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\dom1\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680606.9108536,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\inv1\\guardrails.md": {
+    "mtime": 1792680606.8988526,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\inv1\\LongTermMEMORY.md": {
+    "mtime": 1792680606.8998523,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\inv1\\systemprompt.md": {
+    "mtime": 1792680606.9008534,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\inv1\\plugin\\README.md": {
+    "mtime": 1792680549.3040037,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\inv1\\scripts\\README.md": {
+    "mtime": 1792680549.3030045,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\inv1\\skills\\README.md": {
+    "mtime": 1792680549.305004,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\inv1\\sub_agents\\README.md": {
+    "mtime": 1792680549.3040037,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\harnesses\\inv1\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680606.9008534,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\edits.md": {
+    "mtime": 1792680608.3760018,
+    "hash": "e75dfcd04999579d87228e8582cf66dd"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\task.md": {
+    "mtime": 1792680607.6657374,
+    "hash": "4770d6fce86d764887dd8445bd67995e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\base_harness\\guardrails.md": {
+    "mtime": 1792680604.5831547,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\base_harness\\LongTermMEMORY.md": {
+    "mtime": 1792680604.5861557,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\base_harness\\systemprompt.md": {
+    "mtime": 1792680604.582154,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\base_harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680604.5881567,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\decisions\\c1.md": {
+    "mtime": 1792680607.6697369,
+    "hash": "2813dd5f19c4633b7fb886941a7ab969"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\decisions\\dom1.md": {
+    "mtime": 1792680607.6687367,
+    "hash": "2813dd5f19c4633b7fb886941a7ab969"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\decisions\\inv1.md": {
+    "mtime": 1792680607.6687367,
+    "hash": "2813dd5f19c4633b7fb886941a7ab969"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\deliverables\\base1\\answer.txt": {
+    "mtime": 1792680607.672747,
+    "hash": "8d2446184cd9bd25b67efd394463043e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\deliverables\\base1\\INDEX.md": {
+    "mtime": 1792680607.6737387,
+    "hash": "af6b9df0d11c82dde807159a4b7243ae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\deliverables\\c1\\answer.txt": {
+    "mtime": 1792680607.6787395,
+    "hash": "8d2446184cd9bd25b67efd394463043e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\deliverables\\c1\\INDEX.md": {
+    "mtime": 1792680607.6797402,
+    "hash": "33c14e3cd047c5f1aa593a1c06258497"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\deliverables\\dom1\\answer.txt": {
+    "mtime": 1792680607.6767378,
+    "hash": "8d2446184cd9bd25b67efd394463043e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\deliverables\\dom1\\INDEX.md": {
+    "mtime": 1792680607.6767378,
+    "hash": "6fbbd0a4b2c005a3ab26a6061859a4d1"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\deliverables\\inv1\\answer.txt": {
+    "mtime": 1792680607.6747377,
+    "hash": "8d2446184cd9bd25b67efd394463043e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\deliverables\\inv1\\INDEX.md": {
+    "mtime": 1792680607.6747377,
+    "hash": "861bdb8a7ca5fa5e6aec362d62cf2113"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\harness\\guardrails.md": {
+    "mtime": 1792680607.4192693,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680607.4212785,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\harness\\systemprompt.md": {
+    "mtime": 1792680607.4222767,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\harness\\plugin\\README.md": {
+    "mtime": 1792680549.7618845,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\harness\\scripts\\README.md": {
+    "mtime": 1792680549.7608855,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\harness\\skills\\README.md": {
+    "mtime": 1792680549.7638898,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680549.7608855,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680607.4232738,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\c1\\produced.md": {
+    "mtime": 1792680607.8087382,
+    "hash": "8d2446184cd9bd25b67efd394463043e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\c1\\rollout.md": {
+    "mtime": 1792680607.8077462,
+    "hash": "2a67a847188446c442222e28f768cfae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\c1\\harness\\guardrails.md": {
+    "mtime": 1792680607.4192693,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\c1\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680607.4212785,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\c1\\harness\\systemprompt.md": {
+    "mtime": 1792680607.4222767,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\c1\\harness\\plugin\\README.md": {
+    "mtime": 1792680549.7618845,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\c1\\harness\\scripts\\README.md": {
+    "mtime": 1792680549.7608855,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\c1\\harness\\skills\\README.md": {
+    "mtime": 1792680549.7638898,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\c1\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680549.7608855,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\c1\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680607.4232738,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\dom1\\produced.md": {
+    "mtime": 1792680607.7757401,
+    "hash": "8d2446184cd9bd25b67efd394463043e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\dom1\\rollout.md": {
+    "mtime": 1792680607.7747402,
+    "hash": "2a67a847188446c442222e28f768cfae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\dom1\\harness\\guardrails.md": {
+    "mtime": 1792680606.9088557,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\dom1\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680606.9088557,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\dom1\\harness\\systemprompt.md": {
+    "mtime": 1792680606.9098547,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\dom1\\harness\\plugin\\README.md": {
+    "mtime": 1792680549.3210049,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\dom1\\harness\\scripts\\README.md": {
+    "mtime": 1792680549.3190045,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\dom1\\harness\\skills\\README.md": {
+    "mtime": 1792680549.3210049,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\dom1\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680549.320007,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\dom1\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680606.9108536,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\inv1\\produced.md": {
+    "mtime": 1792680607.7467375,
+    "hash": "8d2446184cd9bd25b67efd394463043e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\inv1\\rollout.md": {
+    "mtime": 1792680607.7457376,
+    "hash": "2a67a847188446c442222e28f768cfae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\inv1\\harness\\guardrails.md": {
+    "mtime": 1792680606.8988526,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\inv1\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680606.8998523,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\inv1\\harness\\systemprompt.md": {
+    "mtime": 1792680606.9008534,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\inv1\\harness\\plugin\\README.md": {
+    "mtime": 1792680549.3040037,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\inv1\\harness\\scripts\\README.md": {
+    "mtime": 1792680549.3030045,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\inv1\\harness\\skills\\README.md": {
+    "mtime": 1792680549.305004,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\inv1\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680549.3040037,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\pool\\inv1\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680606.9008534,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\rollouts\\base1.md": {
+    "mtime": 1792680607.6717398,
+    "hash": "2a67a847188446c442222e28f768cfae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\rollouts\\c1.md": {
+    "mtime": 1792680607.6777391,
+    "hash": "2a67a847188446c442222e28f768cfae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\rollouts\\dom1.md": {
+    "mtime": 1792680607.6757388,
+    "hash": "2a67a847188446c442222e28f768cfae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1\\rollouts\\inv1.md": {
+    "mtime": 1792680607.6737387,
+    "hash": "2a67a847188446c442222e28f768cfae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\task.md": {
+    "mtime": 1792680607.6657374,
+    "hash": "4770d6fce86d764887dd8445bd67995e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\base_harness\\guardrails.md": {
+    "mtime": 1792680604.5831547,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\base_harness\\LongTermMEMORY.md": {
+    "mtime": 1792680604.5861557,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\base_harness\\systemprompt.md": {
+    "mtime": 1792680604.582154,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\base_harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680604.5881567,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\decisions\\c1.md": {
+    "mtime": 1792680607.6697369,
+    "hash": "2813dd5f19c4633b7fb886941a7ab969"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\decisions\\dom1.md": {
+    "mtime": 1792680607.6687367,
+    "hash": "2813dd5f19c4633b7fb886941a7ab969"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\decisions\\inv1.md": {
+    "mtime": 1792680607.6687367,
+    "hash": "2813dd5f19c4633b7fb886941a7ab969"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\deliverables\\base1\\answer.txt": {
+    "mtime": 1792680607.672747,
+    "hash": "8d2446184cd9bd25b67efd394463043e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\deliverables\\base1\\INDEX.md": {
+    "mtime": 1792680607.6737387,
+    "hash": "af6b9df0d11c82dde807159a4b7243ae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\deliverables\\c1\\answer.txt": {
+    "mtime": 1792680607.6787395,
+    "hash": "8d2446184cd9bd25b67efd394463043e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\deliverables\\c1\\INDEX.md": {
+    "mtime": 1792680607.6797402,
+    "hash": "33c14e3cd047c5f1aa593a1c06258497"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\deliverables\\dom1\\answer.txt": {
+    "mtime": 1792680607.6767378,
+    "hash": "8d2446184cd9bd25b67efd394463043e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\deliverables\\dom1\\INDEX.md": {
+    "mtime": 1792680607.6767378,
+    "hash": "6fbbd0a4b2c005a3ab26a6061859a4d1"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\deliverables\\inv1\\answer.txt": {
+    "mtime": 1792680607.6747377,
+    "hash": "8d2446184cd9bd25b67efd394463043e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\deliverables\\inv1\\INDEX.md": {
+    "mtime": 1792680607.6747377,
+    "hash": "861bdb8a7ca5fa5e6aec362d62cf2113"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\harness\\guardrails.md": {
+    "mtime": 1792680607.4192693,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680607.4212785,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\harness\\systemprompt.md": {
+    "mtime": 1792680607.4222767,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\harness\\plugin\\README.md": {
+    "mtime": 1792680549.7618845,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\harness\\scripts\\README.md": {
+    "mtime": 1792680549.7608855,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\harness\\skills\\README.md": {
+    "mtime": 1792680549.7638898,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680549.7608855,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680607.4232738,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\c1\\produced.md": {
+    "mtime": 1792680607.8087382,
+    "hash": "8d2446184cd9bd25b67efd394463043e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\c1\\rollout.md": {
+    "mtime": 1792680607.8077462,
+    "hash": "2a67a847188446c442222e28f768cfae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\c1\\harness\\guardrails.md": {
+    "mtime": 1792680607.4192693,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\c1\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680607.4212785,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\c1\\harness\\systemprompt.md": {
+    "mtime": 1792680607.4222767,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\c1\\harness\\plugin\\README.md": {
+    "mtime": 1792680549.7618845,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\c1\\harness\\scripts\\README.md": {
+    "mtime": 1792680549.7608855,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\c1\\harness\\skills\\README.md": {
+    "mtime": 1792680549.7638898,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\c1\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680549.7608855,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\c1\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680607.4232738,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\dom1\\produced.md": {
+    "mtime": 1792680607.7757401,
+    "hash": "8d2446184cd9bd25b67efd394463043e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\dom1\\rollout.md": {
+    "mtime": 1792680607.7747402,
+    "hash": "2a67a847188446c442222e28f768cfae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\dom1\\harness\\guardrails.md": {
+    "mtime": 1792680606.9088557,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\dom1\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680606.9088557,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\dom1\\harness\\systemprompt.md": {
+    "mtime": 1792680606.9098547,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\dom1\\harness\\plugin\\README.md": {
+    "mtime": 1792680549.3210049,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\dom1\\harness\\scripts\\README.md": {
+    "mtime": 1792680549.3190045,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\dom1\\harness\\skills\\README.md": {
+    "mtime": 1792680549.3210049,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\dom1\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680549.320007,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\dom1\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680606.9108536,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\inv1\\produced.md": {
+    "mtime": 1792680607.7467375,
+    "hash": "8d2446184cd9bd25b67efd394463043e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\inv1\\rollout.md": {
+    "mtime": 1792680607.7457376,
+    "hash": "2a67a847188446c442222e28f768cfae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\inv1\\harness\\guardrails.md": {
+    "mtime": 1792680606.8988526,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\inv1\\harness\\LongTermMEMORY.md": {
+    "mtime": 1792680606.8998523,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\inv1\\harness\\systemprompt.md": {
+    "mtime": 1792680606.9008534,
+    "hash": "e5e62b0d47c166d0b94d376819507248"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\inv1\\harness\\plugin\\README.md": {
+    "mtime": 1792680549.3040037,
+    "hash": "bf30a3527687fc3687b037eb348d85a4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\inv1\\harness\\scripts\\README.md": {
+    "mtime": 1792680549.3030045,
+    "hash": "648e9e25ed62a59d7a9c93fe72ceb1ff"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\inv1\\harness\\skills\\README.md": {
+    "mtime": 1792680549.305004,
+    "hash": "3a8d8ad89c26ab5a62269e3c4a8c586c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\inv1\\harness\\sub_agents\\README.md": {
+    "mtime": 1792680549.3040037,
+    "hash": "4a5f689c2c6f984ea4c61da4a9be430d"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\pool\\inv1\\harness\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680606.9008534,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\rollouts\\base1.md": {
+    "mtime": 1792680607.6717398,
+    "hash": "2a67a847188446c442222e28f768cfae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\rollouts\\c1.md": {
+    "mtime": 1792680607.6777391,
+    "hash": "2a67a847188446c442222e28f768cfae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\rollouts\\dom1.md": {
+    "mtime": 1792680607.6757388,
+    "hash": "2a67a847188446c442222e28f768cfae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-2\\reflection\\seq1.experience\\rollouts\\inv1.md": {
+    "mtime": 1792680607.6737387,
+    "hash": "2a67a847188446c442222e28f768cfae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\README.md": {
+    "mtime": 1792680318.464351,
+    "hash": "007d875352b9f8690b0d9e568a08da06"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\jb_runner\\PROVENANCE.md": {
+    "mtime": 1792680318.4663522,
+    "hash": "0f9cad256a4b5ee091ee8b76d994a85e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\jb_runner\\codex_base_harness\\AGENTS.md": {
+    "mtime": 1792680318.4673522,
+    "hash": "e9726ecba5ce7e9472a3a94edeeaa009"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\jb_runner\\harness_baseline_oc\\guardrails.md": {
+    "mtime": 1792680795.737331,
+    "hash": "ad9b4198b780b7b1d4e729558d8cc0b5"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\jb_runner\\harness_baseline_oc\\harness.yaml": {
+    "mtime": 1792680318.4693499,
+    "hash": "f2a655be44fcb5524a946ac0617092dc"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\jb_runner\\harness_baseline_oc\\LongTermMEMORY.md": {
+    "mtime": 1792680318.4683506,
+    "hash": "630044c95d3d68dd2160e7d3590e30e8"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\jb_runner\\harness_baseline_oc\\systemprompt.md": {
+    "mtime": 1792680787.6934676,
+    "hash": "3384476373a0715414fcb61b5865160c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\jb_runner\\harness_baseline_oc\\plugin\\README.md": {
+    "mtime": 1792680318.4703505,
+    "hash": "329db5e5e894dd3149d5f3970dea4eb0"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\jb_runner\\harness_baseline_oc\\scripts\\README.md": {
+    "mtime": 1792680318.4713507,
+    "hash": "8ec756e6e7c5ca7970ae1399b5113168"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\jb_runner\\harness_baseline_oc\\sub_agents\\README.md": {
+    "mtime": 1792680318.4713507,
+    "hash": "d1f060f105b40764afbe3b1f3d4367cc"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\jb_runner\\harness_baseline_oc\\tool_descriptions\\tool_guidance.md": {
+    "mtime": 1792680806.6353745,
+    "hash": "fad54aace95a67c85d32bd0afbf6ad8e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\lab_runner\\PROVENANCE.md": {
+    "mtime": 1792680318.4753506,
+    "hash": "a0289ccf743daa25a0a150330a0db450"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\lab_runner\\opencode\\README.md": {
+    "mtime": 1792680318.4803567,
+    "hash": "0e708ec2980c34961742f6de9557a629"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\wb_runner\\PROVENANCE.md": {
+    "mtime": 1792680318.493351,
+    "hash": "e7b183fd9f4892f6f2b17192ce30a5aa"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\wb_runner\\configs\\harnesses\\codex-harness\\_defaults.yaml": {
+    "mtime": 1792680318.4973505,
+    "hash": "71af41770550c01ffe2c746084af68ba"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\wb_runner\\configs\\harnesses\\codex-harness\\versions\\0.144.6.yaml": {
+    "mtime": 1792680318.498351,
+    "hash": "d222bb31e7c897db22777355a04c7f1c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\wb_runner\\configs\\harnesses\\oc-harness\\_defaults.yaml": {
+    "mtime": 1792680318.5003514,
+    "hash": "1090f5e99cf3a1e94e02554743c33e78"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\wb_runner\\configs\\harnesses\\oc-harness\\versions\\1.14.18.yaml": {
+    "mtime": 1792680318.5003514,
+    "hash": "3397c98705ff91fb0575f5db6302cf3e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\wb_runner\\configs\\harnesses\\opencode\\CONFIG.md": {
+    "mtime": 1792680318.5013516,
+    "hash": "b7e8cde9aef4e8ffa52281a530c3b290"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\wb_runner\\configs\\harnesses\\opencode\\_defaults.yaml": {
+    "mtime": 1792680318.5023522,
+    "hash": "1d103d73438fd44ce8e5b4e31ae4f817"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\wb_runner\\configs\\harnesses\\opencode\\versions\\1.14.18.yaml": {
+    "mtime": 1792680318.5043507,
+    "hash": "2813aaa87fedd998b9bd34f41f9db7cd"
+  },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\recursos\\arquitectura_system_design.md": {
     "mtime": 1788273511.791038,
     "hash": "4d66ed00a1897c6c823448bb6fcc2a93"
@@ -3338,5 +5694,49 @@
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\Ejemplos\\PruebaAnalistaT\u00e9cnicoFuncional_Yurgen_Moreno.docx.pdf": {
     "mtime": 1781186530.757561,
     "hash": "48a105ca9a7e582c9c37d94abf42ca6a"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\public\\icons\\icon-192.svg": {
+    "mtime": 1792508969.9786818,
+    "hash": "4338f093d6bcd965b9cd0d91515fbfae"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\public\\icons\\icon-512.svg": {
+    "mtime": 1792508991.592299,
+    "hash": "37df9f09f78b596f55bf685e996aa751"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\public\\icons\\shortcut-driver.svg": {
+    "mtime": 1792509003.0598226,
+    "hash": "c71d140d2541c93c1b4b2b851c4f5f41"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\public\\icons\\shortcut-pos.svg": {
+    "mtime": 1792509018.710403,
+    "hash": "7c17ed142957e4a031ff4377368a2988"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\assets\\components.png": {
+    "mtime": 1792680318.36744,
+    "hash": "e1be95b5eec1d97791b93a9f09cddb2a"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\assets\\harness2-setup.gif": {
+    "mtime": 1792680318.36844,
+    "hash": "efe877da358bc936a344b8e61f725ba6"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\assets\\Harness2-wordmark.png": {
+    "mtime": 1792680318.3644395,
+    "hash": "fe66b5fbcc36241a1b61d0610591be26"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\assets\\harness2_pipeline.png": {
+    "mtime": 1792680318.3944407,
+    "hash": "f5c69daac3be791554da3b0c65a96aa9"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\assets\\harness2_recursion_modes.png": {
+    "mtime": 1792680318.40044,
+    "hash": "4e4b55cb62aea7cdd95d7ffb5806f18b"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\assets\\logo.png": {
+    "mtime": 1792680318.4134383,
+    "hash": "e272c784debae845e7ea8c6065a21b05"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\assets\\harness2-video.mp4": {
+    "mtime": 1792680318.3894372,
+    "hash": "ba4270ea1cdff3bdee0081c93916ec48"
   }
 }
