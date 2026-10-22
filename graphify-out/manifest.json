@@ -459,6 +459,10 @@
     "mtime": 1780587717.7986703,
     "hash": "2620f65b9af5bc706f0bcab47f7539a8"
   },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\scripts\\architecture\\run_agency_sdd_bridge.py": {
+    "mtime": 1792682309.1557841,
+    "hash": "eeb1330b5f33b7c6b74f5c74e16dc771"
+  },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\scripts\\communities\\apply_communities.py": {
     "mtime": 1784123573.7551386,
     "hash": "4be93adfeef4ce162d5cfba2f042ae94"
@@ -1288,8 +1292,8 @@
     "hash": "59cb31a011e958c1aca3d1636f520d98"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\offlineOutboxResilience.test.ts": {
-    "mtime": 1792425745.1663074,
-    "hash": "5875a3ae5b65ec803481fa3af4fed2c9"
+    "mtime": 1792681626.9724221,
+    "hash": "91202531bcea092af010b3e76b48ef09"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\operationalFlows.test.ts": {
     "mtime": 1790953734.7300556,
@@ -2340,7 +2344,7 @@
     "hash": "cb247a393d06a8dd18d23d96bf10130e"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\base\\scripts\\summarize.py": {
-    "mtime": 1792680869.2453444,
+    "mtime": 1792682320.8946645,
     "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\harness\\scripts\\summarize.py": {
@@ -2576,8 +2580,8 @@
     "hash": "bbf56846a9dccae6fffd0adf4fd0038d"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\AGENTS.md": {
-    "mtime": 1792681035.591408,
-    "hash": "9385938d1e8556236d40e92e2b80343a"
+    "mtime": 1792682469.3341832,
+    "hash": "29665fd985dbbc7727b25ac0afc2fb34"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\ARCHITECT_GOVERNANCE.md": {
     "mtime": 1790953734.637054,
@@ -2608,8 +2612,8 @@
     "hash": "531d30c79f6a0930aea0ee5c9702ef64"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\MEMORY.md": {
-    "mtime": 1792681044.8921635,
-    "hash": "fdaba71f480e359d8fc6fcaede00d8a7"
+    "mtime": 1792681165.518012,
+    "hash": "99ecf1f6939b3cc3abcc0565550ef516"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\pnpm-workspace.yaml": {
     "mtime": 1791561859.8085408,
@@ -3848,19 +3852,19 @@
     "hash": "0e699ed3f5c26db93758d98bcb473d7e"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\base\\guardrails.md": {
-    "mtime": 1792680869.2433436,
+    "mtime": 1792682320.8836672,
     "hash": "d41d8cd98f00b204e9800998ecf8427e"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\base\\LongTermMEMORY.md": {
-    "mtime": 1792680869.2443447,
+    "mtime": 1792682320.8836672,
     "hash": "d41d8cd98f00b204e9800998ecf8427e"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\base\\systemprompt.md": {
-    "mtime": 1792680869.2433436,
+    "mtime": 1792682320.8826807,
     "hash": "e5e62b0d47c166d0b94d376819507248"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\base\\tool_descriptions\\tool_guidance.md": {
-    "mtime": 1792680869.2443447,
+    "mtime": 1792682320.8856654,
     "hash": "d41d8cd98f00b204e9800998ecf8427e"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\executions\\demo-oc-agg1\\ledger-1\\base1\\answer.txt": {
