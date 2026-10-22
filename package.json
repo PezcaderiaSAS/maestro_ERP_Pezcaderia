@@ -24,6 +24,8 @@
     "scaffold:diagrams": "node scripts/architecture/audit-diagrams-compliance.cjs --scaffold",
     "verify:env": "node scripts/lifecycle/verify-env-connections.cjs",
     "verify:env:strict": "node scripts/lifecycle/verify-env-connections.cjs --strict",
+    "harness2": "powershell -ExecutionPolicy Bypass -File tools/harness2/run_harness2.ps1",
+    "sdd:bridge": "python scripts/architecture/run_agency_sdd_bridge.py",
     "prepare": "husky"
   },
   "dependencies": {

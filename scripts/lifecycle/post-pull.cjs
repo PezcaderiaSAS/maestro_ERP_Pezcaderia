@@ -54,8 +54,12 @@ run('node scripts/architecture/audit-diagrams-compliance.cjs', 'Auditoría de Di
 console.log('🏛️ [7/8] Ejecutando Auditoría Master Architect (SOLID & Boundaries)...');
 run('node scripts/architecture/audit-solid-boundaries.cjs', 'Auditoría Master Architect', true);
 
-// 8. Verificación de Servidor Vite (Puerto 3000)
-console.log('🌐 [8/8] Comprobando disponibilidad del servidor en http://localhost:3000/...');
+// 8. Verificación de Salud de Arneses de IA (Google Harness² & Agency Swarm)
+console.log('⚡ [8/9] Verificando salud de arneses IA simultáneos (Harness² & Swarm)...');
+run('powershell -ExecutionPolicy Bypass -File tools/harness2/run_harness2.ps1 -Demo', 'Verificación de Salud de Arneses IA', true);
+
+// 9. Verificación de Servidor Vite (Puerto 3000)
+console.log('🌐 [9/9] Comprobando disponibilidad del servidor en http://localhost:3000/...');
 const req = http.get('http://localhost:3000/', (res) => {
   console.log(`✅ Servidor Vite activo y respondiendo (HTTP ${res.statusCode}).`);
   console.log('\n🎉 [LIFECYCLE] Entorno 100% sincronizado y listo para trabajar.\n');
@@ -69,3 +73,4 @@ req.on('error', () => {
 req.setTimeout(1500, () => {
   req.destroy();
 });
+

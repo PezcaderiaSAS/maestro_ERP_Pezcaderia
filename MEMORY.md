@@ -5,7 +5,8 @@
 - **Git & Lifecycle Post-Pull:** Sincronizado en commit `93b1d24`.
 - **Quality Gate:** TypeScript estricto **0 errores (`tsc --noEmit`)**, Master Architect SOLID con 0 violaciones críticas (`passed = true`), y auditoría de 5 Diagramas Mermaid aprobada al 100%.
 - **Gobernanza SDD (RULE-SDD-001):** 38 dependencias oficiales intactas (0 deltas). Axios existente para integración HTTP de SIIGO.
-- **Frameworks IA:** Harness² configurado en `tools/harness2/` con Gemini 3.8 Flash a costo $0 y soporte en Español (es-419).
+- **Frameworks IA (Tétrada Canónica):** Harness² y Agency Swarm integrados en co-ejecución simultánea (`run_agency_sdd_bridge.py`) a costo $0 para fases SDD y paso 8 de `post-pull.cjs`.
+
 
 
 ## Módulos y Especificaciones en Marcha

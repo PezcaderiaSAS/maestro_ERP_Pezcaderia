@@ -65,4 +65,14 @@ El script cuenta con:
 ### Fase 4: Registro y Persistencia
 Si la respuesta define nuevas políticas o decisiones estructurales, el resultado se incorpora en [`ARCHITECT_GOVERNANCE.md`](../../ARCHITECT_GOVERNANCE.md) o en las migraciones SQL correspondientes.
 
+---
+
+### ⚡ Co-Ejecución Simultánea con Google Harness² (/harness2)
+Para ejecutar Agency Swarm y la optimización de arnés de Harness² de forma simultánea e independiente en paralelo:
+
+```powershell
+python scripts/architecture/run_agency_sdd_bridge.py -a [architect|data|ui|quality] -p "[Requerimiento]"
+```
+
 Para patrones detallados de formulación, consulta [`.agents/skills/agency-swarm-orchestrator/SKILL.md`](../../.agents/skills/agency-swarm-orchestrator/SKILL.md).
+

@@ -53,3 +53,17 @@ Harness² optimiza los 8 componentes alrededor del modelo sin reentrenar pesos:
 6. `sub_agents/`: Subagentes especializados delegados.
 7. `scripts/`: Scripts deterministas de apoyo en Python.
 8. `plugin/`: Interceptores de ciclo de vida dentro del bucle de herramientas.
+
+---
+
+## ⚡ Co-Ejecución Simultánea con Agency Swarm (Spec-Driven Development)
+
+Para ejecutar en simultáneo la ideación técnica de los especialistas de Agency Swarm y la optimización de arnés de Harness²:
+
+```powershell
+# Ejecución simultánea en paralelo sin bloqueo (Costo $0):
+python scripts/architecture/run_agency_sdd_bridge.py -a [architect|data|ui|quality] -p "[Requerimiento o fase SDD]"
+```
+
+El script despacha ambos motores en hilos paralelos independientes y genera un reporte unificado en `specs/sdd_verification_reports/`.
+

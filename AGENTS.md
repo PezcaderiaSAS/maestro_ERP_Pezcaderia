@@ -75,9 +75,9 @@ El proyecto cuenta con un ecosistema formal de habilidades y comandos slash de u
 
 ---
 
-# Tríada Canónica de Ahorro de Tokens y Navegación Estructural
+# Tétrada Canónica de Ahorro de Tokens y Agentes Autónomos
 
-El proyecto implementa una tríada jerárquica obligatoria para optimizar consumo de contexto y evitar lecturas masivas de archivos:
+El proyecto implementa una tétrada jerárquica obligatoria para optimizar consumo de contexto y evitar lecturas masivas de archivos:
 
 1. **Exploración Conceptual Rápida:** `graphify query "<concepto>"`
    - Fuente primaria constitucional para entender módulos y dependencias temáticas a costo mínimo de tokens (`--budget 2000`).
@@ -86,6 +86,9 @@ El proyecto implementa una tríada jerárquica obligatoria para optimizar consum
    - Verificación de alcance con `npx gitnexus detect-changes -r maestro_ERP_Pezcaderia`.
 3. **Ideación Técnica Especializada a Costo $0:** `/swarm` (Agency Swarm)
    - Ejecución mediante `python tools/agency-swarm/run_cli.py -a [data|architect|ui|quality] -p "<requerimiento>"` para diseñar SQL, RLS, esquemas Zod o arquitectura sin gastar cuota del LLM principal.
+4. **Optimización Recursiva y Autorreflexión de Arneses a Costo $0:** `/harness2` (Google Harness²)
+   - Ejecución mediante `powershell -ExecutionPolicy Bypass -File tools/harness2/run_harness2.ps1` para contrastar evolutivamente arneses (Propose-Probe-Compose), verificar invariantes y acumular lecciones duraderas sin alterar pesos de modelos.
+   - **Co-Ejecución Simultánea Swarm + Harness²:** Disparo concurrente en paralelo mediante `python scripts/architecture/run_agency_sdd_bridge.py -a [data|architect|ui|quality] -p "<requerimiento>"` para que Agency Swarm ideé la solución mientras Harness² evalúa y optimiza el arnés en tiempo real.
 
 ---
 
@@ -94,7 +97,7 @@ El proyecto implementa una tríada jerárquica obligatoria para optimizar consum
 - **Post-Pull (Puesta en Marcha):**
   - Hook automático: `.husky/post-merge` y `.git/hooks/post-merge`
   - Comando npm: `npm run session:pull`
-  - Acciones: Verificación de entorno $\rightarrow$ **Investigador SDD de Dependencias y Documentación Oficial ([`.antigravity-rules.json`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.antigravity-rules.json) con Brave Search API)** $\rightarrow$ Sincronización Graphify $\rightarrow$ Reindexación GitNexus $\rightarrow$ Verificación `tsc --noEmit` $\rightarrow$ Auditoría de 5 Diagramas Mermaid $\rightarrow$ **Auditoría Master Architect (SOLID & Boundaries: `scripts/architecture/audit-solid-boundaries.cjs`)** $\rightarrow$ Comprobación de servidor Vite (`http://localhost:3000/`).
+  - Acciones: Verificación de entorno $\rightarrow$ **Investigador SDD de Dependencias y Documentación Oficial ([`.antigravity-rules.json`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.antigravity-rules.json) con Brave Search API)** $\rightarrow$ Sincronización Graphify $\rightarrow$ Reindexación GitNexus $\rightarrow$ Verificación `tsc --noEmit` $\rightarrow$ Auditoría de 5 Diagramas Mermaid $\rightarrow$ **Auditoría Master Architect (SOLID & Boundaries: `scripts/architecture/audit-solid-boundaries.cjs`)** $\rightarrow$ **Verificación de Salud de Arneses IA Simultáneos (Harness² & Swarm)** $\rightarrow$ Comprobación de servidor Vite (`http://localhost:3000/`).
 - **Pre-Push (Quality Gate de Cierre):**
   - Hook automático: `.husky/pre-push`
   - Comando npm: `npm run session:push`
@@ -143,6 +146,7 @@ A partir de esta sesión, ante **CADA** solicitud o requerimiento nuevo, la IA D
 1. **/speckit.specify:**
    - Define el "Qué" se va a construir y el "Por qué".
    - Ejecuta `graphify query "<concepto>"` para consultar el grafo local y entender dependencias exactas antes de planificar, evitando lecturas masivas.
+   - **Co-Ejecución Simultánea Swarm + Harness²:** Disparar `python scripts/architecture/run_agency_sdd_bridge.py -a architect -p "<requerimiento>"` para explorar el espacio de diseño y evaluar candidatos de arnés al mismo tiempo a costo $0.
    - **MANDATORIO MULTI-PHASE SYSTEM MODELING (Mermaid.js):** Generar obligatoriamente los 5 diagramas de ingeniería:
      1. `1_process_flowcharts`: Flujo de procesos y ciclo de vida secuencial.
      2. `2_decision_logic_diagrams`: Rombos de decisión `{...}` con bifurcaciones y edge cases.
@@ -160,7 +164,7 @@ A partir de esta sesión, ante **CADA** solicitud o requerimiento nuevo, la IA D
    - **NO generes código todavía.** Espera la aprobación del usuario.
 4. **/speckit.plan:**
    - Crea el plan técnico (el "Cómo"): componentes, esquemas de datos y flujos de información respaldados por los 5 diagramas Mermaid aprobados.
-   - Usa `graphify query "..."`.
+   - Usa `graphify query "..."` y co-ejecuta `run_agency_sdd_bridge.py -a data -p "<plan>"` para contrastar arneses y esquemas con el enjambre en paralelo.
    - **NO generes código todavía.** Espera la aprobación del usuario.
 5. **/speckit.tasks:**
    - Traduce el plan en tareas granulares, secuenciales y accionables.
@@ -168,6 +172,7 @@ A partir de esta sesión, ante **CADA** solicitud o requerimiento nuevo, la IA D
    - **NO generes código todavía.** Espera la aprobación del usuario.
 6. **/speckit.analyze (Control de Calidad 2):**
    - Reporte de consistencia y alineación cruzada (Spec $\rightarrow$ Plan $\rightarrow$ Tasks) para auditar fisuras antes de programar.
+   - Ejecuta validación simultánea con Harness² (`run_agency_sdd_bridge.py -a quality --dry-run`) para asegurar que el arnés no viole restricciones ni presupuesto.
    - Usa `graphify query "..."`.
    - **NO generes código todavía.** Espera la aprobación del usuario.
 7. **/speckit.tasks (Actualización post-análisis):**
