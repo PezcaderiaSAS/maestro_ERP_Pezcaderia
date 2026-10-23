@@ -92,16 +92,18 @@ El proyecto implementa una tétrada jerárquica obligatoria para optimizar consu
 
 ---
 
-# Pipeline Automatizado de Ciclo de Vida Git (Hooks & Scripts)
+# Pipeline Automatizado de Ciclo de Vida Git (Hooks & Workflows de Sesión)
 
-- **Post-Pull (Puesta en Marcha):**
+- **Apertura de Sesión (Session Open):**
+  - Workflow: `/session-open` ([`.agent/workflows/session-open.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agent/workflows/session-open.md))
+  - Comando npm: `npm run session:open` (alias: `npm run session:pull`)
   - Hook automático: `.husky/post-merge` y `.git/hooks/post-merge`
-  - Comando npm: `npm run session:pull`
-  - Acciones: Verificación de entorno $\rightarrow$ **Investigador SDD de Dependencias y Documentación Oficial ([`.antigravity-rules.json`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.antigravity-rules.json) con Brave Search API)** $\rightarrow$ Sincronización Graphify $\rightarrow$ Reindexación GitNexus $\rightarrow$ Verificación `tsc --noEmit` $\rightarrow$ Auditoría de 5 Diagramas Mermaid $\rightarrow$ **Auditoría Master Architect (SOLID & Boundaries: `scripts/architecture/audit-solid-boundaries.cjs`)** $\rightarrow$ **Verificación de Salud de Arneses IA Simultáneos (Harness² & Swarm)** $\rightarrow$ Comprobación de servidor Vite (`http://localhost:3000/`).
-- **Pre-Push (Quality Gate de Cierre):**
+  - Acciones: Sincronización `git pull origin main` $\rightarrow$ Setup Interactivo de `GEMINI_API_KEY` para Harness² y Swarm $\rightarrow$ Verificación de conectividad real (8 servicios) $\rightarrow$ Diagnóstico de Agencias (Swarm, Harness², ECC y roles Brownfield) $\rightarrow$ Auditoría e Indexación de Capacidades y Servidores MCP (`ecosystem-manifest.cjs`) $\rightarrow$ Verificación `tsc --noEmit` y 5 Diagramas Mermaid $\rightarrow$ Auditoría Master Architect SOLID $\rightarrow$ Comprobación Servidor Vite $\rightarrow$ Despliegue de Cola de Tareas Pendientes (`WIP = 1`).
+- **Cierre de Sesión (Session Close):**
+  - Workflow: `/session-close` ([`.agent/workflows/session-close.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agent/workflows/session-close.md))
+  - Comando npm: `npm run session:close` (alias: `npm run session:push`)
   - Hook automático: `.husky/pre-push`
-  - Comando npm: `npm run session:push`
-  - Acciones: `tsc --noEmit` estricto $\rightarrow$ Suite Vitest completa (100% pasando) $\rightarrow$ `gitnexus detect-changes` (reporte de blast radius). Si falla cualquiera, **bloquea el push a GitHub**.
+  - Acciones: Detección y guardado de nuevas capacidades y workflows creados en `DOCS/ecosystem-manifest.json` $\rightarrow$ `tsc --noEmit` estricto $\rightarrow$ Suite Vitest completa (100% pasando obligatorio) $\rightarrow$ Auditoría de blast radius GitNexus $\rightarrow$ Sincronización y síntesis de `MEMORY.md` ($\le 50$ líneas) $\rightarrow$ Generación de Handover fechado (`DOCS/handovers/`) $\rightarrow$ Git Commit convencional y `git push origin main`.
 
 **Reglas de Gobernanza Preceptiva:** Ver [`.agent/rules/master-architect-solid.md`](file:///c:/Users/Personal/Documents/Yurgen/Maestro_Pezcaderia_ERP/maestro_ERP_Pezcaderia/.agent/rules/master-architect-solid.md), [`.agent/rules/design-governance.md`](file:///c:/Users/Personal/Documents/Yurgen/Maestro_Pezcaderia_ERP/maestro_ERP_Pezcaderia/.agent/rules/design-governance.md) y [`DOCS/ecosistema_herramientas_agentes_uiux.md`](file:///c:/Users/Personal/Documents/Yurgen/Maestro_Pezcaderia_ERP/maestro_ERP_Pezcaderia/DOCS/ecosistema_herramientas_agentes_uiux.md).
 

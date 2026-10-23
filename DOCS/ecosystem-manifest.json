@@ -1,0 +1,1175 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-10-23T18:26:00.514Z",
+  "totals": {
+    "workflows": 116,
+    "skills": 11,
+    "agencies": 7,
+    "mcpServers": 14
+  },
+  "workflows": [
+    {
+      "id": "archify",
+      "command": "/archify",
+      "title": "Workflow: /archify",
+      "description": "Genera diagramas arquitectónicos C4, mapas de dependencias y análisis estructural de módulos con Mermaid.js.",
+      "file": ".agent/workflows/archify.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "aside",
+      "command": "/aside",
+      "title": "Aside Command",
+      "description": "Answer a quick side question without interrupting or losing context from the current task. Resume work automatically after answering.",
+      "file": ".agent/workflows/aside.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "async",
+      "command": "/async",
+      "title": "Workflow: /async",
+      "description": "Acceso rápido a patrones de ingeniería asíncrona, AbortController, useTransition y deduplicación de promesas.",
+      "file": ".agent/workflows/async.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "audit-project",
+      "command": "/audit-project",
+      "title": "Comando OpenCode: audit-project",
+      "description": "Comando slash formal del protocolo brownfield",
+      "file": ".opencode/commands/audit-project.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "auto-update",
+      "command": "/auto-update",
+      "title": "Override the ECC repo root explicitly",
+      "description": "Pull the latest ECC repo changes and reinstall the current managed targets.",
+      "file": ".agent/workflows/auto-update.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "build-fix",
+      "command": "/build-fix",
+      "title": "Build and Fix",
+      "description": "Detect the project build system and incrementally fix build/type errors with minimal safe changes.",
+      "file": ".agent/workflows/build-fix.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "cache",
+      "command": "/cache",
+      "title": "Workflow: /cache",
+      "description": "Acceso rápido a la estrategia de caché multinivel con Zustand y Upstash Redis.",
+      "file": ".agent/workflows/cache.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "checkpoint",
+      "command": "/checkpoint",
+      "title": "Checkpoint Command",
+      "description": "Create, verify, or list workflow checkpoints after running verification checks.",
+      "file": ".agent/workflows/checkpoint.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "code-review",
+      "command": "/code-review",
+      "title": "If COMMENT only (draft PR or informational)",
+      "description": "Code review — local uncommitted changes or GitHub PR (pass PR number/URL for PR mode)",
+      "file": ".agent/workflows/code-review.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "concurrency",
+      "command": "/concurrency",
+      "title": "Workflow: /concurrency",
+      "description": "Control de concurrencia de usuarios simultáneos, OCC, locks distribuidos en Redis y transacciones atómicas en Supabase.",
+      "file": ".agent/workflows/concurrency.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "continuous-kanban-flow",
+      "command": "/continuous-kanban-flow",
+      "title": "Workflow: Continuous-Kanban-Flow",
+      "description": "Gestión de tareas mediante flujo continuo visual Lean Kanban con límite estricto WIP = 1, sin sprints rígidos y guiado por planos arquitectónicos.",
+      "file": ".agent/workflows/continuous-kanban-flow.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "cost-report",
+      "command": "/cost-report",
+      "title": "Cost Report",
+      "description": "Generate a local Claude Code cost report from the ECC cost-tracker metrics log.",
+      "file": ".agent/workflows/cost-report.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "design-system",
+      "command": "/design-system",
+      "title": "Workflow: /design-system",
+      "description": "Acceso rápido al sistema de diseño UI/UX y tokens de componentes en MaestroPescaderia.",
+      "file": ".agent/workflows/design-system.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "ecc-guide",
+      "command": "/ecc-guide",
+      "title": "/ecc-guide",
+      "description": "Navigate ECC's current agents, skills, commands, hooks, install profiles, and docs from the live repository surface.",
+      "file": ".agent/workflows/ecc-guide.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "epic-claim",
+      "command": "/epic-claim",
+      "title": "/epic-claim",
+      "description": "Claim an epic issue, stamp coordination state, and sync local ownership.",
+      "file": ".agent/workflows/epic-claim.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "epic-decompose",
+      "command": "/epic-decompose",
+      "title": "/epic-decompose",
+      "description": "Break an epic into task children without creating task branches.",
+      "file": ".agent/workflows/epic-decompose.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "epic-publish",
+      "command": "/epic-publish",
+      "title": "/epic-publish",
+      "description": "Publish a validated epic update back to the issue and local cache.",
+      "file": ".agent/workflows/epic-publish.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "epic-review",
+      "command": "/epic-review",
+      "title": "/epic-review",
+      "description": "Mark epic review requested, approved, or changes requested.",
+      "file": ".agent/workflows/epic-review.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "epic-sync",
+      "command": "/epic-sync",
+      "title": "/epic-sync",
+      "description": "Sync epic issue bodies, labels, and local coordination snapshots from GitHub.",
+      "file": ".agent/workflows/epic-sync.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "epic-unblock",
+      "command": "/epic-unblock",
+      "title": "/epic-unblock",
+      "description": "Sweep blocked epic issues and reopen anything whose dependencies are closed.",
+      "file": ".agent/workflows/epic-unblock.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "epic-validate",
+      "command": "/epic-validate",
+      "title": "/epic-validate",
+      "description": "Validate epic readiness, dependencies, and coordination policy.",
+      "file": ".agent/workflows/epic-validate.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "evolve",
+      "command": "/evolve",
+      "title": "Debugger Agent",
+      "description": "Systematic debugging agent",
+      "file": ".agent/workflows/evolve.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "feature",
+      "command": "/feature",
+      "title": "Comando OpenCode: feature",
+      "description": "Comando slash formal del protocolo brownfield",
+      "file": ".opencode/commands/feature.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "feature-dev",
+      "command": "/feature-dev",
+      "title": "feature-dev",
+      "description": "Guided feature development with codebase understanding and architecture focus",
+      "file": ".agent/workflows/feature-dev.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "free-tier",
+      "command": "/free-tier",
+      "title": "Workflow: /free-tier",
+      "description": "Acceso rápido a las optimizaciones y límites de capa gratuita en Supabase y Vercel.",
+      "file": ".agent/workflows/free-tier.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "gan-build",
+      "command": "/gan-build",
+      "title": "gan-build",
+      "description": "Run a generator/evaluator build loop for implementation tasks with bounded iterations and scoring.",
+      "file": ".agent/workflows/gan-build.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "gan-design",
+      "command": "/gan-design",
+      "title": "gan-design",
+      "description": "Run a generator/evaluator design loop for frontend or visual work with bounded iterations and scoring.",
+      "file": ".agent/workflows/gan-design.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "graphify",
+      "command": "/graphify",
+      "title": "Workflow: graphify",
+      "description": "Turn any folder of files into a navigable knowledge graph",
+      "file": ".agent/workflows/graphify.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "grill-me",
+      "command": "/grill-me",
+      "title": "Workflow: /grill-me",
+      "description": "Protocolo de interrogatorio continuo activo para eliminar ambigüedades y desafiar suposiciones antes de programar o mover tareas.",
+      "file": ".agent/workflows/grill-me.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "harness-audit",
+      "command": "/harness-audit",
+      "title": "Harness Audit Command",
+      "description": "Run a deterministic repository harness audit and return a prioritized scorecard.",
+      "file": ".agent/workflows/harness-audit.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "harness2",
+      "command": "/harness2",
+      "title": "Ejecución simultánea en paralelo sin bloqueo (Costo $0):",
+      "description": "Configura y ejecuta el framework Harness² de Google Research para autorreflexión recursiva y mejora continua de arneses de agentes de IA a Costo $0 en Español (es-419).",
+      "file": ".agent/workflows/harness2.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "hookify",
+      "command": "/hookify",
+      "title": "hookify",
+      "description": "Create hooks to prevent unwanted behaviors from conversation analysis or explicit instructions",
+      "file": ".agent/workflows/hookify.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "hookify-configure",
+      "command": "/hookify-configure",
+      "title": "hookify-configure",
+      "description": "Enable or disable hookify rules interactively",
+      "file": ".agent/workflows/hookify-configure.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "hookify-help",
+      "command": "/hookify-help",
+      "title": "hookify-help",
+      "description": "Get help with the hookify system",
+      "file": ".agent/workflows/hookify-help.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "hookify-list",
+      "command": "/hookify-list",
+      "title": "hookify-list",
+      "description": "List all configured hookify rules",
+      "file": ".agent/workflows/hookify-list.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "humanize",
+      "command": "/humanize",
+      "title": "Workflow: /humanize",
+      "description": "Audita y refina textos, documentación, mensajes de error y descripciones de PR para eliminar lenguaje robótico de IA y lograr un tono natural y profesional.",
+      "file": ".agent/workflows/humanize.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "instinct-export",
+      "command": "/instinct-export",
+      "title": "Prefer Functional Style",
+      "description": "Export instincts from project/global scope to a file",
+      "file": ".agent/workflows/instinct-export.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "instinct-import",
+      "command": "/instinct-import",
+      "title": "Instinct Import Command",
+      "description": "Import instincts from file or URL into project/global scope",
+      "file": ".agent/workflows/instinct-import.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "instinct-status",
+      "command": "/instinct-status",
+      "title": "Instinct Status Command",
+      "description": "Show learned instincts (project + global) with confidence",
+      "file": ".agent/workflows/instinct-status.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "jira",
+      "command": "/jira",
+      "title": "Jira Command",
+      "description": "Retrieve a Jira ticket, analyze requirements, update status, or add comments. Uses the jira-integration skill and MCP or REST API.",
+      "file": ".agent/workflows/jira.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "learn",
+      "command": "/learn",
+      "title": "[Descriptive Pattern Name]",
+      "description": "Extract reusable patterns from the current session and save them as candidate skills or guidance.",
+      "file": ".agent/workflows/learn.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "learn-eval",
+      "command": "/learn-eval",
+      "title": "[Descriptive Pattern Name]",
+      "description": "\"Under 130 characters\"",
+      "file": ".agent/workflows/learn-eval.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "loop-start",
+      "command": "/loop-start",
+      "title": "Loop Start Command",
+      "description": "Start a managed autonomous loop pattern with safety defaults and explicit stop conditions.",
+      "file": ".agent/workflows/loop-start.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "loop-status",
+      "command": "/loop-status",
+      "title": "Loop Status Command",
+      "description": "Inspect active loop state, progress, failure signals, and recommended intervention.",
+      "file": ".agent/workflows/loop-status.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "model-route",
+      "command": "/model-route",
+      "title": "Model Route Command",
+      "description": "Recommend the best model tier for the current task based on complexity, risk, and budget.",
+      "file": ".agent/workflows/model-route.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "multi-backend",
+      "command": "/multi-backend",
+      "title": "Resume session call",
+      "description": "Run a backend-focused multi-model workflow for APIs, algorithms, data, and business logic.",
+      "file": ".agent/workflows/multi-backend.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "multi-execute",
+      "command": "/multi-execute",
+      "title": "Execute task directly (for plans already discussed in context)",
+      "description": "Execute a multi-model implementation plan while preserving Claude as the only filesystem writer.",
+      "file": ".agent/workflows/multi-execute.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "multi-frontend",
+      "command": "/multi-frontend",
+      "title": "Resume session call",
+      "description": "Run a frontend-focused multi-model workflow for components, layouts, animation, and UI polish.",
+      "file": ".agent/workflows/multi-frontend.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "multi-plan",
+      "command": "/multi-plan",
+      "title": "Plan - Multi-Model Collaborative Planning",
+      "description": "Create a multi-model implementation plan without modifying production code.",
+      "file": ".agent/workflows/multi-plan.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "multi-tenant",
+      "command": "/multi-tenant",
+      "title": "Workflow: /multi-tenant",
+      "description": "Arquitectura de seguridad multi-inquilino (Multi-Tenancy), aislamiento por tenant_id y roles RBAC en Supabase.",
+      "file": ".agent/workflows/multi-tenant.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "multi-tier-cache",
+      "command": "/multi-tier-cache",
+      "title": "Workflow: /multi-tier-cache",
+      "description": "Arquitectura de caché multinivel (Zustand L1 + IndexedDB L2 + Upstash Redis REST L3 + PostgreSQL L4) y control de concurrencia.",
+      "file": ".agent/workflows/multi-tier-cache.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "multi-workflow",
+      "command": "/multi-workflow",
+      "title": "Resume session call",
+      "description": "Run a full multi-model development workflow with research, planning, execution, optimization, and review.",
+      "file": ".agent/workflows/multi-workflow.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "offline-sync",
+      "command": "/offline-sync",
+      "title": "Workflow: /offline-sync",
+      "description": "Arquitectura Offline-First, IndexedDB, patrón Outbox y sincronización resiliente de transacciones para POS y WMS.",
+      "file": ".agent/workflows/offline-sync.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "open-design",
+      "command": "/open-design",
+      "title": "Workflow: /open-design",
+      "description": "Genera y gestiona recursos gráficos abiertos, avatares SVG temáticos para productos a costo cero y micro-componentes visuales.",
+      "file": ".agent/workflows/open-design.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "orch-add-feature",
+      "command": "/orch-add-feature",
+      "title": "/orch-add-feature",
+      "description": "Orchestrate building a brand-new feature end to end — research, plan, TDD, review, gated commit. Wrapper that kicks off the orch-add-feature skill.",
+      "file": ".agent/workflows/orch-add-feature.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "orch-build-mvp",
+      "command": "/orch-build-mvp",
+      "title": "/orch-build-mvp",
+      "description": "Orchestrate bootstrapping a working MVP from a design/spec doc — ingest, slice, scaffold, TDD, review, gated commit (reuses the GAN harness). Wrapper for the orch-build-mvp skill.",
+      "file": ".agent/workflows/orch-build-mvp.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "orch-change-feature",
+      "command": "/orch-change-feature",
+      "title": "/orch-change-feature",
+      "description": "Orchestrate altering an existing, working feature to new desired behavior — update tests to the new spec, change impl, review, gated commit. Wrapper for the orch-change-feature skill.",
+      "file": ".agent/workflows/orch-change-feature.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "orch-fix-defect",
+      "command": "/orch-fix-defect",
+      "title": "/orch-fix-defect",
+      "description": "Orchestrate fixing a bug — reproduce it as a failing regression test, fix to green, review, gated commit. Wrapper for the orch-fix-defect skill.",
+      "file": ".agent/workflows/orch-fix-defect.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "orch-refine-code",
+      "command": "/orch-refine-code",
+      "title": "/orch-refine-code",
+      "description": "Orchestrate a behavior-preserving refactor — confirm tests green, restructure without changing behavior, keep green, review, gated commit. Wrapper for the orch-refine-code skill.",
+      "file": ".agent/workflows/orch-refine-code.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "outbox",
+      "command": "/outbox",
+      "title": "Workflow: /outbox",
+      "description": "Acceso rápido al patrón Outbox y sincronización offline en IndexedDB.",
+      "file": ".agent/workflows/outbox.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "pdf",
+      "command": "/pdf",
+      "title": "Workflow: /pdf",
+      "description": "Acceso rápido al motor de generación de documentos PDF empresariales en MaestroPescaderia.",
+      "file": ".agent/workflows/pdf.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "pdf-docs",
+      "command": "/pdf-docs",
+      "title": "Workflow: /pdf-docs",
+      "description": "Motor de generación de documentos PDF empresariales, facturas, remisiones WMS, nómina y tickets térmicos.",
+      "file": ".agent/workflows/pdf-docs.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "penpot-ui",
+      "command": "/penpot-ui",
+      "title": "Workflow: /penpot-ui",
+      "description": "Traduce bocetos y especificaciones de diseño basadas en Penpot (Flexbox, CSS Grid, SVG) en componentes React y Tailwind CSS de alta fidelidad.",
+      "file": ".agent/workflows/penpot-ui.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "plan",
+      "command": "/plan",
+      "title": "Implementation Plan: Real-Time Market Resolution Notifications",
+      "description": "Restate requirements, assess risks, and create step-by-step implementation plan. WAIT for user CONFIRM before touching any code.",
+      "file": ".agent/workflows/plan.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "plan-prd",
+      "command": "/plan-prd",
+      "title": "{Product / Feature Name}",
+      "description": "\"Generate a lean, problem-first PRD and hand off to /plan for implementation planning.\"",
+      "file": ".agent/workflows/plan-prd.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "pm2",
+      "command": "/pm2",
+      "title": "PM2 Init",
+      "description": "Analyze a project and generate PM2 service commands for detected frontend, backend, or database services.",
+      "file": ".agent/workflows/pm2.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "ponytail",
+      "command": "/ponytail",
+      "title": "Workflow: /ponytail",
+      "description": "Ejecuta pipelines de tareas encadenadas por etapas con checkpoints de validación y control de errores para agentes de IA.",
+      "file": ".agent/workflows/ponytail.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "pos-caja",
+      "command": "/pos-caja",
+      "title": "Workflow: /pos-caja",
+      "description": "Acceso rápido al motor de POS y arqueo de caja ciega en MaestroPescaderia.",
+      "file": ".agent/workflows/pos-caja.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "pos-cash",
+      "command": "/pos-cash",
+      "title": "Workflow: /pos-cash",
+      "description": "Motor de Punto de Venta (POS), control de arqueos de caja ciega, turnos de cajeros y tesorería.",
+      "file": ".agent/workflows/pos-cash.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "pr",
+      "command": "/pr",
+      "title": "Create Pull Request",
+      "description": "\"Create a GitHub PR from current branch with unpushed commits — discovers templates, analyzes changes, pushes\"",
+      "file": ".agent/workflows/pr.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "product-image",
+      "command": "/product-image",
+      "title": "Workflow: /product-image",
+      "description": "Generación automática de avatares SVG vectoriales temáticos para productos del mar a Costo 0 y compresión WebP.",
+      "file": ".agent/workflows/product-image.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "producto-foto",
+      "command": "/producto-foto",
+      "title": "Workflow: /producto-foto",
+      "description": "Acceso rápido a la generación y compresión visual de productos a Costo 0.",
+      "file": ".agent/workflows/producto-foto.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "project-init",
+      "command": "/project-init",
+      "title": "/project-init",
+      "description": "Detect a project's stack and produce a dry-run ECC onboarding plan using the repository's install manifests and stack mappings.",
+      "file": ".agent/workflows/project-init.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "projects",
+      "command": "/projects",
+      "title": "Projects Command",
+      "description": "List known projects and their instinct statistics",
+      "file": ".agent/workflows/projects.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "promote",
+      "command": "/promote",
+      "title": "Promote Command",
+      "description": "Promote project-scoped instincts to global scope",
+      "file": ".agent/workflows/promote.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "prp-commit",
+      "command": "/prp-commit",
+      "title": "Smart Commit",
+      "description": "\"Quick commit with natural language file targeting — describe what to commit in plain English\"",
+      "file": ".agent/workflows/prp-commit.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "prp-implement",
+      "command": "/prp-implement",
+      "title": "Implementation Report: [Feature Name]",
+      "description": "Execute an implementation plan with rigorous validation loops",
+      "file": ".agent/workflows/prp-implement.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "prp-plan",
+      "command": "/prp-plan",
+      "title": "Start dev server and verify",
+      "description": "Create comprehensive feature implementation plan with codebase analysis and pattern extraction",
+      "file": ".agent/workflows/prp-plan.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "prp-pr",
+      "command": "/prp-pr",
+      "title": "Create Pull Request",
+      "description": "\"Create a GitHub PR from current branch with unpushed commits — discovers templates, analyzes changes, pushes\"",
+      "file": ".agent/workflows/prp-pr.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "prp-prd",
+      "command": "/prp-prd",
+      "title": "{Product/Feature Name}",
+      "description": "\"Interactive PRD generator - problem-first, hypothesis-driven product spec with back-and-forth questioning\"",
+      "file": ".agent/workflows/prp-prd.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "prune",
+      "command": "/prune",
+      "title": "Prune Pending Instincts",
+      "description": "Delete pending instincts older than 30 days that were never promoted",
+      "file": ".agent/workflows/prune.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "quality-gate",
+      "command": "/quality-gate",
+      "title": "Quality Gate Command",
+      "description": "Run the ECC formatter quality gate for a single file and report remediation steps.",
+      "file": ".agent/workflows/quality-gate.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "react-build",
+      "command": "/react-build",
+      "title": "Build successful!",
+      "description": "Fix React build failures (Vite, webpack, Next.js, CRA, Parcel, esbuild, Bun) incrementally — JSX/TSX compile errors, hydration mismatches, server/client component boundary failures, missing types. Invokes the react-build-resolver agent for minimal, surgical fixes.",
+      "file": ".agent/workflows/react-build.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "react-review",
+      "command": "/react-review",
+      "title": "React Code Review Report",
+      "description": "Comprehensive React/JSX code review for hook correctness, render performance, server/client component boundaries, accessibility, and React-specific security. Invokes the react-reviewer agent (and typescript-reviewer alongside on TSX/JSX changes).",
+      "file": ".agent/workflows/react-review.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "react-test",
+      "command": "/react-test",
+      "title": "CI mode",
+      "description": "Enforce TDD workflow for React. Write React Testing Library tests first (behavior-focused, accessibility-first), then implement components. Detects Vitest or Jest and verifies coverage targets.",
+      "file": ".agent/workflows/react-test.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "refactor-clean",
+      "command": "/refactor-clean",
+      "title": "Find exports, then check if they're imported anywhere",
+      "description": "Safely identify and remove dead code with verification after each change.",
+      "file": ".agent/workflows/refactor-clean.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "resume-session",
+      "command": "/resume-session",
+      "title": "Resume Session Command",
+      "description": "Load the most recent session file from ~/.claude/session-data/ and resume work with full context from where the last session ended.",
+      "file": ".agent/workflows/resume-session.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "review-pr",
+      "command": "/review-pr",
+      "title": "review-pr",
+      "description": "Comprehensive PR review using specialized agents",
+      "file": ".agent/workflows/review-pr.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "ricoui",
+      "command": "/ricoui",
+      "title": "Workflow: /ricoui",
+      "description": "Acceso rápido a los sistemas de diseño de marcas globales de Rico UI Brands (design.ricoui.com/brands) y generación frontend.",
+      "file": ".agent/workflows/ricoui.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "santa-loop",
+      "command": "/santa-loop",
+      "title": "Santa Loop",
+      "description": "Adversarial dual-review convergence loop — two independent model reviewers must both approve before code ships.",
+      "file": ".agent/workflows/santa-loop.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "save-session",
+      "command": "/save-session",
+      "title": "Session: 2024-01-15",
+      "description": "Save current session state to a dated file in ~/.claude/session-data/ so work can be resumed in a future session with full context.",
+      "file": ".agent/workflows/save-session.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "scientific-skills",
+      "command": "/scientific-skills",
+      "title": "Workflow: /scientific-skills",
+      "description": "Ejecuta cálculos matemáticos deterministas de alta precisión para el ERP (Pareto ABC 80/20, mermas de despiece, stock de seguridad y conversión gramos/kilos).",
+      "file": ".agent/workflows/scientific-skills.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "sdd-change",
+      "command": "/sdd-change",
+      "title": "Comando OpenCode: sdd-change",
+      "description": "Comando slash formal del protocolo brownfield",
+      "file": ".opencode/commands/sdd-change.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "sdd-flow",
+      "command": "/sdd-flow",
+      "title": "Comando OpenCode: sdd-flow",
+      "description": "Comando slash formal del protocolo brownfield",
+      "file": ".opencode/commands/sdd-flow.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "security-scan",
+      "command": "/security-scan",
+      "title": "Security Scan Command",
+      "description": "Run AgentShield against agent, hook, MCP, permission, and secret surfaces.",
+      "file": ".agent/workflows/security-scan.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "session-close",
+      "command": "/session-close",
+      "title": "O con mensaje de commit personalizado:",
+      "description": "Protocolo profesional de cierre de sesión: audita deltas de herramientas y workflows, ejecuta quality gate estricto (tsc, vitest 100%, gitnexus), actualiza MEMORY.md y handover, y realiza git push.",
+      "file": ".agent/workflows/session-close.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "session-open",
+      "command": "/session-open",
+      "title": "Workflow: /session-open",
+      "description": "Protocolo profesional de apertura de sesión: sincroniza git pull, verifica variables interactivas, activa agencias y herramientas, audita MCPs y despliega tareas pendientes (WIP = 1).",
+      "file": ".agent/workflows/session-open.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "session-sync",
+      "command": "/session-sync",
+      "title": "Comando OpenCode: session-sync",
+      "description": "Comando slash formal del protocolo brownfield",
+      "file": ".opencode/commands/session-sync.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "sessions",
+      "command": "/sessions",
+      "title": "List all aliases",
+      "description": "Manage Claude Code session history, aliases, and session metadata.",
+      "file": ".agent/workflows/sessions.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "setup-mcps",
+      "command": "/setup-mcps",
+      "title": "Comando OpenCode: setup-mcps",
+      "description": "Comando slash formal del protocolo brownfield",
+      "file": ".opencode/commands/setup-mcps.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "setup-pm",
+      "command": "/setup-pm",
+      "title": "macOS/Linux",
+      "description": "Configure your preferred package manager (npm/pnpm/yarn/bun)",
+      "file": ".agent/workflows/setup-pm.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "skill-create",
+      "command": "/skill-create",
+      "title": "Use Conventional Commits",
+      "description": "Coding patterns extracted from {repo-name}",
+      "file": ".agent/workflows/skill-create.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "skill-health",
+      "command": "/skill-health",
+      "title": "Skill Health Dashboard",
+      "description": "Show skill portfolio health dashboard with charts and analytics",
+      "file": ".agent/workflows/skill-health.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "spa-architecture",
+      "command": "/spa-architecture",
+      "title": "Workflow: /spa-architecture",
+      "description": "Ingeniería de optimización extrema para Supabase, Vercel y persistencia NoSQL JSONB operando al 100% en capas gratuitas.",
+      "file": ".agent/workflows/spa-architecture.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "stack",
+      "command": "/stack",
+      "title": "Workflow: /stack",
+      "description": "Acceso rápido a la matriz de gobernanza y stack tecnológico del ERP.",
+      "file": ".agent/workflows/stack.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "stitch-design",
+      "command": "/stitch-design",
+      "title": "Workflow: /stitch-design",
+      "description": "Generación avanzada de componentes e interfaces frontend combinando Google Stitch, sistemas de diseño Rico UI Brands (Linear, Stripe, Raycast, Supabase, Vercel, Apple) y estética Dark Glassmorphism.",
+      "file": ".agent/workflows/stitch-design.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "swarm",
+      "command": "/swarm",
+      "title": "3. Modo Terminal Interactivo en Vivo",
+      "description": "Formula, optimiza y ejecuta solicitudes dirigidas a La Pezcaderia Agency Swarm con Google AI Studio (Gemini 2.5 Flash Lite) a costo $0 sin saturar cuotas de API.",
+      "file": ".agent/workflows/swarm.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "tech-stack",
+      "command": "/tech-stack",
+      "title": "Workflow: /tech-stack",
+      "description": "Consulta de gobernanza técnica, stack aprobado, stack de expansión y tecnologías prohibidas en MaestroPescaderia.",
+      "file": ".agent/workflows/tech-stack.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "tenant",
+      "command": "/tenant",
+      "title": "Workflow: /tenant",
+      "description": "Acceso rápido a la configuración de seguridad multi-inquilino y RLS en Supabase.",
+      "file": ".agent/workflows/tenant.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "test-coverage",
+      "command": "/test-coverage",
+      "title": "Test Coverage",
+      "description": "Analyze coverage, identify gaps, and generate missing tests toward the target threshold.",
+      "file": ".agent/workflows/test-coverage.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "ui-tools",
+      "command": "/ui-tools",
+      "title": "Workflow: /ui-tools",
+      "description": "Hub de herramientas y librerías curadas de UI/UX (Awesome-Design-Tools, Awesome-UI, Awesome-Styleguides) para acelerar la maquetación.",
+      "file": ".agent/workflows/ui-tools.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "ui-ux",
+      "command": "/ui-ux",
+      "title": "Workflow: /ui-ux",
+      "description": "Sistema de diseño UI/UX empresarial, tokens visuales, componentes atómicos, micro-animaciones y multi-tema.",
+      "file": ".agent/workflows/ui-ux.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "update-codemaps",
+      "command": "/update-codemaps",
+      "title": "Backend Architecture",
+      "description": "Scan project structure and generate token-lean architecture codemaps.",
+      "file": ".agent/workflows/update-codemaps.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "update-docs",
+      "command": "/update-docs",
+      "title": "Update Documentation",
+      "description": "Sync documentation from source-of-truth files such as scripts, schemas, routes, and exports.",
+      "file": ".agent/workflows/update-docs.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "wms",
+      "command": "/wms",
+      "title": "Workflow: /wms",
+      "description": "Acceso rápido a la gestión WMS, cuartos fríos, FEFO y mermas en MaestroPescaderia.",
+      "file": ".agent/workflows/wms.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "wms-inventory",
+      "command": "/wms-inventory",
+      "title": "Workflow: /wms-inventory",
+      "description": "Gestión de cuartos fríos WMS, trazabilidad de lotes perecederos FEFO/FIFO, mermas de despiece y cálculo ABC Pareto 80/20.",
+      "file": ".agent/workflows/wms-inventory.md",
+      "status": "ACTIVE"
+    }
+  ],
+  "skills": [
+    {
+      "id": "agent-reach",
+      "name": "agent-reach",
+      "description": ">",
+      "path": ".agents/skills/agent-reach",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "ai_agents",
+      "name": "ai_agents",
+      "description": "Habilidad de desarrollo especializada para ERP",
+      "path": ".agents/skills/ai_agents",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "backend_db",
+      "name": "backend_db",
+      "description": "Habilidad de desarrollo especializada para ERP",
+      "path": ".agents/skills/backend_db",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "erp-pos-design-tokens",
+      "name": "erp-pos-design-tokens",
+      "description": "|",
+      "path": ".agents/skills/erp-pos-design-tokens",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "frontend_ui",
+      "name": "frontend_ui",
+      "description": "Habilidad de desarrollo especializada para ERP",
+      "path": ".agents/skills/frontend_ui",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "local-dates",
+      "name": "local-dates",
+      "description": "Checklist estricto para operar siempre con fechas locales y nunca UTC al calcular rachas, semanas e historiales.",
+      "path": ".agents/skills/local-dates",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "qa_devops",
+      "name": "qa_devops",
+      "description": "Habilidad de desarrollo especializada para ERP",
+      "path": ".agents/skills/qa_devops",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "sdd",
+      "name": "sdd",
+      "description": "Enseña al agente la metodología Spec-Driven Development (SDD): redactar, revisar o cambiar specs (notación EARS), planes técnicos y tareas atómicas.",
+      "path": ".agents/skills/sdd",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "systematic-debugging",
+      "name": "systematic-debugging",
+      "description": "Metodología rigurosa de depuración: reproducir el fallo, aislar causa raíz, formular hipótesis y verificar con DevTools.",
+      "path": ".agents/skills/systematic-debugging",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "ui-ux-pro-max",
+      "name": "ui-ux-pro-max",
+      "description": "|",
+      "path": ".agents/skills/ui-ux-pro-max",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "wms_pos_erp",
+      "name": "wms_pos_erp",
+      "description": "Habilidad de desarrollo especializada para ERP",
+      "path": ".agents/skills/wms_pos_erp",
+      "status": "ACTIVE"
+    }
+  ],
+  "agencies": [
+    {
+      "id": "agency-swarm",
+      "name": "La Pezcaderia Agency Swarm",
+      "type": "MULTI_AGENT_SWARM",
+      "model": "Gemini 2.5 Flash Lite (Costo $0)",
+      "path": "tools/agency-swarm",
+      "agents": [
+        "DataEngineer",
+        "MasterArchitect",
+        "UiUxSpecialist",
+        "QualityEngineer"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "google-harness2",
+      "name": "Google Harness² Self-Reflection Engine",
+      "type": "RECURSIVE_HARNESS_OPTIMIZATION",
+      "model": "Gemini 3.8 Flash (Costo $0)",
+      "path": "tools/harness2",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "agent-coordinator",
+      "name": "@coordinator",
+      "type": "BROWFIELD_ROLE",
+      "path": ".opencode/agents/coordinator.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "agent-implementer",
+      "name": "@implementer",
+      "type": "BROWFIELD_ROLE",
+      "path": ".opencode/agents/implementer.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "agent-planner",
+      "name": "@planner",
+      "type": "BROWFIELD_ROLE",
+      "path": ".opencode/agents/planner.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "agent-reviewer",
+      "name": "@reviewer",
+      "type": "BROWFIELD_ROLE",
+      "path": ".opencode/agents/reviewer.md",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "sdd-bridge",
+      "name": "Swarm + Harness² Parallel Co-Execution Bridge",
+      "type": "ORCHESTRATOR",
+      "path": "scripts/architecture/run_agency_sdd_bridge.py",
+      "status": "ACTIVE"
+    }
+  ],
+  "mcpServers": [
+    {
+      "id": "chrome-devtools",
+      "name": "chrome-devtools",
+      "autoStart": true,
+      "command": "cmd",
+      "status": "CONFIGURED"
+    },
+    {
+      "id": "claude-flow",
+      "name": "claude-flow",
+      "autoStart": false,
+      "command": "cmd",
+      "status": "CONFIGURED"
+    },
+    {
+      "id": "context7",
+      "name": "context7",
+      "autoStart": true,
+      "command": "cmd",
+      "status": "CONFIGURED"
+    },
+    {
+      "id": "figma",
+      "name": "figma",
+      "autoStart": false,
+      "command": "cmd",
+      "status": "CONFIGURED"
+    },
+    {
+      "id": "gemini-api-docs",
+      "name": "Gemini API & SDK Docs",
+      "autoStart": true,
+      "status": "BUILTIN"
+    },
+    {
+      "id": "github",
+      "name": "github",
+      "autoStart": false,
+      "command": "cmd",
+      "status": "CONFIGURED"
+    },
+    {
+      "id": "google-developer-knowledge",
+      "name": "Google Developer Knowledge Hub",
+      "autoStart": true,
+      "status": "BUILTIN"
+    },
+    {
+      "id": "hindsight",
+      "name": "hindsight",
+      "autoStart": true,
+      "command": "remote-http",
+      "status": "CONFIGURED"
+    },
+    {
+      "id": "mcp-deepseek-r1",
+      "name": "mcp-deepseek-r1",
+      "autoStart": true,
+      "command": "cmd",
+      "status": "CONFIGURED"
+    },
+    {
+      "id": "mcp-kimi-code",
+      "name": "mcp-kimi-code",
+      "autoStart": true,
+      "command": "cmd",
+      "status": "CONFIGURED"
+    },
+    {
+      "id": "mcp-qwen-coder",
+      "name": "mcp-qwen-coder",
+      "autoStart": true,
+      "command": "cmd",
+      "status": "CONFIGURED"
+    },
+    {
+      "id": "ricoui-design-mcp",
+      "name": "ricoui-design-mcp",
+      "autoStart": true,
+      "command": "node",
+      "status": "CONFIGURED"
+    },
+    {
+      "id": "stitch",
+      "name": "stitch",
+      "autoStart": true,
+      "command": "remote-http",
+      "status": "CONFIGURED"
+    },
+    {
+      "id": "supabase",
+      "name": "Supabase Database & Edge Functions",
+      "autoStart": true,
+      "status": "BUILTIN"
+    }
+  ]
+}

@@ -21,6 +21,7 @@ import { ColdStorageRentalView } from './views/coldStorageRental/ColdStorageRent
 import { B2BExternalSalesView } from './views/b2b/B2BExternalSalesView';
 import { PurchasesReceivingView } from './views/purchases/PurchasesReceivingView';
 import { DriverPortalView } from './views/driver/DriverPortalView';
+import { OtifDashboardView } from './views/logistics/OtifDashboardView';
 import { EnterpriseSidebar, type ERPViewKey } from './components/layout/EnterpriseSidebar';
 import { EnterpriseTopbar } from './components/layout/EnterpriseTopbar';
 import { GlobalOmniboxModal } from './components/layout/GlobalOmniboxModal';
@@ -1369,6 +1370,8 @@ export default function App() {
         return <AlistamientoBodegaView />;
       case 'despachos':
         return <DispatchView />;
+      case 'metricas_otif':
+        return <OtifDashboardView />;
       case 'precios':
         return <PricingView />;
       case 'rrhh':

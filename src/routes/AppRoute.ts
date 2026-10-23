@@ -27,6 +27,7 @@ export enum AppRouteId {
   CRM = 'crm',
   ORDERS_KANBAN = 'kanban',
   B2B_EXTERNAL_SALES = 'ventas_b2b',
+  B2B_PORTAL = 'portal_b2b',
 
   // Dominio Operaciones & WMS
   INVENTORY = 'inventario',
@@ -38,6 +39,7 @@ export enum AppRouteId {
   DOCK_PURCHASES = 'compras_muelle',
   MEAT_CUTTING = 'despiece',
   DRIVER_PORTAL = 'repartidor',
+  OTIF_DASHBOARD = 'metricas_otif',
 
   // Dominio Finanzas & Tesorería
   CASH_DESK = 'caja',
@@ -74,6 +76,7 @@ export const COMMERCIAL_ROUTES: readonly AppRouteId[] = [
   AppRouteId.CRM,
   AppRouteId.ORDERS_KANBAN,
   AppRouteId.B2B_EXTERNAL_SALES,
+  AppRouteId.B2B_PORTAL,
 ] as const;
 
 export const WMS_ROUTES: readonly AppRouteId[] = [
@@ -86,6 +89,7 @@ export const WMS_ROUTES: readonly AppRouteId[] = [
   AppRouteId.DOCK_PURCHASES,
   AppRouteId.MEAT_CUTTING,
   AppRouteId.DRIVER_PORTAL,
+  AppRouteId.OTIF_DASHBOARD,
 ] as const;
 
 export const FINANCIAL_ROUTES: readonly AppRouteId[] = [
@@ -130,6 +134,11 @@ export interface RouteParamsMap {
     clienteId?: string;
     step?: number;
   } | undefined;
+  [AppRouteId.B2B_PORTAL]: {
+    clienteId?: string;
+    plantillaId?: string;
+    tab?: 'catalogo' | 'plantillas' | 'pedidos';
+  } | undefined;
   [AppRouteId.INVENTORY]: {
     initialViewMode?: 'kardex' | 'configuracion_bodegas' | 'compras_muelle' | 'despiece';
     selectedBodegaId?: string;
@@ -151,6 +160,13 @@ export interface RouteParamsMap {
   [AppRouteId.DRIVER_PORTAL]: {
     rutaId?: string;
     conductorId?: string;
+  } | undefined;
+  [AppRouteId.OTIF_DASHBOARD]: {
+    fechaDesde?: string;
+    fechaHasta?: string;
+    conductorId?: string;
+    zonaRuta?: string;
+    estatusSLA?: string;
   } | undefined;
   [AppRouteId.COLD_STORAGE_RENTAL]: {
     contractId?: string;
@@ -308,6 +324,18 @@ export const APP_ROUTES_METADATA: Record<AppRouteId, AppRouteMetadata<AppRouteId
     isPrimaryNav: true,
     testId: 'nav-ventas-b2b',
   },
+  [AppRouteId.B2B_PORTAL]: {
+    id: AppRouteId.B2B_PORTAL,
+    path: '/ventas/portal-b2b',
+    title: 'Portal Clientes B2B',
+    domain: RouteDomain.COMMERCIAL,
+    subtitle: 'Auto-Servicio HORECA',
+    description: 'Portal de auto-atención para restaurantes, hoteles y casinos con catálogo preferencial, cortes marinos y pedidos recurrentes.',
+    iconName: 'Store',
+    allowedRoles: ['admin', 'vendedor', 'administrativo'],
+    isPrimaryNav: true,
+    testId: 'nav-portal-b2b',
+  },
 
   // WMS / Operaciones
   [AppRouteId.INVENTORY]: {
@@ -381,6 +409,18 @@ export const APP_ROUTES_METADATA: Record<AppRouteId, AppRouteMetadata<AppRouteId
     allowedRoles: ['admin', 'bodega', 'vendedor', 'administrativo'],
     isPrimaryNav: false,
     testId: 'nav-repartidor',
+  },
+  [AppRouteId.OTIF_DASHBOARD]: {
+    id: AppRouteId.OTIF_DASHBOARD,
+    path: '/operaciones/metricas-otif',
+    title: 'Métricas Logísticas OTIF',
+    domain: RouteDomain.WMS,
+    subtitle: 'Cumplimiento On-Time In-Full & Cadena de Frío',
+    description: 'Torre de control analítica de cumplimiento de entregas B2B, tiempos de servicio, SLAs térmicos y recaudos.',
+    iconName: 'BarChart3',
+    allowedRoles: ['admin', 'vendedor', 'bodega', 'administrativo'],
+    isPrimaryNav: true,
+    testId: 'nav-otif-dashboard',
   },
   [AppRouteId.COLD_STORAGE_RENTAL]: {
     id: AppRouteId.COLD_STORAGE_RENTAL,

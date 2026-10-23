@@ -42,6 +42,12 @@ vi.mock('jspdf', () => {
   };
 });
 
+vi.mock('../lib/supabase', () => ({
+  getSupabaseClient: vi.fn().mockImplementation(() => {
+    throw new Error('Supabase offline in test');
+  }),
+}));
+
 describe('E2E Full Lifecycle: Alquiler de Cuarto Frío WMS 3PL, Clientes, Productos, Entradas, Salidas, PDFs y Caja', () => {
   beforeEach(() => {
     vi.clearAllMocks();

@@ -142,12 +142,19 @@ export const otifAnalyticsService = {
     manifiestos: DeliveryRouteRecord[], 
     filtros: OtifFilterParams
   ): OtifConsolidatedResult {
-    const fechaDesdeTime = new Date(filtros.fechaDesde).getTime();
-    const fechaHastaTime = new Date(filtros.fechaHasta).getTime();
+    const normalizarFechaDesde = filtros.fechaDesde.includes('T')
+      ? filtros.fechaDesde
+      : `${filtros.fechaDesde}T00:00:00.000Z`;
+    const normalizarFechaHasta = filtros.fechaHasta.includes('T')
+      ? filtros.fechaHasta
+      : `${filtros.fechaHasta}T23:59:59.999Z`;
+
+    const fechaDesdeTime = new Date(normalizarFechaDesde).getTime();
+    const fechaHastaTime = new Date(normalizarFechaHasta).getTime();
 
     // 1. Filtrar manifiestos por rango temporal, conductor y zona
     const manifiestosFiltrados = manifiestos.filter((m) => {
-      const fechaManifiesto = m.salidaEn ? new Date(m.salidaEn).getTime() : Date.now();
+      const fechaManifiesto = m.salidaEn ? new Date(m.salidaEn).getTime() : (m.creadoEn ? new Date(m.creadoEn).getTime() : Date.now());
       const matchFecha = fechaManifiesto >= fechaDesdeTime && fechaManifiesto <= fechaHastaTime;
       const matchConductor = filtros.conductorId === 'TODOS' || !filtros.conductorId || m.conductorId === filtros.conductorId;
       const matchZona = filtros.zonaRuta === 'TODOS' || !filtros.zonaRuta || m.zonaRuta === filtros.zonaRuta;

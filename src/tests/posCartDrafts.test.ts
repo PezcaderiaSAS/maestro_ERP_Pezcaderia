@@ -4,6 +4,12 @@ import { useClientsQuery } from '../hooks/useClientQueries';
 import { useQuotationsQuery } from '../hooks/useOrderQueries';
 import * as localDb from '../services/localDb';
 
+vi.mock('../lib/supabase', () => ({
+  getSupabaseClient: vi.fn().mockImplementation(() => {
+    throw new Error('Offline mode - Simulated in test');
+  }),
+}));
+
 describe('TanStack Query Hooks: Clientes y Cotizaciones B2B', () => {
   beforeEach(() => {
     localStorage.clear();

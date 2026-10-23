@@ -24,6 +24,7 @@ import {
   Sparkles,
   Warehouse,
   Building2,
+  BarChart3,
 } from 'lucide-react';
 
 import { AppRouteId, type ERPViewKey } from '../../routes/AppRoute';
@@ -135,6 +136,12 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
           label: 'Alquiler Cuarto Frío',
           icon: Snowflake,
           testId: 'nav-alquiler-cf',
+        },
+        {
+          key: AppRouteId.OTIF_DASHBOARD,
+          label: 'Métricas OTIF & SLA',
+          icon: BarChart3,
+          testId: 'nav-metricas-otif',
         },
       ],
     },

@@ -16,15 +16,27 @@ import {
 import type { UserRole } from '../store/useAppStore';
 
 describe('AppRoute — Arquitectura Central de Rutas SDD', () => {
-  it('debe contener exactamente las 23 rutas oficiales del ERP sin duplicados', () => {
+  it('debe contener exactamente las 25 rutas oficiales del ERP sin duplicados', () => {
     const routeValues = Object.values(AppRouteId);
-    expect(routeValues.length).toBe(23);
+    expect(routeValues.length).toBe(25);
 
     const uniqueValues = new Set(routeValues);
-    expect(uniqueValues.size).toBe(23);
+    expect(uniqueValues.size).toBe(25);
   });
 
-  it('debe tener metadatos completos y válidos para cada AppRouteId', () => {
+  it('debe tener metadatos completos y válidos para cada AppRouteId, incluyendo OTIF_DASHBOARD y B2B_PORTAL', () => {
+    expect(AppRouteId.OTIF_DASHBOARD).toBe('metricas_otif');
+    const otifMeta = APP_ROUTES_METADATA[AppRouteId.OTIF_DASHBOARD];
+    expect(otifMeta).toBeDefined();
+    expect(otifMeta.path).toBe('/operaciones/metricas-otif');
+    expect(otifMeta.domain).toBe(RouteDomain.WMS);
+
+    expect(AppRouteId.B2B_PORTAL).toBe('portal_b2b');
+    const b2bMeta = APP_ROUTES_METADATA[AppRouteId.B2B_PORTAL];
+    expect(b2bMeta).toBeDefined();
+    expect(b2bMeta.path).toBe('/ventas/portal-b2b');
+    expect(b2bMeta.domain).toBe(RouteDomain.COMMERCIAL);
+
     Object.values(AppRouteId).forEach((routeId) => {
       const meta = APP_ROUTES_METADATA[routeId];
       expect(meta).toBeDefined();
@@ -47,9 +59,9 @@ describe('AppRoute — Arquitectura Central de Rutas SDD', () => {
       ...ADMIN_ROUTES,
     ];
 
-    expect(allCategorized.length).toBe(23);
+    expect(allCategorized.length).toBe(25);
     const uniqueCategorized = new Set(allCategorized);
-    expect(uniqueCategorized.size).toBe(23);
+    expect(uniqueCategorized.size).toBe(25);
 
     // Verificar correspondencia de dominio en metadatos
     COMMERCIAL_ROUTES.forEach((id) => {

@@ -50,6 +50,12 @@ vi.mock('jspdf', () => {
   };
 });
 
+vi.mock('../lib/supabase', () => ({
+  getSupabaseClient: vi.fn().mockImplementation(() => {
+    throw new Error('Supabase offline in test');
+  }),
+}));
+
 describe('Módulo Alquiler de Cuarto Frío WMS 3PL - Reglas de Negocio', () => {
   describe('Cálculo Determinista de Posiciones de 800 kg', () => {
     it('debe tener una constante nominal de 800 kg por posición', () => {
