@@ -1,8 +1,11 @@
-import React from 'react';
-import { DollarSign, FileText, ShoppingCart } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { DollarSign, FileText, ShoppingCart, Calculator, Sliders } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import Swal from 'sweetalert2';
 import { usePricing } from '../hooks/usePricing';
+import { usePricingEngine } from '../hooks/usePricingEngine';
+import { useAppStore } from '../store/useAppStore';
+import { useInventoryStore } from '../store/useInventoryStore';
 import { CatalogTab } from './pricing/components/CatalogTab';
 import { PricingTab } from './pricing/components/PricingTab';
 import { QuoteWizardStep1 } from './pricing/components/QuoteWizardStep1';
@@ -13,6 +16,9 @@ import { QuoteHistoryTab } from './pricing/components/QuoteHistoryTab';
 import { DevolucionesTab } from './pricing/components/DevolucionesTab';
 import { PriceHistoryModal } from './pricing/components/PriceHistoryModal';
 import { QuotePrintModal } from './pricing/components/QuotePrintModal';
+import { PricingSimulatorTab } from './pricing/components/PricingSimulatorTab';
+import { PricingConfigManager } from './pricing/components/PricingConfigManager';
+import { PriceHistoryAuditDrawer } from './pricing/components/PriceHistoryAuditDrawer';
 
 export function PricingView() {
   const {
@@ -140,6 +146,15 @@ export function PricingView() {
     setEditingPriceId,
   } = usePricing();
 
+  const currentUserRole = useAppStore((s) => s.userRole);
+  const {
+    globalConfig,
+    saveGlobalConfig,
+    commitProductTariffs,
+    applyBatchRecalculate,
+  } = usePricingEngine();
+  const [auditDrawerProductId, setAuditDrawerProductId] = useState<string | null>(null);
+
   // --- WRAPPERS LOCALES CON ALERTA DE SWEETALERT2 ---
   const handleSaveProduct = (e: React.FormEvent) => {
     hookSaveProduct(e, {
@@ -247,7 +262,7 @@ export function PricingView() {
           <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px', letterSpacing: '-0.5px', color: 'var(--text-primary)' }}>Precios y Cotizaciones</h2>
         </div>
 
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           <Button variant={activeTab === 'catalog' ? 'primary' : 'outline'} onClick={() => setActiveTab('catalog')} icon={<FileText size={16} />}>
             Catálogo
           </Button>
@@ -256,6 +271,22 @@ export function PricingView() {
           </Button>
           <Button variant={activeTab === 'quotes' ? 'primary' : 'outline'} onClick={() => setActiveTab('quotes')} icon={<ShoppingCart size={16} />}>
             Cotizador
+          </Button>
+          <Button
+            variant={activeTab === 'simulator' ? 'primary' : 'outline'}
+            onClick={() => setActiveTab('simulator')}
+            icon={<Calculator size={16} />}
+            data-testid="tab-btn-simulator"
+          >
+            Simulador Multicanal
+          </Button>
+          <Button
+            variant={activeTab === 'config' ? 'primary' : 'outline'}
+            onClick={() => setActiveTab('config')}
+            icon={<Sliders size={16} />}
+            data-testid="tab-btn-config"
+          >
+            Configuración Mermas
           </Button>
         </div>
       </div>
@@ -557,6 +588,29 @@ export function PricingView() {
         </div>
       )}
 
+      {/* --- PESTAÑA 4: SIMULADOR MULTICANAL --- */}
+      {activeTab === 'simulator' && (
+        <PricingSimulatorTab
+          products={products}
+          globalConfig={globalConfig}
+          onCommitProductTariffs={(prodId, tarifas, motivo) =>
+            commitProductTariffs(prodId, tarifas, motivo, 'admin', 'Administrador')
+          }
+          onApplyBatchRecalculate={applyBatchRecalculate}
+          currentUserRole={currentUserRole}
+          onViewHistory={(prodId) => setAuditDrawerProductId(prodId)}
+        />
+      )}
+
+      {/* --- PESTAÑA 5: CONFIGURACION DE MERMAS Y MARGENES (ADMIN) --- */}
+      {activeTab === 'config' && (
+        <PricingConfigManager
+          userRole={currentUserRole}
+          globalConfig={globalConfig}
+          onSaveConfig={(cfg) => saveGlobalConfig(cfg, 'admin')}
+        />
+      )}
+
       {/* Vista Imprimible / Proforma */}
       <QuotePrintModal
         selectedQuoteForPrint={selectedQuoteForPrint}
@@ -570,6 +624,14 @@ export function PricingView() {
         onClose={() => setSelectedProductHistory(null)}
         products={products}
         productPricings={productPricings}
+      />
+
+      {/* Cajón Lateral de Auditoría NIIF */}
+      <PriceHistoryAuditDrawer
+        isOpen={!!auditDrawerProductId}
+        onClose={() => setAuditDrawerProductId(null)}
+        productoId={auditDrawerProductId}
+        products={products}
       />
     </div>
   );

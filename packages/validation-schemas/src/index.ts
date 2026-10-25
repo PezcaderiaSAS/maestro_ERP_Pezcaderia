@@ -16,3 +16,4 @@ export * from './driverDeliveryPwa.schema';
 export * from './siigoConfig.schema';
 export * from './otifMetrics.schema';
 export * from './b2bCustomerPortal.schema';
+export * from './pricingEngine.schema';

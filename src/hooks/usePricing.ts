@@ -32,7 +32,7 @@ export function usePricing() {
   }, [loadLastClientPrices]);
 
   // --- ESTADO GENERAL ---
-  const [activeTab, setActiveTab] = useState<'catalog' | 'pricing' | 'quotes'>('quotes');
+  const [activeTab, setActiveTab] = useState<'catalog' | 'pricing' | 'quotes' | 'simulator' | 'config'>('quotes');
   const [quoteSubTab, setQuoteSubTab] = useState<'create' | 'history' | 'devoluciones'>('create');
   const [selectedQuoteForPrint, setSelectedQuoteForPrint] = useState<any>(null);
 

@@ -45,14 +45,14 @@
   - Crear prueba unitaria `src/tests/b2bPortalComponents.test.tsx`.
   - *Checkpoint de Verificación:* Tests verdes (7/7) y compilación `tsc --noEmit` en 0 errores. [COMPLETADA]
 
-- [ ] **`TASK-027-05` — Vista Principal `B2BCustomerPortalView.tsx` e Integración en ERP:**
+- [x] **`TASK-027-05` — Vista Principal `B2BCustomerPortalView.tsx` e Integración en ERP:**
   - Implementar `src/views/b2b/portal/B2BCustomerPortalView.tsx`.
   - Agregar botón de navegación en `src/components/layout/EnterpriseSidebar.tsx` bajo B2B con `data-testid="nav-portal-b2b"`.
   - Agregar enrutamiento en `src/App.tsx`.
   - Crear prueba unitaria `src/tests/b2bCustomerPortalView.test.tsx`.
-  - *Checkpoint de Verificación:* Tests verdes y compilación `tsc --noEmit`.
+  - *Checkpoint de Verificación:* Tests verdes (6/6), `tsc --noEmit` en 0 errores y bucle DevTools verificado en vivo. [COMPLETADA]
 
-- [ ] **`TASK-027-06` — Suite E2E de Playwright y Certificación DevTools MCP:**
+- [x] **`TASK-027-06` — Suite E2E de Playwright y Certificación DevTools MCP:**
   - Crear `tests/e2e/b2b-customer-portal.spec.ts` (flujo completo de navegación, armado de pedido, re-orden de plantilla y vista móvil a 375 px).
   - Ejecución en vivo con subagente de navegador / Chrome DevTools: verificar 0 errores en consola JS y captura de evidencia visual.
-  - *Checkpoint de Verificación:* 100% tests verdes y certificación visual.
+  - *Checkpoint de Verificación:* 100% tests verdes (6/6 Playwright E2E + 35/35 Vitest), 0 errores en consola JS y certificación visual móvil en 375 px completada. [COMPLETADA]

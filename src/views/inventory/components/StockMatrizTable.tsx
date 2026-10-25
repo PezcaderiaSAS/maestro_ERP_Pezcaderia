@@ -26,16 +26,16 @@ function getStockStatus(qty: number, buffer: number, controlInventario: boolean)
 }
 
 const STATUS_CONFIG: Record<StockStatus, { label: string; bg: string; text: string; ring: string }> = {
-  ok:       { label: 'OK',        bg: 'bg-emerald-50',  text: 'text-emerald-700', ring: 'ring-emerald-200' },
-  warning:  { label: 'Bajo',      bg: 'bg-amber-50',    text: 'text-amber-700',   ring: 'ring-amber-200' },
-  critical: { label: 'Crítico',   bg: 'bg-red-50',      text: 'text-red-700',     ring: 'ring-red-200' },
-  zero:     { label: 'Sin stock', bg: 'bg-slate-800/60',   text: 'text-slate-500',   ring: 'ring-slate-200' },
+  ok:       { label: 'Stock OK',   bg: 'bg-emerald-50 dark:bg-emerald-950/40', text: 'text-emerald-700 dark:text-emerald-400', ring: 'ring-emerald-300 dark:ring-emerald-700/50' },
+  warning:  { label: 'Stock Bajo', bg: 'bg-amber-50 dark:bg-amber-950/40',     text: 'text-amber-700 dark:text-amber-400',     ring: 'ring-amber-300 dark:ring-amber-700/50' },
+  critical: { label: 'Crítico',    bg: 'bg-rose-50 dark:bg-rose-950/40',       text: 'text-rose-700 dark:text-rose-400',       ring: 'ring-rose-300 dark:ring-rose-700/50' },
+  zero:     { label: 'Sin stock',  bg: 'bg-slate-100 dark:bg-slate-800/80',    text: 'text-slate-600 dark:text-slate-400',     ring: 'ring-slate-300 dark:ring-slate-700/50' },
 };
 
 const ABC_CONFIG: Record<string, { bg: string; text: string; label: string }> = {
-  A: { bg: 'bg-red-100',    text: 'text-red-700',    label: 'A' },
-  B: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'B' },
-  C: { bg: 'bg-green-100',  text: 'text-green-700',  label: 'C' },
+  A: { bg: 'bg-red-100 dark:bg-red-950/50',    text: 'text-red-700 dark:text-red-400',       label: 'A' },
+  B: { bg: 'bg-yellow-100 dark:bg-yellow-950/50', text: 'text-yellow-800 dark:text-yellow-400', label: 'B' },
+  C: { bg: 'bg-emerald-100 dark:bg-emerald-950/50',  text: 'text-emerald-700 dark:text-emerald-400',  label: 'C' },
 };
 
 function StockCell({ qty, buffer, controlInventario, um }: { qty: number; buffer: number; controlInventario: boolean; um: string }) {
@@ -95,14 +95,11 @@ export function StockMatrizTable({ products, stock, bodegas }: Props) {
   const getTotalStock = (sku: string) =>
     activeBodegas.reduce((sum, b) => sum + (stock[b.nombre]?.[sku] ?? 0), 0);
 
-  const getWorstStatus = (p: Producto): StockStatus => {
-    const statuses = activeBodegas.map(b =>
-      getStockStatus(stock[b.nombre]?.[p.sku] ?? 0, p.buffer_seguridad ?? 5, p.control_inventario !== false)
-    );
-    if (statuses.includes('zero')) return 'zero';
-    if (statuses.includes('critical')) return 'critical';
-    if (statuses.includes('warning')) return 'warning';
-    return 'ok';
+  // Evalúa el estado global del producto en función de su inventario total consolidado
+  const getProductStockStatus = (p: Producto): StockStatus => {
+    if (p.control_inventario === false) return 'ok';
+    const total = getTotalStock(p.sku);
+    return getStockStatus(total, p.buffer_seguridad ?? 5, true);
   };
 
   const filtered = useMemo(() => {
@@ -115,7 +112,7 @@ export function StockMatrizTable({ products, stock, bodegas }: Props) {
       .filter(p => abcFilter === 'ALL' ? true : (p.categoriaABC || 'C') === abcFilter)
       .filter(p => {
         if (statusFilter === 'ALL') return true;
-        return getWorstStatus(p) === statusFilter;
+        return getProductStockStatus(p) === statusFilter;
       })
       .sort((a, b) => {
         let cmp = 0;
@@ -135,10 +132,10 @@ export function StockMatrizTable({ products, stock, bodegas }: Props) {
     else { setSortField(field); setSortDir('asc'); }
   };
 
-  const criticalCount = products.filter(p => p.activo && getWorstStatus(p) === 'critical').length;
-  const warningCount  = products.filter(p => p.activo && getWorstStatus(p) === 'warning').length;
-  const zeroCount     = products.filter(p => p.activo && p.control_inventario !== false && getWorstStatus(p) === 'zero').length;
-  const okCount       = products.filter(p => p.activo && getWorstStatus(p) === 'ok').length;
+  const criticalCount = products.filter(p => p.activo && getProductStockStatus(p) === 'critical').length;
+  const warningCount  = products.filter(p => p.activo && getProductStockStatus(p) === 'warning').length;
+  const zeroCount     = products.filter(p => p.activo && p.control_inventario !== false && getProductStockStatus(p) === 'zero').length;
+  const okCount       = products.filter(p => p.activo && getProductStockStatus(p) === 'ok').length;
 
   const SortIcon = ({ field }: { field: SortField }) => (
     <ArrowUpDown
@@ -152,13 +149,14 @@ export function StockMatrizTable({ products, stock, bodegas }: Props) {
       {/* KPI Summary Bar */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: 'Stock OK',      count: okCount,       icon: CheckCircle2,  color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200', onClick: () => setStatusFilter('ALL') },
-          { label: 'Stock Bajo',    count: warningCount,  icon: TrendingDown,  color: 'text-amber-600',   bg: 'bg-amber-50',   border: 'border-amber-200',   onClick: () => setStatusFilter(statusFilter === 'warning'  ? 'ALL' : 'warning') },
-          { label: 'Stock Crítico', count: criticalCount, icon: AlertTriangle, color: 'text-red-600',     bg: 'bg-red-50',     border: 'border-red-200',     onClick: () => setStatusFilter(statusFilter === 'critical' ? 'ALL' : 'critical') },
-          { label: 'Sin Stock',     count: zeroCount,     icon: Package,       color: 'text-slate-500',   bg: 'bg-slate-800/40',   border: 'border-border',   onClick: () => setStatusFilter(statusFilter === 'zero'     ? 'ALL' : 'zero') },
-        ].map(({ label, count, icon: Icon, color, bg, border, onClick }) => (
+          { id: 'stock-ok',      label: 'Stock OK',      count: okCount,       icon: CheckCircle2,  color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/30', border: 'border-emerald-200 dark:border-emerald-800/40', onClick: () => setStatusFilter('ALL') },
+          { id: 'stock-bajo',    label: 'Stock Bajo',    count: warningCount,  icon: TrendingDown,  color: 'text-amber-600 dark:text-amber-400',   bg: 'bg-amber-50 dark:bg-amber-950/30',   border: 'border-amber-200 dark:border-amber-800/40',   onClick: () => setStatusFilter(statusFilter === 'warning'  ? 'ALL' : 'warning') },
+          { id: 'stock-critico', label: 'Stock Crítico', count: criticalCount, icon: AlertTriangle, color: 'text-red-600 dark:text-red-400',     bg: 'bg-red-50 dark:bg-red-950/30',     border: 'border-red-200 dark:border-red-800/40',     onClick: () => setStatusFilter(statusFilter === 'critical' ? 'ALL' : 'critical') },
+          { id: 'sin-stock',     label: 'Sin Stock',     count: zeroCount,     icon: Package,       color: 'text-slate-500 dark:text-slate-400',   bg: 'bg-slate-100 dark:bg-slate-800/40', border: 'border-slate-200 dark:border-white/10', onClick: () => setStatusFilter(statusFilter === 'zero'     ? 'ALL' : 'zero') },
+        ].map(({ id, label, count, icon: Icon, color, bg, border, onClick }) => (
           <button
             key={label}
+            data-testid={`kpi-${id}`}
             onClick={onClick}
             className={`flex items-center gap-3 p-4 rounded-2xl border ${bg} ${border} cursor-pointer hover:shadow-md transition-all text-left w-full`}
           >
@@ -274,7 +272,7 @@ export function StockMatrizTable({ products, stock, bodegas }: Props) {
                 <>
                   {filtered.map((p, idx) => {
                     const totalStock = getTotalStock(p.sku);
-                    const worst = getWorstStatus(p);
+                    const worst = getProductStockStatus(p);
                     const abcCfg = ABC_CONFIG[p.categoriaABC || 'C'];
                     const um = p.unidadMedida || 'kg';
                     const isInactive = !p.activo;
@@ -283,7 +281,7 @@ export function StockMatrizTable({ products, stock, bodegas }: Props) {
                       <tr
                         key={p.sku}
                         onClick={() => setSelectedProduct(p)}
-                        className={`border-b border-slate-100 transition-all cursor-pointer hover:bg-slate-700/60 ${idx % 2 === 0 ? 'bg-card border-white/5' : 'bg-slate-800/40/40'} ${isInactive ? 'opacity-50' : ''}`}
+                        className={`border-b border-slate-100 dark:border-white/5 transition-all cursor-pointer hover:bg-slate-100/70 dark:hover:bg-slate-800/60 ${idx % 2 === 0 ? 'bg-white dark:bg-slate-900/40' : 'bg-slate-50/60 dark:bg-slate-900/80'} ${isInactive ? 'opacity-50' : ''}`}
                       >
                         <td className="px-4 py-3 sticky left-0 bg-inherit z-10">
                           <span className={`inline-flex items-center justify-center w-7 h-7 rounded-lg text-xs font-black ${abcCfg.bg} ${abcCfg.text}`}>
@@ -291,7 +289,7 @@ export function StockMatrizTable({ products, stock, bodegas }: Props) {
                           </span>
                         </td>
                         <td className="px-4 py-3 sticky left-12 bg-inherit z-10">
-                          <span className="font-mono text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg whitespace-nowrap">
+                          <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md whitespace-nowrap border border-slate-200 dark:border-slate-700 tracking-wider">
                             {p.sku}
                           </span>
                         </td>
@@ -326,7 +324,7 @@ export function StockMatrizTable({ products, stock, bodegas }: Props) {
                             )}
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-center align-middle">
+                        <td data-testid={`status-${p.sku}`} className="px-4 py-3 text-center align-middle">
                           {(() => {
                             const cfg = STATUS_CONFIG[worst];
                             const Icon = worst === 'ok' ? CheckCircle2 : worst === 'zero' ? Package : AlertTriangle;

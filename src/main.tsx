@@ -75,6 +75,10 @@ LogRocket.init('dlunqp/maestro_erp');
 setupLogRocketReact();
 
 function ErrorButton() {
+  // Solo se renderiza si se habilita explícitamente en desarrollo con VITE_ENABLE_DEBUG_BUTTON
+  const showDebug = import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEBUG_BUTTON === 'true';
+  if (!showDebug) return null;
+
   return (
     <button
       onClick={() => {

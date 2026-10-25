@@ -25,6 +25,7 @@ import {
   Warehouse,
   Building2,
   BarChart3,
+  Store,
 } from 'lucide-react';
 
 import { AppRouteId, type ERPViewKey } from '../../routes/AppRoute';
@@ -69,12 +70,20 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
   pendingPrepCount = 0,
   activeRoutesCount = 0,
 }) => {
-  // Estado de acordeones de dominios
-  const [collapsedDomains, setCollapsedDomains] = useState<Record<string, boolean>>({
-    operaciones: false,
-    abastecimiento: false,
-    ventas: false,
-    finanzas: false,
+  // Estado de acordeones de dominios: solo el dominio activo expandido por defecto para erradicar saturación
+  const [collapsedDomains, setCollapsedDomains] = useState<Record<string, boolean>>(() => {
+    // Si currentView pertenece a un dominio, se abre ese y se colapsan los demás
+    const isOperaciones = ['inventario', 'configuracion_bodegas', 'alistamiento', 'despachos', 'alquiler_cf', AppRouteId.OTIF_DASHBOARD].includes(currentView as any);
+    const isAbastecimiento = ['compras_muelle', 'despiece', 'compras'].includes(currentView as any);
+    const isVentas = ['pos', 'ventas_b2b', AppRouteId.B2B_PORTAL, 'precios', 'clientes', 'crm'].includes(currentView as any);
+    const isFinanzas = ['caja', 'cartera', 'contabilidad', 'rrhh'].includes(currentView as any);
+
+    return {
+      operaciones: !isOperaciones,
+      abastecimiento: !isAbastecimiento,
+      ventas: !isVentas,
+      finanzas: !isFinanzas,
+    };
   });
 
   const toggleDomain = (domainId: string) => {
@@ -154,16 +163,12 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
           key: 'compras_muelle',
           label: 'Compras en Muelle',
           icon: Anchor,
-          badge: 'FEFO',
-          badgeVariant: 'emerald',
           testId: 'nav-compras-muelle',
         },
         {
           key: 'despiece',
           label: 'Producción & Yield',
           icon: Scissors,
-          badge: 'Yield KPI',
-          badgeVariant: 'emerald',
           testId: 'nav-despiece',
         },
         {
@@ -183,25 +188,19 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
           key: 'pos',
           label: 'Punto de Venta (POS)',
           icon: ShoppingBag,
-          badge: 'Caja',
-          badgeVariant: 'emerald',
           testId: 'nav-pos',
-        },
-        {
-          key: 'pos_offline',
-          label: 'POS Offline V2',
-          icon: ShoppingCart,
-          badge: 'Nuevo',
-          badgeVariant: 'amber',
-          testId: 'nav-pos-offline',
         },
         {
           key: 'ventas_b2b',
           label: 'Ventas B2B Bodega',
           icon: ShoppingBag,
-          badge: 'B2B',
-          badgeVariant: 'cyan',
           testId: 'nav-ventas-b2b',
+        },
+        {
+          key: AppRouteId.B2B_PORTAL,
+          label: 'Portal Clientes HORECA',
+          icon: Store,
+          testId: 'nav-portal-b2b',
         },
         {
           key: 'precios',
@@ -301,15 +300,15 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
         </div>
 
         {/* Perfil Compacto y Botón POS */}
-        <div className="p-3 border-b border-slate-200 space-y-2.5 bg-slate-50/40">
-          {/* Card de Usuario */}
-          <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-slate-200 shadow-sm">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-sm">
+        <div className="p-2.5 border-b border-slate-200 space-y-2 bg-slate-50/40">
+          {/* Card de Usuario Compacta */}
+          <div className="flex items-center gap-2 p-1.5 rounded-lg bg-white border border-slate-200 shadow-xs">
+            <div className="w-7 h-7 rounded-md bg-gradient-to-br from-amber-500 to-orange-600 text-white font-bold text-[11px] flex items-center justify-center shrink-0 shadow-xs">
               Yu
             </div>
             {isOpen && (
               <div className="flex-1 min-w-0">
-                <span className="text-xs font-bold text-slate-900 block truncate">Yurgen Moreno</span>
+                <span className="text-xs font-bold text-slate-900 block truncate leading-tight">Yurgen Moreno</span>
                 <select
                   value={userRole}
                   onChange={(e) => onChangeRole(e.target.value)}
@@ -324,99 +323,105 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
             )}
           </div>
 
-          {/* Botón Destacado Facturar POS */}
+          {/* Botón Destacado Facturar POS Compacto */}
           <button
             id="sidebar-btn-facturar-pos"
             onClick={() => onSelectView('pos')}
-            className={`w-full flex items-center justify-center gap-2 py-2 rounded-xl font-bold text-xs text-white shadow-md transition-all duration-200 cursor-pointer ${
+            className={`w-full h-8 flex items-center justify-center gap-2 rounded-lg font-bold text-xs text-white shadow-xs transition-all duration-200 cursor-pointer ${
               currentView === 'pos'
                 ? 'bg-gradient-to-r from-emerald-600 to-teal-600 ring-2 ring-emerald-500/50 shadow-emerald-500/20'
-                : 'bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:to-blue-500 shadow-indigo-500/20'
+                : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/20'
             }`}
             title="Abrir Punto de Venta (POS)"
           >
-            <FileText size={15} />
+            <FileText size={14} />
             {isOpen && <span>Facturar POS</span>}
           </button>
         </div>
 
-        {/* Lista de Navegación por 4 Dominios */}
-        <div className="flex-1 overflow-y-auto px-2 py-3 space-y-4">
+        {/* Lista de Navegación por Dominios (Espaciado Compacto Anti-Saturación) */}
+        <div className="flex-1 overflow-y-auto px-2 py-2 space-y-2">
           {domains.map((domain) => {
             const isCollapsed = collapsedDomains[domain.id];
             const hasActiveChild = domain.items.some((item) => item.key === currentView);
 
             return (
-              <div key={domain.id} className="space-y-1">
-                {/* Cabecera de Dominio */}
+              <div key={domain.id} className="space-y-0.5">
+                {/* Cabecera de Dominio Limpia */}
                 {isOpen ? (
                   <button
                     onClick={() => toggleDomain(domain.id)}
-                    className="w-full flex items-center justify-between px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors cursor-pointer group"
+                    className="w-full flex items-center justify-between px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-colors cursor-pointer group"
                   >
-                    <span className="flex items-center gap-1.5 font-bold">
+                    <span className="flex items-center gap-1.5">
                       <domain.icon size={13} className="text-indigo-600 group-hover:scale-110 transition-transform" />
                       {domain.title}
                     </span>
-                    {isCollapsed ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
+                    <div className="flex items-center gap-1">
+                      {isCollapsed && (
+                        <span className="text-[9px] font-mono text-slate-400 bg-slate-100 px-1 rounded">
+                          {domain.items.length}
+                        </span>
+                      )}
+                      {isCollapsed ? <ChevronRight size={11} className="text-slate-400" /> : <ChevronDown size={11} className="text-slate-400" />}
+                    </div>
                   </button>
                 ) : (
-                  <div className="h-px bg-slate-200 my-2 mx-1" />
+                  <div className="h-px bg-slate-200 my-1 mx-1" />
                 )}
 
-                {/* Ítems del Dominio (Filas densas Carbon de 36px) */}
-                {(!isCollapsed || !isOpen) && (
-                  <div className="space-y-0.5">
-                    {domain.items.map((item) => {
-                      const isActive = currentView === item.key;
-                      return (
-                        <button
-                          key={item.key}
-                          data-testid={item.testId}
-                          id={item.testId}
-                          onClick={() => onSelectView(item.key)}
-                          className={`w-full h-9 flex items-center gap-2.5 px-3 rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer relative group ${
-                            isActive
-                              ? 'bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-sm font-bold'
-                              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                {/* Ítems del Dominio (Filas compactas de 32px; ocultas con hidden si colapsado para no saturar) */}
+                <div className={`${isCollapsed && isOpen ? 'hidden' : 'space-y-0.5'}`}>
+                  {domain.items.map((item) => {
+                    const isActive = currentView === item.key;
+                    return (
+                      <button
+                        key={item.key}
+                        data-testid={item.testId}
+                        id={item.testId}
+                        onClick={() => onSelectView(item.key)}
+                        className={`w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-xs transition-all duration-150 cursor-pointer relative group ${
+                          isActive
+                            ? 'bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-xs font-bold'
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
+                        }`}
+                        title={item.label}
+                        aria-label={item.label}
+                      >
+                        {/* Indicador Activo Lateral */}
+                        {isActive && (
+                          <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-indigo-600" />
+                        )}
+
+                        <item.icon
+                          size={15}
+                          className={`shrink-0 transition-transform group-hover:scale-110 ${
+                            isActive ? 'text-indigo-600' : 'text-slate-500 group-hover:text-slate-900'
                           }`}
-                          title={!isOpen ? item.label : undefined}
-                        >
-                          {/* Indicador Activo Lateral */}
-                          {isActive && (
-                            <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-indigo-600" />
-                          )}
+                        />
 
-                          <item.icon
-                            size={16}
-                            className={`shrink-0 transition-transform group-hover:scale-110 ${
-                              isActive ? 'text-indigo-600' : 'text-slate-500 group-hover:text-slate-900'
+                        {isOpen && <span className="truncate flex-1 text-left">{item.label}</span>}
+
+                        {/* Badge de Estado o Contador Dinámico */}
+                        {isOpen && item.badge !== undefined && (
+                          <span
+                            className={`px-1.5 py-0.2 rounded-full text-[10px] font-black font-mono shrink-0 ${
+                              item.badgeVariant === 'cyan'
+                                ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+                                : item.badgeVariant === 'emerald'
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                : item.badgeVariant === 'rose'
+                                ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                                : 'bg-amber-50 text-amber-700 border border-amber-200'
                             }`}
-                          />
-
-                          {isOpen && <span className="truncate flex-1 text-left">{item.label}</span>}
-
-                          {/* Badge de Estado o Contador */}
-                          {isOpen && item.badge !== undefined && (
-                            <span
-                              className={`px-1.5 py-0.2 rounded-full text-[10px] font-black font-mono shrink-0 ${
-                                item.badgeVariant === 'cyan'
-                                  ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
-                                  : item.badgeVariant === 'emerald'
-                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                  : item.badgeVariant === 'rose'
-                                  ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                                  : 'bg-amber-50 text-amber-700 border border-amber-200'
-                              }`}
-                            >
-                              {item.badge}
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
+                          >
+                            {item.badge}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             );
           })}

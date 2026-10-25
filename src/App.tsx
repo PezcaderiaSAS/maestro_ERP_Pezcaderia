@@ -22,6 +22,7 @@ import { B2BExternalSalesView } from './views/b2b/B2BExternalSalesView';
 import { PurchasesReceivingView } from './views/purchases/PurchasesReceivingView';
 import { DriverPortalView } from './views/driver/DriverPortalView';
 import { OtifDashboardView } from './views/logistics/OtifDashboardView';
+import { B2BCustomerPortalView } from './views/b2b/portal/B2BCustomerPortalView';
 import { EnterpriseSidebar, type ERPViewKey } from './components/layout/EnterpriseSidebar';
 import { EnterpriseTopbar } from './components/layout/EnterpriseTopbar';
 import { GlobalOmniboxModal } from './components/layout/GlobalOmniboxModal';
@@ -1406,6 +1407,8 @@ export default function App() {
         return <ColdStorageRentalView />;
       case 'ventas_b2b':
         return <B2BExternalSalesView onNavigateToKanban={() => setCurrentView('kanban')} />;
+      case 'portal_b2b':
+        return <B2BCustomerPortalView />;
       case 'repartidor':
         return <DriverPortalView />;
       default:

@@ -10,15 +10,14 @@
 ## Módulos y Especificaciones en Marcha
 1. **SPEC-025 (Completada 100% - CERTIFICADA):** Dispatcher HTTP Real SIIGO Nube API v2 (46/46 tests verdes).
 2. **SPEC-026 (Completada 100% - CERTIFICADA):** Dashboard Métricas Logísticas OTIF B2B (36/36 tests + DevTools 0 errores).
-3. **SPEC-027 (En Curso - SDD v3.0):** Portal de Clientes B2B Auto-Servicio HORECA.
-   - `TASK-027-01` [COMPLETADA]: Esquemas Zod y tipos (`b2bCustomerPortal.schema.ts`, `b2bCustomerPortal.types.ts`, 6/6 tests).
-   - `TASK-027-02` [COMPLETADA]: Motor de Servicios B2B (`b2bCustomerPortalService.ts`, cupo crédito, plantillas recurrentes, 6/6 tests).
-   - `TASK-027-03` [COMPLETADA]: Hooks reactivos `useB2BCart.ts`, `useB2BCustomerPortal.ts` y ruta canónica `AppRouteId.B2B_PORTAL` (10/10 tests hooks + 9/9 rutas).
-   - `TASK-027-04` [COMPLETADA]: 6 Componentes táctiles UI (`B2BClientHeaderBar`, `B2BCreditCardSummary`, `B2BCatalogGrid`, `B2BItemConfiguratorModal`, `B2BRecurringTemplatesDrawer`, `B2BOrderTrackingTimeline`, 7/7 tests).
-   - `TASK-027-05` [EN PROCESO]: Vista Principal `B2BCustomerPortalView.tsx`, integración Sidebar e integración en App.tsx.
+3. **SPEC-027 (Completada 100% - CERTIFICADA):** Portal de Clientes B2B Auto-Servicio HORECA (35/35 Vitest + 6/6 Playwright E2E).
+4. **SPEC-028 (Completada 100% - CERTIFICADA):** Precios Dinámicos, Márgenes Multicanal y Módulo de Mermas (Admin) (36/36 tests verdes).
+5. **GOB-UIUX (En Ejecución - WIP = 1):** Directiva UI/UX Industrial & Regla del Niño de 12 Años.
+   - **Sprint 1 (Completado 100% - CERTIFICADO):** Saneamiento de `EnterpriseSidebar.tsx` (acordeón inteligente anti-saturación, unificación de POS, erradicación de badges estáticos ruidosos, compactación vertical) y eliminación de debug en `main.tsx` (14/14 tests Vitest verdes + DevTools 0 errores).
+   - **Sprint 2 (Completado 100% - CERTIFICADO):** Saneamiento de `InventoryView.tsx` y `StockMatrizTable.tsx` (reducción a 3 botones primarios + dropdown accesible 'Más Opciones', erradicación de vanity badges, tarjetas KPI de alto contraste WCAG AAA para Light Mode, y corrección del bug de falso 'Sin stock' calculando el estado consolidado sobre Total Global; 18/18 tests verdes + DevTools 0 errores).
 
 ## Cola de Tareas Priorizadas (WIP = 1)
-1. **Tarea Activa:** `TASK-027-05` de `SPEC-027`.
+1. **Tarea Siguiente:** `SPRINT-3-POS` (Saneamiento de interfaces de Punto de Venta POS & Ventas: ergonomía táctil $\ge 56$px, teclado en pantalla numérico, eliminación de redundancias y contraste WCAG 2.2 AA+).
 2. **Ciclo de Vida:** Ejecutar `npm run session:close` cuando el usuario decida cerrar la jornada.
 
 ## Protocolo Brownfield Activo

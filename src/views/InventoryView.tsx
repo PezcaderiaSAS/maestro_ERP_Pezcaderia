@@ -24,6 +24,7 @@ import {
   Ship,
   Warehouse,
   Building2,
+  ChevronDown,
 } from 'lucide-react';
 import { ProductTable } from './inventory/components/ProductTable';
 import { ProductForm } from './inventory/components/ProductForm';
@@ -137,6 +138,7 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
 
   const [yieldSubTab, setYieldSubTab] = useState<'yield_kpi' | 'comandas_tradicional'>('yield_kpi');
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
+  const [isMoreActionsOpen, setIsMoreActionsOpen] = useState(false);
 
   // State de Catalogo de Productos
   const [searchTerm, setSearchTerm] = useState('');
@@ -1482,33 +1484,23 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
   return (
     <div className="animate-fade-in space-y-6 h-full overflow-y-auto pr-2 pb-12">
       {/* ── 1. Hero Header & Quick Action Bar ── */}
-      <div className="bg-slate-900/80 backdrop-blur-xl border border-white/10 p-5 rounded-3xl shadow-2xl space-y-4">
+      <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-white/10 p-5 rounded-2xl shadow-sm space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                ERP Data-Driven
-              </span>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                NIIF / NIC 2
-              </span>
-            </div>
-            <h1 className="text-2xl font-black text-white mt-1 tracking-tight flex items-center gap-2">
-              <Boxes className="w-7 h-7 text-emerald-400" />
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 dark:border-emerald-500/30">
+                <Boxes className="w-5 h-5" />
+              </div>
               Gestión de Inventario, WMS & Trazabilidad
             </h1>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Control de existencias multibodega, compras en muelle y trazabilidad.
+            </p>
           </div>
 
-          {/* Quick Action Bar Buttons */}
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => setIsBulkUploadOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 font-bold text-xs transition-all cursor-pointer"
-            >
-              <UploadCloud className="w-4 h-4" />
-              Importar CSV
-            </button>
-
+          {/* Quick Action Bar (Regla de Máx 3 Acciones Primarias + Menú Secundario) */}
+          <div className="flex flex-wrap items-center gap-2 relative">
+            {/* Acción Primaria 1: Nuevo Producto */}
             <button
               onClick={() => {
                 setViewMode('catalogo');
@@ -1523,121 +1515,143 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
                 setCustomLinea('');
                 setCustomClase('');
               }}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-500 hover:bg-blue-400 text-slate-950 font-bold text-xs shadow-lg shadow-blue-500/20 transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md shadow-blue-600/20 transition-all cursor-pointer"
             >
               <Package className="w-4 h-4" />
               Nuevo Producto
             </button>
 
-            <button
-              id="btn-quick-recepcion-muelle"
-              onClick={() => setViewMode('compras_muelle')}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-lg shadow-cyan-600/20 transition-all cursor-pointer"
-            >
-              <Truck className="w-4 h-4" />
-              Llegada Furgón
-            </button>
-
+            {/* Acción Primaria 2: Recibir Compra */}
             <button
               onClick={() => setViewMode('registrar_compra')}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
             >
               <PlusCircle className="w-4 h-4" />
               Recibir Compra
             </button>
 
+            {/* Acción Primaria 3: Nuevo Despiece */}
             <button
               onClick={() => setViewMode('despiece')}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold text-xs transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 border border-amber-500/30 dark:border-amber-500/40 font-bold text-xs transition-all cursor-pointer"
             >
               <Scissors className="w-4 h-4" />
               Nuevo Despiece
             </button>
 
-            <button
-              onClick={() => setViewMode('traslados')}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold text-xs transition-all cursor-pointer"
-            >
-              <ArrowRightLeft className="w-4 h-4" />
-              Traslado Bodega
-            </button>
+            {/* Dropdown "Más Opciones" */}
+            <div className="relative">
+              <button
+                onClick={() => setIsMoreActionsOpen(!isMoreActionsOpen)}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300/80 dark:border-white/10 font-bold text-xs transition-all cursor-pointer"
+                title="Acciones secundarias de inventario"
+              >
+                <span>Más Opciones</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isMoreActionsOpen ? 'rotate-180' : ''}`} />
+              </button>
 
-            <button
-              onClick={() => setViewMode('kardex')}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 font-bold text-xs transition-all cursor-pointer"
-            >
-              <FileText className="w-4 h-4" />
-              Ver Kardex NIIF
-            </button>
-
-            <button
-              id="btn-quick-config-bodegas"
-              onClick={() => setViewMode('configuracion_bodegas')}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm ${
-                viewMode === 'configuracion_bodegas'
-                  ? 'bg-cyan-500/30 text-cyan-200 border border-cyan-400 ring-2 ring-cyan-500/20'
-                  : 'bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30'
-              }`}
-              title="Configuración de Bodegas y Cuartos Fríos"
-            >
-              <Warehouse className="w-4 h-4 text-cyan-400" />
-              Gestión de Bodegas ({bodegas.length})
-            </button>
+              <div 
+                className={`absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl z-30 py-1.5 backdrop-blur-xl divide-y divide-slate-100 dark:divide-slate-700/60 ${isMoreActionsOpen ? 'block' : 'hidden'}`}
+                onClick={() => setIsMoreActionsOpen(false)}
+              >
+                <div className="py-1">
+                  <button
+                    onClick={() => setIsBulkUploadOpen(true)}
+                    className="w-full flex items-center gap-2.5 px-3.5 py-2 text-left text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+                  >
+                    <UploadCloud className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+                    Importar CSV
+                  </button>
+                  <button
+                    id="btn-quick-recepcion-muelle"
+                    onClick={() => setViewMode('compras_muelle')}
+                    className="w-full flex items-center gap-2.5 px-3.5 py-2 text-left text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+                  >
+                    <Truck className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+                    Llegada Furgón
+                  </button>
+                </div>
+                <div className="py-1">
+                  <button
+                    onClick={() => setViewMode('traslados')}
+                    className="w-full flex items-center gap-2.5 px-3.5 py-2 text-left text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+                  >
+                    <ArrowRightLeft className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    Traslado Bodega
+                  </button>
+                  <button
+                    onClick={() => setViewMode('kardex')}
+                    className="w-full flex items-center gap-2.5 px-3.5 py-2 text-left text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+                  >
+                    <FileText className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                    Ver Kardex NIIF
+                  </button>
+                  <button
+                    id="btn-quick-config-bodegas"
+                    onClick={() => setViewMode('configuracion_bodegas')}
+                    className="w-full flex items-center gap-2.5 px-3.5 py-2 text-left text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+                  >
+                    <Warehouse className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    Gestión de Bodegas ({bodegas.length})
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* ── 2. Tarjetas KPI Métricas de Alto Nivel ── */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-white/5">
-          <div className="bg-slate-950/40 p-3 rounded-2xl border border-white/5">
-            <span className="text-[11px] text-slate-400 font-semibold uppercase block">Valor Total en Libros</span>
-            <span className="text-lg font-black text-emerald-400 font-mono">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-slate-200/60 dark:border-white/5">
+          <div className="bg-slate-50 dark:bg-slate-950/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-white/10 hover:border-emerald-500/30 transition-colors">
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider block">Valor Total en Libros</span>
+            <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400 font-mono mt-0.5 block">
               ${Math.round(valorTotalInventario).toLocaleString('es-CO')}
             </span>
-            <span className="text-[10px] text-slate-500 block">Costo Promedio Ponderado</span>
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 block mt-0.5">Costo Promedio Ponderado</span>
           </div>
 
-          <div className="bg-slate-950/40 p-3 rounded-2xl border border-white/5">
-            <span className="text-[11px] text-slate-400 font-semibold uppercase block">SKUs Activos</span>
-            <span className="text-lg font-black text-white font-mono">{totalSkusActivos}</span>
-            <span className="text-[10px] text-slate-500 block">Referencias en Catálogo</span>
+          <div className="bg-slate-50 dark:bg-slate-950/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-white/10 hover:border-blue-500/30 transition-colors">
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider block">SKUs Activos</span>
+            <span className="text-xl font-bold text-slate-900 dark:text-white font-mono mt-0.5 block">{totalSkusActivos}</span>
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 block mt-0.5">Referencias en Catálogo</span>
           </div>
 
-          <div className="bg-slate-950/40 p-3 rounded-2xl border border-white/5">
-            <span className="text-[11px] text-slate-400 font-semibold uppercase block">Alistamientos B2B</span>
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-black text-cyan-400 font-mono">{pendingPrepCount}</span>
+          <div className="bg-slate-50 dark:bg-slate-950/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-white/10 hover:border-cyan-500/30 transition-colors">
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider block">Alistamientos B2B</span>
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className="text-xl font-bold text-cyan-600 dark:text-cyan-400 font-mono">{pendingPrepCount}</span>
               {pendingPrepCount > 0 && (
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-cyan-500/20 text-cyan-300">
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-cyan-100 dark:bg-cyan-500/20 text-cyan-700 dark:text-cyan-300">
                   Pendientes
                 </span>
               )}
             </div>
-            <span className="text-[10px] text-slate-500 block">Cuarto Frío Picking</span>
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 block mt-0.5">Cuarto Frío Picking</span>
           </div>
 
-          <div className="bg-slate-950/40 p-3 rounded-2xl border border-white/5">
-            <span className="text-[11px] text-slate-400 font-semibold uppercase block">Devoluciones</span>
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-black text-rose-400 font-mono">{pendingDevCount}</span>
+          <div className="bg-slate-50 dark:bg-slate-950/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-white/10 hover:border-rose-500/30 transition-colors">
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider block">Devoluciones</span>
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className="text-xl font-bold text-rose-600 dark:text-rose-400 font-mono">{pendingDevCount}</span>
               {pendingDevCount > 0 && (
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300">
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300">
                   Por Recibir
                 </span>
               )}
             </div>
-            <span className="text-[10px] text-slate-500 block">Control de Calidad B2B</span>
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 block mt-0.5">Control de Calidad B2B</span>
           </div>
         </div>
       </div>
 
       {/* ── 3. Navegación Modular por Pestañas ── */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-white/10 scrollbar-none">
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-slate-200 dark:border-white/10 scrollbar-none">
         <button
           onClick={() => setViewMode('operaciones')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
             viewMode === 'operaciones'
-              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-lg shadow-emerald-500/10'
-              : 'bg-slate-900/60 text-slate-400 hover:text-white border border-white/5'
+              ? 'bg-emerald-50 text-emerald-700 border border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/40 shadow-xs'
+              : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
           }`}
         >
           <Boxes className="w-4 h-4" />
@@ -1649,8 +1663,8 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
           onClick={() => setViewMode('compras_muelle')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
             viewMode === 'compras_muelle'
-              ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-lg shadow-cyan-500/10'
-              : 'bg-slate-900/60 text-slate-400 hover:text-white border border-white/5'
+              ? 'bg-cyan-50 text-cyan-700 border border-cyan-300 dark:bg-cyan-500/20 dark:text-cyan-300 dark:border-cyan-500/40 shadow-xs'
+              : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
           }`}
         >
           <Truck className="w-4 h-4" />
@@ -1661,8 +1675,8 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
           onClick={() => setViewMode('kardex')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
             viewMode === 'kardex'
-              ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40 shadow-lg shadow-purple-500/10'
-              : 'bg-slate-900/60 text-slate-400 hover:text-white border border-white/5'
+              ? 'bg-purple-50 text-purple-700 border border-purple-300 dark:bg-purple-500/20 dark:text-purple-300 dark:border-purple-500/40 shadow-xs'
+              : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
           }`}
         >
           <FileText className="w-4 h-4" />
@@ -1673,14 +1687,14 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
           onClick={() => setViewMode('cuarto_frio')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
             viewMode === 'cuarto_frio'
-              ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-lg shadow-cyan-500/10'
-              : 'bg-slate-900/60 text-slate-400 hover:text-white border border-white/5'
+              ? 'bg-cyan-50 text-cyan-700 border border-cyan-300 dark:bg-cyan-500/20 dark:text-cyan-300 dark:border-cyan-500/40 shadow-xs'
+              : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
           }`}
         >
           <Scale className="w-4 h-4" />
           3. Alistamiento Cuarto Frío
           {pendingPrepCount > 0 && (
-            <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-cyan-500 text-slate-950 font-black">
+            <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-cyan-600 text-white font-black">
               {pendingPrepCount}
             </span>
           )}
@@ -1690,8 +1704,8 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
           onClick={() => setViewMode('despiece')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
             viewMode === 'despiece'
-              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-lg shadow-amber-500/10'
-              : 'bg-slate-900/60 text-slate-400 hover:text-white border border-white/5'
+              ? 'bg-amber-50 text-amber-700 border border-amber-300 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/40 shadow-xs'
+              : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
           }`}
         >
           <Scissors className="w-4 h-4" />
@@ -1702,8 +1716,8 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
           onClick={() => setViewMode('traslados')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
             viewMode === 'traslados'
-              ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40 shadow-lg shadow-blue-500/10'
-              : 'bg-slate-900/60 text-slate-400 hover:text-white border border-white/5'
+              ? 'bg-blue-50 text-blue-700 border border-blue-300 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/40 shadow-xs'
+              : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
           }`}
         >
           <ArrowRightLeft className="w-4 h-4" />
@@ -1714,8 +1728,8 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
           onClick={() => setViewMode('analisis_abc')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
             viewMode === 'analisis_abc'
-              ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 shadow-lg shadow-indigo-500/10'
-              : 'bg-slate-900/60 text-slate-400 hover:text-white border border-white/5'
+              ? 'bg-indigo-50 text-indigo-700 border border-indigo-300 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/40 shadow-xs'
+              : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
           }`}
         >
           <BarChart3 className="w-4 h-4" />
@@ -1726,8 +1740,8 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
           onClick={() => setViewMode('reportes_compra')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
             viewMode === 'reportes_compra' || viewMode === 'registrar_compra'
-              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-lg shadow-emerald-500/10'
-              : 'bg-slate-900/60 text-slate-400 hover:text-white border border-white/5'
+              ? 'bg-emerald-50 text-emerald-700 border border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/40 shadow-xs'
+              : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
           }`}
         >
           <Truck className="w-4 h-4" />
@@ -1738,8 +1752,8 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
           onClick={() => setViewMode('wms_avanzado')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
             viewMode === 'wms_avanzado'
-              ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40 shadow-lg shadow-blue-500/10'
-              : 'bg-slate-900/60 text-slate-400 hover:text-white border border-white/5'
+              ? 'bg-blue-50 text-blue-700 border border-blue-300 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/40 shadow-xs'
+              : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
           }`}
         >
           <Boxes className="w-4 h-4" />
@@ -1751,22 +1765,22 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
           onClick={() => setViewMode('reportes_sucursales')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
             viewMode === 'reportes_sucursales'
-              ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-lg shadow-sky-500/10'
-              : 'bg-slate-900/60 text-slate-400 hover:text-white border border-white/5'
+              ? 'bg-sky-50 text-sky-700 border border-sky-300 dark:bg-sky-500/20 dark:text-sky-300 dark:border-sky-500/40 shadow-xs'
+              : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
           }`}
         >
           <Building2 className="w-4 h-4" />
           9. Reportes Sucursales POS
         </button>
 
-        <div className="h-4 w-px bg-card border-white/5/10 mx-1 shrink-0" />
+        <div className="h-4 w-px bg-slate-300 dark:bg-white/10 mx-1 shrink-0" />
 
         <button
           onClick={() => setViewMode('catalogo')}
           className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
             viewMode === 'catalogo'
-              ? 'bg-slate-700 text-white border border-white/20'
-              : 'text-slate-400 hover:text-slate-200'
+              ? 'bg-slate-900 text-white dark:bg-slate-700 dark:text-white'
+              : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
           }`}
         >
           <Tag className="w-3.5 h-3.5" />
@@ -1777,8 +1791,8 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
           onClick={() => setViewMode('categorias')}
           className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
             viewMode === 'categorias'
-              ? 'bg-slate-700 text-white border border-white/20'
-              : 'text-slate-400 hover:text-slate-200'
+              ? 'bg-slate-900 text-white dark:bg-slate-700 dark:text-white'
+              : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
           }`}
         >
           <Layers className="w-3.5 h-3.5" />
@@ -1789,8 +1803,8 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
           onClick={() => setViewMode('recepcion_devoluciones')}
           className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
             viewMode === 'recepcion_devoluciones'
-              ? 'bg-slate-700 text-white border border-white/20'
-              : 'text-slate-400 hover:text-slate-200'
+              ? 'bg-slate-900 text-white dark:bg-slate-700 dark:text-white'
+              : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
           }`}
         >
           <RotateCcw className="w-3.5 h-3.5" />
@@ -1802,11 +1816,11 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
           onClick={() => setViewMode('configuracion_bodegas')}
           className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
             viewMode === 'configuracion_bodegas'
-              ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-lg shadow-cyan-500/10'
-              : 'text-slate-400 hover:text-slate-200'
+              ? 'bg-cyan-50 text-cyan-700 border border-cyan-300 dark:bg-cyan-500/20 dark:text-cyan-300 dark:border-cyan-500/40 shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
           }`}
         >
-          <Building2 className="w-3.5 h-3.5 text-cyan-400" />
+          <Building2 className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
           Bodegas & Cuartos Fríos ({bodegas.length})
         </button>
       </div>
