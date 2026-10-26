@@ -8,6 +8,7 @@ import { LineaVentaRow } from './LineaVentaRow';
 import { DiscountPanel } from './DiscountPanel';
 import { PaymentPanel, type MetodoCobroPos } from './PaymentPanel';
 import { ParkedOrdersBar } from './ParkedOrdersBar';
+import { OnScreenKeypadModal } from './OnScreenKeypadModal';
 import Swal from 'sweetalert2';
 
 interface CartPanelProps {
@@ -104,6 +105,8 @@ export const CartPanel: React.FC<CartPanelProps> = ({
     const timer = setTimeout(() => setIsBouncing(false), 300);
     return () => clearTimeout(timer);
   }, [totalItems]);
+
+  const [keypadLinea, setKeypadLinea] = useState<LineaVenta | null>(null);
 
   // Helpers para resolver datos por fila dentro del .map()
   const getStockDisponible = (sku: string): number => {
@@ -621,6 +624,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
                 onResetPrecio={handleResetPrecio}
                 onUpdatePrecio={onUpdatePrecio}
                 onResetItemPrice={onResetItemPrice}
+                onOpenKeypad={setKeypadLinea}
               />
             );
           })
@@ -676,6 +680,23 @@ export const CartPanel: React.FC<CartPanelProps> = ({
           topeMaximoGaveta={topeMaximoGaveta}
         />
       </div>
+
+      {/* Modal Táctil On-Screen Keypad para Ajuste Rápido de Cantidad / Peso (Regla 12 Años) */}
+      {keypadLinea && (
+        <OnScreenKeypadModal
+          isOpen={true}
+          titulo={`Ajustar ${keypadLinea.unidad === 'KG' ? 'Peso' : 'Cantidad'}`}
+          subtitulo={keypadLinea.nombre}
+          valorInicial={keypadLinea.cantidad}
+          unidad={keypadLinea.unidad}
+          precioUnitario={keypadLinea.precioFinal}
+          onConfirm={(val) => {
+            onUpdateCantidad(keypadLinea.productoId, val);
+            setKeypadLinea(null);
+          }}
+          onClose={() => setKeypadLinea(null)}
+        />
+      )}
     </div>
   );
 };

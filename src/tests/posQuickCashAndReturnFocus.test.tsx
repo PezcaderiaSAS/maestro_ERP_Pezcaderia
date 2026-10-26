@@ -79,7 +79,7 @@ describe('TASK-014-05: Cobro Fricción Cero & Retorno Inmediato de Foco (Regla d
     const btnCredito = screen.getByRole('button', { name: /crédito/i });
 
     [btnEfectivo, btnTransferencia, btnDatafono, btnCredito].forEach((btn) => {
-      const hasMinHeight = btn.className.includes('min-h-[50px]') || btn.className.includes('min-h-[48px]') || btn.className.includes('h-12');
+      const hasMinHeight = btn.className.includes('min-h-[56px]') || btn.className.includes('min-h-[50px]') || btn.className.includes('min-h-[48px]') || btn.className.includes('h-12');
       expect(hasMinHeight).toBe(true);
     });
   });

@@ -1,24 +1,27 @@
 # Memoria Activa - La Pezcaderia ERP
 
-## Contexto Actual & Estado Global (Sesión 2026-10-23 - Workflows Apertura & Cierre)
-- **Estado Global:** Sistema 100% en Modo Claro (Light Mode) WCAG 2.2 AA+ con tokens de diseño consolidados y regla de **CERO IMÁGENES** (iconografía vectorial semántica a Costo $0 con Lucide React).
-- **Workflows Canónicos de Sesión:** Creados `/session-open` (`session-open.cjs` / `npm run session:open`) y `/session-close` (`session-close.cjs` / `npm run session:close`), respaldados por el manifiesto dinámico `ecosystem-manifest.cjs` (114 workflows, 11 skills, 7 agencias, 14 MCPs).
+## Contexto Actual & Estado Global (Sesión 2026-10-26 - Épica V8 Certificada)
+- **Estado Global:** Sistema 100% bajo el Sistema de Diseño Oficial **Dark Glassmorphism V8** ([`DesignSystem_V8.md`](DesignSystem_V8.md)).
 - **Quality Gate:** TypeScript estricto **0 errores (`tsc --noEmit`)**, Master Architect SOLID con 0 violaciones críticas (`passed = true`), y auditoría de 5 Diagramas Mermaid aprobada al 100%.
-- **Gobernanza SDD (RULE-SDD-001):** 38 dependencias oficiales intactas (0 deltas).
-- **Frameworks IA (Tétrada Canónica):** Google Harness² y Agency Swarm integrados en co-ejecución simultánea (`run_agency_sdd_bridge.py`) a costo $0 para fases SDD y validación post-pull.
+- **Frameworks IA (Tétrada Canónica):** Google Harness² y Agency Swarm auditados y ejecutados a costo $0 con Google Stitch MCP y tokens Rico UI Brands (`pezcaderia-glass`, `apple`).
 
 ## Módulos y Especificaciones en Marcha
 1. **SPEC-025 (Completada 100% - CERTIFICADA):** Dispatcher HTTP Real SIIGO Nube API v2 (46/46 tests verdes).
 2. **SPEC-026 (Completada 100% - CERTIFICADA):** Dashboard Métricas Logísticas OTIF B2B (36/36 tests + DevTools 0 errores).
 3. **SPEC-027 (Completada 100% - CERTIFICADA):** Portal de Clientes B2B Auto-Servicio HORECA (35/35 Vitest + 6/6 Playwright E2E).
-4. **SPEC-028 (Completada 100% - CERTIFICADA):** Precios Dinámicos, Márgenes Multicanal y Módulo de Mermas (Admin) (36/36 tests verdes).
-5. **GOB-UIUX (En Ejecución - WIP = 1):** Directiva UI/UX Industrial & Regla del Niño de 12 Años.
-   - **Sprint 1 (Completado 100% - CERTIFICADO):** Saneamiento de `EnterpriseSidebar.tsx` (acordeón inteligente anti-saturación, unificación de POS, erradicación de badges estáticos ruidosos, compactación vertical) y eliminación de debug en `main.tsx` (14/14 tests Vitest verdes + DevTools 0 errores).
-   - **Sprint 2 (Completado 100% - CERTIFICADO):** Saneamiento de `InventoryView.tsx` y `StockMatrizTable.tsx` (reducción a 3 botones primarios + dropdown accesible 'Más Opciones', erradicación de vanity badges, tarjetas KPI de alto contraste WCAG AAA para Light Mode, y corrección del bug de falso 'Sin stock' calculando el estado consolidado sobre Total Global; 18/18 tests verdes + DevTools 0 errores).
+4. **SPEC-028 (Completada 100% - CERTIFICADA):** Precios Dinámicos, Márgenes Multicanal y Módulo de Mermas (36/36 tests).
+5. **SPEC-029 (Completada 100% - CERTIFICADA):** Saneamiento Ergonómico POS (Keypad $\ge 56$px, 36/36 tests verdes).
+6. **SPEC-030 (Completada 100% - CERTIFICADA):** Premium Sidebar UI macOS Style & Glassmorphism (11/11 tests).
+7. **SPEC-031 (Completada 100% - CERTIFICADA - EPIC-FRONTEND-GLASSMORPHISM-V8):** Transformación Global del Frontend V8:
+   - Documento Oficial: [`DesignSystem_V8.md`](DesignSystem_V8.md) y [`DOCS/DesignSystem_V8.md`](DOCS/DesignSystem_V8.md) con cálculos de $\alpha \in [0.75, 0.88]$, desenfoque $20\text{px} \times 180\%$ saturación, specular highlight y aceleración GPU `transform: translateZ(0)`.
+   - Componente Atómico: [`GlassCard.tsx`](src/components/layout/components/GlassCard.tsx) con controles macOS semánticos (`#FF5F56`, `#FFBD2E`, `#27C93F`).
+   - Topbar Flotante: [`EnterpriseTopbar.tsx`](src/components/layout/EnterpriseTopbar.tsx) (`rounded-2xl`, `bg-slate-900/85`, `backdrop-blur-2xl`, `border-white/12`).
+   - Canvas Global en [`App.tsx`](src/App.tsx): Fondo `#0B0F19` con mesh gradients atmosféricos, Rail Mode (`w-20`) por defecto y layout flotante desacoplado.
+   - 16/16 tests Vitest verdes (`globalLayoutV8.test.tsx` + `enterpriseSidebar.test.tsx`), 0 errores `tsc`, Harness² validado ($0 USD) y Chrome DevTools verificado en móvil (375 px) y desktop (1440 px).
 
 ## Cola de Tareas Priorizadas (WIP = 1)
-1. **Tarea Siguiente:** `SPRINT-3-POS` (Saneamiento de interfaces de Punto de Venta POS & Ventas: ergonomía táctil $\ge 56$px, teclado en pantalla numérico, eliminación de redundancias y contraste WCAG 2.2 AA+).
-2. **Ciclo de Vida:** Ejecutar `npm run session:close` cuando el usuario decida cerrar la jornada.
+1. **Tarea Siguiente:** Continuar con la migración de vistas secundarias (POS, Inventario, WMS) al estándar `GlassCard` de V8 o esperar siguiente requerimiento.
+2. **Ciclo de Vida:** Ejecutar `npm run session:close` cuando el usuario decida cerrar la sesión de trabajo.
 
 ## Protocolo Brownfield Activo
 - Límite Kanban estricto: `WIP = 1` (Una sola tarea activa a la vez).

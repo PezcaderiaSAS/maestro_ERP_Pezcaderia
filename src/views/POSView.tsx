@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, X, Check, CreditCard, FileText, Truck, RefreshCw, AlertTriangle, AlertCircle, Menu, Trash2, Edit2, UserCheck } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { AppRouteId } from '../routes/AppRoute';
 import type { Product, Cliente, Venta, Conductor, DevolucionPedido } from '../types/erp.types';
 import type { DynamicField } from '../store/useDynamicFieldStore';
 import type { MovimientoInventario } from '../store/useMovementStore';
@@ -83,7 +84,7 @@ export default function POSView({
   const { addMovimiento } = useMovementStore();
 
   const { devoluciones, setDevoluciones } = useReturnStore();
-  const { quotations, setQuotations, setVentas } = useOrderStore();
+  const { quotations, setQuotations, setVentas, ventas } = useOrderStore();
   const { logIntegracion, setLogIntegracion } = useIntegrationStore();
   const dynamicFields = useDynamicFieldStore((s) => s.dynamicFields);
   const [drafts, setDrafts] = useState<CartDraft[]>(() => {
@@ -1723,7 +1724,67 @@ export default function POSView({
         </div>
       )}
 
-      {/* Selector de Vistas / Pestañas de POS Compactas (Estilo Atlassian/Carbon - Light Mode) */}
+      {/* ZONA 1: Header & Breadcrumb Canónico (SPEC-029) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1 shrink-0">
+        <div className="flex flex-col">
+          <nav className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+            <span>Inicio</span>
+            <span>/</span>
+            <span>Ventas</span>
+            <span>/</span>
+            <span className="text-slate-800 font-bold">Punto de Venta (POS)</span>
+          </nav>
+          <div className="flex items-center gap-2 mt-0.5">
+            <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">Punto de Venta (POS)</h1>
+            {isTurnoAbierto ? (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                Turno Abierto #{turnoActivo?.id ? turnoActivo.id.slice(0, 6).toUpperCase() : 'ACTIVO'}
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300">
+                <AlertCircle size={12} /> Caja Cerrada
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Banner de Vendedor Activo y Selector de Turno */}
+        <div className="flex items-center gap-2">
+          <div
+            id="pos-seller-badge"
+            className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200/90 border border-slate-200/90 rounded-xl px-2.5 py-1 transition-all"
+          >
+            <div
+              className={`w-7 h-7 rounded-lg bg-gradient-to-tr ${
+                currentUser?.avatarColor || 'from-indigo-600 to-blue-700'
+              } text-white font-bold text-xs flex items-center justify-center shadow-2xs shrink-0`}
+            >
+              {getInitials(currentUser?.nombre || 'Vendedor')}
+            </div>
+            <div className="flex flex-col text-left leading-tight">
+              <span className="text-xs font-bold text-slate-800 truncate max-w-[110px] sm:max-w-[150px]">
+                {currentUser?.nombre || 'Sin Asignar'}
+              </span>
+              <span className="text-[10px] font-mono text-indigo-600 uppercase font-bold">
+                {currentUser?.rol || userRole}
+              </span>
+            </div>
+            <button
+              type="button"
+              id="pos-btn-cambiar-vendedor"
+              onClick={() => setShowUserSwitchModal(true)}
+              className="ml-1 px-2 py-1 rounded-lg bg-white border border-slate-200 text-[11px] font-semibold text-slate-700 hover:text-indigo-600 hover:border-indigo-300 transition-colors shadow-2xs cursor-pointer flex items-center gap-1 active:scale-95"
+              title="Cambiar vendedor o identificarse con PIN"
+            >
+              <UserCheck size={12} className="text-indigo-600" />
+              <span className="hidden sm:inline">Cambiar</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ZONA 2: Barra de Control Ergonómica & Pestañas de Subvistas */}
       <div className="flex flex-wrap items-center justify-between gap-2 py-1.5 px-3 bg-white border border-slate-200 rounded-xl shadow-sm shrink-0">
         <div className="flex items-center gap-1.5 overflow-x-auto">
           <button
@@ -1785,92 +1846,171 @@ export default function POSView({
           </button>
         </div>
         
+        {/* Acciones Ergonómicas: Máximo 3 Botones Primarios + Dropdown 'Más Acciones...' */}
         <div className="flex items-center gap-2">
+          {/* Botón Primario 1: Cobro 1-Tap / Buscar Producto */}
           <button
-            onClick={() => setShowRestockModal(true)}
-            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold hover:bg-amber-100 transition-all shadow-sm"
-            title="Solicitar Reabastecimiento a Bodega Principal"
+            onClick={() => {
+              const searchInput = document.getElementById('pos-product-search-input');
+              if (searchInput) searchInput.focus();
+            }}
+            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold transition-all shadow-sm active:scale-95"
+            title="Enfocar catálogo / Nuevo pedido rápido (F8)"
           >
-            <Truck size={13} className="text-amber-600" />
-            <span className="hidden sm:inline">Reabastecer POS</span>
+            <span>⚡ Buscar (F8)</span>
           </button>
 
+          {/* Botón Primario 2: Poner en Espera */}
           <button
-            onClick={() => setShowSiigoQueueModal(true)}
-            data-testid="btn-abrir-cola-siigo"
-            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg border border-indigo-300 bg-indigo-50 text-indigo-800 text-xs font-bold hover:bg-indigo-100 transition-all shadow-sm cursor-pointer"
-            title="Monitor de Facturación Electrónica Siigo Nube"
+            onClick={() => handleGuardarBorrador()}
+            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 text-xs font-bold transition-all shadow-sm active:scale-95"
+            title="Guardar carrito actual en espera"
           >
-            <FileText size={13} className="text-indigo-600" />
-            <span className="hidden sm:inline">Cola Siigo</span>
-            {colaSiigoPendientes > 0 && (
-              <span className="bg-amber-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">
-                {colaSiigoPendientes}
+            <span>⏸ En Espera</span>
+            {drafts.length > 0 && (
+              <span className="bg-indigo-600 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">
+                {drafts.length}
               </span>
             )}
           </button>
 
-          {/* Banner de Vendedor Activo (SPEC-013) */}
-          <div
-            id="pos-seller-badge"
-            className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200/90 border border-slate-200/90 rounded-xl px-2.5 py-1 transition-all"
+          {/* Botón Primario 3: Balanza / Peso */}
+          <button
+            onClick={() => {
+              const primerPescado = activeProducts.find(p => {
+                const u = (p.unidadMedida || (p as any).unidad || '').toString().toUpperCase();
+                return u === 'KG' || u === 'KILO' || u === 'KILOS';
+              });
+              if (primerPescado) {
+                setProductForWeight({
+                  product: primerPescado,
+                  precioUnitario: getProductPrice(primerPescado),
+                  pesoInicial: 1.0
+                });
+              } else if (activeProducts[0]) {
+                setProductForWeight({
+                  product: activeProducts[0],
+                  precioUnitario: getProductPrice(activeProducts[0]),
+                  pesoInicial: 1.0
+                });
+              }
+            }}
+            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-sky-50 border border-sky-200 text-sky-700 hover:bg-sky-100 text-xs font-bold transition-all shadow-sm active:scale-95"
+            title="Balanza de Mostrador / Pesaje Manual Asistido"
           >
-            <div
-              className={`w-7 h-7 rounded-lg bg-gradient-to-tr ${
-                currentUser?.avatarColor || 'from-indigo-600 to-blue-700'
-              } text-white font-bold text-xs flex items-center justify-center shadow-2xs shrink-0`}
-            >
-              {getInitials(currentUser?.nombre || 'Vendedor')}
-            </div>
-            <div className="flex flex-col text-left leading-tight">
-              <span className="text-xs font-bold text-slate-800 truncate max-w-[110px] sm:max-w-[150px]">
-                {currentUser?.nombre || 'Sin Asignar'}
-              </span>
-              <span className="text-[10px] font-mono text-indigo-600 uppercase font-bold">
-                {currentUser?.rol || userRole}
-              </span>
-            </div>
-            <button
-              type="button"
-              id="pos-btn-cambiar-vendedor"
-              onClick={() => setShowUserSwitchModal(true)}
-              className="ml-1 px-2 py-1 rounded-lg bg-white border border-slate-200 text-[11px] font-semibold text-slate-700 hover:text-indigo-600 hover:border-indigo-300 transition-colors shadow-2xs cursor-pointer flex items-center gap-1 active:scale-95"
-              title="Cambiar vendedor o identificarse con PIN"
-            >
-              <UserCheck size={12} className="text-indigo-600" />
-              <span className="hidden sm:inline">Cambiar</span>
-            </button>
-          </div>
+            <span>⚖️ Balanza</span>
+          </button>
 
-          <div className="relative">
+          {/* Menú Desplegable 'Más Acciones...' */}
+          <div className="relative" data-testid="pos-more-actions-dropdown" id="pos-more-actions-dropdown">
             <button
               onClick={() => setShowHamburger(!showHamburger)}
-              className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 transition-colors shadow-sm cursor-pointer"
+              className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition-colors shadow-sm cursor-pointer"
             >
-              <Menu size={16} />
+              <Menu size={15} />
+              <span className="hidden sm:inline">Más Acciones...</span>
             </button>
             {showHamburger && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden text-slate-800">
+              <div className="absolute right-0 mt-2 w-52 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden text-slate-800 py-1">
                 {!isTurnoAbierto ? (
-                  <button onClick={() => { setShowAperturaModal(true); setShowHamburger(false); }} className="w-full text-left px-4 py-2.5 hover:bg-slate-50 text-xs font-semibold border-b border-slate-100 flex items-center gap-2 text-slate-800">
+                  <button
+                    onClick={() => { setShowAperturaModal(true); setShowHamburger(false); }}
+                    className="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-semibold flex items-center gap-2 text-indigo-700"
+                  >
                     <Plus size={14} className="text-indigo-600" /> Abrir Turno
                   </button>
                 ) : (
                   <>
-                    <button onClick={() => { setShowArqueoModal(true); setShowHamburger(false); }} className="w-full text-left px-4 py-2.5 hover:bg-slate-50 text-xs font-semibold text-rose-600 border-b border-slate-100 flex items-center gap-2">
-                      <X size={14} /> Cerrar Turno
+                    <button
+                      onClick={() => { setShowRetiroModal(true); setShowHamburger(false); }}
+                      className="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-medium flex items-center gap-2 text-amber-700"
+                    >
+                      <AlertTriangle size={14} className="text-amber-600" /> Arqueo Parcial / Retiro
                     </button>
-                    <button onClick={() => { setShowHamburger(false); }} className="w-full text-left px-4 py-2.5 hover:bg-slate-50 text-xs font-medium border-b border-slate-100 flex items-center gap-2 text-slate-700">
-                      <AlertTriangle size={14} className="text-amber-600" /> Retiros / Egresos
+                    <button
+                      onClick={() => { setShowArqueoModal(true); setShowHamburger(false); }}
+                      className="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-semibold text-rose-600 flex items-center gap-2"
+                    >
+                      <X size={14} /> Cerrar Turno
                     </button>
                   </>
                 )}
-                <button onClick={() => { setShowHamburger(false); }} className="w-full text-left px-4 py-2.5 hover:bg-slate-50 text-xs font-medium flex items-center gap-2 text-slate-700">
-                  <FileText size={14} className="text-slate-500" /> Historial
+                <div className="border-t border-slate-100 my-1"></div>
+                <button
+                  onClick={() => { setShowRestockModal(true); setShowHamburger(false); }}
+                  className="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-medium flex items-center gap-2 text-slate-700"
+                >
+                  <Truck size={14} className="text-amber-600" /> Reabastecer POS
                 </button>
+                <button
+                  onClick={() => { setShowSiigoQueueModal(true); setShowHamburger(false); }}
+                  className="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-medium flex items-center gap-2 text-slate-700"
+                >
+                  <FileText size={14} className="text-indigo-600" /> Monitor Cola Siigo
+                  {colaSiigoPendientes > 0 && (
+                    <span className="ml-auto bg-amber-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">
+                      {colaSiigoPendientes}
+                    </span>
+                  )}
+                </button>
+                {ultimoTicket && (
+                  <button
+                    onClick={() => {
+                      setShowHamburger(false);
+                      const btnImprimir = document.querySelector('[data-testid="btn-imprimir-ticket"]');
+                      if (btnImprimir) (btnImprimir as HTMLElement).click();
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-medium flex items-center gap-2 text-slate-700"
+                  >
+                    <FileText size={14} className="text-slate-500" /> Reimprimir Último Ticket
+                  </button>
+                )}
               </div>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* ZONA 3: Tarjetas KPI de Turno (Light Mode WCAG 2.2 AAA) */}
+      <div data-testid="pos-kpi-bar" className="grid grid-cols-2 md:grid-cols-4 gap-2.5 shrink-0">
+        {/* KPI 1: Ventas del Turno */}
+        <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs flex flex-col justify-between">
+          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Ventas Turno</span>
+          <span className="text-lg sm:text-xl font-black font-mono text-slate-900 mt-1">
+            ${Math.max(0, ((turnoActivo?.saldoTeoricoGlobal ?? 0) - (turnoActivo?.baseInicial ?? 0))).toLocaleString('es-CO')}
+          </span>
+        </div>
+
+        {/* KPI 2: Efectivo en Gaveta */}
+        <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Efectivo Gaveta</span>
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
+              Tope $1.5M
+            </span>
+          </div>
+          <span className="text-lg sm:text-xl font-black font-mono text-emerald-700 mt-1">
+            ${(turnoActivo?.totalEfectivo ?? 0).toLocaleString('es-CO')}
+          </span>
+        </div>
+
+        {/* KPI 3: Transacciones Realizadas */}
+        <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs flex flex-col justify-between">
+          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Transacciones</span>
+          <span className="text-lg sm:text-xl font-black font-mono text-indigo-700 mt-1">
+            {(ventas || []).filter((v: any) => v.turnoId === turnoActivo?.id).length || 0}
+          </span>
+        </div>
+
+        {/* KPI 4: Sincronización SIIGO / Outbox */}
+        <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Facturación DIAN</span>
+            <span className={`w-2 h-2 rounded-full ${colaSiigoPendientes > 0 ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`} />
+          </div>
+          <span className={`text-sm sm:text-base font-black font-mono mt-1 ${colaSiigoPendientes > 0 ? 'text-amber-700' : 'text-emerald-700'}`}>
+            {colaSiigoPendientes > 0 ? `${colaSiigoPendientes} Pendientes` : '✓ Sincronizado'}
+          </span>
         </div>
       </div>
 
@@ -1959,7 +2099,7 @@ export default function POSView({
                  <h3 className="text-base font-extrabold text-white mt-0.5">Pedidos B2B</h3>
                </div>
                <button
-                 onClick={() => setCurrentView('precios')}
+                 onClick={() => setCurrentView(AppRouteId.PRICES)}
                  className="flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold bg-cyan-600 hover:bg-cyan-500 text-white transition-all shadow-md"
                >
                  <Plus size={13} />
@@ -2806,7 +2946,7 @@ export default function POSView({
           onSuccess={() => {
             setShowArqueoModal(false);
             loadTurnoActivoPorCajero(userRole);
-            setCurrentView('dashboard');
+            setCurrentView(AppRouteId.DASHBOARD);
           }}
           onClose={() => setShowArqueoModal(false)}
         />

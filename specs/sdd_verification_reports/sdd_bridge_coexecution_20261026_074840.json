@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-10-26T07:48:40.240023",
+  "prompt": "UIUX-SIDEBAR-001: Actualizacion Premium de la Barra Lateral EnterpriseSidebar con estetica Dark/Glass Contrast (slate-900, backdrop-blur-xl, border-white/10), contenedor redondeado flotante, estados activos con acentos vibrantes cyan/azul, badges numericos estilizados, modulo de perfil consolidado en el footer con selector emergente y tooltips interactivos en modo colapsado",
+  "agent": "architect",
+  "total_duration_seconds": 180.05,
+  "results": {
+    "Google Harness²": {
+      "source": "Google Harness²",
+      "status": "ok",
+      "output": "======================================================================\n🚀 [HARNESS² ESPAÑOL] Iniciando ejecución segura con modelos a Costo $0\n======================================================================\n  • Idioma:          es-419\n  • Proveedor:       google_ai_studio\n  • Modelo Primario: gemini-3.8-flash\n  • Motor IDE:       antigravity-preview-09-2026\n  • Modo Recursión:  sequential (Protección Rate Limit activa)\n  • Presupuesto (k): 1 | Máx Tareas: 1\n======================================================================\n  [accounting] 1/2 skipped      ledger-1\n  [accounting] 2/2 skipped      ledger-2\nLocal demo: 2 tasks completed; 0 failed. C:\\Users\\Personal\\Documents\\Yurgen\\Maestro_Pezcaderia_ERP\\maestro_ERP_Pezcaderia\\tools\\harness2\\runs\\demo\\demo.json",
+      "returncode": 0,
+      "duration": 1.72
+    },
+    "Agency Swarm": {
+      "source": "Agency Swarm",
+      "status": "exception",
+      "output": "Command '['C:\\\\Users\\\\Personal\\\\Documents\\\\Yurgen\\\\Maestro_Pezcaderia_ERP\\\\maestro_ERP_Pezcaderia\\\\tools\\\\agency-swarm\\\\.venv\\\\Scripts\\\\python.exe', 'C:\\\\Users\\\\Personal\\\\Documents\\\\Yurgen\\\\Maestro_Pezcaderia_ERP\\\\maestro_ERP_Pezcaderia\\\\tools\\\\agency-swarm\\\\run_cli.py', '-p', 'UIUX-SIDEBAR-001: Actualizacion Premium de la Barra Lateral EnterpriseSidebar con estetica Dark/Glass Contrast (slate-900, backdrop-blur-xl, border-white/10), contenedor redondeado flotante, estados activos con acentos vibrantes cyan/azul, badges numericos estilizados, modulo de perfil consolidado en el footer con selector emergente y tooltips interactivos en modo colapsado', '-a', 'architect']' timed out after 180 seconds",
+      "duration": 180.04
+    }
+  }
+}

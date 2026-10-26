@@ -1429,10 +1429,20 @@ export default function App() {
 
   return (
     <div 
-      className="flex h-screen w-screen overflow-hidden bg-slate-50 text-slate-900 font-sans select-none" 
-      style={{ backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }}
+      className="flex h-screen w-screen overflow-hidden bg-[#0B0F19] text-slate-100 font-sans select-none relative" 
+      style={{ backgroundColor: 'var(--bg-color, #0B0F19)', color: 'var(--text-primary, #F8FAFC)' }}
     >
-      {/* Enterprise Sidebar unificado (4 dominios clave estilo Carbon/Atlassian) */}
+      {/* Mesh Gradients Atmosféricos de Fondo (Depth Field) */}
+      <div 
+        aria-hidden="true"
+        className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-cyan-600/10 blur-[120px] pointer-events-none"
+      />
+      <div 
+        aria-hidden="true"
+        className="absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-indigo-600/10 blur-[140px] pointer-events-none"
+      />
+
+      {/* Enterprise Sidebar Flotante V8 (Rail Mode w-20 por defecto) */}
       <EnterpriseSidebar
         currentView={currentView as ERPViewKey}
         onSelectView={(v) => setCurrentView(v)}
@@ -1444,8 +1454,8 @@ export default function App() {
         activeRoutesCount={0}
       />
 
-      {/* Área de Contenido Principal con Topbar Ejecutivo */}
-      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${sidebarOpen ? 'lg:pl-64' : 'lg:pl-20'}`}>
+      {/* Área de Contenido Principal con Topbar Flotante V8 */}
+      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 relative z-10 ${sidebarOpen ? 'lg:pl-68' : 'lg:pl-24'}`}>
         <EnterpriseTopbar
           currentView={currentView as ERPViewKey}
           onNavigateHome={() => setCurrentView('dashboard')}
@@ -1459,8 +1469,7 @@ export default function App() {
         />
 
         <main 
-          className="flex-1 overflow-y-auto p-4 lg:p-6"
-          style={{ backgroundColor: 'var(--bg-color)' }}
+          className="flex-1 overflow-y-auto p-3 lg:p-4 custom-scrollbar"
         >
           {renderView()}
         </main>

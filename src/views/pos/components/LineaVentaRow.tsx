@@ -17,6 +17,7 @@ interface LineaVentaRowProps {
   onResetPrecio: (productoId: string) => void;
   onUpdatePrecio?: (productoId: string, precio: number) => void;
   onResetItemPrice?: (productoId: string) => void;
+  onOpenKeypad?: (linea: LineaVenta) => void;
 }
 
 export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
@@ -32,6 +33,7 @@ export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
   onResetPrecio,
   onUpdatePrecio,
   onResetItemPrice,
+  onOpenKeypad,
 }) => {
   const isInsufficient = stockDisponible < linea.cantidad;
   const totalLinea = precioFinalDisplay * linea.cantidad;
@@ -320,10 +322,12 @@ export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
             onChange={handleInputChange}
             onBlur={handleInputBlur}
             onFocus={(e) => e.target.select()}
-            className="w-16 h-12 min-h-[48px] text-center font-mono font-black text-base text-slate-900 dark:text-white bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 rounded-xl outline-none tabular-nums shadow-2xs"
+            onClick={() => onOpenKeypad?.(linea)}
+            className="w-16 h-12 min-h-[48px] text-center font-mono font-black text-base text-slate-900 dark:text-white bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 rounded-xl outline-none tabular-nums shadow-2xs cursor-pointer"
             step={linea.unidad === 'KG' ? 'any' : '1'}
             min={linea.unidad === 'KG' ? '0.001' : '1'}
             inputMode={linea.unidad === 'KG' ? 'decimal' : 'numeric'}
+            title="Haga clic para editar con teclado táctil en pantalla"
             aria-label={`Cantidad del producto en ${linea.unidad === 'KG' ? 'kilos' : 'unidades'}`}
           />
 

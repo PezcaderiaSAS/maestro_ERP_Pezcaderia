@@ -66,8 +66,8 @@ describe('SPEC-019: Ergonomía, Legibilidad y Cero Desbordamiento en Medios de P
     expect(btnCredito).toHaveTextContent(/Crédito/i);
 
     // Verificar que los botones tengan altura ergonómica mínima de 48px
-    expect(btnEfectivo.className).toMatch(/min-h-\[(?:48|50|52)px\]/);
-    expect(btnTransferencia.className).toMatch(/min-h-\[(?:48|50|52)px\]/);
+    expect(btnEfectivo.className).toMatch(/min-h-\[(?:48|50|52|56)px\]/);
+    expect(btnTransferencia.className).toMatch(/min-h-\[(?:48|50|52|56)px\]/);
   });
 
   it('2. Al seleccionar "Transferencia", debe desplegar la sub-barra con Nequi, Daviplata y QR Bancolombia', () => {

@@ -410,7 +410,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
               data-testid="btn-metodo-efectivo"
               onClick={() => handleSelectCategoria('EFECTIVO')}
               title="Seleccionar Efectivo (F1)"
-              className={`flex items-center justify-between min-h-[50px] h-auto py-2 px-3 rounded-xl border transition-all cursor-pointer select-none active:scale-95 ${
+              className={`flex items-center justify-between min-h-[56px] h-auto py-2 px-3 rounded-xl border transition-all cursor-pointer select-none active:scale-95 ${
                 categoriaActiva === 'EFECTIVO'
                   ? 'border-emerald-500 bg-emerald-50/90 text-emerald-800 shadow-sm ring-2 ring-emerald-400 font-bold'
                   : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-sm font-semibold'
@@ -429,7 +429,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
               data-testid="btn-metodo-transferencia"
               onClick={() => handleSelectCategoria('TRANSFERENCIA')}
               title="Seleccionar Transferencia (F2: Nequi / Daviplata / QR)"
-              className={`flex items-center justify-between min-h-[50px] h-auto py-2 px-3 rounded-xl border transition-all cursor-pointer select-none active:scale-95 ${
+              className={`flex items-center justify-between min-h-[56px] h-auto py-2 px-3 rounded-xl border transition-all cursor-pointer select-none active:scale-95 ${
                 categoriaActiva === 'TRANSFERENCIA'
                   ? 'border-indigo-500 bg-indigo-50/90 text-indigo-800 shadow-sm ring-2 ring-indigo-400 font-bold'
                   : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-sm font-semibold'
@@ -448,7 +448,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
               data-testid="btn-metodo-datafono"
               onClick={() => handleSelectCategoria('DATAFONO')}
               title="Seleccionar Datáfono (F3)"
-              className={`flex items-center justify-between min-h-[50px] h-auto py-2 px-3 rounded-xl border transition-all cursor-pointer select-none active:scale-95 ${
+              className={`flex items-center justify-between min-h-[56px] h-auto py-2 px-3 rounded-xl border transition-all cursor-pointer select-none active:scale-95 ${
                 categoriaActiva === 'DATAFONO'
                   ? 'border-sky-500 bg-sky-50/90 text-sky-800 shadow-sm ring-2 ring-sky-400 font-bold'
                   : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-sm font-semibold'
@@ -467,7 +467,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
               data-testid="btn-metodo-credito"
               onClick={() => handleSelectCategoria('CREDITO')}
               title="Seleccionar Crédito (F4)"
-              className={`flex items-center justify-between min-h-[50px] h-auto py-2 px-3 rounded-xl border transition-all cursor-pointer select-none active:scale-95 ${
+              className={`flex items-center justify-between min-h-[56px] h-auto py-2 px-3 rounded-xl border transition-all cursor-pointer select-none active:scale-95 ${
                 categoriaActiva === 'CREDITO'
                   ? 'border-slate-500 bg-slate-100 text-slate-900 shadow-sm ring-2 ring-slate-400 font-bold'
                   : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-sm font-semibold'
@@ -499,7 +499,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
                   type="button"
                   data-testid="pill-transferencia-nequi"
                   onClick={() => handleSelectSubTransferencia('NEQUI')}
-                  className={`flex items-center justify-center gap-1.5 min-h-[44px] h-11 py-1 px-2 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
+                  className={`flex items-center justify-center gap-1.5 min-h-[48px] h-12 py-1 px-2 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
                     subTransferencia === 'NEQUI'
                       ? 'bg-fuchsia-50 border-fuchsia-500 text-fuchsia-700 shadow-sm ring-2 ring-fuchsia-300'
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
@@ -515,7 +515,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
                   type="button"
                   data-testid="pill-transferencia-daviplata"
                   onClick={() => handleSelectSubTransferencia('DAVIPLATA')}
-                  className={`flex items-center justify-center gap-1.5 min-h-[44px] h-11 py-1 px-2 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
+                  className={`flex items-center justify-center gap-1.5 min-h-[48px] h-12 py-1 px-2 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
                     subTransferencia === 'DAVIPLATA'
                       ? 'bg-rose-50 border-rose-500 text-rose-700 shadow-sm ring-2 ring-rose-300'
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
@@ -531,7 +531,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
                   type="button"
                   data-testid="pill-transferencia-qr_bancolombia"
                   onClick={() => handleSelectSubTransferencia('QR_BANCOLOMBIA')}
-                  className={`flex items-center justify-center gap-1.5 min-h-[44px] h-11 py-1 px-2 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
+                  className={`flex items-center justify-center gap-1.5 min-h-[48px] h-12 py-1 px-2 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
                     subTransferencia === 'QR_BANCOLOMBIA'
                       ? 'bg-amber-50 border-amber-500 text-amber-700 shadow-sm ring-2 ring-amber-300'
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
@@ -716,7 +716,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
         onClick={handleCobroEfectivoExactoDirecto}
         disabled={isDisabled || !isTurnoAbierto || totalFinal <= 0}
         data-testid="btn-efectivo-exacto-directo"
-        className={`w-full min-h-[48px] h-12 px-4 rounded-xl font-black text-sm flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98] cursor-pointer ${
+        className={`w-full min-h-[48px] min-h-[56px] h-14 px-4 rounded-xl font-black text-sm flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98] cursor-pointer ${
           !isTurnoAbierto || isDisabled || totalFinal <= 0
             ? 'bg-slate-200 text-slate-400 border border-slate-300 cursor-not-allowed opacity-60'
             : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white border border-emerald-500 shadow-emerald-600/20 ring-2 ring-emerald-500/20'

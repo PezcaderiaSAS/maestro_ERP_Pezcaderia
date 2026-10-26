@@ -169,7 +169,6 @@ export const ManualWeightModal: React.FC<ManualWeightModalProps> = ({
               <input
                 ref={inputRef}
                 type="text"
-                inputMode="decimal"
                 data-testid="manual-weight-input"
                 value={pesoStr}
                 onChange={(e) => {
@@ -179,6 +178,7 @@ export const ManualWeightModal: React.FC<ManualWeightModalProps> = ({
                 onKeyDown={handleKeyDown}
                 onFocus={(e) => e.target.select()}
                 placeholder="0.000"
+                inputMode="none"
                 className="w-48 text-center text-4xl font-black font-mono text-slate-900 bg-white border-2 border-cyan-500/40 focus:border-cyan-600 rounded-xl py-1 shadow-sm focus:outline-none"
               />
               <span className="text-xl font-bold text-slate-600">kg</span>
@@ -215,7 +215,7 @@ export const ManualWeightModal: React.FC<ManualWeightModalProps> = ({
                   key={chip.valor}
                   type="button"
                   onClick={() => handleChipClick(chip.valor)}
-                  className={`min-h-[44px] px-2 py-2 text-xs font-bold rounded-xl border transition-all active:scale-95 ${
+                  className={`min-h-[48px] px-2 py-2 text-xs font-bold rounded-xl border transition-all active:scale-95 ${
                     pesoNumerico === chip.valor
                       ? 'bg-cyan-600 border-cyan-600 text-white shadow-md'
                       : 'bg-white border-slate-200 hover:border-cyan-400 text-slate-700 hover:bg-cyan-50/50'
@@ -236,7 +236,7 @@ export const ManualWeightModal: React.FC<ManualWeightModalProps> = ({
                   type="button"
                   data-testid={`keypad-btn-${digit}`}
                   onClick={() => handleKeypadPress(digit)}
-                  className="min-h-[52px] bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 font-black text-xl rounded-xl border border-slate-200/80 transition-transform active:scale-95 flex items-center justify-center shadow-sm"
+                  className="min-h-[56px] bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 font-black text-xl rounded-xl border border-slate-200/80 transition-transform active:scale-95 flex items-center justify-center shadow-sm"
                 >
                   {digit}
                 </button>
@@ -245,7 +245,7 @@ export const ManualWeightModal: React.FC<ManualWeightModalProps> = ({
                 type="button"
                 data-testid="keypad-btn-dot"
                 onClick={() => handleKeypadPress('.')}
-                className="min-h-[52px] bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 font-black text-2xl rounded-xl border border-slate-200/80 transition-transform active:scale-95 flex items-center justify-center shadow-sm"
+                className="min-h-[56px] bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 font-black text-2xl rounded-xl border border-slate-200/80 transition-transform active:scale-95 flex items-center justify-center shadow-sm"
               >
                 .
               </button>
@@ -253,7 +253,7 @@ export const ManualWeightModal: React.FC<ManualWeightModalProps> = ({
                 type="button"
                 data-testid="keypad-btn-0"
                 onClick={() => handleKeypadPress('0')}
-                className="min-h-[52px] bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 font-black text-xl rounded-xl border border-slate-200/80 transition-transform active:scale-95 flex items-center justify-center shadow-sm"
+                className="min-h-[56px] bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 font-black text-xl rounded-xl border border-slate-200/80 transition-transform active:scale-95 flex items-center justify-center shadow-sm"
               >
                 0
               </button>
@@ -261,7 +261,7 @@ export const ManualWeightModal: React.FC<ManualWeightModalProps> = ({
                 type="button"
                 data-testid="keypad-btn-backspace"
                 onClick={() => handleKeypadPress('backspace')}
-                className="min-h-[52px] bg-rose-50 hover:bg-rose-100 active:bg-rose-200 text-rose-600 font-bold rounded-xl border border-rose-200 transition-transform active:scale-95 flex items-center justify-center shadow-sm"
+                className="min-h-[56px] bg-rose-50 hover:bg-rose-100 active:bg-rose-200 text-rose-600 font-bold rounded-xl border border-rose-200 transition-transform active:scale-95 flex items-center justify-center shadow-sm"
                 title="Borrar"
               >
                 <Delete size={22} />

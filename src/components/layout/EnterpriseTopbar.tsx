@@ -1,15 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Menu,
   ChevronRight,
-  Terminal,
-  Moon,
-  Sun,
   Home,
   ShoppingCart,
-  PlusCircle,
-  HelpCircle,
-  Sparkles,
   Store,
   Search,
   Palette,
@@ -25,9 +19,9 @@ import { UserSwitchModal } from './UserSwitchModal';
 export const THEMES_CONFIG = [
   {
     id: 'pezcaderia-glass',
-    label: 'Dark Glass',
-    badge: 'PEZCADERIA S.A.S',
-    primaryColor: '#4f46e5',
+    label: 'Dark Glass V8',
+    badge: 'PEZCADERIA V8',
+    primaryColor: '#ef4444',
     accentColor: '#06b6d4',
   },
   {
@@ -66,6 +60,10 @@ interface EnterpriseTopbarProps {
   onOpenOmnibox?: () => void;
 }
 
+/**
+ * EnterpriseTopbar - Barra Superior Flotante Oficial Dark Glassmorphism V8.
+ * Incorpora specular highlight superior, desenfoque de 24px y controles semánticos.
+ */
 export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
   currentView,
   onNavigateHome,
@@ -86,30 +84,38 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
   const breadcrumb = getRouteBreadcrumbs(currentView as AppRouteId);
 
   return (
-    <header className="h-16 flex items-center justify-between px-4 lg:px-6 bg-white/95 backdrop-blur-xl border-b border-slate-200 text-slate-800 select-none z-30 sticky top-0 shadow-sm">
-      {/* Sección Izquierda: Toggle + Breadcrumb */}
+    <header
+      style={{
+        transform: 'translateZ(0)',
+        boxShadow:
+          '0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.15)',
+      }}
+      className="h-14 mx-3 mt-3 mb-2 flex items-center justify-between px-4 lg:px-6 rounded-2xl bg-slate-900/85 backdrop-blur-2xl border border-white/12 text-slate-200 select-none z-30 sticky top-3 shadow-xl transition-all duration-200"
+    >
+      {/* Sección Izquierda: Toggle + Breadcrumb Flotante */}
       <div className="flex items-center gap-3">
         <button
           onClick={onToggleSidebar}
-          className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
-          title="Menú de Navegación"
+          className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+          title="Menú de Navegación (Ctrl+B)"
+          aria-label="Menú de Navegación"
         >
-          <Menu size={20} />
+          <Menu size={18} />
         </button>
 
-        {/* Breadcrumb sutil estilo Atlassian */}
+        {/* Breadcrumb estilo Glassmorphism V8 */}
         <div className="flex items-center gap-1.5 text-xs">
           <button
             onClick={onNavigateHome}
-            className="text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-1 font-semibold"
+            className="text-slate-400 hover:text-white transition-colors flex items-center gap-1 font-semibold"
           >
             <Home size={14} />
             <span className="hidden sm:inline">ERP</span>
           </button>
-          <ChevronRight size={12} className="text-slate-400" />
-          <span className="text-slate-500 hidden md:inline font-semibold">{breadcrumb.domain}</span>
-          <ChevronRight size={12} className="text-slate-400 hidden md:inline" />
-          <span className="text-slate-900 font-extrabold truncate max-w-[200px] sm:max-w-none">
+          <ChevronRight size={12} className="text-slate-500" />
+          <span className="text-slate-400 hidden md:inline font-semibold">{breadcrumb.domain}</span>
+          <ChevronRight size={12} className="text-slate-500 hidden md:inline" />
+          <span className="text-white font-black truncate max-w-[200px] sm:max-w-none">
             {breadcrumb.sub}
           </span>
         </div>
@@ -117,38 +123,44 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
 
       {/* Sección Derecha: Omnibox, Selector de Bodega, Botón POS, Tema y Perfil */}
       <div className="flex items-center gap-2.5">
-        {/* Buscador Rápido Omnibox (Ctrl + K) */}
+        {/* Buscador Rápido Omnibox (F8 / Ctrl+K) */}
         <button
           onClick={onOpenOmnibox}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-xs text-slate-700 hover:text-slate-900 transition-all cursor-pointer shadow-sm font-medium"
-          title="Buscador Universal (Ctrl + K)"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-slate-300 hover:text-white transition-all cursor-pointer shadow-xs font-medium"
+          title="Buscador Universal Omnibox (F8 / Ctrl+K)"
+          aria-label="Buscar"
         >
-          <Search size={14} className="text-indigo-600" />
+          <Search size={14} className="text-cyan-400" />
           <span className="hidden md:inline font-medium">Buscar...</span>
-          <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-white rounded border border-slate-300 text-slate-600 font-bold">
+          <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[9px] font-mono bg-white/10 rounded border border-white/10 text-slate-300 font-bold">
             Ctrl+K
           </kbd>
         </button>
 
         {/* Selector de Bodega / Sucursal Activa */}
-        <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-700">
-          <Store size={14} className="text-indigo-600" />
-          <span className="font-bold text-slate-900">{activeBodega}</span>
+        <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs text-slate-300">
+          <Store size={14} className="text-cyan-400" />
+          <span className="font-bold text-white">{activeBodega}</span>
         </div>
 
-        {/* Indicador de Conectividad Outbox / Red con Sincronización en Tiempo Real */}
+        {/* Indicador de Conectividad Outbox / Red */}
         <NetworkSyncStatusBadge className="hidden sm:inline-flex" />
 
-        {/* Nombre de Empresa / Sistema / Badge de Tema */}
-        <span className="hidden xl:inline-block px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-indigo-50 text-indigo-700 border border-indigo-200 font-mono">
+        {/* Badge de Versión V8 */}
+        <span className="hidden xl:inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-white/5 text-slate-300 border border-white/10 font-mono">
           {currentThemeConfig.badge}
         </span>
 
-        {/* Botón Destacado Facturar POS */}
+        {/* Botón Destacado Facturar POS con Bloque Rojo Code XR */}
         <button
           id="topbar-btn-facturar-pos"
           onClick={onNavigatePOS}
-          className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
+          className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl font-bold text-xs text-white shadow-md transition-all cursor-pointer ${
+            currentView === 'pos'
+              ? 'bg-red-600 ring-2 ring-red-500/50 shadow-red-600/30'
+              : 'bg-red-600/90 hover:bg-red-600 shadow-red-600/20'
+          }`}
+          title="Abrir Punto de Venta (POS)"
         >
           <ShoppingCart size={14} />
           <span className="hidden sm:inline">Facturar POS</span>
@@ -158,24 +170,25 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
         <div className="relative">
           <button
             onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
-            className="flex items-center gap-1.5 p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 border border-white/10 transition-colors cursor-pointer"
             title={`Tema actual: ${currentThemeConfig.label} (Click para cambiar)`}
+            aria-label="Selector de temas"
           >
-            <Palette size={17} className="text-indigo-600" />
+            <Palette size={16} className="text-cyan-400" />
             <span
-              className="w-2.5 h-2.5 rounded-full ring-1 ring-slate-300"
+              className="w-2.5 h-2.5 rounded-full ring-1 ring-white/20"
               style={{ backgroundColor: currentThemeConfig.primaryColor }}
             />
           </button>
 
           {isThemeMenuOpen && (
             <div
-              className="absolute right-0 mt-2 w-48 rounded-xl bg-white border border-slate-200 shadow-xl p-1.5 z-50 text-xs font-sans"
+              className="absolute right-0 mt-2 w-48 rounded-2xl bg-slate-900/95 backdrop-blur-2xl border border-white/12 shadow-2xl p-1.5 z-50 text-xs font-sans text-slate-200"
               style={{ isolation: 'isolate' }}
             >
-              <div className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 mb-1 flex items-center justify-between">
-                <span>Temas Light</span>
-                <span className="text-[9px] text-indigo-600 font-mono font-bold">WCAG AA</span>
+              <div className="px-2.5 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-white/10 mb-1 flex items-center justify-between">
+                <span>Temas V8</span>
+                <span className="text-[9px] text-cyan-400 font-mono font-bold">GLASS V8</span>
               </div>
               {THEMES_CONFIG.map((t) => {
                 const isActive = t.id === theme;
@@ -190,20 +203,20 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
                       }
                       setIsThemeMenuOpen(false);
                     }}
-                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-left transition-all cursor-pointer ${
+                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-left transition-all cursor-pointer ${
                       isActive
-                        ? 'bg-indigo-50 text-indigo-700 font-bold'
-                        : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
+                        ? 'bg-red-600 text-white font-bold shadow-md shadow-red-600/20'
+                        : 'text-slate-300 hover:bg-white/10 hover:text-white'
                     }`}
                   >
                     <div className="flex items-center gap-2">
                       <span
-                        className="w-3 h-3 rounded-full border border-slate-300 shrink-0"
+                        className="w-3 h-3 rounded-full border border-white/20 shrink-0"
                         style={{ backgroundColor: t.primaryColor }}
                       />
                       <span>{t.label}</span>
                     </div>
-                    {isActive && <Check size={14} className="text-indigo-600 shrink-0" />}
+                    {isActive && <Check size={14} className="text-white shrink-0" />}
                   </button>
                 );
               })}
@@ -216,21 +229,21 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
           type="button"
           aria-label={`Perfil de usuario: ${currentUser?.nombre || 'Usuario'}`}
           onClick={() => setIsUserSwitchOpen(true)}
-          className="flex items-center gap-2 p-1 pl-1.5 pr-2.5 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-all cursor-pointer shadow-xs active:scale-95 group"
+          className="flex items-center gap-2 p-1 pl-1.5 pr-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all cursor-pointer shadow-xs active:scale-95 group"
           title={`Usuario activo: ${currentUser?.nombre || 'Desconocido'} (${currentUser?.rol || 'Sin Rol'}). Clic para cambiar de usuario.`}
         >
           <div
-            className={`w-8 h-8 rounded-full bg-gradient-to-tr ${
+            className={`w-7 h-7 rounded-full bg-gradient-to-tr ${
               currentUser?.avatarColor || 'from-indigo-600 to-blue-700'
-            } text-white font-bold text-xs flex items-center justify-center ring-2 ring-white shrink-0 shadow-sm group-hover:scale-105 transition-transform`}
+            } text-white font-bold text-xs flex items-center justify-center ring-2 ring-white/20 shrink-0 shadow-sm group-hover:scale-105 transition-transform`}
           >
             {getInitials(currentUser?.nombre || 'US')}
           </div>
           <div className="hidden lg:flex flex-col text-left leading-none pr-1">
-            <span className="text-xs font-bold text-slate-800 truncate max-w-[100px]">
+            <span className="text-xs font-bold text-white truncate max-w-[100px]">
               {currentUser?.nombre ? currentUser.nombre.split(' ')[0] : 'Usuario'}
             </span>
-            <span className="text-[10px] font-mono text-indigo-600 font-bold uppercase mt-0.5">
+            <span className="text-[10px] font-mono text-cyan-400 font-bold uppercase mt-0.5">
               {currentUser?.rol || 'vendedor'}
             </span>
           </div>

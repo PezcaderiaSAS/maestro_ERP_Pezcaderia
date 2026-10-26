@@ -110,4 +110,110 @@ describe('EnterpriseSidebar Saneamiento Visual & Regla del Niño de 12 Años (DT
     fireEvent.click(screen.getByTestId('nav-compras-muelle'));
     expect(onSelectView).toHaveBeenCalledWith('compras_muelle');
   });
+
+  describe('SPEC-030: Premium Sidebar UI macOS Style & Glassmorphism (Code XR)', () => {
+    it('debe renderizar los tres controles de ventana macOS (rojo, amarillo, verde) en la parte superior', () => {
+      render(
+        <EnterpriseSidebar
+          currentView="pos"
+          onSelectView={() => {}}
+          isOpen={true}
+          onToggleOpen={() => {}}
+          userRole="admin"
+          onChangeRole={() => {}}
+        />
+      );
+
+      expect(screen.getByTestId('mac-control-close')).toBeInTheDocument();
+      expect(screen.getByTestId('mac-control-minimize')).toBeInTheDocument();
+      expect(screen.getByTestId('mac-control-fullscreen')).toBeInTheDocument();
+    });
+
+    it('el control amarillo de macOS debe invocar onToggleOpen para alternar colapso/expansión', () => {
+      const onToggleOpen = vi.fn();
+      render(
+        <EnterpriseSidebar
+          currentView="pos"
+          onSelectView={() => {}}
+          isOpen={true}
+          onToggleOpen={onToggleOpen}
+          userRole="admin"
+          onChangeRole={() => {}}
+        />
+      );
+
+      const btnMinimize = screen.getByTestId('mac-control-minimize');
+      fireEvent.click(btnMinimize);
+      expect(onToggleOpen).toHaveBeenCalledTimes(1);
+    });
+
+    it('el contenedor aside debe flotar con estética Glassmorphism (rounded-3xl y backdrop-blur)', () => {
+      const { container } = render(
+        <EnterpriseSidebar
+          currentView="pos"
+          onSelectView={() => {}}
+          isOpen={true}
+          onToggleOpen={() => {}}
+          userRole="admin"
+          onChangeRole={() => {}}
+        />
+      );
+
+      const aside = container.querySelector('#enterprise-sidebar');
+      expect(aside).toBeInTheDocument();
+      expect(aside?.className).toMatch(/rounded-3xl|rounded-2xl/);
+      expect(aside?.className).toMatch(/backdrop-blur-2xl|backdrop-blur-xl/);
+    });
+
+    it('debe mostrar las categorías de navegación en mayúsculas (MENU, OPERACIONES, GENERAL) con alto tracking', () => {
+      render(
+        <EnterpriseSidebar
+          currentView="pos"
+          onSelectView={() => {}}
+          isOpen={true}
+          onToggleOpen={() => {}}
+          userRole="admin"
+          onChangeRole={() => {}}
+        />
+      );
+
+      expect(screen.getByText('MENU')).toBeInTheDocument();
+      expect(screen.getByText('OPERACIONES')).toBeInTheDocument();
+      expect(screen.getByText('GENERAL')).toBeInTheDocument();
+    });
+
+    it('el ítem activo debe aplicar el bloque de color rojo vibrante de Code XR (bg-red-600 / #EF4444)', () => {
+      render(
+        <EnterpriseSidebar
+          currentView="pos"
+          onSelectView={() => {}}
+          isOpen={true}
+          onToggleOpen={() => {}}
+          userRole="admin"
+          onChangeRole={() => {}}
+        />
+      );
+
+      const activeNavPos = screen.getByTestId('nav-pos');
+      expect(activeNavPos.className).toMatch(/bg-red-600|bg-\[#EF4444\]|bg-red-700/);
+      expect(activeNavPos.className).toContain('text-white');
+    });
+
+    it('debe ubicar la tarjeta de usuario en la parte superior debajo de los controles macOS', () => {
+      render(
+        <EnterpriseSidebar
+          currentView="pos"
+          onSelectView={() => {}}
+          isOpen={true}
+          onToggleOpen={() => {}}
+          userRole="admin"
+          onChangeRole={() => {}}
+        />
+      );
+
+      const userBadge = screen.getByTestId('sidebar-user-header');
+      expect(userBadge).toBeInTheDocument();
+      expect(within(userBadge).getByText('Yurgen Moreno')).toBeInTheDocument();
+    });
+  });
 });

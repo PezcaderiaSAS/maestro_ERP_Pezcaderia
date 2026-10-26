@@ -113,6 +113,11 @@
       "title": "Cotizaciones B2B & Simulador de Márgenes",
       "instruction": "Genera un modal y wizard de cotización B2B con cálculo en tiempo real de margen bruto, escala de precios por volumen, diferenciación de líneas de producto por empaque/gramaje y botón de exportación PDF.",
       "components_required": ["PricingModal", "QuoteWizardStep", "MarginHealthIndicator", "PdfExportButton"]
+    },
+    "sidebar_ui_macos": {
+      "title": "SideBar UI macOS Style (Dark Glassmorphism Flotante Code XR)",
+      "instruction": "Genera una barra lateral flotante con estética Dark Glassmorphism (bg-slate-900/85, backdrop-blur-2xl, border-white/12, shadow-2xl), controles de ventana macOS superiores (rojo, amarillo, verde funcionales), tarjeta de usuario superior compacta, categorización MENU/OPERACIONES/GENERAL en mayúsculas con tracking amplio, y estado activo en bloque rojo vibrante #EF4444 con icono en blanco puro.",
+      "components_required": ["MacWindowControls", "UserProfileHeader", "CategoryNavSection", "ActiveNavItemBlock", "FloatingTooltip"]
     }
   },
   "quality_gates": {
