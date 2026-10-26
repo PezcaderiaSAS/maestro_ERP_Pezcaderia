@@ -27,6 +27,7 @@ import {
 
 import { PosElectronicInvoiceToggle } from './PosElectronicInvoiceToggle';
 import { useNetworkHeartbeat } from '../../../hooks/useNetworkHeartbeat';
+import { GlassCard } from '../../../components/layout/components/GlassCard';
 
 export type MetodoCobroPos = 'EFECTIVO' | 'NEQUI' | 'DAVIPLATA' | 'QR_BANCOLOMBIA' | 'DATAFONO' | 'CREDITO';
 
@@ -349,7 +350,22 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
   const superaTopeGaveta = saldoEfectivoGaveta >= topeMaximoGaveta;
 
   return (
-    <div className="flex flex-col gap-3 mt-3">
+    <GlassCard
+      data-testid="payment-glass-panel"
+      title="LIQUIDACIÓN & MEDIOS DE COBRO"
+      className="flex flex-col gap-3 mt-3 p-4"
+    >
+      {/* Total general a pagar en Verde Esmeralda */}
+      <div className="flex justify-between items-center py-2 px-3 bg-slate-950/80 rounded-xl border border-white/10 shadow-sm">
+        <span className="text-xs font-black uppercase tracking-wider text-slate-400">TOTAL A LIQUIDAR</span>
+        <span
+          data-testid="pos-total-display"
+          className="text-2xl font-black text-emerald-400 font-mono tracking-tight tabular-nums"
+        >
+          ${totalFinal.toLocaleString('es-CO')}
+        </span>
+      </div>
+
       {/* Alerta Preventiva de Tope de Gaveta */}
       {superaTopeGaveta && onRetiroParcialRequest && (
         <div className="flex items-center justify-between p-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl animate-pulse">
@@ -591,6 +607,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
                   <button
                     key={denom}
                     type="button"
+                    data-testid={`btn-quick-bill-${denom}`}
                     onClick={() => setEfectivoRecibido(denom)}
                     className="min-h-[48px] h-12 px-1 text-sm font-black rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 transition-all tabular-nums text-center shadow-sm cursor-pointer active:scale-95"
                   >
@@ -772,7 +789,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
           </Button>
         )}
       </div>
-    </div>
+    </GlassCard>
   );
 };
 

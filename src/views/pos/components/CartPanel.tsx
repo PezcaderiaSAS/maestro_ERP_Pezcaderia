@@ -9,6 +9,7 @@ import { DiscountPanel } from './DiscountPanel';
 import { PaymentPanel, type MetodoCobroPos } from './PaymentPanel';
 import { ParkedOrdersBar } from './ParkedOrdersBar';
 import { OnScreenKeypadModal } from './OnScreenKeypadModal';
+import { GlassCard } from '../../../components/layout/components/GlassCard';
 import Swal from 'sweetalert2';
 
 interface CartPanelProps {
@@ -97,6 +98,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
   onRetiroParcialRequest,
 }) => {
   const [isBouncing, setIsBouncing] = useState(false);
+  const [isCompactMode, setIsCompactMode] = useState(false);
   const totalItems = lineas.reduce((sum, l) => sum + Number(l.cantidad), 0);
 
   useEffect(() => {
@@ -481,7 +483,15 @@ export const CartPanel: React.FC<CartPanelProps> = ({
   };
 
   return (
-    <div className="pos-cart-panel flex flex-col h-full min-h-0 overflow-y-auto pr-1">
+    <GlassCard
+      data-testid="cart-glass-panel"
+      showMacControls={true}
+      title="CARRITO DE VENTAS"
+      badge={`${totalItems} ${totalItems === 1 ? 'ítem' : 'ítems'}`}
+      badgeVariant="cyan"
+      onMinimize={() => setIsCompactMode((prev) => !prev)}
+      className="pos-cart-panel flex flex-col h-full min-h-0 overflow-y-auto pr-1 p-4"
+    >
       {/* ── HEADER: Selector de cliente + Borradores + En Espera (Targets >= 48px) ── */}
       <div
         className="pos-cart-header flex flex-wrap justify-between items-center gap-2 py-2 px-3 border-b border-slate-200 bg-slate-50 shrink-0 rounded-t-xl"
@@ -583,7 +593,8 @@ export const CartPanel: React.FC<CartPanelProps> = ({
 
       {/* ── LISTA DE ÍTEMS: scroll táctil vertical ── */}
       <div
-        className="pos-cart-items-list flex-1 overflow-y-auto"
+        data-testid="cart-items-container"
+        className={`pos-cart-items-list flex-1 overflow-y-auto ${isCompactMode ? 'hidden' : ''}`}
         style={{
           WebkitOverflowScrolling: 'touch',
           scrollSnapType: 'y proximity',
@@ -637,16 +648,16 @@ export const CartPanel: React.FC<CartPanelProps> = ({
       >
         {/* Total prominente táctil con micro-animación y alto contraste */}
         {lineas.length > 0 && (
-          <div className="flex justify-between items-center py-2 px-3 bg-white rounded-xl border border-slate-200/90 shadow-sm transition-all duration-200">
+          <div className="flex justify-between items-center py-2 px-3 bg-slate-950/80 rounded-xl border border-white/10 shadow-sm transition-all duration-200">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-black uppercase tracking-wider text-slate-500">TOTAL</span>
+              <span className="text-xs font-black uppercase tracking-wider text-slate-400">TOTAL</span>
               <span 
-                className={`bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-black px-2.5 py-0.5 rounded-full ${isBouncing ? 'animate-bounce' : ''}`}
+                className={`bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-xs font-black px-2.5 py-0.5 rounded-full ${isBouncing ? 'animate-bounce' : ''}`}
               >
                 {totalItems} {totalItems === 1 ? 'ítem' : 'ítems'}
               </span>
             </div>
-            <strong className="text-3xl font-black text-indigo-700 font-mono tracking-tight tabular-nums transition-transform duration-150 active:scale-95">
+            <strong className="text-3xl font-black text-emerald-400 font-mono tracking-tight tabular-nums transition-transform duration-150 active:scale-95">
               ${totales.totalFinal.toLocaleString('es-CO')}
             </strong>
           </div>
@@ -697,6 +708,6 @@ export const CartPanel: React.FC<CartPanelProps> = ({
           onClose={() => setKeypadLinea(null)}
         />
       )}
-    </div>
+    </GlassCard>
   );
 };

@@ -117,9 +117,9 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
             placeholder="Buscar por nombre o SKU..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            leftIcon={<Search size={20} />}
+            leftIcon={<Search size={20} className="text-cyan-400" />}
             fullWidth
-            className="min-h-[48px] text-base font-semibold shadow-sm"
+            className="min-h-[48px] text-base font-semibold bg-slate-950/70 border border-white/12 text-white placeholder-slate-400 rounded-2xl shadow-inner focus-within:border-cyan-500/50"
           />
         </div>
 
@@ -131,45 +131,47 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
               placeholder="Código de Barras..."
               value={barcodeInput}
               onChange={(e) => setBarcodeInput(e.target.value)}
-              leftIcon={<Barcode size={20} />}
+              leftIcon={<Barcode size={20} className="text-cyan-400" />}
               fullWidth
-              className="min-h-[48px] text-base"
+              className="min-h-[48px] text-base bg-slate-950/70 border border-white/12 text-white placeholder-slate-400 rounded-2xl"
             />
           </div>
-          <Button
+          <button
             type="button"
-            variant="secondary"
             onClick={simulateBarcodeScan}
-            leftIcon={<Barcode size={18} />}
-            className="min-h-[48px] px-4 whitespace-nowrap text-sm font-bold active:scale-95 transition-transform"
+            className="min-h-[48px] px-4 whitespace-nowrap text-sm font-bold active:scale-95 transition-all bg-slate-800/80 hover:bg-slate-700/80 border border-white/10 text-slate-200 hover:text-white rounded-2xl flex items-center gap-1.5 cursor-pointer shadow-md"
           >
-            Simular Scan
-          </Button>
+            <Barcode size={18} className="text-cyan-400" />
+            <span>Simular Scan</span>
+          </button>
         </form>
       </div>
 
       <div className="pos-categories" style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '8px' }}>
         {CATEGORIAS.map(cat => (
-          <Button
+          <button
             key={cat}
-            variant={selectedCategory === cat ? 'primary' : 'secondary'}
+            type="button"
             onClick={() => setSelectedCategory(cat)}
-            className="min-h-[48px] px-5 py-2.5 text-sm font-bold whitespace-nowrap rounded-2xl shadow-sm transition-all active:scale-95"
-            size="md"
+            className={`min-h-[48px] px-5 py-2.5 text-sm font-bold whitespace-nowrap rounded-2xl transition-all active:scale-95 cursor-pointer ${
+              selectedCategory === cat
+                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 ring-1 ring-indigo-400/50'
+                : 'bg-slate-800/80 border border-white/10 text-slate-300 hover:text-white hover:bg-white/10'
+            }`}
           >
             {cat}
-          </Button>
+          </button>
         ))}
       </div>
 
       {/* Barra de Controles: Filtros de Stock y Más Vendidos */}
       <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', alignItems: 'center' }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', color: '#475569', fontWeight: 600 }}>
-          <input type="checkbox" checked={!hideOutOfStock} onChange={e => setHideOutOfStock(!e.target.checked)} style={{ cursor: 'pointer' }} />
+        <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-400 hover:text-slate-200 select-none">
+          <input type="checkbox" checked={!hideOutOfStock} onChange={e => setHideOutOfStock(!e.target.checked)} className="rounded bg-slate-950 border-white/20 text-indigo-600 focus:ring-0 cursor-pointer" />
           Ver agotados
         </label>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', color: '#475569', fontWeight: 600 }}>
-          <input type="checkbox" checked={showTopSellers} onChange={e => setShowTopSellers(e.target.checked)} style={{ cursor: 'pointer' }} />
+        <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-400 hover:text-slate-200 select-none">
+          <input type="checkbox" checked={showTopSellers} onChange={e => setShowTopSellers(e.target.checked)} className="rounded bg-slate-950 border-white/20 text-indigo-600 focus:ring-0 cursor-pointer" />
           ⭐ Más vendidos
         </label>
       </div>
@@ -186,7 +188,7 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
           const unitLabel = isWeight ? 'kg' : 'und';
 
           return (
-            <Card glass key={prod.id} className={`product-card min-h-[72px] flex flex-col p-0 overflow-hidden cursor-pointer active:scale-95 transition-transform duration-100 ${isOutOfStock ? 'opacity-50 grayscale pointer-events-none' : ''}`} onClick={() => onAddProduct(prod)}>
+            <Card glass key={prod.id} className={`product-card min-h-[72px] flex flex-col p-0 overflow-hidden cursor-pointer active:scale-95 transition-all duration-200 bg-slate-900/80 border border-white/10 hover:border-cyan-500/40 rounded-2xl shadow-xl ${isOutOfStock ? 'opacity-50 grayscale pointer-events-none' : ''}`} onClick={() => onAddProduct(prod)}>
               <div className="product-image-container" style={{ position: 'relative' }}>
                 {/* Badge visual distintivo Kilos vs Unidad */}
                 <div style={{ position: 'absolute', top: '8px', left: '8px', zIndex: 10 }}>
@@ -271,9 +273,9 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
                 })}
                 
                 {/* Stock por Bodega */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', width: '100%', marginTop: '6px', borderTop: '1px dashed #E2E8F0', paddingTop: '6px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', width: '100%', marginTop: '6px', borderTop: '1px dashed rgba(255, 255, 255, 0.12)', paddingTop: '6px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px' }}>
-                    <span style={{ color: '#64748B', fontWeight: 500 }}>Bod. Principal:</span>
+                    <span style={{ color: '#94A3B8', fontWeight: 500 }}>Bod. Principal:</span>
                     <span style={{
                       fontWeight: 700,
                       color: stockPrincipal === 0 ? '#EF4444' : stockPrincipal <= (prod.buffer_seguridad || 4) ? '#F59E0B' : '#10B981'
@@ -282,14 +284,14 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
                     </span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px' }}>
-                    <span style={{ color: '#64748B', fontWeight: 500 }}>Bod. Secundaria:</span>
-                    <span style={{ color: '#475569', fontWeight: 600 }}>
+                    <span style={{ color: '#94A3B8', fontWeight: 500 }}>Bod. Secundaria:</span>
+                    <span style={{ color: '#CBD5E1', fontWeight: 600 }}>
                       {stockSecundaria} {unitLabel}
                     </span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px' }}>
-                    <span style={{ color: '#64748B', fontWeight: 500 }}>Bod. Averías:</span>
-                    <span style={{ color: '#E11D48', fontWeight: 600 }}>
+                    <span style={{ color: '#94A3B8', fontWeight: 500 }}>Bod. Averías:</span>
+                    <span style={{ color: '#FB7185', fontWeight: 600 }}>
                       {stockAverias} {unitLabel}
                     </span>
                   </div>

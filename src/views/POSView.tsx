@@ -18,6 +18,7 @@ import { ProductSearchPanel } from './pos/components/ProductSearchPanel.tsx';
 import { AperturaCajaModal } from './pos/components/AperturaCajaModal.tsx';
 import { RetiroParcialModal } from './pos/components/RetiroParcialModal.tsx';
 import { RestockRequestModal } from './inventory/components/RestockRequestModal.tsx';
+import { GlassCard } from '../components/layout/components/GlassCard.tsx';
 import { Card } from '../components/ui/Card.tsx';
 import { Button } from '../components/ui/Button.tsx';
 import { EnterpriseDataTable, type EnterpriseColumn } from '../components/ui/EnterpriseDataTable.tsx';
@@ -1717,9 +1718,13 @@ export default function POSView({
 
   // Cálculos financieros delegados al hook usePOSCart
   return (
-    <div className="pos-layout w-full min-h-full flex flex-col gap-2.5 animate-fade-in relative p-1 lg:p-2 pb-8">
+    <div
+      data-testid="pos-glass-container"
+      className="pos-layout w-full min-h-full flex flex-col gap-2.5 animate-fade-in relative p-1 lg:p-2 pb-8"
+      style={{ transform: 'translateZ(0)' }}
+    >
       {!isTurnoAbierto && activeSubView === 'venta_pos' && (
-        <div className="w-full bg-red-600/90 text-white text-center py-1.5 px-3 text-xs font-bold flex items-center justify-center gap-2 rounded-lg shadow-md animate-pulse shrink-0">
+        <div className="w-full bg-rose-500/15 border border-rose-500/30 text-rose-300 text-center py-2 px-4 text-xs font-bold flex items-center justify-center gap-2 rounded-xl backdrop-blur-md shadow-lg shrink-0">
           <AlertCircle size={14} /> ⚠ CAJA CERRADA — Debes abrir un turno antes de cobrar
         </div>
       )}
@@ -1727,22 +1732,22 @@ export default function POSView({
       {/* ZONA 1: Header & Breadcrumb Canónico (SPEC-029) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1 shrink-0">
         <div className="flex flex-col">
-          <nav className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+          <nav className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
             <span>Inicio</span>
             <span>/</span>
             <span>Ventas</span>
             <span>/</span>
-            <span className="text-slate-800 font-bold">Punto de Venta (POS)</span>
+            <span className="text-slate-200 font-bold">Punto de Venta (POS)</span>
           </nav>
           <div className="flex items-center gap-2 mt-0.5">
-            <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">Punto de Venta (POS)</h1>
+            <h1 className="text-xl font-extrabold text-white tracking-tight">Punto de Venta (POS)</h1>
             {isTurnoAbierto ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 Turno Abierto #{turnoActivo?.id ? turnoActivo.id.slice(0, 6).toUpperCase() : 'ACTIVO'}
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30">
                 <AlertCircle size={12} /> Caja Cerrada
               </span>
             )}
@@ -1753,20 +1758,20 @@ export default function POSView({
         <div className="flex items-center gap-2">
           <div
             id="pos-seller-badge"
-            className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200/90 border border-slate-200/90 rounded-xl px-2.5 py-1 transition-all"
+            className="flex items-center gap-2 bg-slate-900/80 hover:bg-slate-800/80 border border-white/10 rounded-xl px-2.5 py-1 transition-all shadow-md"
           >
             <div
               className={`w-7 h-7 rounded-lg bg-gradient-to-tr ${
                 currentUser?.avatarColor || 'from-indigo-600 to-blue-700'
-              } text-white font-bold text-xs flex items-center justify-center shadow-2xs shrink-0`}
+              } text-white font-bold text-xs flex items-center justify-center shadow-xs shrink-0`}
             >
               {getInitials(currentUser?.nombre || 'Vendedor')}
             </div>
             <div className="flex flex-col text-left leading-tight">
-              <span className="text-xs font-bold text-slate-800 truncate max-w-[110px] sm:max-w-[150px]">
+              <span className="text-xs font-bold text-slate-100 truncate max-w-[110px] sm:max-w-[150px]">
                 {currentUser?.nombre || 'Sin Asignar'}
               </span>
-              <span className="text-[10px] font-mono text-indigo-600 uppercase font-bold">
+              <span className="text-[10px] font-mono text-cyan-400 uppercase font-bold">
                 {currentUser?.rol || userRole}
               </span>
             </div>
@@ -1774,10 +1779,10 @@ export default function POSView({
               type="button"
               id="pos-btn-cambiar-vendedor"
               onClick={() => setShowUserSwitchModal(true)}
-              className="ml-1 px-2 py-1 rounded-lg bg-white border border-slate-200 text-[11px] font-semibold text-slate-700 hover:text-indigo-600 hover:border-indigo-300 transition-colors shadow-2xs cursor-pointer flex items-center gap-1 active:scale-95"
+              className="ml-1 px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-semibold text-slate-300 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all shadow-xs cursor-pointer flex items-center gap-1 active:scale-95"
               title="Cambiar vendedor o identificarse con PIN"
             >
-              <UserCheck size={12} className="text-indigo-600" />
+              <UserCheck size={12} className="text-cyan-400" />
               <span className="hidden sm:inline">Cambiar</span>
             </button>
           </div>
@@ -1785,14 +1790,14 @@ export default function POSView({
       </div>
 
       {/* ZONA 2: Barra de Control Ergonómica & Pestañas de Subvistas */}
-      <div className="flex flex-wrap items-center justify-between gap-2 py-1.5 px-3 bg-white border border-slate-200 rounded-xl shadow-sm shrink-0">
+      <div className="flex flex-wrap items-center justify-between gap-2 py-1.5 px-3 bg-slate-900/85 backdrop-blur-2xl border border-white/12 rounded-xl shadow-xl shrink-0 text-slate-200">
         <div className="flex items-center gap-1.5 overflow-x-auto">
           <button
             onClick={() => setActiveSubView('venta_pos')}
-            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${
+            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeSubView === 'venta_pos'
-                ? 'bg-indigo-600 text-white shadow-sm ring-1 ring-indigo-400'
-                : 'bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                ? 'bg-indigo-600 text-white shadow-md ring-1 ring-indigo-400/50'
+                : 'bg-transparent text-slate-400 hover:bg-white/10 hover:text-slate-100'
             }`}
           >
             <CreditCard size={15} />
@@ -1801,10 +1806,10 @@ export default function POSView({
           
           <button
             onClick={() => setActiveSubView('consolidacion_b2b')}
-            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${
+            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeSubView === 'consolidacion_b2b'
-                ? 'bg-blue-600 text-white shadow-sm ring-1 ring-blue-400'
-                : 'bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                ? 'bg-blue-600 text-white shadow-md ring-1 ring-blue-400/50'
+                : 'bg-transparent text-slate-400 hover:bg-white/10 hover:text-slate-100'
             }`}
           >
             <Truck size={15} />
@@ -1818,10 +1823,10 @@ export default function POSView({
           
           <button
             onClick={() => setActiveSubView('canales_digitales')}
-            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${
+            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeSubView === 'canales_digitales'
-                ? 'bg-purple-600 text-white shadow-sm ring-1 ring-purple-400'
-                : 'bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                ? 'bg-purple-600 text-white shadow-md ring-1 ring-purple-400/50'
+                : 'bg-transparent text-slate-400 hover:bg-white/10 hover:text-slate-100'
             }`}
           >
             <RefreshCw size={15} />
@@ -1835,10 +1840,10 @@ export default function POSView({
           
           <button
             onClick={() => setActiveSubView('gestion_kanban')}
-            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${
+            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeSubView === 'gestion_kanban'
-                ? 'bg-amber-600 text-white shadow-sm ring-1 ring-amber-400'
-                : 'bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                ? 'bg-amber-600 text-white shadow-md ring-1 ring-amber-400/50'
+                : 'bg-transparent text-slate-400 hover:bg-white/10 hover:text-slate-100'
             }`}
           >
             <span className="text-xs font-mono font-bold">KB</span>
@@ -1854,7 +1859,7 @@ export default function POSView({
               const searchInput = document.getElementById('pos-product-search-input');
               if (searchInput) searchInput.focus();
             }}
-            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold transition-all shadow-sm active:scale-95"
+            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
             title="Enfocar catálogo / Nuevo pedido rápido (F8)"
           >
             <span>⚡ Buscar (F8)</span>
@@ -1863,7 +1868,7 @@ export default function POSView({
           {/* Botón Primario 2: Poner en Espera */}
           <button
             onClick={() => handleGuardarBorrador()}
-            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 text-xs font-bold transition-all shadow-sm active:scale-95"
+            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-indigo-950/60 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-900/60 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
             title="Guardar carrito actual en espera"
           >
             <span>⏸ En Espera</span>
@@ -1895,7 +1900,7 @@ export default function POSView({
                 });
               }
             }}
-            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-sky-50 border border-sky-200 text-sky-700 hover:bg-sky-100 text-xs font-bold transition-all shadow-sm active:scale-95"
+            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-900/60 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
             title="Balanza de Mostrador / Pesaje Manual Asistido"
           >
             <span>⚖️ Balanza</span>
@@ -1905,48 +1910,48 @@ export default function POSView({
           <div className="relative" data-testid="pos-more-actions-dropdown" id="pos-more-actions-dropdown">
             <button
               onClick={() => setShowHamburger(!showHamburger)}
-              className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition-colors shadow-sm cursor-pointer"
+              className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-slate-200 text-xs font-bold transition-colors shadow-sm cursor-pointer"
             >
               <Menu size={15} />
               <span className="hidden sm:inline">Más Acciones...</span>
             </button>
             {showHamburger && (
-              <div className="absolute right-0 mt-2 w-52 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden text-slate-800 py-1">
+              <div className="absolute right-0 mt-2 w-52 bg-slate-900/95 backdrop-blur-2xl border border-white/12 rounded-xl shadow-2xl z-50 overflow-hidden text-slate-200 py-1">
                 {!isTurnoAbierto ? (
                   <button
                     onClick={() => { setShowAperturaModal(true); setShowHamburger(false); }}
-                    className="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-semibold flex items-center gap-2 text-indigo-700"
+                    className="w-full text-left px-4 py-2 hover:bg-white/10 text-xs font-semibold flex items-center gap-2 text-indigo-400 cursor-pointer"
                   >
-                    <Plus size={14} className="text-indigo-600" /> Abrir Turno
+                    <Plus size={14} className="text-indigo-400" /> Abrir Turno
                   </button>
                 ) : (
                   <>
                     <button
                       onClick={() => { setShowRetiroModal(true); setShowHamburger(false); }}
-                      className="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-medium flex items-center gap-2 text-amber-700"
+                      className="w-full text-left px-4 py-2 hover:bg-white/10 text-xs font-medium flex items-center gap-2 text-amber-400 cursor-pointer"
                     >
-                      <AlertTriangle size={14} className="text-amber-600" /> Arqueo Parcial / Retiro
+                      <AlertTriangle size={14} className="text-amber-400" /> Arqueo Parcial / Retiro
                     </button>
                     <button
                       onClick={() => { setShowArqueoModal(true); setShowHamburger(false); }}
-                      className="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-semibold text-rose-600 flex items-center gap-2"
+                      className="w-full text-left px-4 py-2 hover:bg-white/10 text-xs font-semibold text-rose-400 flex items-center gap-2 cursor-pointer"
                     >
                       <X size={14} /> Cerrar Turno
                     </button>
                   </>
                 )}
-                <div className="border-t border-slate-100 my-1"></div>
+                <div className="border-t border-white/10 my-1"></div>
                 <button
                   onClick={() => { setShowRestockModal(true); setShowHamburger(false); }}
-                  className="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-medium flex items-center gap-2 text-slate-700"
+                  className="w-full text-left px-4 py-2 hover:bg-white/10 text-xs font-medium flex items-center gap-2 text-slate-300 cursor-pointer"
                 >
-                  <Truck size={14} className="text-amber-600" /> Reabastecer POS
+                  <Truck size={14} className="text-amber-400" /> Reabastecer POS
                 </button>
                 <button
                   onClick={() => { setShowSiigoQueueModal(true); setShowHamburger(false); }}
-                  className="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-medium flex items-center gap-2 text-slate-700"
+                  className="w-full text-left px-4 py-2 hover:bg-white/10 text-xs font-medium flex items-center gap-2 text-slate-300 cursor-pointer"
                 >
-                  <FileText size={14} className="text-indigo-600" /> Monitor Cola Siigo
+                  <FileText size={14} className="text-indigo-400" /> Monitor Cola Siigo
                   {colaSiigoPendientes > 0 && (
                     <span className="ml-auto bg-amber-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">
                       {colaSiigoPendientes}
@@ -1960,9 +1965,9 @@ export default function POSView({
                       const btnImprimir = document.querySelector('[data-testid="btn-imprimir-ticket"]');
                       if (btnImprimir) (btnImprimir as HTMLElement).click();
                     }}
-                    className="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-medium flex items-center gap-2 text-slate-700"
+                    className="w-full text-left px-4 py-2 hover:bg-white/10 text-xs font-medium flex items-center gap-2 text-slate-300 cursor-pointer"
                   >
-                    <FileText size={14} className="text-slate-500" /> Reimprimir Último Ticket
+                    <FileText size={14} className="text-slate-400" /> Reimprimir Último Ticket
                   </button>
                 )}
               </div>
@@ -1971,44 +1976,56 @@ export default function POSView({
         </div>
       </div>
 
-      {/* ZONA 3: Tarjetas KPI de Turno (Light Mode WCAG 2.2 AAA) */}
+      {/* ZONA 3: Tarjetas KPI de Turno (Dark Glassmorphism V8) */}
       <div data-testid="pos-kpi-bar" className="grid grid-cols-2 md:grid-cols-4 gap-2.5 shrink-0">
         {/* KPI 1: Ventas del Turno */}
-        <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs flex flex-col justify-between">
-          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Ventas Turno</span>
-          <span className="text-lg sm:text-xl font-black font-mono text-slate-900 mt-1">
+        <div
+          className="bg-slate-900/85 backdrop-blur-2xl border border-white/12 rounded-2xl p-3 shadow-xl flex flex-col justify-between relative overflow-hidden transition-all"
+          style={{ boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.12)' }}
+        >
+          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Ventas Turno</span>
+          <span className="text-lg sm:text-xl font-black font-mono text-white mt-1">
             ${Math.max(0, ((turnoActivo?.saldoTeoricoGlobal ?? 0) - (turnoActivo?.baseInicial ?? 0))).toLocaleString('es-CO')}
           </span>
         </div>
 
         {/* KPI 2: Efectivo en Gaveta */}
-        <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs flex flex-col justify-between">
+        <div
+          className="bg-slate-900/85 backdrop-blur-2xl border border-white/12 rounded-2xl p-3 shadow-xl flex flex-col justify-between relative overflow-hidden transition-all"
+          style={{ boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.12)' }}
+        >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Efectivo Gaveta</span>
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Efectivo Gaveta</span>
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-white/10">
               Tope $1.5M
             </span>
           </div>
-          <span className="text-lg sm:text-xl font-black font-mono text-emerald-700 mt-1">
+          <span className="text-lg sm:text-xl font-black font-mono text-emerald-400 mt-1">
             ${(turnoActivo?.totalEfectivo ?? 0).toLocaleString('es-CO')}
           </span>
         </div>
 
         {/* KPI 3: Transacciones Realizadas */}
-        <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs flex flex-col justify-between">
-          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Transacciones</span>
-          <span className="text-lg sm:text-xl font-black font-mono text-indigo-700 mt-1">
+        <div
+          className="bg-slate-900/85 backdrop-blur-2xl border border-white/12 rounded-2xl p-3 shadow-xl flex flex-col justify-between relative overflow-hidden transition-all"
+          style={{ boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.12)' }}
+        >
+          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Transacciones</span>
+          <span className="text-lg sm:text-xl font-black font-mono text-indigo-400 mt-1">
             {(ventas || []).filter((v: any) => v.turnoId === turnoActivo?.id).length || 0}
           </span>
         </div>
 
         {/* KPI 4: Sincronización SIIGO / Outbox */}
-        <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs flex flex-col justify-between">
+        <div
+          className="bg-slate-900/85 backdrop-blur-2xl border border-white/12 rounded-2xl p-3 shadow-xl flex flex-col justify-between relative overflow-hidden transition-all"
+          style={{ boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.12)' }}
+        >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Facturación DIAN</span>
-            <span className={`w-2 h-2 rounded-full ${colaSiigoPendientes > 0 ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`} />
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Facturación DIAN</span>
+            <span className={`w-2 h-2 rounded-full ${colaSiigoPendientes > 0 ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`} />
           </div>
-          <span className={`text-sm sm:text-base font-black font-mono mt-1 ${colaSiigoPendientes > 0 ? 'text-amber-700' : 'text-emerald-700'}`}>
+          <span className={`text-sm sm:text-base font-black font-mono mt-1 ${colaSiigoPendientes > 0 ? 'text-amber-400' : 'text-emerald-400'}`}>
             {colaSiigoPendientes > 0 ? `${colaSiigoPendientes} Pendientes` : '✓ Sincronizado'}
           </span>
         </div>
@@ -2020,75 +2037,80 @@ export default function POSView({
           <div className="flex-1 min-h-0 w-full flex flex-col lg:grid lg:grid-cols-[7fr_3fr] gap-3 pt-1">
             {/* Columna Izquierda: Catálogo de Productos con su propio scroll */}
             <div className="flex flex-col min-h-0 flex-1 overflow-y-auto pr-1">
-              <ProductSearchPanel 
-                activeProducts={activeProducts} 
-                dynamicFields={dynamicFields} 
-                cliente={cliente} 
-                getProductPrice={getProductPrice} 
-                getProductStock={getProductStock} 
-                onAddProduct={handleAddProduct} 
-              />
+              <GlassCard
+                data-testid="pos-catalog-glass-card"
+                className="p-3 sm:p-4 flex flex-col h-full min-h-0 overflow-hidden"
+              >
+                <ProductSearchPanel 
+                  activeProducts={activeProducts} 
+                  dynamicFields={dynamicFields} 
+                  cliente={cliente} 
+                  getProductPrice={getProductPrice} 
+                  getProductStock={getProductStock} 
+                  onAddProduct={handleAddProduct} 
+                />
+              </GlassCard>
             </div>
 
             {/* Columna Derecha: Carrito de Compras / Factura con scroll desacoplado */}
             <div className="flex flex-col min-h-0 h-full">
-              <Card glass className="pos-sidebar-cart flex flex-col h-full min-h-0 p-0 overflow-hidden border border-slate-200 shadow-sm bg-white">
-        {ultimoTicket ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px', height: '100%', overflowY: 'auto' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: 0, textAlign: 'center' }}>Venta Realizada con Éxito</h3>
-            <TicketBuilder
-              venta={ultimoTicket!.venta}
-              cliente={ultimoTicket!.cliente}
-            />
-            <Button
-              variant="primary"
-              onClick={() => setUltimoTicket(null)}
-              className="w-full mt-2"
-            >
-              Nueva Venta
-            </Button>
+              {ultimoTicket ? (
+                <GlassCard
+                  className="pos-sidebar-cart p-4 sm:p-5 flex flex-col h-full min-h-0 overflow-y-auto"
+                >
+                  <h3 className="text-lg font-black text-white text-center mb-2">Venta Realizada con Éxito</h3>
+                  <TicketBuilder
+                    venta={ultimoTicket!.venta}
+                    cliente={ultimoTicket!.cliente}
+                  />
+                  <Button
+                    variant="primary"
+                    onClick={() => setUltimoTicket(null)}
+                    className="w-full mt-3 min-h-[48px] text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl active:scale-95 transition-all shadow-lg shadow-emerald-600/30"
+                  >
+                    Nueva Venta
+                  </Button>
+                </GlassCard>
+              ) : (
+                <CartPanel
+                  lineas={cartLineas}
+                  cliente={cliente}
+                  descuentoGlobalPct={descuentoGlobal}
+                  descuentoGlobalValor={descuentoGlobalValor}
+                  totales={{ subtotal, descuento: totalDescuento, totalFinal }}
+                  drafts={drafts}
+                  activeDraftId={activeDraftId}
+                  stock={stock as any}
+                  bodegaActivaId={bodegaActivaId}
+                  bodegaActivaNombre={bodegaActivaNombre}
+                  lastClientPrices={lastClientPrices}
+                  onUpdateCantidad={actualizarCantidad}
+                  onUpdateDescuentoLinea={actualizarDescuentoLinea}
+                  onRemoveLinea={removerProducto}
+                  onWeightRead={(pid, peso) => actualizarCantidad(pid, peso)}
+                  onLimpiarCarrito={limpiarCarrito}
+                  onSetLineas={setCartLineas}
+                  onUpdatePrecio={updateItemPrice}
+                  onResetItemPrice={resetItemPrice}
+                  onSelectCliente={handleAgregarCliente}
+                  onClearCliente={() => setCliente(defaultClient)}
+                  onDescuentoClick={handleDescuentoGlobal}
+                  onPagar={handlePagar}
+                  onGuardarBorrador={handleGuardarBorrador}
+                  onSetActiveDraftId={setActiveDraftId}
+                  onSetDrafts={setDrafts}
+                  onSetDescuentoGlobal={setDescuentoGlobal}
+                  isTurnoAbierto={isTurnoAbierto}
+                  onAbrirTurnoRequest={() => setShowAperturaModal(true)}
+                  onCerrarTurnoClick={() => setShowArqueoModal(true)}
+                  saldoEfectivoGaveta={turnoActivo?.totalEfectivo ?? 0}
+                  topeMaximoGaveta={1500000}
+                  onRetiroParcialRequest={() => setShowRetiroModal(true)}
+                />
+              )}
+            </div>
           </div>
-        ) : (
-          <CartPanel
-            lineas={cartLineas}
-            cliente={cliente}
-            descuentoGlobalPct={descuentoGlobal}
-            descuentoGlobalValor={descuentoGlobalValor}
-            totales={{ subtotal, descuento: totalDescuento, totalFinal }}
-            drafts={drafts}
-            activeDraftId={activeDraftId}
-            stock={stock as any}
-            bodegaActivaId={bodegaActivaId}
-            bodegaActivaNombre={bodegaActivaNombre}
-            lastClientPrices={lastClientPrices}
-            onUpdateCantidad={actualizarCantidad}
-            onUpdateDescuentoLinea={actualizarDescuentoLinea}
-            onRemoveLinea={removerProducto}
-            onWeightRead={(pid, peso) => actualizarCantidad(pid, peso)}
-            onLimpiarCarrito={limpiarCarrito}
-            onSetLineas={setCartLineas}
-            onUpdatePrecio={updateItemPrice}
-            onResetItemPrice={resetItemPrice}
-            onSelectCliente={handleAgregarCliente}
-            onClearCliente={() => setCliente(defaultClient)}
-            onDescuentoClick={handleDescuentoGlobal}
-            onPagar={handlePagar}
-            onGuardarBorrador={handleGuardarBorrador}
-            onSetActiveDraftId={setActiveDraftId}
-            onSetDrafts={setDrafts}
-            onSetDescuentoGlobal={setDescuentoGlobal}
-            isTurnoAbierto={isTurnoAbierto}
-            onAbrirTurnoRequest={() => setShowAperturaModal(true)}
-            onCerrarTurnoClick={() => setShowArqueoModal(true)}
-            saldoEfectivoGaveta={turnoActivo?.totalEfectivo ?? 0}
-            topeMaximoGaveta={1500000}
-            onRetiroParcialRequest={() => setShowRetiroModal(true)}
-          />
-        )}
-      </Card>
-    </div>
-  </div>
-</>
+        </>
       ) : activeSubView === 'consolidacion_b2b' ? (
         <div className="animate-fade-in flex flex-col lg:grid lg:grid-cols-[1fr_2fr] gap-4 w-full box-border">
            {/* COLUMNA IZQUIERDA: LISTADO DE PEDIDOS */}

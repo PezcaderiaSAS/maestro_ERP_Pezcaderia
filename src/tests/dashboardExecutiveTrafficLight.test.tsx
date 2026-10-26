@@ -61,7 +61,7 @@ describe('TASK-018-11: ExecutiveTrafficLightWidget & DashboardView Suite (Regla 
     const imgElements = container.querySelectorAll('img');
     expect(imgElements.length).toBe(0);
 
-    expect(screen.getByTestId('executive-traffic-light-widget')).toHaveClass('bg-white');
+    expect(screen.getByTestId('executive-traffic-light-widget')).toHaveClass('backdrop-blur-2xl');
     expect(screen.getByText('Semáforo Operativo Ejecutivo')).toBeInTheDocument();
   });
 

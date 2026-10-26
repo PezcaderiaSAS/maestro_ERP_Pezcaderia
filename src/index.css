@@ -19,78 +19,25 @@
 }
 
 /* ============================================================
-   LIGHT MODE GLOBAL OVERRIDE
-   Anula clases Tailwind de Dark Mode hardcodeadas en TSX.
-   Estrategia: override @layer utilities para máxima especificidad.
+   DARK MODE ABISAL LINEAR / RAYCAST (SPEC-033)
+   Erradicación de franjas grises y soporte de micro-membranas translúcidas.
    ============================================================ */
-@layer utilities {
-  /* --- Fondos oscuros → Fondos claros --- */
-  .bg-slate-950 { background-color: #f8fafc !important; }
-  .bg-slate-900 { background-color: #f1f5f9 !important; }
-  .bg-slate-800 { background-color: #e2e8f0 !important; }
-  .bg-gray-950  { background-color: #f8fafc !important; }
-  .bg-gray-900  { background-color: #f1f5f9 !important; }
-  .bg-gray-800  { background-color: #e2e8f0 !important; }
-  .bg-zinc-950  { background-color: #f8fafc !important; }
-  .bg-zinc-900  { background-color: #f1f5f9 !important; }
-  .bg-zinc-800  { background-color: #e2e8f0 !important; }
-  .bg-neutral-900 { background-color: #f1f5f9 !important; }
-  .bg-neutral-800 { background-color: #e2e8f0 !important; }
-
-  /* Cards y paneles semi-transparentes oscuros */
-  .bg-slate-800\/40, .bg-slate-800\/50, .bg-slate-800\/60, .bg-slate-800\/80 { background-color: #f1f5f9 !important; }
-  .bg-slate-900\/30, .bg-slate-900\/40, .bg-slate-900\/50, .bg-slate-900\/60, .bg-slate-900\/80 { background-color: #f8fafc !important; }
-  .bg-gray-800\/40, .bg-gray-800\/50, .bg-gray-800\/60, .bg-gray-800\/80   { background-color: #f1f5f9 !important; }
-  .bg-gray-900\/40, .bg-gray-900\/50, .bg-gray-900\/60, .bg-gray-900\/80   { background-color: #f8fafc !important; }
-
-  /* --- Texto blanco/claro sobre fondos oscuros → Texto oscuro --- */
-  .text-white   { color: #0f172a !important; }
-  .text-gray-50 { color: #0f172a !important; }
-  .text-gray-100 { color: #1e293b !important; }
-  .text-gray-200 { color: #334155 !important; }
-  .text-slate-50  { color: #0f172a !important; }
-  .text-slate-100 { color: #1e293b !important; }
-  .text-slate-200 { color: #334155 !important; }
-  .text-zinc-50   { color: #0f172a !important; }
-  .text-zinc-100  { color: #1e293b !important; }
-  .text-zinc-200  { color: #334155 !important; }
-
-  /* Excepciones: texto en botones de acción coloreados (NO debe volverse negro) */
-  .bg-indigo-600 .text-white, .bg-indigo-600.text-white,
-  .bg-emerald-600 .text-white, .bg-emerald-600.text-white,
-  .bg-red-600 .text-white, .bg-red-600.text-white,
-  .bg-cyan-600 .text-white, .bg-cyan-600.text-white,
-  .bg-amber-500 .text-white, .bg-amber-500.text-white,
-  .btn-pay, .sidebar-btn-facturar, .sidebar-btn-exit,
-  button.bg-indigo-600, button.bg-emerald-600, button.bg-red-600,
-  button.bg-cyan-600, button.bg-amber-500, button.bg-blue-600 {
-    color: #ffffff !important;
+@layer base {
+  body {
+    background-color: #070A10;
+    color: #F8FAFC;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
-
-  /* --- Bordes oscuros/sutiles → Bordes visibles en Light --- */
-  .border-slate-700 { border-color: #cbd5e1 !important; }
-  .border-slate-800 { border-color: #e2e8f0 !important; }
-  .border-gray-700  { border-color: #cbd5e1 !important; }
-  .border-gray-800  { border-color: #e2e8f0 !important; }
-  .border-white\/5, .border-white\/10, .border-white\/20 { border-color: #cbd5e1 !important; }
-  .glass-panel {
-    background-color: #ffffff !important;
-    border: 1px solid #cbd5e1 !important;
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05) !important;
-  }
-
-  /* --- Divide oscuro --- */
-  .divide-slate-700 > * + * { border-color: #e2e8f0 !important; }
-  .divide-gray-700  > * + * { border-color: #e2e8f0 !important; }
 }
 
-/* Regla universal para inputs en cualquier contexto oscuro */
-:is(.bg-slate-900, .bg-slate-800, .bg-gray-900, .bg-gray-800, .bg-zinc-900) input,
-:is(.bg-slate-900, .bg-slate-800, .bg-gray-900, .bg-gray-800, .bg-zinc-900) select,
-:is(.bg-slate-900, .bg-slate-800, .bg-gray-900, .bg-gray-800, .bg-zinc-900) textarea {
-  background-color: #ffffff;
-  color: #0f172a;
-  border-color: #cbd5e1;
+@layer utilities {
+  .glass-panel {
+    background-color: rgba(17, 24, 39, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.12), 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
 }
 
 
@@ -110,133 +57,134 @@
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.08);
   --shadow-glow: 0 0 0 3px rgba(79, 70, 229, 0.15);
   
-  /* ===== LIGHT MODE — MaestroPescadería Professional ===== */
+  /* ===== DARK MODE ABISAL — MaestroPescadería Linear/Raycast (SPEC-033) ===== */
   /* Fondos y Superficies */
-  --bg-color: #f1f5f9;           /* slate-100 — fondo general cálido-neutro */
-  --card-bg: #ffffff;            /* blanco puro para cards y modales */
-  --card-hover: #f8fafc;         /* slate-50 — hover sutil */
-  --border-color: #e2e8f0;       /* slate-200 — bordes sutiles */
-  --border-strong: #cbd5e1;      /* slate-300 — bordes prominentes en inputs */
+  --bg-color: #070A10;           /* Abisal profundo */
+  --card-bg: rgba(17, 24, 39, 0.85); /* Vidrio oscuro */
+  --card-hover: rgba(31, 41, 55, 0.90);
+  --border-color: rgba(255, 255, 255, 0.12); /* Micro-borde translúcido */
+  --border-strong: rgba(255, 255, 255, 0.20);
   
   /* Brand Colors */
-  --primary-color: #4f46e5;      /* indigo-600 — acción principal */
-  --primary-hover: #4338ca;      /* indigo-700 — hover */
-  --primary-light: rgba(79, 70, 229, 0.08); /* fondo de selección activa */
-  --accent-color: #0891b2;       /* cyan-600 — frío / congelador */
-  --accent-hover: #0e7490;       /* cyan-700 */
-  --color-marine-indigo: #4f46e5;
-  --color-cyan-wave: #0891b2;
-  --color-emerald-a: #059669;    /* emerald-600 — ingresos / verde */
-  --color-warning: #d97706;      /* amber-600 — pendiente */
-  --btn-exit-bg: #dc2626;        /* red-600 — salida / alerta */
+  --primary-color: #5E6AD2;      /* Linear Indigo */
+  --primary-hover: #4F5BC4;
+  --primary-light: rgba(94, 106, 210, 0.15);
+  --accent-color: #06B6D4;       /* Cyan Neón */
+  --accent-hover: #0891B2;
+  --color-marine-indigo: #5E6AD2;
+  --color-cyan-wave: #06B6D4;
+  --color-emerald-a: #10B981;    /* Emerald financiero */
+  --color-warning: #F59E0B;      /* Amber */
+  --btn-exit-bg: #EF4444;        /* Red */
 
-  /* Tipografía — Alto Contraste (WCAG AA+ sobre blanco) */
-  --text-primary: #0f172a;       /* slate-900 — ratio 18.1:1 ✅ */
-  --text-secondary: #475569;     /* slate-600 — ratio 5.9:1 ✅ */
-  --text-muted: #64748b;         /* slate-500 — ratio 4.6:1 ✅ */
+  /* Tipografía — Alto Contraste sobre oscuro */
+  --text-primary: #F8FAFC;       /* Blanco nítido */
+  --text-secondary: #94A3B8;     /* Slate claro */
+  --text-muted: #64748B;         /* Slate medio */
   
   /* Semáforo Operativo */
-  --error-color: #dc2626;        /* red-600 */
-  --success-color: #059669;      /* emerald-600 */
-  --warning-color: #d97706;      /* amber-600 */
-  --dark-color: #1e293b;         /* slate-800 — para tags de precio */
+  --error-color: #EF4444;
+  --success-color: #10B981;
+  --warning-color: #F59E0B;
+  --dark-color: #0F172A;
   
   /* Sidebar/Header */
-  --sidebar-bg: #ffffff;
-  --header-bg: #ffffff;
+  --sidebar-bg: rgba(11, 15, 23, 0.85);
+  --header-bg: rgba(11, 15, 23, 0.85);
 }
 
 
 /* --- THEME: Hyper Cobalt (#0038FF) & Skin Sand (#FFD8B8) - LIGHT MODE WCAG AA+ --- */
+/* --- THEME: Hyper Cobalt & Skin Sand - DARK MODE ABISAL --- */
 [data-theme="hyper-cobalt"] {
-  --bg-color: #f8fafc;
-  --card-bg: #ffffff;
-  --card-hover: #f1f5f9;
-  --border-color: #e2e8f0;
-  --border-strong: #cbd5e1;
+  --bg-color: #070A10;
+  --card-bg: rgba(17, 24, 39, 0.85);
+  --card-hover: rgba(31, 41, 55, 0.90);
+  --border-color: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.20);
   
-  --primary-color: #0038FF;
-  --primary-hover: #002ecc;
-  --primary-light: rgba(0, 56, 255, 0.08);
-  --accent-color: #d97706;
-  --accent-hover: #b45309;
+  --primary-color: #0055FF;
+  --primary-hover: #0044CC;
+  --primary-light: rgba(0, 85, 255, 0.15);
+  --accent-color: #38BDF8;
+  --accent-hover: #0284C7;
   
-  --color-marine-indigo: #0038FF;
-  --color-cyan-wave: #0284c7;
-  --shadow-glow: 0 0 12px rgba(0, 56, 255, 0.15);
+  --color-marine-indigo: #0055FF;
+  --color-cyan-wave: #38BDF8;
+  --shadow-glow: 0 0 16px rgba(0, 85, 255, 0.25);
   
-  --text-primary: #0f172a;
-  --text-secondary: #334155;
-  --text-muted: #64748b;
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
   
-  --sidebar-bg: #ffffff;
-  --header-bg: #ffffff;
+  --sidebar-bg: rgba(15, 23, 42, 0.85);
+  --header-bg: rgba(15, 23, 42, 0.85);
 }
 
-/* --- THEME: Carbon Teal (#0d9488) & Mint Foam - LIGHT MODE WCAG AA+ --- */
+/* --- THEME: Carbon Teal & Mint Foam - DARK MODE ABISAL --- */
 [data-theme="carbon-teal"] {
-  --bg-color: #f8fafc;
-  --card-bg: #ffffff;
-  --card-hover: #f1f5f9;
-  --border-color: #e2e8f0;
-  --border-strong: #cbd5e1;
+  --bg-color: #070A10;
+  --card-bg: rgba(17, 24, 39, 0.85);
+  --card-hover: rgba(31, 41, 55, 0.90);
+  --border-color: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.20);
   
-  --primary-color: #0d9488;
-  --primary-hover: #0f766e;
-  --primary-light: rgba(13, 148, 136, 0.08);
-  --accent-color: #059669;
-  --accent-hover: #047857;
+  --primary-color: #0D9488;
+  --primary-hover: #0F766E;
+  --primary-light: rgba(13, 148, 136, 0.15);
+  --accent-color: #34D399;
+  --accent-hover: #10B981;
   
-  --color-marine-indigo: #0f766e;
-  --color-cyan-wave: #0d9488;
-  --shadow-glow: 0 0 12px rgba(13, 148, 136, 0.15);
+  --color-marine-indigo: #0F766E;
+  --color-cyan-wave: #0D9488;
+  --shadow-glow: 0 0 16px rgba(13, 148, 136, 0.25);
   
-  --text-primary: #0f172a;
-  --text-secondary: #334155;
-  --text-muted: #64748b;
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
   
-  --sidebar-bg: #ffffff;
-  --header-bg: #ffffff;
+  --sidebar-bg: rgba(15, 23, 42, 0.85);
+  --header-bg: rgba(15, 23, 42, 0.85);
 }
 
-/* --- THEME: Chrome Violet (#7c3aed) - LIGHT MODE WCAG AA+ --- */
+/* --- THEME: Chrome Violet - DARK MODE ABISAL --- */
 [data-theme="chrome-violet"] {
-  --bg-color: #f8fafc;
-  --card-bg: #ffffff;
-  --card-hover: #f1f5f9;
-  --border-color: #e2e8f0;
-  --border-strong: #cbd5e1;
+  --bg-color: #070A10;
+  --card-bg: rgba(17, 24, 39, 0.85);
+  --card-hover: rgba(31, 41, 55, 0.90);
+  --border-color: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.20);
   
-  --primary-color: #7c3aed;
-  --primary-hover: #6d28d9;
-  --primary-light: rgba(124, 58, 237, 0.08);
-  --accent-color: #0284c7;
-  --accent-hover: #0369a1;
+  --primary-color: #7C3AED;
+  --primary-hover: #6D28D9;
+  --primary-light: rgba(124, 58, 237, 0.15);
+  --accent-color: #38BDF8;
+  --accent-hover: #0284C7;
   
-  --color-marine-indigo: #7c3aed;
-  --color-cyan-wave: #0284c7;
-  --shadow-glow: 0 0 12px rgba(124, 58, 237, 0.15);
+  --color-marine-indigo: #7C3AED;
+  --color-cyan-wave: #38BDF8;
+  --shadow-glow: 0 0 16px rgba(124, 58, 237, 0.25);
   
-  --text-primary: #0f172a;
-  --text-secondary: #334155;
-  --text-muted: #64748b;
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
   
-  --sidebar-bg: #ffffff;
-  --header-bg: #ffffff;
+  --sidebar-bg: rgba(15, 23, 42, 0.85);
+  --header-bg: rgba(15, 23, 42, 0.85);
 }
 
 /* Fallback para compatibilidad con selectores de roles legacy u obsidian */
 [data-theme="obsidian"], [data-theme="legacy"], [data-theme="admin"], [data-theme="vendedor"], [data-theme="bodega"], [data-theme="administrativo"] {
-  --bg-color: #f8fafc;
-  --card-bg: #ffffff;
-  --card-hover: #f1f5f9;
-  --border-color: #e2e8f0;
-  --border-strong: #cbd5e1;
-  --text-primary: #0f172a;
-  --text-secondary: #334155;
-  --text-muted: #64748b;
-  --sidebar-bg: #ffffff;
-  --header-bg: #ffffff;
+  --bg-color: #070A10;
+  --card-bg: rgba(17, 24, 39, 0.85);
+  --card-hover: rgba(31, 41, 55, 0.90);
+  --border-color: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.20);
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --sidebar-bg: rgba(15, 23, 42, 0.85);
+  --header-bg: rgba(15, 23, 42, 0.85);
 }
 
 /* --- TEMA STITCH / GLASS BASE --- */
@@ -274,20 +222,20 @@ body {
   width: 100vw;
 }
 
-/* Scrollbar moderno */
+/* Scrollbar Dark Abisal */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: rgba(255, 255, 255, 0.28);
 }
 
 /* --- ANIMACIONES --- */

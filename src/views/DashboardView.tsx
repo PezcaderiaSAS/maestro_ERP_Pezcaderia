@@ -23,33 +23,33 @@ interface MetricCardProps {
 function MetricCard({ title, value, change, positive, icon, iconTheme = 'emerald' }: MetricCardProps) {
   const themeStyles = {
     emerald: {
-      iconBg: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-      badge: 'bg-emerald-50 text-emerald-800 border-emerald-200'
+      iconBg: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+      badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
     },
     blue: {
-      iconBg: 'bg-blue-100 text-blue-700 border-blue-200',
-      badge: 'bg-blue-50 text-blue-800 border-blue-200'
+      iconBg: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+      badge: 'bg-blue-500/20 text-blue-300 border-blue-500/30'
     },
     purple: {
-      iconBg: 'bg-purple-100 text-purple-700 border-purple-200',
-      badge: 'bg-purple-50 text-purple-800 border-purple-200'
+      iconBg: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
+      badge: 'bg-purple-500/20 text-purple-300 border-purple-500/30'
     },
     rose: {
-      iconBg: 'bg-rose-100 text-rose-700 border-rose-200',
-      badge: 'bg-rose-50 text-rose-800 border-rose-200'
+      iconBg: 'bg-rose-500/20 text-rose-400 border-rose-500/30',
+      badge: 'bg-rose-500/20 text-rose-300 border-rose-500/30'
     }
   }[iconTheme];
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition-all p-5 flex flex-col justify-between gap-4">
+    <div className="bg-slate-900/85 backdrop-blur-2xl rounded-2xl border border-white/12 shadow-xl hover:border-cyan-500/40 transition-all p-5 flex flex-col justify-between gap-4 text-white">
       <div className="flex justify-between items-start">
-        <span className="text-xs md:text-sm font-bold text-slate-600 uppercase tracking-wider">{title}</span>
+        <span className="text-xs md:text-sm font-bold text-slate-400 uppercase tracking-wider">{title}</span>
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-xs ${themeStyles.iconBg}`}>
           {icon}
         </div>
       </div>
       <div className="flex flex-col gap-1.5">
-        <span className="text-3xl font-black text-slate-900 tracking-tight">{value}</span>
+        <span className="text-3xl font-black font-mono text-white tracking-tight">{value}</span>
         <div className="flex items-center gap-1.5 mt-0.5">
           <span className={`text-xs font-bold px-2 py-0.5 rounded-md border flex items-center gap-1 ${themeStyles.badge}`}>
             {positive ? '+' : ''}{change} {positive ? <ArrowUpRight size={13} /> : null}
@@ -99,10 +99,10 @@ export default function DashboardView({ ventas = [], parametros: _parametros = {
       
       {/* Encabezado */}
       <div>
-        <span className="text-xs md:text-sm font-extrabold uppercase tracking-wider text-slate-500">
+        <span className="text-xs md:text-sm font-extrabold uppercase tracking-wider text-slate-400">
           Resumen Ejecutivo & Calendario Operativo
         </span>
-        <h2 className="text-2xl md:text-3xl font-black mt-1 tracking-tight text-slate-900">
+        <h2 className="text-2xl md:text-3xl font-black mt-1 tracking-tight text-white">
           Panel de Control y Obligaciones
         </h2>
       </div>

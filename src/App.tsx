@@ -1429,8 +1429,8 @@ export default function App() {
 
   return (
     <div 
-      className="flex h-screen w-screen overflow-hidden bg-[#0B0F19] text-slate-100 font-sans select-none relative" 
-      style={{ backgroundColor: 'var(--bg-color, #0B0F19)', color: 'var(--text-primary, #F8FAFC)' }}
+      className="flex h-screen w-screen overflow-hidden bg-[#070A10] text-slate-100 font-sans select-none relative" 
+      style={{ backgroundColor: 'var(--bg-color, #070A10)', color: 'var(--text-primary, #F8FAFC)' }}
     >
       {/* Mesh Gradients Atmosféricos de Fondo (Depth Field) */}
       <div 
