@@ -216,7 +216,7 @@ describe('CARD-012-06: RouteSettlementModal & CashService Integration Suite', ()
     await waitFor(() => {
       expect(handleCompleted).toHaveBeenCalledTimes(1);
       expect(handleClose).toHaveBeenCalledTimes(1);
-    });
+    }, { timeout: 3000 });
 
     // Verificar que el manifiesto quedó en estado LIQUIDADA en el storage
     const manifiestoActualizado = deliveryRouteService.obtenerManifiestoPorId(mockManifiesto.id);

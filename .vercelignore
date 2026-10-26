@@ -1,0 +1,47 @@
+# Vercel Deployment Exclusions (.vercelignore)
+node_modules
+dist
+.git
+.github
+.vscode
+.agent
+.agents
+.claude
+.claude-flow
+.husky
+.impeccable
+.opencode
+.snapshots
+.specify
+
+# Heavy AI & Architecture analysis directories
+tools
+graphify-out
+DOCS
+specs
+Ejemplos
+output
+backend
+packages
+playwright-report
+test-results
+tests
+
+# Heavy bundled and report files (> 100MB)
+repomix-output.xml
+repomix-output.md
+repomix-app.md
+repomix.config.json
+
+# Media and documents
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.log
+
+# Env files (managed in Vercel project settings)
+.env
+.env.*
+!.env.example
