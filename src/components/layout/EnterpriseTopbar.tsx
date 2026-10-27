@@ -90,7 +90,7 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
         boxShadow:
           '0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.15)',
       }}
-      className="h-14 mx-3 mt-3 mb-2 flex items-center justify-between px-4 lg:px-6 rounded-2xl bg-slate-900/85 backdrop-blur-2xl border border-white/12 text-slate-200 select-none z-30 sticky top-3 shadow-xl transition-all duration-200"
+      className="h-12 mx-2.5 mt-1.5 mb-1 flex items-center justify-between px-3.5 lg:px-5 rounded-2xl bg-slate-900/85 backdrop-blur-2xl border border-white/12 text-slate-200 select-none z-30 sticky top-1.5 shadow-xl transition-all duration-200"
     >
       {/* Sección Izquierda: Toggle + Breadcrumb Flotante */}
       <div className="flex items-center gap-3">
@@ -115,14 +115,17 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
           <ChevronRight size={12} className="text-slate-500" />
           <span className="text-slate-400 hidden md:inline font-semibold">{breadcrumb.domain}</span>
           <ChevronRight size={12} className="text-slate-500 hidden md:inline" />
-          <span className="text-white font-black truncate max-w-[200px] sm:max-w-none">
+          <span 
+            className="text-white font-black truncate max-w-[140px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[340px]"
+            title={breadcrumb.sub}
+          >
             {breadcrumb.sub}
           </span>
         </div>
       </div>
 
       {/* Sección Derecha: Omnibox, Selector de Bodega, Botón POS, Tema y Perfil */}
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-2 sm:gap-3">
         {/* Buscador Rápido Omnibox (F8 / Ctrl+K) */}
         <button
           onClick={onOpenOmnibox}

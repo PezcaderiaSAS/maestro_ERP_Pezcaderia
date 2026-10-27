@@ -1,27 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Lock, Mail, Building2, LogIn, Sparkles, AlertCircle } from 'lucide-react';
 import { authService } from '../../services/authService';
 import { userManagementService } from '../../services/userManagementService';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useAppStore } from '../../store/useAppStore';
 import { TenantOnboardingWizard } from './components/TenantOnboardingWizard';
 import { MandatoryChangePasswordModal } from './components/MandatoryChangePasswordModal';
+import { DevFastLoginDrawer } from './components/DevFastLoginDrawer';
 import type { AuthUserProfile } from '../../types/auth.types';
+import Swal from 'sweetalert2';
 
-interface LoginViewProps {
+export interface LoginViewProps {
   onLoginSuccess?: (user: AuthUserProfile) => void;
+  isDevMode?: boolean;
+  devDrawerDefaultOpen?: boolean;
 }
 
-export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
+export const LoginView: React.FC<LoginViewProps> = ({
+  onLoginSuccess,
+  isDevMode,
+  devDrawerDefaultOpen,
+}) => {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [cargando, setCargando] = useState(false);
   const [errorGlobal, setErrorGlobal] = useState<string | null>(null);
 
-  // Estado del modal de cambio obligatorio de contraseña
+  // Estado del modal de cambio obligatorio de contraseña (primer acceso con cédula)
   const [pendingChangeUserId, setPendingChangeUserId] = useState<string | null>(null);
   const [pendingChangeUserEmail, setPendingChangeUserEmail] = useState<string>('');
   const [pendingUserProfile, setPendingUserProfile] = useState<AuthUserProfile | null>(null);
+
+  const pendingInviteToken = useAuthStore((s) => s.pendingInviteToken);
+  const setPendingInviteToken = useAuthStore((s) => s.setPendingInviteToken);
+  const loginWithProvider = useAuthStore((s) => s.loginWithProvider);
+  const setCurrentView = useAppStore((s) => s.setCurrentView);
+
+  // Detección automática de token de invitación en URL (?invite=TOKEN)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const inviteToken = params.get('invite');
+      if (inviteToken && !pendingInviteToken) {
+        setPendingInviteToken(inviteToken);
+      }
+    }
+  }, [pendingInviteToken, setPendingInviteToken]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,16 +80,17 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
         return;
       }
 
-      // Si todo está correcto y no requiere cambio
-      useAuthStore.getState().setSession({
+      // Login exitoso normal
+      useAuthStore.setState({
         status: 'authenticated',
-        user: userProfile,
-        activeTenant: null,
-        token: `jwt-${Date.now()}`,
+        currentUser: userProfile,
+        isLoading: false,
       });
 
       if (onLoginSuccess) {
         onLoginSuccess(userProfile);
+      } else {
+        setCurrentView('dashboard');
       }
     } catch (err: any) {
       setErrorGlobal(err.message || 'Error al conectar con el servidor de autenticación');
@@ -77,43 +103,48 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
     setErrorGlobal(null);
     setCargando(true);
     try {
-      const res = await authService.loginWithProvider(provider);
-      if (!res.ok) {
-        setErrorGlobal(res.error || `Error al conectar con ${provider}`);
-      } else if (res.user && onLoginSuccess) {
+      const res = await loginWithProvider(provider);
+      if (!res.ok && res.error) {
+        setErrorGlobal(res.error);
+        Swal.fire({
+          title: 'Error de Autenticación',
+          text: res.error,
+          icon: 'error',
+          confirmButtonColor: '#EF4444',
+        });
+      } else if (res.ok && res.user && onLoginSuccess) {
         onLoginSuccess(res.user);
       }
     } catch (err: any) {
-      setErrorGlobal(err.message || 'Error al procesar OAuth');
+      setErrorGlobal(err.message || 'Error al autenticar con proveedor');
     } finally {
       setCargando(false);
     }
   };
 
   const handlePasswordChangedSuccess = () => {
-    const profile = pendingUserProfile;
     setPendingChangeUserId(null);
-    setPendingUserProfile(null);
-
-    if (profile) {
-      useAuthStore.getState().setSession({
+    if (pendingUserProfile) {
+      useAuthStore.setState({
         status: 'authenticated',
-        user: profile,
-        activeTenant: null,
-        token: `jwt-${Date.now()}`,
+        currentUser: pendingUserProfile,
+        isLoading: false,
       });
-
       if (onLoginSuccess) {
-        onLoginSuccess(profile);
+        onLoginSuccess(pendingUserProfile);
+      } else {
+        setCurrentView('dashboard');
       }
     }
   };
 
+  const showDevDrawer = isDevMode ?? (import.meta.env?.DEV || false);
+
   return (
-    <div className="min-h-screen w-full bg-[#070A10] flex flex-col justify-center items-center p-4 sm:p-6 text-slate-100 select-none relative overflow-hidden">
-      {/* Luces y Glow de Fondo Dark Glassmorphism V8 */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[350px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-10 right-1/4 w-[400px] h-[300px] bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
+    <div className="min-h-screen w-full bg-[#070A10] text-slate-100 flex flex-col justify-center items-center relative overflow-hidden p-4 sm:p-6 select-none font-sans">
+      {/* Fondo de Brillo y Luces de Neón V8 */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-cyan-600/15 via-blue-600/10 to-indigo-600/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute -bottom-20 right-1/4 w-[400px] h-[250px] bg-emerald-600/10 rounded-full blur-[100px] pointer-events-none" />
 
       {/* Contenedor Principal */}
       <div className="w-full max-w-md relative z-10">
@@ -127,6 +158,21 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
           <h1 className="text-2xl font-black text-white tracking-tight">La Pezcadería ERP</h1>
           <p className="text-xs text-slate-400 font-medium mt-0.5">Control Operativo, Facturación & WMS V8</p>
         </div>
+
+        {/* Banner de Invitación de Empleado (Si aplica) */}
+        {pendingInviteToken && (
+          <div className="w-full mb-6 p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/40 flex items-start gap-3 text-left">
+            <div className="p-1.5 rounded-lg bg-indigo-500/20 text-indigo-400 shrink-0 mt-0.5">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-indigo-300">Invitación de Colaborador Detectada</h4>
+              <p className="text-[11px] text-slate-300 mt-0.5 leading-relaxed">
+                Inicia sesión con tu cuenta para unirte al equipo y activar automáticamente tu cargo y permisos autorizados.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Switch / Toggle Superior Fluido */}
         <div className="mb-6 p-1 rounded-2xl bg-slate-900/90 border border-white/10 flex items-center shadow-lg backdrop-blur-xl">
@@ -185,7 +231,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="usuario@empresa.com"
+                    placeholder="nombre@empresa.com"
                     className="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-slate-950/70 border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/30"
                     required
                   />
@@ -276,6 +322,12 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
             onCancel={() => setActiveTab('login')}
           />
         )}
+
+        {/* Pie de Seguridad */}
+        <div className="mt-6 pt-4 border-t border-white/5 w-full flex items-center justify-center gap-1.5 text-[11px] text-slate-500">
+          <Lock className="w-3.5 h-3.5" />
+          <span>Conexión segura cifrada con Supabase GoTrue & PKCE</span>
+        </div>
       </div>
 
       {/* Modal Bloqueante de Cambio Obligatorio de Contraseña (Primer Acceso) */}
@@ -287,6 +339,9 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
           onSuccess={handlePasswordChangedSuccess}
         />
       )}
+
+      {/* Cajón de Desarrollo Local (DevFastLoginDrawer) */}
+      {showDevDrawer && <DevFastLoginDrawer defaultOpen={devDrawerDefaultOpen} />}
     </div>
   );
 };

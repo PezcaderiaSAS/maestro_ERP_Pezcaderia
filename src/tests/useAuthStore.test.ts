@@ -189,5 +189,67 @@ describe('TASK-035-03: useAuthStore - Gestión de Sesión y Onboarding Multi-Ten
     expect(useAuthStore.getState().status).toBe('unauthenticated');
     expect(useAuthStore.getState().currentUser).toBeNull();
     expect(useAppStore.getState().currentUser).toBeNull();
+    expect(useAuthStore.getState().tenantInvitations).toHaveLength(0);
+  });
+
+  it('aislamiento estricto multi-tenant: los datos e invitaciones de un tenant NUNCA se mezclan con otro (Zero Leakage)', async () => {
+    // 1. Tenant A (Empresa A)
+    await useAuthStore.getState().loginWithProvider('google', {
+      email: 'admin.a@empresa-a.com',
+      nombre: 'Admin Empresa A',
+    });
+    const onboardingA = await useAuthStore.getState().completeOnboarding({
+      razonSocial: 'Empresa A S.A.S.',
+      nit: '900.000.001-1',
+      ciudad: 'Bogotá',
+      telefono: '3110000001',
+    });
+    const tenantAId = onboardingA.tenant!.id;
+
+    await useAuthStore.getState().sendInvitation({
+      nombre: 'Empleado A1',
+      email: 'empleado.a1@empresa-a.com',
+      rol: 'vendedor',
+    });
+    expect(useAuthStore.getState().tenantInvitations).toHaveLength(1);
+    expect(useAuthStore.getState().tenantInvitations[0].email).toBe('empleado.a1@empresa-a.com');
+
+    // 2. Cerrar sesión de Tenant A
+    await useAuthStore.getState().logout();
+    expect(useAuthStore.getState().tenantInvitations).toHaveLength(0);
+
+    // 3. Tenant B (Empresa B)
+    await useAuthStore.getState().loginWithProvider('google', {
+      email: 'admin.b@empresa-b.com',
+      nombre: 'Admin Empresa B',
+    });
+    const onboardingB = await useAuthStore.getState().completeOnboarding({
+      razonSocial: 'Empresa B S.A.S.',
+      nit: '900.000.002-2',
+      ciudad: 'Medellín',
+      telefono: '3110000002',
+    });
+    const tenantBId = onboardingB.tenant!.id;
+    expect(tenantBId).not.toBe(tenantAId);
+
+    // Al cargar invitaciones de Tenant B, debe estar vacío (no se filtran las de Tenant A)
+    useAuthStore.getState().loadTenantInvitations();
+    expect(useAuthStore.getState().tenantInvitations).toHaveLength(0);
+
+    // Tenant B crea su propia invitación
+    await useAuthStore.getState().sendInvitation({
+      nombre: 'Empleado B1',
+      email: 'empleado.b1@empresa-b.com',
+      rol: 'cajero',
+    });
+    expect(useAuthStore.getState().tenantInvitations).toHaveLength(1);
+    expect(useAuthStore.getState().tenantInvitations[0].email).toBe('empleado.b1@empresa-b.com');
+    expect(useAuthStore.getState().tenantInvitations[0].tenantId).toBe(tenantBId);
+
+    // Las invitaciones de Tenant A siguen existiendo pero completamente aisladas
+    const invitacionesA = tenantOnboardingService.obtenerInvitacionesPorTenant(tenantAId);
+    expect(invitacionesA).toHaveLength(1);
+    expect(invitacionesA[0].email).toBe('empleado.a1@empresa-a.com');
+    expect(invitacionesA[0].tenantId).toBe(tenantAId);
   });
 });

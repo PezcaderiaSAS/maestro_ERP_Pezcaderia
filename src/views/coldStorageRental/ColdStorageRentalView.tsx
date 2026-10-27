@@ -1076,23 +1076,23 @@ export const ColdStorageRentalView: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 p-6 space-y-6 text-slate-900 bg-slate-50 min-h-screen">
+    <div className="flex-1 p-4 md:p-6 space-y-6 text-slate-100 bg-[#070A10] min-h-screen">
       {/* ========================================================================= */}
-      {/* ENCABEZADO PRINCIPAL (LIGHT MODE WCAG AA+) */}
+      {/* ENCABEZADO PRINCIPAL (DARK GLASSMORPHISM V8) */}
       {/* ========================================================================= */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-5 md:p-6 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-xl">
         <div className="flex items-center space-x-4">
-          <div className="p-3.5 bg-indigo-50 border border-indigo-200/80 rounded-2xl text-indigo-600 shadow-sm">
-            <Snowflake className="w-8 h-8 animate-pulse text-indigo-600" />
+          <div className="p-3.5 bg-indigo-500/15 border border-indigo-500/30 rounded-2xl text-indigo-400 shadow-inner">
+            <Snowflake className="w-8 h-8 animate-pulse text-indigo-400" />
           </div>
           <div>
-            <h1 className="text-2xl font-black tracking-tight text-slate-900 flex items-center gap-3">
+            <h1 className="text-xl md:text-2xl font-black tracking-tight text-white flex items-center gap-3">
               Alquiler de Cuarto Frío & Custodia 3PL
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-800 font-bold border border-indigo-200">
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold border border-indigo-500/30">
                 800 Kg / Posición
               </span>
             </h1>
-            <p className="text-sm text-slate-600 font-medium">
+            <p className="text-sm text-slate-400 font-medium">
               Flujo operativo simplificado: registro rápido, pesaje en báscula calibrada, retiro con control de cartera y cobro en caja.
             </p>
           </div>
@@ -1101,7 +1101,7 @@ export const ColdStorageRentalView: React.FC = () => {
         <div className="flex items-center gap-3 flex-wrap">
           <button
             onClick={cargarTodo}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs border border-slate-300 transition-all shadow-sm"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 font-semibold text-xs border border-white/10 transition-all shadow-sm cursor-pointer active:scale-95"
             title="Refrescar Datos"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -1128,21 +1128,21 @@ export const ColdStorageRentalView: React.FC = () => {
           {/* PASO 1 */}
           <button
             onClick={() => setShowClienteModal(true)}
-            className="text-left p-5 rounded-2xl bg-white hover:bg-indigo-50/50 border-2 border-indigo-200/80 hover:border-indigo-500 transition-all shadow-sm hover:shadow-md group flex flex-col justify-between"
+            className="text-left p-5 rounded-2xl bg-slate-900/60 hover:bg-slate-800/60 border border-white/10 hover:border-indigo-500/50 backdrop-blur-md transition-all shadow-lg hover:shadow-xl group flex flex-col justify-between cursor-pointer active:scale-98"
           >
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="w-8 h-8 rounded-xl bg-indigo-600 text-white font-black text-sm flex items-center justify-center shadow-sm">
+                <span className="w-8 h-8 rounded-xl bg-indigo-600 text-white font-black text-sm flex items-center justify-center shadow-md shadow-indigo-600/30">
                   1
                 </span>
-                <Users className="w-5 h-5 text-indigo-600 group-hover:scale-110 transition-transform" />
+                <Users className="w-5 h-5 text-indigo-400 group-hover:scale-110 transition-transform" />
               </div>
-              <h3 className="font-bold text-slate-900 text-base">Nuevo Cliente / Contrato</h3>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+              <h3 className="font-bold text-white text-base">Nuevo Cliente / Contrato</h3>
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
                 Ingresa los datos del cliente. Elige si guarda por <b>días</b> o por <b>meses</b>.
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center text-xs font-bold text-indigo-600">
+            <div className="mt-4 pt-3 border-t border-white/10 flex items-center text-xs font-bold text-indigo-400">
               Registrar Cliente →
             </div>
           </button>
@@ -1150,21 +1150,21 @@ export const ColdStorageRentalView: React.FC = () => {
           {/* PASO 2 */}
           <button
             onClick={() => setShowRecepcionModal(true)}
-            className="text-left p-5 rounded-2xl bg-white hover:bg-emerald-50/50 border-2 border-emerald-200/80 hover:border-emerald-500 transition-all shadow-sm hover:shadow-md group flex flex-col justify-between"
+            className="text-left p-5 rounded-2xl bg-slate-900/60 hover:bg-slate-800/60 border border-white/10 hover:border-emerald-500/50 backdrop-blur-md transition-all shadow-lg hover:shadow-xl group flex flex-col justify-between cursor-pointer active:scale-98"
           >
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="w-8 h-8 rounded-xl bg-emerald-600 text-white font-black text-sm flex items-center justify-center shadow-sm">
+                <span className="w-8 h-8 rounded-xl bg-emerald-600 text-white font-black text-sm flex items-center justify-center shadow-md shadow-emerald-600/30">
                   2
                 </span>
-                <Scale className="w-5 h-5 text-emerald-600 group-hover:scale-110 transition-transform" />
+                <Scale className="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform" />
               </div>
-              <h3 className="font-bold text-slate-900 text-base">Recibir Mercancía (Báscula)</h3>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+              <h3 className="font-bold text-white text-base">Recibir Mercancía (Báscula)</h3>
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
                 Elige empaque: <b>Canastillas 🧺</b>, <b>Cajas 📦</b> o <b>Suelto 🐟</b>. Tara automática.
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center text-xs font-bold text-emerald-600">
+            <div className="mt-4 pt-3 border-t border-white/10 flex items-center text-xs font-bold text-emerald-400">
               Pesar en Báscula →
             </div>
           </button>
@@ -1196,21 +1196,21 @@ export const ColdStorageRentalView: React.FC = () => {
               }
               setShowDespachoModal(true);
             }}
-            className="text-left p-5 rounded-2xl bg-white hover:bg-amber-50/50 border-2 border-amber-200/80 hover:border-amber-500 transition-all shadow-sm hover:shadow-md group flex flex-col justify-between"
+            className="text-left p-5 rounded-2xl bg-slate-900/60 hover:bg-slate-800/60 border border-white/10 hover:border-amber-500/50 backdrop-blur-md transition-all shadow-lg hover:shadow-xl group flex flex-col justify-between cursor-pointer active:scale-98"
           >
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="w-8 h-8 rounded-xl bg-amber-600 text-white font-black text-sm flex items-center justify-center shadow-sm">
+                <span className="w-8 h-8 rounded-xl bg-amber-600 text-white font-black text-sm flex items-center justify-center shadow-md shadow-amber-600/30">
                   3
                 </span>
-                <Truck className="w-5 h-5 text-amber-600 group-hover:scale-110 transition-transform" />
+                <Truck className="w-5 h-5 text-amber-400 group-hover:scale-110 transition-transform" />
               </div>
-              <h3 className="font-bold text-slate-900 text-base">Retirar / Despachar</h3>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+              <h3 className="font-bold text-white text-base">Retirar / Despachar</h3>
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
                 Entrega producto al conductor. Te avisa si debe dinero antes de salir.
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center text-xs font-bold text-amber-600">
+            <div className="mt-4 pt-3 border-t border-white/10 flex items-center text-xs font-bold text-amber-400">
               Despachar Producto →
             </div>
           </button>
@@ -1218,21 +1218,21 @@ export const ColdStorageRentalView: React.FC = () => {
           {/* PASO 4 */}
           <button
             onClick={() => setActiveTab('cartera')}
-            className="text-left p-5 rounded-2xl bg-white hover:bg-sky-50/50 border-2 border-sky-200/80 hover:border-sky-500 transition-all shadow-sm hover:shadow-md group flex flex-col justify-between"
+            className="text-left p-5 rounded-2xl bg-slate-900/60 hover:bg-slate-800/60 border border-white/10 hover:border-sky-500/50 backdrop-blur-md transition-all shadow-lg hover:shadow-xl group flex flex-col justify-between cursor-pointer active:scale-98"
           >
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="w-8 h-8 rounded-xl bg-sky-600 text-white font-black text-sm flex items-center justify-center shadow-sm">
+                <span className="w-8 h-8 rounded-xl bg-sky-600 text-white font-black text-sm flex items-center justify-center shadow-md shadow-sky-600/30">
                   4
                 </span>
-                <DollarSign className="w-5 h-5 text-sky-600 group-hover:scale-110 transition-transform" />
+                <DollarSign className="w-5 h-5 text-sky-400 group-hover:scale-110 transition-transform" />
               </div>
-              <h3 className="font-bold text-slate-900 text-base">Liquidar & Cobrar en Caja</h3>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+              <h3 className="font-bold text-white text-base">Liquidar & Cobrar en Caja</h3>
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
                 Recibe efectivo o Nequi. Suma a tu caja del día e imprime recibo oficial.
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center text-xs font-bold text-sky-600">
+            <div className="mt-4 pt-3 border-t border-white/10 flex items-center text-xs font-bold text-sky-400">
               Ver Cartera y Cobrar →
             </div>
           </button>
@@ -1353,55 +1353,55 @@ export const ColdStorageRentalView: React.FC = () => {
         <div className="space-y-6">
           {/* Métricas Generales */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
-              <span className="text-xs uppercase tracking-wider text-slate-500 font-bold">Capacidad Total</span>
-              <div className="text-2xl font-black text-slate-900 mt-1">
+            <div className="p-5 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-lg shadow-black/20">
+              <span className="text-xs uppercase tracking-wider text-slate-400 font-bold">Capacidad Total</span>
+              <div className="text-2xl font-black text-white font-mono mt-1">
                 {totalPosicionesCapacidad}{' '}
-                <span className="text-xs font-semibold text-slate-500">
+                <span className="text-xs font-semibold text-slate-400 font-sans">
                   pos. ({(totalPosicionesCapacidad * 800).toLocaleString('es-CO')} Kg)
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-2 font-medium">800 Kg estándar por posición</p>
+              <p className="text-xs text-slate-400 mt-2 font-medium">800 Kg estándar por posición</p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
-              <span className="text-xs uppercase tracking-wider text-slate-500 font-bold">Posiciones Alquiladas</span>
-              <div className="text-2xl font-black text-indigo-600 mt-1">
+            <div className="p-5 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-lg shadow-black/20">
+              <span className="text-xs uppercase tracking-wider text-slate-400 font-bold">Posiciones Alquiladas</span>
+              <div className="text-2xl font-black text-indigo-400 font-mono mt-1">
                 {totalPosicionesContratadas}{' '}
-                <span className="text-xs font-semibold text-slate-500">contratadas</span>
+                <span className="text-xs font-semibold text-slate-400 font-sans">contratadas</span>
               </div>
-              <p className="text-xs text-emerald-600 mt-2 font-bold">
+              <p className="text-xs text-emerald-400 mt-2 font-bold">
                 {posicionesDisponibles} posiciones libres disponibles
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
-              <span className="text-xs uppercase tracking-wider text-slate-500 font-bold">Kilos Reales en Frío</span>
-              <div className="text-2xl font-black text-emerald-600 mt-1">
+            <div className="p-5 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-lg shadow-black/20">
+              <span className="text-xs uppercase tracking-wider text-slate-400 font-bold">Kilos Reales en Frío</span>
+              <div className="text-2xl font-black text-emerald-400 font-mono mt-1">
                 {totalKilosEnCustodia.toLocaleString('es-CO')}{' '}
-                <span className="text-xs font-semibold text-slate-500">Kg netos</span>
+                <span className="text-xs font-semibold text-slate-400 font-sans">Kg netos</span>
               </div>
-              <p className="text-xs text-slate-500 mt-2 font-medium">
+              <p className="text-xs text-slate-400 mt-2 font-medium">
                 {totalBultosEnCustodia} bultos / canastillas guardadas
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
-              <span className="text-xs uppercase tracking-wider text-slate-500 font-bold">Clientes Activos</span>
-              <div className="text-2xl font-black text-sky-600 mt-1">
+            <div className="p-5 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-lg shadow-black/20">
+              <span className="text-xs uppercase tracking-wider text-slate-400 font-bold">Clientes Activos</span>
+              <div className="text-2xl font-black text-sky-400 font-mono mt-1">
                 {clientes.length}{' '}
-                <span className="text-xs font-semibold text-slate-500">depositantes</span>
+                <span className="text-xs font-semibold text-slate-400 font-sans">depositantes</span>
               </div>
-              <p className="text-xs text-slate-500 mt-2 font-medium">
+              <p className="text-xs text-slate-400 mt-2 font-medium">
                 {contratos.filter((c) => c.estado === 'VIGENTE').length} contratos vigentes
               </p>
             </div>
           </div>
 
           {/* Cuartos Fríos Físicos */}
-          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
-            <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-              <Layers className="w-5 h-5 text-indigo-600" />
+          <div className="p-6 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-lg shadow-black/20 space-y-4">
+            <h3 className="text-base font-black text-white flex items-center gap-2">
+              <Layers className="w-5 h-5 text-indigo-400" />
               Estado y Ocupación de Cuartos Fríos
             </h3>
 
@@ -1417,41 +1417,41 @@ export const ColdStorageRentalView: React.FC = () => {
                     : 0;
 
                 return (
-                  <div key={cf.id} className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                  <div key={cf.id} className="p-5 rounded-xl bg-slate-800/40 border border-white/10 space-y-3">
                     <div className="flex justify-between items-start">
                       <div>
-                        <span className="text-xs font-mono font-bold text-indigo-600">{cf.codigo}</span>
-                        <h4 className="font-black text-slate-900">{cf.nombre}</h4>
+                        <span className="text-xs font-mono font-bold text-indigo-400">{cf.codigo}</span>
+                        <h4 className="font-black text-white">{cf.nombre}</h4>
                       </div>
-                      <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                      <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-blue-950/60 text-blue-300 border border-blue-500/30">
                         {cf.temperatura_setpoint} °C
                       </span>
                     </div>
 
                     <div className="space-y-1">
-                      <div className="flex justify-between text-xs text-slate-600 font-semibold">
+                      <div className="flex justify-between text-xs text-slate-300 font-semibold">
                         <span>Ocupación de Espacio</span>
-                        <span>
+                        <span className="font-mono text-slate-300">
                           {posOcupadas} de {cf.capacidad_total_posiciones} pos. ({porcentajeOcupacion}%)
                         </span>
                       </div>
-                      <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+                      <div className="w-full bg-slate-950/80 rounded-full h-2.5 overflow-hidden border border-white/5">
                         <div
                           className={`h-full transition-all ${
                             porcentajeOcupacion > 90
-                              ? 'bg-rose-500'
+                              ? 'bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]'
                               : porcentajeOcupacion > 70
-                              ? 'bg-amber-500'
-                              : 'bg-indigo-600'
+                              ? 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]'
+                              : 'bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]'
                           }`}
                           style={{ width: `${porcentajeOcupacion}%` }}
                         ></div>
                       </div>
                     </div>
 
-                    <div className="flex justify-between items-center text-xs text-slate-500 pt-2 border-t border-slate-200">
+                    <div className="flex justify-between items-center text-xs text-slate-400 pt-2 border-t border-white/10">
                       <span>Capacidad Total:</span>
-                      <span className="font-bold text-slate-800">
+                      <span className="font-bold text-slate-200 font-mono">
                         {(cf.capacidad_total_posiciones * 800).toLocaleString('es-CO')} Kg Max
                       </span>
                     </div>

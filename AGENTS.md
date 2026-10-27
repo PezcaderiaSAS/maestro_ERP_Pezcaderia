@@ -50,10 +50,11 @@ This project is indexed by GitNexus as **maestro_ERP_Pezcaderia** (22161 symbols
 This repository is equipped with the **Rico UI Brands MCP server** (`ricoui-design-mcp`) and **Google Stitch** design pipeline.
 
 ## Design Protocol
-- **Source of Truth:** Always consult [`DESIGN.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/DESIGN.md) and [`stitch.json`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/stitch.json) before building or refactoring UI components.
-- **Brand Tokens (Rico UI):** Query brand tokens at runtime via MCP tool `ricoui_get_brand_tokens` or CLI `node tools/ricoui-mcp/server.cjs tokens <brand>` (supported: `linear`, `stripe`, `raycast`, `supabase`, `vercel`, `apple`, `pezcaderia-glass`).
-- **Generation Workflow:** Use the workflow [`/stitch-design`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agent/workflows/stitch-design.md) or skill [`.agents/skills/stitch-ricoui-design/SKILL.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agents/skills/stitch-ricoui-design/SKILL.md).
-- **Aesthetic Standard:** Strict Dark Mode Glassmorphism (`backdrop-blur-xl`, `border-white/10`, `bg-slate-900/60`, vibrant HSL accents, high data density, zero generic placeholders).
+- **Source of Truth & Best Practices:** Consultar obligatoriamente [`DOCS/Notes/`](file:///c:/Users/USUARIO/Documents/Aplicaciones/maestr_pezca/DOCS/Notes) y [`DOCS/frontend_enterprise_master_guide.md`](file:///c:/Users/USUARIO/Documents/Aplicaciones/maestr_pezca/DOCS/frontend_enterprise_master_guide.md) (*"Arquitectura e Ingeniería de Interfaces Web de Nivel Premium: Principios Teóricos, Estética Visual y Rendimiento Frontend"*, 164 fuentes curadas, retícula estricta de 8px, espacio de color `oklch`, tipografía fluida `clamp()` y Composite acelerado por GPU).
+- **Diseño Base:** Consultar [`DESIGN.md`](file:///c:/Users/USUARIO/Documents/Aplicaciones/maestr_pezca/DESIGN.md) y [`stitch.json`](file:///c:/Users/USUARIO/Documents/Aplicaciones/maestr_pezca/stitch.json) antes de construir o refactorizar interfaces.
+- **Brand Tokens (Rico UI):** Query brand tokens en runtime via `ricoui_get_brand_tokens` o CLI `node tools/ricoui-mcp/server.cjs tokens <brand>` (marcas soportadas: `linear`, `stripe`, `raycast`, `supabase`, `vercel`, `apple`, `pezcaderia-glass`).
+- **Generation Workflow:** Workflow [`/stitch-design`](file:///c:/Users/USUARIO/Documents/Aplicaciones/maestr_pezca/.agent/workflows/stitch-design.md) o skill [`.agents/skills/stitch-ricoui-design/SKILL.md`](file:///c:/Users/USUARIO/Documents/Aplicaciones/maestr_pezca/.agents/skills/stitch-ricoui-design/SKILL.md).
+- **Aesthetic Standard:** Strict Dark Mode Glassmorphism (`backdrop-blur-xl`, `border-white/10`, `bg-slate-900/60`, acentos HSL/OKLCH, alta densidad, retícula de 8px, composite GPU en 120 FPS, cero placeholders genéricos).
 
 ---
 

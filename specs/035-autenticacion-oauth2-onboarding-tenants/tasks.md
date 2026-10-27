@@ -26,19 +26,22 @@
   - **Objetivo:** Crear el store reactivo que gestiona el estado de sesión (`unauthenticated`, `needs_onboarding`, `authenticated`), el tenant activo, el rol y la sincronización con `localDb` y `useAppStore`.
   - **TDD:** 8/8 pruebas unitarias pasando al 100% en `useAuthStore.test.ts` y 0 errores en `tsc --noEmit`.
 
-- [ ] **TASK-035-04: Vista Oficial de Inicio de Sesión V8 Dark Glassmorphism**
-  - **Archivos:** `src/views/auth/LoginView.tsx`, `src/views/auth/components/DevFastLoginDrawer.tsx`, `src/tests/loginView.test.tsx`
-  - **Objetivo:** Desarrollar la pantalla de bienvenida corporativa en estética Abisal V8 (`#070A10`), con el botón prominente "Continuar con Google", campo de acceso por correo y el cajón colapsable de cambio rápido de rol para desarrollo.
-  - **TDD:** Pruebas de renderizado y eventos con React Testing Library.
+- [x] **TASK-035-04: Vista Oficial de Inicio de Sesión V8 Dark Glassmorphism**
+  - **Archivos:** `src/views/auth/LoginView.tsx`, `src/views/auth/components/DevFastLoginDrawer.tsx`, `src/tests/loginView.test.tsx`, `src/tests/loginViewDual.test.tsx`
+  - **Objetivo:** Desarrollar la pantalla de bienvenida corporativa en estética Abisal V8 (`#070A10`), con el botón prominente "Continuar con Google", campo de acceso por correo, switch dual (login/registro), modal forzoso de cambio de contraseña provisional, detector de invitaciones y el cajón colapsable de cambio rápido de rol para desarrollo.
+  - **TDD:** 8/8 pruebas unitarias pasando al 100% (`loginView.test.tsx` y `loginViewDual.test.tsx`) y 0 errores en `tsc --noEmit`.
 
-- [ ] **TASK-035-05: Modales de Onboarding de Empresa y de Invitación de Empleados**
-  - **Archivos:** `src/views/auth/components/TenantOnboardingModal.tsx`, `src/views/auth/components/EmployeeInviteModal.tsx`
-  - **Objetivo:** Crear el modal de registro de empresa en 2 pasos para nuevos administradores y el modal de generación de links de invitación copiables con 1 clic para invitar colaboradores.
+- [x] **TASK-035-05: Modales de Onboarding de Empresa y de Invitación de Empleados**
+  - **Archivos:** `src/views/auth/components/TenantOnboardingModal.tsx`, `src/views/auth/components/EmployeeInviteModal.tsx`, `src/tests/authModals.test.tsx`
+  - **Objetivo:** Crear el modal de registro de empresa en 2 pasos para nuevos administradores (aprovisionamiento automático de Bodega 1 y Caja 01) y el modal de generación de links de invitación copiables con 1 clic para invitar colaboradores con roles asignados.
+  - **TDD:** 4/4 pruebas unitarias pasando al 100% en `authModals.test.tsx` (38/38 en suite global auth) y 0 errores en `tsc --noEmit`.
 
-- [ ] **TASK-035-06: Filtrado Dinámico de Módulos por Roles RBAC en Sidebar**
+- [x] **TASK-035-06: Filtrado Dinámico de Módulos por Roles RBAC en Sidebar**
   - **Archivos:** `src/components/layout/EnterpriseSidebar.tsx`, `src/tests/enterpriseSidebarRbac.test.tsx`
-  - **Objetivo:** Actualizar el Sidebar principal para que cada usuario visualice **únicamente los módulos correspondientes a su rol asignado** (Admin ve todo; Vendedor ve POS y Cotizaciones; Cajero ve POS y Cajas; Bodeguero ve WMS y Muelle).
+  - **Objetivo:** Actualizar el Sidebar principal para que cada usuario visualice **únicamente los módulos correspondientes a su rol asignado** (Admin ve todo; Vendedor ve POS y Cotizaciones; Cajero ve POS y Cajas; Bodeguero ve WMS y Muelle; Supervisor ve Auditoría y OTIF).
+  - **TDD:** 5/5 pruebas unitarias pasando al 100% en `enterpriseSidebarRbac.test.tsx` (16/16 en total para sidebar) y 0 errores en `tsc --noEmit`.
 
-- [ ] **TASK-035-07: Migración SQL Supabase & Bucle de Calidad Integral**
-  - **Archivos:** `supabase/migrations/20261026190000_tenants_and_invitations.sql`, `MEMORY.md`
+- [x] **TASK-035-07: Migración SQL Supabase & Bucle de Calidad Integral**
+  - **Archivos:** `supabase/migrations/20261027140000_tenants_and_invitations.sql`, `database/37_tenants_and_invitations.sql`, `MEMORY.md`
   - **Objetivo:** Crear el script SQL para la base de datos Supabase con las tablas `tenants`, `tenant_memberships`, `tenant_invitations` y las políticas RLS. Ejecutar `tsc --noEmit`, suite completa Vitest (100% verde) y verificación con `chrome-devtools`.
+  - **TDD & Calidad:** Migración creada con funciones SECURITY DEFINER `current_user_tenant_ids()`, aislamiento estricto RLS por tenant, `tsc --noEmit` en 0 errores, 55/55 pruebas unitarias de autenticación pasando y verificación de consola JS (0 errores) y renderizado responsive móvil (375 px) con Chrome DevTools.

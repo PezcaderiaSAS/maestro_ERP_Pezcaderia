@@ -156,49 +156,51 @@ export default function CashFlowView() {
   }, [movimientos, filtroTab]);
 
   return (
-    <div className="p-4 md:p-6 bg-slate-50 min-h-full flex-1 overflow-y-auto">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-4 md:p-6 bg-[#070A10] text-slate-100 min-h-full flex-1 overflow-y-auto">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Gestión de Cajas</h1>
-          <p className="text-slate-500 mt-1">Control de flujo de efectivo por bodega</p>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Gestión de Cajas</h1>
+          <p className="text-slate-400 text-sm mt-0.5">Control de flujo de efectivo por bodega</p>
         </div>
         
-        <div className="flex items-center gap-4 bg-white border border-slate-200 p-2 rounded-xl shadow-sm">
-          <span className="text-sm font-bold text-slate-600">Bodega:</span>
+        <div className="flex items-center gap-3 bg-slate-900/60 backdrop-blur-md border border-white/10 p-2 rounded-xl shadow-lg">
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Bodega:</span>
           <select 
-            className="border border-slate-200 bg-slate-50 text-slate-800 rounded-lg text-sm focus:ring-blue-500 font-semibold px-2 py-1"
+            className="border border-white/12 bg-slate-950/80 text-slate-100 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 font-medium px-2.5 py-1 outline-none"
             value={bodegaSeleccionada}
             onChange={(e) => setBodegaSeleccionada(e.target.value)}
           >
             {bodegas.filter(b => b.activa).map(b => (
-              <option key={b.id} value={b.nombre}>{b.nombre}</option>
+              <option key={b.id} value={b.nombre} className="bg-slate-900 text-slate-100">{b.nombre}</option>
             ))}
           </select>
 
-          <span className="text-sm font-bold text-slate-600 ml-4">Caja:</span>
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-2">Caja:</span>
           <select 
-            className="border border-slate-200 bg-slate-50 text-slate-800 rounded-lg text-sm focus:ring-blue-500 font-semibold px-2 py-1"
+            className="border border-white/12 bg-slate-950/80 text-slate-100 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 font-medium px-2.5 py-1 outline-none"
             value={cajaSeleccionada}
             onChange={(e) => setCajaSeleccionada(e.target.value)}
           >
             {cajas.map(c => (
-              <option key={c.id} value={c.id}>{c.nombre}</option>
+              <option key={c.id} value={c.id} className="bg-slate-900 text-slate-100">{c.nombre}</option>
             ))}
           </select>
         </div>
       </div>
 
       {!turnoActivo ? (
-        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-12 text-center max-w-2xl mx-auto mt-10">
-          <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Wallet size={40} />
+        <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-10 text-center max-w-xl mx-auto mt-10">
+          <div className="w-16 h-16 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-inner">
+            <Wallet size={36} />
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">La caja está cerrada</h2>
-          <p className="text-slate-500 mb-8">Debe abrir un turno para procesar ventas y registrar movimientos de efectivo en esta caja.</p>
+          <h2 className="text-2xl font-bold text-white mb-2">La caja está cerrada</h2>
+          <p className="text-slate-400 text-sm mb-7 max-w-md mx-auto leading-relaxed">
+            Debe abrir un turno para procesar ventas y registrar movimientos de efectivo en esta caja.
+          </p>
           <button 
             data-testid="btn-abrir-turno"
             onClick={handleApertura}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto cursor-pointer"
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-500/25 transition active:scale-95 flex items-center gap-2 mx-auto cursor-pointer"
           >
             <Power size={20} />
             Abrir Turno de Caja
@@ -208,78 +210,78 @@ export default function CashFlowView() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Panel Izquierdo: Resumen y Acciones */}
           <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6">
-              <div className="bg-blue-600 p-6 text-white text-center relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-4 opacity-20">
+            <div className="bg-slate-900/60 backdrop-blur-xl rounded-2xl shadow-xl border border-white/10 overflow-hidden mb-6">
+              <div className="bg-gradient-to-br from-blue-600/90 via-blue-700/90 to-indigo-800/90 p-5 text-white text-center relative overflow-hidden border-b border-white/10">
+                <div className="absolute top-0 right-0 p-4 opacity-15 pointer-events-none">
                   <Wallet size={80} />
                 </div>
-                <p className="text-blue-100 text-sm font-medium mb-1 relative z-10">Saldo Teórico Global</p>
-                <h2 className="text-4xl font-extrabold relative z-10">${turnoActivo.saldoTeoricoGlobal.toLocaleString()}</h2>
-                <div className="mt-4 inline-flex items-center gap-1 bg-blue-500/50 px-3 py-1 rounded-full text-xs font-medium relative z-10">
-                  <span className="w-2 h-2 bg-green-300 rounded-full animate-pulse"></span>
+                <p className="text-blue-100 text-xs uppercase font-bold tracking-wider mb-1 relative z-10">Saldo Teórico Global</p>
+                <h2 className="text-3xl sm:text-4xl font-extrabold relative z-10 font-mono tracking-tight text-white">${turnoActivo.saldoTeoricoGlobal.toLocaleString()}</h2>
+                <div className="mt-3 inline-flex items-center gap-1.5 bg-black/30 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-blue-100 border border-white/15 relative z-10">
+                  <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
                   Turno Abierto
                 </div>
               </div>
               
               {/* Desglose por Medio de Pago (Control de Cuadre) */}
-              <div className="grid grid-cols-3 bg-slate-50 border-b border-slate-200">
-                <div className="p-3 text-center border-r border-slate-200">
-                  <p className="text-xs text-slate-500 uppercase font-bold tracking-wider mb-1">Efectivo</p>
-                  <p className="text-sm font-black text-emerald-600">${turnoActivo.totalEfectivo.toLocaleString()}</p>
+              <div className="grid grid-cols-3 bg-slate-950/60 border-b border-white/10">
+                <div className="p-3 text-center border-r border-white/10">
+                  <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Efectivo</p>
+                  <p className="text-xs sm:text-sm font-black font-mono text-emerald-400">${turnoActivo.totalEfectivo.toLocaleString()}</p>
                 </div>
-                <div className="p-3 text-center border-r border-slate-200">
-                  <p className="text-xs text-slate-500 uppercase font-bold tracking-wider mb-1">Datáfono</p>
-                  <p className="text-sm font-black text-blue-600">${turnoActivo.totalDatafono.toLocaleString()}</p>
+                <div className="p-3 text-center border-r border-white/10">
+                  <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Datáfono</p>
+                  <p className="text-xs sm:text-sm font-black font-mono text-blue-400">${turnoActivo.totalDatafono.toLocaleString()}</p>
                 </div>
                 <div className="p-3 text-center">
-                  <p className="text-xs text-slate-500 uppercase font-bold tracking-wider mb-1">Transf.</p>
-                  <p className="text-sm font-black text-purple-600">${turnoActivo.totalTransferencias.toLocaleString()}</p>
+                  <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Transf.</p>
+                  <p className="text-xs sm:text-sm font-black font-mono text-purple-400">${turnoActivo.totalTransferencias.toLocaleString()}</p>
                 </div>
               </div>
 
-              <div className="p-6">
-                <div className="space-y-4 mb-6">
+              <div className="p-5">
+                <div className="space-y-3.5 mb-5">
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-500 font-medium">Base Inicial:</span>
-                    <span className="font-bold text-slate-900">${turnoActivo.baseInicial.toLocaleString()}</span>
+                    <span className="text-slate-400 font-medium">Base Inicial:</span>
+                    <span className="font-mono font-bold text-slate-200">${turnoActivo.baseInicial.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-500 font-medium">Total Ingresos:</span>
-                    <span className="font-bold text-emerald-600">
+                    <span className="text-slate-400 font-medium">Total Ingresos:</span>
+                    <span className="font-mono font-bold text-emerald-400">
                       +${movimientos.filter(m => m.tipo.startsWith('INGRESO')).reduce((acc, m) => acc + m.monto, 0).toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-500 font-medium">Total Egresos:</span>
-                    <span className="font-bold text-rose-600">
+                    <span className="text-slate-400 font-medium">Total Egresos:</span>
+                    <span className="font-mono font-bold text-rose-400">
                       -${movimientos.filter(m => m.tipo.startsWith('EGRESO')).reduce((acc, m) => acc + m.monto, 0).toLocaleString()}
                     </span>
                   </div>
                 </div>
 
-                <div className="space-y-3 pt-6 border-t border-slate-200">
+                <div className="space-y-2.5 pt-5 border-t border-white/10">
                   <button 
                     data-testid="btn-egreso-rapido"
                     onClick={handleEgresoRapido}
-                    className="w-full min-h-[50px] bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold py-3 px-4 rounded-xl border border-rose-200 flex items-center justify-center gap-2.5 transition active:scale-95 cursor-pointer shadow-sm"
+                    className="w-full min-h-[46px] bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 font-bold py-2.5 px-4 rounded-xl border border-rose-500/30 flex items-center justify-center gap-2.5 transition active:scale-95 cursor-pointer shadow-sm"
                   >
-                    <Upload size={20} className="text-rose-600" />
+                    <Upload size={18} className="text-rose-400" />
                     <span>Salida de Dinero (Flete / Compra)</span>
                   </button>
                   <button 
                     data-testid="btn-traslado-dinero"
                     onClick={() => setShowTrasladoModal(true)}
-                    className="w-full min-h-[48px] bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-800 font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer"
+                    className="w-full min-h-[46px] bg-slate-800/60 hover:bg-slate-800/90 text-slate-200 font-bold py-2.5 px-4 rounded-xl border border-white/10 flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer"
                   >
-                    <ArrowRightLeft size={18} className="text-blue-600" />
+                    <ArrowRightLeft size={18} className="text-blue-400" />
                     <span>Mover Plata entre Cajas</span>
                   </button>
                   <button 
                     data-testid="btn-cierre-caja"
                     onClick={() => setShowCierreModal(true)}
-                    className="w-full min-h-[50px] bg-red-600 hover:bg-red-700 text-white font-black py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-md shadow-red-600/20 transition active:scale-95 mt-4 cursor-pointer"
+                    className="w-full min-h-[48px] bg-red-600 hover:bg-red-500 text-white font-black py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-red-600/30 transition active:scale-95 mt-3 cursor-pointer"
                   >
-                    <Power size={20} />
+                    <Power size={18} />
                     <span>Cerrar Turno (Arqueo Ciego)</span>
                   </button>
                 </div>
@@ -289,19 +291,19 @@ export default function CashFlowView() {
 
           {/* Panel Derecho: Historial de Movimientos */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 h-full flex flex-col">
-              <div className="p-5 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="bg-slate-900/60 backdrop-blur-xl rounded-2xl shadow-xl border border-white/10 h-full flex flex-col overflow-hidden">
+              <div className="p-4 sm:p-5 border-b border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-slate-950/40">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900">Movimientos de Hoy</h3>
-                  <p className="text-xs text-slate-500">Control de entradas y salidas en tiempo real</p>
+                  <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">Movimientos de Hoy</h3>
+                  <p className="text-xs text-slate-400">Control de entradas y salidas en tiempo real</p>
                 </div>
 
                 {/* Pestañas Táctiles de Filtrado Rápido y Dinámicas */}
-                <div className="flex flex-wrap gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200">
+                <div className="flex flex-wrap gap-1 p-1 bg-slate-950/80 rounded-xl border border-white/10">
                   <button
                     onClick={() => setFiltroTab('TODO')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                      filtroTab === 'TODO' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+                      filtroTab === 'TODO' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
                     }`}
                   >
                     Todo ({movimientos.length})
@@ -309,7 +311,7 @@ export default function CashFlowView() {
                   <button
                     onClick={() => setFiltroTab('VENTAS')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer ${
-                      filtroTab === 'VENTAS' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+                      filtroTab === 'VENTAS' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
                     }`}
                   >
                     <ShoppingCart size={12} />
@@ -318,7 +320,7 @@ export default function CashFlowView() {
                   <button
                     onClick={() => setFiltroTab('FLETES')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer ${
-                      filtroTab === 'FLETES' ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+                      filtroTab === 'FLETES' ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
                     }`}
                   >
                     <Truck size={12} />
@@ -327,7 +329,7 @@ export default function CashFlowView() {
                   <button
                     onClick={() => setFiltroTab('PESCADO')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer ${
-                      filtroTab === 'PESCADO' ? 'bg-cyan-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+                      filtroTab === 'PESCADO' ? 'bg-cyan-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
                     }`}
                   >
                     <Fish size={12} />
@@ -346,12 +348,12 @@ export default function CashFlowView() {
                           className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition cursor-pointer ${
                             isActive
                               ? 'bg-rose-600 text-white shadow-sm'
-                              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+                              : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
                           }`}
                         >
                           <span>{cat.icono}</span>
                           <span>{cat.nombre}</span>
-                          <span className="text-[10px] px-1.5 py-0.2 bg-black/10 text-slate-800 rounded-full font-mono">{cat.count}</span>
+                          <span className="text-[10px] px-1.5 py-0.2 bg-white/10 text-slate-200 rounded-full font-mono">{cat.count}</span>
                         </button>
                       );
                     })}
@@ -359,7 +361,7 @@ export default function CashFlowView() {
                   <button
                     onClick={() => setFiltroTab('GASTOS')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer ${
-                      filtroTab === 'GASTOS' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+                      filtroTab === 'GASTOS' ? 'bg-slate-800 text-white shadow-sm border border-white/10' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
                     }`}
                   >
                     <Receipt size={12} />
@@ -370,21 +372,21 @@ export default function CashFlowView() {
 
               <div className="p-0 flex-1 overflow-auto">
                 {movimientosFiltrados.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-64 text-slate-500">
-                    <AlertTriangle size={32} className="mb-2 opacity-40 text-amber-500" />
+                  <div className="flex flex-col items-center justify-center h-64 text-slate-400">
+                    <AlertTriangle size={32} className="mb-2 opacity-50 text-amber-400" />
                     <p className="text-sm">No hay transacciones en este filtro.</p>
                   </div>
                 ) : (
                   <table className="w-full text-left border-collapse">
-                    <thead className="bg-slate-50 sticky top-0 border-b border-slate-200">
+                    <thead className="bg-slate-950/90 sticky top-0 border-b border-white/10 backdrop-blur-md z-10">
                       <tr>
-                        <th className="px-5 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider">Hora</th>
-                        <th className="px-5 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider">Categoría</th>
-                        <th className="px-5 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider">Detalle</th>
-                        <th className="px-5 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-right">Monto</th>
+                        <th className="px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Hora</th>
+                        <th className="px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Categoría</th>
+                        <th className="px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Detalle</th>
+                        <th className="px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Monto</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100">
+                    <tbody className="divide-y divide-white/5">
                       {movimientosFiltrados
                         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                         .map(mov => {
@@ -401,24 +403,24 @@ export default function CashFlowView() {
                           );
 
                           return (
-                            <tr key={mov.id} className="hover:bg-slate-50/80 transition">
-                              <td className="px-5 py-3.5 whitespace-nowrap text-xs text-slate-600">
+                            <tr key={mov.id} className="hover:bg-white/[0.03] transition">
+                              <td className="px-5 py-3.5 whitespace-nowrap text-xs text-slate-400">
                                 <div className="flex flex-col font-mono">
-                                  <span className="text-slate-900 font-bold">{new Date(mov.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                  <span className="text-slate-200 font-bold">{new Date(mov.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                   <span className="text-[10px] text-slate-500">{new Date(mov.createdAt).toLocaleDateString()}</span>
                                 </div>
                               </td>
                               <td className="px-5 py-3.5 whitespace-nowrap">
                                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
                                   esIngreso
-                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                    ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
                                     : esFlete
-                                    ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                    ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
                                     : esPescado
-                                    ? 'bg-cyan-50 text-cyan-700 border border-cyan-200'
+                                    ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30'
                                     : esHielo
-                                    ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                                    : 'bg-rose-50 text-rose-700 border border-rose-200'
+                                    ? 'bg-blue-500/15 text-blue-300 border border-blue-500/30'
+                                    : 'bg-rose-500/15 text-rose-300 border border-rose-500/30'
                                 }`}>
                                   {esIngreso ? (
                                     <>
@@ -452,20 +454,20 @@ export default function CashFlowView() {
                                     </>
                                   )}
                                 </span>
-                                <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 font-mono font-bold uppercase">
+                                <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-slate-300 border border-white/15 font-mono font-bold uppercase">
                                   {mov.metodoPago}
                                 </span>
                               </td>
-                              <td className="px-5 py-3.5 text-xs text-slate-800">
-                                <div className="font-semibold text-slate-900">{mov.concepto}</div>
+                              <td className="px-5 py-3.5 text-xs text-slate-300">
+                                <div className="font-semibold text-slate-100">{mov.concepto}</div>
                                 {mov.metadata?.placaCamion && (
-                                  <span className="text-[10px] text-amber-700 font-mono font-bold">
+                                  <span className="text-[10px] text-amber-400 font-mono font-bold">
                                     Furgón: {mov.metadata.placaCamion}
                                   </span>
                                 )}
                               </td>
                               <td className={`px-5 py-3.5 whitespace-nowrap text-sm font-black font-mono text-right ${
-                                esIngreso ? 'text-emerald-600' : 'text-rose-600'
+                                esIngreso ? 'text-emerald-400' : 'text-rose-400'
                               }`}>
                                 {esIngreso ? '+' : '-'}${mov.monto.toLocaleString()} COP
                               </td>

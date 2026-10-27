@@ -105,4 +105,54 @@ describe('Layout Shell Global V8 & Glassmorphism (SPEC-031)', () => {
       expect(screen.getByText(/Facturar/i)).toBeInTheDocument();
     });
   });
+
+  describe('Shell Global Híbrido y Leyes de UX para Laptops (SPEC-038)', () => {
+    it('debe identificar vistas transaccionales fijas (pos, order-kanban, dashboard, cash-flow, alistamiento)', async () => {
+      const { isTransactionalFixedView } = await import('../components/layout/layoutModes');
+
+      expect(isTransactionalFixedView('pos')).toBe(true);
+      expect(isTransactionalFixedView('order-kanban')).toBe(true);
+      expect(isTransactionalFixedView('dashboard')).toBe(true);
+      expect(isTransactionalFixedView('cash-flow')).toBe(true);
+      expect(isTransactionalFixedView('alistamiento')).toBe(true);
+
+      // Vistas administrativas no deben ser fijas
+      expect(isTransactionalFixedView('clients')).toBe(false);
+      expect(isTransactionalFixedView('suppliers')).toBe(false);
+      expect(isTransactionalFixedView('payroll')).toBe(false);
+      expect(isTransactionalFixedView(undefined)).toBe(false);
+    });
+
+    it('debe generar clases overflow-hidden y cálculo de altura exacta para vistas transaccionales en laptop', async () => {
+      const { getMainLayoutClasses } = await import('../components/layout/layoutModes');
+
+      const posClasses = getMainLayoutClasses('pos');
+      expect(posClasses).toContain('overflow-hidden');
+      expect(posClasses).toContain('flex flex-col');
+      expect(posClasses).toContain('h-[calc(100vh-theme(spacing.12)-theme(spacing.3))]');
+      expect(posClasses).not.toContain('overflow-y-auto');
+
+      const kanbanClasses = getMainLayoutClasses('order-kanban');
+      expect(kanbanClasses).toContain('overflow-hidden');
+    });
+
+    it('debe generar clases overflow-y-auto fluido para vistas documentales/administrativas', async () => {
+      const { getMainLayoutClasses } = await import('../components/layout/layoutModes');
+
+      const clientClasses = getMainLayoutClasses('clients');
+      expect(clientClasses).toContain('overflow-y-auto');
+      expect(clientClasses).not.toContain('overflow-hidden');
+
+      const supplierClasses = getMainLayoutClasses('suppliers');
+      expect(supplierClasses).toContain('overflow-y-auto');
+    });
+
+    it('debe aplicar paddings compactos para laptops de 1366x768 (px-2.5 pb-2 pt-0)', async () => {
+      const { getMainLayoutClasses } = await import('../components/layout/layoutModes');
+
+      const classes = getMainLayoutClasses('dashboard');
+      expect(classes).toMatch(/px-2\.5/);
+      expect(classes).toMatch(/pt-0/);
+    });
+  });
 });

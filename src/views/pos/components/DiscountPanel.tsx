@@ -53,6 +53,11 @@ export const DiscountPanel: React.FC<DiscountPanelProps> = ({
         <span style={{ color: 'var(--primary-color)', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
           Descuento {descuentoPct > 0 && `(${descuentoPct}%)`} <Plus size={12} />
           <kbd className="px-1 py-0.5 text-[9px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded ml-1">F4</kbd>
+          {descuentoPct > 10 && (
+            <span className="px-1.5 py-0.5 text-[9px] bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-md font-medium">
+              Supervisor
+            </span>
+          )}
         </span>
         <span style={{ color: descuentoPct > 0 ? 'var(--primary-color)' : '#64748B', fontWeight: 600 }}>
           -${descuentoValor.toLocaleString('es-CO')}

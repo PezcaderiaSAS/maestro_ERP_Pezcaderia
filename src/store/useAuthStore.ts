@@ -75,6 +75,7 @@ export interface AuthState {
     email: string;
     rol: RoleRbac;
   }) => Promise<ResultadoInvitacion>;
+  loadTenantInvitations: () => void;
   acceptInvitation: (token: string) => Promise<ResultadoCanje>;
   setPendingInviteToken: (token: string | null) => void;
   switchRoleDev: (role: RoleRbac) => void;
@@ -275,6 +276,7 @@ export const useAuthStore = create<AuthState>()(
         token: null,
         isLoading: false,
         error: null,
+        tenantInvitations: [],
       });
       syncToAppStore(null);
     },
@@ -341,6 +343,16 @@ export const useAuthStore = create<AuthState>()(
       }
 
       return result;
+    },
+
+    loadTenantInvitations: () => {
+      const { activeTenant } = get();
+      if (!activeTenant) {
+        set({ tenantInvitations: [] });
+        return;
+      }
+      const list = tenantOnboardingService.obtenerInvitacionesPorTenant(activeTenant.id);
+      set({ tenantInvitations: list });
     },
 
     acceptInvitation: async (token) => {

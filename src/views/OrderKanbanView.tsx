@@ -626,40 +626,40 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
   };
 
   return (
-    <div className="animate-fade-in flex flex-col h-full p-4 lg:p-6 space-y-5">
+    <div className="animate-fade-in flex flex-col h-full min-h-0 overflow-hidden p-2.5 sm:p-3 space-y-2.5">
       {/* Header y Selector de Pestañas Bifásicas */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pb-3 border-b border-white/10">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2.5 pb-2 border-b border-white/10 shrink-0">
         <div>
           <div className="flex items-center gap-2 flex-wrap">
-            <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+            <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">
               Picking, Packing & Despachos B2B
             </h2>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center gap-1">
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center gap-1">
               <Sparkles className="w-3 h-3" /> Catch Weight & QR
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+          <p className="text-xs text-slate-400 mt-0.5">
             Gestión visual con micro-interacciones, arrastre fluido de pedidos, control OTIF y báscula en vivo.
           </p>
         </div>
 
         {/* Botones de Pestaña: Flujo Táctil 3 Pasos, Bodega y Despacho */}
-        <div className="flex items-center p-1.5 rounded-2xl bg-slate-900 border border-white/10 shadow-lg flex-wrap gap-1">
+        <div className="flex items-center p-1 rounded-2xl bg-slate-900 border border-white/10 shadow-lg flex-wrap gap-1">
           <button
             type="button"
             data-testid="tab-tactil-3-pasos"
             onClick={() => setActiveTab('tactil_3_pasos')}
-            className={`min-h-[48px] h-12 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer touch-manipulation active:scale-95 ${
+            className={`min-h-[48px] h-10 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer touch-manipulation active:scale-95 ${
               activeTab === 'tactil_3_pasos'
                 ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            <Sparkles className="w-4 h-4 text-amber-300" />
+            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
             <span className="hidden sm:inline">⚡ Flujo Táctil (3 Pasos)</span>
             <span className="sm:hidden">⚡ 3 Pasos</span>
             <span
-              className={`px-2 py-0.5 rounded-full text-[10px] ${
+              className={`px-1.5 py-0.5 rounded-full text-[10px] ${
                 activeTab === 'tactil_3_pasos' ? 'bg-emerald-700 text-white' : 'bg-slate-800 text-slate-400'
               }`}
             >
@@ -670,17 +670,17 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
           <button
             type="button"
             onClick={() => setActiveTab('bodega')}
-            className={`min-h-[48px] h-12 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer touch-manipulation active:scale-95 ${
+            className={`min-h-[48px] h-10 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer touch-manipulation active:scale-95 ${
               activeTab === 'bodega'
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            <Scissors className="w-4 h-4" />
+            <Scissors className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">1. Bodega (Fileteo & Pesaje)</span>
             <span className="sm:hidden">1. Bodega</span>
             <span
-              className={`px-2 py-0.5 rounded-full text-[10px] ${
+              className={`px-1.5 py-0.5 rounded-full text-[10px] ${
                 activeTab === 'bodega' ? 'bg-blue-700 text-white' : 'bg-slate-800 text-slate-400'
               }`}
             >
@@ -691,17 +691,17 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
           <button
             type="button"
             onClick={() => setActiveTab('despacho')}
-            className={`min-h-[48px] h-12 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer touch-manipulation active:scale-95 ${
+            className={`min-h-[48px] h-10 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer touch-manipulation active:scale-95 ${
               activeTab === 'despacho'
                 ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            <Truck className="w-4 h-4" />
+            <Truck className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">2. Despachos & Remisiones WMS</span>
             <span className="sm:hidden">2. Despachos</span>
             <span
-              className={`px-2 py-0.5 rounded-full text-[10px] ${
+              className={`px-1.5 py-0.5 rounded-full text-[10px] ${
                 activeTab === 'despacho' ? 'bg-purple-700 text-white' : 'bg-slate-800 text-slate-400'
               }`}
             >
@@ -711,10 +711,10 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
         </div>
       </div>
 
-      {/* Barra de Búsqueda Rápida y Filtros OTIF con Targets Táctiles >= 48px */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-900/60 p-3 sm:p-3.5 rounded-2xl border border-white/10 backdrop-blur-md">
-        <div className="flex items-center gap-2.5 bg-slate-950/80 px-3.5 py-2.5 rounded-xl border border-white/10 flex-1 max-w-md min-h-[48px] h-12">
-          <Search size={18} className="text-cyan-400 shrink-0" />
+      {/* Barra de Búsqueda Rápida y Filtros OTIF con Targets Ergonómicos */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 bg-slate-900/60 p-2 sm:p-2.5 rounded-2xl border border-white/10 backdrop-blur-md shrink-0">
+        <div className="flex items-center gap-2 bg-slate-950/80 px-3 py-1.5 rounded-xl border border-white/10 flex-1 max-w-md min-h-[48px] h-10">
+          <Search size={16} className="text-cyan-400 shrink-0" />
           <input
             type="text"
             value={searchQuery}
@@ -725,15 +725,15 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="min-h-[36px] min-w-[36px] flex items-center justify-center text-slate-400 hover:text-white cursor-pointer"
+              className="min-h-[32px] min-w-[32px] flex items-center justify-center text-slate-400 hover:text-white cursor-pointer"
             >
-              <X size={16} />
+              <X size={15} />
             </button>
           )}
         </div>
 
         {/* Chips de filtro rápido ergonómicos (>= 48px de altura táctil) */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
           {(
             [
               { id: 'TODOS', label: 'Todos', icon: undefined },
@@ -750,7 +750,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                 type="button"
                 data-testid={`filter-chip-${chip.id.toLowerCase()}`}
                 onClick={() => setQuickFilter(chip.id)}
-                className={`min-h-[48px] h-12 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer touch-manipulation active:scale-95 ${
+                className={`min-h-[48px] h-10 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer touch-manipulation active:scale-95 ${
                   isActive
                     ? 'bg-cyan-500 text-slate-950 font-black shadow-md shadow-cyan-500/30'
                     : 'bg-slate-800/80 border border-white/10 text-slate-300 hover:text-white hover:bg-slate-800'
@@ -805,7 +805,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
       )}
 
       {/* Tablero Kanban con Columnas Reactivas de Drag-and-Drop */}
-      <div className="flex gap-4 sm:gap-5 flex-1 overflow-x-auto pb-4 select-none">
+      <div className="flex gap-3 sm:gap-4 flex-1 min-h-0 overflow-x-auto pb-2 select-none">
         {currentColumns.map((column) => {
           const now = new Date();
           const cutoffTime = new Date(now);
@@ -859,7 +859,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
               onDragOver={(e) => handleDragOver(e, column.id)}
               onDragLeave={(e) => handleDragLeave(e, column.id)}
               onDrop={(e) => handleDrop(e, column.id)}
-              className={`flex-shrink-0 w-80 flex flex-col p-0 rounded-2xl overflow-hidden backdrop-blur-xl transition-all duration-200 border ${
+              className={`flex-shrink-0 w-80 flex flex-col h-full max-h-full min-h-0 p-0 rounded-2xl overflow-hidden backdrop-blur-xl transition-all duration-200 border ${
                 isOverThisColumn
                   ? 'ring-2 ring-cyan-400 bg-cyan-950/40 border-cyan-400 shadow-xl shadow-cyan-500/20 scale-[1.01]'
                   : 'bg-slate-900/60 border-white/10'
@@ -867,18 +867,18 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
             >
               {/* Encabezado de Columna */}
               <div
-                className={`p-3.5 border-b border-white/10 flex items-center justify-between transition-colors ${
+                className={`p-3 border-b border-white/10 flex items-center justify-between transition-colors shrink-0 ${
                   isOverThisColumn ? 'bg-cyan-900/40' : 'bg-slate-900/80'
                 }`}
               >
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-2">
                   <div className="p-1.5 rounded-lg bg-slate-800 text-white border border-white/5">
                     {column.icon}
                   </div>
-                  <h3 className="text-sm font-bold text-white tracking-wide">{column.title}</h3>
+                  <h3 className="text-xs sm:text-sm font-bold text-white tracking-wide">{column.title}</h3>
                 </div>
                 <span
-                  className={`px-2.5 py-0.5 rounded-full text-xs font-bold font-mono transition-colors ${
+                  className={`px-2 py-0.5 rounded-full text-xs font-bold font-mono transition-colors ${
                     isOverThisColumn
                       ? 'bg-cyan-500 text-slate-950'
                       : 'bg-slate-800 border border-white/10 text-slate-300'
@@ -888,8 +888,8 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                 </span>
               </div>
 
-              {/* Lista de Tarjetas */}
-              <div className="flex-1 p-3.5 overflow-y-auto flex flex-col gap-3 min-h-[350px]">
+              {/* Lista de Tarjetas con Scroll Independiente Acotado */}
+              <div className="flex-1 min-h-0 p-2.5 sm:p-3 overflow-y-auto flex flex-col gap-2.5">
                 {columnQuotes.length === 0 ? (
                   <div className="text-center text-slate-500 text-xs py-14 italic flex flex-col items-center gap-2">
                     <PackageSearch size={24} className="opacity-30 text-slate-400" />

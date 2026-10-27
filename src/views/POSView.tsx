@@ -1797,38 +1797,30 @@ export default function POSView({
   return (
     <div
       data-testid="pos-glass-container"
-      className="pos-layout w-full min-h-full flex flex-col gap-2.5 animate-fade-in relative p-1 lg:p-2 pb-8"
+      className="pos-layout w-full h-full min-h-0 flex flex-col gap-1.5 lg:gap-2 animate-fade-in relative p-0 pb-1 overflow-hidden"
       style={{ transform: 'translateZ(0)' }}
     >
       {!isTurnoAbierto && activeSubView === 'venta_pos' && (
-        <div className="w-full bg-rose-500/15 border border-rose-500/30 text-rose-300 text-center py-2 px-4 text-xs font-bold flex items-center justify-center gap-2 rounded-xl backdrop-blur-md shadow-lg shrink-0">
-          <AlertCircle size={14} /> ⚠ CAJA CERRADA — Debes abrir un turno antes de cobrar
+        <div className="w-full bg-rose-500/15 border border-rose-500/30 text-rose-300 text-center py-1 px-3 text-xs font-bold flex items-center justify-center gap-2 rounded-lg backdrop-blur-md shadow-sm shrink-0">
+          <AlertCircle size={13} /> ⚠ CAJA CERRADA — Debes abrir un turno antes de cobrar
         </div>
       )}
 
-      {/* ZONA 1: Header & Breadcrumb Canónico (SPEC-029) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1 shrink-0">
-        <div className="flex flex-col">
-          <nav className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
-            <span>Inicio</span>
-            <span>/</span>
-            <span>Ventas</span>
-            <span>/</span>
-            <span className="text-slate-200 font-bold">Punto de Venta (POS)</span>
-          </nav>
-          <div className="flex items-center gap-2 mt-0.5">
-            <h1 className="text-xl font-extrabold text-white tracking-tight">Punto de Venta (POS)</h1>
-            {isTurnoAbierto ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                Turno Abierto #{turnoActivo?.id ? turnoActivo.id.slice(0, 6).toUpperCase() : 'ACTIVO'}
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30">
-                <AlertCircle size={12} /> Caja Cerrada
-              </span>
-            )}
-          </div>
+      {/* ZONA 1: Header & Breadcrumb Canónico Compacto (SPEC-038 Laptop) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 px-1 shrink-0">
+        <div className="flex items-center gap-2">
+          <h1 className="text-lg lg:text-xl font-extrabold text-white tracking-tight">POS</h1>
+          <span className="text-xs text-slate-500 hidden sm:inline">|</span>
+          {isTurnoAbierto ? (
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Turno #{turnoActivo?.id ? turnoActivo.id.slice(0, 6).toUpperCase() : 'ACTIVO'}
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30">
+              <AlertCircle size={11} /> Caja Cerrada
+            </span>
+          )}
         </div>
 
         {/* Banner de Vendedor Activo y Selector de Turno */}
@@ -2069,56 +2061,50 @@ export default function POSView({
         </div>
       </div>
 
-      {/* ZONA 3: Tarjetas KPI de Turno (Dark Glassmorphism V8) */}
-      <div data-testid="pos-kpi-bar" className="grid grid-cols-2 md:grid-cols-4 gap-2.5 shrink-0">
+      {/* ZONA 3: Barra Compacta de Turno (Dark Glassmorphism V8 - Ergonómica Laptop SPEC-038) */}
+      <div
+        data-testid="pos-kpi-bar"
+        className="min-h-[36px] h-9 px-3 bg-slate-900/85 backdrop-blur-2xl border border-white/12 rounded-xl shadow-md flex items-center justify-between gap-3 text-xs shrink-0 select-none overflow-x-auto"
+        style={{ boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.12)' }}
+      >
         {/* KPI 1: Ventas del Turno */}
-        <div
-          className="bg-slate-900/85 backdrop-blur-2xl border border-white/12 rounded-2xl p-3 shadow-xl flex flex-col justify-between relative overflow-hidden transition-all"
-          style={{ boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.12)' }}
-        >
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Ventas Turno</span>
-          <span className="text-lg sm:text-xl font-black font-mono text-white mt-1">
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Ventas Turno:</span>
+          <span className="text-xs sm:text-sm font-black font-mono text-white">
             ${Math.max(0, ((turnoActivo?.saldoTeoricoGlobal ?? 0) - (turnoActivo?.baseInicial ?? 0))).toLocaleString('es-CO')}
           </span>
         </div>
 
+        <div className="h-3.5 w-px bg-white/10 shrink-0 hidden sm:block" />
+
         {/* KPI 2: Efectivo en Gaveta */}
-        <div
-          className="bg-slate-900/85 backdrop-blur-2xl border border-white/12 rounded-2xl p-3 shadow-xl flex flex-col justify-between relative overflow-hidden transition-all"
-          style={{ boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.12)' }}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Efectivo Gaveta</span>
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-white/10">
-              Tope $1.5M
-            </span>
-          </div>
-          <span className="text-lg sm:text-xl font-black font-mono text-emerald-400 mt-1">
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Efectivo Gaveta:</span>
+          <span className="text-xs sm:text-sm font-black font-mono text-emerald-400">
             ${(turnoActivo?.totalEfectivo ?? 0).toLocaleString('es-CO')}
+          </span>
+          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 border border-white/10 hidden md:inline">
+            Tope $1.5M
           </span>
         </div>
 
+        <div className="h-3.5 w-px bg-white/10 shrink-0 hidden sm:block" />
+
         {/* KPI 3: Transacciones Realizadas */}
-        <div
-          className="bg-slate-900/85 backdrop-blur-2xl border border-white/12 rounded-2xl p-3 shadow-xl flex flex-col justify-between relative overflow-hidden transition-all"
-          style={{ boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.12)' }}
-        >
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Transacciones</span>
-          <span className="text-lg sm:text-xl font-black font-mono text-indigo-400 mt-1">
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Transacciones:</span>
+          <span className="text-xs sm:text-sm font-black font-mono text-indigo-400">
             {(ventas || []).filter((v: any) => v.turnoId === turnoActivo?.id).length || 0}
           </span>
         </div>
 
+        <div className="h-3.5 w-px bg-white/10 shrink-0 hidden sm:block" />
+
         {/* KPI 4: Sincronización SIIGO / Outbox */}
-        <div
-          className="bg-slate-900/85 backdrop-blur-2xl border border-white/12 rounded-2xl p-3 shadow-xl flex flex-col justify-between relative overflow-hidden transition-all"
-          style={{ boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.12)' }}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Facturación DIAN</span>
-            <span className={`w-2 h-2 rounded-full ${colaSiigoPendientes > 0 ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`} />
-          </div>
-          <span className={`text-sm sm:text-base font-black font-mono mt-1 ${colaSiigoPendientes > 0 ? 'text-amber-400' : 'text-emerald-400'}`}>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Facturación DIAN:</span>
+          <span className={`w-2 h-2 rounded-full shrink-0 ${colaSiigoPendientes > 0 ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`} />
+          <span className={`text-[11px] sm:text-xs font-black font-mono ${colaSiigoPendientes > 0 ? 'text-amber-400' : 'text-emerald-400'}`}>
             {colaSiigoPendientes > 0 ? `${colaSiigoPendientes} Pendientes` : '✓ Sincronizado'}
           </span>
         </div>
@@ -2126,10 +2112,10 @@ export default function POSView({
 
       {activeSubView === 'venta_pos' ? (
         <>
-          {/* Grilla Desacoplada: Catálogo y Carrito con Scroll Fluido en Laptop */}
-          <div className="flex-1 min-h-0 w-full flex flex-col lg:grid lg:grid-cols-[7fr_3fr] gap-3 pt-1">
+          {/* Grilla Desacoplada: Catálogo y Carrito con Scroll Fluido en Laptop (SPEC-039) */}
+          <div className="flex-1 min-h-0 w-full flex flex-col lg:grid lg:grid-cols-[1fr_380px] xl:grid-cols-[1fr_420px] gap-2.5 pt-0.5 overflow-hidden">
             {/* Columna Izquierda: Catálogo de Productos con su propio scroll */}
-            <div className="flex flex-col min-h-0 flex-1 overflow-y-auto pr-1">
+            <div className="flex flex-col min-h-0 flex-1 overflow-hidden pr-0.5">
               <GlassCard
                 data-testid="pos-catalog-glass-card"
                 className="p-3 sm:p-4 flex flex-col h-full min-h-0 overflow-hidden"
@@ -2146,7 +2132,7 @@ export default function POSView({
             </div>
 
             {/* Columna Derecha: Carrito de Compras / Factura con scroll desacoplado */}
-            <div className="flex flex-col min-h-0 h-full">
+            <div className="flex flex-col min-h-0 h-full overflow-hidden">
               {ultimoTicket ? (
                 <GlassCard
                   className="pos-sidebar-cart p-4 sm:p-5 flex flex-col h-full min-h-0 overflow-y-auto"

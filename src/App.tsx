@@ -26,6 +26,7 @@ import { B2BCustomerPortalView } from './views/b2b/portal/B2BCustomerPortalView'
 import { SuperAdminMasterView } from './views/admin/SuperAdminMasterView';
 import { EnterpriseSidebar, type ERPViewKey } from './components/layout/EnterpriseSidebar';
 import { EnterpriseTopbar } from './components/layout/EnterpriseTopbar';
+import { getMainLayoutClasses } from './components/layout/layoutModes';
 import { GlobalOmniboxModal } from './components/layout/GlobalOmniboxModal';
 import { PosDashboard } from './components/pos/PosDashboard';
 import * as localDb from './services/localDb';
@@ -1461,7 +1462,7 @@ export default function App() {
       />
 
       {/* Área de Contenido Principal con Topbar Flotante V8 */}
-      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 relative z-10 ${sidebarOpen ? 'lg:pl-68' : 'lg:pl-24'}`}>
+      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 relative z-10 ${sidebarOpen ? 'lg:pl-68' : 'lg:pl-20'}`}>
         <EnterpriseTopbar
           currentView={currentView as ERPViewKey}
           onNavigateHome={() => setCurrentView('dashboard')}
@@ -1475,7 +1476,7 @@ export default function App() {
         />
 
         <main 
-          className="flex-1 overflow-y-auto p-3 lg:p-4 custom-scrollbar"
+          className={getMainLayoutClasses(currentView as string)}
         >
           {renderView()}
         </main>

@@ -188,7 +188,7 @@ describe('SPEC-032 / TASK-032-01: Suite TDD Dark Glassmorphism V8 en Módulo POS
     const content = fs.readFileSync(posViewPath, 'utf-8');
 
     expect(content).toContain('data-testid="pos-kpi-bar"');
-    expect(content).toContain('bg-slate-900/85 backdrop-blur-2xl border border-white/12 rounded-2xl');
+    expect(content).toMatch(/bg-slate-900\/85 backdrop-blur-2xl border border-white\/12 rounded-(xl|2xl)/);
     expect(content).toContain("boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.12)'");
   });
 

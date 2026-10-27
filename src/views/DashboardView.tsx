@@ -41,18 +41,18 @@ function MetricCard({ title, value, change, positive, icon, iconTheme = 'emerald
   }[iconTheme];
 
   return (
-    <div className="bg-slate-900/85 backdrop-blur-2xl rounded-2xl border border-white/12 shadow-xl hover:border-cyan-500/40 transition-all p-5 flex flex-col justify-between gap-4 text-white">
+    <div className="bg-slate-900/85 backdrop-blur-2xl rounded-xl border border-white/12 shadow-md hover:border-cyan-500/40 transition-all p-3.5 flex flex-col justify-between gap-2.5 text-white">
       <div className="flex justify-between items-start">
-        <span className="text-xs md:text-sm font-bold text-slate-400 uppercase tracking-wider">{title}</span>
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-xs ${themeStyles.iconBg}`}>
+        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{title}</span>
+        <div className={`w-8 h-8 rounded-lg flex items-center justify-center border shadow-xs ${themeStyles.iconBg}`}>
           {icon}
         </div>
       </div>
-      <div className="flex flex-col gap-1.5">
-        <span className="text-3xl font-black font-mono text-white tracking-tight">{value}</span>
-        <div className="flex items-center gap-1.5 mt-0.5">
-          <span className={`text-xs font-bold px-2 py-0.5 rounded-md border flex items-center gap-1 ${themeStyles.badge}`}>
-            {positive ? '+' : ''}{change} {positive ? <ArrowUpRight size={13} /> : null}
+      <div className="flex flex-col gap-1">
+        <span className="text-xl sm:text-2xl font-black font-mono text-white tracking-tight">{value}</span>
+        <div className="flex items-center gap-1">
+          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border flex items-center gap-1 ${themeStyles.badge}`}>
+            {positive ? '+' : ''}{change} {positive ? <ArrowUpRight size={11} /> : null}
           </span>
         </div>
       </div>
@@ -95,30 +95,32 @@ export default function DashboardView({ ventas = [], parametros: _parametros = {
   };
 
   return (
-    <div className="animate-fade-in flex flex-col gap-4 md:gap-6 p-4 md:p-6 h-full overflow-y-auto">
+    <div className="animate-fade-in flex flex-col gap-3 md:gap-3.5 p-1 md:p-2 h-full">
       
-      {/* Encabezado */}
-      <div>
-        <span className="text-xs md:text-sm font-extrabold uppercase tracking-wider text-slate-400">
-          Resumen Ejecutivo & Calendario Operativo
-        </span>
-        <h2 className="text-2xl md:text-3xl font-black mt-1 tracking-tight text-white">
-          Panel de Control y Obligaciones
-        </h2>
+      {/* Encabezado Compacto */}
+      <div className="flex items-center justify-between pb-0.5">
+        <div>
+          <span className="text-[10px] md:text-xs font-extrabold uppercase tracking-wider text-slate-400">
+            Resumen Ejecutivo & Calendario Operativo
+          </span>
+          <h2 className="text-lg md:text-xl font-black tracking-tight text-white m-0">
+            Panel de Control y Obligaciones
+          </h2>
+        </div>
       </div>
 
       {/* Semáforo Operativo Ejecutivo (Regla del Niño de 12 Años - TASK-018-11) */}
       <ExecutiveTrafficLightWidget cajaDisponibleOverride={isolatedCajaFisica > 0 ? isolatedCajaFisica : undefined} />
  
       {/* Grid de Metricas */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2.5 md:gap-3">
         <MetricCard
           title="Ventas del Día"
           value={`$${totalSalesToday.toLocaleString('es-CO')}`}
           change={`${salesTodayCount} transacciones`}
           positive={totalSalesToday > 0}
           iconTheme="emerald"
-          icon={<DollarSign size={20} />}
+          icon={<DollarSign size={16} />}
         />
         <MetricCard
           title="Caja Chica (Efectivo Neto)"
@@ -126,7 +128,7 @@ export default function DashboardView({ ventas = [], parametros: _parametros = {
           change="Excluye canales digitales (RN-06)"
           positive={true}
           iconTheme="blue"
-          icon={<Wallet size={20} />}
+          icon={<Wallet size={16} />}
         />
         <MetricCard
           title="Canales Digitales (Shopify/Rappi)"
@@ -134,7 +136,7 @@ export default function DashboardView({ ventas = [], parametros: _parametros = {
           change="Procesado en cola (RN-03)"
           positive={totalDigitalSales > 0}
           iconTheme="purple"
-          icon={<ShoppingBag size={20} />}
+          icon={<ShoppingBag size={16} />}
         />
         <MetricCard
           title="Notas de Crédito Hoy"
@@ -142,7 +144,7 @@ export default function DashboardView({ ventas = [], parametros: _parametros = {
           change="Cancelaciones de pedido"
           positive={false}
           iconTheme="rose"
-          icon={<RefreshCw size={20} />}
+          icon={<RefreshCw size={16} />}
         />
       </div>
  
