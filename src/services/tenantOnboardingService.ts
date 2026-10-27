@@ -165,6 +165,34 @@ export class TenantOnboardingService {
   }
 
   /**
+   * Registra un nuevo tenant y crea de forma atómica a su Administrador Fundador (Wizard en 2 pasos)
+   */
+  public async crearTenantConAdmin(input: {
+    razonSocial: string;
+    nit: string;
+    ciudad: string;
+    direccion?: string;
+    telefono: string;
+    adminNombre: string;
+    adminIdentificacion: string;
+    adminEmail: string;
+    adminTelefono: string;
+  }): Promise<ResultadoTenantOnboarding> {
+    const adminUserId = `usr-admin-${Date.now()}`;
+    const resTenant = await this.crearPrimerTenantConAdmin({
+      userId: adminUserId,
+      userEmail: input.adminEmail,
+      razonSocial: input.razonSocial,
+      nit: input.nit,
+      ciudad: input.ciudad,
+      direccion: input.direccion,
+      telefono: input.telefono,
+    });
+
+    return resTenant;
+  }
+
+  /**
    * Genera una invitación segura para un colaborador con link copiable
    */
   public async crearInvitacionEmpleado(

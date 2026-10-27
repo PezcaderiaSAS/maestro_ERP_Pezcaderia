@@ -48,6 +48,13 @@ export interface AuthState {
   tenantInvitations: TenantInvitation[];
 
   // Acciones
+  setSession: (session: {
+    status: AuthStateStatus;
+    user?: AuthUserProfile | null;
+    currentUser?: AuthUserProfile | null;
+    activeTenant?: TenantData | null;
+    token?: string | null;
+  }) => void;
   initSession: () => Promise<void>;
   loginWithProvider: (
     provider: 'google' | 'azure',
@@ -112,6 +119,19 @@ export const useAuthStore = create<AuthState>()(
     isLoading: false,
     error: null,
     tenantInvitations: [],
+
+    setSession: (session) => {
+      const user = session.user || session.currentUser || null;
+      set({
+        status: session.status,
+        currentUser: user,
+        activeTenant: session.activeTenant || null,
+        token: session.token || null,
+        isLoading: false,
+        error: null,
+      });
+      syncToAppStore(user);
+    },
 
     initSession: async () => {
       const persisted = localDb.load<PersistedAuthSession | null>(STORAGE_KEY, null);

@@ -67,6 +67,7 @@ export const DB_KEYS = {
   b2b_recurring_templates: 'pezcaderia_b2b_recurring_templates',
   pricing_global_config: 'pezcaderia_pricing_global_config',
   auth_session: 'pezcaderia_auth_session',
+  usuariosTenants: 'pezcaderia_usuarios_tenants',
 } as const;
 
 export type DbKey = keyof typeof DB_KEYS;
