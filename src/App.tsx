@@ -23,6 +23,7 @@ import { PurchasesReceivingView } from './views/purchases/PurchasesReceivingView
 import { DriverPortalView } from './views/driver/DriverPortalView';
 import { OtifDashboardView } from './views/logistics/OtifDashboardView';
 import { B2BCustomerPortalView } from './views/b2b/portal/B2BCustomerPortalView';
+import { SuperAdminMasterView } from './views/admin/SuperAdminMasterView';
 import { EnterpriseSidebar, type ERPViewKey } from './components/layout/EnterpriseSidebar';
 import { EnterpriseTopbar } from './components/layout/EnterpriseTopbar';
 import { GlobalOmniboxModal } from './components/layout/GlobalOmniboxModal';
@@ -708,12 +709,15 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  // Sincronización hash URL para PWA standalone de repartidores
+  // Sincronización hash URL para PWA standalone de repartidores y Portal SuperAdmin
   useEffect(() => {
     const syncHashRoute = () => {
       const hash = window.location.hash.replace('#', '').replace('/', '');
-      if (hash === 'repartidor') {
+      const pathname = window.location.pathname.replace(/^\//, '');
+      if (hash === 'repartidor' || pathname === 'repartidor') {
         setCurrentView('repartidor');
+      } else if (hash === 'superadmin' || pathname === 'superadmin') {
+        setCurrentView('superadmin' as any);
       }
     };
     syncHashRoute();
@@ -1411,6 +1415,8 @@ export default function App() {
         return <B2BCustomerPortalView />;
       case 'repartidor':
         return <DriverPortalView />;
+      case 'superadmin':
+        return <SuperAdminMasterView />;
       default:
         return <DashboardView />;
     }

@@ -8,6 +8,7 @@ import {
   UploadCloud,
   Layers,
   FileText,
+  FileSpreadsheet,
   Boxes,
   ArrowRightLeft,
   Scissors,
@@ -45,6 +46,7 @@ import { WarehouseTransferPanel } from './inventory/components/WarehouseTransfer
 import { WarehouseConfigManager } from './inventory/components/WarehouseConfigManager';
 import { BranchSalesReport } from './inventory/components/BranchSalesReport';
 import { BulkUploadModal } from '../components/BulkUploadModal';
+import { BulkHardwareImportModal } from './inventory/BulkHardwareImportModal';
 import { TableSkeleton } from '../components/ui/ShimmerSkeleton';
 import { InventoryDataTable } from '../components/inventory/InventoryDataTable';
 import { ExpiryAlertCards } from '../components/inventory/ExpiryAlertCards';
@@ -138,6 +140,7 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
 
   const [yieldSubTab, setYieldSubTab] = useState<'yield_kpi' | 'comandas_tradicional'>('yield_kpi');
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
+  const [isBulkHardwareOpen, setIsBulkHardwareOpen] = useState(false);
   const [isMoreActionsOpen, setIsMoreActionsOpen] = useState(false);
 
   // State de Catalogo de Productos
@@ -1563,6 +1566,14 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
                     Importar CSV
                   </button>
                   <button
+                    data-testid="btn-open-bulk-hardware"
+                    onClick={() => setIsBulkHardwareOpen(true)}
+                    className="w-full flex items-center gap-2.5 px-3.5 py-2 text-left text-xs font-medium text-amber-600 dark:text-amber-400 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+                  >
+                    <FileSpreadsheet className="w-4 h-4 text-amber-500" />
+                    Carga Masiva Ferretería
+                  </button>
+                  <button
                     id="btn-quick-recepcion-muelle"
                     onClick={() => setViewMode('compras_muelle')}
                     className="w-full flex items-center gap-2.5 px-3.5 py-2 text-left text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
@@ -2172,6 +2183,12 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
         isOpen={isBulkUploadOpen}
         onClose={() => setIsBulkUploadOpen(false)}
         type="productos"
+      />
+
+      <BulkHardwareImportModal
+        isOpen={isBulkHardwareOpen}
+        onClose={() => setIsBulkHardwareOpen(false)}
+        onSuccess={() => loadInventory()}
       />
 
       {wmsTransferData && (

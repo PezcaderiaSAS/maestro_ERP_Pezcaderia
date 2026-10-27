@@ -18,6 +18,8 @@ import { ProductSearchPanel } from './pos/components/ProductSearchPanel.tsx';
 import { AperturaCajaModal } from './pos/components/AperturaCajaModal.tsx';
 import { RetiroParcialModal } from './pos/components/RetiroParcialModal.tsx';
 import { RestockRequestModal } from './inventory/components/RestockRequestModal.tsx';
+import { PendingOrdersDrawer, type PendingOrderComanda } from './pos/components/PendingOrdersDrawer.tsx';
+import { SupervisorPinModal, type SupervisorAuthResult } from './pos/components/SupervisorPinModal.tsx';
 import { GlassCard } from '../components/layout/components/GlassCard.tsx';
 import { Card } from '../components/ui/Card.tsx';
 import { Button } from '../components/ui/Button.tsx';
@@ -103,6 +105,63 @@ export default function POSView({
   }, []);
   const [ultimoTicket, setUltimoTicket] = useState<{ venta: any; cliente: any } | null>(null);
   const [showRestockModal, setShowRestockModal] = useState(false);
+  const [showComandasDrawer, setShowComandasDrawer] = useState<boolean>(false);
+  const [supervisorAuthModal, setSupervisorAuthModal] = useState<{
+    isOpen: boolean;
+    accion: string;
+    descripcion: string;
+    onSuccess: (auth: SupervisorAuthResult) => void;
+  }>({
+    isOpen: false,
+    accion: '',
+    descripcion: '',
+    onSuccess: () => {},
+  });
+
+  // Mapeo dinámico de pedidos en espera a comandas de cola central multivendedor (SPEC-032)
+  const comandasPendientes: PendingOrderComanda[] = (drafts || []).map((d, index) => {
+    const total = d.total || (d.lineas || []).reduce((acc: number, l: any) => acc + (l.totalLinea || 0), 0);
+    const itemsCount = (d.lineas || d.cart || []).length;
+    return {
+      id: d.id,
+      consecutivoTicket: d.alias?.startsWith('TICK-') ? d.alias : (d.alias || `TICK-${String(index + 1).padStart(3, '0')}`),
+      terminalId: (d as any).terminalId || 'TERM-01',
+      vendedorId: (d as any).vendedorId || 'VEND-01',
+      vendedorNombre: (d as any).vendedorNombre || (d as any).cajeroNombre || 'Vendedor Mostrador',
+      clienteNombre: d.cliente?.nombre || 'Cliente General',
+      montoTotal: total,
+      itemsCount,
+      createdAt: d.fechaGuardado || new Date().toISOString(),
+      estado: 'PENDIENTE_PAGO',
+      items: d.lineas || d.cart || [],
+    };
+  });
+
+  const handleSelectComanda = (comanda: PendingOrderComanda) => {
+    const draftOriginal = drafts.find(d => d.id === comanda.id);
+    if (draftOriginal) {
+      if (draftOriginal.lineas && draftOriginal.lineas.length > 0) {
+        setCartLineas(draftOriginal.lineas);
+      }
+      if (draftOriginal.cliente) {
+        setCliente(draftOriginal.cliente as any);
+      }
+      if (draftOriginal.descuentoGlobal) {
+        setDescuentoGlobal(draftOriginal.descuentoGlobal);
+      }
+      setActiveDraftId(draftOriginal.id);
+    }
+    setShowComandasDrawer(false);
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'info',
+      title: `Comanda ${comanda.consecutivoTicket} cargada`,
+      text: `Vendedor: ${comanda.vendedorNombre} | Total: $${comanda.montoTotal.toLocaleString('es-CO')}`,
+      showConfirmButton: false,
+      timer: 2500,
+    });
+  };
   
   // B2B Consolidation State
   const [activeSubView, setActiveSubView] = useState<'venta_pos' | 'consolidacion_b2b' | 'canales_digitales' | 'gestion_kanban'>('venta_pos');
@@ -516,7 +575,25 @@ export default function POSView({
     if (desc !== undefined) {
       const val = parseInt(desc);
       if (val >= 0 && val <= 100) {
-        setDescuentoGlobal(val);
+        if (val > 10) {
+          // Descuentos > 10% requieren autorización de supervisor (SPEC-032 / TASK-032-02)
+          setSupervisorAuthModal({
+            isOpen: true,
+            accion: 'DESCUENTO_EXCEPCIONAL',
+            descripcion: `Autorizar descuento mayor del ${val}% en la venta actual`,
+            onSuccess: (auth) => {
+              setDescuentoGlobal(val);
+              publishEvent(
+                'SALE_COMPLETED',
+                userRole,
+                `Descuento del ${val}% autorizado por supervisor ${auth.supervisorNombre}`,
+                { supervisorId: auth.supervisorId, porcentaje: val }
+              );
+            },
+          });
+        } else {
+          setDescuentoGlobal(val);
+        }
       }
     }
   };
@@ -1879,6 +1956,22 @@ export default function POSView({
             )}
           </button>
 
+          {/* Botón Primario 2.1: Comandas en Espera (Caja Única Multivendedor SPEC-032) */}
+          <button
+            data-testid="btn-open-comandas-drawer"
+            id="btn-open-comandas-drawer"
+            onClick={() => setShowComandasDrawer(true)}
+            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-900/60 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+            title="Cola Central de Preventas / Comandas (Multivendedor)"
+          >
+            <span>📋 Comandas</span>
+            {comandasPendientes.length > 0 && (
+              <span className="bg-cyan-500 text-slate-950 text-[10px] font-black px-1.5 py-0.2 rounded-full">
+                {comandasPendientes.length}
+              </span>
+            )}
+          </button>
+
           {/* Botón Primario 3: Balanza / Peso */}
           <button
             onClick={() => {
@@ -3033,6 +3126,26 @@ export default function POSView({
       <SiigoQueueMonitorModal
         isOpen={showSiigoQueueModal}
         onClose={() => setShowSiigoQueueModal(false)}
+      />
+
+      {/* Cola Central de Preventas Multivendedor (SPEC-032) */}
+      <PendingOrdersDrawer
+        isOpen={showComandasDrawer}
+        onClose={() => setShowComandasDrawer(false)}
+        orders={comandasPendientes}
+        onSelectOrder={handleSelectComanda}
+      />
+
+      {/* Modal Táctil de Autorización con PIN de Supervisor (SPEC-032 / TASK-032-02) */}
+      <SupervisorPinModal
+        isOpen={supervisorAuthModal.isOpen}
+        onClose={() => setSupervisorAuthModal((prev) => ({ ...prev, isOpen: false }))}
+        accion={supervisorAuthModal.accion}
+        descripcion={supervisorAuthModal.descripcion}
+        onAuthorized={(auth) => {
+          supervisorAuthModal.onSuccess(auth);
+          setSupervisorAuthModal((prev) => ({ ...prev, isOpen: false }));
+        }}
       />
     </div>
   );

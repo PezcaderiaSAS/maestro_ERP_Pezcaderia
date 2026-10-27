@@ -16,12 +16,12 @@ import {
 import type { UserRole } from '../store/useAppStore';
 
 describe('AppRoute — Arquitectura Central de Rutas SDD', () => {
-  it('debe contener exactamente las 25 rutas oficiales del ERP sin duplicados', () => {
+  it('debe contener exactamente las 26 rutas oficiales del ERP sin duplicados', () => {
     const routeValues = Object.values(AppRouteId);
-    expect(routeValues.length).toBe(25);
+    expect(routeValues.length).toBe(26);
 
     const uniqueValues = new Set(routeValues);
-    expect(uniqueValues.size).toBe(25);
+    expect(uniqueValues.size).toBe(26);
   });
 
   it('debe tener metadatos completos y válidos para cada AppRouteId, incluyendo OTIF_DASHBOARD y B2B_PORTAL', () => {
@@ -59,9 +59,9 @@ describe('AppRoute — Arquitectura Central de Rutas SDD', () => {
       ...ADMIN_ROUTES,
     ];
 
-    expect(allCategorized.length).toBe(25);
+    expect(allCategorized.length).toBe(26);
     const uniqueCategorized = new Set(allCategorized);
-    expect(uniqueCategorized.size).toBe(25);
+    expect(uniqueCategorized.size).toBe(26);
 
     // Verificar correspondencia de dominio en metadatos
     COMMERCIAL_ROUTES.forEach((id) => {

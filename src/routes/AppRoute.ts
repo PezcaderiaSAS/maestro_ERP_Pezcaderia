@@ -50,6 +50,7 @@ export enum AppRouteId {
   // Dominio Administración & RRHH
   HR = 'rrhh',
   SUPPLIERS = 'compras',
+  SUPERADMIN = 'superadmin',
 }
 
 /**
@@ -102,6 +103,7 @@ export const FINANCIAL_ROUTES: readonly AppRouteId[] = [
 export const ADMIN_ROUTES: readonly AppRouteId[] = [
   AppRouteId.HR,
   AppRouteId.SUPPLIERS,
+  AppRouteId.SUPERADMIN,
 ] as const;
 
 // ============================================================================
@@ -199,6 +201,7 @@ export interface RouteParamsMap {
   [AppRouteId.SUPPLIERS]: {
     supplierId?: string;
   } | undefined;
+  [AppRouteId.SUPERADMIN]: undefined;
 }
 
 /**
@@ -533,6 +536,18 @@ export const APP_ROUTES_METADATA: Record<AppRouteId, AppRouteMetadata<AppRouteId
     allowedRoles: ['admin', 'administrativo'],
     isPrimaryNav: true,
     testId: 'nav-compras',
+  },
+  [AppRouteId.SUPERADMIN]: {
+    id: AppRouteId.SUPERADMIN,
+    path: '/superadmin',
+    title: 'Panel Maestro Super Admin',
+    domain: RouteDomain.ADMIN,
+    subtitle: 'Consola Global Multi-Tenant (GOD_MODE)',
+    description: 'Supervisión multi-empresa, terminales, usuarios y gestión de inquilinos para desarrollador.',
+    iconName: 'Shield',
+    allowedRoles: ['admin'],
+    isPrimaryNav: false,
+    testId: 'nav-superadmin',
   },
 };
 

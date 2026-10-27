@@ -19,6 +19,7 @@ import {
   DollarSign,
   PieChart,
   PanelLeftClose,
+  Shield,
 } from 'lucide-react';
 
 import { AppRouteId, type ERPViewKey } from '../../routes/AppRoute';
@@ -217,6 +218,18 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
           icon: Store,
           testId: 'nav-portal-b2b',
         },
+        ...(userRole === 'admin'
+          ? [
+              {
+                key: AppRouteId.SUPERADMIN,
+                label: 'Master Super Admin',
+                icon: Shield,
+                badge: 'GOD',
+                badgeVariant: 'amber' as const,
+                testId: 'nav-superadmin',
+              },
+            ]
+          : []),
       ],
     },
   ];

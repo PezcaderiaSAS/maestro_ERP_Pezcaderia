@@ -7,12 +7,13 @@
 - **Frameworks IA (Tétrada Canónica):** Google Harness² y Agency Swarm co-ejecutados a costo $0 para SDD v3.0.
 
 ## Módulos y Especificaciones Certificadas
-1. **SPEC-034 (CERTIFICADA - MULTIVENDOR-CONCURRENT-CASH-SUPERADMIN-V8):** Motor concurrencia caja única (8 terminales POS con consecutivo atómico y `SELECT FOR UPDATE`), panel Super Admin (`#070A10`), y carga masiva 2.000 filas en < 35 ms.
-2. **SPEC-035 (En Progreso - AUTENTICACIÓN OAUTH 2.0 & MULTI-TENANT ONBOARDING):**
-   - **TASK-035-01 [CERTIFICADA]:** Tipos TypeScript y contratos Zod para OAuth, creación de empresa e invitaciones (`auth.schema.test.ts` 12/12 verdes).
-   - **TASK-035-02 [CERTIFICADA]:** Servicios `authService.ts` y `tenantOnboardingService.ts` con aprovisionamiento de Bodega 1 y Caja 01 (`authService.test.ts` 6/6 verdes).
-   - **TASK-035-03 [CERTIFICADA]:** Store reactivo `useAuthStore.ts` con sincronización bidireccional a `useAppStore` y soporte para invitaciones con token de 7 días (`useAuthStore.test.ts` 8/8 verdes).
-   - **Próxima Tarea Prioritaria (WIP = 1):** `TASK-035-04: LoginView.tsx` y `DevFastLoginDrawer.tsx` con Dark Glassmorphism V8.
+1. **SPEC-032 (CERTIFICADA - ARQUITECTURA MULTIVENDEDOR, CAJA ÚNICA & SUPERADMIN):**
+   - 8 terminales POS en preventa/comanda concurrentes con cola central `PendingOrdersDrawer.tsx`.
+   - Numpad táctil de PIN de supervisor para descuentos y excepciones (`SupervisorPinModal.tsx`).
+   - Consola desacoplada SuperAdmin `/superadmin` con switch dinámico de tenant (`SuperAdminMasterView.tsx`).
+   - Módulo de carga masiva de ferretería tolerante CSV/JSON (`BulkHardwareImportModal.tsx`).
+   - 100% pruebas en verde (57/57 tests POS/Multivendor/Caja) y build de producción limpio.
+2. **SPEC-034 & SPEC-035:** Concurrencia de caja única con bloqueo atómico y autenticación OAuth 2.0 / Onboarding.
 
 ## Despliegue a Producción Certificado (Vercel & Supabase)
 - **Vercel (Frontend SPA):** En vivo en [`https://maestro-erp-pezcaderia.vercel.app`](https://maestro-erp-pezcaderia.vercel.app). 0 errores en consola JS, PWA activa, tema Dark Glassmorphism V8.

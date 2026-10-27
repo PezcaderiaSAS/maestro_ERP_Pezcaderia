@@ -158,7 +158,7 @@ describe('TASK-022-02: accountsPayableService & useAccountsPayableStore', () => 
         proveedorNit: '901234',
         montoTotal: 800000,
         fechaEmision: '2026-10-18',
-        diasCredito: 8
+        diasCredito: 30
       });
 
       expect(nuevaCuenta).toBeDefined();
