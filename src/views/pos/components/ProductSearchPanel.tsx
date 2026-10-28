@@ -177,7 +177,7 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
       </div>
 
       <div className="pos-products-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3 overflow-y-auto flex-1 pb-2 min-h-0" data-testid="product-grid">
-        {filteredProducts.map(prod => {
+        {filteredProducts.slice(0, 80).map(prod => {
           const stockPrincipal = getProductStock(prod.sku, 'Bodega Principal');
           const stockSecundaria = getProductStock(prod.sku, 'Bodega Secundaria');
           const stockAverias = getProductStock(prod.sku, 'Bodega Averías');

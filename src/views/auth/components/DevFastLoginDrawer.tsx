@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuthStore } from '../../../store/useAuthStore';
 import type { RoleRbac } from '../../../types/auth.types';
-import { Terminal, Shield, User, ShoppingBag, Truck, CheckCircle2, ChevronUp, ChevronDown } from 'lucide-react';
+import { Terminal, Shield, User, ShoppingBag, Truck, CheckCircle2, ChevronUp, ChevronDown, Crown } from 'lucide-react';
 
 interface DevFastLoginDrawerProps {
   onLoginTriggered?: () => void;
@@ -18,6 +18,14 @@ interface DevRoleOption {
 }
 
 const DEV_ROLES: DevRoleOption[] = [
+  {
+    rol: 'admin',
+    label: 'Ultra Admin Global',
+    email: 'pezcaderia.2022@gmail.com',
+    nombre: 'Ultra Administrador (GOD_MODE)',
+    badgeColor: 'border-rose-500/30 text-rose-400 bg-rose-500/10',
+    icon: <Crown className="w-4 h-4 text-rose-400" />,
+  },
   {
     rol: 'admin',
     label: 'Admin Propietario',
@@ -116,10 +124,10 @@ export const DevFastLoginDrawer: React.FC<DevFastLoginDrawerProps> = ({ onLoginT
       {/* Contenido expandible */}
       {isOpen && (
         <div className="p-4 border-t border-white/5 bg-slate-900/60">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 max-w-6xl mx-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 max-w-7xl mx-auto">
             {DEV_ROLES.map((roleOpt) => (
               <button
-                key={roleOpt.rol}
+                key={roleOpt.email}
                 onClick={() => handleDevLogin(roleOpt)}
                 disabled={isLoading}
                 className={`p-3 rounded-2xl border text-left transition-all duration-200 hover:scale-[1.02] flex flex-col justify-between ${roleOpt.badgeColor} hover:brightness-125 focus:ring-2 focus:ring-cyan-500/50`}

@@ -92,6 +92,13 @@ export class UserManagementService {
   }
 
   /**
+   * Resuelve los permisos predeterminados para un rol dado
+   */
+  public getDefaultPermissionsForRole(rol: string): Record<string, boolean> {
+    return getDefaultPermissionsForRole(rol);
+  }
+
+  /**
    * Limpia el almacén en memoria para pruebas
    */
   public limpiarEnMemoria(): void {

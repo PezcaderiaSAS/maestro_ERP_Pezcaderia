@@ -6,6 +6,7 @@ import type {
   TenantInvitation,
   RoleRbac,
 } from '../types/auth.types';
+import { isSuperAdmin } from '../types/auth.types';
 import type { UserRole } from './useAppStore';
 import { useAppStore } from './useAppStore';
 import { authService, LoginResult } from '../services/authService';
@@ -15,6 +16,9 @@ import {
   ResultadoInvitacion,
   ResultadoCanje,
 } from '../services/tenantOnboardingService';
+import { superAdminService } from '../services/superAdminService';
+import { useSuperAdminStore } from './useSuperAdminStore';
+import { ferreteriaJosaseService } from '../services/ferreteriaJosaseService';
 import * as localDb from '../services/localDb';
 import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
 
@@ -46,6 +50,7 @@ export interface AuthState {
   isLoading: boolean;
   error: string | null;
   tenantInvitations: TenantInvitation[];
+  isTenantSelectorOpen: boolean;
 
   // Acciones
   setSession: (session: {
@@ -79,6 +84,19 @@ export interface AuthState {
   acceptInvitation: (token: string) => Promise<ResultadoCanje>;
   setPendingInviteToken: (token: string | null) => void;
   switchRoleDev: (role: RoleRbac) => void;
+  setTenantSelectorOpen: (open: boolean) => void;
+  switchTenant: (tenant: TenantData | {
+    id: string;
+    razonSocial?: string;
+    nombre?: string;
+    nit?: string;
+    ciudad?: string;
+    direccion?: string;
+    telefono?: string;
+    regimenTributario?: string;
+    activo?: boolean;
+    createdAt?: string;
+  }) => void;
   clearError: () => void;
 }
 
@@ -120,6 +138,7 @@ export const useAuthStore = create<AuthState>()(
     isLoading: false,
     error: null,
     tenantInvitations: [],
+    isTenantSelectorOpen: false,
 
     setSession: (session) => {
       const user = session.user || session.currentUser || null;
@@ -156,6 +175,48 @@ export const useAuthStore = create<AuthState>()(
         }
 
         const user = result.user;
+
+        // Bypass UltraAdministrador Global GOD_MODE (pezcaderia.2022@gmail.com)
+        if (isSuperAdmin(user.email)) {
+          const allTenants = superAdminService.getTenants();
+          const defaultTenantConfig = allTenants[0];
+          const activeTenantData: TenantData = get().activeTenant || {
+            id: defaultTenantConfig.id,
+            razonSocial: defaultTenantConfig.razonSocial || defaultTenantConfig.nombre,
+            nit: defaultTenantConfig.nit,
+            ciudad: 'Bucaramanga',
+            telefono: defaultTenantConfig.contactoTelefono || '3101234567',
+            activo: true,
+            createdAt: defaultTenantConfig.createdAt,
+          };
+
+          const updatedUser: AuthUserProfile = {
+            ...user,
+            tenantId: activeTenantData.id,
+            rol: 'admin',
+            isOwner: true,
+            isSuperAdmin: true,
+          };
+
+          const sessionData: PersistedAuthSession = {
+            currentUser: updatedUser,
+            activeTenant: activeTenantData,
+            status: 'authenticated',
+          };
+          localDb.save(STORAGE_KEY, sessionData);
+
+          set({
+            status: 'authenticated',
+            currentUser: updatedUser,
+            activeTenant: activeTenantData,
+            isLoading: false,
+          });
+
+          useSuperAdminStore.getState().selectTenant(activeTenantData.id);
+          syncToAppStore(updatedUser);
+          return { ok: true, user: updatedUser };
+        }
+
         const tenantStatus = tenantOnboardingService.verificarEstadoUsuario(user.id);
 
         if (tenantStatus.tieneEmpresa && tenantStatus.tenantId) {
@@ -216,6 +277,48 @@ export const useAuthStore = create<AuthState>()(
         }
 
         const user = result.user;
+
+        // Bypass UltraAdministrador Global GOD_MODE (pezcaderia.2022@gmail.com)
+        if (isSuperAdmin(user.email)) {
+          const allTenants = superAdminService.getTenants();
+          const defaultTenantConfig = allTenants[0];
+          const activeTenantData: TenantData = get().activeTenant || {
+            id: defaultTenantConfig.id,
+            razonSocial: defaultTenantConfig.razonSocial || defaultTenantConfig.nombre,
+            nit: defaultTenantConfig.nit,
+            ciudad: 'Bucaramanga',
+            telefono: defaultTenantConfig.contactoTelefono || '3101234567',
+            activo: true,
+            createdAt: defaultTenantConfig.createdAt,
+          };
+
+          const updatedUser: AuthUserProfile = {
+            ...user,
+            tenantId: activeTenantData.id,
+            rol: 'admin',
+            isOwner: true,
+            isSuperAdmin: true,
+          };
+
+          const sessionData: PersistedAuthSession = {
+            currentUser: updatedUser,
+            activeTenant: activeTenantData,
+            status: 'authenticated',
+          };
+          localDb.save(STORAGE_KEY, sessionData);
+
+          set({
+            status: 'authenticated',
+            currentUser: updatedUser,
+            activeTenant: activeTenantData,
+            isLoading: false,
+          });
+
+          useSuperAdminStore.getState().selectTenant(activeTenantData.id);
+          syncToAppStore(updatedUser);
+          return { ok: true, user: updatedUser };
+        }
+
         const tenantStatus = tenantOnboardingService.verificarEstadoUsuario(user.id);
 
         if (tenantStatus.tieneEmpresa && tenantStatus.tenantId) {
@@ -413,6 +516,53 @@ export const useAuthStore = create<AuthState>()(
 
       set({ currentUser: updatedUser });
       syncToAppStore(updatedUser);
+    },
+
+    setTenantSelectorOpen: (open: boolean) => {
+      set({ isTenantSelectorOpen: open });
+    },
+
+    switchTenant: (tenantInput) => {
+      const normTenant: TenantData = {
+        id: tenantInput.id,
+        razonSocial: tenantInput.razonSocial || (tenantInput as any).nombre || 'Empresa',
+        nit: tenantInput.nit || '',
+        ciudad: tenantInput.ciudad || 'Bucaramanga',
+        direccion: tenantInput.direccion,
+        telefono: tenantInput.telefono || '',
+        regimenTributario: tenantInput.regimenTributario || 'COMUN',
+        activo: tenantInput.activo ?? true,
+        createdAt: tenantInput.createdAt || new Date().toISOString(),
+      };
+
+      const current = get().currentUser;
+      const updatedUser: AuthUserProfile | null = current
+        ? {
+            ...current,
+            tenantId: normTenant.id,
+          }
+        : null;
+
+      const sessionData: PersistedAuthSession = {
+        currentUser: updatedUser,
+        activeTenant: normTenant,
+        status: get().status,
+      };
+      localDb.save(STORAGE_KEY, sessionData);
+
+      set({
+        activeTenant: normTenant,
+        currentUser: updatedUser,
+        isTenantSelectorOpen: false,
+      });
+
+      useSuperAdminStore.getState().selectTenant(normTenant.id);
+
+      if (normTenant.id === 'tenant-03') {
+        ferreteriaJosaseService.applyToStores().catch((err) => {
+          console.warn('Error aplicando catálogo Ferretería Josase:', err);
+        });
+      }
     },
 
     clearError: () => set({ error: null }),

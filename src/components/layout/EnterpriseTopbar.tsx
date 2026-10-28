@@ -8,13 +8,17 @@ import {
   Search,
   Palette,
   Check,
+  Building2,
+  ChevronDown,
 } from 'lucide-react';
 import type { ERPViewKey } from './EnterpriseSidebar';
 import { getRouteBreadcrumbs, AppRouteId } from '../../routes/AppRoute';
 import { NetworkSyncStatusBadge } from './NetworkSyncStatusBadge';
 import { useAppStore } from '../../store/useAppStore';
+import { useAuthStore } from '../../store/useAuthStore';
 import { getInitials } from '../../utils/roleMapper';
 import { UserSwitchModal } from './UserSwitchModal';
+import { TenantSelectorModal } from '../../views/auth/components/TenantSelectorModal';
 
 export const THEMES_CONFIG = [
   {
@@ -62,7 +66,7 @@ interface EnterpriseTopbarProps {
 
 /**
  * EnterpriseTopbar - Barra Superior Flotante Oficial Dark Glassmorphism V8.
- * Incorpora specular highlight superior, desenfoque de 24px y controles semánticos.
+ * Incorpora specular highlight superior, desenfoque de 24px, conmutador multi-empresa y controles semánticos.
  */
 export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
   currentView,
@@ -78,9 +82,13 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
 }) => {
   const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
   const [isUserSwitchOpen, setIsUserSwitchOpen] = useState(false);
-  const currentUser = useAppStore((s) => s.currentUser);
-  const currentThemeConfig = THEMES_CONFIG.find((t) => t.id === theme) || THEMES_CONFIG[0];
 
+  const currentUser = useAppStore((s) => s.currentUser);
+  const activeTenant = useAuthStore((s) => s.activeTenant);
+  const isTenantSelectorOpen = useAuthStore((s) => s.isTenantSelectorOpen);
+  const setTenantSelectorOpen = useAuthStore((s) => s.setTenantSelectorOpen);
+
+  const currentThemeConfig = THEMES_CONFIG.find((t) => t.id === theme) || THEMES_CONFIG[0];
   const breadcrumb = getRouteBreadcrumbs(currentView as AppRouteId);
 
   return (
@@ -124,8 +132,25 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
         </div>
       </div>
 
-      {/* Sección Derecha: Omnibox, Selector de Bodega, Botón POS, Tema y Perfil */}
+      {/* Sección Derecha: Selector de Empresa, Omnibox, Selector de Bodega, Botón POS, Tema y Perfil */}
       <div className="flex items-center gap-2 sm:gap-3">
+        {/* Selector y Badge de Empresa / Multi-Tenant V8 */}
+        <button
+          type="button"
+          id="topbar-btn-tenant-selector"
+          data-testid="topbar-btn-tenant-selector"
+          onClick={() => setTenantSelectorOpen(true)}
+          className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-xs text-cyan-300 hover:text-white transition-all cursor-pointer font-bold shadow-xs active:scale-95 group"
+          title={`Empresa activa: ${activeTenant?.razonSocial || activeTenant?.nombre || 'La Pezcaderia SAS'}. Clic para conmutar empresa.`}
+          aria-label="Conmutador de Empresa Activa"
+        >
+          <Building2 size={14} className="text-cyan-400 shrink-0 group-hover:scale-110 transition-transform" />
+          <span className="truncate max-w-[90px] sm:max-w-[130px] md:max-w-[160px] font-semibold">
+            {activeTenant?.razonSocial || activeTenant?.nombre || 'La Pezcaderia SAS'}
+          </span>
+          <ChevronDown size={12} className="text-cyan-400/70 shrink-0" />
+        </button>
+
         {/* Buscador Rápido Omnibox (F8 / Ctrl+K) */}
         <button
           onClick={onOpenOmnibox}
@@ -252,10 +277,16 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
           </div>
         </button>
 
-        {/* Modal Táctil de Conmutación de Usuario */}
+        {/* Modal Táctil de Conmutación de Usuario (PIN) */}
         <UserSwitchModal
           isOpen={isUserSwitchOpen}
           onClose={() => setIsUserSwitchOpen(false)}
+        />
+
+        {/* Modal de Conmutación Multi-Empresa / Tenant */}
+        <TenantSelectorModal
+          isOpen={isTenantSelectorOpen}
+          onClose={() => setTenantSelectorOpen(false)}
         />
       </div>
     </header>

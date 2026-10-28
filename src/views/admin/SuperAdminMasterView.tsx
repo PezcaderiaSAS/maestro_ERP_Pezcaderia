@@ -2,7 +2,7 @@
 // Panel de Control Maestro Super Admin (Desarrollador Principal)
 // Sistema de Diseño Oficial Dark Glassmorphism V8 (#070A10)
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Building2,
   Users,
@@ -15,8 +15,10 @@ import {
   ExternalLink,
   Store,
   Sparkles,
+  UserPlus,
 } from 'lucide-react';
 import { useSuperAdminStore } from '../../store/useSuperAdminStore';
+import { UserCreationModal } from './components/UserCreationModal';
 
 export const SuperAdminMasterView: React.FC = () => {
   const {
@@ -25,7 +27,10 @@ export const SuperAdminMasterView: React.FC = () => {
     users,
     selectTenant,
     toggleTenantStatus,
+    loadUsers,
   } = useSuperAdminStore();
+
+  const [isCreateUserModalOpen, setIsCreateUserModalOpen] = useState(false);
 
   const totalEmpresas = tenants.length;
   const empresasActivas = tenants.filter((t) => t.activo).length;
@@ -209,7 +214,7 @@ export const SuperAdminMasterView: React.FC = () => {
 
       {/* 4. Tabla de Usuarios y Roles de la Empresa Seleccionada */}
       <section className="p-6 rounded-3xl bg-slate-900/60 backdrop-blur-2xl border border-white/10 space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               <Users size={18} className="text-teal-400" />
@@ -219,6 +224,16 @@ export const SuperAdminMasterView: React.FC = () => {
               Trazabilidad y roles RBAC activos para este tenant
             </p>
           </div>
+
+          <button
+            type="button"
+            data-testid="btn-open-create-user-modal"
+            onClick={() => setIsCreateUserModalOpen(true)}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 transition-all cursor-pointer self-start sm:self-auto"
+          >
+            <UserPlus size={16} />
+            <span>Crear Usuario</span>
+          </button>
         </div>
 
         <div className="overflow-x-auto">
@@ -235,8 +250,22 @@ export const SuperAdminMasterView: React.FC = () => {
             <tbody className="divide-y divide-white/5">
               {users.map((u) => (
                 <tr key={u.id} className="hover:bg-white/5 transition-colors">
-                  <td className="py-3 px-4 font-semibold text-white">{u.nombre}</td>
-                  <td className="py-3 px-4 font-mono text-slate-300">{u.email}</td>
+                  <td className="py-3 px-4">
+                    <div className="font-semibold text-white">{u.nombre}</div>
+                    {u.identificacion && (
+                      <div className="text-[11px] font-mono text-cyan-300/80">
+                        CC: {u.identificacion}
+                      </div>
+                    )}
+                  </td>
+                  <td className="py-3 px-4 font-mono text-slate-300">
+                    <div>{u.email}</div>
+                    {u.telefono && (
+                      <div className="text-[11px] font-mono text-slate-400">
+                        Tel: {u.telefono}
+                      </div>
+                    )}
+                  </td>
                   <td className="py-3 px-4">
                     <span
                       className={`px-2 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase ${
@@ -273,6 +302,17 @@ export const SuperAdminMasterView: React.FC = () => {
           </table>
         </div>
       </section>
+
+      {/* Modal de Creación de Usuarios con Matriz de Checkboxes */}
+      <UserCreationModal
+        isOpen={isCreateUserModalOpen}
+        onClose={() => setIsCreateUserModalOpen(false)}
+        tenantId={selectedTenant?.id || 'tenant-01'}
+        tenantNombre={selectedTenant?.nombre}
+        onUserCreated={() => {
+          loadUsers(selectedTenant?.id);
+        }}
+      />
     </div>
   );
 };

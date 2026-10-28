@@ -1,18 +1,7 @@
-# Desglose de Tareas Atómicas: /speckit.tasks (SPEC-036)
-
-**Código:** SPEC-036  
-**Fase:** /speckit.tasks (SDD v3.0)  
-**Ticket:** AUTH-ONBOARDING-USER-MGMT-V8  
-**Fecha:** 2026-10-27  
-**Gobernanza:** Flujo Continuo Kanban (Límite estricto `WIP = 1`). TDD Quirúrgico.  
-**Estado:** PENDIENTE_APROBACION_USUARIO  
-
----
-
-## 1. Cadena de Tareas Secuenciales (WIP = 1)
+# Tareas de Implementación: SPEC-036 - Gestión de Usuarios, Onboarding & Multi-Empresa
 
 ```
-[TASK-036-01: Esquemas Zod & Contratos] ──► [TASK-036-02: UserManagementService & Supabase Auth] ──► [TASK-036-03: Wizard 2 Pasos Registro Empresa] ──► [TASK-036-04: LoginView Dual & Cambio Password] ──► [TASK-036-05: UserCreationModal con Matriz Checkboxes] ──► [TASK-036-06: Selector Multi-Empresa & Quality Gate Final]
+[TASK-036-01: Esquemas Zod & Contratos] ───► [TASK-036-02: UserManagementService & Supabase Auth] ───► [TASK-036-03: Wizard 2 Pasos Registro Empresa] ───► [TASK-036-04: LoginView Dual & Cambio Password] ───► [TASK-036-05: UserCreationModal con Matriz Checkboxes] ───► [TASK-036-06: Selector Multi-Empresa & Quality Gate Final]
 ```
 
 ---
@@ -31,7 +20,7 @@
 
 ---
 
-### [x] TASK-036-03: Asistente Wizard en 2 Pasos para Registro de Nueva Empresa (`TenantOnboardingWizard.tsx`) - COMPLETADO ✅
+### [x] TASK-036-03: Componente Guiado de 2 Pasos para Onboarding de Empresa y Administrador - COMPLETADO ✅
 - **Objetivo:** Desarrollar el componente de registro guiado: Paso 1 (Datos de la Empresa: Razón Social, NIT, Ciudad, Teléfono) y Paso 2 (Datos del Administrador: Nombre completo, Cédula, Correo corporativo, Celular).
 - **Archivos:** `src/views/auth/components/TenantOnboardingWizard.tsx`, `src/services/tenantOnboardingService.ts`, `src/tests/tenantOnboardingWizard.test.tsx`.
 - **Criterio de Aceptación:** Transición fluida entre pasos, validaciones en vivo, auto-aprovisionamiento de Bodega 1 y Caja 01, auto-registro del administrador con cédula como contraseña provisional, 4/4 tests en verde y `tsc --noEmit` con 0 errores.
@@ -45,14 +34,15 @@
 
 ---
 
-### [ ] TASK-036-05: Modal de Creación de Usuarios con Matriz de Checkboxes Personalizada
+### [x] TASK-036-05: Modal de Creación de Usuarios con Matriz de Checkboxes Personalizada - COMPLETADO ✅
 - **Objetivo:** Crear `UserCreationModal.tsx` con formulario compacto (Nombre, Cédula, Correo, Celular, Rol) y matriz interactiva de permisos organizados por módulo (POS, Caja, Inventario, Compras, Configuración).
 - **Archivos:** `src/views/admin/components/UserCreationModal.tsx`, `src/views/admin/SuperAdminMasterView.tsx`, `src/tests/userCreationModal.test.tsx`.
 - **Criterio de Aceptación:** Creación de usuarios con asignación automática de cédula como password, guardado de permisos granulares por checkbox y feedback con SweetAlert2.
+- **Certificación TDD:** 7/7 tests unitarios pasando en `userCreationModal.test.tsx` (26/26 acumulados en SPEC-036), 0 errores en `tsc --noEmit` y suite de integración SuperAdmin pasando al 100%.
 
 ---
 
-### [ ] TASK-036-06: Selector Visual Multi-Empresa y Quality Gate Final Pre-Despliegue
-- **Objetivo:** Implementar `TenantSelectorModal.tsx` para usuarios que pertenecen a múltiples empresas (o SuperAdmin), ejecutar Quality Gate integral (`tsc --noEmit`, suite completa Vitest, auditoría GitNexus) y validación en Chrome DevTools MCP (375 px y 0 errores consola).
-- **Archivos:** `src/views/auth/components/TenantSelectorModal.tsx`, `src/App.tsx`, `MEMORY.md`.
-- **Criterio de Aceptación:** Conmutación de tenant en 1 toque, 100% tests en verde, 0 errores en consola y reporte final de entrega.
+### [x] TASK-036-06: Selector Visual Multi-Empresa y Quality Gate Final Pre-Despliegue - COMPLETADO ✅
+- **Objetivo:** Implementar `TenantSelectorModal.tsx` para usuarios que pertenecen a múltiples empresas (o SuperAdmin/UltraAdmin), ejecutar Quality Gate integral (`tsc --noEmit`, suite completa Vitest, auditoría GitNexus) y validación en Chrome DevTools MCP (375 px y 0 errores consola).
+- **Archivos:** `src/views/auth/components/TenantSelectorModal.tsx`, `src/components/layout/EnterpriseTopbar.tsx`, `src/store/useAuthStore.ts`, `src/types/auth.types.ts`, `src/views/auth/components/DevFastLoginDrawer.tsx`, `database/37_tenants_and_invitations.sql`, `src/tests/tenantSelectorModal.test.tsx`, `MEMORY.md`.
+- **Criterio de Aceptación:** Conmutación de tenant en 1 toque, sincronización de UltraAdmin `pezcaderia.2022@gmail.com` con GOD_MODE, badges de rubro (PESCADERIA/FERRETERIA), 100% tests en verde (37/37 pruebas), 0 errores en `tsc --noEmit`, 0 errores en consola JS y validación en Chrome DevTools a 375 px.

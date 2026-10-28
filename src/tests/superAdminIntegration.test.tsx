@@ -55,4 +55,14 @@ describe('SuperAdmin Integration & Multi-Tenancy (SPEC-032: TASK-032-03)', () =>
     expect(screen.getByText('Panel Maestro Super Admin')).toBeInTheDocument();
     expect(screen.getByText('Total Empresas')).toBeInTheDocument();
   });
+
+  it('5. SuperAdminMasterView debe abrir el modal de crear usuario al hacer clic en Crear Usuario', () => {
+    render(<SuperAdminMasterView />);
+
+    const btnOpen = screen.getByTestId('btn-open-create-user-modal');
+    expect(btnOpen).toBeInTheDocument();
+
+    fireEvent.click(btnOpen);
+    expect(screen.getByRole('heading', { name: /Crear Nuevo Usuario/i })).toBeInTheDocument();
+  });
 });

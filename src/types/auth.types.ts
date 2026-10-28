@@ -12,6 +12,7 @@ export type InvitationStatus = 'pending' | 'accepted' | 'expired' | 'revoked';
 export interface TenantData {
   id: string;
   razonSocial: string;
+  nombre?: string;
   nit: string;
   ciudad: string;
   direccion?: string;
@@ -53,6 +54,21 @@ export interface AuthUserProfile {
   tenantId?: string;
   rol?: RoleRbac;
   isOwner?: boolean;
+  isSuperAdmin?: boolean;
+}
+
+/**
+ * Correo oficial del UltraAdministrador Global del sistema ERP (GOD_MODE)
+ * Tiene acceso irrestricto a todos los tenants y omite onboarding.
+ */
+export const SUPER_ADMIN_EMAIL = 'pezcaderia.2022@gmail.com';
+
+/**
+ * Determina si un correo electrónico corresponde al UltraAdministrador Global
+ */
+export function isSuperAdmin(email?: string | null): boolean {
+  if (!email) return false;
+  return email.trim().toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase();
 }
 
 export type AuthStateStatus = 'unauthenticated' | 'needs_onboarding' | 'authenticated';

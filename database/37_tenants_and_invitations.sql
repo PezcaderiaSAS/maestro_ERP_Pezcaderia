@@ -60,27 +60,35 @@ CREATE INDEX IF NOT EXISTS idx_invitations_email ON public.tenant_invitations(em
 -- ==============================================================================
 
 CREATE OR REPLACE FUNCTION public.current_user_tenant_ids()
-RETURNS SETOF UUID AS $$
-    SELECT tenant_id 
-    FROM public.tenant_memberships
-    WHERE user_id = auth.uid() 
-      AND status = 'active';
-$$ LANGUAGE sql STABLE SECURITY DEFINER;
+RETURNS SETOF UUID AS 
+BEGIN
+    -- Bypass UltraAdministrador Global GOD_MODE (pezcaderia.2022@gmail.com)
+    IF (auth.jwt() ->> 'email' = 'pezcaderia.2022@gmail.com') THEN
+        RETURN QUERY SELECT id FROM public.tenants;
+    ELSE
+        RETURN QUERY 
+        SELECT tenant_id 
+        FROM public.tenant_memberships
+        WHERE user_id = auth.uid() 
+          AND status = 'active';
+    END IF;
+END;
+ LANGUAGE plpgsql STABLE SECURITY DEFINER;
 
 CREATE OR REPLACE FUNCTION public.user_belongs_to_tenant(target_tenant_id UUID)
-RETURNS BOOLEAN AS $$
-    SELECT EXISTS (
+RETURNS BOOLEAN AS 
+    SELECT (auth.jwt() ->> 'email' = 'pezcaderia.2022@gmail.com') OR EXISTS (
         SELECT 1 
         FROM public.tenant_memberships
         WHERE tenant_id = target_tenant_id
           AND user_id = auth.uid()
           AND status = 'active'
     );
-$$ LANGUAGE sql STABLE SECURITY DEFINER;
+ LANGUAGE sql STABLE SECURITY DEFINER;
 
 CREATE OR REPLACE FUNCTION public.user_is_tenant_admin(target_tenant_id UUID)
-RETURNS BOOLEAN AS $$
-    SELECT EXISTS (
+RETURNS BOOLEAN AS 
+    SELECT (auth.jwt() ->> 'email' = 'pezcaderia.2022@gmail.com') OR EXISTS (
         SELECT 1 
         FROM public.tenant_memberships
         WHERE tenant_id = target_tenant_id
@@ -88,7 +96,7 @@ RETURNS BOOLEAN AS $$
           AND role = 'admin'
           AND status = 'active'
     );
-$$ LANGUAGE sql STABLE SECURITY DEFINER;
+ LANGUAGE sql STABLE SECURITY DEFINER;
 
 -- ==============================================================================
 -- POLÍTICAS ROW LEVEL SECURITY (RLS) - AISLAMIENTO ESTRICTO ZERO-LEAKAGE

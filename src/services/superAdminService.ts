@@ -2,6 +2,7 @@
 // Servicio de Administración Global Multi-Tenant (Super Admin / Desarrollador)
 
 import type { TenantConfig, RubroEmpresa } from '../types/multiVendorCash.types';
+import { userManagementService } from './userManagementService';
 
 export interface SuperAdminUser {
   id: string;
@@ -11,6 +12,8 @@ export interface SuperAdminUser {
   rol: 'ADMIN' | 'VENDEDOR' | 'CAJERO' | 'SUPERVISOR';
   activo: boolean;
   ultimoAcceso?: string;
+  identificacion?: string;
+  telefono?: string;
 }
 
 export class SuperAdminService {
@@ -18,8 +21,8 @@ export class SuperAdminService {
     {
       id: 'tenant-01',
       nombre: 'La Pezcaderia SAS',
-      nit: '900.123.456-1',
-      razonSocial: 'La Pezcadería del Mar S.A.S.',
+      nit: '901.246.730',
+      razonSocial: 'La Pezcadería S.A.S.',
       rubro: 'PESCADERIA',
       activo: true,
       maxTerminales: 8,
@@ -41,14 +44,27 @@ export class SuperAdminService {
       contactoTelefono: '+57 315 987 6543',
       sucursalesCount: 1,
     },
+    {
+      id: 'tenant-03',
+      nombre: 'Ferretería Josase',
+      nit: '901.954.321-8',
+      razonSocial: 'Ferretería Josase S.A.S.',
+      rubro: 'FERRETERIA',
+      activo: true,
+      maxTerminales: 8,
+      createdAt: '2026-10-28T07:00:00Z',
+      contactoEmail: 'FERRETERIAJOSASE@HOTMAIL.COM',
+      contactoTelefono: '+57 316 469 6581',
+      sucursalesCount: 1,
+    },
   ];
 
   private users: SuperAdminUser[] = [
     {
       id: 'user-01',
       tenantId: 'tenant-01',
-      nombre: 'Yurani Administradora',
-      email: 'yurani@pezcaderia.com',
+      nombre: 'Yurgen Administrador',
+      email: 'pezcaderia.2022@gmail.com',
       rol: 'ADMIN',
       activo: true,
       ultimoAcceso: '2026-10-26T16:30:00Z',
@@ -70,6 +86,84 @@ export class SuperAdminService {
       rol: 'CAJERO',
       activo: true,
       ultimoAcceso: '2026-10-26T16:50:00Z',
+    },
+    // Colaboradores de Ferretería Josase (tenant-03)
+    {
+      id: 'user-josase-01',
+      tenantId: 'tenant-03',
+      nombre: 'DIEGO IVAN DIAZ ANAYA',
+      identificacion: '1099373207',
+      email: 'DiegoDiazJosase@gmail.com',
+      telefono: '3184291362',
+      rol: 'VENDEDOR',
+      activo: true,
+      ultimoAcceso: '2026-10-28T07:00:00Z',
+    },
+    {
+      id: 'user-josase-02',
+      tenantId: 'tenant-03',
+      nombre: 'LUIS EDUARDO BANQUEZ MEJIA',
+      identificacion: '1050548644',
+      email: 'LuisEduardoJosase@gmail.com',
+      telefono: '3185660739',
+      rol: 'VENDEDOR',
+      activo: true,
+      ultimoAcceso: '2026-10-28T07:00:00Z',
+    },
+    {
+      id: 'user-josase-03',
+      tenantId: 'tenant-03',
+      nombre: 'DAVID SANTIAGO PALLARES',
+      identificacion: '1001047015',
+      email: 'SantiagoPallaresJosase@gmail.com',
+      telefono: '3184291386',
+      rol: 'VENDEDOR',
+      activo: true,
+      ultimoAcceso: '2026-10-28T07:00:00Z',
+    },
+    {
+      id: 'user-josase-04',
+      tenantId: 'tenant-03',
+      nombre: 'JUAN MANUEL MORA MORA',
+      identificacion: '1005078068',
+      email: 'ManuelMoraJosase@gmail.com',
+      telefono: '3185660733',
+      rol: 'VENDEDOR',
+      activo: true,
+      ultimoAcceso: '2026-10-28T07:00:00Z',
+    },
+    {
+      id: 'user-josase-05',
+      tenantId: 'tenant-03',
+      nombre: 'JEYMY KATERINE MONSALVE CACERES',
+      identificacion: '1098812420',
+      email: 'FERRETERIAJOSASE@HOTMAIL.COM',
+      telefono: '3164696581',
+      rol: 'VENDEDOR',
+      activo: true,
+      ultimoAcceso: '2026-10-28T07:00:00Z',
+    },
+    {
+      id: 'user-josase-06',
+      tenantId: 'tenant-03',
+      nombre: 'LADY YURANI GALVIS GALVIS',
+      identificacion: '1005369392',
+      email: 'YuraniGalvisJosase@gmail.com',
+      telefono: '3164696581',
+      rol: 'CAJERO',
+      activo: true,
+      ultimoAcceso: '2026-10-28T07:00:00Z',
+    },
+    {
+      id: 'user-josase-07',
+      tenantId: 'tenant-03',
+      nombre: 'LINA MARIA SOTO',
+      identificacion: '1098000001',
+      email: 'LinaSotoJosase@gmail.com',
+      telefono: '3164696581',
+      rol: 'ADMIN',
+      activo: true,
+      ultimoAcceso: '2026-10-28T07:00:00Z',
     },
   ];
 
@@ -115,8 +209,39 @@ export class SuperAdminService {
   }
 
   public getUsersByTenant(tenantId?: string): SuperAdminUser[] {
-    if (!tenantId) return [...this.users];
-    return this.users.filter((u) => u.tenantId === tenantId);
+    const staticUsers = tenantId ? this.users.filter((u) => u.tenantId === tenantId) : [...this.users];
+
+    // Obtener usuarios dinámicos creados en el tenant
+    const dynamicUsers: SuperAdminUser[] = (
+      tenantId ? userManagementService.obtenerUsuariosPorTenant(tenantId) : []
+    ).map((u) => {
+      let roleMapped: 'ADMIN' | 'VENDEDOR' | 'CAJERO' | 'SUPERVISOR' = 'VENDEDOR';
+      if (u.rol === 'ADMINISTRADOR' || u.rol === 'GERENTE') roleMapped = 'ADMIN';
+      else if (u.rol === 'CAJERO') roleMapped = 'CAJERO';
+      else if (u.rol === 'SUPERVISOR') roleMapped = 'SUPERVISOR';
+      else roleMapped = 'VENDEDOR';
+
+      return {
+        id: u.id,
+        tenantId: u.tenantId,
+        nombre: u.nombre,
+        identificacion: u.identificacion,
+        email: u.email,
+        telefono: u.telefono,
+        rol: roleMapped,
+        activo: u.activo,
+        ultimoAcceso: u.updatedAt,
+      };
+    });
+
+    const combined = [...staticUsers];
+    for (const d of dynamicUsers) {
+      if (!combined.some((c) => c.id === d.id || c.email === d.email)) {
+        combined.push(d);
+      }
+    }
+
+    return combined;
   }
 
   public updateUserRole(
