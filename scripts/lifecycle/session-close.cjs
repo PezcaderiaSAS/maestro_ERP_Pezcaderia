@@ -97,7 +97,8 @@ const now = new Date();
 const dateStr = now.toISOString().split('T')[0].replace(/-/g, '_');
 const handoverFile = path.join(handoversDir, `session_closure_handover_${dateStr}.md`);
 
-const handoverContent = `# Handover de Cierre de Sesión — ${now.toLocaleDateString('es-CO')}
+if (!fs.existsSync(handoverFile) || fs.readFileSync(handoverFile, 'utf-8').length < 300) {
+  const handoverContent = `# Handover de Cierre de Sesión — ${now.toLocaleDateString('es-CO')}
 - **Fecha y Hora:** ${now.toISOString()}
 - **Workflows Activos:** ${updatedManifest.totals.workflows}
 - **Skills Activas:** ${updatedManifest.totals.skills}
@@ -105,8 +106,8 @@ const handoverContent = `# Handover de Cierre de Sesión — ${now.toLocaleDateS
 - **Servidores MCP:** ${updatedManifest.totals.mcpServers}
 - **Quality Gate:** TypeScript 0 errores, Vitest 100% verde, GitNexus auditado.
 `;
-
-fs.writeFileSync(handoverFile, handoverContent, 'utf-8');
+  fs.writeFileSync(handoverFile, handoverContent, 'utf-8');
+}
 console.log(`  ✓ Handover registrado en: DOCS/handovers/session_closure_handover_${dateStr}.md\n`);
 
 // -------------------------------------------------------------
