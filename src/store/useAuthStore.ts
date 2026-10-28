@@ -21,6 +21,7 @@ import { useSuperAdminStore } from './useSuperAdminStore';
 import { ferreteriaJosaseService } from '../services/ferreteriaJosaseService';
 import * as localDb from '../services/localDb';
 import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
+import { getSupabaseClient } from '../lib/supabase';
 
 /**
  * Traduce el rol RBAC granular de SPEC-035 al UserRole operativo canónico de useAppStore
@@ -162,6 +163,54 @@ export const useAuthStore = create<AuthState>()(
           activeTenant: persisted.activeTenant,
         });
         syncToAppStore(persisted.currentUser);
+        return;
+      }
+
+      // Sincronización automática de sesión Supabase (retorno de OAuth callback / Google)
+      try {
+        const supabase = getSupabaseClient();
+        const { data } = await supabase.auth.getSession();
+        if (data?.session?.user) {
+          const supaUser = data.session.user;
+          const userEmail = supaUser.email || '';
+
+          let tenantId = 'tenant-01';
+          let rol: RoleRbac = 'admin';
+          const isSuper = isSuperAdmin(userEmail);
+
+          const tenantStatus = tenantOnboardingService.verificarEstadoUsuario(supaUser.id);
+          if (tenantStatus.tieneEmpresa && tenantStatus.tenantId) {
+            tenantId = tenantStatus.tenantId;
+            rol = tenantStatus.rol || 'admin';
+          }
+
+          const profile: AuthUserProfile = {
+            id: supaUser.id,
+            email: userEmail,
+            nombre: supaUser.user_metadata?.full_name || userEmail.split('@')[0],
+            avatarUrl: supaUser.user_metadata?.avatar_url,
+            authProvider: 'google',
+            rol,
+            tenantId,
+            isSuperAdmin: isSuper,
+          };
+
+          const sessionData: PersistedAuthSession = {
+            currentUser: profile,
+            activeTenant: get().activeTenant,
+            status: 'authenticated',
+          };
+          localDb.save(STORAGE_KEY, sessionData);
+
+          set({
+            status: 'authenticated',
+            currentUser: profile,
+            isLoading: false,
+          });
+          syncToAppStore(profile);
+        }
+      } catch (err) {
+        console.warn('Advertencia al sincronizar sesión Supabase:', err);
       }
     },
 
