@@ -47,10 +47,10 @@
 
 ---
 
-### [ ] TASK-040-06: Módulo de Cotizaciones B2B y Conversión Atómica a Preventa POS
+### [x] TASK-040-06: Módulo de Cotizaciones B2B y Conversión Atómica a Preventa POS - COMPLETADO ✅
 - **Objetivo:** Construir la mesa de trabajo de cotizaciones B2B (`B2BQuotationView.tsx`) con selección de cliente, adición de ítems con tarifas diferenciales y el botón de 1-clic para convertir la cotización aprobada en preventa (`pos_prefacturas`) en el Kanban de Caja Central (SPEC-037).
-- **Archivos:** `src/services/b2bQuotationService.ts`, `src/views/quotations/B2BQuotationView.tsx`, `src/views/quotations/ConvertToPosModal.tsx`, `src/tests/b2bQuotationService.test.ts`.
-- **Criterio de Aceptación:** Generación de cotización con código `COT-YYYY-XXXXX`, transición a `CONVERTIDA`, reserva de stock en bodega (`Hard-Hold`), enlace con preventa en Kanban de Caja y 100% pruebas verdes.
+- **Archivos:** `src/services/b2bQuotationService.ts`, `src/views/quotations/B2BQuotationView.tsx`, `src/views/quotations/ConvertToPosModal.tsx`, `src/tests/b2bQuotationService.test.ts`, `src/tests/b2bQuotationView.test.tsx`.
+- **Criterio de Aceptación:** Generación de cotización con código `COT-YYYY-XXXXX`, transición a `CONVERTIDA`, reserva de stock en bodega (`Hard-Hold`), enlace con preventa en Kanban de Caja y 100% pruebas verdes (11/11 tests en `b2bQuotationService.test.ts` y `b2bQuotationView.test.tsx`, 46/46 acumulados en SPEC-040, 1.179 en suite completa).
 
 ---
 

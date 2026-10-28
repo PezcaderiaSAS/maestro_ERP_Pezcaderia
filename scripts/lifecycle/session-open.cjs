@@ -130,12 +130,13 @@ req.setTimeout(1200, () => req.destroy());
 console.log('📋 [Paso 7/7] COLA DE TAREAS PRIORIZADAS PARA LA SESIÓN (Límite WIP = 1):');
 console.log('─────────────────────────────────────────────────────────────────');
 
+let queueLines = [];
 const memoryPath = path.join(ROOT_DIR, 'MEMORY.md');
 if (fs.existsSync(memoryPath)) {
   const memoryContent = fs.readFileSync(memoryPath, 'utf-8');
   const lines = memoryContent.split('\n');
   let inQueue = false;
-  let queueLines = [];
+  queueLines = [];
 
   for (const line of lines) {
     if (line.includes('## Cola de Tareas') || line.includes('Pendientes para Iniciar')) {
@@ -160,4 +161,4 @@ if (fs.existsSync(memoryPath)) {
 console.log('─────────────────────────────────────────────────────────────────');
 console.log('🎯 [APERTURA COMPLETADA] El entorno está 100% verificado y listo.');
 const firstAction = queueLines.length > 0 ? queueLines[0].replace(/^[-\d.* ]+/, '').trim() : 'TASK-040-06 (Cotizaciones B2B)';
-console.log(👉 Siguiente acción recomendada: Iniciar  bajo el flujo TDD (WIP = 1).\n);
+console.log(`👉 Siguiente acción recomendada: Iniciar ${firstAction} bajo el flujo TDD (WIP = 1).\n`);

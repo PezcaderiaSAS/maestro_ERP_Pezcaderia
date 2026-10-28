@@ -19,6 +19,7 @@ import { QuotePrintModal } from './pricing/components/QuotePrintModal';
 import { PricingSimulatorTab } from './pricing/components/PricingSimulatorTab';
 import { PricingConfigManager } from './pricing/components/PricingConfigManager';
 import { PriceHistoryAuditDrawer } from './pricing/components/PriceHistoryAuditDrawer';
+import { B2BQuotationView } from './quotations/B2BQuotationView';
 
 export function PricingView() {
   const {
@@ -373,6 +374,14 @@ export function PricingView() {
             >
               Devoluciones B2B ({devoluciones.length})
             </button>
+            <button
+              type="button"
+              onClick={() => setQuoteSubTab('b2b_mesa')}
+              className={`pos-category-tab ${quoteSubTab === 'b2b_mesa' ? 'active' : ''}`}
+              style={{ margin: 0, padding: '8px 16px', borderRadius: '8px', fontSize: '13px' }}
+            >
+              Mesa B2B POS (SPEC-040)
+            </button>
           </div>
 
           {quoteSubTab === 'create' ? (
@@ -552,6 +561,8 @@ export function PricingView() {
                 onSaveLine={saveProductLine}
               />
             </div>
+          ) : quoteSubTab === 'b2b_mesa' ? (
+            <B2BQuotationView />
           ) : quoteSubTab === 'history' ? (
             <QuoteHistoryTab
               quotations={quotations}

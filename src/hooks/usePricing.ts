@@ -33,7 +33,7 @@ export function usePricing() {
 
   // --- ESTADO GENERAL ---
   const [activeTab, setActiveTab] = useState<'catalog' | 'pricing' | 'quotes' | 'simulator' | 'config'>('quotes');
-  const [quoteSubTab, setQuoteSubTab] = useState<'create' | 'history' | 'devoluciones'>('create');
+  const [quoteSubTab, setQuoteSubTab] = useState<'create' | 'history' | 'devoluciones' | 'b2b_mesa'>('create');
   const [selectedQuoteForPrint, setSelectedQuoteForPrint] = useState<any>(null);
 
   // --- ESTADO PESTAÑA CATALOGO (CRUD) ---
