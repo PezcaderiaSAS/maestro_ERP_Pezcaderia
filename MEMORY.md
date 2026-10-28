@@ -21,6 +21,6 @@
 1. **LISTO PARA NUEVA ESPECIFICACIÓN / CIERRE DE SESIÓN (`npm run session:close`)**
 
 ## Despliegue a Producción (Vercel & Supabase)
-- **Vercel (Frontend SPA):** [`https://maestro-erp-pezcaderia.vercel.app`](https://maestro-erp-pezcaderia.vercel.app). 0 errores consola JS, PWA activa.
-- **Supabase (Backend PostgreSQL):** Proyecto en la nube activo (`gmvdrbtnogxafamdjzat`). RLS bypass activo para UltraAdmin.
-- **Ecosistema MCP:** 100% operativo (Chrome-DevTools, Context7, Upstash Redis PONG).
+- **Vercel (Frontend SPA):** [`https://maestro-erp-pezcaderia.vercel.app`](https://maestro-erp-pezcaderia.vercel.app). Despliegue activo con guardia de autenticación, Login Dual OAuth/Email, Onboarding corporativo y 0 errores en consola JS.
+- **Supabase (Backend PostgreSQL):** Proyecto activo (`gmvdrbtnogxafamdjzat`). Auth GoTrue & Postgres Pooler 100% conectados.
+- **Validación Swarm & Harness²:** Arquitectura auditada y certificada con bucle DevTools en Desktop (1280x800) y Móvil (375x667).
