@@ -87,6 +87,69 @@ export class FerreteriaJosaseService {
       stockAsignado: Object.keys(stockJosase).length,
     };
   }
+
+  /**
+   * Genera el dataset a escala 3X (16.000 ítems y 30.000 clientes)
+   * a partir de los datos base reales de Ferretería Josase (5.351 ítems y 9.550 clientes)
+   * para validar pruebas de estrés, capacidad de IndexedDB y motores de búsqueda off-thread.
+   */
+  public async generateScale3xDataset(): Promise<{
+    clientes: any[];
+    items: ProductoFerreteria[];
+    stock: Record<string, Record<string, number>>;
+  }> {
+    const base = await this.loadData();
+    const items3x: ProductoFerreteria[] = [];
+    const clientes3x: any[] = [];
+    const stock3x: Record<string, number> = {};
+
+    // 1. Escalar ítems a exactamente 16.000+
+    const multipliers = ['', '-V2', '-V3'];
+    for (let m = 0; m < 3; m++) {
+      const suffix = multipliers[m];
+      for (const item of base.items) {
+        if (items3x.length >= 16000) break;
+        const skuId = suffix ? `${item.id}${suffix}` : item.id;
+        const skuCode = suffix ? `${item.sku || item.id}${suffix}` : item.sku || item.id;
+        const nombre = suffix ? `${item.nombre} (Lote Extendido ${m + 1})` : item.nombre;
+
+        items3x.push({
+          ...item,
+          id: skuId,
+          sku: skuCode,
+          nombre,
+        });
+        stock3x[skuId] = 100;
+      }
+    }
+
+    // 2. Escalar clientes a exactamente 30.000
+    for (let m = 0; m < 4; m++) {
+      for (const cli of base.clientes) {
+        if (clientes3x.length >= 30000) break;
+        const cliId = m === 0 ? cli.id || cli.nit : `${cli.id || cli.nit}-X${m}`;
+        const nombre =
+          m === 0
+            ? cli.nombre || cli.razon_social
+            : `${cli.nombre || cli.razon_social} (Sucursal ${m})`;
+        clientes3x.push({
+          ...cli,
+          id: cliId,
+          nombre,
+          nit: m === 0 ? cli.nit : `${cli.nit}-${m}`,
+        });
+      }
+    }
+
+    return {
+      clientes: clientes3x,
+      items: items3x,
+      stock: {
+        'bodega-josase-01': stock3x,
+        'Bodega Principal': stock3x,
+      },
+    };
+  }
 }
 
 export const ferreteriaJosaseService = new FerreteriaJosaseService();
