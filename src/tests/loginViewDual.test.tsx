@@ -173,4 +173,36 @@ describe('TASK-036-04: LoginView Dual & Modal de Cambio Obligatorio de Contrase�
       expect(mockOnLoginSuccess).toHaveBeenCalled();
     });
   });
+
+  it('5. Debe manejar el error de proveedor OAuth no habilitado sin romper la UI y mostrando mensaje explicativo', async () => {
+    vi.spyOn(useAuthStore.getState(), 'loginWithProvider').mockResolvedValueOnce({
+      ok: false,
+      error: 'El proveedor GOOGLE no está activado en Supabase (Unsupported provider: provider is not enabled).',
+    });
+
+    render(<LoginView onLoginSuccess={mockOnLoginSuccess} />);
+
+    const googleBtn = screen.getByRole('button', { name: /Continuar con Google/i });
+    fireEvent.click(googleBtn);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/El proveedor GOOGLE no está activado en Supabase/i)
+      ).toBeInTheDocument();
+    });
+    expect(mockOnLoginSuccess).not.toHaveBeenCalled();
+  });
+
+  it('6. Debe autocompletar credenciales al hacer clic en un acceso rápido demo', () => {
+    render(<LoginView onLoginSuccess={mockOnLoginSuccess} />);
+
+    const btnSuperAdmin = screen.getByRole('button', { name: /SuperAdmin/i });
+    fireEvent.click(btnSuperAdmin);
+
+    const emailInput = screen.getByLabelText(/Correo Electrónico/i) as HTMLInputElement;
+    const passwordInput = screen.getByLabelText(/Contraseña/i) as HTMLInputElement;
+
+    expect(emailInput.value).toBe('pezcaderia.2022@gmail.com');
+    expect(passwordInput.value).toBe('admin123');
+  });
 });

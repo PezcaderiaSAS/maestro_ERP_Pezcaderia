@@ -106,12 +106,43 @@ export const LoginView: React.FC<LoginViewProps> = ({
       const res = await loginWithProvider(provider);
       if (!res.ok && res.error) {
         setErrorGlobal(res.error);
-        Swal.fire({
-          title: 'Error de Autenticación',
-          text: res.error,
-          icon: 'error',
-          confirmButtonColor: '#EF4444',
-        });
+        const isProviderDisabled =
+          res.error.toLowerCase().includes('provider is not enabled') ||
+          res.error.toLowerCase().includes('unsupported provider') ||
+          res.error.toLowerCase().includes('no está activado');
+
+        if (isProviderDisabled) {
+          Swal.fire({
+            title: 'Proveedor Google no activo en Supabase',
+            html: `
+              <div class="text-left text-xs text-slate-300 space-y-3 font-sans">
+                <p>El inicio de sesión directo con <b>Google OAuth</b> aún no ha sido activado en la consola del proyecto Supabase (requiere configurar Client ID y Secret en <i>Authentication &gt; Providers &gt; Google</i>).</p>
+                <div class="p-3 bg-slate-900/90 rounded-xl border border-cyan-500/30">
+                  <p class="font-bold text-cyan-400 mb-1">¿Cómo ingresar de inmediato?</p>
+                  <ul class="list-disc pl-4 space-y-1 text-slate-200">
+                    <li>Ingresa con tu correo y contraseña en el formulario.</li>
+                    <li>Usa los botones de <b>Accesos Rápidos de Prueba</b> que verás abajo para ingresar con 1 clic.</li>
+                    <li>O registra una nueva organización en la pestaña <b>"Registrar Empresa"</b>.</li>
+                  </ul>
+                </div>
+              </div>
+            `,
+            icon: 'info',
+            confirmButtonText: 'Entendido, usaré Correo / Contraseña',
+            confirmButtonColor: '#0ea5e9',
+            background: '#0f172a',
+            color: '#f8fafc',
+          });
+        } else {
+          Swal.fire({
+            title: 'Error de Autenticación',
+            text: res.error,
+            icon: 'error',
+            confirmButtonColor: '#EF4444',
+            background: '#0f172a',
+            color: '#f8fafc',
+          });
+        }
       } else if (res.ok && res.user && onLoginSuccess) {
         onLoginSuccess(res.user);
       }
@@ -310,6 +341,68 @@ export const LoginView: React.FC<LoginViewProps> = ({
               </svg>
               <span>Continuar con Google</span>
             </button>
+
+            {/* Accesos Rápidos de Demostración & Operación */}
+            <div className="mt-5 pt-4 border-t border-white/10">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-semibold text-slate-400">
+                  Accesos Rápidos de Prueba / Demo:
+                </span>
+                <span className="text-[10px] text-cyan-400 font-mono bg-cyan-500/10 px-2 py-0.5 rounded-full border border-cyan-500/20">
+                  1-Clic
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('pezcaderia.2022@gmail.com');
+                    setPassword('admin123');
+                    setErrorGlobal(null);
+                  }}
+                  className="py-1.5 px-2.5 rounded-lg bg-slate-950/80 hover:bg-cyan-950/40 border border-white/10 hover:border-cyan-500/40 text-left transition-all group"
+                >
+                  <p className="text-[11px] font-bold text-slate-200 group-hover:text-cyan-300">👑 SuperAdmin</p>
+                  <p className="text-[10px] text-slate-400 truncate font-mono">pezcaderia.2022...</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('admin.dueno@pezcaderia.com');
+                    setPassword('123456');
+                    setErrorGlobal(null);
+                  }}
+                  className="py-1.5 px-2.5 rounded-lg bg-slate-950/80 hover:bg-emerald-950/40 border border-white/10 hover:border-emerald-500/40 text-left transition-all group"
+                >
+                  <p className="text-[11px] font-bold text-slate-200 group-hover:text-emerald-300">🛡️ Don Fernando</p>
+                  <p className="text-[10px] text-slate-400 truncate font-mono">admin.dueno...</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('caja1@pezcaderia.com');
+                    setPassword('123456');
+                    setErrorGlobal(null);
+                  }}
+                  className="py-1.5 px-2.5 rounded-lg bg-slate-950/80 hover:bg-amber-950/40 border border-white/10 hover:border-amber-500/40 text-left transition-all group"
+                >
+                  <p className="text-[11px] font-bold text-slate-200 group-hover:text-amber-300">🛒 Cajero</p>
+                  <p className="text-[10px] text-slate-400 truncate font-mono">caja1@pezca...</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('vendedor1@pezcaderia.com');
+                    setPassword('123456');
+                    setErrorGlobal(null);
+                  }}
+                  className="py-1.5 px-2.5 rounded-lg bg-slate-950/80 hover:bg-blue-950/40 border border-white/10 hover:border-blue-500/40 text-left transition-all group"
+                >
+                  <p className="text-[11px] font-bold text-slate-200 group-hover:text-blue-300">👤 Vendedor</p>
+                  <p className="text-[10px] text-slate-400 truncate font-mono">vendedor1@pezca...</p>
+                </button>
+              </div>
+            </div>
           </div>
         ) : (
           /* Vista: Pestaña Registrar Empresa */

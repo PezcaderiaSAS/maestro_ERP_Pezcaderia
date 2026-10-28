@@ -260,6 +260,14 @@ export class UserManagementService {
   }
 
   /**
+   * Obtiene un usuario por su correo electrónico
+   */
+  public obtenerUsuarioPorEmail(email: string): UsuarioTenant | null {
+    const list = getStore();
+    return list.find((u) => u.email.toLowerCase() === email.trim().toLowerCase() && u.activo) || null;
+  }
+
+  /**
    * Actualiza la matriz personalizada de permisos de un usuario
    */
   public actualizarPermisosUsuario(

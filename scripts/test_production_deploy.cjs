@@ -66,17 +66,45 @@ async function verifyProductionLogin() {
     const hasEmailInput = await page.locator('input[type="email"]').isVisible().catch(() => false);
     const hasPasswordInput = await page.locator('input[type="password"]').isVisible().catch(() => false);
     const hasRegisterTab = await page.getByRole('button', { name: /Registrar Empresa/i }).isVisible().catch(() => false);
+    const hasSuperAdminQuickBtn = await page.getByRole('button', { name: /SuperAdmin/i }).isVisible().catch(() => false);
 
     console.log(`🔐 ¿Botón Google OAuth presente?: ${hasGoogleBtn ? 'SÍ' : 'NO'}`);
     console.log(`📧 ¿Input de Correo presente?: ${hasEmailInput ? 'SÍ' : 'NO'}`);
     console.log(`🔑 ¿Input de Contraseña presente?: ${hasPasswordInput ? 'SÍ' : 'NO'}`);
     console.log(`🚪 ¿Botón Ingresar al Sistema presente?: ${hasIngresarBtn ? 'SÍ' : 'NO'}`);
     console.log(`🏢 ¿Tab Registrar Empresa presente?: ${hasRegisterTab ? 'SÍ' : 'NO'}`);
+    console.log(`👑 ¿Acceso Rápido SuperAdmin presente?: ${hasSuperAdminQuickBtn ? 'SÍ' : 'NO'}`);
 
     // Capturar screenshot Desktop de la pantalla de autenticación y Login
     const loginDesktopPath = path.join(ARTIFACTS_DIR, 'vercel_prod_login_desktop.png');
     await page.screenshot({ path: loginDesktopPath, fullPage: false });
     console.log(`📸 Screenshot Desktop de Login guardado en: ${loginDesktopPath}`);
+
+    // Probar clic en "Continuar con Google" y verificar SweetAlert2
+    if (hasGoogleBtn) {
+      console.log('🧪 Probando clic en "Continuar con Google" (verificando intercepción de proveedor deshabilitado)...');
+      await page.getByRole('button', { name: /Continuar con Google/i }).click();
+      await page.waitForTimeout(2500);
+
+      const swalVisible = await page.locator('.swal2-popup').isVisible().catch(() => false);
+      console.log(`🛡️ ¿Modal SweetAlert2 de proveedor desplegado?: ${swalVisible ? 'SÍ ✅' : 'NO ❌'}`);
+
+      if (swalVisible) {
+        const swalTitle = await page.locator('#swal2-title').textContent().catch(() => '');
+        console.log(`📋 Título de SweetAlert2: "${swalTitle}"`);
+
+        const oauthInterceptPath = path.join(ARTIFACTS_DIR, 'vercel_prod_oauth_intercept.png');
+        await page.screenshot({ path: oauthInterceptPath, fullPage: false });
+        console.log(`📸 Screenshot Intercepción OAuth guardado en: ${oauthInterceptPath}`);
+
+        // Cerrar modal SweetAlert2
+        const confirmBtn = page.locator('.swal2-confirm');
+        if (await confirmBtn.isVisible().catch(() => false)) {
+          await confirmBtn.click();
+          await page.waitForTimeout(1000);
+        }
+      }
+    }
 
     // Redimensionar a móvil 375x667
     console.log('📱 Redimensionando a vista móvil 375x667...');
@@ -87,14 +115,29 @@ async function verifyProductionLogin() {
     await page.screenshot({ path: loginMobilePath, fullPage: false });
     console.log(`📸 Screenshot Móvil de Login guardado en: ${loginMobilePath}`);
 
-    // Probar alternancia de Tab: clic en "Registrar Empresa"
-    if (hasRegisterTab) {
-      console.log('🔄 Probando pestaña "Registrar Empresa"...');
-      await page.getByRole('button', { name: /Registrar Empresa/i }).click();
-      await page.waitForTimeout(1000);
-      const registerDesktopPath = path.join(ARTIFACTS_DIR, 'vercel_prod_register_tab.png');
-      await page.screenshot({ path: registerDesktopPath, fullPage: false });
-      console.log(`📸 Screenshot Tab Registrar Empresa guardado en: ${registerDesktopPath}`);
+    // Volver a Desktop para probar el login con 1-clic
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.waitForTimeout(1000);
+
+    if (hasSuperAdminQuickBtn) {
+      console.log('🔑 Probando inicio de sesión con Acceso Rápido SuperAdmin (1-clic)...');
+      await page.getByRole('button', { name: /SuperAdmin/i }).click();
+      await page.waitForTimeout(500);
+
+      const emailVal = await page.locator('input[type="email"]').inputValue();
+      console.log(`📧 Correo autocompletado: ${emailVal}`);
+
+      console.log('🚀 Haciendo clic en "Ingresar al Sistema"...');
+      await page.getByRole('button', { name: /Ingresar al Sistema/i }).click();
+      await page.waitForTimeout(4000);
+
+      // Comprobar que ingresamos al sistema (dashboard o POS)
+      const currentUrl = page.url();
+      console.log(`📍 URL post-autenticación: ${currentUrl}`);
+
+      const authenticatedPath = path.join(ARTIFACTS_DIR, 'vercel_prod_authenticated_session.png');
+      await page.screenshot({ path: authenticatedPath, fullPage: false });
+      console.log(`📸 Screenshot Sesión Autenticada guardado en: ${authenticatedPath}`);
     }
 
     console.log('\n======================================================');
@@ -108,7 +151,7 @@ async function verifyProductionLogin() {
     if (consoleErrors.length === 0) {
       console.log('🎉 CERTIFICACIÓN EXITOSA: PANTALLA DE LOGIN EN VIVO SIN ERRORES JS.');
     } else {
-      console.warn('⚠️ Se detectaron errores:', consoleErrors);
+      console.warn('⚠️ Se detectaron advertencias/logs:', consoleErrors);
     }
 
   } catch (err) {
