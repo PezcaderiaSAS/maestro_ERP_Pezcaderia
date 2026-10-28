@@ -51,6 +51,15 @@ import { SiigoQueueMonitorModal } from './pos/components/SiigoQueueMonitorModal.
 import { useResolucionStore } from '../store/useResolucionStore.ts';
 import { siigoPayloadMapper } from '../services/siigoPayloadMapper.ts';
 import type { FacturaElectronicaRegistro } from '../types/resoluciones.types.ts';
+import { useAuthStore } from '../store/useAuthStore';
+
+export const VENDEDORES_JOSASE = [
+  { id: 'user-josase-01', nombre: 'DIEGO IVAN DIAZ ANAYA', corto: 'Diego Díaz' },
+  { id: 'user-josase-02', nombre: 'LUIS EDUARDO BANQUEZ MEJIA', corto: 'Luis Banquez' },
+  { id: 'user-josase-03', nombre: 'DAVID SANTIAGO PALLARES', corto: 'Santiago Pallares' },
+  { id: 'user-josase-04', nombre: 'JUAN MANUEL MORA MORA', corto: 'Manuel Mora' },
+  { id: 'user-josase-05', nombre: 'JEYMY KATERINE MONSALVE CACERES', corto: 'Jeymy Monsalve' },
+];
 
 interface CartItem {
   product: Product;
@@ -77,6 +86,9 @@ export default function POSView({
   const userRole = useAppStore((s) => s.userRole);
   const currentUser = useAppStore((s) => s.currentUser);
   const setCurrentView = useAppStore((s) => s.setCurrentView);
+  const activeTenant = useAuthStore((s) => s.activeTenant);
+  const isFerreteria = activeTenant?.id === 'tenant-03' || activeTenant?.razonSocial?.toLowerCase().includes('josase');
+  const [selectedVendorJosase, setSelectedVendorJosase] = useState<string>('user-josase-01');
   const [showUserSwitchModal, setShowUserSwitchModal] = useState<boolean>(false);
   const [showSiigoQueueModal, setShowSiigoQueueModal] = useState<boolean>(false);
   const { colaSiigo } = useResolucionStore();
@@ -103,6 +115,67 @@ export default function POSView({
       }
     });
   }, []);
+
+  // Precarga reactiva de preventas para prueba manual de Caja Única al operar en Ferretería Josase
+  useEffect(() => {
+    if (isFerreteria) {
+      const local = PosDraftService.getLocalDrafts();
+      if (local.length === 0) {
+        const sampleDrafts: CartDraft[] = [
+          {
+            id: 'PRE-101',
+            alias: 'PRE-101 (Diego Díaz)',
+            fechaGuardado: new Date(Date.now() - 12 * 60000).toISOString(),
+            cliente: { id: 'cli-josase-901475457', nombre: 'MFL INGENIEROS CONSULTORES S.A.S.' } as any,
+            lineas: [
+              {
+                id: 'line-pre-1',
+                productoId: '0000',
+                sku: '0000',
+                nombre: 'PARARRAYO / VARILLA COBRE 5/8',
+                cantidad: 2,
+                precioLista: 45000,
+                precioFinal: 45000,
+                subtotal: 90000,
+                totalLinea: 90000,
+                unidad: 'UND',
+              } as any,
+            ],
+            total: 90000,
+            vendedorId: 'user-josase-01',
+            vendedorNombre: 'Diego Díaz',
+            terminalId: 'MOSTRADOR-01',
+          } as any,
+          {
+            id: 'PRE-102',
+            alias: 'PRE-102 (Santiago Pallares)',
+            fechaGuardado: new Date(Date.now() - 4 * 60000).toISOString(),
+            cliente: { id: 'cli-josase-gen', nombre: 'Consumidor Final (Josase)' } as any,
+            lineas: [
+              {
+                id: 'line-pre-2',
+                productoId: 'item-josase-02',
+                sku: 'CEM-ARGOS-50',
+                nombre: 'CEMENTO GRIS ARGOS 50KG ESTRUCTURAL',
+                cantidad: 5,
+                precioLista: 32000,
+                precioFinal: 32000,
+                subtotal: 160000,
+                totalLinea: 160000,
+                unidad: 'BULTO',
+              } as any,
+            ],
+            total: 160000,
+            vendedorId: 'user-josase-03',
+            vendedorNombre: 'Santiago Pallares',
+            terminalId: 'MOSTRADOR-02',
+          } as any,
+        ];
+        sampleDrafts.forEach((d) => PosDraftService.saveDraft(d));
+        setDrafts(PosDraftService.getLocalDrafts());
+      }
+    }
+  }, [isFerreteria]);
   const [ultimoTicket, setUltimoTicket] = useState<{ venta: any; cliente: any } | null>(null);
   const [showRestockModal, setShowRestockModal] = useState(false);
   const [showComandasDrawer, setShowComandasDrawer] = useState<boolean>(false);
@@ -628,6 +701,7 @@ export default function POSView({
       finalAlias = (inputAlias || defaultAlias).trim();
     }
     
+    const vSeleccionado = VENDEDORES_JOSASE.find((v) => v.id === selectedVendorJosase);
     const newDraft: CartDraft = {
       id: activeDraftId || `BOR-${Date.now()}`,
       alias: finalAlias,
@@ -637,7 +711,10 @@ export default function POSView({
       cart: [...cart],
       descuentoGlobal,
       total: totalFinal,
-    };
+      vendedorId: isFerreteria ? selectedVendorJosase : (currentUser?.empleadoId || 'VEND-01'),
+      vendedorNombre: isFerreteria ? (vSeleccionado?.nombre || 'Diego Díaz') : (currentUser?.nombre || 'Vendedor Mostrador'),
+      terminalId: isFerreteria ? 'TERM-MOSTRADOR-JOSASE' : 'TERM-01',
+    } as any;
 
     await PosDraftService.saveDraft(newDraft);
     setDrafts(PosDraftService.getLocalDrafts());
@@ -1858,15 +1935,55 @@ export default function POSView({
         </div>
       </div>
 
-      {/* ZONA 2: Barra de Control Ergonómica & Pestañas de Subvistas */}
+      {/* ZONA 1.5: Barra de Asesores Mostrador (Caja Única Ferretería Josase) */}
+      {isFerreteria && (
+        <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-1.5 rounded-xl bg-slate-900/80 backdrop-blur-xl border border-cyan-500/20 text-xs shrink-0 shadow-lg select-none">
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+            <span className="font-bold text-cyan-300 uppercase tracking-wider text-[11px]">
+              Asesor Mostrador:
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5 overflow-x-auto custom-scrollbar">
+            {VENDEDORES_JOSASE.map((v) => (
+              <button
+                key={v.id}
+                type="button"
+                id={`btn-vendedor-${v.id}`}
+                onClick={() => {
+                  setSelectedVendorJosase(v.id);
+                  useAppStore.getState().setCurrentUser({
+                    empleadoId: v.id,
+                    nombre: v.nombre,
+                    identificacion: v.id,
+                    cargo: 'ASESOR MOSTRADOR',
+                    rol: 'vendedor',
+                    turnoIniciadoAt: new Date().toISOString(),
+                  });
+                }}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap active:scale-95 ${
+                  selectedVendorJosase === v.id
+                    ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20 font-bold'
+                    : 'bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5'
+                }`}
+                title={`Emitir preventa como ${v.nombre}`}
+              >
+                {v.corto}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ZONA 2: Barra de Control Ergonómica & Pestañas de Subvistas (Dark Glassmorphism) */}
       <div className="flex flex-wrap items-center justify-between gap-2 py-1.5 px-3 bg-slate-900/85 backdrop-blur-2xl border border-white/12 rounded-xl shadow-xl shrink-0 text-slate-200">
         <div className="flex items-center gap-1.5 overflow-x-auto">
           <button
             onClick={() => setActiveSubView('venta_pos')}
             className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeSubView === 'venta_pos'
-                ? 'bg-indigo-600 text-white shadow-md ring-1 ring-indigo-400/50'
-                : 'bg-transparent text-slate-400 hover:bg-white/10 hover:text-slate-100'
+                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-xs'
+                : 'bg-transparent text-slate-400 hover:bg-white/10 hover:text-slate-100 border border-transparent'
             }`}
           >
             <CreditCard size={15} />
@@ -1877,14 +1994,14 @@ export default function POSView({
             onClick={() => setActiveSubView('consolidacion_b2b')}
             className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeSubView === 'consolidacion_b2b'
-                ? 'bg-blue-600 text-white shadow-md ring-1 ring-blue-400/50'
-                : 'bg-transparent text-slate-400 hover:bg-white/10 hover:text-slate-100'
+                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-xs'
+                : 'bg-transparent text-slate-400 hover:bg-white/10 hover:text-slate-100 border border-transparent'
             }`}
           >
             <Truck size={15} />
             <span>Consolidación B2B</span>
             {(quotations || []).filter((q: any) => q.estado === 'Listo').length > 0 && (
-              <span className="bg-red-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">
+              <span className="bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">
                 {(quotations || []).filter((q: any) => q.estado === 'Listo').length}
               </span>
             )}
@@ -1894,14 +2011,14 @@ export default function POSView({
             onClick={() => setActiveSubView('canales_digitales')}
             className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeSubView === 'canales_digitales'
-                ? 'bg-purple-600 text-white shadow-md ring-1 ring-purple-400/50'
-                : 'bg-transparent text-slate-400 hover:bg-white/10 hover:text-slate-100'
+                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-xs'
+                : 'bg-transparent text-slate-400 hover:bg-white/10 hover:text-slate-100 border border-transparent'
             }`}
           >
             <RefreshCw size={15} />
             <span>Canales Digitales</span>
             {logIntegracion.filter((l: any) => l.estado === 'PENDIENTE').length > 0 && (
-              <span className="bg-red-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">
+              <span className="bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">
                 {logIntegracion.filter((l: any) => l.estado === 'PENDIENTE').length}
               </span>
             )}
@@ -1911,8 +2028,8 @@ export default function POSView({
             onClick={() => setActiveSubView('gestion_kanban')}
             className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeSubView === 'gestion_kanban'
-                ? 'bg-amber-600 text-white shadow-md ring-1 ring-amber-400/50'
-                : 'bg-transparent text-slate-400 hover:bg-white/10 hover:text-slate-100'
+                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-xs'
+                : 'bg-transparent text-slate-400 hover:bg-white/10 hover:text-slate-100 border border-transparent'
             }`}
           >
             <span className="text-xs font-mono font-bold">KB</span>
@@ -1928,21 +2045,21 @@ export default function POSView({
               const searchInput = document.getElementById('pos-product-search-input');
               if (searchInput) searchInput.focus();
             }}
-            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
+            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
             title="Enfocar catálogo / Nuevo pedido rápido (F8)"
           >
             <span>⚡ Buscar (F8)</span>
           </button>
 
-          {/* Botón Primario 2: Poner en Espera */}
+          {/* Botón Primario 2: Poner en Espera / Preventa */}
           <button
             onClick={() => handleGuardarBorrador()}
-            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-indigo-950/60 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-900/60 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
-            title="Guardar carrito actual en espera"
+            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-200 hover:bg-white/10 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+            title={isFerreteria ? 'Guardar preventa con el asesor asignado' : 'Guardar carrito actual en espera'}
           >
-            <span>⏸ En Espera</span>
+            <span>⏸ {isFerreteria ? 'Preventa' : 'En Espera'}</span>
             {drafts.length > 0 && (
-              <span className="bg-indigo-600 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">
+              <span className="bg-slate-700 text-cyan-300 text-[10px] font-black px-1.5 py-0.2 rounded-full border border-cyan-500/30">
                 {drafts.length}
               </span>
             )}
@@ -1953,8 +2070,8 @@ export default function POSView({
             data-testid="btn-open-comandas-drawer"
             id="btn-open-comandas-drawer"
             onClick={() => setShowComandasDrawer(true)}
-            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-900/60 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
-            title="Cola Central de Preventas / Comandas (Multivendedor)"
+            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+            title="Cola Central de Preventas / Comandas para cobro en caja única"
           >
             <span>📋 Comandas</span>
             {comandasPendientes.length > 0 && (
@@ -1964,32 +2081,34 @@ export default function POSView({
             )}
           </button>
 
-          {/* Botón Primario 3: Balanza / Peso */}
-          <button
-            onClick={() => {
-              const primerPescado = activeProducts.find(p => {
-                const u = (p.unidadMedida || (p as any).unidad || '').toString().toUpperCase();
-                return u === 'KG' || u === 'KILO' || u === 'KILOS';
-              });
-              if (primerPescado) {
-                setProductForWeight({
-                  product: primerPescado,
-                  precioUnitario: getProductPrice(primerPescado),
-                  pesoInicial: 1.0
+          {/* Botón Primario 3: Balanza / Peso (Solo si no es ferretería) */}
+          {!isFerreteria && (
+            <button
+              onClick={() => {
+                const primerPescado = activeProducts.find(p => {
+                  const u = (p.unidadMedida || (p as any).unidad || '').toString().toUpperCase();
+                  return u === 'KG' || u === 'KILO' || u === 'KILOS';
                 });
-              } else if (activeProducts[0]) {
-                setProductForWeight({
-                  product: activeProducts[0],
-                  precioUnitario: getProductPrice(activeProducts[0]),
-                  pesoInicial: 1.0
-                });
-              }
-            }}
-            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-900/60 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
-            title="Balanza de Mostrador / Pesaje Manual Asistido"
-          >
-            <span>⚖️ Balanza</span>
-          </button>
+                if (primerPescado) {
+                  setProductForWeight({
+                    product: primerPescado,
+                    precioUnitario: getProductPrice(primerPescado),
+                    pesoInicial: 1.0
+                  });
+                } else if (activeProducts[0]) {
+                  setProductForWeight({
+                    product: activeProducts[0],
+                    precioUnitario: getProductPrice(activeProducts[0]),
+                    pesoInicial: 1.0
+                  });
+                }
+              }}
+              className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-200 hover:bg-white/10 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+              title="Balanza de Mostrador / Pesaje Manual Asistido"
+            >
+              <span>⚖️ Balanza</span>
+            </button>
+          )}
 
           {/* Menú Desplegable 'Más Acciones...' */}
           <div className="relative" data-testid="pos-more-actions-dropdown" id="pos-more-actions-dropdown">

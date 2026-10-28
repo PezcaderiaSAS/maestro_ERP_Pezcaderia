@@ -419,8 +419,23 @@ export const useAuthStore = create<AuthState>()(
 
     logout: async () => {
       set({ isLoading: true });
-      await authService.logout();
+      try {
+        await authService.logout();
+      } catch (err) {
+        console.warn('Advertencia durante logout en authService:', err);
+      }
       localDb.remove(STORAGE_KEY);
+      localDb.remove('currentUser');
+      localDb.remove('role');
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          Object.keys(localStorage).forEach((key) => {
+            if (key.startsWith('sb-') && key.endsWith('-auth-token')) {
+              localStorage.removeItem(key);
+            }
+          });
+        }
+      } catch {}
       set({
         status: 'unauthenticated',
         currentUser: null,

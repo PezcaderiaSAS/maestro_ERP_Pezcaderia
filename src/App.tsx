@@ -1476,14 +1476,15 @@ export default function App() {
         onSelectView={(v) => setCurrentView(v)}
         isOpen={sidebarOpen}
         onToggleOpen={toggleSidebar}
+        onCloseSession={() => useAuthStore.getState().logout()}
         userRole={userRole}
         onChangeRole={(r) => setUserRole(r as any)}
         pendingPrepCount={quotations.filter((q) => q.estado === 'Approved' || q.estado === 'Pausado').length}
         activeRoutesCount={0}
       />
 
-      {/* Área de Contenido Principal con Topbar Flotante V8 */}
-      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 relative z-10 ${sidebarOpen ? 'lg:pl-68' : 'lg:pl-20'}`}>
+      {/* Área de Contenido Principal con Topbar Flotante V8 (Separación ergonómica fija) */}
+      <div className={`flex-1 flex flex-col min-w-0 h-full overflow-hidden transition-all duration-300 relative z-10 ${sidebarOpen ? 'lg:pl-[284px]' : 'lg:pl-[88px]'}`}>
         <EnterpriseTopbar
           currentView={currentView as ERPViewKey}
           onNavigateHome={() => setCurrentView('dashboard')}

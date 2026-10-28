@@ -174,23 +174,18 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
         {/* Indicador de Conectividad Outbox / Red */}
         <NetworkSyncStatusBadge className="hidden sm:inline-flex" />
 
-        {/* Badge de Versión V8 */}
-        <span className="hidden xl:inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-white/5 text-slate-300 border border-white/10 font-mono">
-          {currentThemeConfig.badge}
-        </span>
-
-        {/* Botón Destacado Facturar POS con Bloque Rojo Code XR */}
+        {/* Botón Facturar POS Armónico Rico UI */}
         <button
           id="topbar-btn-facturar-pos"
           onClick={onNavigatePOS}
-          className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl font-bold text-xs text-white shadow-md transition-all cursor-pointer ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer active:scale-95 ${
             currentView === 'pos'
-              ? 'bg-red-600 ring-2 ring-red-500/50 shadow-red-600/30'
-              : 'bg-red-600/90 hover:bg-red-600 shadow-red-600/20'
+              ? 'bg-cyan-400 text-slate-950 ring-2 ring-cyan-300/50 shadow-cyan-400/30'
+              : 'bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-cyan-500/20'
           }`}
           title="Abrir Punto de Venta (POS)"
         >
-          <ShoppingCart size={14} />
+          <ShoppingCart size={14} className="shrink-0" />
           <span className="hidden sm:inline">Facturar POS</span>
         </button>
 

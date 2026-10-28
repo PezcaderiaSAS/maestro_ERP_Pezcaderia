@@ -1,11 +1,14 @@
 import React from 'react';
 import Swal from 'sweetalert2';
+import { useAuthStore } from '../../../store/useAuthStore';
 
 export interface MacWindowControlsProps {
   onToggleOpen: () => void;
   onCloseSession?: () => void;
   onFullscreen?: () => void;
   className?: string;
+  /** Si es true, el botón rojo actúa como Cierre de Sesión del ERP (con confirmación Swal). Si es false, cierra el modal/tarjeta directamente */
+  isAppLevel?: boolean;
 }
 
 /**
@@ -17,13 +20,18 @@ export const MacWindowControls: React.FC<MacWindowControlsProps> = ({
   onCloseSession,
   onFullscreen,
   className = '',
+  isAppLevel = false,
 }) => {
   const handleClose = () => {
-    if (onCloseSession) {
-      onCloseSession();
+    // Si no es a nivel de aplicación (ej. es un modal o drawer), simplemente cierra la ventana
+    if (!isAppLevel) {
+      if (onCloseSession) {
+        onCloseSession();
+      }
       return;
     }
 
+    // A nivel de aplicación: Diálogo de confirmación para cerrar sesión del ERP
     Swal.fire({
       title: '¿Cerrar sesión?',
       text: '¿Deseas salir del sistema ERP La Pezcadería?',
@@ -35,9 +43,22 @@ export const MacWindowControls: React.FC<MacWindowControlsProps> = ({
       cancelButtonText: 'Cancelar',
       background: '#0F172A',
       color: '#F8FAFC',
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        window.location.reload();
+        try {
+          if (onCloseSession) {
+            onCloseSession();
+          }
+          await useAuthStore.getState().logout();
+        } catch {
+          // Fallback seguro
+          useAuthStore.setState({
+            status: 'unauthenticated',
+            currentUser: null,
+            activeTenant: null,
+            isLoading: false,
+          });
+        }
       }
     });
   };

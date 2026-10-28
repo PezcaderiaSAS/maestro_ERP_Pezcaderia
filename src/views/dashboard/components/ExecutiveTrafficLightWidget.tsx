@@ -138,19 +138,15 @@ export function ExecutiveTrafficLightWidget({
           type="button"
           data-testid="traffic-light-caja"
           onClick={() => handleNavigate(AppRouteId.CASH_DESK)}
-          className={`min-h-[100px] p-3.5 rounded-xl border transition-all cursor-pointer touch-manipulation active:scale-95 text-left flex flex-col justify-between group shadow-md ${
-            cajaDisponible > 0
-              ? 'bg-emerald-950/40 border-emerald-500/30 hover:border-emerald-400/50 hover:bg-emerald-950/60'
-              : 'bg-amber-950/40 border-amber-500/30 hover:border-amber-400/50 hover:bg-amber-950/60'
-          }`}
+          className="min-h-[100px] p-3.5 rounded-xl border border-white/10 bg-slate-900/60 hover:bg-slate-800/80 hover:border-white/20 transition-all cursor-pointer touch-manipulation active:scale-95 text-left flex flex-col justify-between group shadow-md"
         >
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2">
               <div
                 className={`w-8 h-8 rounded-lg flex items-center justify-center border shadow-xs shrink-0 ${
                   cajaDisponible > 0
-                    ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
-                    : 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+                    ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20'
+                    : 'bg-amber-500/15 text-amber-400 border-amber-500/20'
                 }`}
               >
                 <Wallet className="w-4 h-4" />
@@ -162,8 +158,8 @@ export function ExecutiveTrafficLightWidget({
                 <span
                   className={`inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded ${
                     cajaDisponible > 0
-                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                      : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                      ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20'
+                      : 'bg-amber-500/10 text-amber-300 border border-amber-500/20'
                   }`}
                 >
                   {cajaDisponible > 0 ? (
@@ -202,11 +198,7 @@ export function ExecutiveTrafficLightWidget({
           type="button"
           data-testid="traffic-light-despachos"
           onClick={() => handleNavigate(AppRouteId.ORDERS_KANBAN)}
-          className={`min-h-[100px] p-3.5 rounded-xl border transition-all cursor-pointer touch-manipulation active:scale-95 text-left flex flex-col justify-between group shadow-md ${
-            totalTransito > 0
-              ? 'bg-indigo-950/40 border-indigo-500/30 hover:border-indigo-400/50 hover:bg-indigo-950/60'
-              : 'bg-slate-900/60 border-white/10 hover:border-white/20 hover:bg-slate-900/80'
-          }`}
+          className="min-h-[100px] p-3.5 rounded-xl border border-white/10 bg-slate-900/60 hover:bg-slate-800/80 hover:border-white/20 transition-all cursor-pointer touch-manipulation active:scale-95 text-left flex flex-col justify-between group shadow-md"
         >
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2">

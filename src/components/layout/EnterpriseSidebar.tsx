@@ -20,7 +20,9 @@ import {
   PieChart,
   PanelLeftClose,
   Shield,
+  LogOut,
 } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 import { AppRouteId, type ERPViewKey } from '../../routes/AppRoute';
 import { MacWindowControls } from './components/MacWindowControls';
@@ -297,7 +299,7 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
             isOpen ? 'justify-between px-4' : 'justify-center px-1'
           }`}
         >
-          <MacWindowControls onToggleOpen={onToggleOpen} onCloseSession={onCloseSession} />
+          <MacWindowControls onToggleOpen={onToggleOpen} onCloseSession={onCloseSession} isAppLevel={true} />
 
           {isOpen && (
             <button
@@ -429,15 +431,73 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
 
         {/* Footer Glassmorphism */}
         {isOpen ? (
-          <div className="p-3 mx-3 mb-3 border-t border-white/10 text-[10px] text-slate-400 flex items-center justify-between font-medium">
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400/50" />
-              Sistema Conectado
-            </span>
-            <span className="font-mono text-slate-400/80 font-bold">v3.2.0</span>
+          <div className="p-3 mx-3 mb-3 border-t border-white/10 text-[10px] text-slate-400 flex flex-col gap-2 font-medium">
+            <button
+              type="button"
+              id="sidebar-btn-logout"
+              onClick={() => {
+                Swal.fire({
+                  title: '¿Cerrar sesión?',
+                  text: '¿Deseas salir del sistema ERP La Pezcadería?',
+                  icon: 'question',
+                  showCancelButton: true,
+                  confirmButtonColor: '#EF4444',
+                  cancelButtonColor: '#64748B',
+                  confirmButtonText: 'Sí, salir',
+                  cancelButtonText: 'Cancelar',
+                  background: '#0F172A',
+                  color: '#F8FAFC',
+                }).then(async (result) => {
+                  if (result.isConfirmed) {
+                    if (onCloseSession) {
+                      onCloseSession();
+                    }
+                  }
+                });
+              }}
+              className="w-full py-1.5 px-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 flex items-center justify-center gap-2 text-xs font-bold transition-all cursor-pointer active:scale-95"
+              title="Cerrar sesión activa"
+            >
+              <LogOut size={14} />
+              <span>Cerrar Sesión</span>
+            </button>
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400/50" />
+                Sistema Conectado
+              </span>
+              <span className="font-mono text-slate-400/80 font-bold">v3.2.0</span>
+            </div>
           </div>
         ) : (
-          <div className="p-2 mb-2 flex justify-center">
+          <div className="p-2 mb-2 flex flex-col items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                Swal.fire({
+                  title: '¿Cerrar sesión?',
+                  text: '¿Deseas salir del sistema ERP La Pezcadería?',
+                  icon: 'question',
+                  showCancelButton: true,
+                  confirmButtonColor: '#EF4444',
+                  cancelButtonColor: '#64748B',
+                  confirmButtonText: 'Sí, salir',
+                  cancelButtonText: 'Cancelar',
+                  background: '#0F172A',
+                  color: '#F8FAFC',
+                }).then(async (result) => {
+                  if (result.isConfirmed) {
+                    if (onCloseSession) {
+                      onCloseSession();
+                    }
+                  }
+                });
+              }}
+              className="w-8 h-8 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 flex items-center justify-center transition-all cursor-pointer"
+              title="Cerrar Sesión"
+            >
+              <LogOut size={14} />
+            </button>
             <span
               className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400/50"
               title="Sistema Conectado v3.2.0"
