@@ -17,8 +17,11 @@
 6. **SPEC-040 (CERO-LATENCIA CATÁLOGOS MASIVOS & PRECIOS B2B) ✅ COMPLETADA (7/7 Tareas - 100%):**
    - `TASK-040-01` a `TASK-040-07` certificadas con TDD, benchmarks 3X y bucle Chrome DevTools (0 errores JS, vista 375px/1280px).
 
-## Cola de Tareas Pendientes (WIP = 0)
-1. **LISTO PARA NUEVA ESPECIFICACIÓN / CIERRE DE SESIÓN (`npm run session:close`)**
+## Cola de Tareas Pendientes para Próxima Sesión tras `git pull` (WIP = 1)
+1. **SPEC-041 (INICIO INMEDIATO POST-PULL): Sincronización Bidireccional Supabase <-> IndexedDB (Outbox Worker Resiliente)**:
+   - Tarea 1: Esquemas Zod y validadores de deltas de sincronización (`deltaSync.schema.ts`).
+   - Tarea 2: Manejador de conflictos OCC (Optimistic Concurrency Control) en `useOutboxSyncStore`.
+   - Tarea 3: Web Worker en background para transmisión en lotes de 500 registros sin bloqueo de UI.
 
 ## Despliegue a Producción (Vercel & Supabase)
 - **Vercel (Frontend SPA):** [`https://maestro-erp-pezcaderia.vercel.app`](https://maestro-erp-pezcaderia.vercel.app). Despliegue activo con guardia de autenticación, Login Dual OAuth/Email, Onboarding corporativo y 0 errores en consola JS.
