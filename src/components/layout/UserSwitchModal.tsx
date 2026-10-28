@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Swal from 'sweetalert2';
-import { UserCheck, KeyRound, ArrowLeft, Delete, X, ShieldAlert } from 'lucide-react';
+import { UserCheck, KeyRound, ArrowLeft, Delete, X, ShieldAlert, LogOut } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
+import { useAuthStore } from '../../store/useAuthStore';
 import { useEmployeeStore } from '../../store/useEmployeeStore';
 import {
   type ActiveUserSession,
@@ -190,10 +191,22 @@ export const UserSwitchModal: React.FC<UserSwitchModalProps> = ({
                 );
               })}
             </div>
-            <div className="mt-4 pt-3 border-t border-slate-800/80 text-center">
+            <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
               <span className="text-[11px] text-slate-400">
                 ¿PIN predeterminado? Usa <strong className="text-cyan-400 font-mono">1234</strong>
               </span>
+              <button
+                type="button"
+                onClick={async () => {
+                  onClose();
+                  await useAuthStore.getState().logout();
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 font-bold transition-colors cursor-pointer text-xs"
+                title="Cerrar sesión del sistema y volver a la pantalla de Login"
+              >
+                <LogOut size={13} />
+                <span>Cerrar Sesión</span>
+              </button>
             </div>
           </div>
         ) : (

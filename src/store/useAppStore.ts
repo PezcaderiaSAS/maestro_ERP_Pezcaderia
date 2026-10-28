@@ -25,8 +25,9 @@ interface AppState {
 }
 
 const rawSavedTheme = localDb.load<string>('theme', 'pezcaderia-glass');
-const initialUser = localDb.load<ActiveUserSession | null>('currentUser', DEFAULT_INITIAL_SELLERS[0]);
-const initialRole = initialUser?.rol || localDb.load<UserRole>('role', 'admin');
+const defaultFallbackUser = import.meta.env.PROD ? null : DEFAULT_INITIAL_SELLERS[0];
+const initialUser = localDb.load<ActiveUserSession | null>('currentUser', defaultFallbackUser);
+const initialRole = initialUser?.rol || localDb.load<UserRole>('role', import.meta.env.PROD ? 'vendedor' : 'admin');
 const validThemes: ThemeMode[] = ['pezcaderia-glass', 'hyper-cobalt', 'carbon-teal', 'chrome-violet'];
 const initialTheme: ThemeMode = validThemes.includes(rawSavedTheme as ThemeMode)
   ? (rawSavedTheme as ThemeMode)

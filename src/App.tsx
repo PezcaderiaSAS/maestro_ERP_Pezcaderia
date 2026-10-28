@@ -24,6 +24,8 @@ import { DriverPortalView } from './views/driver/DriverPortalView';
 import { OtifDashboardView } from './views/logistics/OtifDashboardView';
 import { B2BCustomerPortalView } from './views/b2b/portal/B2BCustomerPortalView';
 import { SuperAdminMasterView } from './views/admin/SuperAdminMasterView';
+import { LoginView } from './views/auth/LoginView';
+import { useAuthStore } from './store/useAuthStore';
 import { EnterpriseSidebar, type ERPViewKey } from './components/layout/EnterpriseSidebar';
 import { EnterpriseTopbar } from './components/layout/EnterpriseTopbar';
 import { getMainLayoutClasses } from './components/layout/layoutModes';
@@ -688,6 +690,14 @@ export default function App() {
       window.removeEventListener('unhandledrejection', onRejection);
     };
   }, []);
+
+  const authStatus = useAuthStore((s) => s.status);
+  const authUser = useAuthStore((s) => s.currentUser);
+  const initSession = useAuthStore((s) => s.initSession);
+
+  useEffect(() => {
+    initSession();
+  }, [initSession]);
 
   const { userRole, setUserRole, currentView, setCurrentView, sidebarOpen, setSidebarOpen, toggleSidebar, theme, toggleTheme, setTheme } = useAppStore();
   const [isOmniboxOpen, setIsOmniboxOpen] = useState(false);
@@ -1428,6 +1438,17 @@ export default function App() {
     return (
       <div className="w-screen h-screen overflow-y-auto bg-slate-950 font-sans select-none">
         <DriverPortalView />
+        <ConsentGateModal />
+        {import.meta.env.DEV && <DevTestDashboard />}
+      </div>
+    );
+  }
+
+  // Guardia de Autenticación SPEC-035 / SPEC-036
+  if (authStatus === 'unauthenticated' || !authUser) {
+    return (
+      <div className="w-screen h-screen overflow-y-auto bg-[#070A10] font-sans select-none">
+        <LoginView isDevMode={import.meta.env.DEV} />
         <ConsentGateModal />
         {import.meta.env.DEV && <DevTestDashboard />}
       </div>
