@@ -289,3 +289,4 @@ describe('B2BQuotationService - Ciclo de Vida y Conversión Atómica POS', () =>
     expect(cotizacionesB[0].tenantId).toBe(TENANT_B);
   });
 });
+

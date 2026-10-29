@@ -41,6 +41,7 @@ import { useIntegrationStore } from '../store/useIntegrationStore.ts';
 import { useDynamicFieldStore } from '../store/useDynamicFieldStore.ts';
 import * as localDb from '../services/localDb.ts';
 import { PosDraftService } from '../services/posDraftService.ts';
+import { useOutboxSyncStore } from '../stores/useOutboxSyncStore.ts';
 import type { CartDraft } from '../types/pos.types.ts';
 import { ejecutarAbastecimientoInmediato, validarAbastecimientoSucursal } from '../services/branchInventoryService.ts';
 import { getInitials } from '../utils/roleMapper.ts';
@@ -191,8 +192,11 @@ export default function POSView({
     onSuccess: () => {},
   });
 
-  // Mapeo dinámico de pedidos en espera a comandas de cola central multivendedor (SPEC-032)
-  const comandasPendientes: PendingOrderComanda[] = (drafts || []).map((d, index) => {
+  // Sincronización de preventas multivendedor para Caja Única (SPEC-041)
+  const syncStoreComandas = useOutboxSyncStore((s) => s.getComandasCajaUnica());
+
+  // Mapeo dinámico de pedidos en espera a comandas de cola central multivendedor (SPEC-032 / SPEC-041)
+  const draftComandas: PendingOrderComanda[] = (drafts || []).map((d, index) => {
     const total = d.total || (d.lineas || []).reduce((acc: number, l: any) => acc + (l.totalLinea || 0), 0);
     const itemsCount = (d.lineas || d.cart || []).length;
     return {
@@ -210,6 +214,11 @@ export default function POSView({
     };
   });
 
+  const syncComandasFiltered = (syncStoreComandas || []).filter(
+    (sc) => !draftComandas.some((dc) => dc.id === sc.id)
+  );
+  const comandasPendientes: PendingOrderComanda[] = [...draftComandas, ...syncComandasFiltered];
+
   const handleSelectComanda = (comanda: PendingOrderComanda) => {
     const draftOriginal = drafts.find(d => d.id === comanda.id);
     if (draftOriginal) {
@@ -223,6 +232,33 @@ export default function POSView({
         setDescuentoGlobal(draftOriginal.descuentoGlobal);
       }
       setActiveDraftId(draftOriginal.id);
+    } else {
+      const syncMatch = syncStoreComandas.find((sc) => sc.id === comanda.id);
+      if (syncMatch && syncMatch.items) {
+        const lineasMapped = (syncMatch.items || []).map((it: any) => ({
+          id: `linea-${Date.now()}-${it.productoId}`,
+          productoId: it.productoId,
+          sku: it.sku,
+          nombre: it.nombre,
+          cantidad: it.cantidad,
+          precioUnitario: it.precioUnitario,
+          descuentoPct: it.descuentoPct || 0,
+          subtotal: it.subtotal || it.cantidad * it.precioUnitario,
+          totalLinea: it.subtotal || it.cantidad * it.precioUnitario,
+          unidadMedida: 'und',
+          iva: 0,
+          ivaIncluido: true,
+        }));
+        setCartLineas(lineasMapped as any);
+        if (syncMatch.clienteNombre) {
+          setCliente({
+            id: 'cli-sync',
+            nombre: syncMatch.clienteNombre,
+            nitOCedula: '',
+          } as any);
+        }
+        setActiveDraftId(syncMatch.id);
+      }
     }
     setShowComandasDrawer(false);
     Swal.fire({
@@ -1139,6 +1175,11 @@ export default function POSView({
 
     if (activeDraftId) {
       setDrafts(prev => prev.filter(x => x.id !== activeDraftId));
+      useOutboxSyncStore.getState().cobrarComandaCajaUnica(activeDraftId, {
+        cajeroId: currentUser?.empleadoId || 'cajero-pos',
+        turnoCentralId: (turnoActivo as any)?.id || undefined,
+        metodoPago: paymentString || 'EFECTIVO',
+      }).catch(() => {});
       setActiveDraftId(null);
     }
 

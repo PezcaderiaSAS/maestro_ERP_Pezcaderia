@@ -567,3 +567,4 @@ export const B2BQuotationView: React.FC = () => {
     </div>
   );
 };
+

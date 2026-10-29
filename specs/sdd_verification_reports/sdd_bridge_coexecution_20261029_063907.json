@@ -1,0 +1,22 @@
+{
+  "timestamp": "2026-10-29T06:39:07.172202",
+  "prompt": "SPEC-041 plan tecnico: sincronizacion bidireccional de preventas multivendedor para caja unica de recaudo y busqueda sub-2ms de items",
+  "agent": "data",
+  "total_duration_seconds": 117.76,
+  "results": {
+    "Google Harness²": {
+      "source": "Google Harness²",
+      "status": "ok",
+      "output": "======================================================================\n🚀 [HARNESS² ESPAÑOL] Iniciando ejecución segura con modelos a Costo $0\n======================================================================\n  • Idioma:          es-419\n  • Proveedor:       google_ai_studio\n  • Modelo Primario: gemini-3.8-flash\n  • Motor IDE:       antigravity-preview-09-2026\n  • Modo Recursión:  sequential (Protección Rate Limit activa)\n  • Presupuesto (k): 1 | Máx Tareas: 1\n======================================================================\n  [accounting] 1/2 skipped      ledger-1\n  [accounting] 2/2 skipped      ledger-2\nLocal demo: 2 tasks completed; 0 failed. C:\\Users\\Personal\\Documents\\Yurgen\\Maestro_Pezcaderia_ERP\\maestro_ERP_Pezcaderia\\tools\\harness2\\runs\\demo\\demo.json",
+      "returncode": 0,
+      "duration": 0.52
+    },
+    "Agency Swarm": {
+      "source": "Agency Swarm",
+      "status": "failed",
+      "output": "Inicializando La Pezcaderia Agency Swarm (Google AI Studio - gemini-2.5-flash)...\n\n[Usuario] (Destinatario Directo: DataEngineer) -> SPEC-041 plan tecnico: sincronizacion bidireccional de preventas multivendedor para caja unica de recaudo y busqueda sub-2ms de items\n\n[Agencia Procesando con Gemini...]",
+      "returncode": 1,
+      "duration": 117.76
+    }
+  }
+}

@@ -7,6 +7,7 @@ import type {
   LocalIndexedDbClient,
   OutboxTransaction,
 } from '../types/indexedDb.types';
+import type { PreventaSync, SyncConflict } from '../types/deltaSync.schema';
 
 export class TenantIndexedDbService {
   private tenantId = '';
@@ -19,6 +20,8 @@ export class TenantIndexedDbService {
   private memoryClients = new Map<string, LocalIndexedDbClient>();
   private memoryStock = new Map<string, number>();
   private memoryOutbox = new Map<string, OutboxTransaction>();
+  private memoryPreventas = new Map<string, PreventaSync>();
+  private memoryConflicts = new Map<string, SyncConflict>();
 
   /**
    * Inicializa la conexión a la base de datos exclusiva del tenant
@@ -73,6 +76,21 @@ export class TenantIndexedDbService {
             const outboxStore = db.createObjectStore('outbox_transactions', { keyPath: 'id' });
             outboxStore.createIndex('estado', 'estado', { unique: false });
             outboxStore.createIndex('creadoEn', 'creadoEn', { unique: false });
+          }
+
+          // 5. Almacén de Preventas Locales Multivendedor (SPEC-041)
+          if (!db.objectStoreNames.contains('preventas_locales')) {
+            const prevStore = db.createObjectStore('preventas_locales', { keyPath: 'id' });
+            prevStore.createIndex('estado', 'estado', { unique: false });
+            prevStore.createIndex('terminalId', 'terminalId', { unique: false });
+            prevStore.createIndex('codigoPreventa', 'codigoPreventa', { unique: true });
+          }
+
+          // 6. Almacén de Conflictos OCC para Auditoría
+          if (!db.objectStoreNames.contains('sync_conflicts')) {
+            const confStore = db.createObjectStore('sync_conflicts', { keyPath: 'id' });
+            confStore.createIndex('entidadNombre', 'entidadNombre', { unique: false });
+            confStore.createIndex('resolucion', 'resolucion', { unique: false });
           }
         };
 
@@ -322,15 +340,25 @@ export class TenantIndexedDbService {
    * Encolar una transacción en Outbox para resiliencia offline
    */
   public async addOutboxTransaction(
-    txData: Omit<OutboxTransaction, 'id' | 'creadoEn' | 'intentos' | 'estado'>
+    txData: Partial<OutboxTransaction> & { tenantId: string }
   ): Promise<string> {
-    const id = `outbox-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+    const id = txData.id || `outbox-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
     const fullTx: OutboxTransaction = {
-      ...txData,
       id,
-      estado: 'PENDIENTE',
-      intentos: 0,
-      creadoEn: new Date().toISOString(),
+      tenantId: txData.tenantId,
+      idempotencyKey: txData.idempotencyKey || '0'.repeat(64),
+      tipoOperacion: (txData.tipoOperacion || txData.tipo || 'VENTA_POS_DIRECTA') as any,
+      tipo: txData.tipo || (txData.tipoOperacion as any) || 'VENTA_POS_DIRECTA',
+      entidadId: txData.entidadId || id,
+      versionEntidad: txData.versionEntidad || 1,
+      payload: txData.payload || {},
+      estado: (txData.estado as any) || 'PENDIENTE',
+      intentos: txData.intentos || 0,
+      maxIntentos: txData.maxIntentos || 5,
+      creadoEn: txData.creadoEn || new Date().toISOString(),
+      proximoReintentoEn: txData.proximoReintentoEn,
+      ultimoError: txData.ultimoError,
+      sincronizadoEn: txData.sincronizadoEn,
     };
 
     if (this.isFallbackInMemory || !this.db) {
@@ -391,6 +419,232 @@ export class TenantIndexedDbService {
   }
 
   /**
+   * Actualiza el estado o campos de una transacción de Outbox
+   */
+  public async updateOutboxTransaction(
+    id: string,
+    updates: Partial<OutboxTransaction>
+  ): Promise<void> {
+    if (this.isFallbackInMemory || !this.db) {
+      const existing = this.memoryOutbox.get(id);
+      if (existing) {
+        this.memoryOutbox.set(id, { ...existing, ...updates });
+      }
+      return;
+    }
+
+    return new Promise((resolve, reject) => {
+      const tx = this.db!.transaction('outbox_transactions', 'readwrite');
+      const store = tx.objectStore('outbox_transactions');
+      const getReq = store.get(id);
+
+      getReq.onsuccess = () => {
+        if (getReq.result) {
+          const updated = { ...getReq.result, ...updates };
+          store.put(updated);
+        }
+        resolve();
+      };
+      getReq.onerror = () => reject(getReq.error);
+    });
+  }
+
+  /**
+   * Obtiene todas las transacciones de Outbox
+   */
+  public async getAllOutboxTransactions(): Promise<OutboxTransaction[]> {
+    if (this.isFallbackInMemory || !this.db) {
+      return Array.from(this.memoryOutbox.values());
+    }
+
+    return new Promise((resolve) => {
+      const tx = this.db!.transaction('outbox_transactions', 'readonly');
+      const store = tx.objectStore('outbox_transactions');
+      const request = store.getAll();
+
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => resolve([]);
+    });
+  }
+
+  /**
+   * Obtiene transacciones en Dead-Letter Queue (ERROR_FATAL_DATOS)
+   */
+  public async getDlqTransactions(): Promise<OutboxTransaction[]> {
+    if (this.isFallbackInMemory || !this.db) {
+      return Array.from(this.memoryOutbox.values()).filter(
+        (t) => t.estado === 'ERROR_FATAL_DATOS'
+      );
+    }
+
+    return new Promise((resolve) => {
+      const tx = this.db!.transaction('outbox_transactions', 'readonly');
+      const store = tx.objectStore('outbox_transactions');
+      const index = store.index('estado');
+      const request = index.getAll('ERROR_FATAL_DATOS');
+
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => resolve([]);
+    });
+  }
+
+  // ==========================================
+  // GESTIÓN DE PREVENTAS LOCALES MULTIVENDEDOR (SPEC-041)
+  // ==========================================
+
+  public async upsertPreventaLocal(preventa: PreventaSync): Promise<void> {
+    if (this.isFallbackInMemory || !this.db) {
+      this.memoryPreventas.set(preventa.id, preventa);
+      return;
+    }
+
+    return new Promise((resolve, reject) => {
+      const tx = this.db!.transaction('preventas_locales', 'readwrite');
+      const store = tx.objectStore('preventas_locales');
+      store.put(preventa);
+
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  public async getPreventasLocales(estado?: string): Promise<PreventaSync[]> {
+    if (this.isFallbackInMemory || !this.db) {
+      const list = Array.from(this.memoryPreventas.values());
+      return estado ? list.filter((p) => p.estado === estado) : list;
+    }
+
+    return new Promise((resolve) => {
+      const tx = this.db!.transaction('preventas_locales', 'readonly');
+      const store = tx.objectStore('preventas_locales');
+
+      if (estado) {
+        const index = store.index('estado');
+        const req = index.getAll(estado);
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => resolve([]);
+      } else {
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => resolve([]);
+      }
+    });
+  }
+
+  public async getPreventaLocalById(id: string): Promise<PreventaSync | null> {
+    if (this.isFallbackInMemory || !this.db) {
+      return this.memoryPreventas.get(id) || null;
+    }
+
+    return new Promise((resolve) => {
+      const tx = this.db!.transaction('preventas_locales', 'readonly');
+      const store = tx.objectStore('preventas_locales');
+      const req = store.get(id);
+
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => resolve(null);
+    });
+  }
+
+  public async updatePreventaLocalEstado(
+    id: string,
+    estado: 'PENDIENTE_COBRO' | 'PAGADO' | 'ANULADO',
+    extraData?: any
+  ): Promise<void> {
+    if (this.isFallbackInMemory || !this.db) {
+      const prev = this.memoryPreventas.get(id);
+      if (prev) {
+        this.memoryPreventas.set(id, {
+          ...prev,
+          estado,
+          ...(extraData || {}),
+          updatedAt: new Date().toISOString(),
+        });
+      }
+      return;
+    }
+
+    return new Promise((resolve, reject) => {
+      const tx = this.db!.transaction('preventas_locales', 'readwrite');
+      const store = tx.objectStore('preventas_locales');
+      const getReq = store.get(id);
+
+      getReq.onsuccess = () => {
+        if (getReq.result) {
+          const updated = {
+            ...getReq.result,
+            estado,
+            ...(extraData || {}),
+            updatedAt: new Date().toISOString(),
+          };
+          store.put(updated);
+        }
+        resolve();
+      };
+      getReq.onerror = () => reject(getReq.error);
+    });
+  }
+
+  public async deletePreventaLocal(id: string): Promise<void> {
+    if (this.isFallbackInMemory || !this.db) {
+      this.memoryPreventas.delete(id);
+      return;
+    }
+
+    return new Promise((resolve, reject) => {
+      const tx = this.db!.transaction('preventas_locales', 'readwrite');
+      const store = tx.objectStore('preventas_locales');
+      store.delete(id);
+
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  // ==========================================
+  // GESTIÓN DE CONFLICTOS OCC (SPEC-041)
+  // ==========================================
+
+  public async addSyncConflict(conflict: SyncConflict): Promise<void> {
+    if (this.isFallbackInMemory || !this.db) {
+      this.memoryConflicts.set(conflict.id, conflict);
+      return;
+    }
+
+    return new Promise((resolve, reject) => {
+      const tx = this.db!.transaction('sync_conflicts', 'readwrite');
+      const store = tx.objectStore('sync_conflicts');
+      store.put(conflict);
+
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  public async getSyncConflicts(resolucion?: string): Promise<SyncConflict[]> {
+    if (this.isFallbackInMemory || !this.db) {
+      const list = Array.from(this.memoryConflicts.values());
+      return resolucion ? list.filter((c) => c.resolucion === resolucion) : list;
+    }
+
+    return new Promise((resolve) => {
+      const tx = this.db!.transaction('sync_conflicts', 'readonly');
+      const store = tx.objectStore('sync_conflicts');
+
+      if (resolucion) {
+        const index = store.index('resolucion');
+        const req = index.getAll(resolucion);
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => resolve([]);
+      } else {
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => resolve([]);
+      }
+    });
+  }
+
+  /**
    * Cierra la conexión de base de datos
    */
   public async close(): Promise<void> {
@@ -408,23 +662,36 @@ export class TenantIndexedDbService {
     this.memoryClients.clear();
     this.memoryStock.clear();
     this.memoryOutbox.clear();
+    this.memoryPreventas.clear();
+    this.memoryConflicts.clear();
 
     if (!this.db) return;
 
     return new Promise((resolve, reject) => {
-      const tx = this.db!.transaction(
-        ['productos', 'clientes', 'stock', 'outbox_transactions'],
-        'readwrite'
-      );
+      const storesToClear = ['productos', 'clientes', 'stock', 'outbox_transactions'];
+      if (this.db!.objectStoreNames.contains('preventas_locales')) {
+        storesToClear.push('preventas_locales');
+      }
+      if (this.db!.objectStoreNames.contains('sync_conflicts')) {
+        storesToClear.push('sync_conflicts');
+      }
 
-      tx.objectStore('productos').clear();
-      tx.objectStore('clientes').clear();
-      tx.objectStore('stock').clear();
-      tx.objectStore('outbox_transactions').clear();
+      const tx = this.db!.transaction(storesToClear, 'readwrite');
+
+      for (const s of storesToClear) {
+        tx.objectStore(s).clear();
+      }
 
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error);
     });
+  }
+
+  /**
+   * Alias de conveniencia para pruebas y reseteo
+   */
+  public async clearAll(): Promise<void> {
+    return this.clearTenantData();
   }
 }
 

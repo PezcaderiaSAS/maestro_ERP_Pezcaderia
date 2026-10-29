@@ -7,6 +7,7 @@ import { BackgroundSyncWorker } from '../../services/backgroundSyncWorker';
 import { useNetworkHeartbeat } from '../../hooks/useNetworkHeartbeat';
 import { getSupabaseClient } from '../../lib/supabase';
 import Swal from 'sweetalert2';
+import { useOutboxSyncStore } from '../../stores/useOutboxSyncStore';
 
 export type NetworkSyncState = 'online' | 'degraded' | 'offline' | 'syncing';
 
@@ -27,6 +28,7 @@ export const NetworkSyncStatusBadge: React.FC<NetworkSyncStatusBadgeProps> = ({
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(new Date());
   const [outboxPendingCount, setOutboxPendingCount] = useState<number>(0);
+  const dlqTransactions = useOutboxSyncStore((s) => s.dlqTransactions);
 
   const syncQueue = useEventStore((s) => s.syncQueue);
   const pendingJobs = syncQueue.filter((j) => j.estado === 'PENDIENTE');
@@ -259,6 +261,14 @@ export const NetworkSyncStatusBadge: React.FC<NetworkSyncStatusBadgeProps> = ({
             OFFLINE {totalPendientes > 0 ? `(${totalPendientes})` : ''}
           </span>
         </>
+      )}
+      {dlqTransactions.length > 0 && (
+        <span
+          className="ml-1 px-1.5 py-0.5 text-[10px] font-black rounded-full bg-red-500/20 text-red-300 border border-red-500/40"
+          title={`${dlqTransactions.length} transacciones en Dead-Letter Queue`}
+        >
+          DLQ: {dlqTransactions.length}
+        </span>
       )}
     </button>
   );

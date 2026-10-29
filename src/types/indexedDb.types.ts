@@ -1,6 +1,8 @@
 // src/types/indexedDb.types.ts
 // Tipos TypeScript para la Arquitectura de Persistencia Aislada IndexedDB Multi-Tenant
 
+import type { OutboxTransaction as SchemaOutboxTransaction } from './deltaSync.schema';
+
 export interface TenantLocalDbConfig {
   tenantId: string;
   dbName: string;
@@ -38,17 +40,9 @@ export interface LocalIndexedDbClient {
   updatedAt: string;
 }
 
-export interface OutboxTransaction {
-  id: string;
-  tenantId: string;
-  tipo: 'VENTA_POS' | 'RESERVA_STOCK' | 'CREACION_COTIZACION' | 'CAMBIO_PRECIO';
-  payload: any;
-  intentos: number;
-  estado: 'PENDIENTE' | 'PROCESANDO' | 'SINCRONIZADO' | 'FALLIDO';
-  creadoEn: string;
-  ultimoIntento?: string;
-  error?: string;
-}
+export type OutboxTransaction = SchemaOutboxTransaction & {
+  tipo?: string;
+};
 
 export interface SyncMetadata {
   tenantId: string;

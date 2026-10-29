@@ -124,6 +124,51 @@ export class SearchEngineCore {
   }
 
   /**
+   * Refresco incremental delta de productos sin reconstruir el índice completo (SPEC-041)
+   */
+  public updateDelta(deltas: LocalIndexedDbProduct[]): void {
+    if (!deltas || deltas.length === 0) return;
+
+    for (const prod of deltas) {
+      const normSku = this.normalize(prod.sku);
+
+      // 1. Si existía previamente, actualizar en el array general
+      const existingIdx = this.products.findIndex((p) => this.normalize(p.sku) === normSku);
+      if (existingIdx >= 0) {
+        this.products[existingIdx] = prod;
+      } else {
+        this.products.push(prod);
+      }
+
+      // 2. Actualizar mapas directos
+      this.skuMap.set(normSku, prod);
+      if (prod.codigoBarras) {
+        this.barcodeMap.set(prod.codigoBarras.trim(), prod);
+      }
+
+      // 3. Actualizar índice invertido para los tokens del producto
+      const tokens = this.tokenize(`${prod.sku} ${prod.nombre} ${prod.categoria || ''}`);
+      for (const token of tokens) {
+        let set = this.wordToProducts.get(token);
+        if (!set) {
+          set = new Set<LocalIndexedDbProduct>();
+          this.wordToProducts.set(token, set);
+          this.vocabulary.push(token);
+        }
+        set.add(prod);
+      }
+    }
+  }
+
+  public getProducts(): LocalIndexedDbProduct[] {
+    return this.products;
+  }
+
+  public getClients(): LocalIndexedDbClient[] {
+    return this.clients;
+  }
+
+  /**
    * Indexa el directorio de clientes
    */
   public indexClients(clients: LocalIndexedDbClient[]): void {
@@ -194,35 +239,33 @@ export class SearchEngineCore {
 
       // a. Coincidencia exacta de palabra
       const exactSet = this.wordToProducts.get(qToken);
-      if (exactSet) {
+      if (exactSet && exactSet.size > 0) {
         for (const prod of exactSet) {
           tokenCandidates.set(prod, 30);
         }
-      }
-
-      // b. Búsqueda por prefijo, subcadena o fuzzy en el vocabulario único (solo cientos de palabras, no miles de productos)
-      for (const vocabWord of this.vocabulary) {
-        if (vocabWord === qToken) continue; // ya procesada en exacto
-
-        let matchQuality = 0;
-        if (vocabWord.startsWith(qToken)) {
-          matchQuality = 25;
-        } else if (vocabWord.includes(qToken)) {
-          matchQuality = 20;
-        } else if (qToken.length >= 4) {
-          const dist = this.levenshteinDistance(qToken, vocabWord, maxFuzzyDist);
-          if (dist <= maxFuzzyDist) {
-            matchQuality = Math.max(15, 25 - dist * 5);
+      } else {
+        // b. Solo si NO hubo coincidencia exacta, buscar prefijo o fuzzy en el vocabulario único
+        for (const vocabWord of this.vocabulary) {
+          let matchQuality = 0;
+          if (vocabWord.startsWith(qToken)) {
+            matchQuality = 25;
+          } else if (vocabWord.includes(qToken)) {
+            matchQuality = 20;
+          } else if (qToken.length >= 4) {
+            const dist = this.levenshteinDistance(qToken, vocabWord, maxFuzzyDist);
+            if (dist <= maxFuzzyDist) {
+              matchQuality = Math.max(15, 25 - dist * 5);
+            }
           }
-        }
 
-        if (matchQuality > 0) {
-          const prods = this.wordToProducts.get(vocabWord);
-          if (prods) {
-            for (const prod of prods) {
-              const prev = tokenCandidates.get(prod) || 0;
-              if (matchQuality > prev) {
-                tokenCandidates.set(prod, matchQuality);
+          if (matchQuality > 0) {
+            const prods = this.wordToProducts.get(vocabWord);
+            if (prods) {
+              for (const prod of prods) {
+                const prev = tokenCandidates.get(prod) || 0;
+                if (matchQuality > prev) {
+                  tokenCandidates.set(prod, matchQuality);
+                }
               }
             }
           }
@@ -232,11 +275,12 @@ export class SearchEngineCore {
       candidateSetsPerToken.push(tokenCandidates);
     }
 
-    // Intersección de candidatos: el producto debe coincidir con TODOS los tokens
+    // Intersección optimizada: ordenar por tamaño ascendente para iterar el conjunto más pequeño
     if (candidateSetsPerToken.length > 0) {
-      const firstSet = candidateSetsPerToken[0];
+      candidateSetsPerToken.sort((a, b) => a.size - b.size);
+      const smallestSet = candidateSetsPerToken[0];
 
-      for (const [prod, score0] of firstSet.entries()) {
+      for (const [prod, score0] of smallestSet.entries()) {
         if (category && prod.categoria !== category) continue;
 
         let totalScore = score0;

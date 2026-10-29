@@ -30,6 +30,22 @@ self.onmessage = (event: MessageEvent) => {
       break;
     }
 
+    case 'UPDATE_DELTA': {
+      const start = performance.now();
+      const { products = [] } = payload;
+      engine.updateDelta(products);
+      const durationMs = performance.now() - start;
+
+      self.postMessage({
+        type: 'DELTA_UPDATE_COMPLETE',
+        payload: {
+          updatedCount: products.length,
+          durationMs,
+        },
+      });
+      break;
+    }
+
     case 'SEARCH_PRODUCTS': {
       const start = performance.now();
       const { queryId, query, options } = payload;
