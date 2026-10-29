@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   Wallet,
+  Sparkles,
   ArrowRightLeft,
   Upload,
   Download,
@@ -265,14 +266,47 @@ export default function CashFlowView() {
           <p className="text-slate-400 text-sm mb-7 max-w-md mx-auto leading-relaxed">
             Debe abrir un turno para procesar ventas y registrar movimientos de efectivo en esta caja.
           </p>
-          <button 
-            data-testid="btn-abrir-turno"
-            onClick={handleApertura}
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-500/25 transition active:scale-95 flex items-center gap-2 mx-auto cursor-pointer"
-          >
-            <Power size={20} />
-            Abrir Turno de Caja
-          </button>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-4">
+            <button 
+              data-testid="btn-abrir-turno"
+              onClick={handleApertura}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-blue-500/25 transition active:scale-95 flex items-center gap-2 cursor-pointer text-xs sm:text-sm min-h-[44px]"
+            >
+              <Power size={18} />
+              <span>Abrir Turno Manual</span>
+            </button>
+            <button 
+              type="button"
+              data-testid="btn-abrir-turno-express"
+              id="btn-abrir-turno-express"
+              onClick={() => {
+                const res = cashService.abrirTurno(
+                  cajaSeleccionada || 'CAJA-1',
+                  usuarioId || 'usr-cajero-demo',
+                  100000,
+                  undefined,
+                  'Apertura Express Demo ($100.000)'
+                );
+                if (res.data || res.datos) {
+                  loadData();
+                  Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Turno Abierto ($100.000)',
+                    text: 'Caja lista para procesar cobros y preventas.',
+                    showConfirmButton: false,
+                    timer: 2500,
+                  });
+                }
+              }}
+              className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-emerald-500/20 transition active:scale-95 flex items-center gap-2 cursor-pointer text-xs sm:text-sm min-h-[44px]"
+              title="Apertura inmediata con saldo base de $100.000 para pruebas"
+            >
+              <Sparkles size={18} className="text-yellow-300 animate-pulse" />
+              <span>⚡ Apertura Rápida Demo ($100.000)</span>
+            </button>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

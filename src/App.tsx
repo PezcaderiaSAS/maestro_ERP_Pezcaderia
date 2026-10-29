@@ -10,6 +10,7 @@ import ARView from './views/ARView';
 import ClientsView from './views/ClientsView';
 import SuppliersView from './views/SuppliersView';
 import OrderKanbanView from './views/OrderKanbanView';
+import { CashierKanbanView } from './views/pos/components/CashierKanbanView';
 import PayrollView from './views/PayrollView';
 import CRMView from './views/CRMView';
 import CashFlowView from './views/cash/CashFlowView';
@@ -1400,6 +1401,8 @@ export default function App() {
         return <ClientsView />;
       case 'compras':
         return <SuppliersView />;
+      case 'comandas_kanban':
+        return <CashierKanbanView />;
       case 'kanban':
         return (
           <OrderKanbanView
@@ -1489,6 +1492,7 @@ export default function App() {
           currentView={currentView as ERPViewKey}
           onNavigateHome={() => setCurrentView('dashboard')}
           onNavigatePOS={() => setCurrentView('pos')}
+          onNavigateKanban={() => setCurrentView('comandas_kanban')}
           onToggleSidebar={toggleSidebar}
           theme={theme}
           onToggleTheme={toggleTheme}

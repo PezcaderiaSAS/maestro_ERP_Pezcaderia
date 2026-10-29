@@ -50,6 +50,113 @@ export class PrefacturaService {
   }
 
   /**
+   * Garantiza preventas semilla para pruebas manuales inmediatas de Caja Única y Kanban
+   */
+  public asegurarPreventasSemillaDemo(tenantId: string): void {
+    const existentes = this.obtenerPrefacturasPorTenant(tenantId);
+    if (existentes.length > 0) return;
+
+    const seedItems = [
+      {
+        id: "pref-seed-1-" + tenantId,
+        tenantId,
+        codigoPreventa: "PRE-2026-01001",
+        vendedorId: "user-josase-01",
+        vendedorNombre: "Diego Díaz",
+        terminalId: "MOSTRADOR-01",
+        clienteDocumento: "901475457",
+        clienteNombre: "MFL INGENIEROS CONSULTORES S.A.S.",
+        subtotal: 90000,
+        descuentoTotal: 0,
+        total: 90000,
+        estado: "PENDIENTE_COBRO" as const,
+        hardHoldActivo: true,
+        items: [
+          {
+            productoId: "0000",
+            sku: "0000",
+            nombre: "PARARRAYO / VARILLA COBRE 5/8",
+            cantidad: 2,
+            precioLista: 45000,
+            precioFinal: 45000,
+            descuentoPct: 0,
+            subtotal: 90000,
+          },
+        ],
+        createdAt: new Date(Date.now() - 15 * 60000).toISOString(),
+        updatedAt: new Date(Date.now() - 15 * 60000).toISOString(),
+      },
+      {
+        id: "pref-seed-2-" + tenantId,
+        tenantId,
+        codigoPreventa: "PRE-2026-01002",
+        vendedorId: "user-josase-03",
+        vendedorNombre: "Santiago Pallares",
+        terminalId: "MOSTRADOR-02",
+        clienteDocumento: "22222222",
+        clienteNombre: "Consumidor Final (Josase)",
+        subtotal: 160000,
+        descuentoTotal: 0,
+        total: 160000,
+        estado: "PENDIENTE_COBRO" as const,
+        hardHoldActivo: true,
+        items: [
+          {
+            productoId: "item-josase-02",
+            sku: "CEM-ARGOS-50",
+            nombre: "CEMENTO GRIS ARGOS 50KG ESTRUCTURAL",
+            cantidad: 5,
+            precioLista: 32000,
+            precioFinal: 32000,
+            descuentoPct: 0,
+            subtotal: 160000,
+          },
+        ],
+        createdAt: new Date(Date.now() - 8 * 60000).toISOString(),
+        updatedAt: new Date(Date.now() - 8 * 60000).toISOString(),
+      },
+      {
+        id: "pref-seed-3-" + tenantId,
+        tenantId,
+        codigoPreventa: "PRE-2026-01000",
+        vendedorId: "user-josase-02",
+        vendedorNombre: "Luis Banquez",
+        terminalId: "MOSTRADOR-01",
+        clienteDocumento: "800123456",
+        clienteNombre: "CONSTRUCTORA BOLIVAR S.A.",
+        subtotal: 180000,
+        descuentoTotal: 0,
+        total: 180000,
+        estado: "EN_COBRO" as const,
+        cajeroId: "user-josase-01",
+        cajeroNombre: "Taquilla Caja 1",
+        hardHoldActivo: true,
+        items: [
+          {
+            productoId: "item-josase-03",
+            sku: "TUBO-PVC-3",
+            nombre: "TUBO SANITARIO PVC 3 PULGADAS PAVCO",
+            cantidad: 4,
+            precioLista: 45000,
+            precioFinal: 45000,
+            descuentoPct: 0,
+            subtotal: 180000,
+          },
+        ],
+        createdAt: new Date(Date.now() - 25 * 60000).toISOString(),
+        updatedAt: new Date(Date.now() - 2 * 60000).toISOString(),
+      },
+    ];
+
+    seedItems.forEach((item) => {
+      const storageKey = tenantId + ":" + item.id;
+      const lookupKey = tenantId + ":" + item.codigoPreventa;
+      this.prefacturas.set(storageKey, item as Prefactura);
+      this.codigoToKey.set(lookupKey, storageKey);
+    });
+  }
+
+  /**
    * Emite una preventa de mostrador con reserva inmediata de inventario (Hard-Hold)
    * y genera la carga útil (payload) del código QR para el ticket térmico.
    */

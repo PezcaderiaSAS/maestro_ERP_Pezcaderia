@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import {
   type LucideIcon,
   ShoppingBag,
+  Layers,
   Store,
   Anchor,
   Scissors,
@@ -96,6 +97,13 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
           label: 'Punto de Venta (POS)',
           icon: ShoppingBag,
           testId: 'nav-pos',
+          roles: ['admin', 'vendedor', 'cajero', 'supervisor'],
+        },
+        {
+          key: 'comandas_kanban',
+          label: 'Comandas & Preventas (Kanban)',
+          icon: Layers,
+          testId: 'nav-comandas-kanban',
           roles: ['admin', 'vendedor', 'cajero', 'supervisor'],
         },
         {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   Menu,
+  Layers,
   ChevronRight,
   Home,
   ShoppingCart,
@@ -19,6 +20,10 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { getInitials } from '../../utils/roleMapper';
 import { UserSwitchModal } from './UserSwitchModal';
 import { TenantSelectorModal } from '../../views/auth/components/TenantSelectorModal';
+import { ferreteriaJosaseService } from '../../services/ferreteriaJosaseService';
+import { prefacturaService } from '../../services/prefacturaService';
+import { cashService } from '../../services/cashService';
+import Swal from 'sweetalert2';
 
 export const THEMES_CONFIG = [
   {
@@ -62,6 +67,7 @@ interface EnterpriseTopbarProps {
   currentView: ERPViewKey;
   onNavigateHome: () => void;
   onNavigatePOS: () => void;
+  onNavigateKanban?: () => void;
   onToggleSidebar: () => void;
   theme: string;
   onToggleTheme: () => void;
@@ -79,6 +85,7 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
   currentView,
   onNavigateHome,
   onNavigatePOS,
+  onNavigateKanban,
   onToggleSidebar,
   theme,
   onToggleTheme,
@@ -180,6 +187,72 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
 
         {/* Indicador de Conectividad Outbox / Red */}
         <NetworkSyncStatusBadge className="hidden sm:inline-flex" />
+
+        {/* Conmutador Rápido Josase / Pezcadería 1-Clic */}
+        <button
+          type="button"
+          id="topbar-btn-toggle-demo-tenant"
+          data-testid="topbar-btn-toggle-demo-tenant"
+          onClick={async () => {
+            const isJosase = activeTenant?.id === 'tenant-03' || activeTenant?.razonSocial?.toLowerCase().includes('josase');
+            if (isJosase) {
+              useAuthStore.getState().switchTenant({
+                id: 'tenant-01',
+                razonSocial: 'La Pezcadería del Mar S.A.S.',
+                nit: '901.888.777-4',
+                ciudad: 'Bucaramanga',
+              });
+              Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'info',
+                title: 'Empresa: La Pezcadería',
+                timer: 2000,
+                showConfirmButton: false,
+              });
+            } else {
+              useAuthStore.getState().switchTenant({
+                id: 'tenant-03',
+                razonSocial: 'Ferretería & Eléctricos Josase S.A.S.',
+                nit: '900.543.210-9',
+                ciudad: 'Bucaramanga',
+              });
+              await ferreteriaJosaseService.applyToStores();
+              prefacturaService.asegurarPreventasSemillaDemo('tenant-03');
+              const t = cashService.getTurnoActivo('CAJA-1');
+              if (!t) {
+                cashService.abrirTurno('CAJA-1', 'user-josase-01', 100000, undefined, 'Apertura Demo Josase');
+              }
+              Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Empresa: Ferretería Josase',
+                text: 'Catálogo y caja única activados.',
+                timer: 2500,
+                showConfirmButton: false,
+              });
+            }
+          }}
+          className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer active:scale-95 shrink-0 bg-white/5 hover:bg-white/10 text-cyan-300 border-cyan-400/30"
+          title="Alternar en 1 clic entre Ferretería Josase y La Pezcadería"
+        >
+          <span>{(activeTenant?.id === 'tenant-03' || activeTenant?.razonSocial?.toLowerCase().includes('josase')) ? '🔨 Josase' : '🐟 Pezcadería'}</span>
+          <span className="text-[10px] opacity-70">⇄</span>
+        </button>
+
+        {/* Acceso Directo Kanban Preventas Caja Única */}
+        <button
+          type="button"
+          id="topbar-btn-comandas-kanban"
+          data-testid="topbar-btn-comandas-kanban"
+          onClick={() => onNavigateKanban ? onNavigateKanban() : onNavigatePOS()}
+          className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer active:scale-95 shrink-0 bg-cyan-600/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40"
+          title="Ver Tablero Kanban de Comandas & Preventas (Caja Única)"
+        >
+          <Layers size={14} className="shrink-0 text-cyan-400" />
+          <span className="hidden md:inline">Kanban Caja</span>
+        </button>
 
         {/* Botón Facturar POS Armónico Rico UI */}
         <button

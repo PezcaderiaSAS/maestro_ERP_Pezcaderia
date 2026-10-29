@@ -1,38 +1,38 @@
-Auditar, ajustar y verificar la integridad del frontend con foco prioritario en las pantallas operativas clave (POS táctil multivendedor, Caja única de recaudo, Tablero Kanban de comandas y Catálogos de clientes/productos), eliminando desbordamientos y garantizando una experiencia de usuario premium con aplicación rigurosa de leyes de UX (Fitts, Hick, Doherty, Miller, Jakob) antes de proceder con SPEC-042.
+Ejecutar la fase de especificación Spec Kit SDD v3.0 (/speckit.specify) para SPEC-042: Facturación Electrónica DIAN / Siigo API v2 & Envío de Tirilla Digital Resiliente en Maestro Pezcaderia ERP, deteniéndose tras la entrega de la especificación para revisión del usuario sin generar código de producción.
 
 Integrity mode: development
 
 ## Requirements
 
-### R1. Auditoría y corrección de desbordamientos e integridad en pantallas prioritarias
-Evaluar y corregir desbordamientos horizontales y fallos de maquetación en resoluciones móviles (viewport 375px) y escritorio en las pantallas operativas de máxima prioridad:
-1. Pantalla de ventas multivendedor (POS táctil, barra de asesores de mostrador y emisión de preventas sin fricción).
-2. Caja única de recaudo y liquidación centralizada.
-3. Tablero Kanban de seguimiento a ventas y comandas en tiempo real.
-4. Listas y catálogos de clientes y productos (con búsqueda instantánea y fluida).
+### R1. Especificación formal Spec Kit SDD v3.0 y Diagramas de Ingeniería
+Elaborar la especificación formal EARS en `specs/042-facturacion-electronica-dian/spec.md`, el checklist de calidad, el plan técnico (`plan.md`) y el desglose de tareas atómicas (`tasks.md`). Incluir obligatoriamente los 5 diagramas de ingeniería Mermaid: Flujo de Procesos (`1_process_flowcharts`), Lógica de Decisión con bifurcaciones (`2_decision_logic_diagrams`), Modelo Entidad-Relación (`3_entity_relationship_diagrams`), Secuencia Temporal (`4_sequence_diagrams`) y Arquitectura de Componentes por capas (`5_component_architecture_diagrams`).
 
-### R2. Optimización ergonómica y aplicación de leyes de UX
-Ajustar la ergonomía, densidad de información y flujos de interacción aplicando las leyes de UX:
-- Ley de Fitts: dimensionar y posicionar objetivos táctiles y botones de acción principal para interacción rápida y sin errores en terminales táctiles.
-- Ley de Hick: reducir la sobrecarga cognitiva simplificando opciones y jerarquía visual en preventas y recaudo.
-- Ley de Doherty: asegurar tiempos de respuesta visual inmediata (<400ms feedback visual, búsquedas instantáneas en catálogos).
-- Ley de Miller: organizar la información en bloques estructurados (chunks) legibles sin saturación visual.
-- Ley de Jakob: respetar patrones y convenciones familiares de interfaces POS y ERP operativos.
+### R2. Contratos Zod para DIAN y Siigo API v2
+Especificar los esquemas y validaciones estrictas con Zod para los contratos y payloads de emisión electrónica DIAN y Siigo API v2, incluyendo reglas tributarias colombianas (impuestos, retenciones), generación y validación de CUFE (SHA-384) y formato del código QR.
 
-### R3. Suite de pruebas E2E y verificación con Harness²
-Diseñar y ejecutar pruebas end-to-end con harness2 e inspección de frontend para validar los flujos críticos de las pantallas prioritarias, comprobando la ausencia de excepciones o errores en la consola del navegador.
+### R3. Arquitectura del Dispatcher Outbox en IndexedDB
+Diseñar la arquitectura del despachador outbox persistente en IndexedDB para garantizar facturación offline resiliente, soporte de contingencia DIAN (tipo 03/04), sincronización automática al restablecer conectividad e idempotencia mediante hash SHA-256 de cada documento.
 
-### R4. Consulta de estándares e investigación
-Utilizar herramientas y documentación de investigación (Brave, Context7) y agentes especializados para contrastar patrones de diseño y estándares de interfaz aplicables al ERP.
+### R4. Formatos de Tirilla Térmica y Visor Digital
+Definir los requerimientos de diseño y renderizado para tirillas térmicas en anchos estándar de 80mm y 58mm conforme a los requisitos legales de factura electrónica, así como la interfaz del visor digital y mecanismo de envío/compartido por WhatsApp y correo electrónico.
+
+### R5. Infraestructura y Restricciones de Red
+Todas las pruebas, simulaciones y validaciones de comunicación con DIAN y Siigo API v2 deben ejecutarse de manera desacoplada y puramente offline/mockeada a nivel local, sin requerir llamadas externas a servicios en red y respetando límites Kanban WIP = 1 a costo $0.
+
+## Verification Resources
+- Especificaciones técnicas y anexos técnicos de Facturación Electrónica DIAN (Anexo 1.9) y documentación de Siigo API v2.
+- Vectores de prueba sintéticos para validación de CUFE, código QR y esquemas Zod en Vitest.
 
 ## Acceptance Criteria
 
-### Integridad Visual y Maquetación
-- [ ] Las 4 pantallas prioritarias (POS multivendedor, Caja única, Tablero Kanban y Catálogos de clientes/productos) y demás vistas operativas se renderizan sin desbordamiento horizontal (`scrollWidth <= clientWidth`) en viewport móvil de 375px y en resoluciones de escritorio.
-- [ ] La consola del navegador no registra errores (`console.error`) ni excepciones no controladas durante la navegación e interacción en las vistas auditadas.
-- [ ] Los objetivos táctiles de las pantallas operativas (POS y Caja) cumplen un área mínima interactiva de al menos 44x44px conforme a la Ley de Fitts.
-- [ ] La búsqueda y filtrado en listas y catálogos de clientes y productos responde de forma inmediata y fluida sin bloqueos de interfaz (Ley de Doherty).
+### Artefactos de Especificación SDD
+- [ ] El directorio `specs/042-facturacion-electronica-dian/` contiene `spec.md` redactado con sintaxis formal EARS (Event-Driven, Ubiquitous, State-Driven, Unwanted Behavior, Optional Features).
+- [ ] Se encuentran documentados e integrados los 5 diagramas de ingeniería Mermaid sintácticamente válidos (Flujo de Procesos, Lógica de Decisión, ERD, Secuencia y Arquitectura de Componentes).
+- [ ] Se incluye la lista de verificación de calidad (`checklist.md`), el plan técnico por capas desacopladas (`plan.md`) y el desglose de tareas atómicas (`tasks.md`).
+- [ ] No se genera código fuente de producción en `src/` durante esta fase, deteniendo la ejecución tras completar los artefactos de especificación para aprobación humana.
 
-### Validación E2E con Harness²
-- [ ] Los escenarios de prueba E2E definidos para los flujos operativos de las pantallas prioritarias (emisión de preventa POS, liquidación en caja, actualización en Kanban y búsqueda en catálogos) se ejecutan con éxito mediante harness2.
-- [ ] Se genera un informe verificable con los resultados de las pruebas E2E y el inventario de correcciones de interfaz aplicadas.
+### Especificación de Contratos y Arquitectura
+- [ ] Los esquemas Zod especificados cubren la estructura requerida para factura electrónica DIAN y Siigo API v2, detallando campos obligatorios, tipos y cálculo determinista de CUFE y QR.
+- [ ] El flujo del Dispatcher Outbox en IndexedDB especifica el ciclo de vida de los estados (pendiente, transmitido, contingencia, error), reintentos con backoff exponencial e idempotencia SHA-256.
+- [ ] La especificación de tirilla térmica define la estructura de maquetación compatible para 80mm y 58mm y el enlace de visualización digital para WhatsApp y email.
+- [ ] Las dependencias y pruebas propuestas operan 100% de manera offline/simulada con datos mock sintéticos sin dependencias de red externas.

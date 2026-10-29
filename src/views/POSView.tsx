@@ -41,6 +41,8 @@ import { useIntegrationStore } from '../store/useIntegrationStore.ts';
 import { useDynamicFieldStore } from '../store/useDynamicFieldStore.ts';
 import * as localDb from '../services/localDb.ts';
 import { PosDraftService } from '../services/posDraftService.ts';
+import { prefacturaService } from '../services/prefacturaService.ts';
+import { useCashierKanbanStore } from '../stores/useCashierKanbanStore.ts';
 import { useOutboxSyncStore } from '../stores/useOutboxSyncStore.ts';
 import type { CartDraft } from '../types/pos.types.ts';
 import { ejecutarAbastecimientoInmediato, validarAbastecimientoSucursal } from '../services/branchInventoryService.ts';
@@ -760,6 +762,35 @@ export default function POSView({
     await PosDraftService.saveDraft(newDraft);
     setDrafts(PosDraftService.getLocalDrafts());
     setActiveDraftId(null);
+
+    // Sincronizar simultáneamente con prefacturaService para Caja Única y Tablero Kanban
+    try {
+      const rawItems = cartLineas.length > 0 ? cartLineas : cart;
+      const itemsPrefactura = rawItems.map((l: any, idx: number) => ({
+        productoId: l.productoId || l.id || ('prod-' + idx),
+        sku: l.sku || ('SKU-' + idx),
+        nombre: l.nombre || l.descripcion || 'Producto mostrador',
+        cantidad: Number(l.cantidad) || 1,
+        precioLista: Number(l.precioLista || l.precioFinal || l.precio || 0),
+        precioFinal: Number(l.precioFinal || l.precio || 0),
+        descuentoPct: Number(l.descuentoPct || 0),
+        subtotal: Number(l.subtotal || l.totalLinea || ((l.precioFinal || l.precio || 0) * (l.cantidad || 1))),
+      }));
+
+      await prefacturaService.emitirPrefactura({
+        tenantId: activeTenant?.id || 'tenant-03',
+        vendedorId: isFerreteria ? selectedVendorJosase : (currentUser?.empleadoId || 'VEND-01'),
+        vendedorNombre: isFerreteria ? (vSeleccionado?.nombre || 'Diego Díaz') : (currentUser?.nombre || 'Vendedor Mostrador'),
+        terminalId: isFerreteria ? 'TERM-MOSTRADOR-JOSASE' : 'TERM-01',
+        clienteDocumento: cliente?.identificacion || '22222222',
+        clienteNombre: cliente?.nombre || 'Consumidor Final',
+        items: itemsPrefactura,
+      });
+
+      useCashierKanbanStore.getState().cargarPreventas(activeTenant?.id || 'tenant-03');
+    } catch (prefErr) {
+      console.warn('Advertencia emitiendo prefactura a Caja Única:', prefErr);
+    }
     
     publishEvent(
       'SALE_COMPLETED',

@@ -9,6 +9,9 @@ import { MandatoryChangePasswordModal } from './components/MandatoryChangePasswo
 import { DevFastLoginDrawer } from './components/DevFastLoginDrawer';
 import type { AuthUserProfile } from '../../types/auth.types';
 import Swal from 'sweetalert2';
+import { ferreteriaJosaseService } from '../../services/ferreteriaJosaseService';
+import { prefacturaService } from '../../services/prefacturaService';
+import { cashService } from '../../services/cashService';
 
 export interface LoginViewProps {
   onLoginSuccess?: (user: AuthUserProfile) => void;
@@ -47,6 +50,78 @@ export const LoginView: React.FC<LoginViewProps> = ({
       }
     }
   }, [pendingInviteToken, setPendingInviteToken]);
+
+  const handleDirectDemoJosase = async () => {
+    setCargando(true);
+    setErrorGlobal(null);
+    try {
+      const demoUser: AuthUserProfile = {
+        id: 'user-josase-01',
+        email: 'diegodiaz@ferreteriajosase.com',
+        nombre: 'Diego Díaz (Asesor Mostrador)',
+        rol: 'admin',
+        isOwner: true,
+        authProvider: 'email' as const,
+        tenantId: 'tenant-03',
+      };
+      const tenantJosase = {
+        id: 'tenant-03',
+        razonSocial: 'Ferretería & Eléctricos Josase S.A.S.',
+        nombre: 'Ferretería Josase',
+        nit: '900.543.210-9',
+        ciudad: 'Bucaramanga',
+        telefono: '3157778899',
+        regimenTributario: 'COMUN',
+        activo: true,
+        createdAt: new Date().toISOString(),
+      };
+
+      useAuthStore.getState().setSession({
+        status: 'authenticated',
+        currentUser: demoUser,
+        activeTenant: tenantJosase,
+        token: 'mock-token-demo-josase',
+      });
+
+      await ferreteriaJosaseService.applyToStores();
+      prefacturaService.asegurarPreventasSemillaDemo('tenant-03');
+
+      const turnoExistente = cashService.getTurnoActivo('CAJA-1');
+      if (!turnoExistente) {
+        cashService.abrirTurno('CAJA-1', 'user-josase-01', 100000, undefined, 'Apertura Demo Mostrador Josase');
+      }
+
+      useAppStore.getState().setCurrentUser({
+        empleadoId: 'user-josase-01',
+        nombre: 'Diego Díaz',
+        identificacion: 'user-josase-01',
+        cargo: 'ASESOR MOSTRADOR',
+        rol: 'vendedor',
+        turnoIniciadoAt: new Date().toISOString(),
+      });
+
+      if (onLoginSuccess) {
+        onLoginSuccess(demoUser);
+      } else {
+        setCurrentView('pos');
+      }
+
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Modo Demo Josase Activo',
+        text: 'Mostrador, Turno de Caja y Kanban listos para probar.',
+        timer: 3000,
+        showConfirmButton: false,
+      });
+    } catch (err: any) {
+      console.error('Error iniciando demo Josase:', err);
+      setErrorGlobal('Error al activar el modo demo Josase');
+    } finally {
+      setCargando(false);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -353,6 +428,29 @@ export const LoginView: React.FC<LoginViewProps> = ({
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  id="btn-fast-demo-josase"
+                  data-testid="btn-fast-demo-josase"
+                  onClick={handleDirectDemoJosase}
+                  disabled={cargando}
+                  className="col-span-2 py-2.5 px-3 rounded-xl bg-gradient-to-r from-cyan-600/30 via-blue-600/30 to-indigo-600/30 hover:from-cyan-500/40 hover:to-indigo-500/40 border border-cyan-400/50 text-left transition-all group flex items-center justify-between shadow-lg shadow-cyan-950/30 active:scale-[0.99] cursor-pointer"
+                  title="Acceso 1-clic con Asesor Diego Díaz, Turno de caja abierto ($100.000) y preventas semilla"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300 font-bold text-sm shrink-0">
+                      🔨
+                    </div>
+                    <div>
+                      <p className="text-xs font-black text-cyan-200 group-hover:text-white flex items-center gap-1.5">
+                        <span>Mostrador Ferretería Josase</span>
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-cyan-400/20 text-cyan-300 font-mono">1-CLIC FULL</span>
+                      </p>
+                      <p className="text-[10px] text-slate-300 font-mono truncate">Diego Díaz • Caja Abierta • Preventas Semilla • Kanban</p>
+                    </div>
+                  </div>
+                  <Sparkles className="w-4 h-4 text-cyan-400 animate-pulse shrink-0" />
+                </button>
                 <button
                   type="button"
                   onClick={() => {

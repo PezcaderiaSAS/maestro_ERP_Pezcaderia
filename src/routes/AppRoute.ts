@@ -26,6 +26,7 @@ export enum AppRouteId {
   CLIENTS = 'clientes',
   CRM = 'crm',
   ORDERS_KANBAN = 'kanban',
+  CASHIER_KANBAN = 'comandas_kanban',
   B2B_EXTERNAL_SALES = 'ventas_b2b',
   B2B_PORTAL = 'portal_b2b',
 
@@ -76,6 +77,7 @@ export const COMMERCIAL_ROUTES: readonly AppRouteId[] = [
   AppRouteId.CLIENTS,
   AppRouteId.CRM,
   AppRouteId.ORDERS_KANBAN,
+  AppRouteId.CASHIER_KANBAN,
   AppRouteId.B2B_EXTERNAL_SALES,
   AppRouteId.B2B_PORTAL,
 ] as const;
@@ -127,6 +129,9 @@ export interface RouteParamsMap {
   } | undefined;
   [AppRouteId.CRM]: {
     leadId?: string;
+  } | undefined;
+  [AppRouteId.CASHIER_KANBAN]: {
+    asesorId?: string;
   } | undefined;
   [AppRouteId.ORDERS_KANBAN]: {
     orderId?: string;
@@ -302,6 +307,18 @@ export const APP_ROUTES_METADATA: Record<AppRouteId, AppRouteMetadata<AppRouteId
     allowedRoles: ['admin', 'vendedor'],
     isPrimaryNav: true,
     testId: 'nav-crm',
+  },
+  [AppRouteId.CASHIER_KANBAN]: {
+    id: AppRouteId.CASHIER_KANBAN,
+    path: '/ventas/comandas-kanban',
+    title: 'Comandas & Preventas (Kanban)',
+    domain: RouteDomain.COMMERCIAL,
+    subtitle: 'Caja Única Mostrador',
+    description: 'Tablero Kanban de 3 columnas para gestión de preventas de mostrador y recaudo central.',
+    iconName: 'Layers',
+    allowedRoles: ['admin', 'vendedor', 'administrativo'],
+    isPrimaryNav: true,
+    testId: 'nav-comandas-kanban',
   },
   [AppRouteId.ORDERS_KANBAN]: {
     id: AppRouteId.ORDERS_KANBAN,

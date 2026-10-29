@@ -39,6 +39,7 @@ export const useCashierKanbanStore = create<CashierKanbanState>()(
     cargarPreventas: async (tenantId: string) => {
       set({ isLoading: true, error: null });
       try {
+        prefacturaService.asegurarPreventasSemillaDemo(tenantId);
         const list = prefacturaService.obtenerPrefacturasPorTenant(tenantId);
         set({ preventas: list, isLoading: false });
       } catch (err: any) {

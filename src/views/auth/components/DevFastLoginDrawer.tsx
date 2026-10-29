@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import { useAuthStore } from '../../../store/useAuthStore';
+import { ferreteriaJosaseService } from '../../../services/ferreteriaJosaseService';
+import { prefacturaService } from '../../../services/prefacturaService';
+import { cashService } from '../../../services/cashService';
+import { useAppStore } from '../../../store/useAppStore';
 import type { RoleRbac } from '../../../types/auth.types';
 import { Terminal, Shield, User, ShoppingBag, Truck, CheckCircle2, ChevronUp, ChevronDown, Crown } from 'lucide-react';
 
@@ -18,6 +22,14 @@ interface DevRoleOption {
 }
 
 const DEV_ROLES: DevRoleOption[] = [
+  {
+    rol: 'admin',
+    label: '🔨 Mostrador Josase',
+    email: 'diegodiaz@ferreteriajosase.com',
+    nombre: 'Diego Díaz (Josase)',
+    badgeColor: 'border-cyan-400/60 text-cyan-300 bg-cyan-500/20 shadow-md shadow-cyan-900/40 ring-1 ring-cyan-400/40',
+    icon: <Terminal className="w-4 h-4 text-cyan-300" />,
+  },
   {
     rol: 'admin',
     label: 'Ultra Admin Global',
