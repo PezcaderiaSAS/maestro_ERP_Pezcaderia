@@ -154,6 +154,10 @@ export const cobrarPrefacturaZodSchema = z.object({
   turnoId: z.string().min(1, 'El turno de caja es obligatorio'),
   montoTotal: z.number().positive('El monto total debe ser positivo'),
   pagos: z.array(pagoCobroZodSchema).min(1, 'Debe registrar al menos un método de pago'),
+  plazoDias: z.number().optional(),
+  fechaLimite: z.string().optional(),
+  efectivoRecibido: z.number().optional(),
+  cambioEntregado: z.number().optional(),
 });
 
 export function validarCobroCaja(

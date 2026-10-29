@@ -168,4 +168,105 @@ describe('TASK-037-05: CashierKanbanView - Tablero Premium de Caja Única y Reca
       expect(prefActualizada?.facturaId).toBeDefined();
     });
   });
+
+  it('5. Flujo de Efectivo en Ventanilla: calcula cambio interactivo y bloquea si el monto es insuficiente', async () => {
+    const emision = await prefacturaService.emitirPrefactura({
+      tenantId,
+      vendedorId: 'v-marcos',
+      vendedorNombre: 'Marcos Vendedor',
+      terminalId: 'TERM-01',
+      clienteNombre: 'Constructora Bolívar S.A.',
+      items: [{ productoId: 'p1', nombre: 'Tubo PVC 1/2 pulg', cantidad: 10, precioLista: 18000 }],
+    });
+    const prefId = emision.prefactura!.id;
+
+    render(<CashierKanbanView tenantId={tenantId} cajeroId="usr-cajero-01" />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Constructora Bolívar S.A.')).toBeInTheDocument();
+    });
+
+    // Iniciar cobro
+    fireEvent.click(screen.getByTestId(`btn-iniciar-cobro-${prefId}`));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Cobro en Ventanilla/i)).toBeInTheDocument();
+      expect(screen.getAllByText('$180.000').length).toBeGreaterThanOrEqual(1);
+    });
+
+    const inputEfectivo = screen.getByTestId('input-efectivo-recibido');
+    const btnConfirmar = screen.getByTestId('btn-confirmar-recaudo-caja');
+
+    // 1. Simular monto insuficiente ($100.000 < $180.000)
+    fireEvent.change(inputEfectivo, { target: { value: '100000' } });
+    expect(screen.getByText(/Efectivo Insuficiente/i)).toBeInTheDocument();
+    expect(screen.getByText(/Faltan \$80.000/i)).toBeInTheDocument();
+    expect(btnConfirmar).toBeDisabled();
+
+    // 2. Simular pago con billete de $200.000 (Cambio: $20.000)
+    fireEvent.change(inputEfectivo, { target: { value: '200000' } });
+    expect(screen.getByTestId('badge-cambio-ventanilla')).toHaveTextContent('$20.000');
+    expect(btnConfirmar).not.toBeDisabled();
+
+    // Confirmar cobro
+    fireEvent.click(btnConfirmar);
+
+    await waitFor(() => {
+      const prefActualizada = prefacturaService.buscarPorCodigo(tenantId, prefId);
+      expect(prefActualizada?.estado).toBe('PAGADA');
+      expect(prefActualizada?.metodoPago).toBe('EFECTIVO');
+      expect(prefActualizada?.efectivoRecibido).toBe(200000);
+      expect(prefActualizada?.cambioEntregado).toBe(20000);
+    });
+  });
+
+  it('6. Flujo de Crédito en Ventanilla: permite seleccionar plazo, fecha límite y registra en Cartera', async () => {
+    const emision = await prefacturaService.emitirPrefactura({
+      tenantId,
+      vendedorId: 'v-marcos',
+      vendedorNombre: 'Marcos Vendedor',
+      terminalId: 'TERM-01',
+      clienteDocumento: '900123456',
+      clienteNombre: 'Constructora Bolívar S.A.',
+      items: [{ productoId: 'p1', nombre: 'Cemento Gris', cantidad: 4, precioLista: 25000 }],
+    });
+    const prefId = emision.prefactura!.id;
+
+    render(<CashierKanbanView tenantId={tenantId} cajeroId="usr-cajero-01" />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Constructora Bolívar S.A.')).toBeInTheDocument();
+    });
+
+    // Iniciar cobro
+    fireEvent.click(screen.getByTestId(`btn-iniciar-cobro-${prefId}`));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Cobro en Ventanilla/i)).toBeInTheDocument();
+    });
+
+    // Cambiar a CRÉDITO
+    const btnCredito = screen.getByRole('button', { name: /CRÉDITO/i });
+    fireEvent.click(btnCredito);
+
+    // Verificar presencia de chips de plazo y selector de fecha límite
+    expect(screen.getByText(/Plazo de Crédito/i)).toBeInTheDocument();
+    const chip45d = screen.getByRole('button', { name: '45d' });
+    fireEvent.click(chip45d);
+
+    const inputFecha = screen.getByTestId('input-fecha-limite-credito') as HTMLInputElement;
+    expect(inputFecha.value).toBeDefined();
+
+    // Confirmar crédito
+    const btnAprobar = screen.getByRole('button', { name: /Aprobar Crédito/i });
+    fireEvent.click(btnAprobar);
+
+    await waitFor(() => {
+      const prefActualizada = prefacturaService.buscarPorCodigo(tenantId, prefId);
+      expect(prefActualizada?.estado).toBe('PAGADA');
+      expect(prefActualizada?.metodoPago).toBe('CREDITO');
+      expect(prefActualizada?.plazoDias).toBe(45);
+      expect(prefActualizada?.fechaLimite).toBeDefined();
+    });
+  });
 });

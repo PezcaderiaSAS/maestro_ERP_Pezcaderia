@@ -7,6 +7,9 @@ import {
   ShoppingBag,
   CreditCard,
   CheckCircle2,
+  Calendar,
+  DollarSign,
+  AlertCircle,
   Receipt,
   User,
   X,
@@ -17,6 +20,8 @@ import {
 import type { Prefactura, EstadoPrefactura, MetodoPagoPrefactura } from '../../../types/prefactura.types';
 import { useCashierKanbanStore } from '../../../stores/useCashierKanbanStore';
 import { useAuthStore } from '../../../store/useAuthStore';
+import { useARStore } from '../../../store/useARStore';
+import Swal from 'sweetalert2';
 
 interface CashierKanbanViewProps {
   tenantId?: string;
@@ -46,6 +51,13 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
 
   const [metodoSeleccionado, setMetodoSeleccionado] = useState<MetodoPagoPrefactura>('EFECTIVO');
   const [efectivoRecibido, setEfectivoRecibido] = useState<number>(0);
+  const [plazoDias, setPlazoDias] = useState<number>(30);
+  const [fechaLimite, setFechaLimite] = useState<string>(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 30);
+    return d.toISOString().split('T')[0];
+  });
+  const [referenciaComprobante, setReferenciaComprobante] = useState<string>('');
   const [draggedCardId, setDraggedCardId] = useState<string | null>(null);
 
   // Carga inicial y sondeo reactivo
@@ -109,7 +121,13 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
 
   // Abrir modal de cobro y preestablecer valor recibido
   const iniciarCobro = (pref: Prefactura) => {
+    setMetodoSeleccionado('EFECTIVO');
     setEfectivoRecibido(pref.total);
+    setPlazoDias(30);
+    const d = new Date();
+    d.setDate(d.getDate() + 30);
+    setFechaLimite(d.toISOString().split('T')[0]);
+    setReferenciaComprobante('');
     abrirModalCobro(pref);
   };
 
@@ -117,14 +135,86 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
   const handleConfirmarRecaudo = async () => {
     if (!preventaSeleccionada) return;
 
-    await procesarCobro({
+    if (metodoSeleccionado === 'EFECTIVO' && efectivoRecibido < preventaSeleccionada.total) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Monto insuficiente',
+        text: `El efectivo recibido (${efectivoRecibido.toLocaleString('es-CO')}) no cubre el total (${preventaSeleccionada.total.toLocaleString('es-CO')}).`,
+        background: '#0F172A',
+        color: '#F8FAFC',
+      });
+      return;
+    }
+
+    const cambio = metodoSeleccionado === 'EFECTIVO' ? Math.max(0, efectivoRecibido - preventaSeleccionada.total) : 0;
+
+    const ok = await procesarCobro({
       prefacturaId: preventaSeleccionada.id,
       tenantId,
       cajeroId,
       turnoId: 'turno-caja-principal',
       montoTotal: preventaSeleccionada.total,
-      pagos: [{ metodoPago: metodoSeleccionado, monto: preventaSeleccionada.total }],
+      pagos: [{
+        metodoPago: metodoSeleccionado,
+        monto: preventaSeleccionada.total,
+        referenciaComprobante: referenciaComprobante || undefined,
+      }],
+      plazoDias: metodoSeleccionado === 'CREDITO' ? plazoDias : undefined,
+      fechaLimite: metodoSeleccionado === 'CREDITO' ? fechaLimite : undefined,
+      efectivoRecibido: metodoSeleccionado === 'EFECTIVO' ? efectivoRecibido : undefined,
+      cambioEntregado: metodoSeleccionado === 'EFECTIVO' ? cambio : undefined,
     });
+
+    if (ok) {
+      if (metodoSeleccionado === 'CREDITO') {
+        useARStore.getState().addInvoice({
+          id: `CARTERA-${preventaSeleccionada.codigoPreventa || preventaSeleccionada.id}`,
+          clienteId: preventaSeleccionada.clienteDocumento || 'c-generico',
+          clienteNombre: preventaSeleccionada.clienteNombre || 'Consumidor Final',
+          clienteIdentificacion: preventaSeleccionada.clienteDocumento || '00000000',
+          fecha: new Date().toISOString(),
+          fechaVencimiento: fechaLimite,
+          observaciones: `Venta a crédito (${plazoDias} días) · Preventa ${preventaSeleccionada.codigoPreventa}`,
+          total: preventaSeleccionada.total,
+          saldo: preventaSeleccionada.total,
+          pagado: 0,
+          pagos: [],
+        });
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Venta a Crédito Aprobada',
+          html: `<div class="text-left text-xs space-y-1">
+            <p><strong>Factura:</strong> ${preventaSeleccionada.codigoPreventa}</p>
+            <p><strong>Cliente:</strong> ${preventaSeleccionada.clienteNombre || 'Consumidor Final'}</p>
+            <p><strong>Plazo:</strong> ${plazoDias} días</p>
+            <p><strong>Fecha Vencimiento:</strong> ${fechaLimite}</p>
+            <p class="text-cyan-400 font-bold mt-2">Registrada en Cartera (Cuentas por Cobrar)</p>
+          </div>`,
+          background: '#0F172A',
+          color: '#F8FAFC',
+          timer: 2500,
+          showConfirmButton: false,
+        });
+      } else if (metodoSeleccionado === 'EFECTIVO' && cambio > 0) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Cobro Exitoso',
+          html: `<div class="text-center text-sm space-y-2">
+            <p class="text-slate-300">Total: ${preventaSeleccionada.total.toLocaleString('es-CO')}</p>
+            <p class="text-slate-300">Recibido: ${efectivoRecibido.toLocaleString('es-CO')}</p>
+            <div class="p-3 bg-emerald-950/60 border border-emerald-500/40 rounded-xl text-emerald-300">
+              <span class="text-xs uppercase font-bold block">Entregar Cambio:</span>
+              <span class="text-2xl font-black font-mono">${cambio.toLocaleString('es-CO')}</span>
+            </div>
+          </div>`,
+          background: '#0F172A',
+          color: '#F8FAFC',
+          timer: 3000,
+          showConfirmButton: false,
+        });
+      }
+    }
   };
 
   return (
@@ -392,6 +482,19 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
                     ${pref.total.toLocaleString('es-CO')}
                   </div>
 
+                  {pref.metodoPago === 'CREDITO' ? (
+                    <div className="mb-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-cyan-950/60 text-cyan-300 border border-cyan-500/30">
+                      <span>Crédito ({pref.plazoDias || 30}d · Vence: {pref.fechaLimite || 'N/A'})</span>
+                    </div>
+                  ) : pref.metodoPago ? (
+                    <div className="mb-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-800 text-slate-300 border border-white/10">
+                      <span>{pref.metodoPago}</span>
+                      {pref.cambioEntregado && pref.cambioEntregado > 0 ? (
+                        <span className="text-emerald-400 font-mono ml-1 font-bold">(Vueltas: ${pref.cambioEntregado.toLocaleString('es-CO')})</span>
+                      ) : null}
+                    </div>
+                  ) : null}
+
                   <div className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
                     <Receipt size={12} />
                     <span>Facturado · Asesor: {pref.vendedorNombre}</span>
@@ -432,37 +535,216 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
               </span>
             </div>
 
-            {/* Selector de Método de Pago */}
-            <div className="grid grid-cols-3 gap-2">
-              {(['EFECTIVO', 'DATAFONO', 'TRANSFERENCIA'] as MetodoPagoPrefactura[]).map((m) => (
+            {/* Selector de Método de Pago (Incluye CRÉDITO) */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+              {(['EFECTIVO', 'DATAFONO', 'TRANSFERENCIA', 'CREDITO'] as MetodoPagoPrefactura[]).map((m) => (
                 <button
                   key={m}
+                  type="button"
                   onClick={() => setMetodoSeleccionado(m)}
-                  className={`py-2 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  className={`py-2.5 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     metodoSeleccionado === m
-                      ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30'
-                      : 'bg-white/5 text-slate-400 hover:text-white hover:bg-white/10'
+                      ? m === 'CREDITO'
+                        ? 'bg-cyan-600 text-white shadow-md shadow-cyan-600/40 border border-cyan-400/40'
+                        : 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30 border border-emerald-400/40'
+                      : 'bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 border border-white/5'
                   }`}
                 >
-                  {m}
+                  {m === 'CREDITO' ? 'CRÉDITO' : m}
                 </button>
               ))}
             </div>
 
+            {/* Sub-Panel Dinámico según Método de Pago */}
+            {metodoSeleccionado === 'EFECTIVO' && (
+              <div className="space-y-2 bg-white/5 border border-white/10 rounded-2xl p-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                    <DollarSign size={14} className="text-emerald-400" />
+                    <span>Efectivo Recibido</span>
+                  </label>
+                  <span className="text-[11px] text-slate-400 font-mono">
+                    Total: ${preventaSeleccionada.total.toLocaleString('es-CO')}
+                  </span>
+                </div>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold font-mono">$</span>
+                  <input
+                    type="number"
+                    data-testid="input-efectivo-recibido"
+                    value={efectivoRecibido || ''}
+                    onChange={(e) => setEfectivoRecibido(Number(e.target.value) || 0)}
+                    className="w-full bg-slate-800/90 border border-white/10 rounded-xl pl-8 pr-3 py-2 text-base font-mono font-bold text-white focus:outline-none focus:border-emerald-500"
+                    placeholder="0"
+                  />
+                </div>
+
+                {/* Chips de Billetes Rápidos */}
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setEfectivoRecibido(preventaSeleccionada.total)}
+                    className="py-1 px-2.5 rounded-lg text-[11px] font-bold bg-white/10 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 transition-all cursor-pointer"
+                  >
+                    Exacto (${preventaSeleccionada.total.toLocaleString('es-CO')})
+                  </button>
+                  {[10000, 20000, 50000, 100000].map((add) => (
+                    <button
+                      key={add}
+                      type="button"
+                      onClick={() => setEfectivoRecibido((prev) => (prev || 0) + add)}
+                      className="py-1 px-2 rounded-lg text-[11px] font-bold bg-white/5 hover:bg-white/15 text-slate-300 border border-white/10 transition-all cursor-pointer"
+                    >
+                      +${(add / 1000).toFixed(0)}k
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setEfectivoRecibido(0)}
+                    className="py-1 px-2 rounded-lg text-[11px] font-bold bg-white/5 hover:bg-red-500/20 text-slate-400 hover:text-red-300 border border-white/10 transition-all cursor-pointer"
+                  >
+                    Limpiar
+                  </button>
+                </div>
+
+                {/* Visualización de Vueltas / Falta */}
+                {efectivoRecibido >= preventaSeleccionada.total ? (
+                  <div className="bg-emerald-950/40 border border-emerald-500/30 rounded-xl p-2.5 flex items-center justify-between mt-2">
+                    <div>
+                      <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block">
+                        Cambio a Entregar (Vueltas)
+                      </span>
+                      <span
+                        className="text-xl font-black text-emerald-300 font-mono tracking-tight"
+                        data-testid="badge-cambio-ventanilla"
+                      >
+                        ${(efectivoRecibido - preventaSeleccionada.total).toLocaleString('es-CO')}
+                      </span>
+                    </div>
+                    <span className="text-[11px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-1 rounded-md border border-emerald-500/30">
+                      ✓ Pago Completo
+                    </span>
+                  </div>
+                ) : (
+                  <div className="bg-amber-950/40 border border-amber-500/30 rounded-xl p-2.5 flex items-center justify-between mt-2">
+                    <div>
+                      <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider block">
+                        Efectivo Insuficiente
+                      </span>
+                      <span className="text-base font-black text-amber-300 font-mono tracking-tight">
+                        Faltan ${(preventaSeleccionada.total - efectivoRecibido).toLocaleString('es-CO')}
+                      </span>
+                    </div>
+                    <span className="text-[11px] bg-amber-500/20 text-amber-300 font-bold px-2 py-1 rounded-md border border-amber-500/30">
+                      Incompleto
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {metodoSeleccionado === 'CREDITO' && (
+              <div className="space-y-3 bg-white/5 border border-cyan-500/20 rounded-2xl p-3.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                    <Calendar size={14} className="text-cyan-400" />
+                    <span>Plazo de Crédito (Días)</span>
+                  </span>
+                  <span className="text-xs font-mono text-cyan-300 font-black bg-cyan-950/80 border border-cyan-500/30 px-2 py-0.5 rounded-lg">
+                    {plazoDias} días
+                  </span>
+                </div>
+
+                {/* Chips de Plazo */}
+                <div className="grid grid-cols-5 gap-1.5">
+                  {[8, 15, 30, 45, 60].map((dias) => (
+                    <button
+                      key={dias}
+                      type="button"
+                      onClick={() => {
+                        setPlazoDias(dias);
+                        const d = new Date();
+                        d.setDate(d.getDate() + dias);
+                        setFechaLimite(d.toISOString().split('T')[0]);
+                      }}
+                      className={`py-1.5 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        plazoDias === dias
+                          ? 'bg-cyan-600 text-white shadow-md shadow-cyan-600/30 border border-cyan-400/40'
+                          : 'bg-white/5 text-slate-300 hover:bg-white/10 border border-white/5'
+                      }`}
+                    >
+                      {dias}d
+                    </button>
+                  ))}
+                </div>
+
+                {/* Selector de Fecha Límite */}
+                <div>
+                  <label className="text-[11px] text-slate-400 block mb-1 font-medium">
+                    Fecha Límite / Vencimiento
+                  </label>
+                  <input
+                    type="date"
+                    data-testid="input-fecha-limite-credito"
+                    value={fechaLimite}
+                    min={new Date().toISOString().split('T')[0]}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFechaLimite(val);
+                      if (val) {
+                        const diffTime = new Date(val).getTime() - new Date().setHours(0,0,0,0);
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        if (diffDays > 0) setPlazoDias(diffDays);
+                      }
+                    }}
+                    className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                <div className="text-[11px] text-slate-300 bg-cyan-950/30 border border-cyan-500/20 p-2.5 rounded-xl leading-relaxed">
+                  ℹ️ Se registrará en <strong>Cartera</strong> a nombre de <strong className="text-white">{preventaSeleccionada.clienteNombre || 'Consumidor Final'}</strong> con vencimiento el <strong className="text-cyan-300 font-mono">{fechaLimite}</strong>.
+                </div>
+              </div>
+            )}
+
+            {(metodoSeleccionado === 'DATAFONO' || metodoSeleccionado === 'TRANSFERENCIA') && (
+              <div className="space-y-2 bg-white/5 border border-white/10 rounded-2xl p-3">
+                <label className="text-xs font-bold text-slate-300 block">
+                  Nº Comprobante / Aprobación (Opcional)
+                </label>
+                <input
+                  type="text"
+                  value={referenciaComprobante}
+                  onChange={(e) => setReferenciaComprobante(e.target.value)}
+                  placeholder="Ej: APROB-84920"
+                  className="w-full bg-slate-800/90 border border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-cyan-500"
+                />
+              </div>
+            )}
+
             {/* Botón de Confirmación Definitiva (F16: Fitts >=44px) */}
             <div className="pt-2 flex gap-2">
               <button
+                type="button"
                 onClick={cerrarModalCobro}
                 className="flex-1 min-h-[44px] py-2.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-bold transition-colors cursor-pointer flex items-center justify-center"
               >
                 Cancelar
               </button>
               <button
+                type="button"
                 data-testid="btn-confirmar-recaudo-caja"
+                disabled={metodoSeleccionado === 'EFECTIVO' && efectivoRecibido < preventaSeleccionada.total}
                 onClick={handleConfirmarRecaudo}
-                className="flex-1 min-h-[44px] py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-lg shadow-emerald-600/30 cursor-pointer flex items-center justify-center"
+                className={`flex-1 min-h-[44px] py-2.5 px-3 rounded-xl text-white text-xs font-bold transition-all shadow-lg flex items-center justify-center cursor-pointer ${
+                  metodoSeleccionado === 'EFECTIVO' && efectivoRecibido < preventaSeleccionada.total
+                    ? 'bg-slate-700 opacity-50 cursor-not-allowed'
+                    : metodoSeleccionado === 'CREDITO'
+                    ? 'bg-cyan-600 hover:bg-cyan-500 shadow-cyan-600/30'
+                    : 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/30'
+                }`}
               >
-                Confirmar Cobro (F9)
+                {metodoSeleccionado === 'CREDITO' ? 'Aprobar Crédito' : 'Confirmar Cobro (F9)'}
               </button>
             </div>
           </div>

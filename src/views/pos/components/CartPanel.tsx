@@ -10,6 +10,8 @@ import { PaymentPanel, type MetodoCobroPos } from './PaymentPanel';
 import { ParkedOrdersBar } from './ParkedOrdersBar';
 import { OnScreenKeypadModal } from './OnScreenKeypadModal';
 import { GlassCard } from '../../../components/layout/components/GlassCard';
+import { useAuthStore } from '../../../store/useAuthStore';
+import { useAppStore } from '../../../store/useAppStore';
 import Swal from 'sweetalert2';
 
 interface CartPanelProps {
@@ -60,6 +62,7 @@ interface CartPanelProps {
   saldoEfectivoGaveta?: number;
   topeMaximoGaveta?: number;
   onRetiroParcialRequest?: () => void;
+  isAsesorMostrador?: boolean;
 }
 
 export const CartPanel: React.FC<CartPanelProps> = ({
@@ -96,7 +99,19 @@ export const CartPanel: React.FC<CartPanelProps> = ({
   saldoEfectivoGaveta,
   topeMaximoGaveta,
   onRetiroParcialRequest,
+  isAsesorMostrador,
 }) => {
+  const activeTenant = useAuthStore((s) => s.activeTenant);
+  const currentUser = useAppStore((s) => s.currentUser);
+  const userRole = useAppStore((s) => s.userRole);
+
+  const isMostradorAuto =
+    isAsesorMostrador !== undefined
+      ? isAsesorMostrador
+      : Boolean(activeTenant?.id === 'tenant-03' ||
+         activeTenant?.razonSocial?.toLowerCase().includes('josase') ||
+         userRole === 'vendedor' ||
+         currentUser?.cargo?.toLowerCase().includes('mostrador'));
   const [isBouncing, setIsBouncing] = useState(false);
   const [isCompactMode, setIsCompactMode] = useState(false);
   const totalItems = lineas.reduce((sum, l) => sum + Number(l.cantidad), 0);
@@ -673,23 +688,70 @@ export const CartPanel: React.FC<CartPanelProps> = ({
           onDescuentoClick={onDescuentoClick}
         />
 
-        <PaymentPanel
-          totalFinal={totales.totalFinal}
-          lineas={lineas}
-          cliente={cliente}
-          stock={stock}
-          bodegaActivaId={bodegaActivaId}
-          bodegaActivaNombre={bodegaActivaNombre}
-          onPagar={onPagar}
-          onGuardarBorrador={onGuardarBorrador}
-          onLimpiarCarrito={onLimpiarCarrito}
-          isDisabled={lineas.length === 0}
-          isTurnoAbierto={isTurnoAbierto}
-          onAbrirTurnoRequest={onAbrirTurnoRequest}
-          onRetiroParcialRequest={onRetiroParcialRequest}
-          saldoEfectivoGaveta={saldoEfectivoGaveta}
-          topeMaximoGaveta={topeMaximoGaveta}
-        />
+        {isMostradorAuto ? (
+          <div className="p-4 bg-slate-900/90 border border-cyan-500/30 rounded-2xl backdrop-blur-xl shadow-xl space-y-3 select-none">
+            <div className="flex items-center justify-between text-xs pb-2 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
+                <span className="font-bold text-slate-200 uppercase tracking-wider text-[11px]">
+                  Puesto de Mostrador
+                </span>
+              </div>
+              <span className="text-[10px] font-mono text-cyan-300 font-bold bg-cyan-950/60 border border-cyan-500/30 px-2 py-0.5 rounded-lg">
+                Cobro en Ventanilla
+              </span>
+            </div>
+
+            <button
+              type="button"
+              data-testid="btn-emitir-preventa-mostrador"
+              disabled={lineas.length === 0}
+              onClick={onGuardarBorrador}
+              className={`w-full min-h-[50px] py-3 px-4 rounded-xl font-black text-sm tracking-wide transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-95 ${
+                lineas.length > 0
+                  ? 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-cyan-600/30 border border-cyan-400/40'
+                  : 'bg-white/5 text-slate-500 cursor-not-allowed border border-white/5'
+              }`}
+            >
+              <PauseCircle size={18} />
+              <span>EMITIR PREVENTA / COMANDA (F6)</span>
+            </button>
+
+            <div className="flex gap-2">
+              <button
+                type="button"
+                disabled={lineas.length === 0}
+                onClick={onLimpiarCarrito}
+                className="flex-1 min-h-[44px] py-2 px-3 rounded-xl bg-white/5 hover:bg-red-500/20 text-slate-400 hover:text-red-300 text-xs font-bold transition-all border border-white/10 flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Trash2 size={14} />
+                <span>Vaciar Carrito</span>
+              </button>
+            </div>
+
+            <div className="text-[11px] text-slate-400 bg-cyan-950/20 border border-cyan-500/20 rounded-xl p-2.5 text-center leading-relaxed">
+              ℹ️ Los asesores de mostrador generan la preventa y envían al cliente a la <strong>Caja Única (Ventanilla)</strong> para realizar el pago y posterior despacho de bodega.
+            </div>
+          </div>
+        ) : (
+          <PaymentPanel
+            totalFinal={totales.totalFinal}
+            lineas={lineas}
+            cliente={cliente}
+            stock={stock}
+            bodegaActivaId={bodegaActivaId}
+            bodegaActivaNombre={bodegaActivaNombre}
+            onPagar={onPagar}
+            onGuardarBorrador={onGuardarBorrador}
+            onLimpiarCarrito={onLimpiarCarrito}
+            isDisabled={lineas.length === 0}
+            isTurnoAbierto={isTurnoAbierto}
+            onAbrirTurnoRequest={onAbrirTurnoRequest}
+            onRetiroParcialRequest={onRetiroParcialRequest}
+            saldoEfectivoGaveta={saldoEfectivoGaveta}
+            topeMaximoGaveta={topeMaximoGaveta}
+          />
+        )}
       </div>
 
       {/* Modal Táctil On-Screen Keypad para Ajuste Rápido de Cantidad / Peso (Regla 12 Años) */}

@@ -65,6 +65,11 @@ export interface Prefactura {
   facturaId?: string;
   cajeroId?: string;
   cajeroNombre?: string;
+  metodoPago?: MetodoPagoPrefactura;
+  plazoDias?: number;
+  fechaLimite?: string;
+  efectivoRecibido?: number;
+  cambioEntregado?: number;
   pagadoAt?: string;
   despachadoAt?: string;
   despachadoPorId?: string;
@@ -85,6 +90,10 @@ export interface CobrarPrefacturaInput {
   turnoId: string;
   montoTotal: number;
   pagos: PagoCobroInput[];
+  plazoDias?: number;
+  fechaLimite?: string;
+  efectivoRecibido?: number;
+  cambioEntregado?: number;
 }
 
 export interface DespachoVerificacionInput {

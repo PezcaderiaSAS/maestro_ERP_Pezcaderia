@@ -2419,6 +2419,7 @@ export default function POSView({
                   saldoEfectivoGaveta={turnoActivo?.totalEfectivo ?? 0}
                   topeMaximoGaveta={1500000}
                   onRetiroParcialRequest={() => setShowRetiroModal(true)}
+                  isAsesorMostrador={isFerreteria || userRole === 'vendedor' || currentUser?.cargo?.toLowerCase().includes('mostrador')}
                 />
               )}
             </div>

@@ -323,7 +323,12 @@ export class PrefacturaService {
     pref.cajeroId = input.cajeroId;
     pref.pagadoAt = new Date().toISOString();
     pref.updatedAt = new Date().toISOString();
-    pref.hardHoldActivo = true; // Se mantiene reservado hasta la entrega física
+    pref.hardHoldActivo = true;
+    pref.metodoPago = input.pagos[0]?.metodoPago;
+    if (input.plazoDias !== undefined) pref.plazoDias = input.plazoDias;
+    if (input.fechaLimite !== undefined) pref.fechaLimite = input.fechaLimite;
+    if (input.efectivoRecibido !== undefined) pref.efectivoRecibido = input.efectivoRecibido;
+    if (input.cambioEntregado !== undefined) pref.cambioEntregado = input.cambioEntregado;
 
     return { ok: true, prefactura: pref };
   }
