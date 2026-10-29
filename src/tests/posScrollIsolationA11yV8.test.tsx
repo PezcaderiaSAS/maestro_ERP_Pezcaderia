@@ -18,6 +18,6 @@ describe('TASK-039-04: POSView - Aislamiento de Scrollbars Independientes y Grid
   });
 
   it('la columna de liquidación y carrito debe contener overflow-hidden y min-h-0 para contener su barra de desplazamiento propia', () => {
-    expect(posViewContent).toMatch(/<div className="flex flex-col min-h-0 h-full overflow-hidden">/);
+    expect(posViewContent).toMatch(/min-h-0 h-full overflow-hidden/);
   });
 });

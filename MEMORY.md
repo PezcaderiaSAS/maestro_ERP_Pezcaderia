@@ -2,27 +2,28 @@
 
 ## Contexto Actual & Estado Global (Sesión 2026-10-29 - SDD v3.0)
 - **Estado Global:** Dark Glassmorphism V8 (`#070A10`), soporte dual `pezcaderia-light` WCAG AA+ (4.5:1 / 7:1), retícula 8px, composite GPU 120 FPS.
-- **Quality Gate:** TypeScript estricto **0 errores (`tsc --noEmit`)**, Vitest 100% verde (77/77 tests UX/E2E pasando en 7 suites).
-- **Cero Desbordamiento (375px & Desktop):** `scrollWidth <= clientWidth` certificado con Chromium DevTools (`hasOverflow: false` en móvil 375px y desktop 1280px).
-- **Leyes de UX Implementadas:** Fitts (zonas de toque universales $\ge 44\times 44\text{px}$), Hick (simplificación cognitiva de cobro), Doherty (debounce 200ms y feedback $<400\text{ms}$), Miller (stock consolidado con chunking) y Jakob (patrones familiares de POS).
-- **Pantallas Prioritarias Certificadas:** POS Multivendedor con switcher móvil `[Catálogo]` / `[Carrito]`, Caja Única con selectores elásticos y sort memoizado, Tablero Kanban de comandas y Catálogos de Clientes/Inventario con búsqueda fluida.
+- **Quality Gate:** TypeScript estricto **0 errores (`tsc --noEmit`)**, Vitest 100% verde (85/85 tests pasando).
+- **Multivendedor & Caja Única:** Flujo completo operativo. Login 1-clic Josase con 5 asesores de mostrador.
+- **Ventanilla Interactiva:** Cobro con cálculo reactivo de vueltas/cambio y venta a crédito con plazos (8d-60d) y vencimiento en Cartera (`useARStore`).
+- **Segregación Mostrador:** Asesores de mostrador sin panel de cobro; disponen exclusivamente de botón `EMITIR PREVENTA (F6)`.
 
 ## Módulos y Especificaciones Certificadas
 1. **SPEC-035 a SPEC-039:** Autenticación OAuth, Onboarding, Multivendedor, Ergonomía Laptop, WCAG AAA.
-2. **SPEC-040 (CERO-LATENCIA CATÁLOGOS MASIVOS & PRECIOS B2B) ✅ COMPLETADA (100%):**
-   - Benchmarks 3X (16.000 ítems, 30.000 clientes), Web Worker sub-2ms y cotizaciones con reserva hard-hold.
-3. **SPEC-041 (SINCRONIZACIÓN BIDIRECCIONAL SUPABASE <-> INDEXEDDB OUTBOX) ✅ COMPLETADA (100%):**
-   - Esquemas Zod delta sync, OCC `CLIENT_WINS`, Dead-Letter Queue (DLQ), Web Worker en lotes de 500 y búsqueda sub-2ms.
-4. **AUDITORÍA DE INTEGRIDAD FRONTEND & LEYES DE UX (M1–M5) ✅ COMPLETADA (100%):**
-   - 77/77 pruebas automatizadas pasando, 0 errores en consola JS, co-ejecución Google Harness² + Agency Swarm a costo $0.
+2. **SPEC-040 (CERO-LATENCIA CATÁLOGOS MASIVOS & PRECIOS B2B) ✅ (100%):** Worker sub-2ms y reserva hard-hold.
+3. **SPEC-041 (SINCRONIZACIÓN SUPABASE <-> INDEXEDDB OUTBOX) ✅ (100%):** Delta sync, OCC `CLIENT_WINS`, DLQ.
+4. **FLUJO MULTIVENDEDOR, VENTANILLA Y RECAUDO EN CAJA ÚNICA ✅ (100%):**
+   - Cobro en ventanilla con vueltas dinámicas y crédito con sincronización atómica a Cartera (`useARStore`).
+   - Segregación estricta asesor mostrador sin cobro (`CartPanel.tsx`) verificado con suites TDD.
 
-## Cola de Tareas Pendientes para Próxima Sesión tras `git pull` (WIP = 1)
-1. **SPEC-042 (INICIO INMEDIATO POST-PULL): Facturación Electrónica DIAN / Siigo API v2 & Envío de Tirilla Digital Resiliente**:
+## Cola de Tareas Priorizada para Próxima Sesión tras `git pull` (WIP = 1)
+1. **EVALUACIÓN POR AGENCIAS (SWARM) Y GOOGLE HARNESS² DEL PLAN ERGONÓMICO DEL MOSTRADOR (PRIORIDAD 1):**
+   - Ejecutar `python scripts/architecture/run_agency_sdd_bridge.py -a architect -p "Ajuste ergonómico del mostrador para comandas y ciclo de vida preventa"`.
+   - Propose-Probe-Compose a costo $0 para contrastar candidatos de arnés y validar restricciones invariantes.
+   - Corregir el solapamiento visual en `CartPanel.tsx` (botones cortados bajo selector de cliente) e integrar Dark Glassmorphism V8.
+2. **SPEC-042: Facturación Electrónica DIAN / Siigo API v2 & Envío de Tirilla Digital Resiliente**:
    - Tarea 1: Esquemas Zod y validación estricta de payloads para emisión electrónica y CUFE.
    - Tarea 2: Dispatcher outbox en IndexedDB para facturación offline con cola de contingencia DIAN.
-   - Tarea 3: Generación de tirilla térmica 80mm/58mm y visor digital para WhatsApp/Email.
 
 ## Despliegue a Producción (Vercel & Supabase)
-- **Vercel (Frontend SPA):** [`https://maestro-erp-pezcaderia.vercel.app`](https://maestro-erp-pezcaderia.vercel.app). Despliegue activo con guardia de autenticación, Login Dual OAuth/Email, Onboarding corporativo y 0 errores en consola JS.
-- **Supabase (Backend PostgreSQL):** Proyecto activo (`gmvdrbtnogxafamdjzat`). Auth GoTrue & Postgres Pooler 100% conectados.
-- **Validación Swarm & Harness²:** Arquitectura auditada y certificada con bucle DevTools en Desktop (1280x800) y Móvil (375x667).
+- **Vercel (Frontend SPA):** [`https://maestro-erp-pezcaderia.vercel.app`](https://maestro-erp-pezcaderia.vercel.app). Despliegue activo, 0 errores consola.
+- **Supabase (Backend PostgreSQL):** Proyecto activo (`gmvdrbtnogxafamdjzat`). Auth GoTrue & Postgres Pooler conectados.

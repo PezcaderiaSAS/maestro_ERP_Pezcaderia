@@ -1,38 +1,33 @@
-Ejecutar la fase de especificación Spec Kit SDD v3.0 (/speckit.specify) para SPEC-042: Facturación Electrónica DIAN / Siigo API v2 & Envío de Tirilla Digital Resiliente en Maestro Pezcaderia ERP, deteniéndose tras la entrega de la especificación para revisión del usuario sin generar código de producción.
+Ajuste ergonómico del mostrador para las comandas en el POS y evaluación profesional de ingenieros y arquitectos de datos sobre el ciclo de vida e integridad de la preventa para endurecimiento en producción.
 
 Integrity mode: development
 
 ## Requirements
 
-### R1. Especificación formal Spec Kit SDD v3.0 y Diagramas de Ingeniería
-Elaborar la especificación formal EARS en `specs/042-facturacion-electronica-dian/spec.md`, el checklist de calidad, el plan técnico (`plan.md`) y el desglose de tareas atómicas (`tasks.md`). Incluir obligatoriamente los 5 diagramas de ingeniería Mermaid: Flujo de Procesos (`1_process_flowcharts`), Lógica de Decisión con bifurcaciones (`2_decision_logic_diagrams`), Modelo Entidad-Relación (`3_entity_relationship_diagrams`), Secuencia Temporal (`4_sequence_diagrams`) y Arquitectura de Componentes por capas (`5_component_architecture_diagrams`).
+### R1. Ergonomía del Mostrador y Ajuste del Panel de Carrito (`CartPanel.tsx` / `POSView.tsx`)
+Ajustar el panel de "CARRITO DE VENTAS" para eliminar fondos blancos en la cabecera del cliente (`pos-cart-header`) integrándolo con la estética Dark Glassmorphism V8 del contenedor.
+Corregir la disposición espacial para evitar que el bloque inferior (`Subtotal`, `Impuestos`, `Descuento`) solape o corte los botones de acción rápida de cliente y estado de comanda.
+Reorganizar los botones operativos del mostrador (`EMITIR PREVENTA / COMANDA (F6)` y `Vaciar Carrito`) con alta densidad visual y fluidez ergonómica, asegurando visibilidad y usabilidad sin scrolls redundantes ni colisiones de cajas.
 
-### R2. Contratos Zod para DIAN y Siigo API v2
-Especificar los esquemas y validaciones estrictas con Zod para los contratos y payloads de emisión electrónica DIAN y Siigo API v2, incluyendo reglas tributarias colombianas (impuestos, retenciones), generación y validación de CUFE (SHA-384) y formato del código QR.
-
-### R3. Arquitectura del Dispatcher Outbox en IndexedDB
-Diseñar la arquitectura del despachador outbox persistente en IndexedDB para garantizar facturación offline resiliente, soporte de contingencia DIAN (tipo 03/04), sincronización automática al restablecer conectividad e idempotencia mediante hash SHA-256 de cada documento.
-
-### R4. Formatos de Tirilla Térmica y Visor Digital
-Definir los requerimientos de diseño y renderizado para tirillas térmicas en anchos estándar de 80mm y 58mm conforme a los requisitos legales de factura electrónica, así como la interfaz del visor digital y mecanismo de envío/compartido por WhatsApp y correo electrónico.
-
-### R5. Infraestructura y Restricciones de Red
-Todas las pruebas, simulaciones y validaciones de comunicación con DIAN y Siigo API v2 deben ejecutarse de manera desacoplada y puramente offline/mockeada a nivel local, sin requerir llamadas externas a servicios en red y respetando límites Kanban WIP = 1 a costo $0.
-
-## Verification Resources
-- Especificaciones técnicas y anexos técnicos de Facturación Electrónica DIAN (Anexo 1.9) y documentación de Siigo API v2.
-- Vectores de prueba sintéticos para validación de CUFE, código QR y esquemas Zod en Vitest.
+### R2. Integridad y Refactorización del Ciclo de Vida de Comanda / Preventa
+Asegurar y refactorizar la integridad atómica e inmutabilidad en todo el ciclo de vida: `POS (Asesor)` -> `Prefactura (PENDIENTE_COBRO con retención efectiva de stock)` -> `Caja Central / Ventanilla (EN_COBRO -> PAGADA con efectivo/cambio o crédito con vencimiento registrado en useARStore)` -> `Despacho / Bodega (WMS / DESPACHADA)`.
+Actualizar y sincronizar las estructuras de datos, tipos TypeScript (`src/types/prefactura.types.ts`), esquemas Zod (`src/schemas/prefactura.schema.ts`), servicios (`src/services/prefacturaService.ts`) y stores Zustand (`useCashierKanbanStore`, `usePOSCart`, `useARStore`), garantizando consistencia atómica, inmutabilidad y aislamiento multi-tenant.
 
 ## Acceptance Criteria
 
-### Artefactos de Especificación SDD
-- [ ] El directorio `specs/042-facturacion-electronica-dian/` contiene `spec.md` redactado con sintaxis formal EARS (Event-Driven, Ubiquitous, State-Driven, Unwanted Behavior, Optional Features).
-- [ ] Se encuentran documentados e integrados los 5 diagramas de ingeniería Mermaid sintácticamente válidos (Flujo de Procesos, Lógica de Decisión, ERD, Secuencia y Arquitectura de Componentes).
-- [ ] Se incluye la lista de verificación de calidad (`checklist.md`), el plan técnico por capas desacopladas (`plan.md`) y el desglose de tareas atómicas (`tasks.md`).
-- [ ] No se genera código fuente de producción en `src/` durante esta fase, deteniendo la ejecución tras completar los artefactos de especificación para aprobación humana.
+### Ergonomía y Layout Visual (POS / Carrito)
+- [ ] La cabecera del carrito y el selector de cliente (`pos-cart-header`) no presentan fondos claros o blancos desalineados, manteniendo coherencia con Dark Glassmorphism V8.
+- [ ] No existe solapamiento ni corte vertical entre los botones de acción del cliente y las secciones inferiores de subtotal, impuestos y descuento en resoluciones estándar de mostrador (1024x768, 1366x768 y superiores).
+- [ ] Los botones `EMITIR PREVENTA / COMANDA` y `Vaciar Carrito` permanecen completamente visibles, clicables y ergonómicamente accesibles en el viewport operativo sin scrolls innecesarios.
 
-### Especificación de Contratos y Arquitectura
-- [ ] Los esquemas Zod especificados cubren la estructura requerida para factura electrónica DIAN y Siigo API v2, detallando campos obligatorios, tipos y cálculo determinista de CUFE y QR.
-- [ ] El flujo del Dispatcher Outbox en IndexedDB especifica el ciclo de vida de los estados (pendiente, transmitido, contingencia, error), reintentos con backoff exponencial e idempotencia SHA-256.
-- [ ] La especificación de tirilla térmica define la estructura de maquetación compatible para 80mm y 58mm y el enlace de visualización digital para WhatsApp y email.
-- [ ] Las dependencias y pruebas propuestas operan 100% de manera offline/simulada con datos mock sintéticos sin dependencias de red externas.
+### Arquitectura de Datos y Ciclo de Vida
+- [ ] Las transiciones de estado de preventa (`PENDIENTE_COBRO` con reserva de stock -> `EN_COBRO` -> `PAGADA` / crédito en `useARStore` -> `DESPACHADA`) se reflejan de forma consistente en los stores Zustand (`usePOSCart`, `useCashierKanbanStore`, `useARStore`) y el servicio `prefacturaService.ts`.
+- [ ] Los esquemas Zod (`src/schemas/prefactura.schema.ts`) y tipos TypeScript (`src/types/prefactura.types.ts`) validan todas las cargas útiles del ciclo de vida sin discrepancias de tipos.
+- [ ] La compilación TypeScript estricta (`npx tsc --noEmit`) finaliza con 0 errores de tipo.
+- [ ] La suite de pruebas de regresión y unitarias con Vitest se ejecuta y pasa al 100%.
+- [ ] No se producen errores ni advertencias no controladas en la consola de JavaScript durante la navegación e interacción en el panel de mostrador.
+
+## Verification Resources
+- Compilación TypeScript: `npx tsc --noEmit`
+- Suite de pruebas automatizadas: `npm run test` (Vitest)
+- Verificación visual interactiva en navegador/DevTools para validación de layout responsivo (1024x768 en adelante) y 0 errores en consola.

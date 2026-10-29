@@ -103,14 +103,16 @@ describe('OrderKanbanView Suite (Paso 3)', () => {
     expect(screen.getByText('OTIF ON-TRACK')).toBeInTheDocument();
   });
 
-  it('debe filtrar pedidos en tiempo real por el buscador', () => {
+  it('debe filtrar pedidos en tiempo real por el buscador', async () => {
     render(<OrderKanbanView onEditOrder={() => {}} />);
 
     const searchInput = screen.getByPlaceholderText(/buscar por cliente, pedido/i);
     fireEvent.change(searchInput, { target: { value: 'Dann Carlton' } });
 
-    expect(screen.getByText('Hotel Dann Carlton')).toBeInTheDocument();
-    expect(screen.queryByText('Restaurante Mar y Sabor')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Hotel Dann Carlton')).toBeInTheDocument();
+      expect(screen.queryByText('Restaurante Mar y Sabor')).not.toBeInTheDocument();
+    });
   });
 
   it('debe permitir cambiar a la pestaña de Despachos & Remisiones WMS', () => {
