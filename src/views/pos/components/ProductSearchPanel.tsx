@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Search, Barcode } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { Input } from '../../../components/ui/Input';
@@ -28,8 +28,23 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
   const [barcodeInput, setBarcodeInput] = useState('');
   const [hideOutOfStock, setHideOutOfStock] = useState(true);
   const [showTopSellers, setShowTopSellers] = useState(false);
+  const [expandedStockSkus, setExpandedStockSkus] = useState<Record<string, boolean>>({});
+
+  const toggleStockDetails = (sku: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedStockSkus((prev) => ({ ...prev, [sku]: !prev[sku] }));
+  };
 
   const searchRef = useRef<HTMLInputElement>(null);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    debounceTimerRef.current = setTimeout(() => {
+      setSearchTerm(val);
+    }, 200);
+  }, []);
 
   useEffect(() => {
     if (searchRef.current) {
@@ -106,26 +121,27 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
 
   return (
     <div className="pos-catalog flex-1 flex flex-col overflow-hidden min-h-0">
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+      {/* F8: flex-wrap gap-2 prevents horizontal overflow at 375px */}
+      <div className="flex flex-wrap gap-2 mb-2">
         {/* Búsqueda por Texto */}
-        <div style={{ flex: 1 }}>
+        <div className="flex-1 min-w-[160px]">
           <Input
             ref={searchRef}
             type="text"
             id="pos-product-search-input"
             data-testid="pos-product-search-input"
             placeholder="Buscar por nombre o SKU..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            defaultValue={searchTerm}
+            onChange={handleSearchChange}
             leftIcon={<Search size={18} className="text-cyan-400" />}
             fullWidth
-            className="min-h-[40px] h-10 text-sm font-semibold bg-slate-950/70 border border-white/12 text-white placeholder-slate-400 rounded-xl shadow-inner focus-within:border-cyan-500/50"
+            className="min-h-[44px] text-sm font-semibold bg-slate-950/70 border border-white/12 text-white placeholder-slate-400 rounded-xl shadow-inner focus-within:border-cyan-500/50"
           />
         </div>
 
         {/* Búsqueda por Código de Barras */}
-        <form onSubmit={handleBarcodeSubmit} style={{ display: 'flex', gap: '6px' }}>
-          <div style={{ width: '180px' }}>
+        <form onSubmit={handleBarcodeSubmit} className="flex flex-wrap sm:flex-nowrap gap-2 w-full sm:w-auto">
+          <div className="flex-1 sm:w-[160px] min-w-[140px]">
             <Input
               type="text"
               placeholder="Código de Barras..."
@@ -133,13 +149,13 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
               onChange={(e) => setBarcodeInput(e.target.value)}
               leftIcon={<Barcode size={18} className="text-cyan-400" />}
               fullWidth
-              className="min-h-[40px] h-10 text-sm bg-slate-950/70 border border-white/12 text-white placeholder-slate-400 rounded-xl"
+              className="min-h-[44px] text-sm bg-slate-950/70 border border-white/12 text-white placeholder-slate-400 rounded-xl"
             />
           </div>
           <button
             type="button"
             onClick={simulateBarcodeScan}
-            className="min-h-[40px] h-10 px-3 whitespace-nowrap text-xs font-bold active:scale-95 transition-all bg-slate-800/80 hover:bg-slate-700/80 border border-white/10 text-slate-200 hover:text-white rounded-xl flex items-center gap-1 cursor-pointer shadow-sm"
+            className="min-h-[44px] px-3 whitespace-nowrap text-xs font-bold active:scale-95 transition-all bg-slate-800/80 hover:bg-slate-700/80 border border-white/10 text-slate-200 hover:text-white rounded-xl flex items-center justify-center gap-1 cursor-pointer shadow-sm shrink-0"
           >
             <Barcode size={16} className="text-cyan-400" />
             <span>Simular Scan</span>
@@ -272,29 +288,69 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
                   );
                 })}
                 
-                {/* Stock por Bodega */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', width: '100%', marginTop: '6px', borderTop: '1px dashed rgba(255, 255, 255, 0.12)', paddingTop: '6px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px' }}>
-                    <span style={{ color: '#94A3B8', fontWeight: 500 }}>Bod. Principal:</span>
-                    <span style={{
-                      fontWeight: 700,
-                      color: stockPrincipal === 0 ? '#EF4444' : stockPrincipal <= (prod.buffer_seguridad || 4) ? '#F59E0B' : '#10B981'
-                    }}>
-                      {stockPrincipal} {unitLabel}
-                    </span>
+                {/* Stock Consolidado (F10: Miller Chunking) */}
+                <div style={{ width: '100%', marginTop: '6px', borderTop: '1px dashed rgba(255, 255, 255, 0.12)', paddingTop: '6px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span style={{ color: '#94A3B8', fontWeight: 600 }}>Stock Total:</span>
+                      <span
+                        data-testid={`stock-total-${prod.sku}`}
+                        style={{
+                          fontWeight: 700,
+                          color: (stockPrincipal + stockSecundaria) === 0 ? '#EF4444' : (stockPrincipal + stockSecundaria) <= (prod.buffer_seguridad || 4) ? '#F59E0B' : '#10B981'
+                        }}
+                      >
+                        {stockPrincipal + stockSecundaria} {unitLabel}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      data-testid={`btn-toggle-stock-${prod.sku}`}
+                      onClick={(e) => toggleStockDetails(prod.sku, e)}
+                      className="text-[10px] text-cyan-400 hover:text-cyan-300 font-semibold px-1.5 py-0.5 rounded bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 transition-all cursor-pointer"
+                      title="Ver desglose por bodegas"
+                    >
+                      {expandedStockSkus[prod.sku] ? 'Ocultar ▲' : 'Bodegas ▼'}
+                    </button>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px' }}>
-                    <span style={{ color: '#94A3B8', fontWeight: 500 }}>Bod. Secundaria:</span>
-                    <span style={{ color: '#CBD5E1', fontWeight: 600 }}>
-                      {stockSecundaria} {unitLabel}
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px' }}>
-                    <span style={{ color: '#94A3B8', fontWeight: 500 }}>Bod. Averías:</span>
-                    <span style={{ color: '#FB7185', fontWeight: 600 }}>
-                      {stockAverias} {unitLabel}
-                    </span>
-                  </div>
+
+                  {/* Desglose colapsable bajo demanda (Miller Chunking) */}
+                  {expandedStockSkus[prod.sku] && (
+                    <div
+                      data-testid={`stock-breakdown-${prod.sku}`}
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '2px',
+                        width: '100%',
+                        marginTop: '4px',
+                        paddingLeft: '6px',
+                        borderLeft: '2px solid rgba(6, 182, 212, 0.4)'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px' }}>
+                        <span style={{ color: '#94A3B8', fontWeight: 500 }}>Bod. Principal:</span>
+                        <span style={{
+                          fontWeight: 700,
+                          color: stockPrincipal === 0 ? '#EF4444' : stockPrincipal <= (prod.buffer_seguridad || 4) ? '#F59E0B' : '#10B981'
+                        }}>
+                          {stockPrincipal} {unitLabel}
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px' }}>
+                        <span style={{ color: '#94A3B8', fontWeight: 500 }}>Bod. Secundaria:</span>
+                        <span style={{ color: '#CBD5E1', fontWeight: 600 }}>
+                          {stockSecundaria} {unitLabel}
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px' }}>
+                        <span style={{ color: '#94A3B8', fontWeight: 500 }}>Bod. Averías:</span>
+                        <span style={{ color: '#FB7185', fontWeight: 600 }}>
+                          {stockAverias} {unitLabel}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </Card>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import type { Cliente } from '../types/erp.types';
 import { generateId, toTitleCase } from '../lib/utils';
 import { Users, Search, Save, FileText, Wallet, PlusCircle, Sparkles, UploadCloud } from 'lucide-react';
@@ -20,10 +20,19 @@ export default function ClientsView() {
   const ventas = useOrderStore((s) => s.ventas);
   const cartera = useARStore((s) => s.cartera);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'TODOS' | 'ACTIVOS' | 'INACTIVOS'>('TODOS');
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [isAutofillOpen, setIsAutofillOpen] = useState(false);
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
+
+  // Doherty threshold: 200ms debounce on search input
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 200);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
 
   const [clienteForm, setClienteForm] = useState({
     nombre: '',
@@ -39,10 +48,19 @@ export default function ClientsView() {
     cupoCredito: 0
   });
 
+  // Memoize client debt calculation to eliminate O(N*M) iteration on each keystroke
+  const deudasMap = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const inv of cartera) {
+      if (inv.clienteId) {
+        map[inv.clienteId] = (map[inv.clienteId] || 0) + (inv.saldo || 0);
+      }
+    }
+    return map;
+  }, [cartera]);
+
   const getClienteDeuda = (clienteId: string) => {
-    return cartera
-      .filter(inv => inv.clienteId === clienteId)
-      .reduce((sum, inv) => sum + inv.saldo, 0);
+    return deudasMap[clienteId] || 0;
   };
 
   const handleSaveCliente = (e: React.FormEvent) => {
@@ -139,31 +157,35 @@ export default function ClientsView() {
     setClientes((prev: Cliente[]) => prev.map((c: Cliente) => c.id === id ? { ...c, activo: !c.activo } : c));
   };
 
-  const filteredClientes = clientes.filter(c => {
-    const matchSearch = c.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                        c.identificacion.includes(searchTerm);
-    const matchStatus = statusFilter === 'TODOS' ? true : 
-                        statusFilter === 'ACTIVOS' ? c.activo : !c.activo;
-    return matchSearch && matchStatus;
-  });
+  const filteredClientes = useMemo(() => {
+    const term = debouncedSearch.toLowerCase().trim();
+    return clientes.filter(c => {
+      const matchSearch = !term || 
+                          c.nombre.toLowerCase().includes(term) || 
+                          c.identificacion.includes(term);
+      const matchStatus = statusFilter === 'TODOS' ? true : 
+                          statusFilter === 'ACTIVOS' ? c.activo : !c.activo;
+      return matchSearch && matchStatus;
+    });
+  }, [clientes, debouncedSearch, statusFilter]);
 
   const selectedClienteObj = clientes.find(c => c.id === selectedClientId);
   const selectedClienteVentas = ventas.filter(v => v.clienteId === selectedClientId).sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
   const selectedClienteCartera = cartera.filter(inv => inv.clienteId === selectedClientId).sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
 
   return (
-    <div className="pos-container" style={{ padding: '24px', maxWidth: '1600px', margin: '0 auto' }}>
+    <div className="pos-container p-3 sm:p-6 max-w-[1600px] mx-auto w-full overflow-hidden">
       
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
-          <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <h2 className="text-2xl font-extrabold text-primary flex items-center gap-2">
             <Users size={28} color="var(--primary-color)" /> Directorio de Clientes
           </h2>
-          <p style={{ color: '#64748B', fontSize: '14px', marginTop: '4px' }}>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Administración de clientes, listas de precios, cupos de crédito y facturación.
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div className="flex flex-wrap gap-2">
           <Button 
             variant="secondary" 
             onClick={() => setIsBulkUploadOpen(true)} 
@@ -178,9 +200,9 @@ export default function ClientsView() {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
+      <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-stretch lg:items-start w-full min-w-0">
         
-        <div style={{ flex: '0 0 350px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="w-full lg:w-[350px] lg:shrink-0 flex flex-col gap-4 min-w-0">
           <div className="pos-search-bar" style={{ marginBottom: 0 }}>
             <Input
               leftIcon={<Search size={18} color="#64748B" />}
@@ -219,12 +241,12 @@ export default function ClientsView() {
                     transition: 'all 0.2s'
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    <span style={{ fontWeight: 700, fontSize: '14px', color: '#0F172A' }}>{c.nombre}</span>
-                    <span style={{ fontSize: '12px', color: '#64748B', fontWeight: 600 }}>{c.tipoIdentificacion} {c.identificacion}</span>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-bold text-sm text-primary">{c.nombre}</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">{c.tipoIdentificacion} {c.identificacion}</span>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '12px', backgroundColor: '#F1F5F9', color: '#0F172A' }}>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200">
                       {c.tipoPrecio}
                     </span>
                     <span style={{ fontSize: '12px', color: deuda > 0 ? '#EF4444' : '#10B981', fontWeight: 600 }}>
@@ -242,7 +264,7 @@ export default function ClientsView() {
           </div>
         </div>
 
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div className="flex-1 flex flex-col gap-6 min-w-0 w-full">
           
           <Card glass style={{ padding: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '8px' }}>
@@ -272,7 +294,7 @@ export default function ClientsView() {
             <form onSubmit={handleSaveCliente} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               
               <div style={{ padding: '16px', backgroundColor: 'var(--surface-dark)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', color: '#0F172A', borderBottom: '1px solid #CBD5E1', paddingBottom: '8px' }}>Información Básica</h4>
+                <h4 className="text-sm font-bold mb-3 text-primary border-b border-border dark:border-white/10 pb-2">Información Básica</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label className="form-label">Nombre o Razón Social *</label>
@@ -311,7 +333,7 @@ export default function ClientsView() {
               </div>
 
               <div style={{ padding: '16px', backgroundColor: 'var(--surface-dark)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', color: '#0F172A', borderBottom: '1px solid #CBD5E1', paddingBottom: '8px' }}>Contacto y Ubicación</h4>
+                <h4 className="text-sm font-bold mb-3 text-primary border-b border-border dark:border-white/10 pb-2">Contacto y Ubicación</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label className="form-label">Celular / Teléfono</label>
@@ -337,7 +359,7 @@ export default function ClientsView() {
               </div>
 
               <div style={{ padding: '16px', backgroundColor: 'var(--surface-dark)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', color: '#0F172A', borderBottom: '1px solid #CBD5E1', paddingBottom: '8px' }}>Crédito y Facturación</h4>
+                <h4 className="text-sm font-bold mb-3 text-primary border-b border-border dark:border-white/10 pb-2">Crédito y Facturación</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label className="form-label">Tipo Precio POS *</label>
@@ -361,7 +383,7 @@ export default function ClientsView() {
           </Card>
 
           {selectedClientId && (
-            <div style={{ display: 'flex', gap: '24px' }}>
+            <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 min-w-0">
               
               {/* HISTORIAL DE VENTAS */}
               <Card glass style={{ padding: '24px', flex: 1 }}>
@@ -373,18 +395,18 @@ export default function ClientsView() {
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>
                     {selectedClienteVentas.map((v: any) => (
-                      <div key={v.id} style={{ padding: '12px', border: '1px solid #E2E8F0', borderRadius: '6px', backgroundColor: '#F8FAFC' }}>
+                      <div key={v.id} className="p-3 border border-border dark:border-white/10 rounded-md bg-slate-50 dark:bg-slate-900/40">
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                           <span style={{ fontWeight: 700, fontSize: '13px' }}>{v.id}</span>
                           <span style={{ fontSize: '12px', color: '#64748B' }}>{new Date(v.fecha).toLocaleDateString()}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: '12px', fontWeight: 600, color: '#0F172A' }}>{v.items.length} productos</span>
+                          <span className="text-xs font-semibold text-primary">{v.items.length} productos</span>
                           <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--primary-color)' }}>${v.total.toLocaleString()}</span>
                         </div>
                         <div style={{ marginTop: '8px', display: 'flex', gap: '6px' }}>
-                          <span style={{ fontSize: '10px', padding: '2px 6px', backgroundColor: '#E2E8F0', borderRadius: '4px', fontWeight: 600 }}>{v.metodoPago}</span>
-                          <span style={{ fontSize: '10px', padding: '2px 6px', backgroundColor: '#E2E8F0', borderRadius: '4px', fontWeight: 600 }}>Vendedor: {v.actor}</span>
+                          <span className="text-[10px] px-1.5 py-0.5 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded font-semibold">{v.metodoPago}</span>
+                          <span className="text-[10px] px-1.5 py-0.5 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded font-semibold">Vendedor: {v.actor}</span>
                         </div>
                       </div>
                     ))}
@@ -402,7 +424,7 @@ export default function ClientsView() {
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>
                     {selectedClienteCartera.map(inv => (
-                      <div key={inv.id} style={{ padding: '12px', border: '1px solid #E2E8F0', borderRadius: '6px', backgroundColor: inv.saldo === 0 ? '#F0FDF4' : '#FEF2F2' }}>
+                      <div key={inv.id} className={`p-3 border rounded-md ${inv.saldo === 0 ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/40' : 'bg-rose-50 dark:bg-rose-950/30 border-rose-200 dark:border-rose-800/40'}`}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                           <span style={{ fontWeight: 700, fontSize: '13px' }}>{inv.id}</span>
                           <span style={{ fontSize: '12px', color: '#64748B' }}>{new Date(inv.fecha).toLocaleDateString()}</span>

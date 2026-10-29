@@ -148,7 +148,7 @@ export const PendingOrdersDrawer: React.FC<PendingOrdersDrawerProps> = ({
 
                   <button
                     onClick={() => onSelectOrder(order)}
-                    className="h-10 px-4 rounded-xl font-bold text-xs bg-red-600 hover:bg-red-500 text-white shadow-md shadow-red-600/30 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                    className="min-h-[44px] px-4 rounded-xl font-bold text-xs bg-red-600 hover:bg-red-500 text-white shadow-md shadow-red-600/30 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1.5"
                     aria-label={`Cobrar en Caja comanda ${order.consecutivoTicket}`}
                   >
                     <span>Cobrar en Caja</span>

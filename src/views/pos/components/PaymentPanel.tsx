@@ -71,7 +71,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
   const [categoriaActiva, setCategoriaActiva] = useState<'EFECTIVO' | 'TRANSFERENCIA' | 'DATAFONO' | 'CREDITO'>('EFECTIVO');
   const [subTransferencia, setSubTransferencia] = useState<'NEQUI' | 'DAVIPLATA' | 'QR_BANCOLOMBIA'>('NEQUI');
   const [metodoPago, setMetodoPago] = useState<MetodoCobroPos>('EFECTIVO');
-  const [efectivoRecibido, setEfectivoRecibido] = useState<number>(0);
+  const [efectivoRecibido, setEfectivoRecibido] = useState<number>(() => (totalFinal > 0 ? totalFinal : 0));
 
   const [isModoMixto, setIsModoMixto] = useState(false);
   const [requiereFacturaElectronica, setRequiereFacturaElectronica] = useState<boolean>(() => {
@@ -404,7 +404,7 @@ export const PaymentPanel: React.FC<PaymentPanelProps> = ({
               });
             }
           }}
-          className={`flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all ${
+          className={`flex items-center gap-1.5 min-h-[44px] px-3 py-2 text-xs font-bold rounded-lg transition-all ${
             isModoMixto
               ? 'bg-indigo-50 text-indigo-700 border border-indigo-300 shadow-sm'
               : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-300 shadow-sm'

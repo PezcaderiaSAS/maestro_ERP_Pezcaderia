@@ -29,6 +29,13 @@ export const THEMES_CONFIG = [
     accentColor: '#06b6d4',
   },
   {
+    id: 'pezcaderia-light',
+    label: 'Pezcadería Light',
+    badge: 'LIGHT WCAG AA+',
+    primaryColor: '#0284c7',
+    accentColor: '#06b6d4',
+  },
+  {
     id: 'hyper-cobalt',
     label: 'Hyper Cobalt',
     badge: 'COBALT & SAND',
@@ -98,13 +105,13 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
         boxShadow:
           '0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.15)',
       }}
-      className="h-12 mx-2.5 mt-1.5 mb-1 flex items-center justify-between px-3.5 lg:px-5 rounded-2xl bg-slate-900/85 backdrop-blur-2xl border border-white/12 text-slate-200 select-none z-30 sticky top-1.5 shadow-xl transition-all duration-200"
+      className="h-12 mx-2.5 mt-1.5 mb-1 flex items-center justify-between px-2.5 sm:px-3.5 lg:px-5 rounded-2xl bg-slate-900/85 backdrop-blur-2xl border border-white/12 text-slate-200 select-none z-30 sticky top-1.5 shadow-xl transition-all duration-200"
     >
       {/* Sección Izquierda: Toggle + Breadcrumb Flotante */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
         <button
           onClick={onToggleSidebar}
-          className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+          className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer shrink-0"
           title="Menú de Navegación (Ctrl+B)"
           aria-label="Menú de Navegación"
         >
@@ -112,19 +119,19 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
         </button>
 
         {/* Breadcrumb estilo Glassmorphism V8 */}
-        <div className="flex items-center gap-1.5 text-xs">
+        <div className="flex items-center gap-1.5 text-xs min-w-0">
           <button
             onClick={onNavigateHome}
-            className="text-slate-400 hover:text-white transition-colors flex items-center gap-1 font-semibold"
+            className="text-slate-400 hover:text-white transition-colors flex items-center gap-1 font-semibold shrink-0"
           >
             <Home size={14} />
             <span className="hidden sm:inline">ERP</span>
           </button>
-          <ChevronRight size={12} className="text-slate-500" />
+          <ChevronRight size={12} className="text-slate-500 shrink-0" />
           <span className="text-slate-400 hidden md:inline font-semibold">{breadcrumb.domain}</span>
-          <ChevronRight size={12} className="text-slate-500 hidden md:inline" />
+          <ChevronRight size={12} className="text-slate-500 hidden md:inline shrink-0" />
           <span 
-            className="text-white font-black truncate max-w-[140px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[340px]"
+            className="text-white font-black truncate max-w-[100px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[340px]"
             title={breadcrumb.sub}
           >
             {breadcrumb.sub}
@@ -133,19 +140,19 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
       </div>
 
       {/* Sección Derecha: Selector de Empresa, Omnibox, Selector de Bodega, Botón POS, Tema y Perfil */}
-      <div className="flex items-center gap-2 sm:gap-3">
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         {/* Selector y Badge de Empresa / Multi-Tenant V8 */}
         <button
           type="button"
           id="topbar-btn-tenant-selector"
           data-testid="topbar-btn-tenant-selector"
           onClick={() => setTenantSelectorOpen(true)}
-          className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-xs text-cyan-300 hover:text-white transition-all cursor-pointer font-bold shadow-xs active:scale-95 group"
+          className="hidden sm:flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-xs text-cyan-300 hover:text-white transition-all cursor-pointer font-bold shadow-xs active:scale-95 group shrink-0"
           title={`Empresa activa: ${activeTenant?.razonSocial || activeTenant?.nombre || 'La Pezcaderia SAS'}. Clic para conmutar empresa.`}
           aria-label="Conmutador de Empresa Activa"
         >
           <Building2 size={14} className="text-cyan-400 shrink-0 group-hover:scale-110 transition-transform" />
-          <span className="truncate max-w-[90px] sm:max-w-[130px] md:max-w-[160px] font-semibold">
+          <span className="truncate max-w-[80px] sm:max-w-[130px] md:max-w-[160px] font-semibold">
             {activeTenant?.razonSocial || activeTenant?.nombre || 'La Pezcaderia SAS'}
           </span>
           <ChevronDown size={12} className="text-cyan-400/70 shrink-0" />
@@ -154,7 +161,7 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
         {/* Buscador Rápido Omnibox (F8 / Ctrl+K) */}
         <button
           onClick={onOpenOmnibox}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-slate-300 hover:text-white transition-all cursor-pointer shadow-xs font-medium"
+          className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-slate-300 hover:text-white transition-all cursor-pointer shadow-xs font-medium"
           title="Buscador Universal Omnibox (F8 / Ctrl+K)"
           aria-label="Buscar"
         >
@@ -178,7 +185,7 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
         <button
           id="topbar-btn-facturar-pos"
           onClick={onNavigatePOS}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer active:scale-95 ${
+          className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer active:scale-95 shrink-0 ${
             currentView === 'pos'
               ? 'bg-cyan-400 text-slate-950 ring-2 ring-cyan-300/50 shadow-cyan-400/30'
               : 'bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-cyan-500/20'
@@ -190,7 +197,7 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
         </button>
 
         {/* Selector y Alternador Multi-Tema Glass */}
-        <div className="relative">
+        <div className="relative hidden sm:flex">
           <button
             onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
             className="flex items-center gap-1.5 p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 border border-white/10 transition-colors cursor-pointer"

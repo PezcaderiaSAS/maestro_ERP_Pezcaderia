@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Plus, X, Check, CreditCard, FileText, Truck, RefreshCw, AlertTriangle, AlertCircle, Menu, Trash2, Edit2, UserCheck } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Plus, X, Check, CreditCard, FileText, Truck, RefreshCw, AlertTriangle, AlertCircle, Menu, Trash2, Edit2, UserCheck, Search, ShoppingCart } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { AppRouteId } from '../routes/AppRoute';
 import type { Product, Cliente, Venta, Conductor, DevolucionPedido } from '../types/erp.types';
@@ -193,7 +193,11 @@ export default function POSView({
   });
 
   // Sincronización de preventas multivendedor para Caja Única (SPEC-041)
-  const syncStoreComandas = useOutboxSyncStore((s) => s.getComandasCajaUnica());
+  const preventasLocales = useOutboxSyncStore((s) => s.preventasLocales);
+  const getComandasCajaUnica = useOutboxSyncStore((s) => s.getComandasCajaUnica);
+  const syncStoreComandas = useMemo(() => {
+    return typeof getComandasCajaUnica === 'function' ? getComandasCajaUnica() : [];
+  }, [preventasLocales, getComandasCajaUnica]);
 
   // Mapeo dinámico de pedidos en espera a comandas de cola central multivendedor (SPEC-032 / SPEC-041)
   const draftComandas: PendingOrderComanda[] = (drafts || []).map((d, index) => {
@@ -281,6 +285,7 @@ export default function POSView({
   const [observacionesB2B, setObservacionesB2B] = useState<string>('');
   const [b2bFilter, setB2bFilter] = useState<'Listo' | 'Todos'>('Listo');
   const [tempRealQuantities, setTempRealQuantities] = useState<Record<string, number | string>>({});
+  const [mobileTab, setMobileTab] = useState<'catalogo' | 'carrito'>('catalogo');
 
   // Turno Management State (Turno físico compartido por sucursal / caja)
   const { turnoActivo, loadTurnoActivoPorCajero, loadTurnoActivo } = useCashStore();
@@ -415,7 +420,7 @@ export default function POSView({
   const handleAgregarCliente = async () => {
     const { value: selectedCliente } = await Swal.fire({
       title: 'Vincular Cliente al Pedido',
-      width: '550px',
+      width: typeof window !== 'undefined' && window.innerWidth < 640 ? '92vw' : '520px',
       html: `
         <div style="font-family: var(--font-family); text-align: left;">
           <!-- Tabs / Acciones -->
@@ -2002,7 +2007,7 @@ export default function POSView({
                     turnoIniciadoAt: new Date().toISOString(),
                   });
                 }}
-                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap active:scale-95 ${
+                className={`min-h-[44px] px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap active:scale-95 flex items-center justify-center ${
                   selectedVendorJosase === v.id
                     ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20 font-bold'
                     : 'bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5'
@@ -2021,7 +2026,7 @@ export default function POSView({
         <div className="flex items-center gap-1.5 overflow-x-auto">
           <button
             onClick={() => setActiveSubView('venta_pos')}
-            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 min-h-[44px] py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeSubView === 'venta_pos'
                 ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-xs'
                 : 'bg-transparent text-slate-400 hover:bg-white/10 hover:text-slate-100 border border-transparent'
@@ -2033,7 +2038,7 @@ export default function POSView({
           
           <button
             onClick={() => setActiveSubView('consolidacion_b2b')}
-            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 min-h-[44px] py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeSubView === 'consolidacion_b2b'
                 ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-xs'
                 : 'bg-transparent text-slate-400 hover:bg-white/10 hover:text-slate-100 border border-transparent'
@@ -2050,7 +2055,7 @@ export default function POSView({
           
           <button
             onClick={() => setActiveSubView('canales_digitales')}
-            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 min-h-[44px] py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeSubView === 'canales_digitales'
                 ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-xs'
                 : 'bg-transparent text-slate-400 hover:bg-white/10 hover:text-slate-100 border border-transparent'
@@ -2067,7 +2072,7 @@ export default function POSView({
           
           <button
             onClick={() => setActiveSubView('gestion_kanban')}
-            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 min-h-[44px] py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeSubView === 'gestion_kanban'
                 ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-xs'
                 : 'bg-transparent text-slate-400 hover:bg-white/10 hover:text-slate-100 border border-transparent'
@@ -2086,7 +2091,7 @@ export default function POSView({
               const searchInput = document.getElementById('pos-product-search-input');
               if (searchInput) searchInput.focus();
             }}
-            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
+            className="flex items-center gap-1.5 min-h-[44px] py-2 px-3 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
             title="Enfocar catálogo / Nuevo pedido rápido (F8)"
           >
             <span>⚡ Buscar (F8)</span>
@@ -2095,7 +2100,7 @@ export default function POSView({
           {/* Botón Primario 2: Poner en Espera / Preventa */}
           <button
             onClick={() => handleGuardarBorrador()}
-            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-200 hover:bg-white/10 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+            className="flex items-center gap-1.5 min-h-[44px] py-2 px-3 rounded-lg bg-white/5 border border-white/10 text-slate-200 hover:bg-white/10 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
             title={isFerreteria ? 'Guardar preventa con el asesor asignado' : 'Guardar carrito actual en espera'}
           >
             <span>⏸ {isFerreteria ? 'Preventa' : 'En Espera'}</span>
@@ -2111,7 +2116,7 @@ export default function POSView({
             data-testid="btn-open-comandas-drawer"
             id="btn-open-comandas-drawer"
             onClick={() => setShowComandasDrawer(true)}
-            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+            className="flex items-center gap-1.5 min-h-[44px] py-2 px-3 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
             title="Cola Central de Preventas / Comandas para cobro en caja única"
           >
             <span>📋 Comandas</span>
@@ -2144,7 +2149,7 @@ export default function POSView({
                   });
                 }
               }}
-              className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-200 hover:bg-white/10 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+              className="flex items-center gap-1.5 min-h-[44px] py-2 px-3 rounded-lg bg-white/5 border border-white/10 text-slate-200 hover:bg-white/10 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
               title="Balanza de Mostrador / Pesaje Manual Asistido"
             >
               <span>⚖️ Balanza</span>
@@ -2155,7 +2160,7 @@ export default function POSView({
           <div className="relative" data-testid="pos-more-actions-dropdown" id="pos-more-actions-dropdown">
             <button
               onClick={() => setShowHamburger(!showHamburger)}
-              className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-slate-200 text-xs font-bold transition-colors shadow-sm cursor-pointer"
+              className="flex items-center gap-1.5 min-h-[44px] py-2 px-3 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-slate-200 text-xs font-bold transition-colors shadow-sm cursor-pointer"
             >
               <Menu size={15} />
               <span className="hidden sm:inline">Más Acciones...</span>
@@ -2272,10 +2277,48 @@ export default function POSView({
 
       {activeSubView === 'venta_pos' ? (
         <>
+          {/* F5: Mobile Tab Switcher (< lg) */}
+          <div
+            role="tablist"
+            aria-label="Vista móvil POS"
+            data-testid="pos-mobile-switcher"
+            className="flex lg:hidden items-center p-1 bg-slate-900/90 backdrop-blur-md rounded-xl border border-white/10 shrink-0 gap-1.5 mb-1 select-none"
+          >
+            <button
+              role="tab"
+              type="button"
+              aria-selected={mobileTab === 'catalogo'}
+              data-testid="pos-mobile-tab-catalogo"
+              onClick={() => setMobileTab('catalogo')}
+              className={`flex-1 min-h-[44px] px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                mobileTab === 'catalogo'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Search size={16} />
+              <span>Catálogo</span>
+            </button>
+            <button
+              role="tab"
+              type="button"
+              aria-selected={mobileTab === 'carrito'}
+              data-testid="pos-mobile-tab-carrito"
+              onClick={() => setMobileTab('carrito')}
+              className={`flex-1 min-h-[44px] px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                mobileTab === 'carrito'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <ShoppingCart size={16} />
+              <span>Carrito {cartLineas.length > 0 ? `(${cartLineas.length})` : ''}</span>
+            </button>
+          </div>
           {/* Grilla Desacoplada: Catálogo y Carrito con Scroll Fluido en Laptop (SPEC-039) */}
           <div className="flex-1 min-h-0 w-full flex flex-col lg:grid lg:grid-cols-[1fr_380px] xl:grid-cols-[1fr_420px] gap-2.5 pt-0.5 overflow-hidden">
             {/* Columna Izquierda: Catálogo de Productos con su propio scroll */}
-            <div className="flex flex-col min-h-0 flex-1 overflow-hidden pr-0.5">
+            <div className={`min-h-0 flex-1 overflow-hidden pr-0.5 ${mobileTab === 'catalogo' ? 'flex flex-col' : 'hidden lg:flex lg:flex-col'}`}>
               <GlassCard
                 data-testid="pos-catalog-glass-card"
                 className="p-3 sm:p-4 flex flex-col h-full min-h-0 overflow-hidden"
@@ -2292,7 +2335,7 @@ export default function POSView({
             </div>
 
             {/* Columna Derecha: Carrito de Compras / Factura con scroll desacoplado */}
-            <div className="flex flex-col min-h-0 h-full overflow-hidden">
+            <div className={`min-h-0 h-full overflow-hidden ${mobileTab === 'carrito' ? 'flex flex-col flex-1' : 'hidden lg:flex lg:flex-col'}`}>
               {ultimoTicket ? (
                 <GlassCard
                   className="pos-sidebar-cart p-4 sm:p-5 flex flex-col h-full min-h-0 overflow-y-auto"

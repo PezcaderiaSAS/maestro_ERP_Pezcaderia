@@ -12,6 +12,7 @@ import {
   ShoppingCart,
   Receipt,
   Filter,
+  Layers,
 } from 'lucide-react';
 import { cashService, getCategoriasGastos } from '../../services/cashService';
 import { Caja, TurnoCaja, MovimientoCaja, CategoriaGastoConfig } from '../../types/cash.types';
@@ -20,6 +21,7 @@ import ArqueoCajaModal from './components/ArqueoCajaModal';
 import TrasladoDineroModal from './components/TrasladoDineroModal';
 import { EgresoOperativoModal } from './components/EgresoOperativoModal';
 import { AperturaCajaModal } from '../pos/components/AperturaCajaModal';
+import { CashierKanbanView } from '../pos/components/CashierKanbanView';
 import { useWarehouseStore } from '../../store/useWarehouseStore';
 import { useCashStore } from '../../store/useCashStore';
 import { useAppStore } from '../../store/useAppStore';
@@ -49,6 +51,21 @@ export default function CashFlowView() {
 
   // Filtro de movimientos diario (admite presets y categorías personalizadas)
   const [filtroTab, setFiltroTab] = useState<string>('TODO');
+
+  // Subvista Caja Única: Flujo de Caja y Turnos vs Kanban de Preventas Mostrador (F9)
+  const [vistaActiva, setVistaActiva] = useState<'flujo' | 'preventas_kanban'>('flujo');
+
+  // Atajo de teclado F9 para alternar a vista Kanban de preventas
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'F9') {
+        e.preventDefault();
+        setVistaActiva(prev => (prev === 'flujo' ? 'preventas_kanban' : 'flujo'));
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
   // Cargar Cajas
   useEffect(() => {
     // Si no existen cajas en la BD, inyectamos unas de prueba por primera vez
@@ -155,40 +172,91 @@ export default function CashFlowView() {
     });
   }, [movimientos, filtroTab]);
 
+  // Ordenamiento memoizado no mutante (F14)
+  const movimientosOrdenados = useMemo(() => {
+    return [...movimientosFiltrados].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }, [movimientosFiltrados]);
+
   return (
-    <div className="p-4 md:p-6 bg-[#070A10] text-slate-100 min-h-full flex-1 overflow-y-auto">
+    <div className="p-4 md:p-6 bg-slate-950/40 text-slate-100 min-h-full flex-1 overflow-y-auto">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Gestión de Cajas</h1>
-          <p className="text-slate-400 text-sm mt-0.5">Control de flujo de efectivo por bodega</p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Gestión de Cajas</h1>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+              Caja Única
+            </span>
+          </div>
+          <p className="text-slate-400 text-sm mt-0.5">Control de flujo de efectivo por bodega y recaudo centralizado</p>
         </div>
         
-        <div className="flex items-center gap-3 bg-slate-900/60 backdrop-blur-md border border-white/10 p-2 rounded-xl shadow-lg">
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Bodega:</span>
-          <select 
-            className="border border-white/12 bg-slate-950/80 text-slate-100 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 font-medium px-2.5 py-1 outline-none"
-            value={bodegaSeleccionada}
-            onChange={(e) => setBodegaSeleccionada(e.target.value)}
-          >
-            {bodegas.filter(b => b.activa).map(b => (
-              <option key={b.id} value={b.nombre} className="bg-slate-900 text-slate-100">{b.nombre}</option>
-            ))}
-          </select>
+        {/* Selectores de Bodega y Caja con flex-wrap responsivo para evitar overflow en 375px (F11) */}
+        <div data-testid="caja-header-selectors" className="flex flex-wrap items-center gap-2.5 bg-slate-900/60 backdrop-blur-md border border-white/10 p-2 rounded-xl shadow-lg w-full sm:w-auto">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0">Bodega:</span>
+            <select 
+              className="border border-white/12 bg-slate-950/80 text-slate-100 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 font-medium px-3 py-2 min-h-[44px] outline-none flex-1 sm:flex-initial min-w-0"
+              value={bodegaSeleccionada}
+              onChange={(e) => setBodegaSeleccionada(e.target.value)}
+            >
+              {bodegas.filter(b => b.activa).map(b => (
+                <option key={b.id} value={b.nombre} className="bg-slate-900 text-slate-100">{b.nombre}</option>
+              ))}
+            </select>
+          </div>
 
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-2">Caja:</span>
-          <select 
-            className="border border-white/12 bg-slate-950/80 text-slate-100 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 font-medium px-2.5 py-1 outline-none"
-            value={cajaSeleccionada}
-            onChange={(e) => setCajaSeleccionada(e.target.value)}
-          >
-            {cajas.map(c => (
-              <option key={c.id} value={c.id} className="bg-slate-900 text-slate-100">{c.nombre}</option>
-            ))}
-          </select>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0 sm:ml-2">Caja:</span>
+            <select 
+              className="border border-white/12 bg-slate-950/80 text-slate-100 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 font-medium px-3 py-2 min-h-[44px] outline-none flex-1 sm:flex-initial min-w-0"
+              value={cajaSeleccionada}
+              onChange={(e) => setCajaSeleccionada(e.target.value)}
+            >
+              {cajas.map(c => (
+                <option key={c.id} value={c.id} className="bg-slate-900 text-slate-100">{c.nombre}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
-      {!turnoActivo ? (
+      {/* Selector de Subvistas: Flujo & Arqueo vs Comandas & Preventas (Kanban) (F15) */}
+      <div className="flex items-center gap-1.5 p-1 bg-slate-900/80 border border-white/10 rounded-2xl w-full sm:w-fit mb-6">
+        <button
+          type="button"
+          data-testid="tab-caja-flujo"
+          onClick={() => setVistaActiva('flujo')}
+          className={`min-h-[44px] flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            vistaActiva === 'flujo'
+              ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+              : 'text-slate-400 hover:text-white hover:bg-white/5'
+          }`}
+        >
+          <Wallet size={16} />
+          <span>Flujo & Arqueo</span>
+        </button>
+        <button
+          type="button"
+          data-testid="tab-caja-kanban"
+          onClick={() => setVistaActiva('preventas_kanban')}
+          className={`min-h-[44px] flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            vistaActiva === 'preventas_kanban'
+              ? 'bg-cyan-600 text-white shadow-md shadow-cyan-600/30'
+              : 'text-slate-400 hover:text-white hover:bg-white/5'
+          }`}
+        >
+          <Layers size={16} />
+          <span>Comandas & Preventas (Kanban)</span>
+        </button>
+      </div>
+
+      {vistaActiva === 'preventas_kanban' ? (
+        <div data-testid="caja-kanban-container" className="flex-1 min-h-[600px] h-[calc(100vh-250px)] rounded-2xl overflow-hidden border border-white/10 bg-slate-950/60 shadow-xl">
+          <CashierKanbanView />
+        </div>
+      ) : !turnoActivo ? (
         <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-10 text-center max-w-xl mx-auto mt-10">
           <div className="w-16 h-16 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-inner">
             <Wallet size={36} />
@@ -298,41 +366,45 @@ export default function CashFlowView() {
                   <p className="text-xs text-slate-400">Control de entradas y salidas en tiempo real</p>
                 </div>
 
-                {/* Pestañas Táctiles de Filtrado Rápido y Dinámicas */}
-                <div className="flex flex-wrap gap-1 p-1 bg-slate-950/80 rounded-xl border border-white/10">
+                {/* Pestañas Táctiles de Filtrado Rápido y Dinámicas (F13: Fitts >=44px) */}
+                <div data-testid="caja-filtro-tabs" className="flex flex-wrap gap-1.5 p-1 bg-slate-950/80 rounded-xl border border-white/10">
                   <button
+                    data-testid="filtro-tab-TODO"
                     onClick={() => setFiltroTab('TODO')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                    className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center justify-center ${
                       filtroTab === 'TODO' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
                     }`}
                   >
                     Todo ({movimientos.length})
                   </button>
                   <button
+                    data-testid="filtro-tab-VENTAS"
                     onClick={() => setFiltroTab('VENTAS')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer ${
+                    className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
                       filtroTab === 'VENTAS' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
                     }`}
                   >
-                    <ShoppingCart size={12} />
+                    <ShoppingCart size={14} />
                     <span>Ventas</span>
                   </button>
                   <button
+                    data-testid="filtro-tab-FLETES"
                     onClick={() => setFiltroTab('FLETES')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer ${
+                    className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
                       filtroTab === 'FLETES' ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
                     }`}
                   >
-                    <Truck size={12} />
+                    <Truck size={14} />
                     <span>Fletes</span>
                   </button>
                   <button
+                    data-testid="filtro-tab-PESCADO"
                     onClick={() => setFiltroTab('PESCADO')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer ${
+                    className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
                       filtroTab === 'PESCADO' ? 'bg-cyan-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
                     }`}
                   >
-                    <Fish size={12} />
+                    <Fish size={14} />
                     <span>Pescado</span>
                   </button>
 
@@ -344,8 +416,9 @@ export default function CashFlowView() {
                       return (
                         <button
                           key={cat.key}
+                          data-testid={`filtro-tab-${cat.key}`}
                           onClick={() => setFiltroTab(cat.nombre)}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition cursor-pointer ${
+                          className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
                             isActive
                               ? 'bg-rose-600 text-white shadow-sm'
                               : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
@@ -353,43 +426,43 @@ export default function CashFlowView() {
                         >
                           <span>{cat.icono}</span>
                           <span>{cat.nombre}</span>
-                          <span className="text-[10px] px-1.5 py-0.2 bg-white/10 text-slate-200 rounded-full font-mono">{cat.count}</span>
+                          <span className="text-[10px] px-1.5 py-0.5 bg-white/10 text-slate-200 rounded-full font-mono">{cat.count}</span>
                         </button>
                       );
                     })}
 
                   <button
+                    data-testid="filtro-tab-GASTOS"
                     onClick={() => setFiltroTab('GASTOS')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer ${
+                    className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
                       filtroTab === 'GASTOS' ? 'bg-slate-800 text-white shadow-sm border border-white/10' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
                     }`}
                   >
-                    <Receipt size={12} />
+                    <Receipt size={14} />
                     <span>Todos Egresos</span>
                   </button>
                 </div>
               </div>
 
-              <div className="p-0 flex-1 overflow-auto">
-                {movimientosFiltrados.length === 0 ? (
+              {/* Contenedor responsivo de la tabla de movimientos (F12) */}
+              <div data-testid="caja-movimientos-container" className="p-0 flex-1 overflow-x-auto w-full custom-scrollbar">
+                {movimientosOrdenados.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-64 text-slate-400">
                     <AlertTriangle size={32} className="mb-2 opacity-50 text-amber-400" />
                     <p className="text-sm">No hay transacciones en este filtro.</p>
                   </div>
                 ) : (
-                  <table className="w-full text-left border-collapse">
+                  <table data-testid="caja-movimientos-table" className="w-full text-left border-collapse min-w-[500px]">
                     <thead className="bg-slate-950/90 sticky top-0 border-b border-white/10 backdrop-blur-md z-10">
                       <tr>
-                        <th className="px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Hora</th>
-                        <th className="px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Categoría</th>
-                        <th className="px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Detalle</th>
-                        <th className="px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Monto</th>
+                        <th className="px-3 sm:px-5 py-2.5 sm:py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Hora</th>
+                        <th className="px-3 sm:px-5 py-2.5 sm:py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Categoría</th>
+                        <th className="px-3 sm:px-5 py-2.5 sm:py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Detalle</th>
+                        <th className="px-3 sm:px-5 py-2.5 sm:py-3 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Monto</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
-                      {movimientosFiltrados
-                        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                        .map(mov => {
+                      {movimientosOrdenados.map(mov => {
                           const esIngreso = mov.tipo.startsWith('INGRESO');
                           const catNombre = (mov.categoriaEgreso || '').toLowerCase();
                           const esFlete = catNombre.includes('flete') || mov.concepto.toLowerCase().includes('flete');
@@ -404,13 +477,13 @@ export default function CashFlowView() {
 
                           return (
                             <tr key={mov.id} className="hover:bg-white/[0.03] transition">
-                              <td className="px-5 py-3.5 whitespace-nowrap text-xs text-slate-400">
+                              <td className="px-3 sm:px-5 py-2.5 sm:py-3.5 whitespace-nowrap text-xs text-slate-400">
                                 <div className="flex flex-col font-mono">
                                   <span className="text-slate-200 font-bold">{new Date(mov.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                   <span className="text-[10px] text-slate-500">{new Date(mov.createdAt).toLocaleDateString()}</span>
                                 </div>
                               </td>
-                              <td className="px-5 py-3.5 whitespace-nowrap">
+                              <td className="px-3 sm:px-5 py-2.5 sm:py-3.5 whitespace-nowrap">
                                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
                                   esIngreso
                                     ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
@@ -458,7 +531,7 @@ export default function CashFlowView() {
                                   {mov.metodoPago}
                                 </span>
                               </td>
-                              <td className="px-5 py-3.5 text-xs text-slate-300">
+                              <td className="px-3 sm:px-5 py-2.5 sm:py-3.5 text-xs text-slate-300">
                                 <div className="font-semibold text-slate-100">{mov.concepto}</div>
                                 {mov.metadata?.placaCamion && (
                                   <span className="text-[10px] text-amber-400 font-mono font-bold">
@@ -466,7 +539,7 @@ export default function CashFlowView() {
                                   </span>
                                 )}
                               </td>
-                              <td className={`px-5 py-3.5 whitespace-nowrap text-sm font-black font-mono text-right ${
+                              <td className={`px-3 sm:px-5 py-2.5 sm:py-3.5 whitespace-nowrap text-sm font-black font-mono text-right ${
                                 esIngreso ? 'text-emerald-400' : 'text-rose-400'
                               }`}>
                                 {esIngreso ? '+' : '-'}${mov.monto.toLocaleString()} COP

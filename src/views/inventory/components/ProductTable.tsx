@@ -71,20 +71,16 @@ export function ProductTable({
   });
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+    <div className="flex flex-col gap-6 w-full min-w-0 max-w-full">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
         <div>
-          <span style={{ fontSize: '14px', color: '#64748B', fontWeight: 500 }}>Gestión de Catálogo</span>
-          <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px', letterSpacing: '-0.5px' }}>Productos y Referencias</h2>
+          <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">Gestión de Catálogo</span>
+          <h2 className="text-2xl font-extrabold text-primary dark:text-white mt-1 tracking-tight">Productos y Referencias</h2>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setIsBulkUploadOpen(true)}
-            style={{ 
-              display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', 
-              borderRadius: '8px', border: '1px solid #0EA5E9', backgroundColor: 'transparent', 
-              color: '#0EA5E9', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' 
-            }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-sky-500 bg-transparent text-sky-500 hover:bg-sky-500/10 font-bold cursor-pointer transition-all min-h-[44px]"
           >
             <UploadCloud size={18} />
             <span>Importar Excel/CSV</span>
@@ -102,7 +98,7 @@ export function ProductTable({
               setCustomLinea('');
               setCustomClase('');
             }}
-            className="hr-btn-new"
+            className="hr-btn-new flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold cursor-pointer transition-all min-h-[44px] shadow-sm"
           >
             <PlusCircle size={18} />
             <span>Nuevo Producto</span>
@@ -290,12 +286,10 @@ export function ProductTable({
                             }
                             if (setIsCreating) setIsCreating(false);
                           }}
-                          className={`p-2 rounded-lg bg-slate-800/60 hover:bg-slate-700/60 dark:bg-slate-800 dark:hover:bg-slate-700 text-secondary dark:text-slate-300 border border-border dark:border-white/10 active:scale-95 transition-all cursor-pointer flex items-center justify-center ${
-                            density === 'comfortable' ? 'min-w-[44px] min-h-[44px]' : 'min-w-[32px] min-h-[32px]'
-                          }`}
+                          className="p-2 rounded-lg bg-slate-800/60 hover:bg-slate-700/60 dark:bg-slate-800 dark:hover:bg-slate-700 text-secondary dark:text-slate-300 border border-border dark:border-white/10 active:scale-95 transition-all cursor-pointer flex items-center justify-center min-w-[44px] min-h-[44px]"
                           title="Editar Producto"
                         >
-                          <Edit3 size={density === 'comfortable' ? 18 : 15} />
+                          <Edit3 size={18} />
                         </button>
                       </div>
                     </td>

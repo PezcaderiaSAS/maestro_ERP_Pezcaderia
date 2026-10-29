@@ -51,7 +51,7 @@ export const TerminalVendorBadge: React.FC<TerminalVendorBadgeProps> = ({
           type="button"
           data-testid="btn-toggle-terminal-select"
           onClick={() => setSelectorAbierto(!selectorAbierto)}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 font-mono font-bold border border-cyan-500/30 transition-all cursor-pointer"
+          className="flex items-center gap-1.5 min-h-[44px] px-3 py-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 font-mono font-bold border border-cyan-500/30 transition-all cursor-pointer"
           title="Cambiar Terminal de Punto de Venta"
         >
           <Monitor size={14} className="text-cyan-400" />
@@ -89,7 +89,7 @@ export const TerminalVendorBadge: React.FC<TerminalVendorBadgeProps> = ({
         type="button"
         data-testid="btn-cambiar-vendedor"
         onClick={onCambiarVendedor}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-200 font-medium border border-white/5 transition-all cursor-pointer"
+        className="flex items-center gap-1.5 min-h-[44px] px-3 py-2 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-200 font-medium border border-white/5 transition-all cursor-pointer"
         title="Clic para cambiar de vendedor o cerrar sesión"
       >
         <div className="w-5 h-5 rounded-full bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-300">
@@ -102,7 +102,7 @@ export const TerminalVendorBadge: React.FC<TerminalVendorBadgeProps> = ({
 
       {/* 3. Semáforo de Estado de Caja Central Compartida */}
       <div
-        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border font-semibold text-[11px] ${
+        className={`flex items-center gap-1.5 min-h-[44px] px-3 py-2 rounded-xl border font-semibold text-[11px] ${
           isCajaAbierta
             ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/25'
             : 'bg-rose-500/10 text-rose-300 border-rose-500/25'

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   Truck,
   CheckCircle,
@@ -65,8 +65,17 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
   // Pestañas activas: 'bodega' vs 'despacho' vs 'tactil_3_pasos' (Regla del Niño de 12 Años)
   const [activeTab, setActiveTab] = useState<'bodega' | 'despacho' | 'tactil_3_pasos'>('bodega');
 
-  // Filtros de búsqueda en el tablero
+  // Filtros de búsqueda en el tablero con 200ms debounce (F17: Doherty / Main Thread Protection)
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 200);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
   const [quickFilter, setQuickFilter] = useState<'TODOS' | 'URGENTES' | 'CATCH_WEIGHT' | 'PAUSADOS'>('TODOS');
 
   // Estados interactivos para Drag-and-Drop fluido
@@ -713,14 +722,15 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
 
       {/* Barra de Búsqueda Rápida y Filtros OTIF con Targets Ergonómicos */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 bg-slate-900/60 p-2 sm:p-2.5 rounded-2xl border border-white/10 backdrop-blur-md shrink-0">
-        <div className="flex items-center gap-2 bg-slate-950/80 px-3 py-1.5 rounded-xl border border-white/10 flex-1 max-w-md min-h-[48px] h-10">
+        <div className="flex items-center gap-2 bg-slate-950/80 px-3 py-1.5 rounded-xl border border-white/10 flex-1 max-w-md min-h-[44px]">
           <Search size={16} className="text-cyan-400 shrink-0" />
           <input
+            data-testid="kanban-search-input"
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Buscar por cliente, pedido # o producto..."
-            className="bg-transparent text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none w-full"
+            className="bg-transparent text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none w-full min-h-[40px]"
           />
           {searchQuery && (
             <button
@@ -824,9 +834,9 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
             return true;
           });
 
-          // Aplicar filtro de búsqueda
-          if (searchQuery.trim()) {
-            const q = searchQuery.toLowerCase();
+          // Aplicar filtro de búsqueda con debounce de 200ms (F17)
+          if (debouncedSearchQuery.trim()) {
+            const q = debouncedSearchQuery.toLowerCase();
             columnQuotes = columnQuotes.filter((item) => {
               const num = (item.numeroPedido || item.numeroCotizacion || item.id || '').toLowerCase();
               const client = (item.clientName || item.clienteNombre || '').toLowerCase();
@@ -1102,10 +1112,28 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                             </span>
 
                             <div className="flex items-center gap-2">
+                              {/* Botón Reanudar si está en pausados (F18: Touch Action) */}
+                              {column.id === 'pausados' && (
+                                <button
+                                  type="button"
+                                  data-testid={`btn-advance-${quote.id}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    moveOrderToColumn(quote.id, 'creados');
+                                  }}
+                                  className="min-h-[48px] px-3.5 py-2.5 rounded-xl text-xs font-bold bg-emerald-600/30 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/40 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm active:scale-95 touch-manipulation"
+                                  title="Reanudar pedido"
+                                >
+                                  <span>Reanudar</span>
+                                  <ArrowRight size={14} />
+                                </button>
+                              )}
+
                               {/* Botón Pesar si está en pesaje o fileteo con touch target >= 48px */}
                               {column.id === 'en_pesaje' && (
                                 <button
                                   type="button"
+                                  data-testid={`btn-pesar-${quote.id}`}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     const unweighed = lines.find((l: any) => !l.pesoReal) || lines[0];
@@ -1144,10 +1172,11 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                                 </button>
                               )}
 
-                              {/* Botón de Avance Directo (Touch Target >= 48px) */}
+                              {/* Botón de Avance Directo (Touch Target >= 48px, F18) */}
                               {column.nextColumnId && (
                                 <button
                                   type="button"
+                                  data-testid={`btn-advance-${quote.id}`}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     moveOrderToColumn(quote.id, column.nextColumnId!);
@@ -1164,7 +1193,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                         )}
 
                         {activeTab === 'despacho' && (
-                          <div className="pt-2 border-t border-white/5 flex items-center justify-between gap-2">
+                          <div className="pt-2 border-t border-white/5 flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
                             {quote.numeroManifiesto ? (
                               <span className="text-[11px] font-mono font-semibold text-purple-300 bg-purple-500/20 px-2.5 py-1.5 rounded-lg border border-purple-500/30 flex items-center gap-1">
                                 <Truck size={13} className="text-purple-400" />
@@ -1177,6 +1206,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                             ) : column.id === 'listos' ? (
                               <button
                                 type="button"
+                                data-testid={`btn-despachar-wms-${quote.id}`}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setDispatchModalOrder(quote);
@@ -1188,9 +1218,26 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                             ) : null}
 
                             <div className="flex items-center gap-2">
+                              {column.id === 'listos' && (
+                                <button
+                                  type="button"
+                                  data-testid={`btn-advance-${quote.id}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    moveOrderToColumn(quote.id, 'en_despacho');
+                                  }}
+                                  className="min-h-[48px] px-3.5 py-2.5 rounded-xl text-xs font-bold bg-emerald-600/30 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/40 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm active:scale-95 touch-manipulation"
+                                  title="Avanzar directamente a Ruta"
+                                >
+                                  <span>A Ruta</span>
+                                  <ArrowRight size={14} />
+                                </button>
+                              )}
+
                               {column.nextColumnId && column.id !== 'listos' && (
                                 <button
                                   type="button"
+                                  data-testid={`btn-advance-${quote.id}`}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     moveOrderToColumn(quote.id, column.nextColumnId!);
@@ -1202,7 +1249,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
                                 </button>
                               )}
 
-                              <span className="text-xs font-mono font-bold text-white">
+                              <span className="text-xs font-mono font-bold text-white whitespace-nowrap">
                                 ${(quote.totalFinal || quote.total || 0).toLocaleString('es-CO')}
                               </span>
                             </div>

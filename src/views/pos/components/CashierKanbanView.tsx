@@ -155,8 +155,9 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
           </span>
 
           <button
+            data-testid="chip-asesor-todos"
             onClick={() => setFiltroAsesor('TODOS')}
-            className={`px-3 py-1 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+            className={`min-h-[44px] px-3 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center justify-center ${
               filtroAsesorId === 'TODOS'
                 ? 'bg-red-600 text-white shadow-md shadow-red-600/30'
                 : 'bg-white/5 text-slate-400 hover:text-white hover:bg-white/10'
@@ -168,14 +169,15 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
           {asesoresActivos.map((a) => (
             <button
               key={a.id}
+              data-testid={`chip-asesor-${a.id}`}
               onClick={() => setFiltroAsesor(a.id)}
-              className={`px-3 py-1 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
+              className={`min-h-[44px] px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shrink-0 cursor-pointer ${
                 filtroAsesorId === a.id
                   ? 'bg-cyan-600 text-white shadow-md shadow-cyan-600/30'
                   : 'bg-white/5 text-slate-400 hover:text-white hover:bg-white/10'
               }`}
             >
-              <span className="w-4 h-4 rounded-full bg-white/20 text-[9px] flex items-center justify-center font-black">
+              <span className="w-5 h-5 rounded-full bg-white/20 text-[10px] flex items-center justify-center font-black">
                 {a.nombre.charAt(0)}
               </span>
               <span>{a.nombre}</span>
@@ -273,11 +275,11 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
                     </div>
                   </div>
 
-                  {/* Botón de Acción Rápida (Pasar a Cobro) */}
+                  {/* Botón de Acción Rápida (Pasar a Cobro) (F16: Fitts >=44px) */}
                   <button
                     data-testid={`btn-iniciar-cobro-${pref.id}`}
                     onClick={() => iniciarCobro(pref)}
-                    className="w-full mt-2.5 py-1.5 px-3 rounded-xl bg-cyan-600/90 hover:bg-cyan-500 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-md shadow-cyan-600/20 cursor-pointer"
+                    className="w-full mt-2.5 min-h-[44px] py-2.5 px-4 rounded-xl bg-cyan-600/90 hover:bg-cyan-500 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-md shadow-cyan-600/20 cursor-pointer"
                   >
                     <span>Pasar a Cobro (F9)</span>
                     <ArrowRight size={13} />
@@ -335,7 +337,7 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
 
                   <button
                     onClick={() => iniciarCobro(pref)}
-                    className="w-full py-2 px-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-600/30 cursor-pointer"
+                    className="w-full min-h-[44px] py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-600/30 cursor-pointer"
                   >
                     <CreditCard size={14} />
                     <span>Confirmar Pago de Venta</span>
@@ -447,18 +449,18 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
               ))}
             </div>
 
-            {/* Botón de Confirmación Definitiva */}
+            {/* Botón de Confirmación Definitiva (F16: Fitts >=44px) */}
             <div className="pt-2 flex gap-2">
               <button
                 onClick={cerrarModalCobro}
-                className="flex-1 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-bold transition-colors cursor-pointer"
+                className="flex-1 min-h-[44px] py-2.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-bold transition-colors cursor-pointer flex items-center justify-center"
               >
                 Cancelar
               </button>
               <button
                 data-testid="btn-confirmar-recaudo-caja"
                 onClick={handleConfirmarRecaudo}
-                className="flex-1 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-lg shadow-emerald-600/30 cursor-pointer"
+                className="flex-1 min-h-[44px] py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-lg shadow-emerald-600/30 cursor-pointer flex items-center justify-center"
               >
                 Confirmar Cobro (F9)
               </button>

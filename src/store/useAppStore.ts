@@ -5,7 +5,7 @@ import { AppRouteId, type ERPViewKey } from '../routes/AppRoute';
 import { type ActiveUserSession, DEFAULT_INITIAL_SELLERS } from '../utils/roleMapper';
 
 export type UserRole = 'admin' | 'vendedor' | 'bodega' | 'administrativo';
-export type ThemeMode = 'pezcaderia-glass' | 'hyper-cobalt' | 'carbon-teal' | 'chrome-violet' | 'legacy' | 'obsidian';
+export type ThemeMode = 'pezcaderia-glass' | 'pezcaderia-light' | 'hyper-cobalt' | 'carbon-teal' | 'chrome-violet' | 'legacy' | 'obsidian';
 
 interface AppState {
   userRole: UserRole;
@@ -28,7 +28,7 @@ const rawSavedTheme = localDb.load<string>('theme', 'pezcaderia-glass');
 const defaultFallbackUser = import.meta.env.PROD ? null : DEFAULT_INITIAL_SELLERS[0];
 const initialUser = localDb.load<ActiveUserSession | null>('currentUser', defaultFallbackUser);
 const initialRole = initialUser?.rol || localDb.load<UserRole>('role', import.meta.env.PROD ? 'vendedor' : 'admin');
-const validThemes: ThemeMode[] = ['pezcaderia-glass', 'hyper-cobalt', 'carbon-teal', 'chrome-violet'];
+const validThemes: ThemeMode[] = ['pezcaderia-glass', 'pezcaderia-light', 'hyper-cobalt', 'carbon-teal', 'chrome-violet'];
 const initialTheme: ThemeMode = validThemes.includes(rawSavedTheme as ThemeMode)
   ? (rawSavedTheme as ThemeMode)
   : 'pezcaderia-glass';
@@ -72,7 +72,7 @@ export const useAppStore = create<AppState>()(
   },
 
   toggleTheme: () => set((state) => {
-    const themeCycle: ThemeMode[] = ['pezcaderia-glass', 'hyper-cobalt', 'carbon-teal', 'chrome-violet'];
+    const themeCycle: ThemeMode[] = ['pezcaderia-glass', 'pezcaderia-light', 'hyper-cobalt', 'carbon-teal', 'chrome-violet'];
     const currentIndex = themeCycle.indexOf(state.theme as any);
     const nextTheme = currentIndex >= 0 ? themeCycle[(currentIndex + 1) % themeCycle.length] : 'pezcaderia-glass';
     localDb.save('theme', nextTheme);

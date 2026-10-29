@@ -1655,185 +1655,233 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
         </div>
       </div>
 
-      {/* ── 3. Navegación Modular por Pestañas ── */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-slate-200 dark:border-white/10 scrollbar-none">
-        <button
-          onClick={() => setViewMode('operaciones')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-            viewMode === 'operaciones'
-              ? 'bg-emerald-50 text-emerald-700 border border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/40 shadow-xs'
-              : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
-          }`}
+      {/* ── 3. Navegación Modular por Pestañas (Ley de Miller: 7±2 Chunks & Selector Móvil) ── */}
+      {/* Selector móvil para evitar swipe horizontal forzado de 14 pestañas */}
+      <div className="block sm:hidden mb-4">
+        <label htmlFor="inventory-mobile-tabs" className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wider">
+          Módulo de Inventario (14 Pestañas Organizadas)
+        </label>
+        <select
+          id="inventory-mobile-tabs"
+          data-testid="inventory-mobile-tabs-selector"
+          value={viewMode}
+          onChange={(e) => setViewMode(e.target.value as any)}
+          className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-white/10 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-xs font-bold shadow-xs focus:ring-2 focus:ring-cyan-500 min-h-[44px]"
         >
-          <Boxes className="w-4 h-4" />
-          1. Existencias Multibodega
-        </button>
+          <optgroup label="1. Operaciones & Almacén">
+            <option value="operaciones">1. Existencias Multibodega</option>
+            <option value="cuarto_frio">3. Alistamiento Cuarto Frío {pendingPrepCount > 0 ? `(${pendingPrepCount})` : ''}</option>
+            <option value="traslados">5. Traslados Internos</option>
+            <option value="wms_avanzado">8. WMS Avanzado</option>
+          </optgroup>
+          <optgroup label="2. Recepción & Abastecimiento">
+            <option value="compras_muelle">Recepción Furgón (Bucaramanga)</option>
+            <option value="reportes_compra">7. Compras & Entradas</option>
+            <option value="recepcion_devoluciones">Devoluciones {pendingDevCount > 0 ? `(${pendingDevCount})` : ''}</option>
+          </optgroup>
+          <optgroup label="3. Producción & Analítica">
+            <option value="kardex">2. Kardex Contable NIIF</option>
+            <option value="despiece">4. Despiece & Comandas</option>
+            <option value="analisis_abc">6. Análisis Pareto ABC</option>
+            <option value="reportes_sucursales">9. Reportes Sucursales POS</option>
+          </optgroup>
+          <optgroup label="4. Catálogos & Configuración">
+            <option value="catalogo">Catálogo de Productos</option>
+            <option value="categorias">Categorías de Inventario</option>
+            <option value="configuracion_bodegas">Bodegas & Cuartos Fríos ({bodegas.length})</option>
+          </optgroup>
+        </select>
+      </div>
 
-        <button
-          id="tab-compras-muelle"
-          onClick={() => setViewMode('compras_muelle')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-            viewMode === 'compras_muelle'
-              ? 'bg-cyan-50 text-cyan-700 border border-cyan-300 dark:bg-cyan-500/20 dark:text-cyan-300 dark:border-cyan-500/40 shadow-xs'
-              : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
-          }`}
-        >
-          <Truck className="w-4 h-4" />
-          Recepción Furgón (Bucaramanga)
-        </button>
+      {/* Navegación por pestañas estructurada en Chunks para pantallas medianas y grandes */}
+      <div className="hidden sm:flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-slate-200 dark:border-white/10 scrollbar-none">
+        {/* Chunk 1: Operaciones & Stock */}
+        <div className="flex items-center gap-1 bg-slate-100/70 dark:bg-slate-900/40 p-1 rounded-2xl border border-slate-200/60 dark:border-white/5">
+          <button
+            onClick={() => setViewMode('operaciones')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+              viewMode === 'operaciones'
+                ? 'bg-emerald-50 text-emerald-700 border border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/40 shadow-xs'
+                : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
+            }`}
+          >
+            <Boxes className="w-4 h-4" />
+            1. Existencias
+          </button>
 
-        <button
-          onClick={() => setViewMode('kardex')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-            viewMode === 'kardex'
-              ? 'bg-purple-50 text-purple-700 border border-purple-300 dark:bg-purple-500/20 dark:text-purple-300 dark:border-purple-500/40 shadow-xs'
-              : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
-          }`}
-        >
-          <FileText className="w-4 h-4" />
-          2. Kardex Contable NIIF
-        </button>
+          <button
+            onClick={() => setViewMode('cuarto_frio')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+              viewMode === 'cuarto_frio'
+                ? 'bg-cyan-50 text-cyan-700 border border-cyan-300 dark:bg-cyan-500/20 dark:text-cyan-300 dark:border-cyan-500/40 shadow-xs'
+                : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
+            }`}
+          >
+            <Scale className="w-4 h-4" />
+            3. Alistamiento
+            {pendingPrepCount > 0 && (
+              <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-cyan-600 text-white font-black">
+                {pendingPrepCount}
+              </span>
+            )}
+          </button>
 
-        <button
-          onClick={() => setViewMode('cuarto_frio')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-            viewMode === 'cuarto_frio'
-              ? 'bg-cyan-50 text-cyan-700 border border-cyan-300 dark:bg-cyan-500/20 dark:text-cyan-300 dark:border-cyan-500/40 shadow-xs'
-              : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
-          }`}
-        >
-          <Scale className="w-4 h-4" />
-          3. Alistamiento Cuarto Frío
-          {pendingPrepCount > 0 && (
-            <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-cyan-600 text-white font-black">
-              {pendingPrepCount}
-            </span>
-          )}
-        </button>
+          <button
+            onClick={() => setViewMode('traslados')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+              viewMode === 'traslados'
+                ? 'bg-blue-50 text-blue-700 border border-blue-300 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/40 shadow-xs'
+                : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
+            }`}
+          >
+            <ArrowRightLeft className="w-4 h-4" />
+            5. Traslados
+          </button>
 
-        <button
-          onClick={() => setViewMode('despiece')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-            viewMode === 'despiece'
-              ? 'bg-amber-50 text-amber-700 border border-amber-300 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/40 shadow-xs'
-              : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
-          }`}
-        >
-          <Scissors className="w-4 h-4" />
-          4. Despiece & Comandas
-        </button>
+          <button
+            onClick={() => setViewMode('wms_avanzado')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+              viewMode === 'wms_avanzado'
+                ? 'bg-blue-50 text-blue-700 border border-blue-300 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/40 shadow-xs'
+                : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
+            }`}
+          >
+            <Boxes className="w-4 h-4" />
+            8. WMS
+          </button>
+        </div>
 
-        <button
-          onClick={() => setViewMode('traslados')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-            viewMode === 'traslados'
-              ? 'bg-blue-50 text-blue-700 border border-blue-300 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/40 shadow-xs'
-              : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
-          }`}
-        >
-          <ArrowRightLeft className="w-4 h-4" />
-          5. Traslados Internos
-        </button>
+        {/* Chunk 2: Recepción & Compras */}
+        <div className="flex items-center gap-1 bg-slate-100/70 dark:bg-slate-900/40 p-1 rounded-2xl border border-slate-200/60 dark:border-white/5">
+          <button
+            id="tab-compras-muelle"
+            onClick={() => setViewMode('compras_muelle')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+              viewMode === 'compras_muelle'
+                ? 'bg-cyan-50 text-cyan-700 border border-cyan-300 dark:bg-cyan-500/20 dark:text-cyan-300 dark:border-cyan-500/40 shadow-xs'
+                : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
+            }`}
+          >
+            <Truck className="w-4 h-4" />
+            Recepción Furgón
+          </button>
 
-        <button
-          onClick={() => setViewMode('analisis_abc')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-            viewMode === 'analisis_abc'
-              ? 'bg-indigo-50 text-indigo-700 border border-indigo-300 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/40 shadow-xs'
-              : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
-          }`}
-        >
-          <BarChart3 className="w-4 h-4" />
-          6. Análisis Pareto ABC
-        </button>
+          <button
+            onClick={() => setViewMode('reportes_compra')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+              viewMode === 'reportes_compra' || viewMode === 'registrar_compra'
+                ? 'bg-emerald-50 text-emerald-700 border border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/40 shadow-xs'
+                : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
+            }`}
+          >
+            <Truck className="w-4 h-4" />
+            7. Compras
+          </button>
 
-        <button
-          onClick={() => setViewMode('reportes_compra')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-            viewMode === 'reportes_compra' || viewMode === 'registrar_compra'
-              ? 'bg-emerald-50 text-emerald-700 border border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/40 shadow-xs'
-              : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
-          }`}
-        >
-          <Truck className="w-4 h-4" />
-          7. Compras & Entradas
-        </button>
+          <button
+            onClick={() => setViewMode('recepcion_devoluciones')}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+              viewMode === 'recepcion_devoluciones'
+                ? 'bg-slate-900 text-white dark:bg-slate-700 dark:text-white'
+                : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
+            }`}
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            Devoluciones ({pendingDevCount})
+          </button>
+        </div>
 
-        <button
-          onClick={() => setViewMode('wms_avanzado')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-            viewMode === 'wms_avanzado'
-              ? 'bg-blue-50 text-blue-700 border border-blue-300 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/40 shadow-xs'
-              : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
-          }`}
-        >
-          <Boxes className="w-4 h-4" />
-          8. WMS Avanzado
-        </button>
+        {/* Chunk 3: Producción & Analítica */}
+        <div className="flex items-center gap-1 bg-slate-100/70 dark:bg-slate-900/40 p-1 rounded-2xl border border-slate-200/60 dark:border-white/5">
+          <button
+            onClick={() => setViewMode('kardex')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+              viewMode === 'kardex'
+                ? 'bg-purple-50 text-purple-700 border border-purple-300 dark:bg-purple-500/20 dark:text-purple-300 dark:border-purple-500/40 shadow-xs'
+                : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
+            }`}
+          >
+            <FileText className="w-4 h-4" />
+            2. Kardex NIIF
+          </button>
 
-        <button
-          id="tab-reportes-sucursales"
-          onClick={() => setViewMode('reportes_sucursales')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-            viewMode === 'reportes_sucursales'
-              ? 'bg-sky-50 text-sky-700 border border-sky-300 dark:bg-sky-500/20 dark:text-sky-300 dark:border-sky-500/40 shadow-xs'
-              : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
-          }`}
-        >
-          <Building2 className="w-4 h-4" />
-          9. Reportes Sucursales POS
-        </button>
+          <button
+            onClick={() => setViewMode('despiece')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+              viewMode === 'despiece'
+                ? 'bg-amber-50 text-amber-700 border border-amber-300 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/40 shadow-xs'
+                : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
+            }`}
+          >
+            <Scissors className="w-4 h-4" />
+            4. Despiece
+          </button>
 
-        <div className="h-4 w-px bg-slate-300 dark:bg-white/10 mx-1 shrink-0" />
+          <button
+            onClick={() => setViewMode('analisis_abc')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+              viewMode === 'analisis_abc'
+                ? 'bg-indigo-50 text-indigo-700 border border-indigo-300 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/40 shadow-xs'
+                : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
+            }`}
+          >
+            <BarChart3 className="w-4 h-4" />
+            6. Pareto ABC
+          </button>
 
-        <button
-          onClick={() => setViewMode('catalogo')}
-          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
-            viewMode === 'catalogo'
-              ? 'bg-slate-900 text-white dark:bg-slate-700 dark:text-white'
-              : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
-          }`}
-        >
-          <Tag className="w-3.5 h-3.5" />
-          Catálogo
-        </button>
+          <button
+            id="tab-reportes-sucursales"
+            onClick={() => setViewMode('reportes_sucursales')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+              viewMode === 'reportes_sucursales'
+                ? 'bg-sky-50 text-sky-700 border border-sky-300 dark:bg-sky-500/20 dark:text-sky-300 dark:border-sky-500/40 shadow-xs'
+                : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:text-white dark:border-white/5'
+            }`}
+          >
+            <Building2 className="w-4 h-4" />
+            9. Sucursales
+          </button>
+        </div>
 
-        <button
-          onClick={() => setViewMode('categorias')}
-          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
-            viewMode === 'categorias'
-              ? 'bg-slate-900 text-white dark:bg-slate-700 dark:text-white'
-              : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
-          }`}
-        >
-          <Layers className="w-3.5 h-3.5" />
-          Categorías
-        </button>
+        {/* Chunk 4: Catálogos & Configuración */}
+        <div className="flex items-center gap-1 bg-slate-100/70 dark:bg-slate-900/40 p-1 rounded-2xl border border-slate-200/60 dark:border-white/5">
+          <button
+            onClick={() => setViewMode('catalogo')}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+              viewMode === 'catalogo'
+                ? 'bg-slate-900 text-white dark:bg-slate-700 dark:text-white'
+                : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
+            }`}
+          >
+            <Tag className="w-3.5 h-3.5" />
+            Catálogo
+          </button>
 
-        <button
-          onClick={() => setViewMode('recepcion_devoluciones')}
-          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
-            viewMode === 'recepcion_devoluciones'
-              ? 'bg-slate-900 text-white dark:bg-slate-700 dark:text-white'
-              : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
-          }`}
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-          Devoluciones ({pendingDevCount})
-        </button>
+          <button
+            onClick={() => setViewMode('categorias')}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+              viewMode === 'categorias'
+                ? 'bg-slate-900 text-white dark:bg-slate-700 dark:text-white'
+                : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5" />
+            Categorías
+          </button>
 
-        <button
-          id="tab-configuracion-bodegas"
-          onClick={() => setViewMode('configuracion_bodegas')}
-          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
-            viewMode === 'configuracion_bodegas'
-              ? 'bg-cyan-50 text-cyan-700 border border-cyan-300 dark:bg-cyan-500/20 dark:text-cyan-300 dark:border-cyan-500/40 shadow-xs'
-              : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
-          }`}
-        >
-          <Building2 className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
-          Bodegas & Cuartos Fríos ({bodegas.length})
-        </button>
+          <button
+            id="tab-configuracion-bodegas"
+            onClick={() => setViewMode('configuracion_bodegas')}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+              viewMode === 'configuracion_bodegas'
+                ? 'bg-cyan-50 text-cyan-700 border border-cyan-300 dark:bg-cyan-500/20 dark:text-cyan-300 dark:border-cyan-500/40 shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
+            }`}
+          >
+            <Building2 className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
+            Bodegas ({bodegas.length})
+          </button>
+        </div>
       </div>
 
       {/* ── 4. RENDERIZADO CONDICIONAL DE VISTAS ── */}

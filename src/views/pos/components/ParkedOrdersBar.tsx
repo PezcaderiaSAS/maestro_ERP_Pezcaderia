@@ -23,7 +23,7 @@ export const ParkedOrdersBar: React.FC<ParkedOrdersBarProps> = ({
 }) => {
   return (
     <div className="flex flex-col gap-1.5 px-3 py-2 bg-slate-50 border-b border-slate-200 shrink-0">
-      <div className="flex items-center justify-between text-[11px] text-slate-600 font-semibold">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-600 font-semibold">
         <div className="flex items-center gap-1.5">
           <PauseCircle size={13} className="text-indigo-600" />
           <span className="text-slate-800 font-bold">Ventas en Espera & Multicliente</span>
@@ -37,7 +37,7 @@ export const ParkedOrdersBar: React.FC<ParkedOrdersBarProps> = ({
         <button
           type="button"
           onClick={onNewParkedSale}
-          className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-900 border border-indigo-200 transition-all text-[11px] font-bold cursor-pointer active:scale-95"
+          className="flex items-center gap-1 min-h-[36px] sm:min-h-[44px] px-2.5 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-900 border border-indigo-200 transition-all text-[11px] font-bold cursor-pointer active:scale-95"
           title="Poner venta actual en espera e iniciar nueva venta limpia (F6)"
         >
           <Plus size={12} />
