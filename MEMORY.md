@@ -15,14 +15,16 @@
    - Cobro en ventanilla con vueltas dinámicas y crédito con sincronización atómica a Cartera (`useARStore`).
    - Segregación estricta asesor mostrador sin cobro (`CartPanel.tsx`) verificado con suites TDD.
 
-## Cola de Tareas Priorizada para Próxima Sesión tras `git pull` (WIP = 1)
-1. **EVALUACIÓN POR AGENCIAS (SWARM) Y GOOGLE HARNESS² DEL PLAN ERGONÓMICO DEL MOSTRADOR (PRIORIDAD 1):**
-   - Ejecutar `python scripts/architecture/run_agency_sdd_bridge.py -a architect -p "Ajuste ergonómico del mostrador para comandas y ciclo de vida preventa"`.
-   - Propose-Probe-Compose a costo $0 para contrastar candidatos de arnés y validar restricciones invariantes.
-   - Corregir el solapamiento visual en `CartPanel.tsx` (botones cortados bajo selector de cliente) e integrar Dark Glassmorphism V8.
-2. **SPEC-042: Facturación Electrónica DIAN / Siigo API v2 & Envío de Tirilla Digital Resiliente**:
-   - Tarea 1: Esquemas Zod y validación estricta de payloads para emisión electrónica y CUFE.
-   - Tarea 2: Dispatcher outbox en IndexedDB para facturación offline con cola de contingencia DIAN.
+## Cola de Tareas Priorizada: SPEC-043 Ferretería Josase (WIP = 1)
+1. **SPEC-043 (FLUJO MULTIVENDEDOR - CAJA ÚNICA & CERO-LATENCIA JOSASE) 🎯 (EN PROCESO - WIP = 1):**
+   - ✅ **TASK-043-01:** Carga IndexedDB Zero-LocalStorage (9.550 clientes y 5.351 ítems, < 15KB en localStorage).
+   - ✅ **TASK-043-02:** Selector clientes instantáneo sub-2ms, debounce 150ms y early break a 20 nodos DOM.
+   - ✅ **TASK-043-03:** Anotaciones de despacho en doble nivel (comanda general + ítem) y botón F6 en CartPanel.
+   - ✅ **TASK-043-04:** Barra lateral de tickets del vendedor (`VendorTicketSidebar`) con recuperación y estados.
+   - 🎯 **TASK-043-05 (EN PROCESO):** Modal profesional de recaudo mixto en taquilla de Caja Única.
+   - 📋 **TASK-043-06 (EN COLA):** Conmutación por rol en Topbar, suite Vitest 100% verde y bucle DevTools.
+2. **SPEC-042 (FACTURACIÓN ELECTRÓNICA DIAN / SIIGO API v2 & CONTINGENCIA OUTBOX) (EN COLA):**
+   - Payloads Zod para CUFE y dispatcher outbox en contingencia.
 
 ## Despliegue a Producción (Vercel & Supabase)
 - **Vercel (Frontend SPA):** [`https://maestro-erp-pezcaderia.vercel.app`](https://maestro-erp-pezcaderia.vercel.app). Despliegue activo, 0 errores consola.

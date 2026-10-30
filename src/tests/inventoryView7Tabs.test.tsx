@@ -43,17 +43,17 @@ describe('InventoryView 7-Tabs & Quick Action Bar Suite - Tarea 6', () => {
     render(<InventoryView />);
 
     // Tab 2: Kardex
-    const tabKardex = screen.getByText('2. Kardex Contable NIIF');
-    fireEvent.click(tabKardex);
+    const select = screen.getByTestId('inventory-mobile-tabs-selector');
+    fireEvent.change(select, { target: { value: 'kardex' } });
     expect(screen.getByText(/Kardex Contable NIIF/i)).toBeDefined();
 
-    // Tab 4: Despiece
-    const tabDespiece = screen.getByText('4. Despiece & Comandas');
+    // Tab 4: Despiece (usando botón desktop)
+    const tabDespiece = screen.getByRole('button', { name: /4\.\s*Despiece/i });
     fireEvent.click(tabDespiece);
     expect(screen.getByText(/Transformación & Despiece de Materia Prima/i)).toBeDefined();
 
-    // Tab 5: Traslados
-    const tabTraslados = screen.getByText('5. Traslados Internos');
+    // Tab 5: Traslados (usando botón desktop)
+    const tabTraslados = screen.getByRole('button', { name: /5\.\s*Traslados/i });
     fireEvent.click(tabTraslados);
     expect(screen.getByText(/Emitir Nueva Guía/i)).toBeDefined();
   });

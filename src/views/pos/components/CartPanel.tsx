@@ -50,7 +50,7 @@ interface CartPanelProps {
   onClearCliente: () => void;
   onDescuentoClick: () => void;
   onPagar: (pagos: { metodo: MetodoCobroPos; monto: number }[], options?: { requiereFacturaElectronica?: boolean }) => Promise<any> | void;
-  onGuardarBorrador: () => void;
+  onGuardarBorrador: (notas?: string) => void;
   onSetActiveDraftId: (id: string | null) => void;
   onSetDrafts: (fn: (prev: any[]) => any[]) => void;
   onSetDescuentoGlobal: (val: number) => void;
@@ -114,6 +114,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
          currentUser?.cargo?.toLowerCase().includes('mostrador'));
   const [isBouncing, setIsBouncing] = useState(false);
   const [isCompactMode, setIsCompactMode] = useState(false);
+  const [notasDespacho, setNotasDespacho] = useState('');
   const totalItems = lineas.reduce((sum, l) => sum + Number(l.cantidad), 0);
 
   useEffect(() => {
@@ -559,7 +560,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
           {/* Botón Poner en Espera Rápido */}
           <button
             type="button"
-            onClick={onGuardarBorrador}
+            onClick={() => onGuardarBorrador()}
             disabled={lineas.length === 0}
             className="flex items-center gap-1.5 px-3.5 min-h-[48px] h-12 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 shadow-sm"
             title="Poner pedido actual en espera (Atajo: F6)"
@@ -702,11 +703,26 @@ export const CartPanel: React.FC<CartPanelProps> = ({
               </span>
             </div>
 
+            {/* Campo de notas/instrucciones de despacho en mostrador */}
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-300 flex items-center justify-between">
+                <span>📝 Instrucciones / Notas de Despacho:</span>
+                <span className="text-[10px] text-cyan-400 font-mono">Doble nivel</span>
+              </label>
+              <textarea
+                rows={2}
+                value={notasDespacho}
+                onChange={(e) => setNotasDespacho(e.target.value)}
+                placeholder="Instrucciones de entrega, corte o despacho..."
+                className="w-full text-xs p-2 rounded-xl bg-slate-950/80 border border-slate-700/60 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 resize-none font-medium"
+              />
+            </div>
+
             <button
               type="button"
               data-testid="btn-emitir-preventa-mostrador"
               disabled={lineas.length === 0}
-              onClick={onGuardarBorrador}
+              onClick={() => onGuardarBorrador(notasDespacho)}
               className={`w-full min-h-[50px] py-3 px-4 rounded-xl font-black text-sm tracking-wide transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-95 ${
                 lineas.length > 0
                   ? 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-cyan-600/30 border border-cyan-400/40'

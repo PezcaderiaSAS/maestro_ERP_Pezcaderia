@@ -4,6 +4,9 @@
 
 import { useClientStore } from '../store/useClientStore';
 import { useInventoryStore, type Producto } from '../store/useInventoryStore';
+import { TenantIndexedDbService } from './tenantIndexedDbService';
+import { fastItemSearchEngine } from './fastItemSearchEngine';
+import type { LocalIndexedDbProduct, LocalIndexedDbClient } from '../types/indexedDb.types';
 import * as localDb from './localDb';
 
 export interface ProductoFerreteria extends Producto {
@@ -18,6 +21,8 @@ export interface FerreteriaJosaseData {
 }
 
 export class FerreteriaJosaseService {
+  private tenantIndexedDbService: TenantIndexedDbService | null = null;
+
   /**
    * Carga dinámica de los datasets procesados de Ferretería Josase
    */
@@ -36,7 +41,78 @@ export class FerreteriaJosaseService {
   }
 
   /**
-   * Aplica los 9.550 clientes y 5.351 ítems con stock inicial = 100 en los Stores globales y LocalDb
+   * Indexa masivamente en TenantIndexedDbService (Zero-QuotaExceeded en localStorage)
+   * Garantiza almacenamiento persistente de 9.550 clientes y 5.351 productos sin saturar cuota.
+   */
+  public async applyToIndexedDb(
+    tenantId = 'tenant-03',
+    externalDbService?: TenantIndexedDbService
+  ): Promise<{
+    clientesCount: number;
+    itemsCount: number;
+    indexedDbReady: boolean;
+  }> {
+    const data = await this.loadData();
+    const dbService = externalDbService || this.tenantIndexedDbService || new TenantIndexedDbService();
+    if (!this.tenantIndexedDbService) {
+      this.tenantIndexedDbService = dbService;
+    }
+
+    await dbService.init(tenantId);
+
+    // Mapear productos al contrato estricto de IndexedDB
+    const mappedProducts: LocalIndexedDbProduct[] = data.items.map((item, index) => ({
+      sku: item.sku || item.id,
+      tenantId,
+      nombre: item.nombre,
+      codigoBarras: item.codigo_barras || '',
+      categoria: item.categoria || 'Ferretería General',
+      precioDetal: item.precio_venta_pos || 0,
+      precioMayorista: item.precio_venta_mayorista || 0,
+      cantidadMinimaMayorista: 1,
+      stockDisponible: item.stockInicial ?? 100,
+      esParetoTop100: index < 100,
+      activo: item.activo ?? true,
+      updatedAt: new Date().toISOString(),
+    }));
+
+    // Mapear clientes al contrato estricto de IndexedDB
+    const mappedClients: LocalIndexedDbClient[] = data.clientes.map((cli, index) => ({
+      id: cli.id || cli.nit || cli.identificacion || `cli-${index}`,
+      tenantId,
+      razonSocialONombre: cli.nombre || cli.razon_social || 'Cliente General',
+      nitOCedula: cli.identificacion || cli.nit || '',
+      perfilPrecio: 'DETAL',
+      limiteCredito: cli.cupoCredito || cli.cupo_credito || 5000000,
+      contactoTelefono: cli.telefono || '',
+      contactoEmail: cli.email || '',
+      esParetoTop100: index < 100,
+      updatedAt: new Date().toISOString(),
+    }));
+
+    // Inserción en bloques en IndexedDB (sin límites de 5MB)
+    await Promise.all([
+      dbService.bulkUpsertProducts(mappedProducts),
+      dbService.bulkUpsertClients(mappedClients),
+    ]);
+
+    // Inicializar motor de búsqueda sub-2ms en memoria / Worker
+    try {
+      await fastItemSearchEngine.init(tenantId, mappedProducts);
+    } catch (err) {
+      console.warn('Advertencia inicializando fastItemSearchEngine:', err);
+    }
+
+    return {
+      clientesCount: mappedClients.length,
+      itemsCount: mappedProducts.length,
+      indexedDbReady: true,
+    };
+  }
+
+  /**
+   * Aplica los 9.550 clientes y 5.351 ítems en los Stores globales
+   * y guarda en IndexedDB, asegurando que localStorage nunca se desborde.
    */
   public async applyToStores(bodegaKey = 'bodega-josase-01'): Promise<{
     clientesCount: number;
@@ -45,12 +121,14 @@ export class FerreteriaJosaseService {
   }> {
     const data = await this.loadData();
 
-    // 1. Aplicar Clientes en useClientStore y LocalDb
+    // 1. Sincronizar en IndexedDB masivo
+    await this.applyToIndexedDb('tenant-03');
+
+    // 2. Aplicar en memoria en useClientStore
     const clientStore = useClientStore.getState();
     clientStore.setClientes(data.clientes);
-    localDb.save('clientes', data.clientes);
 
-    // 2. Generar y persistir precios de catálogo para el motor de inventario unificado
+    // 3. Generar precios de catálogo para el motor de inventario unificado
     const pricings = data.items.map((item) => ({
       id: `prc-${item.id}`,
       productoId: item.id,
@@ -60,16 +138,13 @@ export class FerreteriaJosaseService {
       vigenciaDesde: new Date().toISOString(),
     }));
 
-    localDb.save('productsCatalog', data.items);
-    localDb.save('productPricings', pricings);
-
-    // 3. Aplicar Ítems y Catálogo en useInventoryStore
+    // 4. Aplicar Ítems y Catálogo en useInventoryStore
     const inventoryStore = useInventoryStore.getState();
     inventoryStore.setProducts(data.items);
     inventoryStore.setProductsCatalog(data.items);
     inventoryStore.setProductPricings(pricings);
     
-    // 4. Asignar stock de 100 unidades por ítem a las bodegas operativas
+    // 5. Asignar stock de 100 unidades por ítem a las bodegas operativas
     const stockJosase = data.stock[bodegaKey] || data.stock['bodega-josase-01'] || {};
     const currentStock = {
       ...inventoryStore.stock,
@@ -79,7 +154,15 @@ export class FerreteriaJosaseService {
       'b-1': { ...(inventoryStore.stock['b-1'] || {}), ...stockJosase },
     };
     inventoryStore.setStock(currentStock);
-    localDb.save('stock', currentStock);
+
+    // 6. Almacenamiento seguro en LocalDb (guardar solo un subconjunto ligero para evitar QuotaExceededError)
+    try {
+      localDb.save('clientes', data.clientes.slice(0, 50)); // Muestra segura en localStorage (< 15KB)
+      localDb.save('productsCatalog', data.items.slice(0, 50)); // Muestra segura (< 15KB)
+      localDb.save('productPricings', pricings.slice(0, 50));
+    } catch (quotaErr) {
+      console.warn('LocalStorage saturado, continuando con IndexedDB como fuente primaria:', quotaErr);
+    }
 
     return {
       clientesCount: data.clientes.length,

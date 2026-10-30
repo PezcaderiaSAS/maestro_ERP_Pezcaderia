@@ -1,8 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import path from 'path';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
 
 // Importamos el motor del Master Architect
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const {
   checkDomainPurity,
   checkViewSeparation,

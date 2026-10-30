@@ -14,6 +14,7 @@ import { PaymentPanel, type MetodoCobroPos } from './pos/components/PaymentPanel
 import { BalanzaButton } from './pos/components/BalanzaButton.tsx';
 import { TicketBuilder } from './pos/components/TicketBuilder.tsx';
 import { CartPanel } from './pos/components/CartPanel.tsx';
+import { VendorTicketSidebar, type VendorTicket } from '../components/pos/VendorTicketSidebar.tsx';
 import { ProductSearchPanel } from './pos/components/ProductSearchPanel.tsx';
 import { AperturaCajaModal } from './pos/components/AperturaCajaModal.tsx';
 import { RetiroParcialModal } from './pos/components/RetiroParcialModal.tsx';
@@ -278,6 +279,105 @@ export default function POSView({
     });
   };
   
+  // Barra Lateral de Tickets Activos del Vendedor (SPEC-043)
+  const [isVendorSidebarOpen, setIsVendorSidebarOpen] = useState(true);
+
+  const activeVendorInfo = VENDEDORES_JOSASE.find((v) => v.id === selectedVendorJosase);
+  const activeVendorName = isFerreteria ? (activeVendorInfo?.corto || 'Diego Díaz') : (currentUser?.nombre || 'Vendedor');
+
+  const vendorTickets: VendorTicket[] = useMemo(() => {
+    return (drafts || []).map((d) => {
+      const itemsList = d.lineas || d.cart || [];
+      return {
+        id: d.id,
+        codigoPreventa: d.alias || d.id,
+        clienteNombre: d.cliente?.nombre || 'Consumidor Final',
+        clienteDocumento: d.cliente?.identificacion,
+        total: d.total || itemsList.reduce((acc: number, l: any) => acc + (l.totalLinea || 0), 0),
+        itemsCount: itemsList.length,
+        estado: (d.estadoPreventa || 'EN_COLA') as any,
+        notas: d.notas,
+        detallesDespacho: d.detallesDespacho,
+        fechaCreacion: d.fechaGuardado || new Date().toISOString(),
+        vendedorId: (d as any).vendedorId,
+        vendedorNombre: (d as any).vendedorNombre,
+      };
+    });
+  }, [drafts]);
+
+  const handleRecuperarPreventa = (ticketId: string) => {
+    const draft = drafts.find((d) => d.id === ticketId);
+    if (!draft) return;
+    if (draft.lineas && draft.lineas.length > 0) {
+      setCartLineas(draft.lineas);
+    } else if (draft.cart && draft.cart.length > 0) {
+      const lineasMapped: any[] = draft.cart.map((c: any, idx: number) => ({
+        productoId: c.product?.id || c.productoId || `item-${idx}`,
+        sku: c.product?.sku || c.sku || `SKU-${idx}`,
+        nombre: c.product?.nombre || c.nombre || 'Producto',
+        cantidad: Number(c.cantidad) || 1,
+        unidad: 'UNIDAD',
+        precioLista: Number(c.product?.precioVenta || c.precioLista || 0),
+        descuentoPct: 0,
+        precioFinal: Number(c.product?.precioVenta || c.precioFinal || 0),
+        totalLinea: Number(c.cantidad || 1) * Number(c.product?.precioVenta || c.precioFinal || 0),
+        precioCompra: 0,
+        esPesoManual: false,
+      }));
+      setCartLineas(lineasMapped);
+    }
+    if (draft.cliente) {
+      setCliente(draft.cliente as any);
+    }
+    setActiveDraftId(ticketId);
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Preventa Recuperada',
+      text: `"${draft.alias || ticketId}" cargada al carrito.`,
+      timer: 2000,
+      showConfirmButton: false,
+    });
+  };
+
+  const handleCancelarPreventa = async (ticketId: string) => {
+    const confirmRes = await Swal.fire({
+      title: '¿Anular Preventa?',
+      text: 'Se descartará la preventa seleccionada.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, anular',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#EF4444',
+      background: '#090d16',
+      color: '#f8fafc',
+    });
+    if (confirmRes.isConfirmed) {
+      setDrafts((prev) => prev.filter((x) => x.id !== ticketId));
+      if (activeDraftId === ticketId) setActiveDraftId(null);
+      await PosDraftService.resolveDraft(ticketId, 'DESCARTADO');
+      try {
+        await prefacturaService.cancelarPrefactura({
+          tenantId: activeTenant?.id || 'tenant-03',
+          prefacturaId: ticketId,
+          supervisorId: currentUser?.empleadoId || 'SUPERVISOR-POS',
+          motivo: 'Cancelada por el asesor en mostrador',
+        });
+      } catch (e) {
+        console.warn('Error cancelando en prefacturaService:', e);
+      }
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'info',
+        title: 'Preventa Anulada',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    }
+  };
+
   // B2B Consolidation State
   const [activeSubView, setActiveSubView] = useState<'venta_pos' | 'consolidacion_b2b' | 'canales_digitales' | 'gestion_kanban'>('venta_pos');
   const [selectedB2BQuoteId, setSelectedB2BQuoteId] = useState<string | null>(null);
@@ -321,7 +421,14 @@ export default function POSView({
   const activeProducts = products.filter(p => p.activo);
 
 
-  const defaultClient = clientes?.find(c => c.nombre.toUpperCase().includes('CONSUMIDOR FINAL')) || null;
+  const defaultClient = clientes?.find(c => c.nombre.toUpperCase().includes('CONSUMIDOR FINAL')) || (isFerreteria ? {
+    id: 'cli-josase-gen',
+    nombre: 'Consumidor Final (Josase)',
+    identificacion: '222222222222',
+    tipoPrecio: 'DETAL',
+    cupoCredito: 0,
+    activo: true
+  } as any : null);
   
   const {
     lineas: cartLineas,
@@ -539,19 +646,30 @@ export default function POSView({
 
         const renderResults = (query: string) => {
           resultsDiv.innerHTML = '';
-          const filtered = clientes.filter(c => 
-            c.activo && (
-              c.nombre.toLowerCase().includes(query.toLowerCase()) || 
-              c.identificacion.includes(query)
-            )
-          );
+          const q = (query || '').toLowerCase().trim();
 
-          if (filtered.length === 0) {
+          const matches: typeof clientes = [];
+          for (let i = 0; i < clientes.length && matches.length < 20; i++) {
+            const c = clientes[i];
+            if (c.activo !== false) {
+              if (!q) {
+                matches.push(c);
+              } else {
+                const nombreMatch = (c.nombre || '').toLowerCase().includes(q);
+                const nitMatch = (c.identificacion || '').includes(q);
+                if (nombreMatch || nitMatch) {
+                  matches.push(c);
+                }
+              }
+            }
+          }
+
+          if (matches.length === 0) {
             resultsDiv.innerHTML = '<div style="padding: 12px; color: #64748B; text-align: center; font-size: 13px;">No se encontraron clientes activos.</div>';
             return;
           }
 
-          filtered.forEach(c => {
+          matches.forEach(c => {
             const row = document.createElement('div');
             row.style.padding = '8px 12px';
             row.style.borderBottom = '1px solid #f1f5f9';
@@ -590,8 +708,12 @@ export default function POSView({
 
         renderResults('');
 
+        let debounceTimer: any = null;
         searchInput.addEventListener('input', (e) => {
-          renderResults((e.target as HTMLInputElement).value);
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(() => {
+            renderResults((e.target as HTMLInputElement).value);
+          }, 150);
         });
       },
       preConfirm: () => {
@@ -754,6 +876,9 @@ export default function POSView({
       cart: [...cart],
       descuentoGlobal,
       total: totalFinal,
+      notas: typeof aliasParam === 'string' ? aliasParam : undefined,
+      detallesDespacho: typeof aliasParam === 'string' ? aliasParam : undefined,
+      estadoPreventa: 'EN_COLA',
       vendedorId: isFerreteria ? selectedVendorJosase : (currentUser?.empleadoId || 'VEND-01'),
       vendedorNombre: isFerreteria ? (vSeleccionado?.nombre || 'Diego Díaz') : (currentUser?.nombre || 'Vendedor Mostrador'),
       terminalId: isFerreteria ? 'TERM-MOSTRADOR-JOSASE' : 'TERM-01',
@@ -775,6 +900,7 @@ export default function POSView({
         precioFinal: Number(l.precioFinal || l.precio || 0),
         descuentoPct: Number(l.descuentoPct || 0),
         subtotal: Number(l.subtotal || l.totalLinea || ((l.precioFinal || l.precio || 0) * (l.cantidad || 1))),
+        notaItem: l.notaItem,
       }));
 
       await prefacturaService.emitirPrefactura({
@@ -785,6 +911,7 @@ export default function POSView({
         clienteDocumento: cliente?.identificacion || '22222222',
         clienteNombre: cliente?.nombre || 'Consumidor Final',
         items: itemsPrefactura,
+        notas: typeof aliasParam === 'string' ? aliasParam : undefined,
       });
 
       useCashierKanbanStore.getState().cargarPreventas(activeTenant?.id || 'tenant-03');
@@ -2346,8 +2473,8 @@ export default function POSView({
               <span>Carrito {cartLineas.length > 0 ? `(${cartLineas.length})` : ''}</span>
             </button>
           </div>
-          {/* Grilla Desacoplada: Catálogo y Carrito con Scroll Fluido en Laptop (SPEC-039) */}
-          <div className="flex-1 min-h-0 w-full flex flex-col lg:grid lg:grid-cols-[1fr_380px] xl:grid-cols-[1fr_420px] gap-2.5 pt-0.5 overflow-hidden">
+          {/* Grilla Desacoplada: Catálogo, Carrito y Barra de Preventas del Asesor (SPEC-043) */}
+          <div className="flex-1 min-h-0 w-full flex flex-col lg:grid lg:grid-cols-[1fr_380px] xl:flex xl:flex-row gap-2.5 pt-0.5 overflow-hidden">
             {/* Columna Izquierda: Catálogo de Productos con su propio scroll */}
             <div className={`min-h-0 flex-1 overflow-hidden pr-0.5 ${mobileTab === 'catalogo' ? 'flex flex-col' : 'hidden lg:flex lg:flex-col'}`}>
               <GlassCard
@@ -2365,8 +2492,8 @@ export default function POSView({
               </GlassCard>
             </div>
 
-            {/* Columna Derecha: Carrito de Compras / Factura con scroll desacoplado */}
-            <div className={`min-h-0 h-full overflow-hidden ${mobileTab === 'carrito' ? 'flex flex-col flex-1' : 'hidden lg:flex lg:flex-col'}`}>
+            {/* Columna Central: Carrito de Compras / Factura con scroll desacoplado */}
+            <div className={`min-h-0 h-full overflow-hidden w-full lg:w-[380px] xl:w-[420px] shrink-0 ${mobileTab === 'carrito' ? 'flex flex-col flex-1' : 'hidden lg:flex lg:flex-col'}`}>
               {ultimoTicket ? (
                 <GlassCard
                   className="pos-sidebar-cart p-4 sm:p-5 flex flex-col h-full min-h-0 overflow-y-auto"
@@ -2423,6 +2550,20 @@ export default function POSView({
                 />
               )}
             </div>
+
+            {/* Columna Derecha: Barra Lateral de Preventas Activas del Vendedor (SPEC-043) */}
+            {(isFerreteria || userRole === 'vendedor' || currentUser?.cargo?.toLowerCase().includes('mostrador')) && (
+              <div className="hidden xl:flex h-full min-h-0 shrink-0">
+                <VendorTicketSidebar
+                  tickets={vendorTickets}
+                  vendedorNombre={activeVendorName}
+                  onRecuperarTicket={handleRecuperarPreventa}
+                  onCancelarTicket={handleCancelarPreventa}
+                  isOpen={isVendorSidebarOpen}
+                  onToggleOpen={() => setIsVendorSidebarOpen((prev) => !prev)}
+                />
+              </div>
+            )}
           </div>
         </>
       ) : activeSubView === 'consolidacion_b2b' ? (

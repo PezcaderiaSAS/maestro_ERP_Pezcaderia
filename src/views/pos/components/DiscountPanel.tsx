@@ -12,10 +12,10 @@ interface DiscountPanelProps {
 }
 
 export const DiscountPanel: React.FC<DiscountPanelProps> = ({
-  subtotal,
-  totalItems,
-  descuentoPct,
-  descuentoValor,
+  subtotal = 0,
+  totalItems = 0,
+  descuentoPct = 0,
+  descuentoValor = 0,
   totalIva = 0,
   subtotalBaseGravable,
   onDescuentoClick,
@@ -60,7 +60,7 @@ export const DiscountPanel: React.FC<DiscountPanelProps> = ({
           )}
         </span>
         <span style={{ color: descuentoPct > 0 ? 'var(--primary-color)' : '#64748B', fontWeight: 600 }}>
-          -${descuentoValor.toLocaleString('es-CO')}
+          -${(descuentoValor || 0).toLocaleString('es-CO')}
         </span>
       </div>
     </div>

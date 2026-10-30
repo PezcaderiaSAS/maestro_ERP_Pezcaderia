@@ -15,7 +15,7 @@ const STORE_NAME = 'caja_outbox_v2';
 const DB_VERSION = 2;
 
 // In-memory fallback para entornos sin IndexedDB o tests unitarios ligeros
-let inMemoryFallback: Map<string, OfflineOutboxItem> = new Map();
+const inMemoryFallback: Map<string, OfflineOutboxItem> = new Map();
 
 /**
  * Función pura para calcular clave de idempotencia determinista
