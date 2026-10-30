@@ -114,6 +114,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
          currentUser?.cargo?.toLowerCase().includes('mostrador'));
   const [isBouncing, setIsBouncing] = useState(false);
   const [isCompactMode, setIsCompactMode] = useState(false);
+  const [isConfirmComandaOpen, setIsConfirmComandaOpen] = useState(false);
   const totalItems = lineas.reduce((sum, l) => sum + Number(l.cantidad), 0);
 
   useEffect(() => {
@@ -505,55 +506,56 @@ export const CartPanel: React.FC<CartPanelProps> = ({
       badge={`${totalItems} ${totalItems === 1 ? 'ítem' : 'ítems'}`}
       badgeVariant="cyan"
       onMinimize={() => setIsCompactMode((prev) => !prev)}
-      className="pos-cart-panel flex flex-col h-full min-h-0 overflow-y-auto pr-1 p-4"
+      className="pos-cart-panel flex flex-col h-full min-h-0 overflow-hidden pr-1 p-4 select-none"
     >
       {/* ── HEADER: Selector de cliente + Borradores + En Espera (Targets >= 48px) ── */}
       <div
-        className="pos-cart-header flex flex-wrap justify-between items-center gap-2 py-2 px-3 border-b border-slate-200 bg-slate-50 shrink-0 rounded-t-xl"
+        className="pos-cart-header flex flex-wrap justify-between items-center gap-2 py-2.5 px-3 border-b border-white/10 bg-slate-900/60 shrink-0 rounded-2xl backdrop-blur-xl"
       >
-        {/* Selector de cliente */}
+        {/* Selector de cliente en Dark Glassmorphism V8 */}
         {cliente ? (
-          <Button
-            variant="outline"
+          <button
+            type="button"
             onClick={onSelectCliente}
-            leftIcon={<Check size={18} />}
-            rightIcon={
-              <X
-                size={16}
-                className="hover:text-red-500 transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onClearCliente();
-                }}
-              />
-            }
-            className="text-sm min-h-[48px] h-12 py-1 px-3 max-w-[220px] font-bold"
+            className="flex items-center gap-2 px-3 min-h-[48px] h-12 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-white/10 text-white font-bold text-xs transition-all max-w-[220px] truncate shadow-sm cursor-pointer"
+            title={`${cliente.nombre} (${cliente.identificacion})`}
           >
-            <span className="truncate">
+            <Check size={16} className="text-emerald-400 shrink-0" />
+            <span className="truncate text-left">
               {cliente.nombre.slice(0, 18)} ({cliente.identificacion})
             </span>
-          </Button>
+            <span
+              title="Quitar cliente"
+              className="text-slate-400 hover:text-red-400 transition-colors shrink-0 ml-auto p-0.5 rounded-lg hover:bg-white/10"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClearCliente();
+              }}
+            >
+              <X size={15} />
+            </span>
+          </button>
         ) : (
-          <Button 
-            variant="outline" 
-            onClick={onSelectCliente} 
-            rightIcon={<Plus size={18} />}
-            className="text-sm min-h-[48px] h-12 py-1 px-3 font-bold"
+          <button
+            type="button"
+            onClick={onSelectCliente}
+            className="flex items-center gap-1.5 px-3 min-h-[48px] h-12 rounded-xl bg-slate-800/60 hover:bg-slate-700/80 border border-white/10 text-slate-200 hover:text-white font-bold text-xs transition-all cursor-pointer shadow-sm"
           >
-            Agregar Cliente
-          </Button>
+            <Plus size={16} className="text-cyan-400" />
+            <span>Agregar Cliente</span>
+          </button>
         )}
 
         <div className="flex items-center gap-2">
           {/* Botón Cerrar Turno (solo si está abierto) */}
           {isTurnoAbierto && onCerrarTurnoClick && (
-            <Button
-              variant="danger"
+            <button
+              type="button"
               onClick={onCerrarTurnoClick}
-              className="text-xs min-h-[48px] h-12 py-1 px-3 font-bold"
+              className="text-xs min-h-[48px] h-12 py-1 px-3 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/30 font-bold transition-all cursor-pointer"
             >
               Cerrar Turno
-            </Button>
+            </button>
           )}
 
           {/* Botón Poner en Espera Rápido */}
@@ -561,7 +563,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
             type="button"
             onClick={onGuardarBorrador}
             disabled={lineas.length === 0}
-            className="flex items-center gap-1.5 px-3.5 min-h-[48px] h-12 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 shadow-sm"
+            className="flex items-center gap-1.5 px-3.5 min-h-[48px] h-12 rounded-xl border border-indigo-500/30 bg-indigo-950/40 hover:bg-indigo-900/60 text-indigo-300 text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 shadow-sm"
             title="Poner pedido actual en espera (Atajo: F6)"
             aria-label="Poner pedido actual en espera (Atajo F6)"
           >
@@ -575,13 +577,13 @@ export const CartPanel: React.FC<CartPanelProps> = ({
             onClick={handleOpenBorradores}
             className={`relative flex items-center gap-1.5 px-3.5 min-h-[48px] h-12 rounded-xl border text-xs font-bold transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
               drafts.length > 0
-                ? 'bg-amber-50 border-amber-300 text-amber-800 hover:bg-amber-100 shadow-sm'
-                : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-sm'
+                ? 'bg-amber-950/40 border-amber-500/30 text-amber-300 hover:bg-amber-900/60 shadow-sm'
+                : 'bg-slate-800/80 border-white/10 text-slate-300 hover:bg-slate-700/80 hover:text-white shadow-sm'
             }`}
             title="Ver pedidos guardados en espera"
             aria-label={`Ver ${drafts.length} pedidos guardados en espera`}
           >
-            <Archive size={16} className={drafts.length > 0 ? 'text-amber-600' : 'text-slate-500'} />
+            <Archive size={16} className={drafts.length > 0 ? 'text-amber-400' : 'text-slate-400'} />
             <span>Borradores</span>
             {drafts.length > 0 && (
               <span 
@@ -596,15 +598,17 @@ export const CartPanel: React.FC<CartPanelProps> = ({
       </div>
 
       {/* ── BARRA MULTI-CLIENTE: Carritos en Espera / Conmutación Rápida ── */}
-      <ParkedOrdersBar
-        drafts={drafts}
-        activeDraftId={activeDraftId}
-        currentItemsCount={lineas.length}
-        currentTotal={totales.totalFinal}
-        onSelectDraft={handleSelectDraftDirectly}
-        onDeleteDraft={handleDeleteDraftDirectly}
-        onNewParkedSale={onGuardarBorrador}
-      />
+      {drafts.length > 0 && (
+        <ParkedOrdersBar
+          drafts={drafts}
+          activeDraftId={activeDraftId}
+          currentItemsCount={lineas.length}
+          currentTotal={totales.totalFinal}
+          onSelectDraft={handleSelectDraftDirectly}
+          onDeleteDraft={handleDeleteDraftDirectly}
+          onNewParkedSale={onGuardarBorrador}
+        />
+      )}
 
       {/* ── LISTA DE ÍTEMS: scroll táctil vertical ── */}
       <div
@@ -616,20 +620,12 @@ export const CartPanel: React.FC<CartPanelProps> = ({
         }}
       >
         {lineas.length === 0 ? (
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '100%',
-              minHeight: '120px',
-              color: '#64748B',
-              gap: '8px',
-            }}
-          >
-            <span style={{ fontSize: '32px' }}>🛒</span>
-            <span style={{ fontSize: '13px', fontWeight: 500 }}>El carrito está vacío</span>
+          <div className="flex flex-col items-center justify-center py-6 px-4 text-center my-auto rounded-2xl border border-dashed border-white/10 bg-white/5 mx-1">
+            <span className="text-2xl mb-1 opacity-70">🛒</span>
+            <span className="text-xs font-bold text-slate-300">El carrito está vacío</span>
+            <span className="text-[11px] text-slate-400 mt-0.5">
+              Selecciona productos del catálogo o presiona <kbd className="px-1 py-0.5 font-mono text-[10px] bg-white/10 rounded text-cyan-300 border border-white/10">F2</kbd>
+            </span>
           </div>
         ) : (
           lineas.map((linea) => {
@@ -659,7 +655,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
 
       {/* ── FOOTER STICKY: Total + Descuento + Pago ── */}
       <div
-        className="pos-cart-footer shrink-0 sticky bottom-0 bg-slate-50/95 backdrop-blur-md p-2.5 border-t border-slate-200 flex flex-col gap-2 rounded-b-xl shadow-inner"
+        className="pos-cart-footer shrink-0 mt-auto bg-slate-900/90 backdrop-blur-2xl p-3 border-t border-white/10 flex flex-col gap-2 rounded-2xl shadow-2xl"
       >
         {/* Total prominente táctil con micro-animación y alto contraste */}
         {lineas.length > 0 && (
@@ -706,7 +702,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
               type="button"
               data-testid="btn-emitir-preventa-mostrador"
               disabled={lineas.length === 0}
-              onClick={onGuardarBorrador}
+              onClick={() => { if (lineas.length > 0) setIsConfirmComandaOpen(true); }}
               className={`w-full min-h-[50px] py-3 px-4 rounded-xl font-black text-sm tracking-wide transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-95 ${
                 lineas.length > 0
                   ? 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-cyan-600/30 border border-cyan-400/40'
@@ -769,6 +765,74 @@ export const CartPanel: React.FC<CartPanelProps> = ({
           }}
           onClose={() => setKeypadLinea(null)}
         />
+      )}
+
+      {/* Modal de Confirmación de Emisión de Preventa / Comanda para Asesor de Mostrador */}
+      {isConfirmComandaOpen && (
+        <div 
+          data-testid="modal-confirmar-comanda"
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+        >
+          <div className="w-full max-w-md bg-slate-900 border border-cyan-500/30 rounded-3xl p-6 shadow-2xl shadow-cyan-950/50 space-y-4 select-none">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div>
+                <h3 className="text-base font-extrabold text-white flex items-center gap-2">
+                  <PauseCircle size={18} className="text-cyan-400" />
+                  <span>Confirmar Emisión de Preventa / Comanda</span>
+                </h3>
+                <span className="text-xs text-cyan-300 font-mono">Puesto de Mostrador ➔ Ventanilla de Caja</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsConfirmComandaOpen(false)}
+                className="p-1 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2">
+              <div className="flex justify-between text-xs text-slate-300">
+                <span>Cliente Asignado:</span>
+                <strong className="text-white font-bold">{cliente?.nombre || 'Consumidor Final'}</strong>
+              </div>
+              <div className="flex justify-between text-xs text-slate-300">
+                <span>Total Ítems:</span>
+                <span className="font-mono font-bold text-slate-200">{totalItems} {totalItems === 1 ? 'ítem' : 'ítems'}</span>
+              </div>
+              <div className="pt-2 border-t border-white/10 flex justify-between items-center">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total a Cobrar:</span>
+                <span className="text-2xl font-black text-emerald-400 font-mono tracking-tight">
+                  ${totales.totalFinal.toLocaleString('es-CO')}
+                </span>
+              </div>
+            </div>
+
+            <div className="text-[11px] text-cyan-300/90 bg-cyan-950/40 border border-cyan-500/20 rounded-xl p-3 leading-relaxed">
+              ℹ️ Esta comanda se enviará en tiempo real a la <strong>Caja Única (Ventanilla)</strong>. El cliente podrá pagar en efectivo o a crédito con su documento de identidad.
+            </div>
+
+            <div className="flex gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => setIsConfirmComandaOpen(false)}
+                className="flex-1 min-h-[44px] py-2.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-bold transition-all border border-white/10 cursor-pointer"
+              >
+                Corregir Pedido
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  setIsConfirmComandaOpen(false);
+                  await onGuardarBorrador();
+                }}
+                className="flex-1 min-h-[44px] py-2.5 px-4 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-black tracking-wide transition-all shadow-lg shadow-cyan-600/30 border border-cyan-400/40 cursor-pointer active:scale-95"
+              >
+                Confirmar y Emitir (F6)
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </GlassCard>
   );

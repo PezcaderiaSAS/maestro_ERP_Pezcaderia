@@ -74,8 +74,10 @@ describe('Requisito Asesor de Mostrador: Segregación Estricta sin Sección de C
     expect(btnEmitir).toBeInTheDocument();
     expect(btnEmitir).toHaveTextContent(/EMITIR PREVENTA \/ COMANDA \(F6\)/i);
 
-    // Al hacer clic, debe emitir el borrador/preventa
+    // Al hacer clic, abre el modal de confirmación y al confirmar emite el borrador/preventa
     fireEvent.click(btnEmitir);
+    const btnConfirmar = screen.getByRole('button', { name: /confirmar y emitir/i });
+    fireEvent.click(btnConfirmar);
     expect(defaultProps.onGuardarBorrador).toHaveBeenCalledTimes(1);
   });
 

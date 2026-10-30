@@ -21,24 +21,26 @@ export const DiscountPanel: React.FC<DiscountPanelProps> = ({
   onDescuentoClick,
 }) => {
   return (
-    <div className="pos-discount-panel" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-      <div className="summary-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#64748B' }}>
+    <div className="pos-discount-panel flex flex-col gap-1.5 p-2.5 rounded-xl bg-white/5 border border-white/10 select-none">
+      <div className="summary-row flex justify-between items-center text-xs text-slate-400">
         <span>Subtotal ({totalItems} {totalItems === 1 ? 'ítem' : 'ítems'})</span>
-        <span style={{ fontWeight: 600, color: '#0F172A' }}>${subtotal.toLocaleString('es-CO')}</span>
+        <span className="font-bold text-slate-200 font-mono tracking-tight">${subtotal.toLocaleString('es-CO')}</span>
       </div>
+
       {totalIva > 0 && subtotalBaseGravable !== undefined && (
-        <div className="summary-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#64748B' }}>
+        <div className="summary-row flex justify-between items-center text-[11px] text-slate-400">
           <span>Base Gravable</span>
-          <span style={{ fontWeight: 500, color: '#475569' }}>${subtotalBaseGravable.toLocaleString('es-CO')}</span>
+          <span className="font-mono text-slate-300">${subtotalBaseGravable.toLocaleString('es-CO')}</span>
         </div>
       )}
-      <div className="summary-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#64748B' }}>
+
+      <div className="summary-row flex justify-between items-center text-xs text-slate-400">
         <span>{totalIva > 0 ? 'IVA Incluido' : 'Impuestos (0%)'}</span>
-        <span style={{ fontWeight: 600, color: '#0F172A' }}>${totalIva.toLocaleString('es-CO')}</span>
+        <span className="font-bold text-slate-200 font-mono tracking-tight">${totalIva.toLocaleString('es-CO')}</span>
       </div>
+
       <div 
-        className="summary-row" 
-        style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', cursor: 'pointer' }}
+        className="summary-row flex justify-between items-center text-xs pt-1 border-t border-white/10 cursor-pointer hover:bg-white/5 p-1 rounded-lg transition-colors"
         onClick={onDescuentoClick}
         title="Aplicar o modificar descuento global (Atajo: F4)"
         role="button"
@@ -50,7 +52,7 @@ export const DiscountPanel: React.FC<DiscountPanelProps> = ({
           }
         }}
       >
-        <span style={{ color: 'var(--primary-color)', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
+        <span className="text-cyan-400 font-bold flex items-center gap-1.5">
           Descuento {descuentoPct > 0 && `(${descuentoPct}%)`} <Plus size={12} />
           <kbd className="px-1 py-0.5 text-[9px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded ml-1">F4</kbd>
           {descuentoPct > 10 && (
@@ -59,7 +61,7 @@ export const DiscountPanel: React.FC<DiscountPanelProps> = ({
             </span>
           )}
         </span>
-        <span style={{ color: descuentoPct > 0 ? 'var(--primary-color)' : '#64748B', fontWeight: 600 }}>
+        <span className={`font-mono font-bold ${descuentoPct > 0 ? 'text-cyan-300' : 'text-slate-400'}`}>
           -${descuentoValor.toLocaleString('es-CO')}
         </span>
       </div>
