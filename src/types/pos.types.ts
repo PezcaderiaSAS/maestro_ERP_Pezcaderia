@@ -18,6 +18,7 @@ export interface LineaVenta {
   ivaIncluido?: boolean;     // true si el precio final ya contiene IVA
   baseGravableLinea?: number; // Base gravable antes de IVA (entero)
   cuotaIvaLinea?: number;    // Valor de la cuota de IVA (entero)
+  notaItem?: string;         // Anotación específica del ítem (corte, dimensión, etc.)
 }
 
 export interface VentaPOS {
@@ -73,4 +74,9 @@ export interface CartDraft {
   fechaGuardado: string;
   fecha?: string;
   cart?: any[];
+  notas?: string;
+  detallesDespacho?: string;
+  asesorId?: string;
+  asesorNombre?: string;
+  estadoPreventa?: 'EN_COLA' | 'EN_PROCESO' | 'COBRADO' | 'CANCELADO';
 }

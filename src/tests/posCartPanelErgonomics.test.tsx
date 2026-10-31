@@ -163,7 +163,7 @@ describe('TASK-042-01: Ergonomía de Contenedor, Aislamiento Flexbox y Dark Glas
     expect(header?.className).toContain('bg-slate-900');
   });
 
-  it('4. En modo Mostrador, al pulsar EMITIR PREVENTA (F6) debe desplegarse el modal de confirmación de comanda', () => {
+  it('4. En modo Mostrador, al pulsar EMITIR PREVENTA (F6) debe invocar la emisión de comanda para ventanilla', () => {
     render(<CartPanel {...defaultCartProps} isAsesorMostrador={true} />);
 
     const btnEmitir = screen.getByTestId('btn-emitir-preventa-mostrador');
@@ -171,11 +171,6 @@ describe('TASK-042-01: Ergonomía de Contenedor, Aislamiento Flexbox y Dark Glas
 
     fireEvent.click(btnEmitir);
 
-    // Debe mostrarse el modal de confirmación de comanda
-    const modal = screen.getByTestId('modal-confirmar-comanda');
-    expect(modal).toBeInTheDocument();
-    expect(screen.getByText(/Confirmar Emisión de Preventa/i)).toBeInTheDocument();
-    expect(screen.getByText(/CONSTRUCTORA BOLIVAR S.A./i)).toBeInTheDocument();
-    expect(screen.getAllByText(/\$36\.000/i).length).toBeGreaterThan(0);
+    expect(defaultCartProps.onGuardarBorrador).toHaveBeenCalled();
   });
 });

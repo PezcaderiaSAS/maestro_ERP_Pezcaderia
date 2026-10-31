@@ -48,7 +48,7 @@ export type CategoriaEgresoOperativo =
   | 'CAFETERIA_REFRIGERIOS'
   | 'ASEO_LIMPIEZA'
   | 'INSUMOS_BODEGA'
-  | (string & {});
+  | (string & Record<never, never>);
 
 /** Configuración de categoría de gasto u egreso operativo configurable por empresa. */
 export interface CategoriaGastoConfig {

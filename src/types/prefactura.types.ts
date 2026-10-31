@@ -21,6 +21,10 @@ export interface ItemPrefacturaInput {
   supervisorPinAutorizado?: boolean;
   supervisorId?: string;
   loteId?: string;
+  sku?: string;
+  precioFinal?: number;
+  subtotal?: number;
+  notaItem?: string;
 }
 
 export interface ItemPrefactura {
@@ -34,6 +38,8 @@ export interface ItemPrefactura {
   precioFinal: number;
   subtotal: number;
   loteId?: string;
+  sku?: string;
+  notaItem?: string;
 }
 
 export interface EmitirPrefacturaInput {
@@ -45,6 +51,8 @@ export interface EmitirPrefacturaInput {
   clienteNombre?: string;
   items: ItemPrefacturaInput[];
   observaciones?: string;
+  notas?: string;
+  detallesDespacho?: string;
 }
 
 export interface Prefactura {
@@ -73,6 +81,8 @@ export interface Prefactura {
   pagadoAt?: string;
   despachadoAt?: string;
   despachadoPorId?: string;
+  notas?: string;
+  detallesDespacho?: string;
   createdAt: string;
   updatedAt: string;
 }

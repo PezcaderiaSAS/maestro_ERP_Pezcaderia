@@ -50,7 +50,7 @@ interface CartPanelProps {
   onClearCliente: () => void;
   onDescuentoClick: () => void;
   onPagar: (pagos: { metodo: MetodoCobroPos; monto: number }[], options?: { requiereFacturaElectronica?: boolean }) => Promise<any> | void;
-  onGuardarBorrador: () => void;
+  onGuardarBorrador: (notas?: string) => void;
   onSetActiveDraftId: (id: string | null) => void;
   onSetDrafts: (fn: (prev: any[]) => any[]) => void;
   onSetDescuentoGlobal: (val: number) => void;
@@ -114,7 +114,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
          currentUser?.cargo?.toLowerCase().includes('mostrador'));
   const [isBouncing, setIsBouncing] = useState(false);
   const [isCompactMode, setIsCompactMode] = useState(false);
-  const [isConfirmComandaOpen, setIsConfirmComandaOpen] = useState(false);
+  const [notasDespacho, setNotasDespacho] = useState('');
   const totalItems = lineas.reduce((sum, l) => sum + Number(l.cantidad), 0);
 
   useEffect(() => {
@@ -561,7 +561,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
           {/* Botón Poner en Espera Rápido */}
           <button
             type="button"
-            onClick={onGuardarBorrador}
+            onClick={() => onGuardarBorrador()}
             disabled={lineas.length === 0}
             className="flex items-center gap-1.5 px-3.5 min-h-[48px] h-12 rounded-xl border border-indigo-500/30 bg-indigo-950/40 hover:bg-indigo-900/60 text-indigo-300 text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 shadow-sm"
             title="Poner pedido actual en espera (Atajo: F6)"
@@ -698,11 +698,26 @@ export const CartPanel: React.FC<CartPanelProps> = ({
               </span>
             </div>
 
+            {/* Campo de notas/instrucciones de despacho en mostrador */}
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-300 flex items-center justify-between">
+                <span>📝 Instrucciones / Notas de Despacho:</span>
+                <span className="text-[10px] text-cyan-400 font-mono">Doble nivel</span>
+              </label>
+              <textarea
+                rows={2}
+                value={notasDespacho}
+                onChange={(e) => setNotasDespacho(e.target.value)}
+                placeholder="Instrucciones de entrega, corte o despacho..."
+                className="w-full text-xs p-2 rounded-xl bg-slate-950/80 border border-slate-700/60 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 resize-none font-medium"
+              />
+            </div>
+
             <button
               type="button"
               data-testid="btn-emitir-preventa-mostrador"
               disabled={lineas.length === 0}
-              onClick={() => { if (lineas.length > 0) setIsConfirmComandaOpen(true); }}
+              onClick={() => onGuardarBorrador(notasDespacho)}
               className={`w-full min-h-[50px] py-3 px-4 rounded-xl font-black text-sm tracking-wide transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-95 ${
                 lineas.length > 0
                   ? 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-cyan-600/30 border border-cyan-400/40'
@@ -767,73 +782,6 @@ export const CartPanel: React.FC<CartPanelProps> = ({
         />
       )}
 
-      {/* Modal de Confirmación de Emisión de Preventa / Comanda para Asesor de Mostrador */}
-      {isConfirmComandaOpen && (
-        <div 
-          data-testid="modal-confirmar-comanda"
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
-        >
-          <div className="w-full max-w-md bg-slate-900 border border-cyan-500/30 rounded-3xl p-6 shadow-2xl shadow-cyan-950/50 space-y-4 select-none">
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <div>
-                <h3 className="text-base font-extrabold text-white flex items-center gap-2">
-                  <PauseCircle size={18} className="text-cyan-400" />
-                  <span>Confirmar Emisión de Preventa / Comanda</span>
-                </h3>
-                <span className="text-xs text-cyan-300 font-mono">Puesto de Mostrador ➔ Ventanilla de Caja</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsConfirmComandaOpen(false)}
-                className="p-1 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2">
-              <div className="flex justify-between text-xs text-slate-300">
-                <span>Cliente Asignado:</span>
-                <strong className="text-white font-bold">{cliente?.nombre || 'Consumidor Final'}</strong>
-              </div>
-              <div className="flex justify-between text-xs text-slate-300">
-                <span>Total Ítems:</span>
-                <span className="font-mono font-bold text-slate-200">{totalItems} {totalItems === 1 ? 'ítem' : 'ítems'}</span>
-              </div>
-              <div className="pt-2 border-t border-white/10 flex justify-between items-center">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total a Cobrar:</span>
-                <span className="text-2xl font-black text-emerald-400 font-mono tracking-tight">
-                  ${totales.totalFinal.toLocaleString('es-CO')}
-                </span>
-              </div>
-            </div>
-
-            <div className="text-[11px] text-cyan-300/90 bg-cyan-950/40 border border-cyan-500/20 rounded-xl p-3 leading-relaxed">
-              ℹ️ Esta comanda se enviará en tiempo real a la <strong>Caja Única (Ventanilla)</strong>. El cliente podrá pagar en efectivo o a crédito con su documento de identidad.
-            </div>
-
-            <div className="flex gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => setIsConfirmComandaOpen(false)}
-                className="flex-1 min-h-[44px] py-2.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-bold transition-all border border-white/10 cursor-pointer"
-              >
-                Corregir Pedido
-              </button>
-              <button
-                type="button"
-                onClick={async () => {
-                  setIsConfirmComandaOpen(false);
-                  await onGuardarBorrador();
-                }}
-                className="flex-1 min-h-[44px] py-2.5 px-4 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-black tracking-wide transition-all shadow-lg shadow-cyan-600/30 border border-cyan-400/40 cursor-pointer active:scale-95"
-              >
-                Confirmar y Emitir (F6)
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </GlassCard>
+      </GlassCard>
   );
 };

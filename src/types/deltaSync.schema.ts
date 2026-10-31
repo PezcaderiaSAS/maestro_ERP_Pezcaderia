@@ -28,6 +28,7 @@ export const ItemPreventaSyncSchema = z.object({
   precioUnitario: z.number().positive('El precio unitario debe ser positivo'),
   descuentoPct: z.number().min(0).max(100).default(0),
   subtotal: z.number().nonnegative('El subtotal no puede ser negativo'),
+  notaItem: z.string().optional(),
 });
 
 export type ItemPreventaSync = z.infer<typeof ItemPreventaSyncSchema>;
@@ -50,7 +51,9 @@ export const PreventaSyncSchema = z.object({
   subtotal: z.number().nonnegative('El subtotal no puede ser negativo'),
   descuentoTotal: z.number().nonnegative('El descuento total no puede ser negativo'),
   total: z.number().positive('El total debe ser positivo'),
-  estado: z.enum(['PENDIENTE_COBRO', 'PAGADO', 'ANULADO']),
+  estado: z.enum(['PENDIENTE_COBRO', 'PAGADO', 'ANULADO', 'EN_PROCESO', 'COBRADO']),
+  notas: z.string().optional(),
+  detallesDespacho: z.string().optional(),
   cajeroId: z.string().optional(),
   turnoCentralId: z.string().optional(),
   version: z.number().int().min(1, 'La versión OCC debe ser un entero positivo >= 1'),
