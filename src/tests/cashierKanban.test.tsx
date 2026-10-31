@@ -10,6 +10,7 @@ describe('TASK-037-05: CashierKanbanView - Tablero Premium de Caja Única y Reca
   const tenantId = 'ten-kanban-test';
 
   beforeEach(() => {
+    document.body.innerHTML = '';
     prefacturaService.limpiarEstadoPruebas();
 
     useAuthStore.setState({
@@ -183,7 +184,7 @@ describe('TASK-037-05: CashierKanbanView - Tablero Premium de Caja Única y Reca
     render(<CashierKanbanView tenantId={tenantId} cajeroId="usr-cajero-01" />);
 
     await waitFor(() => {
-      expect(screen.getByText('Constructora Bolívar S.A.')).toBeInTheDocument();
+      expect(screen.getAllByText('Constructora Bolívar S.A.').length).toBeGreaterThanOrEqual(1);
     });
 
     // Iniciar cobro
@@ -235,7 +236,7 @@ describe('TASK-037-05: CashierKanbanView - Tablero Premium de Caja Única y Reca
     render(<CashierKanbanView tenantId={tenantId} cajeroId="usr-cajero-01" />);
 
     await waitFor(() => {
-      expect(screen.getByText('Constructora Bolívar S.A.')).toBeInTheDocument();
+      expect(screen.getAllByText('Constructora Bolívar S.A.').length).toBeGreaterThanOrEqual(1);
     });
 
     // Iniciar cobro

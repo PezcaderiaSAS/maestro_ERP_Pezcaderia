@@ -47,6 +47,27 @@ class WorkflowTests(unittest.TestCase):
             library_root=self.root / "library" / str(k),
         )
 
+    def test_read_tree_normalizes_paths_and_excludes_stubs(self):
+        surface = self.adapter.substrate.surface()
+        workspace = self.root / "tree"
+        stub_paths = {rel for rel, _ in surface.stubs}
+        for rel, body in surface.stubs:
+            path = workspace / Path(rel)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(body, encoding="utf-8")
+
+        skill_path = f"{surface.skill_dir}/demo_skill/SKILL.md"
+        path = workspace / Path(skill_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("A synthetic skill.\n", encoding="utf-8")
+
+        rejected = []
+        result = tree.read_tree(surface, workspace, rejected=rejected)
+
+        self.assertIn(skill_path, result)
+        self.assertTrue(stub_paths.isdisjoint(result))
+        self.assertEqual(rejected, [])
+
     def test_recursion_budget_and_resume(self):
         with patch.dict(config.PROPOSER_MODEL_BY_CHANNEL, {"opencode": "", "claude_cli": ""}):
             unresolved = resolve_channel_model(None, None)

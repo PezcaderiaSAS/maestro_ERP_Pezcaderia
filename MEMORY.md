@@ -14,13 +14,13 @@
 4. **SPEC-042 (AJUSTE ERGONÓMICO MOSTRADOR PARA COMANDAS & VENTANILLA) ✅ (100%):** Layout V8 Dark Glassmorphism.
 
 ## Cola de Tareas Priorizada: SPEC-043 Ferretería Josase (WIP = 1)
-1. **SPEC-043 (FLUJO MULTIVENDEDOR - CAJA ÚNICA & CERO-LATENCIA JOSASE) 🎯 (EN PROCESO - WIP = 1):**
+1. **SPEC-043 (FLUJO MULTIVENDEDOR - CAJA ÚNICA & CERO-LATENCIA JOSASE) ✅ (100% COMPLETADO & CERTIFICADO):**
    - ✅ **TASK-043-01:** Carga IndexedDB Zero-LocalStorage (9.550 clientes y 5.351 ítems, < 15KB en localStorage).
    - ✅ **TASK-043-02:** Selector clientes instantáneo sub-2ms, debounce 150ms y early break a 20 nodos DOM.
    - ✅ **TASK-043-03:** Anotaciones de despacho en doble nivel (comanda general + ítem) y botón F6 en CartPanel.
    - ✅ **TASK-043-04:** Barra lateral de tickets del vendedor (`VendorTicketSidebar`) con recuperación y estados.
-   - 🎯 **TASK-043-05 (EN PROCESO):** Modal profesional de recaudo mixto en taquilla de Caja Única.
-   - 📋 **TASK-043-06 (EN COLA):** Conmutación por rol en Topbar: vendedores sin acceso a caja/recaudo, solo visor de ventas.
+   - ✅ **TASK-043-05:** Modal profesional de recaudo mixto (`QuickPaymentMixedModal`, Zod, vueltas y Cartera).
+   - ✅ **TASK-043-06:** Conmutación por rol en Topbar (F4/F7), sincronización RBAC y Kanban monitor para vendedores.
 2. **FACTURACIÓN ELECTRÓNICA DIAN / SIIGO API v2 & CONTINGENCIA OUTBOX (EN COLA):**
    - Payloads Zod para CUFE y dispatcher outbox en contingencia.
 

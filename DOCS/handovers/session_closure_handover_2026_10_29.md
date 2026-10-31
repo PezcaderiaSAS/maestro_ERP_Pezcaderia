@@ -49,3 +49,4 @@
 2. **SPEC-042: Facturación Electrónica DIAN / Siigo API v2 & Tirilla Digital:**
    - Esquemas Zod y validación estricta de payloads para emisión electrónica y CUFE.
    - Dispatcher outbox en IndexedDB para facturación offline con contingencia DIAN.
+

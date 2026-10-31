@@ -1418,6 +1418,9 @@ export default function App() {
       case 'crm':
         return <CRMView />;
       case 'caja':
+        if (userRole === 'vendedor') {
+          return <CashierKanbanView />;
+        }
         return <CashFlowView />;
       case 'contabilidad':
         return <AccountingView />;

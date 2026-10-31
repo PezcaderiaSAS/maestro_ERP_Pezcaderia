@@ -71,8 +71,26 @@ export const UserSwitchModal: React.FC<UserSwitchModalProps> = ({
         const correctPin = empOriginal?.pinAcceso || '1234';
 
         if (nextPin === correctPin) {
-          // Éxito: fijar usuario activo
+          // Éxito: fijar usuario activo en useAppStore
           setCurrentUser(selectedSeller);
+
+          // Sincronizar también useAuthStore para coherencia RBAC transversal
+          const authState = useAuthStore.getState();
+          if (authState.currentUser) {
+            useAuthStore.setState({
+              currentUser: {
+                ...authState.currentUser,
+                id: selectedSeller.empleadoId,
+                nombre: selectedSeller.nombre,
+                rol: (selectedSeller.rol === 'vendedor'
+                  ? 'vendedor'
+                  : selectedSeller.rol === 'bodega'
+                  ? 'bodega'
+                  : 'admin') as any,
+              },
+            });
+          }
+
           onClose();
           Swal.fire({
             toast: true,

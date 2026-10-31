@@ -137,7 +137,7 @@ def read_tree(surface: SurfaceSpec, d: Path | str, *, rejected: list[str] | None
     for p in sorted(d.rglob("*")):
         if not p.is_file() or "__pycache__" in p.parts:
             continue
-        rel = str(p.relative_to(d))
+        rel = normalize_rel(p.relative_to(d).as_posix())
         if rel in stubs:
             continue
         if not is_allowed(surface, rel):

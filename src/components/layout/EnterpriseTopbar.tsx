@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Menu,
   Layers,
@@ -104,6 +104,29 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
 
   const currentThemeConfig = THEMES_CONFIG.find((t) => t.id === theme) || THEMES_CONFIG[0];
   const breadcrumb = getRouteBreadcrumbs(currentView as AppRouteId);
+
+  // Atajos de teclado ergonómicos: F4 para POS y F7 para Kanban de Ventas (SPEC-043)
+  useEffect(() => {
+    const handleTopbarShortcuts = (e: KeyboardEvent) => {
+      const activeTag = (document.activeElement?.tagName || '').toLowerCase();
+      if (activeTag === 'input' || activeTag === 'textarea') return;
+
+      if (e.key === 'F4') {
+        e.preventDefault();
+        onNavigatePOS();
+      } else if (e.key === 'F7') {
+        e.preventDefault();
+        if (onNavigateKanban) {
+          onNavigateKanban();
+        } else {
+          onNavigatePOS();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleTopbarShortcuts);
+    return () => window.removeEventListener('keydown', handleTopbarShortcuts);
+  }, [onNavigatePOS, onNavigateKanban]);
 
   return (
     <header
@@ -248,25 +271,32 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
           data-testid="topbar-btn-comandas-kanban"
           onClick={() => onNavigateKanban ? onNavigateKanban() : onNavigatePOS()}
           className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer active:scale-95 shrink-0 bg-cyan-600/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40"
-          title="Ver Tablero Kanban de Comandas & Preventas (Caja Única)"
+          title="Ver Tablero Kanban de Comandas & Preventas (Atajo: F7)"
         >
           <Layers size={14} className="shrink-0 text-cyan-400" />
           <span className="hidden md:inline">Kanban Caja</span>
+          <kbd className="hidden lg:inline-block px-1 py-0.2 text-[9px] font-mono bg-cyan-500/20 border border-cyan-500/30 rounded text-cyan-300 font-bold ml-0.5">
+            F7
+          </kbd>
         </button>
 
         {/* Botón Facturar POS Armónico Rico UI */}
         <button
           id="topbar-btn-facturar-pos"
+          data-testid="topbar-btn-facturar-pos"
           onClick={onNavigatePOS}
           className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer active:scale-95 shrink-0 ${
             currentView === 'pos'
               ? 'bg-cyan-400 text-slate-950 ring-2 ring-cyan-300/50 shadow-cyan-400/30'
               : 'bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-cyan-500/20'
           }`}
-          title="Abrir Punto de Venta (POS)"
+          title="Abrir Punto de Venta (Atajo: F4)"
         >
           <ShoppingCart size={14} className="shrink-0" />
           <span className="hidden sm:inline">Facturar POS</span>
+          <kbd className="hidden lg:inline-block px-1 py-0.2 text-[9px] font-mono bg-black/20 border border-black/20 rounded text-slate-900 font-bold ml-0.5">
+            F4
+          </kbd>
         </button>
 
         {/* Selector y Alternador Multi-Tema Glass */}

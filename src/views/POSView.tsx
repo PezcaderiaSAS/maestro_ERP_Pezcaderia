@@ -2081,7 +2081,7 @@ export default function POSView({
       className="pos-layout w-full h-full min-h-0 flex flex-col gap-1.5 lg:gap-2 animate-fade-in relative p-0 pb-1 overflow-hidden"
       style={{ transform: 'translateZ(0)' }}
     >
-      {!isTurnoAbierto && activeSubView === 'venta_pos' && (
+      {!isTurnoAbierto && activeSubView === 'venta_pos' && userRole !== 'vendedor' && !currentUser?.cargo?.toLowerCase().includes('mostrador') && (
         <div className="w-full bg-rose-500/15 border border-rose-500/30 text-rose-300 text-center py-1 px-3 text-xs font-bold flex items-center justify-center gap-2 rounded-lg backdrop-blur-md shadow-sm shrink-0">
           <AlertCircle size={13} /> ⚠ CAJA CERRADA — Debes abrir un turno antes de cobrar
         </div>
@@ -2325,30 +2325,35 @@ export default function POSView({
             </button>
             {showHamburger && (
               <div className="absolute right-0 mt-2 w-52 bg-slate-900/95 backdrop-blur-2xl border border-white/12 rounded-xl shadow-2xl z-50 overflow-hidden text-slate-200 py-1">
-                {!isTurnoAbierto ? (
-                  <button
-                    onClick={() => { setShowAperturaModal(true); setShowHamburger(false); }}
-                    className="w-full text-left px-4 py-2 hover:bg-white/10 text-xs font-semibold flex items-center gap-2 text-indigo-400 cursor-pointer"
-                  >
-                    <Plus size={14} className="text-indigo-400" /> Abrir Turno
-                  </button>
-                ) : (
+                {/* Operaciones de Turno y Caja Única (Restringido para Vendedores / Mostrador) */}
+                {userRole !== 'vendedor' && !currentUser?.cargo?.toLowerCase().includes('mostrador') && (
                   <>
-                    <button
-                      onClick={() => { setShowRetiroModal(true); setShowHamburger(false); }}
-                      className="w-full text-left px-4 py-2 hover:bg-white/10 text-xs font-medium flex items-center gap-2 text-amber-400 cursor-pointer"
-                    >
-                      <AlertTriangle size={14} className="text-amber-400" /> Arqueo Parcial / Retiro
-                    </button>
-                    <button
-                      onClick={() => { setShowArqueoModal(true); setShowHamburger(false); }}
-                      className="w-full text-left px-4 py-2 hover:bg-white/10 text-xs font-semibold text-rose-400 flex items-center gap-2 cursor-pointer"
-                    >
-                      <X size={14} /> Cerrar Turno
-                    </button>
+                    {!isTurnoAbierto ? (
+                      <button
+                        onClick={() => { setShowAperturaModal(true); setShowHamburger(false); }}
+                        className="w-full text-left px-4 py-2 hover:bg-white/10 text-xs font-semibold flex items-center gap-2 text-indigo-400 cursor-pointer"
+                      >
+                        <Plus size={14} className="text-indigo-400" /> Abrir Turno
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => { setShowRetiroModal(true); setShowHamburger(false); }}
+                          className="w-full text-left px-4 py-2 hover:bg-white/10 text-xs font-medium flex items-center gap-2 text-amber-400 cursor-pointer"
+                        >
+                          <AlertTriangle size={14} className="text-amber-400" /> Arqueo Parcial / Retiro
+                        </button>
+                        <button
+                          onClick={() => { setShowArqueoModal(true); setShowHamburger(false); }}
+                          className="w-full text-left px-4 py-2 hover:bg-white/10 text-xs font-semibold text-rose-400 flex items-center gap-2 cursor-pointer"
+                        >
+                          <X size={14} /> Cerrar Turno
+                        </button>
+                      </>
+                    )}
+                    <div className="border-t border-white/10 my-1"></div>
                   </>
                 )}
-                <div className="border-t border-white/10 my-1"></div>
                 <button
                   onClick={() => { setShowRestockModal(true); setShowHamburger(false); }}
                   className="w-full text-left px-4 py-2 hover:bg-white/10 text-xs font-medium flex items-center gap-2 text-slate-300 cursor-pointer"
@@ -2398,18 +2403,21 @@ export default function POSView({
           </span>
         </div>
 
-        <div className="h-3.5 w-px bg-white/10 shrink-0 hidden sm:block" />
-
-        {/* KPI 2: Efectivo en Gaveta */}
-        <div className="flex items-center gap-1.5 shrink-0">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Efectivo Gaveta:</span>
-          <span className="text-xs sm:text-sm font-black font-mono text-emerald-400">
-            ${(turnoActivo?.totalEfectivo ?? 0).toLocaleString('es-CO')}
-          </span>
-          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 border border-white/10 hidden md:inline">
-            Tope $1.5M
-          </span>
-        </div>
+        {/* KPI 2: Efectivo en Gaveta (Oculto para Vendedores / Mostrador) */}
+        {userRole !== 'vendedor' && !currentUser?.cargo?.toLowerCase().includes('mostrador') && (
+          <>
+            <div className="h-3.5 w-px bg-white/10 shrink-0 hidden sm:block" />
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Efectivo Gaveta:</span>
+              <span className="text-xs sm:text-sm font-black font-mono text-emerald-400">
+                ${(turnoActivo?.totalEfectivo ?? 0).toLocaleString('es-CO')}
+              </span>
+              <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 border border-white/10 hidden md:inline">
+                Tope $1.5M
+              </span>
+            </div>
+          </>
+        )}
 
         <div className="h-3.5 w-px bg-white/10 shrink-0 hidden sm:block" />
 

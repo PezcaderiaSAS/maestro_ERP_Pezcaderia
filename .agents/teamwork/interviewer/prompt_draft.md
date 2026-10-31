@@ -1,33 +1,32 @@
-Ajuste ergonómico del mostrador para las comandas en el POS y evaluación profesional de ingenieros y arquitectos de datos sobre el ciclo de vida e integridad de la preventa para endurecimiento en producción.
+This is a single self-contained fix; keep it small and focused. Ajustar el inicio de sesión y control de permisos por rol en el ERP, de modo que los vendedores no tengan acceso a movimientos de caja ni a recaudos de dinero, pero sí puedan emitir preventas en el mostrador y visualizar el avance del flujo de venta en el Kanban en modo sólo lectura sin poder editarlo ni liquidarlo.
 
 Integrity mode: development
 
 ## Requirements
 
-### R1. Ergonomía del Mostrador y Ajuste del Panel de Carrito (`CartPanel.tsx` / `POSView.tsx`)
-Ajustar el panel de "CARRITO DE VENTAS" para eliminar fondos blancos en la cabecera del cliente (`pos-cart-header`) integrándolo con la estética Dark Glassmorphism V8 del contenedor.
-Corregir la disposición espacial para evitar que el bloque inferior (`Subtotal`, `Impuestos`, `Descuento`) solape o corte los botones de acción rápida de cliente y estado de comanda.
-Reorganizar los botones operativos del mostrador (`EMITIR PREVENTA / COMANDA (F6)` y `Vaciar Carrito`) con alta densidad visual y fluidez ergonómica, asegurando visibilidad y usabilidad sin scrolls redundantes ni colisiones de cajas.
+### R1. Control de acceso y visibilidad de caja para el rol vendedor
+Ocultar por completo las opciones, rutas y vistas relacionadas con movimientos de caja (apertura, cierre, retiros parciales, arqueos y caja central) para los usuarios autenticados con rol de vendedor. Restringir la ejecución de recaudos de dinero y liquidación en ventanilla para este rol, asegurando que las acciones de cobro queden reservadas a los roles autorizados.
 
-### R2. Integridad y Refactorización del Ciclo de Vida de Comanda / Preventa
-Asegurar y refactorizar la integridad atómica e inmutabilidad en todo el ciclo de vida: `POS (Asesor)` -> `Prefactura (PENDIENTE_COBRO con retención efectiva de stock)` -> `Caja Central / Ventanilla (EN_COBRO -> PAGADA con efectivo/cambio o crédito con vencimiento registrado en useARStore)` -> `Despacho / Bodega (WMS / DESPACHADA)`.
-Actualizar y sincronizar las estructuras de datos, tipos TypeScript (`src/types/prefactura.types.ts`), esquemas Zod (`src/schemas/prefactura.schema.ts`), servicios (`src/services/prefacturaService.ts`) y stores Zustand (`useCashierKanbanStore`, `usePOSCart`, `useARStore`), garantizando consistencia atómica, inmutabilidad y aislamiento multi-tenant.
+### R2. Emisión de preventas y vista de seguimiento de flujo en modo sólo lectura
+Permitir a los usuarios con rol de vendedor crear y emitir preventas/comandas normalmente desde el mostrador (POS). Habilitar para ellos la visualización del Kanban de flujo de ventas en modo de sólo lectura para seguir el avance del pedido por sus etapas, asegurando que los botones de confirmación de pago, cobro o edición de pedidos permanezcan inactivos u ocultos para el vendedor.
 
 ## Acceptance Criteria
 
-### Ergonomía y Layout Visual (POS / Carrito)
-- [ ] La cabecera del carrito y el selector de cliente (`pos-cart-header`) no presentan fondos claros o blancos desalineados, manteniendo coherencia con Dark Glassmorphism V8.
-- [ ] No existe solapamiento ni corte vertical entre los botones de acción del cliente y las secciones inferiores de subtotal, impuestos y descuento en resoluciones estándar de mostrador (1024x768, 1366x768 y superiores).
-- [ ] Los botones `EMITIR PREVENTA / COMANDA` y `Vaciar Carrito` permanecen completamente visibles, clicables y ergonómicamente accesibles en el viewport operativo sin scrolls innecesarios.
+### Control de Permisos y Ocultamiento de Caja
+- [ ] Para usuarios con rol vendedor, los accesos, vistas y botones de movimientos de caja (apertura, cierre, retiros, arqueos) no son visibles en la interfaz de navegación ni en los paneles del módulo.
+- [ ] Los usuarios con rol vendedor no pueden pulsar botones de cobro, recaudo o "Confirmar Pago de Venta" en el Kanban ni liquidar pedidos en ventanilla.
+- [ ] Usuarios con roles autorizados (cajero o admin) conservan acceso completo a las funciones de caja y recaudo.
 
-### Arquitectura de Datos y Ciclo de Vida
-- [ ] Las transiciones de estado de preventa (`PENDIENTE_COBRO` con reserva de stock -> `EN_COBRO` -> `PAGADA` / crédito en `useARStore` -> `DESPACHADA`) se reflejan de forma consistente en los stores Zustand (`usePOSCart`, `useCashierKanbanStore`, `useARStore`) y el servicio `prefacturaService.ts`.
-- [ ] Los esquemas Zod (`src/schemas/prefactura.schema.ts`) y tipos TypeScript (`src/types/prefactura.types.ts`) validan todas las cargas útiles del ciclo de vida sin discrepancias de tipos.
-- [ ] La compilación TypeScript estricta (`npx tsc --noEmit`) finaliza con 0 errores de tipo.
-- [ ] La suite de pruebas de regresión y unitarias con Vitest se ejecuta y pasa al 100%.
-- [ ] No se producen errores ni advertencias no controladas en la consola de JavaScript durante la navegación e interacción en el panel de mostrador.
+### Mostrador y Kanban de Ventas
+- [ ] Los usuarios con rol vendedor pueden registrar productos y emitir preventas/comandas con éxito desde el POS.
+- [ ] Los usuarios con rol vendedor pueden visualizar el Kanban de pedidos para monitorear el avance de las comandas sin opciones de edición ni cobro activas.
+
+### Calidad y Regresión
+- [ ] La compilación estricta de TypeScript (`npx tsc --noEmit`) finaliza sin errores.
+- [ ] La suite de pruebas unitarias (`npm run test`) pasa al 100%.
+- [ ] La navegación y cambio de rol en la interfaz no produce errores ni advertencias no controladas en la consola de JavaScript.
 
 ## Verification Resources
 - Compilación TypeScript: `npx tsc --noEmit`
-- Suite de pruebas automatizadas: `npm run test` (Vitest)
-- Verificación visual interactiva en navegador/DevTools para validación de layout responsivo (1024x768 en adelante) y 0 errores en consola.
+- Pruebas automatizadas: `npm run test` (Vitest)
+- Verificación interactiva de interfaz en navegador con Chrome DevTools: alternar entre roles (Vendedor, Cajero, Admin) y validar visibilidad de navegación, emisión de comanda en mostrador y restricción de botones de cobro en el Kanban.

@@ -1,42 +1,36 @@
 # Original User Request
 
-## Approved Task Prompt — 2026-10-29T12:34:18Z
+## Initial Request — 2026-10-30T12:02:03Z
 
-Auditar, ajustar y verificar la integridad del frontend con foco prioritario en las pantallas operativas clave (POS táctil multivendedor, Caja única de recaudo, Tablero Kanban de comandas y Catálogos de clientes/productos), eliminando desbordamientos y garantizando una experiencia de usuario premium con aplicación rigurosa de leyes de UX (Fitts, Hick, Doherty, Miller, Jakob) antes de proceder con SPEC-042.
+This is a single self-contained fix; keep it small and focused. Ajustar el inicio de sesión y control de permisos por rol en el ERP, de modo que los vendedores no tengan acceso a movimientos de caja ni a recaudos de dinero, pero sí puedan emitir preventas en el mostrador y visualizar el avance del flujo de venta en el Kanban en modo sólo lectura sin poder editarlo ni liquidarlo.
 
 Integrity mode: development
 
 ## Requirements
 
-### R1. Auditoría y corrección de desbordamientos e integridad en pantallas prioritarias
-Evaluar y corregir desbordamientos horizontales y fallos de maquetación en resoluciones móviles (viewport 375px) y escritorio en las pantallas operativas de máxima prioridad:
-1. Pantalla de ventas multivendedor (POS táctil, barra de asesores de mostrador y emisión de preventas sin fricción).
-2. Caja única de recaudo y liquidación centralizada.
-3. Tablero Kanban de seguimiento a ventas y comandas en tiempo real.
-4. Listas y catálogos de clientes y productos (con búsqueda instantánea y fluida).
+### R1. Control de acceso y visibilidad de caja para el rol vendedor
+Ocultar por completo las opciones, rutas y vistas relacionadas con movimientos de caja (apertura, cierre, retiros parciales, arqueos y caja central) para los usuarios autenticados con rol de vendedor. Restringir la ejecución de recaudos de dinero y liquidación en ventanilla para este rol, asegurando que las acciones de cobro queden reservadas a los roles autorizados.
 
-### R2. Optimización ergonómica y aplicación de leyes de UX
-Ajustar la ergonomía, densidad de información y flujos de interacción aplicando las leyes de UX:
-- Ley de Fitts: dimensionar y posicionar objetivos táctiles y botones de acción principal para interacción rápida y sin errores en terminales táctiles.
-- Ley de Hick: reducir la sobrecarga cognitiva simplificando opciones y jerarquía visual en preventas y recaudo.
-- Ley de Doherty: asegurar tiempos de respuesta visual inmediata (<400ms feedback visual, búsquedas instantáneas en catálogos).
-- Ley de Miller: organizar la información en bloques estructurados (chunks) legibles sin saturación visual.
-- Ley de Jakob: respetar patrones y convenciones familiares de interfaces POS y ERP operativos.
-
-### R3. Suite de pruebas E2E y verificación con Harness²
-Diseñar y ejecutar pruebas end-to-end con harness2 e inspección de frontend para validar los flujos críticos de las pantallas prioritarias, comprobando la ausencia de excepciones o errores en la consola del navegador.
-
-### R4. Consulta de estándares e investigación
-Utilizar herramientas y documentación de investigación (Brave, Context7) y agentes especializados para contrastar patrones de diseño y estándares de interfaz aplicables al ERP.
+### R2. Emisión de preventas y vista de seguimiento de flujo en modo sólo lectura
+Permitir a los usuarios con rol de vendedor crear y emitir preventas/comandas normalmente desde el mostrador (POS). Habilitar para ellos la visualización del Kanban de flujo de ventas en modo de sólo lectura para seguir el avance del pedido por sus etapas, asegurando que los botones de confirmación de pago, cobro o edición de pedidos permanezcan inactivos u ocultos para el vendedor.
 
 ## Acceptance Criteria
 
-### Integridad Visual y Maquetación
-- [ ] Las 4 pantallas prioritarias (POS multivendedor, Caja única, Tablero Kanban y Catálogos de clientes/productos) y demás vistas operativas se renderizan sin desbordamiento horizontal (`scrollWidth <= clientWidth`) en viewport móvil de 375px y en resoluciones de escritorio.
-- [ ] La consola del navegador no registra errores (`console.error`) ni excepciones no controladas durante la navegación e interacción en las vistas auditadas.
-- [ ] Los objetivos táctiles de las pantallas operativas (POS y Caja) cumplen un área mínima interactiva de al menos 44x44px conforme a la Ley de Fitts.
-- [ ] La búsqueda y filtrado en listas y catálogos de clientes y productos responde de forma inmediata y fluida sin bloqueos de interfaz (Ley de Doherty).
+### Control de Permisos y Ocultamiento de Caja
+- [ ] Para usuarios con rol vendedor, los accesos, vistas y botones de movimientos de caja (apertura, cierre, retiros, arqueos) no son visibles en la interfaz de navegación ni en los paneles del módulo.
+- [ ] Los usuarios con rol vendedor no pueden pulsar botones de cobro, recaudo o "Confirmar Pago de Venta" en el Kanban ni liquidar pedidos en ventanilla.
+- [ ] Usuarios con roles autorizados (cajero o admin) conservan acceso completo a las funciones de caja y recaudo.
 
-### Validación E2E con Harness²
-- [ ] Los escenarios de prueba E2E definidos para los flujos operativos de las pantallas prioritarias (emisión de preventa POS, liquidación en caja, actualización en Kanban y búsqueda en catálogos) se ejecutan con éxito mediante harness2.
-- [ ] Se genera un informe verificable con los resultados de las pruebas E2E y el inventario de correcciones de interfaz aplicadas.
+### Mostrador y Kanban de Ventas
+- [ ] Los usuarios con rol vendedor pueden registrar productos y emitir preventas/comandas con éxito desde el POS.
+- [ ] Los usuarios con rol vendedor pueden visualizar el Kanban de pedidos para monitorear el avance de las comandas sin opciones de edición ni cobro activas.
+
+### Calidad y Regresión
+- [ ] La compilación estricta de TypeScript (`npx tsc --noEmit`) finaliza sin errores.
+- [ ] La suite de pruebas unitarias (`npm run test`) pasa al 100%.
+- [ ] La navegación y cambio de rol en la interfaz no produce errores ni advertencias no controladas en la consola de JavaScript.
+
+## Verification Resources
+- Compilación TypeScript: `npx tsc --noEmit`
+- Pruebas automatizadas: `npm run test` (Vitest)
+- Verificación interactiva de interfaz en navegador con Chrome DevTools: alternar entre roles (Vendedor, Cajero, Admin) y validar visibilidad de navegación, emisión de comanda en mostrador y restricción de botones de cobro en el Kanban.
