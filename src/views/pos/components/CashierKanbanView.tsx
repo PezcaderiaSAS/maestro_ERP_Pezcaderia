@@ -17,6 +17,8 @@ import {
   ArrowRight,
   Filter,
   Eye,
+  LayoutGrid,
+  Table,
 } from 'lucide-react';
 import type { Prefactura, EstadoPrefactura, MetodoPagoPrefactura } from '../../../types/prefactura.types';
 import { useCashierKanbanStore } from '../../../stores/useCashierKanbanStore';
@@ -24,6 +26,9 @@ import { useAuthStore } from '../../../store/useAuthStore';
 import { useARStore } from '../../../store/useARStore';
 import Swal from 'sweetalert2';
 import { QuickPaymentMixedModal } from './QuickPaymentMixedModal';
+import { CashierSupermarketTerminal, type SupermarketOrder } from './CashierSupermarketTerminal';
+import { SplitPaymentModal, type SplitPaymentPayload } from './SplitPaymentModal';
+import { InternalQueueTicker } from './InternalQueueTicker';
 import type { MixedPaymentPayload } from '../../../schemas/mixedPayment.schema';
 import { useAppStore } from '../../../store/useAppStore';
 import type { PagoCobroInput } from '../../../types/prefactura.types';
@@ -31,11 +36,13 @@ import type { PagoCobroInput } from '../../../types/prefactura.types';
 interface CashierKanbanViewProps {
   tenantId?: string;
   cajeroId?: string;
+  defaultMode?: 'supermarket' | 'kanban';
 }
 
 export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
   tenantId: propTenantId,
   cajeroId: propCajeroId,
+  defaultMode = 'kanban',
 }) => {
   const activeTenant = useAuthStore((s) => s.activeTenant);
   const currentUser = useAuthStore((s) => s.currentUser);
@@ -53,6 +60,9 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
   const preventaSeleccionada = useCashierKanbanStore((s) => s.preventaSeleccionada);
   const isModalCobroOpen = useCashierKanbanStore((s) => s.isModalCobroOpen);
   const cargarPreventas = useCashierKanbanStore((s) => s.cargarPreventas);
+  const iniciarSuscripcionRealtime = useCashierKanbanStore((s) => s.iniciarSuscripcionRealtime);
+  const detenerSuscripcionRealtime = useCashierKanbanStore((s) => s.detenerSuscripcionRealtime);
+  const realtimeStatus = useCashierKanbanStore((s) => s.realtimeStatus);
   const setFiltroAsesor = useCashierKanbanStore((s) => s.setFiltroAsesor);
   const abrirModalCobro = useCashierKanbanStore((s) => s.abrirModalCobro);
   const cerrarModalCobro = useCashierKanbanStore((s) => s.cerrarModalCobro);
@@ -70,14 +80,31 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
   const [referenciaComprobante, setReferenciaComprobante] = useState<string>('');
   const [draggedCardId, setDraggedCardId] = useState<string | null>(null);
 
-  // Carga inicial y sondeo reactivo
+  // Estado del Modo Terminal de Supermercado y Cobro Dividido (SPEC-047)
+  const [viewMode, setViewMode] = useState<'supermarket' | 'kanban'>(defaultMode);
+  const [isSplitPaymentOpen, setIsSplitPaymentOpen] = useState(false);
+  const [selectedSupermarketOrder, setSelectedSupermarketOrder] = useState<SupermarketOrder | null>(null);
+  const [selectedSupermarketMethod, setSelectedSupermarketMethod] = useState<'EFECTIVO' | 'TARJETA' | 'TRANSFERENCIA' | 'MIXTO'>('MIXTO');
+
+  // Suscripción reactiva en tiempo real al montar la vista de taquilla
   useEffect(() => {
-    cargarPreventas(tenantId);
-    const interval = setInterval(() => {
-      cargarPreventas(tenantId);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [tenantId]);
+    let isMounted = true;
+    let unsubFn: (() => void) | null = null;
+
+    iniciarSuscripcionRealtime(tenantId).then((cleanup) => {
+      if (isMounted) {
+        unsubFn = cleanup;
+      } else if (cleanup) {
+        cleanup();
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      if (unsubFn) unsubFn();
+      detenerSuscripcionRealtime();
+    };
+  }, [tenantId, iniciarSuscripcionRealtime, detenerSuscripcionRealtime]);
 
   // Lista única de asesores con preventas activas para la barra de chips
   const asesoresActivos = useMemo(() => {
@@ -251,6 +278,91 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
     }
   };
 
+  // Mapeo a formato de orden para la terminal de supermercado (SPEC-047)
+  const supermarketOrders: SupermarketOrder[] = useMemo(() => {
+    return preventasFiltradas.map((p) => ({
+      id: p.id,
+      consecutivoTicket: p.codigoPreventa || `T-${p.id.slice(-4)}`,
+      clienteNombre: p.clienteNombre,
+      vendedorNombre: p.vendedorNombre,
+      montoTotal: p.total,
+      itemsCount: p.items?.length || 0,
+      createdAt: p.createdAt,
+      estado: p.estado,
+      terminalId: p.terminalId,
+    }));
+  }, [preventasFiltradas]);
+
+  const handleOpenSupermarketPayment = (order: SupermarketOrder, method: string = 'MIXTO') => {
+    if (isVendedor) {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'warning',
+        title: 'Acceso Restringido',
+        text: 'Los vendedores no tienen autorización para recaudar dinero en ventanilla.',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      return;
+    }
+    setSelectedSupermarketOrder(order);
+    setSelectedSupermarketMethod(method as any);
+    setIsSplitPaymentOpen(true);
+  };
+
+  const handleConfirmSplitPayment = async (payload: SplitPaymentPayload) => {
+    try {
+      const pagosCobro: PagoCobroInput[] = payload.lineas.map((l) => ({
+        metodoPago: l.metodo as MetodoPagoPrefactura,
+        monto: l.monto,
+        referenciaComprobante: l.referencia,
+      }));
+
+      const totalEfectivoRecibido = payload.lineas.reduce((acc, l) => acc + (l.efectivoRecibido || 0), 0);
+
+      await procesarCobro({
+        tenantId,
+        prefacturaId: payload.orderId,
+        cajeroId,
+        turnoId: 'TURNO-ACTUAL',
+        montoTotal: payload.montoTotal,
+        pagos: pagosCobro,
+        efectivoRecibido: totalEfectivoRecibido > 0 ? totalEfectivoRecibido : undefined,
+        cambioEntregado: payload.vueltoTotal,
+      });
+
+      setIsSplitPaymentOpen(false);
+      setSelectedSupermarketOrder(null);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Venta Cobrada Exitosamente',
+        html: `
+          <div class="text-left text-sm font-sans space-y-1">
+            <p><strong>Comanda:</strong> ${payload.orderId}</p>
+            <p><strong>Total Recaudado:</strong> $${payload.montoTotal.toLocaleString('es-CO')}</p>
+            ${payload.vueltoTotal > 0 ? `
+              <div class="p-2.5 bg-emerald-950/60 border border-emerald-500/40 rounded-xl text-emerald-300 text-center mt-2">
+                <span class="text-[10px] uppercase font-bold block">Entregar Cambio:</span>
+                <span class="text-xl font-black font-mono">$${payload.vueltoTotal.toLocaleString('es-CO')}</span>
+              </div>` : ''}
+          </div>`,
+        background: '#0F172A',
+        color: '#F8FAFC',
+        timer: 2500,
+        showConfirmButton: false,
+      });
+    } catch (err: any) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al Cobrar',
+        text: err.message || 'No se pudo procesar el cobro fraccionado.',
+        confirmButtonColor: '#EF4444',
+      });
+    }
+  };
+
   return (
     <div className="flex flex-col h-full w-full bg-[#070A10] text-slate-100 p-4 select-none overflow-hidden">
       {/* 1. Header del Tablero & Barra de Chips de Asesor */}
@@ -264,6 +376,22 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
               Flujo de Ventas & Recaudo de Caja
               <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
                 Caja Única
+              </span>
+              <span
+                className={`text-[10px] font-mono px-2 py-0.5 rounded-full border flex items-center gap-1 ${
+                  realtimeStatus === 'SUBSCRIBED'
+                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                    : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                }`}
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    realtimeStatus === 'SUBSCRIBED'
+                      ? 'bg-emerald-400 animate-pulse'
+                      : 'bg-amber-400'
+                  }`}
+                />
+                {realtimeStatus === 'SUBSCRIBED' ? 'Realtime Conectado' : 'Sondeo Fallback'}
               </span>
             </h1>
             <p className="text-xs text-slate-400">
@@ -310,6 +438,36 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
           ))}
         </div>
 
+        {/* Selector de Modo: Terminal Supermercado [F1-F12] vs Tablero Kanban */}
+        <div className="flex items-center gap-1.5 p-1 bg-white/5 rounded-xl border border-white/10 shrink-0">
+          <button
+            type="button"
+            data-testid="btn-mode-supermarket"
+            onClick={() => setViewMode('supermarket')}
+            className={`min-h-[40px] px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              viewMode === 'supermarket'
+                ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/30'
+                : 'text-slate-400 hover:text-white hover:bg-white/10'
+            }`}
+          >
+            <Table size={14} />
+            <span>Terminal Supermercado [F1-F12]</span>
+          </button>
+          <button
+            type="button"
+            data-testid="btn-mode-kanban"
+            onClick={() => setViewMode('kanban')}
+            className={`min-h-[40px] px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              viewMode === 'kanban'
+                ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/30'
+                : 'text-slate-400 hover:text-white hover:bg-white/10'
+            }`}
+          >
+            <LayoutGrid size={14} />
+            <span>Tablero Kanban</span>
+          </button>
+        </div>
+
         {/* Indicador de Modo Monitor para Asesores de Mostrador / Vendedores */}
         {isVendedor && (
           <div
@@ -322,8 +480,35 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
         )}
       </div>
 
-      {/* 2. Contenedor de las 3 Columnas Kanban (Optimizado Laptop 1366x768) */}
-      <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3 min-h-0">
+      {/* 2. Cuerpo Principal: Vista Supermercado F1-F12 o Columnas Kanban */}
+      {viewMode === 'supermarket' ? (
+        <div className="flex-1 flex flex-col gap-3 min-h-0">
+          <InternalQueueTicker
+            currentTurn={supermarketOrders[0]?.consecutivoTicket || null}
+            pendingCount={colEspera.length}
+            averageWaitMinutes={colEspera.length > 0 ? Math.max(3, colEspera.length * 3) : 0}
+            isRealtimeConnected={realtimeStatus === 'SUBSCRIBED'}
+            onCallTurn={(turn) => {
+              Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'info',
+                title: `Llamando turno ${turn}`,
+                timer: 2000,
+                showConfirmButton: false,
+              });
+            }}
+          />
+          <div className="flex-1 min-h-0 bg-slate-900/60 border border-white/10 rounded-2xl overflow-hidden p-2">
+            <CashierSupermarketTerminal
+              orders={supermarketOrders}
+              onSelectOrder={(ord) => setSelectedSupermarketOrder(ord)}
+              onOpenPayment={(ord, method) => handleOpenSupermarketPayment(ord, method)}
+            />
+          </div>
+        </div>
+      ) : (
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3 min-h-0">
         {/* COLUMNA 1: En Espera de Cobro */}
         <div
           className="flex flex-col bg-slate-900/70 border border-white/10 rounded-2xl p-2.5 min-h-0"
@@ -573,6 +758,7 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
           </div>
         </div>
       </div>
+      )}
 
       {/* 3. Modal Profesional de Recaudo Mixto en Taquilla (TASK-043-05) */}
       <QuickPaymentMixedModal
@@ -580,6 +766,17 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
         preventa={preventaSeleccionada}
         onClose={cerrarModalCobro}
         onConfirmarPago={handleConfirmarRecaudoMixto}
+      />
+
+      {/* 4. Modal de Cobro Dividido para Terminal de Supermercado (SPEC-047) */}
+      <SplitPaymentModal
+        isOpen={isSplitPaymentOpen}
+        order={selectedSupermarketOrder}
+        onClose={() => {
+          setIsSplitPaymentOpen(false);
+          setSelectedSupermarketOrder(null);
+        }}
+        onConfirmPayment={handleConfirmSplitPayment}
       />
     </div>
   );

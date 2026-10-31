@@ -14,7 +14,10 @@ import { PaymentPanel, type MetodoCobroPos } from './pos/components/PaymentPanel
 import { BalanzaButton } from './pos/components/BalanzaButton.tsx';
 import { TicketBuilder } from './pos/components/TicketBuilder.tsx';
 import { CartPanel } from './pos/components/CartPanel.tsx';
-import { VendorTicketSidebar, type VendorTicket } from '../components/pos/VendorTicketSidebar.tsx';
+import { InternalQueueTicker } from './pos/components/InternalQueueTicker.tsx';
+import { QuickCutNotes } from './pos/components/QuickCutNotes.tsx';
+import { VendorTicketSidebar, type VendorTicket, type EstadoTicket } from '../components/pos/VendorTicketSidebar.tsx';
+import { supabaseRealtimePreventasService } from '../services/supabaseRealtimePreventasService.ts';
 import { ProductSearchPanel } from './pos/components/ProductSearchPanel.tsx';
 import { AperturaCajaModal } from './pos/components/AperturaCajaModal.tsx';
 import { RetiroParcialModal } from './pos/components/RetiroParcialModal.tsx';
@@ -226,6 +229,14 @@ export default function POSView({
   );
   const comandasPendientes: PendingOrderComanda[] = [...draftComandas, ...syncComandasFiltered];
 
+  // Estado de notas de corte rápido para mostrador pescadería (SPEC-047)
+  const [selectedCutNotes, setSelectedCutNotes] = useState<string[]>([]);
+  const toggleCutNote = (note: string) => {
+    setSelectedCutNotes((prev) =>
+      prev.includes(note) ? prev.filter((n) => n !== note) : [...prev, note]
+    );
+  };
+
   const handleSelectComanda = (comanda: PendingOrderComanda) => {
     const draftOriginal = drafts.find(d => d.id === comanda.id);
     if (draftOriginal) {
@@ -279,8 +290,76 @@ export default function POSView({
     });
   };
   
-  // Barra Lateral de Tickets Activos del Vendedor (SPEC-043)
+  // Barra Lateral de Tickets Activos del Vendedor (SPEC-043 / SPEC-045)
   const [isVendorSidebarOpen, setIsVendorSidebarOpen] = useState(true);
+  const [isRealtimeVendorConnected, setIsRealtimeVendorConnected] = useState(false);
+
+  useEffect(() => {
+    const tenantId = activeTenant?.id || 'tenant-03';
+    let cleanup: (() => void) | undefined;
+
+    supabaseRealtimePreventasService
+      .suscribirPreventas({
+        tenantId,
+        onStatusChange: (status) => {
+          setIsRealtimeVendorConnected(status === 'SUBSCRIBED');
+        },
+        onUpdate: (evt) => {
+          setDrafts((prev) => {
+            let updated = false;
+            const next = prev.map((d) => {
+              const matches =
+                d.id === evt.prefacturaId ||
+                (d as any).prefacturaId === evt.prefacturaId ||
+                d.alias === evt.codigoPreventa ||
+                (d as any).codigoPreventa === evt.codigoPreventa;
+
+              if (matches) {
+                updated = true;
+                let nuevoEstado: EstadoTicket = (d.estadoPreventa as EstadoTicket) || 'EN_COLA';
+                if (evt.estado === 'EN_COBRO') nuevoEstado = 'EN_PROCESO';
+                else if (evt.estado === 'PAGADA' || evt.estado === 'DESPACHADA') nuevoEstado = 'COBRADO';
+                else if (evt.estado === 'ANULADA') nuevoEstado = 'CANCELADO';
+
+                return {
+                  ...d,
+                  estadoPreventa: nuevoEstado,
+                };
+              }
+              return d;
+            });
+
+            if (updated && evt.estado === 'PAGADA') {
+              Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: '¡Preventa Cobrada en Caja!',
+                text: `Orden ${evt.codigoPreventa || evt.prefacturaId} liquidada en taquilla.`,
+                timer: 3000,
+                showConfirmButton: false,
+              });
+            }
+            return next;
+          });
+        },
+        onDelete: (evt) => {
+          setDrafts((prev) =>
+            prev.map((d) => {
+              const matches = d.id === evt.prefacturaId || (d as any).prefacturaId === evt.prefacturaId;
+              return matches ? { ...d, estadoPreventa: 'CANCELADO' } : d;
+            })
+          );
+        },
+      })
+      .then((unsub) => {
+        cleanup = unsub;
+      });
+
+    return () => {
+      cleanup?.();
+    };
+  }, [activeTenant?.id]);
 
   const activeVendorInfo = VENDEDORES_JOSASE.find((v) => v.id === selectedVendorJosase);
   const activeVendorName = isFerreteria ? (activeVendorInfo?.corto || 'Diego Díaz') : (currentUser?.nombre || 'Vendedor');
@@ -363,6 +442,19 @@ export default function POSView({
           prefacturaId: ticketId,
           supervisorId: currentUser?.empleadoId || 'SUPERVISOR-POS',
           motivo: 'Cancelada por el asesor en mostrador',
+        });
+        await supabaseRealtimePreventasService.broadcastEvent({
+          eventType: 'UPDATE_ESTADO_PREVENTA',
+          tenantId: activeTenant?.id || 'tenant-03',
+          prefacturaId: ticketId,
+          codigoPreventa: ticketId,
+          vendedorId: currentUser?.empleadoId || 'VEND-01',
+          vendedorNombre: currentUser?.nombre || 'Vendedor Mostrador',
+          terminalId: 'TERM-MOSTRADOR',
+          estado: 'ANULADA',
+          total: 0,
+          itemsCount: 0,
+          timestamp: new Date().toISOString(),
         });
       } catch (e) {
         console.warn('Error cancelando en prefacturaService:', e);
@@ -903,7 +995,7 @@ export default function POSView({
         notaItem: l.notaItem,
       }));
 
-      await prefacturaService.emitirPrefactura({
+      const prefRes = await prefacturaService.emitirPrefactura({
         tenantId: activeTenant?.id || 'tenant-03',
         vendedorId: isFerreteria ? selectedVendorJosase : (currentUser?.empleadoId || 'VEND-01'),
         vendedorNombre: isFerreteria ? (vSeleccionado?.nombre || 'Diego Díaz') : (currentUser?.nombre || 'Vendedor Mostrador'),
@@ -913,6 +1005,34 @@ export default function POSView({
         items: itemsPrefactura,
         notas: typeof aliasParam === 'string' ? aliasParam : undefined,
       });
+
+      if (prefRes.ok && prefRes.prefactura) {
+        const prefCreada = prefRes.prefactura;
+        // Emisión Broadcast Ultra-Rápida (<50ms) a Supabase Realtime Channels (SPEC-045 / TASK-045-04)
+        await supabaseRealtimePreventasService.broadcastPulse({
+          tenantId: activeTenant?.id || 'tenant-03',
+          action: 'PREVENTA_EMITIDA',
+          prefacturaId: prefCreada.id,
+          codigoPreventa: prefCreada.codigoPreventa,
+          vendedorId: prefCreada.vendedorId,
+          total: prefCreada.total,
+          timestamp: Date.now(),
+        });
+
+        await supabaseRealtimePreventasService.broadcastEvent({
+          eventType: 'INSERT_PREVENTA',
+          tenantId: activeTenant?.id || 'tenant-03',
+          prefacturaId: prefCreada.id,
+          codigoPreventa: prefCreada.codigoPreventa,
+          vendedorId: prefCreada.vendedorId,
+          vendedorNombre: prefCreada.vendedorNombre,
+          terminalId: prefCreada.terminalId,
+          estado: prefCreada.estado,
+          total: prefCreada.total,
+          itemsCount: prefCreada.items.length,
+          timestamp: new Date().toISOString(),
+        });
+      }
 
       useCashierKanbanStore.getState().cargarPreventas(activeTenant?.id || 'tenant-03');
     } catch (prefErr) {
@@ -2441,6 +2561,15 @@ export default function POSView({
         </div>
       </div>
 
+      {/* Ticker Interno de Cola y Turnos de Mostrador (SPEC-047) */}
+      <div className="mb-2 px-1 shrink-0">
+        <InternalQueueTicker
+          currentTurn={comandasPendientes[0]?.consecutivoTicket || null}
+          pendingCount={comandasPendientes.length}
+          averageWaitMinutes={comandasPendientes.length > 0 ? Math.min(comandasPendientes.length * 3, 20) : 0}
+        />
+      </div>
+
       {activeSubView === 'venta_pos' ? (
         <>
           {/* F5: Mobile Tab Switcher (< lg) */}
@@ -2520,42 +2649,53 @@ export default function POSView({
                   </Button>
                 </GlassCard>
               ) : (
-                <CartPanel
-                  lineas={cartLineas}
-                  cliente={cliente}
-                  descuentoGlobalPct={descuentoGlobal}
-                  descuentoGlobalValor={descuentoGlobalValor}
-                  totales={{ subtotal, descuento: totalDescuento, totalFinal }}
-                  drafts={drafts}
-                  activeDraftId={activeDraftId}
-                  stock={stock as any}
-                  bodegaActivaId={bodegaActivaId}
-                  bodegaActivaNombre={bodegaActivaNombre}
-                  lastClientPrices={lastClientPrices}
-                  onUpdateCantidad={actualizarCantidad}
-                  onUpdateDescuentoLinea={actualizarDescuentoLinea}
-                  onRemoveLinea={removerProducto}
-                  onWeightRead={(pid, peso) => actualizarCantidad(pid, peso)}
-                  onLimpiarCarrito={limpiarCarrito}
-                  onSetLineas={setCartLineas}
-                  onUpdatePrecio={updateItemPrice}
-                  onResetItemPrice={resetItemPrice}
-                  onSelectCliente={handleAgregarCliente}
-                  onClearCliente={() => setCliente(defaultClient)}
-                  onDescuentoClick={handleDescuentoGlobal}
-                  onPagar={handlePagar}
-                  onGuardarBorrador={handleGuardarBorrador}
-                  onSetActiveDraftId={setActiveDraftId}
-                  onSetDrafts={setDrafts}
-                  onSetDescuentoGlobal={setDescuentoGlobal}
-                  isTurnoAbierto={isTurnoAbierto}
-                  onAbrirTurnoRequest={() => setShowAperturaModal(true)}
-                  onCerrarTurnoClick={() => setShowArqueoModal(true)}
-                  saldoEfectivoGaveta={turnoActivo?.totalEfectivo ?? 0}
-                  topeMaximoGaveta={1500000}
-                  onRetiroParcialRequest={() => setShowRetiroModal(true)}
-                  isAsesorMostrador={isFerreteria || userRole === 'vendedor' || currentUser?.cargo?.toLowerCase().includes('mostrador')}
-                />
+                <div className="flex flex-col h-full min-h-0 gap-2">
+                  <div className="bg-slate-900/70 p-2.5 rounded-xl border border-white/10 shrink-0">
+                    <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider block mb-1.5">
+                      Corte y Preparación de Mostrador (1 Toque)
+                    </span>
+                    <QuickCutNotes
+                      selectedNotes={selectedCutNotes}
+                      onToggleNote={toggleCutNote}
+                    />
+                  </div>
+                  <CartPanel
+                    lineas={cartLineas}
+                    cliente={cliente}
+                    descuentoGlobalPct={descuentoGlobal}
+                    descuentoGlobalValor={descuentoGlobalValor}
+                    totales={{ subtotal, descuento: totalDescuento, totalFinal }}
+                    drafts={drafts}
+                    activeDraftId={activeDraftId}
+                    stock={stock as any}
+                    bodegaActivaId={bodegaActivaId}
+                    bodegaActivaNombre={bodegaActivaNombre}
+                    lastClientPrices={lastClientPrices}
+                    onUpdateCantidad={actualizarCantidad}
+                    onUpdateDescuentoLinea={actualizarDescuentoLinea}
+                    onRemoveLinea={removerProducto}
+                    onWeightRead={(pid, peso) => actualizarCantidad(pid, peso)}
+                    onLimpiarCarrito={limpiarCarrito}
+                    onSetLineas={setCartLineas}
+                    onUpdatePrecio={updateItemPrice}
+                    onResetItemPrice={resetItemPrice}
+                    onSelectCliente={handleAgregarCliente}
+                    onClearCliente={() => setCliente(defaultClient)}
+                    onDescuentoClick={handleDescuentoGlobal}
+                    onPagar={handlePagar}
+                    onGuardarBorrador={(notas) => handleGuardarBorrador(selectedCutNotes.length > 0 ? `${notas || ''} [${selectedCutNotes.join(', ')}]`.trim() : notas)}
+                    onSetActiveDraftId={setActiveDraftId}
+                    onSetDrafts={setDrafts}
+                    onSetDescuentoGlobal={setDescuentoGlobal}
+                    isTurnoAbierto={isTurnoAbierto}
+                    onAbrirTurnoRequest={() => setShowAperturaModal(true)}
+                    onCerrarTurnoClick={() => setShowArqueoModal(true)}
+                    saldoEfectivoGaveta={turnoActivo?.totalEfectivo ?? 0}
+                    topeMaximoGaveta={1500000}
+                    onRetiroParcialRequest={() => setShowRetiroModal(true)}
+                    isAsesorMostrador={isFerreteria || userRole === 'vendedor' || currentUser?.cargo?.toLowerCase().includes('mostrador')}
+                  />
+                </div>
               )}
             </div>
 
@@ -2569,6 +2709,7 @@ export default function POSView({
                   onCancelarTicket={handleCancelarPreventa}
                   isOpen={isVendorSidebarOpen}
                   onToggleOpen={() => setIsVendorSidebarOpen((prev) => !prev)}
+                  realtimeConnected={isRealtimeVendorConnected}
                 />
               </div>
             )}

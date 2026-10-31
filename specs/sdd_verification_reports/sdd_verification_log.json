@@ -1,22 +1,52 @@
 {
   "rule_id": "RULE-SDD-001",
-  "timestamp": "2026-10-16 12:13:42",
+  "timestamp": "2026-10-31 08:47:13",
   "enforcement_level": "CRITICAL",
   "confidence_index": 1.0,
   "verified_packages": {
-    "react": {
-      "version": "^18.2.0",
+    "@typescript-eslint/eslint-plugin": {
+      "version": "^8.72.1",
       "sources": [
-        "https://penninetechnolabs.com/blog/react-18-to-19-migration-guide/",
-        "https://react.dev/blog/2022/03/08/react-18-upgrade-guide",
-        "https://react.dev/blog/2024/04/25/react-19-upgrade-guide",
-        "https://www.cve.org/CVERecord/SearchResults?query=react"
+        "https://www.npmjs.com/package/@typescript-eslint/eslint-plugin",
+        "https://www.npmjs.com/package/typescript-eslint",
+        "https://github.com/typescript-eslint/typescript-eslint/releases",
+        "https://nvd.nist.gov/vuln/detail/cve-2025-54313"
       ],
       "guardrails": {
-        "api_signature_verification": "React 18 introduced root creation via createRoot instead of ReactDOM.render, and automatic batching for state updates. Migration guides toward React 19 highlight new hooks wrapping actions for pending status and resource hints like preinit and preload.",
-        "security_patterns_vulnerabilities": "No direct critical CVEs reported for react ^18.2.0 in the provided search results. Standard mitigation includes avoiding outdated third-party renderers and maintaining strict dependency updates.",
-        "performance_constraints": "Automatic batching in React 18 reduces unnecessary re-renders. Resource discovery and preloading APIs introduced in newer versions help move hints earlier to optimize browser loading times.",
-        "linter_overrides": "Use strict TypeScript typings compatible with React 18 createRoot API. Ensure ESLint rules enforce modern hooks usage and prevent legacy patterns like string refs or deprecated lifecycle methods."
+        "api_signature_verification": "La versión 8.72.1 de @typescript-eslint/eslint-plugin introduce mejoras internas y ajustes en reglas como prefer-readonly-parameter-types, sin cambios radicales en las firmas de API públicas de ESLint, manteniendo la compatibilidad con la estructura unificada de typescript-eslint v8.",
+        "security_patterns_vulnerabilities": "No se reportan vulnerabilidades críticas directas (CVE) asociadas a esta versión específica en la base de datos NVD para este paquete. Se recomienda mantener actualizadas las dependencias transitivas de análisis estático y evitar el uso de configuraciones obsoletas de parser.",
+        "performance_constraints": "Al ejecutarse dentro del proceso de compilación y linting con Vite, se recomienda limitar el ámbito de análisis de archivos pesados de TypeScript para evitar cuellos de botella en la memoria del hilo principal de Node.js durante HMR (Hot Module Replacement).",
+        "linter_overrides": "Se sugiere habilitar de manera estricta las reglas orientadas a tipos (type-checking) utilizando parserOptions.project para garantizar la detección temprana de regresiones de tipos, asegurando la compatibilidad con las especificaciones de TypeScript 5.x."
+      }
+    },
+    "@typescript-eslint/parser": {
+      "version": "^8.72.1",
+      "sources": [
+        "https://www.npmjs.com/package/@typescript-eslint/parser",
+        "https://github.com/typescript-eslint/typescript-eslint/releases",
+        "https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/parser/CHANGELOG.md",
+        "https://github.com/typescript-eslint/typescript-eslint/issues/13125"
+      ],
+      "guardrails": {
+        "api_signature_verification": "Se introdujeron mejoras en las opciones de parserOptions.project y se utiliza TSEmptyBodyFunctionExpression para nodos sin cuerpo en typescript-estree, sin breaking changes mayores en la API pública del parser.",
+        "security_patterns_vulnerabilities": "La versión 8.72.1 incluye una dependencia declarada en minimatch ^10.2.2 la cual es afectada por CVE-2026-118764 (requiere mitigación o actualización a minimatch 11+ cuando esté disponible).",
+        "performance_constraints": "Sin restricciones críticas de memoria o renderizado específicas para React 18/Vite, pero se recomienda verificar la caché de tsserver y el uso del project-service para evitar sobrecarga en monorepos.",
+        "linter_overrides": "Se sugiere mantener actualizadas las reglas de @typescript-eslint para alinearse con los reportes de deprecación y evitar conflictos con el parsing de AST en proyectos de Vite."
+      }
+    },
+    "eslint-plugin-react-hooks": {
+      "version": "7.1.1",
+      "sources": [
+        "https://github.com/react/react/blob/main/packages/eslint-plugin-react-hooks/CHANGELOG.md",
+        "https://www.npmjs.com/package/eslint-plugin-react-hooks",
+        "https://eslint-react.xyz/docs/migrating-from-eslint-plugin-react-hooks",
+        "https://security.snyk.io/package/npm/eslint-plugin-react-hooks"
+      ],
+      "guardrails": {
+        "api_signature_verification": "Disable dangerous autofix and use ESLint Suggestions API instead. New violations enforce forbidding calling Hooks at the top level and fix a crash when referencing arguments in arrow functions.",
+        "security_patterns_vulnerabilities": "No known critical CVEs reported for version 7.1.1. Maintenance status is classified as Sustainable by Snyk, with no active vulnerabilities requiring immediate mitigation.",
+        "performance_constraints": "Optimized for React 18 and Vite environments by utilizing ESLint Suggestions API instead of risky direct code autofixes, preventing unintended AST corruption during bundling.",
+        "linter_overrides": "Configure rules to handle the strict top-level Hook invocation check and leverage ESLint Suggestions API integration for safe automated code improvements."
       }
     }
   }

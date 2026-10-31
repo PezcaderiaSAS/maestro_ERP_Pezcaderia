@@ -25,6 +25,7 @@ export interface VendorTicketSidebarProps {
   onCancelarTicket: (ticketId: string) => void;
   isOpen?: boolean;
   onToggleOpen?: () => void;
+  realtimeConnected?: boolean;
 }
 
 export const VendorTicketSidebar: React.FC<VendorTicketSidebarProps> = ({
@@ -34,6 +35,7 @@ export const VendorTicketSidebar: React.FC<VendorTicketSidebarProps> = ({
   onCancelarTicket,
   isOpen = true,
   onToggleOpen,
+  realtimeConnected = false,
 }) => {
   const [filtroEstado, setFiltroEstado] = useState<'TODOS' | EstadoTicket>('TODOS');
 
@@ -133,6 +135,16 @@ export const VendorTicketSidebar: React.FC<VendorTicketSidebarProps> = ({
                 <h3 className="text-xs font-black uppercase tracking-wider text-slate-100">
                   Mis Preventas Activas
                 </h3>
+                {realtimeConnected && (
+                  <span
+                    data-testid="badge-realtime-online"
+                    className="inline-flex items-center gap-1 text-[9px] font-black px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
+                    title="Sincronización en tiempo real activa"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    EN VIVO
+                  </span>
+                )}
               </div>
               <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-cyan-950 text-cyan-300 border border-cyan-800/60">
                 {tickets.length} Hoy

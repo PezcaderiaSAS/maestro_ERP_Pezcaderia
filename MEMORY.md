@@ -9,19 +9,16 @@
 
 ## Módulos y Especificaciones Certificadas
 1. **SPEC-035 a SPEC-039:** Autenticación OAuth, Onboarding, Multivendedor, Ergonomía Laptop, WCAG AAA.
-2. **SPEC-040 (CERO-LATENCIA CATÁLOGOS MASIVOS & PRECIOS B2B) ✅ (100%):** Worker sub-2ms y reserva hard-hold.
-3. **SPEC-041 (SINCRONIZACIÓN SUPABASE <-> INDEXEDDB OUTBOX) ✅ (100%):** Delta sync, OCC `CLIENT_WINS`, DLQ.
-4. **SPEC-042 (AJUSTE ERGONÓMICO MOSTRADOR PARA COMANDAS & VENTANILLA) ✅ (100%):** Layout V8 Dark Glassmorphism.
+2. **SPEC-040 a SPEC-042:** Catálogos masivos sub-2ms, Outbox IndexedDB delta sync y Layout Mostrador V8.
+3. **SPEC-043 (FLUJO MULTIVENDEDOR & CERO-LATENCIA JOSASE) ✅ (100%):** DB local, selector rápido y modal recaudo F9.
+4. **SPEC-045 (SINCRONIZACIÓN REALTIME SUPABASE PREVENTAS & TAQUILLA) ✅ (100% CERTIFICADO):**
+   - Canal multi-tenant `realtime:preventas:${tenantId}` con fallback heartbeat resiliente (10s) si se degrada el WebSocket.
+   - Eliminación de polling ciego (4s) en Kanban; actualización reactiva instantánea (<100ms) de columnas.
+   - Emisión Broadcast sub-50ms en F6 (`POSView`) y sincronización en vivo de estados en `VendorTicketSidebar`.
+   - Quality Gate: 34/34 tests verdes en Vitest, compilación TypeScript estricta con 0 errores y Vite build OK.
 
-## Cola de Tareas Priorizada: SPEC-043 Ferretería Josase (WIP = 1)
-1. **SPEC-043 (FLUJO MULTIVENDEDOR - CAJA ÚNICA & CERO-LATENCIA JOSASE) ✅ (100% COMPLETADO & CERTIFICADO):**
-   - ✅ **TASK-043-01:** Carga IndexedDB Zero-LocalStorage (9.550 clientes y 5.351 ítems, < 15KB en localStorage).
-   - ✅ **TASK-043-02:** Selector clientes instantáneo sub-2ms, debounce 150ms y early break a 20 nodos DOM.
-   - ✅ **TASK-043-03:** Anotaciones de despacho en doble nivel (comanda general + ítem) y botón F6 en CartPanel.
-   - ✅ **TASK-043-04:** Barra lateral de tickets del vendedor (`VendorTicketSidebar`) con recuperación y estados.
-   - ✅ **TASK-043-05:** Modal profesional de recaudo mixto (`QuickPaymentMixedModal`, Zod, vueltas y Cartera).
-   - ✅ **TASK-043-06:** Conmutación por rol en Topbar (F4/F7), sincronización RBAC y Kanban monitor para vendedores.
-2. **FACTURACIÓN ELECTRÓNICA DIAN / SIIGO API v2 & CONTINGENCIA OUTBOX (EN COLA):**
+## Cola de Tareas Priorizada (WIP = 1)
+1. **FACTURACIÓN ELECTRÓNICA DIAN / SIIGO API v2 & CONTINGENCIA OUTBOX (EN COLA):**
    - Payloads Zod para CUFE y dispatcher outbox en contingencia.
 
 ## Despliegue a Producción (Vercel & Supabase)
