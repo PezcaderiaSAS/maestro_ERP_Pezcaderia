@@ -724,14 +724,14 @@ export const CartPanel: React.FC<CartPanelProps> = ({
               disabled={lineas.length === 0}
               onClick={() => onGuardarBorrador(notasDespacho)}
               leftIcon={<PauseCircle size={18} />}
-              shortcutBadge="F6"
+              shortcutBadge="(F6)"
               className={`w-full tracking-wide shadow-lg ${
                 lineas.length > 0
                   ? 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-cyan-600/30 border border-cyan-400/40'
                   : 'bg-white/5 text-slate-500 cursor-not-allowed border border-white/5'
               }`}
             >
-              EMITIR PREVENTA / COMANDA
+              EMITIR PREVENTA / COMANDA{' '}
             </PosButton>
 
             <div className="flex gap-2">

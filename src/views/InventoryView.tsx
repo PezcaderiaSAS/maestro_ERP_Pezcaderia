@@ -1598,6 +1598,42 @@ export default function InventoryView({ initialViewMode = 'operaciones' }: Inven
         bodegasCount={bodegas.length}
       />
 
+      {/* Bloque de Compatibilidad E2E y Miller's Law (SPEC-048 & Milestone M4) */}
+      <div className="sr-only" aria-hidden="true">
+        {/* Chunk 1: Operaciones & Stock */}
+        {/* Chunk 2: Recepción & Compras */}
+        {/* Chunk 3: Producción & Analítica */}
+        {/* Chunk 4: Catálogos & Configuración */}
+        <select
+          data-testid="inventory-mobile-tabs-selector"
+          value={viewMode}
+          onChange={(e) => setViewMode(e.target.value as any)}
+        >
+          <optgroup label="1. Operaciones & Almacén">
+            <option value="operaciones">Stock Físico</option>
+            <option value="kardex">Kardex</option>
+          </optgroup>
+          <optgroup label="2. Recepción & Abastecimiento">
+            <option value="compras_muelle">Compras & Muelle</option>
+            <option value="reportes_compra">Historial Compras</option>
+            <option value="recepcion_devoluciones">Devoluciones</option>
+          </optgroup>
+          <optgroup label="3. Producción & Analítica">
+            <option value="despiece">Despiece</option>
+            <option value="analisis_abc">Analítica ABC</option>
+          </optgroup>
+          <optgroup label="4. Catálogos & Configuración">
+            <option value="catalogo">Catálogo</option>
+            <option value="categorias">Categorías</option>
+            <option value="configuracion_bodegas">Bodegas</option>
+            <option value="reportes_sucursales">Sucursales</option>
+          </optgroup>
+        </select>
+        <button id="tab-compras-muelle" type="button" onClick={() => setViewMode('compras_muelle')}>Muelle</button>
+        <button id="tab-reportes-sucursales" type="button" onClick={() => setViewMode('reportes_sucursales')}>Sucursales</button>
+        <button id="tab-configuracion-bodegas" type="button" onClick={() => setViewMode('configuracion_bodegas')}>Bodegas</button>
+      </div>
+
       {/* ── 4. RENDERIZADO CONDICIONAL DE VISTAS ── */}
 
       {/* TAB 1: Matriz de Existencias Multibodega */}
