@@ -494,6 +494,7 @@ export function usePricing() {
       publishEvent,
       setQuotations,
       getQuoteItemUnitPrice,
+      clientType,
     ]
   );
 

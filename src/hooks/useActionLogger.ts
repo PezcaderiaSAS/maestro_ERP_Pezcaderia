@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { createLogger } from '../lib/consoleLogger';
 
 export function useActionLogger<T extends (...args: any[]) => any>(
@@ -6,7 +6,7 @@ export function useActionLogger<T extends (...args: any[]) => any>(
   accion: string,
   fn: T,
 ): T {
-  const log = createLogger(modulo);
+  const log = useMemo(() => createLogger(modulo), [modulo]);
 
   return useCallback(
     ((...args: any[]) => {

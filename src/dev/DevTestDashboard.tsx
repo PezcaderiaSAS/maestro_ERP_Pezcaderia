@@ -7,10 +7,10 @@ import { applySeed as applySeedCash } from './seeds/seedCash';
 import { X, TestTube, ShoppingCart, Truck, Factory, DollarSign, RefreshCw } from 'lucide-react';
 
 export const DevTestDashboard: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
   // Guard: Only render in development
   if (!import.meta.env.DEV) return null;
-
-  const [isOpen, setIsOpen] = useState(false);
 
   const confirmAndSeed = (scenarioName: string, seedFunction: () => void) => {
     Swal.fire({

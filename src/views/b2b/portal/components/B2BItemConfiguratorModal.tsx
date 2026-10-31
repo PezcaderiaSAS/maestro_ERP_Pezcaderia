@@ -55,11 +55,9 @@ export const B2BItemConfiguratorModal: React.FC<B2BItemConfiguratorModalProps> =
   onClose,
   onAddToCart,
 }) => {
-  if (!isOpen || !producto) return null;
-
-  const [corte, setCorte] = useState<B2BProductCut>(producto.cortesDisponibles[0] || 'FILETE_CON_PIEL');
-  const [empaque, setEmpaque] = useState<B2BPackaging>(producto.empaquesDisponibles[0] || 'CAJA_TERMICA_HIELO');
-  const [modalidadVenta, setModalidadVenta] = useState<B2BSaleModality>(producto.modalidadVentaDefault);
+  const [corte, setCorte] = useState<B2BProductCut>(producto?.cortesDisponibles?.[0] || 'FILETE_CON_PIEL');
+  const [empaque, setEmpaque] = useState<B2BPackaging>(producto?.empaquesDisponibles?.[0] || 'CAJA_TERMICA_HIELO');
+  const [modalidadVenta, setModalidadVenta] = useState<B2BSaleModality>(producto?.modalidadVentaDefault || 'KILOGRAMOS_ESTIMADOS');
   const [cantidad, setCantidad] = useState<number>(modalidadVenta === 'KILOGRAMOS_ESTIMADOS' ? 5 : 5);
   const [piezas, setPiezas] = useState<number | undefined>(undefined);
   const [observaciones, setObservaciones] = useState<string>('');
@@ -75,13 +73,15 @@ export const B2BItemConfiguratorModal: React.FC<B2BItemConfiguratorModalProps> =
     }
   }, [producto]);
 
-  const subtotalEstimado = Math.round(cantidad * producto.precioPactadoCop);
+  const subtotalEstimado = producto ? Math.round(cantidad * producto.precioPactadoCop) : 0;
   const pesoEstimadoKg =
     modalidadVenta === 'KILOGRAMOS_ESTIMADOS'
       ? cantidad
       : piezas
       ? Math.round(piezas * 0.45 * 10) / 10
       : Math.round(cantidad * 0.45 * 10) / 10;
+
+  if (!isOpen || !producto) return null;
 
   const handleIncrement = () => setCantidad((prev) => prev + 1);
   const handleDecrement = () => setCantidad((prev) => (prev > 1 ? prev - 1 : 1));

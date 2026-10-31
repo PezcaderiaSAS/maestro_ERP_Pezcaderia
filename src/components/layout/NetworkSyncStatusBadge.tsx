@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Wifi, WifiOff, RefreshCw, CheckCircle2, AlertCircle, Database, Activity } from 'lucide-react';
 import { useEventStore, type SyncJob } from '../../store/useEventStore';
 import { PosDraftService } from '../../services/posDraftService';
@@ -33,55 +33,7 @@ export const NetworkSyncStatusBadge: React.FC<NetworkSyncStatusBadgeProps> = ({
   const syncQueue = useEventStore((s) => s.syncQueue);
   const pendingJobs = syncQueue.filter((j) => j.estado === 'PENDIENTE');
 
-  // Sincronizar con el heartbeat y listeners nativos de red
-  useEffect(() => {
-    setIsOnlineState(heartbeatOnline);
-  }, [heartbeatOnline]);
-
-  useEffect(() => {
-    const handleOnline = () => {
-      setIsOnlineState(true);
-      triggerSync(false);
-    };
-    const handleOffline = () => {
-      setIsOnlineState(false);
-    };
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
-
-  // Monitoreo periódico de ítems pendientes en Outbox v2
-  useEffect(() => {
-    let isMounted = true;
-    const fetchPendingOutbox = async () => {
-      try {
-        const pendientes = await OutboxSyncService.obtenerPendientes();
-        if (isMounted) {
-          setOutboxPendingCount(pendientes.length);
-        }
-      } catch {
-        // Fallback resiliente
-      }
-    };
-
-    fetchPendingOutbox();
-    const interval = setInterval(fetchPendingOutbox, 10000);
-    return () => {
-      isMounted = false;
-      clearInterval(interval);
-    };
-  }, []);
-
-  const totalPendientes = pendingJobs.length + outboxPendingCount;
-
-  // Función de sincronización forzada o automática
-  const triggerSync = async (userInitiated: boolean = false) => {
+  const triggerSync = useCallback(async (userInitiated: boolean = false) => {
     if (!navigator.onLine || !isOnlineState) {
       if (userInitiated) {
         Swal.fire({
@@ -102,22 +54,16 @@ export const NetworkSyncStatusBadge: React.FC<NetworkSyncStatusBadgeProps> = ({
       if (onSyncTrigger) {
         await onSyncTrigger();
       } else {
-        // 1. Sincronizar cola Outbox v2 de facturas/ventas
         await BackgroundSyncWorker.syncNow();
-        // 2. Sincronizar borradores POS
         await PosDraftService.fetchRemoteDrafts();
-        // 3. Verificar salud Supabase
         const supabase = getSupabaseClient();
         if (supabase) {
           await supabase.from('empresas').select('id').limit(1);
         }
       }
-      // Re-verificar heartbeat activo
       await checkNow();
-      // Refrescar contador outbox
       const pendientes = await OutboxSyncService.obtenerPendientes();
       setOutboxPendingCount(pendientes.length);
-
       setLastSyncTime(new Date());
 
       if (userInitiated) {
@@ -147,7 +93,55 @@ export const NetworkSyncStatusBadge: React.FC<NetworkSyncStatusBadgeProps> = ({
     } finally {
       setIsSyncing(false);
     }
-  };
+  }, [checkNow, isOnlineState, onSyncTrigger]);
+
+  // Sincronizar con el heartbeat y listeners nativos de red
+  useEffect(() => {
+    setIsOnlineState(heartbeatOnline);
+  }, [heartbeatOnline]);
+
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnlineState(true);
+      triggerSync(false);
+    };
+    const handleOffline = () => {
+      setIsOnlineState(false);
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [triggerSync]);
+
+  // Monitoreo periódico de ítems pendientes en Outbox v2
+  useEffect(() => {
+    let isMounted = true;
+    const fetchPendingOutbox = async () => {
+      try {
+        const pendientes = await OutboxSyncService.obtenerPendientes();
+        if (isMounted) {
+          setOutboxPendingCount(pendientes.length);
+        }
+      } catch {
+        // Fallback resiliente
+      }
+    };
+
+    fetchPendingOutbox();
+    const interval = setInterval(fetchPendingOutbox, 10000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
+
+  const totalPendientes = pendingJobs.length + outboxPendingCount;
+
 
   const handleBadgeClick = () => {
     const timeFormatted = lastSyncTime

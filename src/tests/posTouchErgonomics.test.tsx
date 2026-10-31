@@ -5,6 +5,7 @@ import { ManualWeightModal } from '../views/pos/components/ManualWeightModal';
 import { ProductSearchPanel } from '../views/pos/components/ProductSearchPanel';
 import { LineaVentaRow } from '../views/pos/components/LineaVentaRow';
 import { PaymentPanel } from '../views/pos/components/PaymentPanel';
+import { PosButton } from '../views/pos/components/PosButton';
 import type { LineaVenta } from '../types/pos.types';
 
 describe('TASK-014-06: Suite Integral E2E de Ergonomía Táctil en POS (Regla del Niño de 12 Años)', () => {
@@ -234,4 +235,58 @@ describe('TASK-014-06: Suite Integral E2E de Ergonomía Táctil en POS (Regla de
       });
     });
   });
+
+  describe('TASK-046-01 & 02: Componente Canónico PosButton con Ergonomía Táctil WCAG (>= 48px)', () => {
+    it('debe renderizar el tamaño touch por defecto con min-h-[48px] y min-w-[48px]', () => {
+      render(<PosButton>Cobrar F6</PosButton>);
+      const btn = screen.getByRole('button', { name: /cobrar f6/i });
+      expect(btn.className).toContain('min-h-[48px]');
+      expect(btn.className).toContain('min-w-[48px]');
+      expect(btn.className).toContain('active:scale-[0.98]');
+    });
+
+    it('debe soportar variantes de tamaño (large, compact) y variante semántica (danger, secondary)', () => {
+      const { rerender } = render(
+        <PosButton size="large" variant="danger">
+          Eliminar
+        </PosButton>
+      );
+      let btn = screen.getByRole('button', { name: /eliminar/i });
+      expect(btn.className).toContain('min-h-[54px]');
+      expect(btn.className).toContain('bg-rose-500/10');
+
+      rerender(
+        <PosButton size="compact" variant="secondary">
+          Nota
+        </PosButton>
+      );
+      btn = screen.getByRole('button', { name: /nota/i });
+      expect(btn.className).toContain('min-h-[38px]');
+      expect(btn.className).toContain('bg-slate-800/90');
+    });
+
+    it('debe renderizar el atajo de teclado shortcutBadge con etiqueta kbd monospaced', () => {
+      render(<PosButton shortcutBadge="F6">Emitir Preventa</PosButton>);
+      const btn = screen.getByRole('button', { name: /emitir preventa/i });
+      expect(btn.textContent).toContain('F6');
+      const kbd = btn.querySelector('kbd');
+      expect(kbd).not.toBeNull();
+      expect(kbd?.textContent).toBe('F6');
+      expect(kbd?.className).toContain('font-mono');
+    });
+
+    it('debe deshabilitar interacción y mostrar indicador de carga si isLoading es true', () => {
+      const onClick = vi.fn();
+      render(
+        <PosButton isLoading={true} onClick={onClick}>
+          Procesando
+        </PosButton>
+      );
+      const btn = screen.getByRole('button');
+      expect(btn).toBeDisabled();
+      fireEvent.click(btn);
+      expect(onClick).not.toHaveBeenCalled();
+    });
+  });
 });
+

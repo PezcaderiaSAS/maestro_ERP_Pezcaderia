@@ -24,8 +24,8 @@
     "hash": "602ee85ba861793bc5a9449e497c77ed"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\vite.config.ts": {
-    "mtime": 1790953734.7810538,
-    "hash": "99c26f21250df3dd9fe71b08611e5216"
+    "mtime": 1793387258.9966922,
+    "hash": "b58da2a3e69d6a1a0fde98142dbc7ccf"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\agent-skills\\evals\\fixtures\\browser-testing-with-devtools\\server.js": {
     "mtime": 1784737298.9016392,
@@ -536,8 +536,8 @@
     "hash": "bdddb2346b466fbf37cee64605e6c0b0"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\App.tsx": {
-    "mtime": 1793377224.7807279,
-    "hash": "4d3d346ac248b7edd4632649feed07dc"
+    "mtime": 1793454412.6406446,
+    "hash": "1ddb16c20db13f8f9f86b251fc4ad1c8"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\main.tsx": {
     "mtime": 1793026972.290224,
@@ -552,7 +552,7 @@
     "hash": "f1b9c5b5af894f10fb0be23f9965cf23"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\components\\common\\ProductAvatar.tsx": {
-    "mtime": 1792158248.4563596,
+    "mtime": 1793454405.761255,
     "hash": "3caf59f1cd509abacb7eeaa00d7ca151"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\components\\inventory\\ExpiryAlertCards.tsx": {
@@ -576,8 +576,8 @@
     "hash": "e1740cf27f79f0a5532d880018cad8c9"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\components\\layout\\EnterpriseTopbar.tsx": {
-    "mtime": 1793377224.7827265,
-    "hash": "b0ec1cdf30551d98d37fdcc20cfeb818"
+    "mtime": 1793454412.642643,
+    "hash": "db5d9b81eb4a41e98bfa81ef113d579d"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\components\\layout\\GlobalOmniboxModal.tsx": {
     "mtime": 1790956462.0738957,
@@ -588,12 +588,12 @@
     "hash": "7a1cf22c9a8ee64773b6bfd7e57f38b3"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\components\\layout\\NetworkSyncStatusBadge.tsx": {
-    "mtime": 1793377224.7837281,
+    "mtime": 1793454405.7622533,
     "hash": "32266076fe89be8096f5cb30fc153346"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\components\\layout\\UserSwitchModal.tsx": {
-    "mtime": 1793209013.2411387,
-    "hash": "c8684cb9fa58ed8ade42519db735798e"
+    "mtime": 1793454412.6486433,
+    "hash": "d7c6667b058331e9094eec01418c40fa"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\components\\layout\\components\\GlassCard.tsx": {
     "mtime": 1793026972.283223,
@@ -622,6 +622,10 @@
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\components\\pos\\RestockModal.tsx": {
     "mtime": 1791301357.0269983,
     "hash": "e28bbe23c5839e7657061bf331b80add"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\components\\pos\\VendorTicketSidebar.tsx": {
+    "mtime": 1793384011.494697,
+    "hash": "c5896d050dc27b8ac072d2ac5020a504"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\components\\pwa\\PwaInstallBannerButton.tsx": {
     "mtime": 1792510092.597569,
@@ -680,7 +684,7 @@
     "hash": "c6a4565439fc861af2ec5879225a4bb3"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\dev\\DevTestDashboard.tsx": {
-    "mtime": 1790956462.0838969,
+    "mtime": 1793454405.76579,
     "hash": "b0184a7cfa044d13ae56991e1b68546b"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\dev\\seeds\\seedB2B.ts": {
@@ -700,7 +704,7 @@
     "hash": "e098a2bb47b4d5bc25cee4038648ec69"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\hooks\\useActionLogger.ts": {
-    "mtime": 1784123573.8113573,
+    "mtime": 1793454405.7677906,
     "hash": "1d8dc3fec07701214d4c5e139e1b5f39"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\hooks\\useB2BCart.ts": {
@@ -760,7 +764,7 @@
     "hash": "06e53d1afa690656565ab413c45ea9c1"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\hooks\\usePricing.ts": {
-    "mtime": 1793204626.0522497,
+    "mtime": 1793454405.7687886,
     "hash": "436eaefc101134c140844ec73f4df403"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\hooks\\usePricingEngine.ts": {
@@ -768,7 +772,7 @@
     "hash": "daf000358f44fda7d6541cfc4ead2348"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\hooks\\useVirtualGrid.ts": {
-    "mtime": 1793203367.2658796,
+    "mtime": 1793454405.770295,
     "hash": "73cc2f069641a8c3a2a22154f64bb163"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\lib\\consoleLogger.ts": {
@@ -814,6 +818,10 @@
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\schemas\\inventory.schema.ts": {
     "mtime": 1791302638.8033733,
     "hash": "c991b7f2ab294bcfd6efe72a1402a97f"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\schemas\\mixedPayment.schema.ts": {
+    "mtime": 1793454412.6486433,
+    "hash": "327e3ec48c4456746e8c59754f3ff21a"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\schemas\\multiVendorCash.schema.ts": {
     "mtime": 1793203367.2708802,
@@ -940,8 +948,8 @@
     "hash": "968e27744a0ef60b353608aef74ce87b"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\services\\ferreteriaJosaseService.ts": {
-    "mtime": 1793205047.9264493,
-    "hash": "555170dd14c118b8b87a3b4e94c1e6d2"
+    "mtime": 1793380031.7681043,
+    "hash": "4a1dd9cdab9742ffc5e3faa40fa160e1"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\services\\financialAdvisorService.ts": {
     "mtime": 1788369523.7685509,
@@ -996,8 +1004,8 @@
     "hash": "405a72aa5dc30e40b570454d91f95b3e"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\services\\outboxSyncService.ts": {
-    "mtime": 1792425745.156309,
-    "hash": "e2277727ff421efd794c6f5b29bdab17"
+    "mtime": 1793379532.2483766,
+    "hash": "9d07ffda8b639f05d9f475667db2534f"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\services\\payrollService.ts": {
     "mtime": 1788280064.5469427,
@@ -1276,8 +1284,8 @@
     "hash": "1601ca4c5b0ba86ea20f7fd18cba399f"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\architecturalBoundaries.test.ts": {
-    "mtime": 1793203367.2848833,
-    "hash": "4124f5099f84db63ebeae548496240c2"
+    "mtime": 1793379532.2033758,
+    "hash": "869e2b097cee3b1117a8751d43dbfb70"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\asesorMostradorSinCobro.test.tsx": {
     "mtime": 1793377224.7947268,
@@ -1420,8 +1428,8 @@
     "hash": "a243c7830aa0849c5ba5c7dfa67a4534"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\cashierKanban.test.tsx": {
-    "mtime": 1793377224.7967255,
-    "hash": "b9c44b0131a6e7eb2ca8cae11aa6c1db"
+    "mtime": 1793454412.6506414,
+    "hash": "4a7f2d5612162908d815112601312765"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\cashPurchasesIntegration.test.ts": {
     "mtime": 1791561859.8556898,
@@ -1551,6 +1559,10 @@
     "mtime": 1793203367.2918813,
     "hash": "50d9f817f5d994864cc872eabf604ec9"
   },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\ferreteriaJosaseIndexedDb.test.ts": {
+    "mtime": 1793380086.4961767,
+    "hash": "3668f1e32f886741dcb1ff6308c267f7"
+  },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\ferreteriaJosasePosIntegration.test.tsx": {
     "mtime": 1793203367.2918813,
     "hash": "041c8c51ec9f610a2283640a869a814a"
@@ -1592,8 +1604,8 @@
     "hash": "f5ba5c43b290c5df09d2fc32db2fc4d5"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\inventoryView7Tabs.test.tsx": {
-    "mtime": 1788366568.9329002,
-    "hash": "ea95b203ac12806380266cf073a26762"
+    "mtime": 1793378339.303341,
+    "hash": "189185840c44a765e33e137060246b9f"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\kanbanErgonomicsLaptopV8.test.tsx": {
     "mtime": 1793203367.29388,
@@ -1642,6 +1654,10 @@
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\multiVendorCashConcurrency.test.ts": {
     "mtime": 1793203367.3028817,
     "hash": "2b4d40e1cdfb1ecd7b403bc76ce57c6a"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\multiVendorCashierIntegrationE2E.test.tsx": {
+    "mtime": 1793454412.6506414,
+    "hash": "7df3d41287856b76cfc62fd685369257"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\multiVendorCashierSync.test.tsx": {
     "mtime": 1793377224.801726,
@@ -1720,8 +1736,8 @@
     "hash": "1ef8d6f0cc1a30e6bc5cee82a265a163"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\posCartPanelErgonomics.test.tsx": {
-    "mtime": 1792079184.003995,
-    "hash": "01f3e7efe8662fb7aa83397bed9129ae"
+    "mtime": 1793454412.6526427,
+    "hash": "c1d96278c5f160d40780c2d0bd4fee55"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\posCartRowErgonomics.test.tsx": {
     "mtime": 1792079184.0059907,
@@ -1803,6 +1819,10 @@
     "mtime": 1793203367.3058827,
     "hash": "0e364ebf5d590b3b7834aca2d043f09c"
   },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\preventaNotesDobleNivel.test.tsx": {
+    "mtime": 1793382410.7707348,
+    "hash": "9bb37f8ee03ceb03b6bc9d10278e83a5"
+  },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\pricingCalculationService.test.ts": {
     "mtime": 1793026972.3072262,
     "hash": "8272de5f859c16d12e9504dddf782b63"
@@ -1863,9 +1883,17 @@
     "mtime": 1792164126.6000948,
     "hash": "976d3d5599ad3d3a7a2cb79c018dcf8d"
   },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\quickClientSearchSub2ms.test.tsx": {
+    "mtime": 1793380921.0733576,
+    "hash": "498a473889f9f00881b2c7b78dff447d"
+  },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\quickExpenseCategories.test.ts": {
     "mtime": 1791561859.8576863,
     "hash": "9afd75561a03d336e79f225621f56a1e"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\quickPaymentMixedModal.test.tsx": {
+    "mtime": 1793454412.6566477,
+    "hash": "e657aa7203e1b1ef92c973a68f13e4fe"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\resolucionesConsecutivoDual.test.ts": {
     "mtime": 1792168381.959493,
@@ -1936,8 +1964,8 @@
     "hash": "9ce905b6c79959d07450c87b24093234"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\syncWorkerBatch.test.ts": {
-    "mtime": 1793377224.8047256,
-    "hash": "4b2dd09bdb8983e1a8082c428de7ec66"
+    "mtime": 1793385337.1346433,
+    "hash": "24b4b30dc0f0eb74d51a639860f7c324"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\tanstackQueryIntegration.test.ts": {
     "mtime": 1790953734.734054,
@@ -2019,6 +2047,10 @@
     "mtime": 1793203367.3128803,
     "hash": "00b6acb3214dbda56e979e4b410a4c77"
   },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\vendorTicketSidebar.test.tsx": {
+    "mtime": 1793382589.6560538,
+    "hash": "c5703af36aa342252852d10b60bf688c"
+  },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\tests\\virtualGrid.test.tsx": {
     "mtime": 1793203367.3128803,
     "hash": "9ce358edb359653a8a19121d52a2a455"
@@ -2068,16 +2100,16 @@
     "hash": "e338e07669338033fdfa60c02184a247"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\types\\cash.types.ts": {
-    "mtime": 1791561859.8586864,
-    "hash": "0b4d240115cef1342209ba9a016cea13"
+    "mtime": 1793379532.2053864,
+    "hash": "8bc0d91775f9ef696786f449f4f75c7f"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\types\\common.types.ts": {
     "mtime": 1784127716.7837827,
     "hash": "380622afa9f4e3779662fd64ebd2fc00"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\types\\deltaSync.schema.ts": {
-    "mtime": 1793377224.8057265,
-    "hash": "50df2f4da82baea0085317f405b79996"
+    "mtime": 1793382028.4100437,
+    "hash": "8a68c349058661622ffb9f1c8e6aeb11"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\types\\differentialPricing.types.ts": {
     "mtime": 1793203367.3138804,
@@ -2124,12 +2156,12 @@
     "hash": "7a6823313c68b5b37a880b7fa606a831"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\types\\pos.types.ts": {
-    "mtime": 1792169319.9133296,
-    "hash": "acb9c7b0c8a741e4af77ec6b6a91fe4b"
+    "mtime": 1793382169.23472,
+    "hash": "a245e5c2f1aeb978389a1e394c2cb13b"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\types\\prefactura.types.ts": {
-    "mtime": 1793377224.8067276,
-    "hash": "3a625a1151e99e314915de4cb450cab2"
+    "mtime": 1793383023.9188037,
+    "hash": "791a1e9fd3c788b7f1fb96c91a2813a2"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\types\\pricingEngine.types.ts": {
     "mtime": 1793026972.3162246,
@@ -2188,7 +2220,7 @@
     "hash": "3f877e5db91daf100d8a27f55af71973"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\CRMView.tsx": {
-    "mtime": 1787331721.3809767,
+    "mtime": 1793454405.771302,
     "hash": "ba0cadd946c3121cfef76309a51269f1"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\DashboardView.tsx": {
@@ -2212,8 +2244,8 @@
     "hash": "aba659bedb09515fa299ecfad71180c7"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\POSView.tsx": {
-    "mtime": 1793377224.81345,
-    "hash": "ce574494f9d356dc4f4c5487071afc77"
+    "mtime": 1793454412.6586428,
+    "hash": "5cd26ee1cc2559816c64e2afa820455e"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\PricingView.tsx": {
     "mtime": 1793204626.061251,
@@ -2296,8 +2328,8 @@
     "hash": "eb4799b269fc68fa77f14b44b56a20ec"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\b2b\\portal\\components\\B2BItemConfiguratorModal.tsx": {
-    "mtime": 1792776363.8003166,
-    "hash": "eeb6910f6a3341f195dc1fdd3176c562"
+    "mtime": 1793454405.7723026,
+    "hash": "f435ec6a77452b78294e31ef62900757"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\b2b\\portal\\components\\B2BOrderTrackingTimeline.tsx": {
     "mtime": 1792776411.953305,
@@ -2396,8 +2428,8 @@
     "hash": "bd5ac170994db5390e6be19834b5e674"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\inventory\\components\\BranchSalesReport.tsx": {
-    "mtime": 1791908052.6586294,
-    "hash": "f1f2b32f805aadc855cdeb3780339ef3"
+    "mtime": 1793454405.7739065,
+    "hash": "3dda59554a319de0ab9200e394f8f9f5"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\inventory\\components\\BucaramangaReceivingWizard.tsx": {
     "mtime": 1792158248.4880803,
@@ -2496,7 +2528,7 @@
     "hash": "66220da0a0ad41fce4e0c74b92ab15fd"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\inventory\\components\\RouteManifestBuilderModal.tsx": {
-    "mtime": 1791989559.8973956,
+    "mtime": 1793454405.7748153,
     "hash": "b4c25fb9ae781c6e86c92d9519cf855f"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\inventory\\components\\RouteSettlementModal.tsx": {
@@ -2512,11 +2544,11 @@
     "hash": "19b32da29cad216decccf51551cdfd3d"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\inventory\\components\\TransferPickingModal.tsx": {
-    "mtime": 1790956462.2099667,
+    "mtime": 1793454405.77745,
     "hash": "7911980628aeb6655eb4a3d6782ad6cf"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\inventory\\components\\TransferReceivingChecklistModal.tsx": {
-    "mtime": 1790956462.210966,
+    "mtime": 1793454405.77833,
     "hash": "190d5f0af95a3c0ac2bac510c81a70bf"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\inventory\\components\\WarehouseConfigManager.tsx": {
@@ -2532,7 +2564,7 @@
     "hash": "282bf959280861cd985d668fce08a73c"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\inventory\\components\\WeightPackingModal.tsx": {
-    "mtime": 1792158248.4900794,
+    "mtime": 1793454405.782334,
     "hash": "6052546716cd190b79063cb5ede46d12"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\inventory\\components\\WmsRemisionModal.tsx": {
@@ -2596,20 +2628,20 @@
     "hash": "bce59887dbbca2f97ec219afc47ddeea"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\pos\\components\\CartPanel.tsx": {
-    "mtime": 1793377224.8194509,
-    "hash": "c68e593b127a1dce28eefac29965b6ff"
+    "mtime": 1793454412.6606424,
+    "hash": "0337b9bfed21b28d9b894da8529ae282"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\pos\\components\\CashierKanbanView.tsx": {
-    "mtime": 1793377224.8204503,
-    "hash": "8060b28f27564780b02133dc29a9cbde"
+    "mtime": 1793454412.6616423,
+    "hash": "4e16c6931852f28967d4f7950decdf39"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\pos\\components\\DenominationsCalculator.tsx": {
     "mtime": 1790956462.2490175,
     "hash": "6e4e2c236c4674ba3d100af53e8a4e5c"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\pos\\components\\DiscountPanel.tsx": {
-    "mtime": 1793203367.3348813,
-    "hash": "f0ef20224029a7254902456a4b0fe08d"
+    "mtime": 1793454412.662642,
+    "hash": "cefc3054ae1d9e7cbcc978899ad038e7"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\pos\\components\\DispatchScannerModal.tsx": {
     "mtime": 1793203367.3358805,
@@ -2624,12 +2656,12 @@
     "hash": "81b56c7ab100d7fa957be530724e8225"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\pos\\components\\OnScreenKeypadModal.tsx": {
-    "mtime": 1793026972.3762245,
+    "mtime": 1793454405.7843332,
     "hash": "d591a9f8a7329831c17a13fac526aef4"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\pos\\components\\ParkedOrdersBar.tsx": {
-    "mtime": 1793377224.821451,
-    "hash": "228278470cd35a1ed3132333248ec414"
+    "mtime": 1793454412.6636415,
+    "hash": "ca80e5e420957447ee57e4d45d6fe1cc"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\pos\\components\\PaymentPanel.tsx": {
     "mtime": 1793377224.8224509,
@@ -2654,6 +2686,10 @@
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\pos\\components\\QuickConvertToElectronicInvoiceModal.tsx": {
     "mtime": 1792168614.6455355,
     "hash": "a84a64adffce1a57260efb62a9e26bbe"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\pos\\components\\QuickPaymentMixedModal.tsx": {
+    "mtime": 1793454412.664643,
+    "hash": "f04db2f04b9ba1e0944c3a525ab355ad"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\pos\\components\\RetiroParcialModal.tsx": {
     "mtime": 1790956462.2540176,
@@ -2680,7 +2716,7 @@
     "hash": "4b5d5b64c7bc9a925a05cf4de95c1acb"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\pricing\\components\\BatchCategoryRecalculateModal.tsx": {
-    "mtime": 1793026972.3802247,
+    "mtime": 1793454405.7863317,
     "hash": "ddc769b5ce22a92cc9c4cfcfcb1e5a52"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\pricing\\components\\CatalogTab.tsx": {
@@ -2692,7 +2728,7 @@
     "hash": "e8aa916d529326c8c5e134ca5a65fbfe"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\pricing\\components\\PriceHistoryAuditDrawer.tsx": {
-    "mtime": 1793026972.382223,
+    "mtime": 1793454405.787295,
     "hash": "b621a7e25b758f88d5a5c99a887e6251"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\src\\views\\pricing\\components\\PriceHistoryModal.tsx": {
@@ -3096,8 +3132,8 @@
     "hash": "04e36309293ca564264819a8cef99fd6"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\core\\tree.py": {
-    "mtime": 1792680318.452343,
-    "hash": "84afc84c77c30debc7f8d764073e50ee"
+    "mtime": 1793454412.6656432,
+    "hash": "42957963bf38b17c409e4a64f5d9c500"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\harness2\\core\\__init__.py": {
     "mtime": 1792680318.4394412,
@@ -3120,7 +3156,7 @@
     "hash": "cb247a393d06a8dd18d23d96bf10130e"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\base\\scripts\\summarize.py": {
-    "mtime": 1793217317.774243,
+    "mtime": 1793378461.100059,
     "hash": "18f3bc32620f8d6f70f0bcdf279e1a81"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\runs\\demo-oc-seq1\\ledger-1\\context\\c1\\harness\\scripts\\summarize.py": {
@@ -3296,8 +3332,8 @@
     "hash": "e8eb5ea3bc9ef95600122aa44831b5b0"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\tests\\test_workflow.py": {
-    "mtime": 1792680318.46335,
-    "hash": "baed4fe1d4dea4a302a4442cdc37eba8"
+    "mtime": 1793454412.6676435,
+    "hash": "4b6fb22784fd2f449588f395b66ee93d"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\third_party\\lab_runner\\adapt_runs_cx\\run_codex_lab.py": {
     "mtime": 1792680318.4753506,
@@ -3392,8 +3428,8 @@
     "hash": "531d30c79f6a0930aea0ee5c9702ef64"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\MEMORY.md": {
-    "mtime": 1793377224.7697258,
-    "hash": "0375cde67e8cf56b9467edb9be0aa0f7"
+    "mtime": 1793454412.614643,
+    "hash": "6beff8e982925027ea4b32e4ebd27ab3"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\pnpm-workspace.yaml": {
     "mtime": 1791561859.8085408,
@@ -3952,8 +3988,16 @@
     "hash": "6fb1a6a7ebce42e3257aed55a6083800"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\DOCS\\handovers\\session_closure_handover_2026_10_29.md": {
-    "mtime": 1793377224.7677271,
-    "hash": "449f3082fcd87b6cc260c78c0e3f68d0"
+    "mtime": 1793454412.6126432,
+    "hash": "184b99c8c88960c5c08c6256a007efe3"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\DOCS\\handovers\\session_closure_handover_2026_10_30.md": {
+    "mtime": 1793383281.0380294,
+    "hash": "7eb2380afd4080b63e5ea0a846e47ace"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\DOCS\\handovers\\session_closure_handover_2026_10_31.md": {
+    "mtime": 1793454412.6136441,
+    "hash": "56103c46de5cd04f3c82eb63fa2ff8a9"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\DOCS\\ideas\\erp-modules-escalation.md": {
     "mtime": 1784123572.9988945,
@@ -4176,11 +4220,11 @@
     "hash": "5cda1f53e97f3d49411316f9bbc44cf1"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\graphify-out\\converted\\Clientes_ferreteria_5bc56bd5.md": {
-    "mtime": 1793377242.609847,
+    "mtime": 1793454444.1138237,
     "hash": "5ccda5fba9fa61681774d770e1253ae3"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\graphify-out\\converted\\raw_items_ferreteria_2475e2b3.md": {
-    "mtime": 1793377243.3498251,
+    "mtime": 1793454445.6615686,
     "hash": "47d0c6a7922337c6b965b991f4c17961"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\scripts\\refactoring\\test_out.txt": {
@@ -4931,6 +4975,50 @@
     "mtime": 1793377224.776727,
     "hash": "d7ed55af6f870079c5cf8b445a7e0a90"
   },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\042-ajuste-ergonomico-mostrador-comandas\\checklist.md": {
+    "mtime": 1793454412.6166432,
+    "hash": "6a029ce730f15a3557265281ec315f25"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\042-ajuste-ergonomico-mostrador-comandas\\plan.md": {
+    "mtime": 1793454412.6176429,
+    "hash": "60c57ba55255c10f24930e33330499e0"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\042-ajuste-ergonomico-mostrador-comandas\\spec.md": {
+    "mtime": 1793454412.6186426,
+    "hash": "536dbd6ad258e1b1be6987b0dff77b7c"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\042-ajuste-ergonomico-mostrador-comandas\\tasks.md": {
+    "mtime": 1793454412.6236565,
+    "hash": "a2b583ae70b072aa72cf86ee48a64bd0"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\043-ferreteria-josase-multivendedor-caja-unica\\checklist.md": {
+    "mtime": 1793379614.5126388,
+    "hash": "0a2a4af5dc997f27167b087be714e80f"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\043-ferreteria-josase-multivendedor-caja-unica\\plan.md": {
+    "mtime": 1793379649.5833652,
+    "hash": "17de2c81f4d8e8f78c054a6af3d26750"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\043-ferreteria-josase-multivendedor-caja-unica\\spec.md": {
+    "mtime": 1793379586.248515,
+    "hash": "99a09ebd18d4d4c9fb77d546059af3a1"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\043-ferreteria-josase-multivendedor-caja-unica\\tasks.md": {
+    "mtime": 1793454412.6256442,
+    "hash": "60a66a9f238db998fa4c5bed557c5be4"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\044-integridad-lint-dependencias\\plan.md": {
+    "mtime": 1793382477.961972,
+    "hash": "90dc805c9ee305add7d67fb1fb446617"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\044-integridad-lint-dependencias\\spec.md": {
+    "mtime": 1793382477.9559708,
+    "hash": "f42b7f9ddccfa14854f1a027976f2efd"
+  },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\044-integridad-lint-dependencias\\tasks.md": {
+    "mtime": 1793382477.9799716,
+    "hash": "5edc904cf7aa3fc2ad31a2a82b98e138"
+  },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\enterprise-hardening-architecture\\plan.md": {
     "mtime": 1790953734.6850548,
     "hash": "31ce3a2c7fa319668ef81f119e76ffa0"
@@ -4971,9 +5059,13 @@
     "mtime": 1792170822.6734085,
     "hash": "6ee6402d68665bf8a1c51093042b1c56"
   },
+  "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\sdd_verification_reports\\sdd_verification_20261031_084713.md": {
+    "mtime": 1793454433.385596,
+    "hash": "e035c705565b969c3c5e18dc0c34bd8d"
+  },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\sdd_verification_reports\\sdd_verification_latest.md": {
-    "mtime": 1792170822.672411,
-    "hash": "6ee6402d68665bf8a1c51093042b1c56"
+    "mtime": 1793454433.385596,
+    "hash": "e035c705565b969c3c5e18dc0c34bd8d"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\specs\\wms-cold-storage-rental\\plan.md": {
     "mtime": 1790953734.691054,
@@ -5020,19 +5112,19 @@
     "hash": "0e699ed3f5c26db93758d98bcb473d7e"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\base\\guardrails.md": {
-    "mtime": 1793217317.773246,
+    "mtime": 1793378461.0980604,
     "hash": "d41d8cd98f00b204e9800998ecf8427e"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\base\\LongTermMEMORY.md": {
-    "mtime": 1793217317.773246,
+    "mtime": 1793378461.0980604,
     "hash": "d41d8cd98f00b204e9800998ecf8427e"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\base\\systemprompt.md": {
-    "mtime": 1793217317.7727268,
+    "mtime": 1793378461.0980604,
     "hash": "e5e62b0d47c166d0b94d376819507248"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\base\\tool_descriptions\\tool_guidance.md": {
-    "mtime": 1793217317.774243,
+    "mtime": 1793378461.0990608,
     "hash": "d41d8cd98f00b204e9800998ecf8427e"
   },
   "C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\executions\\demo-oc-agg1\\ledger-1\\base1\\answer.txt": {

@@ -1,6 +1,6 @@
 {
-  "last_verified": "2026-10-16 12:13:42",
-  "hash": "65403b896377b90db2dfd4b4eb6ad1d985bb35652e4255fbaebc4ebdf3f4ac17",
+  "last_verified": "2026-10-31 08:47:13",
+  "hash": "14cd8fc4ce2053014e87fac253b9eb6cc9fae4436143089eaf5d5d6828012f3f",
   "dependencies": {
     "@google/genai": "^2.25.0",
     "@sentry/react": "^11.4.0",
@@ -28,11 +28,12 @@
     "@types/node": "^26.0.1",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
-    "@typescript-eslint/eslint-plugin": "^7.2.0",
-    "@typescript-eslint/parser": "^7.2.0",
+    "@typescript-eslint/eslint-plugin": "^8.72.1",
+    "@typescript-eslint/parser": "^8.72.1",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.19",
     "ecc-universal": "^2.0.0",
+    "eslint-plugin-react-hooks": "7.1.1",
     "jsdom": "^29.1.1",
     "postcss": "^8.4.38",
     "prisma": "^5.22.0",

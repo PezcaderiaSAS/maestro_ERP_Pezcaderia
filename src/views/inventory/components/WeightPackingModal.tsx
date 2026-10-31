@@ -71,8 +71,6 @@ export const WeightPackingModal: React.FC<WeightPackingModalProps> = ({
   const [checkCanastillaLimpia, setCheckCanastillaLimpia] = useState<boolean>(true);
   const [checkPrecintoColocado, setCheckPrecintoColocado] = useState<boolean>(false);
 
-  if (!isOpen) return null;
-
   const pesoRealNum = parseFloat(pesoInput) || 0;
   const piezasNum = parseInt(piezasInput) || 1;
   const tempNum = parseFloat(temperaturaInput) || 2.0;
@@ -131,6 +129,8 @@ export const WeightPackingModal: React.FC<WeightPackingModalProps> = ({
     });
     onClose();
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">

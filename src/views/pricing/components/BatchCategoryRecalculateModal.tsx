@@ -33,8 +33,6 @@ export const BatchCategoryRecalculateModal: React.FC<BatchCategoryRecalculateMod
   globalConfig,
   onApplyBatchRecalculate,
 }) => {
-  if (!isOpen) return null;
-
   // Extraer categorías únicas disponibles
   const categoriasDisponibles = useMemo(() => {
     const cats = Array.from(new Set(products.map((p) => p.categoria))).filter(Boolean);
@@ -108,6 +106,8 @@ export const BatchCategoryRecalculateModal: React.FC<BatchCategoryRecalculateMod
       };
     });
   }, [products, categoriaSeleccionada, globalConfig]);
+
+  if (!isOpen) return null;
 
   const handleConfirmBatch = async () => {
     if (previewItems.length === 0) {

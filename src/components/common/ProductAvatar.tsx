@@ -113,6 +113,9 @@ export const ProductAvatar: React.FC<ProductAvatarProps> = ({
 
   const sizeClass = SIZE_CLASSES[size] || SIZE_CLASSES.md;
   const imageAlt = alt || nombre || 'Producto del mar';
+  const svgDataUrl = useMemo(() => {
+    return generateProductSVGAvatar(nombre || 'Producto', categoria);
+  }, [nombre, categoria]);
 
   // Si se solicita vectorOnly (Regla de Cero Imágenes estricta)
   if (vectorOnly) {
@@ -130,10 +133,6 @@ export const ProductAvatar: React.FC<ProductAvatarProps> = ({
 
   // Si no hay imagen, es placeholder de Unsplash o falló la carga previa, usar SVG generado
   const shouldRenderSVG = imageError || isExternalPlaceholder(imagen);
-
-  const svgDataUrl = useMemo(() => {
-    return generateProductSVGAvatar(nombre || 'Producto', categoria);
-  }, [nombre, categoria]);
 
   if (shouldRenderSVG) {
     return (

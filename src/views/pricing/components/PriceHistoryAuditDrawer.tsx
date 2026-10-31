@@ -29,8 +29,6 @@ export const PriceHistoryAuditDrawer: React.FC<PriceHistoryAuditDrawerProps> = (
   productoId,
   products,
 }) => {
-  if (!isOpen || !productoId) return null;
-
   const currentProduct = products.find((p) => p.id === productoId);
 
   // Carga de snapshots inmutables desde localDb
@@ -43,7 +41,9 @@ export const PriceHistoryAuditDrawer: React.FC<PriceHistoryAuditDrawerProps> = (
     } catch {
       return [];
     }
-  }, [productoId, isOpen]);
+  }, [productoId]);
+
+  if (!isOpen || !productoId) return null;
 
   return (
     <div

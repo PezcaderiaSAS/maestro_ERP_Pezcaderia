@@ -76,9 +76,7 @@ export const OnScreenKeypadModal: React.FC<OnScreenKeypadModalProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, valStr, precioUnitario]);
-
-  if (!isOpen) return null;
+  }, [isOpen, valStr, precioUnitario, onClose]);
 
   const numericVal = useMemo(() => {
     if (!valStr || valStr === '.') return 0;
@@ -126,6 +124,8 @@ export const OnScreenKeypadModal: React.FC<OnScreenKeypadModalProps> = ({
 
   const isUnd = unidad === 'UND' || unidad === 'UNIDAD';
   const chips = isUnd ? CHIPS_UND : CHIPS_KG;
+
+  if (!isOpen) return null;
 
   return (
     <div

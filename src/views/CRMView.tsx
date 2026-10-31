@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { 
   Building2, Users, PieChart, Plus, Search, Filter, 
   MoreVertical, Mail, Phone, MapPin, ChevronRight,
@@ -44,11 +44,7 @@ export default function CRMView() {
     { id: '2', name: 'Provisión Mensual Mariscos', amount: 4500000, stage: 'NEGOTIATION', closeDate: '2026-06-25', companyId: '2' },
   ];
 
-  useEffect(() => {
-    fetchData();
-  }, [activeTab]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     const erpCompanies = clientes.map(c => ({
       id: c.id,
@@ -84,7 +80,11 @@ export default function CRMView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab, clientes]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleCreate = () => {
     Swal.fire({

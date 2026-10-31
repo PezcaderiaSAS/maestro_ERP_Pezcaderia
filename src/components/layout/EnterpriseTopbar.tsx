@@ -11,6 +11,7 @@ import {
   Check,
   Building2,
   ChevronDown,
+  RotateCcw,
 } from 'lucide-react';
 import type { ERPViewKey } from './EnterpriseSidebar';
 import { getRouteBreadcrumbs, AppRouteId } from '../../routes/AppRoute';
@@ -21,6 +22,7 @@ import { getInitials } from '../../utils/roleMapper';
 import { UserSwitchModal } from './UserSwitchModal';
 import { TenantSelectorModal } from '../../views/auth/components/TenantSelectorModal';
 import { ferreteriaJosaseService } from '../../services/ferreteriaJosaseService';
+import { databasePurgeService } from '../../services/databasePurgeService';
 import { prefacturaService } from '../../services/prefacturaService';
 import { cashService } from '../../services/cashService';
 import Swal from 'sweetalert2';
@@ -127,6 +129,82 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
     window.addEventListener('keydown', handleTopbarShortcuts);
     return () => window.removeEventListener('keydown', handleTopbarShortcuts);
   }, [onNavigatePOS, onNavigateKanban]);
+
+  const handlePurgeDatabase = async () => {
+    const isJosase = activeTenant?.id === 'tenant-03' || activeTenant?.razonSocial?.toLowerCase().includes('josase');
+    const tenantTarget = isJosase ? 'tenant-03' : (activeTenant?.id || 'tenant-01');
+
+    const confirm = await Swal.fire({
+      title: '¿Purgar y Optimizar Base de Datos?',
+      html: `
+        <div class="text-left text-xs text-slate-300 space-y-2">
+          <p>Esta acción ejecutará una <strong>purga integral de desarrollo</strong>:</p>
+          <ul class="list-disc pl-4 space-y-1 text-slate-400">
+            <li>Limpia <strong>IndexedDB</strong> y colas locales del tenant actual.</li>
+            <li>Elimina cachés pesadas de <strong>LocalStorage</strong> conservando tu turno y sesión.</li>
+            <li>Resiembra de forma atómica el catálogo semilla ligero (<strong>25 productos y 10 clientes canónicos</strong>).</li>
+            <li>Purga transaccional en <strong>Supabase</strong> para el tenant <code>${tenantTarget}</code>.</li>
+          </ul>
+          <p class="text-emerald-400 font-semibold pt-1">⚡ El ERP arrancará en &lt;50ms a 120 FPS sin bloqueos.</p>
+        </div>
+      `,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#475569',
+      confirmButtonText: 'Sí, Purgar y Resembrar',
+      cancelButtonText: 'Cancelar',
+      background: '#0f172a',
+      color: '#f8fafc',
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    Swal.fire({
+      title: 'Purgando datos...',
+      text: 'Vaciando almacenes y resembrando catálogo ligero...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+      background: '#0f172a',
+      color: '#f8fafc',
+    });
+
+    try {
+      const res = await databasePurgeService.purgeAll({
+        tenantId: tenantTarget,
+        conservarSesionTurno: true,
+        limpiarRemotoSupabase: true,
+        motivo: 'Purga manual solicitada desde EnterpriseTopbar',
+      });
+
+      Swal.fire({
+        icon: 'success',
+        title: '¡Base de Datos Optimizada!',
+        html: `
+          <div class="text-sm text-slate-300 space-y-1">
+            <p>Tiempo de purga local: <strong class="text-cyan-400">${res.local.durationMs} ms</strong></p>
+            <p>Clientes canónicos: <strong class="text-emerald-400">${res.local.clientesResembrados}</strong></p>
+            <p>Productos con stock: <strong class="text-emerald-400">${res.local.productosResembrados}</strong></p>
+            <p class="text-xs text-slate-400 pt-1">Purga remota Supabase: ${res.remotoSuccess ? '✅ Sincronizada' : '⚠️ Offline/Controlado'}</p>
+          </div>
+        `,
+        timer: 3000,
+        showConfirmButton: false,
+        background: '#0f172a',
+        color: '#f8fafc',
+      });
+    } catch (err: any) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error en la purga',
+        text: err?.message || 'Ocurrió un error al purgar los datos.',
+        background: '#0f172a',
+        color: '#f8fafc',
+      });
+    }
+  };
 
   return (
     <header
@@ -240,7 +318,11 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
                 nit: '900.543.210-9',
                 ciudad: 'Bucaramanga',
               });
-              await ferreteriaJosaseService.applyToStores();
+              await databasePurgeService.purgeLocalDatabase({
+                tenantId: 'tenant-03',
+                conservarSesionTurno: true,
+                limpiarRemotoSupabase: false,
+              });
               prefacturaService.asegurarPreventasSemillaDemo('tenant-03');
               const t = cashService.getTurnoActivo('CAJA-1');
               if (!t) {
@@ -262,6 +344,19 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
         >
           <span>{(activeTenant?.id === 'tenant-03' || activeTenant?.razonSocial?.toLowerCase().includes('josase')) ? '🔨 Josase' : '🐟 Pezcadería'}</span>
           <span className="text-[10px] opacity-70">⇄</span>
+        </button>
+
+        {/* Botón Purga y Resiembra Rápida Dev (Reset 1-Clic) */}
+        <button
+          type="button"
+          id="topbar-btn-purge-db"
+          data-testid="topbar-btn-purge-db"
+          onClick={handlePurgeDatabase}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer active:scale-95 shrink-0 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border-rose-500/30 shadow-xs"
+          title="Purgar datos masivos y resembrar catálogo ligero (Reset 1-Clic)"
+        >
+          <RotateCcw size={13} className="shrink-0 text-rose-400" />
+          <span className="hidden xl:inline">Reset DB</span>
         </button>
 
         {/* Acceso Directo Kanban Preventas Caja Única */}

@@ -49,7 +49,7 @@ export const BranchSalesReport: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSucursal, fechaInicio, fechaFin, selectedMetodo, refreshTrigger]);
 
-  const summaries: BranchSalesSummary[] = reporteResult.data || [];
+  const summaries = useMemo<BranchSalesSummary[]>(() => reporteResult.data || [], [reporteResult.data]);
 
   // Totales consolidados para las tarjetas superiores
   const totalesGlobales = useMemo(() => {

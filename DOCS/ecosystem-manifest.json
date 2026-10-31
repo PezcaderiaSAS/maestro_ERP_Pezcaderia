@@ -1,9 +1,9 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2026-10-31T12:34:12.616Z",
+  "lastUpdated": "2026-10-31T19:22:55.550Z",
   "totals": {
     "workflows": 116,
-    "skills": 11,
+    "skills": 12,
     "agencies": 7,
     "mcpServers": 14
   },
@@ -957,6 +957,13 @@
       "name": "backend_db",
       "description": "Habilidad de desarrollo especializada para ERP",
       "path": ".agents/skills/backend_db",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "design-lab",
+      "name": "design-lab",
+      "description": "Conduct design interviews, generate five distinct UI variations in a temporary design lab, collect feedback, and produce implementation plans. Use when the user wants to explore UI design options, redesign existing components, or create new UI with multiple approaches to compare.",
+      "path": ".agents/skills/design-lab",
       "status": "ACTIVE"
     },
     {

@@ -61,8 +61,6 @@ export const RouteManifestBuilderModal: React.FC<RouteManifestBuilderModalProps>
     }
   }, [isOpen, initialSelectedIds]);
 
-  if (!isOpen) return null;
-
   const handleSelectConductorPreset = (cId: string) => {
     setSelectedConductorId(cId);
     const cond = CONDUCTORES_PREDETERMINADOS.find((c) => c.id === cId);
@@ -137,6 +135,8 @@ export const RouteManifestBuilderModal: React.FC<RouteManifestBuilderModalProps>
       estaSobrecargado,
     };
   }, [pedidosDisponibles, selectedPedidoIds, vehiculoCapacidadKg]);
+
+  if (!isOpen) return null;
 
   const handleCrearManifiesto = () => {
     if (selectedPedidoIds.length === 0) {

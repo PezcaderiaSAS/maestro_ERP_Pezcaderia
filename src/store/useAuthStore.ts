@@ -18,7 +18,6 @@ import {
 } from '../services/tenantOnboardingService';
 import { superAdminService } from '../services/superAdminService';
 import { useSuperAdminStore } from './useSuperAdminStore';
-import { ferreteriaJosaseService } from '../services/ferreteriaJosaseService';
 import * as localDb from '../services/localDb';
 import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
 import { getSupabaseClient } from '../lib/supabase';
@@ -621,12 +620,6 @@ export const useAuthStore = create<AuthState>()(
       });
 
       useSuperAdminStore.getState().selectTenant(normTenant.id);
-
-      if (normTenant.id === 'tenant-03') {
-        ferreteriaJosaseService.applyToStores().catch((err) => {
-          console.warn('Error aplicando catálogo Ferretería Josase:', err);
-        });
-      }
     },
 
     clearError: () => set({ error: null }),

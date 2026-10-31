@@ -10,6 +10,7 @@ import { DevFastLoginDrawer } from './components/DevFastLoginDrawer';
 import type { AuthUserProfile } from '../../types/auth.types';
 import Swal from 'sweetalert2';
 import { ferreteriaJosaseService } from '../../services/ferreteriaJosaseService';
+import { databasePurgeService } from '../../services/databasePurgeService';
 import { prefacturaService } from '../../services/prefacturaService';
 import { cashService } from '../../services/cashService';
 
@@ -83,7 +84,12 @@ export const LoginView: React.FC<LoginViewProps> = ({
         token: 'mock-token-demo-josase',
       });
 
-      await ferreteriaJosaseService.applyToStores();
+      // Inicialización instantánea con catálogo ligero canónico (< 15ms)
+      await databasePurgeService.purgeLocalDatabase({
+        tenantId: 'tenant-03',
+        conservarSesionTurno: false,
+        limpiarRemotoSupabase: false,
+      });
       prefacturaService.asegurarPreventasSemillaDemo('tenant-03');
 
       const turnoExistente = cashService.getTurnoActivo('CAJA-1');

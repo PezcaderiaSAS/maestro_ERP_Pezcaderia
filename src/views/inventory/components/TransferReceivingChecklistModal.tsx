@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   CheckSquare,
   X,
@@ -34,8 +34,6 @@ export const TransferReceivingChecklistModal: React.FC<TransferReceivingChecklis
   traslado,
   onSuccess,
 }) => {
-  if (!isOpen || !traslado) return null;
-
   const [recibidoPor, setRecibidoPor] = useState('Cajero Mostrador POS');
   const [observacionesRecepcion, setObservacionesRecepcion] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,6 +41,7 @@ export const TransferReceivingChecklistModal: React.FC<TransferReceivingChecklis
   // Inicializar estado del checklist de recepción
   const [itemsChecklist, setItemsChecklist] = useState<Record<string, ItemRecepcionForm>>(() => {
     const map: Record<string, ItemRecepcionForm> = {};
+    if (!traslado?.items) return map;
     traslado.items.forEach((item) => {
       map[item.productoId] = {
         productoId: item.productoId,
@@ -55,6 +54,22 @@ export const TransferReceivingChecklistModal: React.FC<TransferReceivingChecklis
     });
     return map;
   });
+
+  useEffect(() => {
+    if (!traslado?.items) return;
+    const map: Record<string, ItemRecepcionForm> = {};
+    traslado.items.forEach((item) => {
+      map[item.productoId] = {
+        productoId: item.productoId,
+        cantidadRecibida: item.cantidadDespachada,
+        cantidadDespachadaOriginal: item.cantidadDespachada,
+        conforme: true,
+        novedadMotivo: undefined,
+        novedadDetalle: '',
+      };
+    });
+    setItemsChecklist(map);
+  }, [traslado]);
 
   const handleUpdateItem = (productoId: string, patch: Partial<ItemRecepcionForm>) => {
     setItemsChecklist((prev) => {
@@ -107,6 +122,7 @@ export const TransferReceivingChecklistModal: React.FC<TransferReceivingChecklis
 
   const handleSubmitConfirmacion = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!traslado) return;
 
     const listaItems = Object.values(itemsChecklist);
 
@@ -173,6 +189,8 @@ export const TransferReceivingChecklistModal: React.FC<TransferReceivingChecklis
     (acc, i) => acc + (Number(i.cantidadRecibida) || 0),
     0
   );
+
+  if (!isOpen || !traslado) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">

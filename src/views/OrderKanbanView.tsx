@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import {
   Truck,
   CheckCircle,
@@ -125,6 +125,22 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
     return Array.from(map.values());
   }, [ventas, quotations]);
 
+  const persistOrderUpdate = useCallback((quoteId: string, updatedFields: Record<string, any>) => {
+    if (updatedFields.estado) {
+      b2bService.cambiarEstadoPedido(quoteId, updatedFields.estado);
+    }
+    if (quotations && quotations.some((q: any) => q.id === quoteId)) {
+      updateQuotation(quoteId, updatedFields);
+    } else if (setQuotations) {
+      setQuotations((prev: any[]) => prev.map((q: any) => (q.id === quoteId ? { ...q, ...updatedFields } : q)));
+    }
+    if (ventas && ventas.some((v: any) => v.id === quoteId)) {
+      updateVenta(quoteId, updatedFields);
+    } else if (setVentas) {
+      setVentas((prev: any[]) => (prev || []).map((v: any) => (v.id === quoteId ? { ...v, ...updatedFields } : v)));
+    }
+  }, [quotations, setQuotations, updateQuotation, ventas, setVentas, updateVenta]);
+
   const pedidosListos = useMemo(() => {
     return combinedOrders.filter((o) => ['LISTO', 'Listo', 'listo'].includes(o.estado));
   }, [combinedOrders]);
@@ -199,7 +215,7 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
         }
       }
     });
-  }, [combinedOrders]);
+  }, [combinedOrders, persistOrderUpdate]);
 
   // Definición de Columnas para ambas pestañas
   const bodegaColumns: {
@@ -353,22 +369,6 @@ export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
       : activeTab === 'bodega'
       ? bodegaColumns
       : despachoColumns;
-
-  const persistOrderUpdate = (quoteId: string, updatedFields: Record<string, any>) => {
-    if (updatedFields.estado) {
-      b2bService.cambiarEstadoPedido(quoteId, updatedFields.estado);
-    }
-    if (quotations && quotations.some((q: any) => q.id === quoteId)) {
-      updateQuotation(quoteId, updatedFields);
-    } else if (setQuotations) {
-      setQuotations((prev: any[]) => prev.map((q: any) => (q.id === quoteId ? { ...q, ...updatedFields } : q)));
-    }
-    if (ventas && ventas.some((v: any) => v.id === quoteId)) {
-      updateVenta(quoteId, updatedFields);
-    } else if (setVentas) {
-      setVentas((prev: any[]) => prev.map((v: any) => (v.id === quoteId ? { ...v, ...updatedFields } : v)));
-    }
-  };
 
   // Drag Start con guardado de id y efecto visual
   const handleDragStart = (e: React.DragEvent, quoteId: string) => {

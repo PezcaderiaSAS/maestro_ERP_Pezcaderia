@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Scale,
   X,
@@ -32,8 +32,6 @@ export const TransferPickingModal: React.FC<TransferPickingModalProps> = ({
   traslado,
   onSuccess,
 }) => {
-  if (!isOpen || !traslado) return null;
-
   const [despachadoPor, setDespachadoPor] = useState('Bodeguero Central');
   const [temperaturaSalidaC, setTemperaturaSalidaC] = useState<number>(2.0);
   const [observacionesDespacho, setObservacionesDespacho] = useState('');
@@ -42,6 +40,7 @@ export const TransferPickingModal: React.FC<TransferPickingModalProps> = ({
   // Inicializar estado de alistamiento por cada ítem
   const [itemsDespacho, setItemsDespacho] = useState<Record<string, ItemDespachoForm>>(() => {
     const map: Record<string, ItemDespachoForm> = {};
+    if (!traslado?.items) return map;
     const hoy = new Date();
     const vencimientoDefault = new Date(hoy.setDate(hoy.getDate() + 7))
       .toISOString()
@@ -58,6 +57,26 @@ export const TransferPickingModal: React.FC<TransferPickingModalProps> = ({
     });
     return map;
   });
+
+  useEffect(() => {
+    if (!traslado?.items) return;
+    const map: Record<string, ItemDespachoForm> = {};
+    const hoy = new Date();
+    const vencimientoDefault = new Date(hoy.setDate(hoy.getDate() + 7))
+      .toISOString()
+      .split('T')[0];
+
+    traslado.items.forEach((item, idx) => {
+      map[item.productoId] = {
+        productoId: item.productoId,
+        cantidadDespachada: item.cantidadSolicitada,
+        loteFefo: item.loteFefo || `LOT-PZ-${hoy.getFullYear()}-${(idx + 1).toString().padStart(2, '0')}`,
+        fechaVencimientoLote: item.fechaVencimientoLote || vencimientoDefault,
+        temperaturaC: 2.0,
+      };
+    });
+    setItemsDespacho(map);
+  }, [traslado]);
 
   const handleUpdateItem = (productoId: string, patch: Partial<ItemDespachoForm>) => {
     setItemsDespacho((prev) => ({
@@ -79,6 +98,7 @@ export const TransferPickingModal: React.FC<TransferPickingModalProps> = ({
 
   const handleSubmitDespacho = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!traslado) return;
 
     // Validar que todos los items con cantidad > 0 tengan lote FEFO
     const listaDespacho = Object.values(itemsDespacho);
@@ -140,6 +160,8 @@ export const TransferPickingModal: React.FC<TransferPickingModalProps> = ({
     (acc, i) => acc + (Number(i.cantidadDespachada) || 0),
     0
   );
+
+  if (!isOpen || !traslado) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">

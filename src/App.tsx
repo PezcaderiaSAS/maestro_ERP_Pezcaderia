@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { createLogger } from './lib/consoleLogger';
 import { Menu, LayoutDashboard, ShoppingBag, Box, Users, DollarSign, HelpCircle, Home, ShoppingCart, LogOut, FileText, PlusCircle, Wallet, Database, Truck, RefreshCw, PieChart, PackageCheck, BookOpen, Moon, Sun, Terminal, Snowflake } from 'lucide-react';
 import DashboardView from './views/DashboardView';
@@ -666,7 +666,7 @@ export interface LogIntegracion {
 }
 
 export default function App() {
-  const log = createLogger('App');
+  const log = useMemo(() => createLogger('App'), []);
 
   useEffect(() => {
     const onError = (event: ErrorEvent) => {
@@ -690,7 +690,7 @@ export default function App() {
       window.removeEventListener('error', onError);
       window.removeEventListener('unhandledrejection', onRejection);
     };
-  }, []);
+  }, [log]);
 
   const authStatus = useAuthStore((s) => s.status);
   const authUser = useAuthStore((s) => s.currentUser);
@@ -1063,12 +1063,12 @@ export default function App() {
     }, 2500);
 
     return () => clearTimeout(timer);
-  }, [syncQueue]);
+  }, [syncQueue, publishEvent, setSyncQueue, log]);
 
 
   useEffect(() => {
     log.info('navegacion', { vista: currentView });
-  }, [currentView]);
+  }, [currentView, log]);
 
   // ─ REGLAS DE NEGOCIO INTEGRACIÓN: Worker de Canales Digitales y Gestión de Cancelaciones ──────────────────────────────
   // Worker para Procesamiento Asíncrono de Canales Digitales (RN-03, RN-01, RN-02, RN-05, RN-07)
@@ -1205,7 +1205,7 @@ export default function App() {
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [logIntegracion, stock, ventas, parametros]);
+  }, [logIntegracion, stock, ventas, parametros, addMovimiento, publishEvent, setLogIntegracion, setStock, setVentas, log]);
 
   // Handler para cancelaciones automáticas (RN-04)
   const handleCancelarPedidoDigital = (logId: string) => {

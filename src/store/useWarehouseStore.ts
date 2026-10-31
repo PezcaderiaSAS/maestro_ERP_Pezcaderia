@@ -16,6 +16,8 @@ export interface Bodega {
   esPuntoVenta?: boolean;
   activa: boolean;
   esencial?: boolean;
+  capacidadKg?: number;
+  temperaturaC?: number;
   metadata?: Record<string, string>;
 }
 

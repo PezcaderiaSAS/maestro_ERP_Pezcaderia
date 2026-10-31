@@ -103,12 +103,5 @@ export function calculateVirtualGrid({
  * Hook de React memoizado para componentes funcionales
  */
 export function useVirtualGrid(options: UseVirtualGridOptions): UseVirtualGridReturn {
-  return useMemo(() => calculateVirtualGrid(options), [
-    options.totalItems,
-    options.columnsCount,
-    options.rowHeight,
-    options.containerHeight,
-    options.scrollTop,
-    options.overscan,
-  ]);
+  return useMemo(() => calculateVirtualGrid(options), [options]);
 }

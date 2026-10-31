@@ -12,6 +12,7 @@ import { OnScreenKeypadModal } from './OnScreenKeypadModal';
 import { GlassCard } from '../../../components/layout/components/GlassCard';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useAppStore } from '../../../store/useAppStore';
+import { PosButton } from './PosButton';
 import Swal from 'sweetalert2';
 
 interface CartPanelProps {
@@ -549,27 +550,30 @@ export const CartPanel: React.FC<CartPanelProps> = ({
         <div className="flex items-center gap-2">
           {/* Botón Cerrar Turno (solo si está abierto) */}
           {isTurnoAbierto && onCerrarTurnoClick && (
-            <button
-              type="button"
+            <PosButton
+              size="touch"
+              variant="danger"
               onClick={onCerrarTurnoClick}
-              className="text-xs min-h-[48px] h-12 py-1 px-3 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/30 font-bold transition-all cursor-pointer"
+              className="text-xs font-bold"
             >
               Cerrar Turno
-            </button>
+            </PosButton>
           )}
 
           {/* Botón Poner en Espera Rápido */}
-          <button
-            type="button"
+          <PosButton
+            size="touch"
+            variant="secondary"
             onClick={() => onGuardarBorrador()}
             disabled={lineas.length === 0}
-            className="flex items-center gap-1.5 px-3.5 min-h-[48px] h-12 rounded-xl border border-indigo-500/30 bg-indigo-950/40 hover:bg-indigo-900/60 text-indigo-300 text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 shadow-sm"
+            className="border-indigo-500/30 bg-indigo-950/40 hover:bg-indigo-900/60 text-indigo-300"
             title="Poner pedido actual en espera (Atajo: F6)"
             aria-label="Poner pedido actual en espera (Atajo F6)"
+            leftIcon={<PauseCircle size={18} />}
+            shortcutBadge="F6"
           >
-            <PauseCircle size={18} />
             <span className="hidden sm:inline">En Espera</span>
-          </button>
+          </PosButton>
 
           {/* Badge / Botón Ver Pedidos en Espera */}
           <button
@@ -610,10 +614,10 @@ export const CartPanel: React.FC<CartPanelProps> = ({
         />
       )}
 
-      {/* ── LISTA DE ÍTEMS: scroll táctil vertical ── */}
+      {/* ── LISTA DE ÍTEMS: scroll táctil vertical aislado (overscroll-contain) ── */}
       <div
         data-testid="cart-items-container"
-        className={`pos-cart-items-list flex-1 overflow-y-auto ${isCompactMode ? 'hidden' : ''}`}
+        className={`pos-cart-items-list flex-1 overflow-y-auto overscroll-contain pr-1 space-y-1.5 ${isCompactMode ? 'hidden' : ''}`}
         style={{
           WebkitOverflowScrolling: 'touch',
           scrollSnapType: 'y proximity',
@@ -713,31 +717,34 @@ export const CartPanel: React.FC<CartPanelProps> = ({
               />
             </div>
 
-            <button
-              type="button"
+            <PosButton
+              size="large"
+              variant="action"
               data-testid="btn-emitir-preventa-mostrador"
               disabled={lineas.length === 0}
               onClick={() => onGuardarBorrador(notasDespacho)}
-              className={`w-full min-h-[50px] py-3 px-4 rounded-xl font-black text-sm tracking-wide transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-95 ${
+              leftIcon={<PauseCircle size={18} />}
+              shortcutBadge="F6"
+              className={`w-full tracking-wide shadow-lg ${
                 lineas.length > 0
                   ? 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-cyan-600/30 border border-cyan-400/40'
                   : 'bg-white/5 text-slate-500 cursor-not-allowed border border-white/5'
               }`}
             >
-              <PauseCircle size={18} />
-              <span>EMITIR PREVENTA / COMANDA (F6)</span>
-            </button>
+              EMITIR PREVENTA / COMANDA
+            </PosButton>
 
             <div className="flex gap-2">
-              <button
-                type="button"
+              <PosButton
+                size="touch"
+                variant="ghost"
                 disabled={lineas.length === 0}
                 onClick={onLimpiarCarrito}
-                className="flex-1 min-h-[44px] py-2 px-3 rounded-xl bg-white/5 hover:bg-red-500/20 text-slate-400 hover:text-red-300 text-xs font-bold transition-all border border-white/10 flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                leftIcon={<Trash2 size={15} />}
+                className="flex-1 min-h-[48px] text-slate-400 hover:text-red-300 hover:bg-red-500/10 border border-white/10"
               >
-                <Trash2 size={14} />
-                <span>Vaciar Carrito</span>
-              </button>
+                Vaciar Carrito
+              </PosButton>
             </div>
 
             <div className="text-[11px] text-slate-400 bg-cyan-950/20 border border-cyan-500/20 rounded-xl p-2.5 text-center leading-relaxed">
