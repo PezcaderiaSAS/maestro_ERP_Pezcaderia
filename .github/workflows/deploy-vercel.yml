@@ -1,0 +1,50 @@
+name: Despliegue Continuo a Vercel Producción
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID || 'team_WPyjpiE2nTUFMqd4bn0arY31' }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID || 'prj_g7iK0oZHr5mVrhV9TTh7vWd4V5NZ' }}
+
+jobs:
+  quality-gate-and-deploy:
+    name: Quality Gates & Deploy to Vercel
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Clonar Repositorio
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ⚙️ Configurar Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 📦 Instalar Dependencias Limpias
+        run: npm ci
+
+      - name: 🛡️ Quality Gate 1: Compilación TypeScript Estricta (0 Errores)
+        run: npx --no-install tsc --noEmit
+
+      - name: 🧪 Quality Gate 2: Suite Completa de Pruebas Unitarias Vitest
+        run: npm run test:run
+
+      - name: ⚡ Instalar Vercel CLI Global
+        run: npm install --global vercel@latest
+
+      - name: 🔐 Sincronizar Entorno de Producción Vercel (Pull)
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: 🏗️ Construir Artefactos de Producción (Build)
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: 🚀 Desplegar Artefactos Pre-construidos a Producción
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+

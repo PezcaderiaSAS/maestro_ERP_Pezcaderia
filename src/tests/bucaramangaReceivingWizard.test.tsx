@@ -105,4 +105,30 @@ describe('BucaramangaReceivingWizard Component Suite (Regla de los 12 Años)', (
     const btnFinalizar = screen.getByTestId('btn-finalizar-recepcion');
     expect(btnFinalizar.className).toContain('min-h-[56px]');
   });
+  it('8. debe renderizar el panel organoleptico INVIMA en el Paso 1 (TASK-050-02)', () => {
+    render(<BucaramangaReceivingWizard />);
+
+    expect(screen.getByTestId('invima-quality-checklist')).toBeInTheDocument();
+    expect(screen.getByText(/Control Sensorial Organoléptico/i)).toBeInTheDocument();
+  });
+
+  it('9. debe renderizar el display industrial de báscula en el Paso 2 (TASK-050-01)', () => {
+    render(<BucaramangaReceivingWizard />);
+
+    fireEvent.click(screen.getByTestId('btn-continuar-bascula'));
+    expect(screen.getByTestId('scale-industrial-display')).toBeInTheDocument();
+    expect(screen.getByText(/Báscula Digital de Muelle/i)).toBeInTheDocument();
+  });
+
+  it('10. debe renderizar el panel de conciliación de mermas de viaje en el Paso 3 (TASK-050-03)', () => {
+    render(<BucaramangaReceivingWizard />);
+
+    // Navegar Paso 1 -> Paso 2 -> Paso 3
+    fireEvent.click(screen.getByTestId('btn-continuar-bascula'));
+    fireEvent.click(screen.getByTestId('btn-guardar-pesada'));
+    fireEvent.click(screen.getByTestId('btn-ir-frio-liquidar'));
+
+    expect(screen.getByTestId('dock-summary-reconciliation')).toBeInTheDocument();
+    expect(screen.getByText(/Conciliación de Mermas & Liquidación de Compra/i)).toBeInTheDocument();
+  });
 });

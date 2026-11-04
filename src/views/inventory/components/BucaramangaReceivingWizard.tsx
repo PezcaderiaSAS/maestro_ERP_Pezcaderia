@@ -40,6 +40,9 @@ import { useMovementStore } from '../../../store/useMovementStore';
 import { useWarehouseStore } from '../../../store/useWarehouseStore';
 import { load } from '../../../services/localDb';
 import { ejecutarAbastecimientoInmediato } from '../../../services/branchInventoryService';
+import { ScaleIndustrialDisplay } from './dock/ScaleIndustrialDisplay';
+import { InvimaQualityChecklist, type InvimaQualityState } from './dock/InvimaQualityChecklist';
+import { DockSummaryReconciliation } from './dock/DockSummaryReconciliation';
 
 interface BucaramangaReceivingWizardProps {
   onFinalizado?: () => void;
@@ -65,6 +68,7 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
   const [inspectorName, setInspectorName] = useState('Operario Bodega Bucaramanga');
   const [totalFreightCost, setTotalFreightCost] = useState<number>(350000);
   const [advancePaymentDeducted, setAdvancePaymentDeducted] = useState<number>(2000000);
+  const [invimaQualityState, setInvimaQualityState] = useState<InvimaQualityState | null>(null);
 
   // Datos del Paso 2: La Báscula
   const [crates, setCrates] = useState<PesajeCanastillaBucaramanga[]>([]);
@@ -641,6 +645,13 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
             </div>
           </div>
 
+                    {/* Panel Sensorial Visual INVIMA (Decreto 561 / Criterios Organolépticos) */}
+          <div className="pt-4 border-t border-slate-200">
+            <InvimaQualityChecklist
+              onChange={(st) => setInvimaQualityState(st)}
+            />
+          </div>
+
           <div className="pt-4 flex justify-end">
             <button
               type="button"
@@ -712,6 +723,19 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
                   />
                 </div>
               </div>
+
+                            {/* Display Industrial de Báscula Fitts >= 56px */}
+              <ScaleIndustrialDisplay
+                pesoBruto={typeof currentGrossWeight === 'number' ? currentGrossWeight : 0}
+                tara={currentCrateTare}
+                pesoNeto={previewNetWeight}
+                isStable={!readingScale}
+                isConnected={true}
+                canastillaNumero={crates.length + 1}
+                onCapture={handleAgregarCanastilla}
+                onTare={() => setCurrentGrossWeight(currentCrateTare)}
+                onStabilize={handleCapturarBascula}
+              />
 
               {/* Botón Gigante de Captura de Báscula */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
@@ -890,6 +914,15 @@ export const BucaramangaReceivingWizard: React.FC<BucaramangaReceivingWizardProp
               Asigne la cava de almacenamiento y revise la cuenta final con el flete prorrateado y el saldo a pagar.
             </p>
           </div>
+
+                    {/* Panel de Conciliación de Mermas de Transporte & Liquidación (SPEC-050) */}
+          <DockSummaryReconciliation
+            kilosGuia={liquidacion.totalNetWeightKg > 0 ? Number((liquidacion.totalNetWeightKg * 1.025).toFixed(2)) : 100}
+            kilosBascula={liquidacion.totalNetWeightKg > 0 ? liquidacion.totalNetWeightKg : 97.5}
+            precioKiloPromedio={currentUnitCost || 20000}
+            anticipos={advancePaymentDeducted}
+            fleteTotal={totalFreightCost}
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Asignación de Cuarto Frío */}

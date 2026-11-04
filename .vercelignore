@@ -2,8 +2,10 @@
 node_modules
 dist
 .git
+.gitnexus
 .github
 .vscode
+.venv
 .agent
 .agents
 .claude
@@ -32,6 +34,8 @@ repomix-output.xml
 repomix-output.md
 repomix-app.md
 repomix.config.json
+*.lbug
+lbug
 
 # Media and documents
 *.pdf

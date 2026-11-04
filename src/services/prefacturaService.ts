@@ -275,6 +275,14 @@ export class PrefacturaService {
       return { ok: false, error: 'Preventa no encontrada en este tenant' };
     }
 
+        // Control de Concurrencia Optimista (OCC): Evita colisión entre múltiples cajeros concurrentes
+    if (pref.estado === 'EN_COBRO' && pref.cajeroId && pref.cajeroId !== cajeroId) {
+      return {
+        ok: false,
+        error: `Preventa bloqueada en atención concurrente por otro cajero (${pref.cajeroNombre || pref.cajeroId})`,
+      };
+    }
+
     if (pref.estado !== 'PENDIENTE_COBRO' && pref.estado !== 'EN_COBRO') {
       return {
         ok: false,

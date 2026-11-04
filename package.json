@@ -17,6 +17,7 @@
     "test:e2e:headed": "playwright test --headed",
     "repomix": "repomix",
     "repomix:app": "repomix --include \"src/**,package.json,vite.config.ts,tsconfig*.json,tailwind.config.js,index.html,database/**\" -o repomix-app.md",
+    "deploy:vercel": "node scripts/lifecycle/deploy-vercel.cjs",
     "session:open": "node scripts/lifecycle/session-open.cjs",
     "session:close": "node scripts/lifecycle/session-close.cjs",
     "session:pull": "node scripts/lifecycle/session-open.cjs",

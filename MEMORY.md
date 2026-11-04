@@ -18,12 +18,18 @@
    - Barra flotante sticky de 7 pastillas ergonómicas (`InventoryFloatingPills.tsx`).
    - Barra de acciones prioritarias Fitts $\ge 48\text{px}$ (`InventoryQuickActionBar.tsx`).
    - Ensamblado modular sin lógica pesada en `InventoryView.tsx`. Auditoría DevTools en vivo 0 errores consola.
-5. **SPEC-050 (COMPRAS, MUELLE & RECEPCIÓN) 🟡 (Fase 1 Completada):**
-   - `TASK-050-01` [Completada]: Display industrial de báscula `ScaleIndustrialDisplay.tsx` con botones Fitts $\ge 56\text{px}$.
+5. **SPEC-050 (COMPRAS, MUELLE & RECEPCIÓN) ✅ (100% CERTIFICADO):**
+   - Display industrial `ScaleIndustrialDisplay` ($\ge 56\text{px}$, font-mono), checklist sensorial INVIMA `InvimaQualityChecklist` y panel de mermas `DockSummaryReconciliation`.
+   - Ensamblado en `BucaramangaReceivingWizard.tsx` (10/10 tests, 27/27 dock suite, DevTools 0 errores).
+6. **SPEC-051 (CI/CD PIPELINE VERCEL & GITHUB ACTIONS) ✅ (100% CERTIFICADO & DESPLEGADO):**
+   - Workflow `.github/workflows/deploy-vercel.yml` con Quality Gates (`tsc` + Vitest 1420 tests).
+   - Pipeline prebuilt (`pull` -> `build` -> `deploy --prebuilt`) en `scripts/lifecycle/deploy-vercel.cjs`.
+   - Producción activa y verificada en `https://maestro-erp-pezcaderia.vercel.app` (HTTP 200).
+   - OCC implementado en `prefacturaService.ts` contra colisión concurrente de cajeros.
 
 ## Cola de Tareas Priorizada (WIP = 1)
-1. **TASK-050-02 [EN COLA - SIGUIENTE]:** Panel Sensorial Visual INVIMA `InvimaQualityChecklist.tsx` (Ojos, Agallas, Olor, Textura).
-2. **TASK-050-03 & TASK-050-04:** Conciliación de mermas de viaje y ensamble en `BucaramangaReceivingWizard.tsx`.
+1. **AUDITORÍA UX INTEGRAL (29 PANTALLAS):** Revisión de leyes de UX y accesibilidad WCAG 2.2 AA+.
+2. **VERIFICACIÓN MULTIVENDEDOR / CAJA ÚNICA EN VIVO:** Pruebas de estrés y latencia con base de datos agregada.
 3. **FACTURACIÓN ELECTRÓNICA DIAN / SIIGO API v2:** Integración con contingencia Outbox IndexedDB.
 
 ## Despliegue a Producción (Vercel & Supabase)

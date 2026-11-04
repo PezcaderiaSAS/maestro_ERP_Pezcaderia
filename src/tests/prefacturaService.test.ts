@@ -134,6 +134,26 @@ describe('TASK-037-02: PrefacturaService - Gestión de Preventas, Hard-Hold y De
       expect(resCobro.prefactura?.pagadoAt).toBeDefined();
       expect(resCobro.prefactura?.hardHoldActivo).toBe(true); // Se mantiene reservado hasta entrega
     });
+
+    it('bloquea la toma de preventa si ya está siendo atendida concurrentemente por otro cajero (OCC)', async () => {
+      const emision = await service.emitirPrefactura({
+        tenantId: 'ten-ferre-01',
+        vendedorId: 'usr-v-1',
+        vendedorNombre: 'Vendedor 1',
+        terminalId: 'TERM-01',
+        items: [{ productoId: 'p1', nombre: 'Pintura Blanca Galón', cantidad: 1, precioLista: 65000 }],
+      });
+      const prefId = emision.prefactura!.id;
+
+      // Cajero 1 toma la preventa
+      const res1 = service.marcarEnCobro('ten-ferre-01', prefId, 'usr-cajero-01', 'Cajero Uno');
+      expect(res1.ok).toBe(true);
+
+      // Cajero 2 intenta tomar la misma preventa concurrentemente
+      const res2 = service.marcarEnCobro('ten-ferre-01', prefId, 'usr-cajero-02', 'Cajero Dos');
+      expect(res2.ok).toBe(false);
+      expect(res2.error).toContain('otro cajero');
+    });
   });
 
   describe('4. Verificación de Despacho y Entrega Física por el Asesor', () => {
