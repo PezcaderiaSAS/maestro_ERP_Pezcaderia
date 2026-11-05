@@ -2287,7 +2287,7 @@ export default function POSView({
                     turnoIniciadoAt: new Date().toISOString(),
                   });
                 }}
-                className={`min-h-[36px] px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap active:scale-95 flex items-center justify-center ${
+                className={`min-h-[44px] px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap active:scale-95 flex items-center justify-center ${
                   selectedVendorJosase === v.id
                     ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20 font-bold'
                     : 'bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5'
@@ -2371,7 +2371,7 @@ export default function POSView({
               const searchInput = document.getElementById('pos-product-search-input');
               if (searchInput) searchInput.focus();
             }}
-            className="flex items-center gap-1.5 min-h-[36px] py-1.5 px-2.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
+            className="flex items-center gap-1.5 min-h-[44px] py-2 px-3 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
             title="Enfocar catálogo / Nuevo pedido rápido (F8)"
           >
             <span>⚡ Buscar (F8)</span>
@@ -2380,7 +2380,7 @@ export default function POSView({
           {/* Botón Primario 2: Poner en Espera / Preventa */}
           <button
             onClick={() => handleGuardarBorrador()}
-            className="flex items-center gap-1.5 min-h-[36px] py-1.5 px-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-200 hover:bg-white/10 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+            className="flex items-center gap-1.5 min-h-[44px] py-2 px-3 rounded-lg bg-white/5 border border-white/10 text-slate-200 hover:bg-white/10 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
             title={isFerreteria ? 'Guardar preventa con el asesor asignado' : 'Guardar carrito actual en espera'}
           >
             <span>⏸ {isFerreteria ? 'Preventa' : 'En Espera'}</span>
@@ -2396,7 +2396,7 @@ export default function POSView({
             data-testid="btn-open-comandas-drawer"
             id="btn-open-comandas-drawer"
             onClick={() => setShowComandasDrawer(true)}
-            className="flex items-center gap-1.5 min-h-[36px] py-1.5 px-2.5 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+            className="flex items-center gap-1.5 min-h-[44px] py-2 px-3 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
             title="Cola Central de Preventas / Comandas para cobro en caja única"
           >
             <span>📋 Comandas</span>

@@ -686,7 +686,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
 
       {/* ── FOOTER STICKY: Total + Descuento + Pago ── */}
       <div
-        className="pos-cart-footer shrink-0 mt-auto bg-slate-900/90 backdrop-blur-2xl p-2.5 sm:p-3 border-t border-white/10 flex flex-col gap-1.5 rounded-2xl shadow-2xl"
+        className="pos-cart-footer shrink-0 mt-auto bg-slate-900/90 backdrop-blur-2xl p-2 sm:p-2.5 border-t border-white/10 flex flex-col gap-1 rounded-2xl shadow-2xl"
       >
         {/* Total prominente táctil con micro-animación y alto contraste */}
         {lineas.length > 0 && (
@@ -718,13 +718,13 @@ export const CartPanel: React.FC<CartPanelProps> = ({
         )}
 
         {isMostradorAuto ? (
-          <div className="p-2.5 bg-slate-900/90 border border-cyan-500/30 rounded-xl backdrop-blur-xl shadow-xl space-y-1.5 select-none">
+          <div className="p-2 bg-slate-900/90 border border-cyan-500/30 rounded-xl backdrop-blur-xl shadow-xl space-y-1 select-none">
             {/* Header compacto con estado de mostrador y botón vaciar integrado */}
             <div className="flex items-center justify-between text-xs pb-1 border-b border-white/10">
               <div className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
                 <span className="font-bold text-slate-200 uppercase tracking-wider text-[10px]">
-                  Mostrador
+                  Puesto de Mostrador
                 </span>
                 <span className="text-[9px] font-mono text-cyan-300 font-bold bg-cyan-950/60 border border-cyan-500/30 px-1.5 py-0.2 rounded">
                   Cobro en Ventanilla
@@ -798,13 +798,13 @@ export const CartPanel: React.FC<CartPanelProps> = ({
               }}
               leftIcon={<PauseCircle size={17} />}
               shortcutBadge="(F6)"
-              className={`w-full tracking-wide shadow-lg min-h-[46px] py-2 text-sm ${
+              className={`w-full tracking-wide shadow-lg min-h-[44px] py-1.5 text-sm ${
                 lineas.length > 0
                   ? 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-cyan-600/30 border border-cyan-400/40'
                   : 'bg-white/5 text-slate-500 cursor-not-allowed border border-white/5'
               }`}
             >
-              <span>EMITIR PREVENTA / COMANDA</span>
+              <span>EMITIR PREVENTA / COMANDA{' '}</span>
             </PosButton>
           </div>
         ) : (
