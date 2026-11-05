@@ -28,7 +28,12 @@
     "verify:env": "node scripts/lifecycle/verify-env-connections.cjs",
     "verify:env:strict": "node scripts/lifecycle/verify-env-connections.cjs --strict",
     "harness2": "powershell -ExecutionPolicy Bypass -File tools/harness2/run_harness2.ps1",
-    "sdd:bridge": "python scripts/architecture/run_agency_sdd_bridge.py",
+    "benchmark": "npx tsx scripts/benchmark/run-benchmarks.ts",
+    "benchmark:latency": "npx tsx scripts/benchmark/run-benchmarks.ts",
+    "benchmark:bundle": "npx tsx scripts/benchmark/measure-bundle-size.ts",
+    "benchmark:pos": "npx tsx scripts/benchmark/benchmark-pos-latency.ts",
+    "benchmark:wms": "npx tsx scripts/benchmark/benchmark-wms-queries.ts",
+    "benchmark:sync": "npx tsx scripts/benchmark/benchmark-outbox-sync.ts",
     "prepare": "husky || exit 0"
   },
   "dependencies": {

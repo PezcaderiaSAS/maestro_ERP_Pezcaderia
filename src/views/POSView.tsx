@@ -2173,14 +2173,18 @@ export default function POSView({
           setShowAperturaModal(true);
         } else if (cartLineas.length > 0) {
           // Buscamos el botón de cobrar en el panel de carrito y lo clickeamos
-          const btns = Array.from(document.querySelectorAll('button'));
-          const btnCobrar = btns.find(b => b.textContent?.toLowerCase().includes('cobrar'));
+          const btnCobrar = document.getElementById('btn-cobrar') || Array.from(document.querySelectorAll('button')).find(b => b.textContent?.toLowerCase().includes('cobrar'));
           if (btnCobrar) btnCobrar.click();
         }
       } else if (e.key === 'F2') {
         e.preventDefault();
-        const searchInput = document.querySelector('.pos-search-input') as HTMLInputElement;
-        if (searchInput) searchInput.focus();
+        const btnCobrar = document.getElementById('btn-cobrar');
+        if (btnCobrar && cartLineas.length > 0) {
+          btnCobrar.click();
+        } else {
+          const searchInput = document.querySelector('.pos-search-input') as HTMLInputElement;
+          if (searchInput) searchInput.focus();
+        }
       } else if (e.key === 'F6') {
         e.preventDefault();
         handleGuardarBorrador();
@@ -2371,7 +2375,7 @@ export default function POSView({
               const searchInput = document.getElementById('pos-product-search-input');
               if (searchInput) searchInput.focus();
             }}
-            className="flex items-center gap-1.5 min-h-[44px] py-2 px-3 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
+            className="flex items-center gap-1.5 min-h-[36px] py-1.5 px-2.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
             title="Enfocar catálogo / Nuevo pedido rápido (F8)"
           >
             <span>⚡ Buscar (F8)</span>
@@ -2380,7 +2384,7 @@ export default function POSView({
           {/* Botón Primario 2: Poner en Espera / Preventa */}
           <button
             onClick={() => handleGuardarBorrador()}
-            className="flex items-center gap-1.5 min-h-[44px] py-2 px-3 rounded-lg bg-white/5 border border-white/10 text-slate-200 hover:bg-white/10 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+            className="flex items-center gap-1.5 min-h-[36px] py-1.5 px-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-200 hover:bg-white/10 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
             title={isFerreteria ? 'Guardar preventa con el asesor asignado' : 'Guardar carrito actual en espera'}
           >
             <span>⏸ {isFerreteria ? 'Preventa' : 'En Espera'}</span>
@@ -2396,7 +2400,7 @@ export default function POSView({
             data-testid="btn-open-comandas-drawer"
             id="btn-open-comandas-drawer"
             onClick={() => setShowComandasDrawer(true)}
-            className="flex items-center gap-1.5 min-h-[44px] py-2 px-3 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+            className="flex items-center gap-1.5 min-h-[44px] py-1.5 px-3 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
             title="Cola Central de Preventas / Comandas para cobro en caja única"
           >
             <span>📋 Comandas</span>

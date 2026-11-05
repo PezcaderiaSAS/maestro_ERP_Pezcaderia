@@ -1,40 +1,46 @@
-# BRIEFING — 2026-10-29T13:16:30Z
+# BRIEFING — 2026-11-05T17:10:00Z
 
 ## Mission
-Auditar, ajustar y verificar la integridad del frontend en pantallas prioritarias (POS multivendedor, Caja única, Kanban de comandas y Catálogos), eliminando desbordamientos y garantizando UX premium con leyes Fitts, Hick, Doherty, Miller, Jakob y suite E2E Harness².
+Optimización ergonómica y visual integral de la pantalla de ventas (POS) de MaestroPescaderia ERP para el flujo completo multivendedor - caja única, resolviendo el colapso vertical y la falta de legibilidad del carrito de ventas (CartPanel, ParkedOrdersBar, controles cabecera/pie), con scroll vertical prioritario para 12+ ítems, consulta a enjambre UI (/swarm) y tokens táctiles WCAG AA+.
 
 ## 🔒 My Identity
 - Archetype: orchestrator
 - Roles: orchestrator, user_liaison, human_reporter, successor
-- Working directory: c:\Users\Personal\Documents\Yurgen\Maestro_Pezcaderia_ERP\maestro_ERP_Pezcaderia\.agents\teamwork\orchestrator
-- Original parent: Sentinel
-- Original parent conversation ID: 820bee89-364a-4ed8-b947-e29ff3b0737a
+- Working directory: c:\Users\usuario\OneDrive\Documentos\Aplicaciones Pezca\MaestroPescaderia\.agents\teamwork\orchestrator\
+- Original parent: Sentinel / Parent
+- Original parent conversation ID: 8e1c21ac-13f1-464f-b829-42fe3f46557a
 
 ## 🔒 My Workflow
 - **Pattern**: Project
-- **Scope document**: c:\Users\Personal\Documents\Yurgen\Maestro_Pezcaderia_ERP\maestro_ERP_Pezcaderia\PROJECT.md
-1. **Decompose**: Survey completed (Explorers 1, 2, 3). Decomposed into Implementation Track (M1-M5) and E2E Testing Track.
+- **Scope document**: c:\Users\usuario\OneDrive\Documentos\Aplicaciones Pezca\MaestroPescaderia\PROJECT.md
+1. **Decompose**: Survey completed via 3 parallel Explorers. Decompose into Implementation Track (POS Cart vertical layout, ParkedOrdersBar ergonomics, Multivendedor - Caja Única integration) and E2E / Verification Track.
 2. **Dispatch & Execute**:
-   - E2E Testing Track: `test_writer_e2e_1` building test infra, fixtures, and Tiers 1-4.
-   - Milestone M1: `worker_m1_1` completed -> Gate verification in progress (2 Reviewers, 2 Challengers, 1 Forensic Auditor).
+   - Survey: 3 parallel Explorers (Cart legibility/vertical space, Parked orders & flow, Swarm UI/UX & tokens) [COMPLETED].
+   - Implementation Track:
+     - Milestone M1: CartPanel on-demand checkout, condensed footer, ParkedOrdersBar ergonomics & Fitts compliance (Worker M1) [COMPLETED].
+     - Milestone M2: LineaVentaRow compact retail design, 12+ items scroll priority & tests (Worker M2) [COMPLETED].
+   - Verification Track:
+     - Reviewer 1 (CartPanel, Payment Drawer, Footer, ParkedOrdersBar) [APPROVE].
+     - Reviewer 2 (LineaVentaRow, POSView Fitts, Tests) [APPROVE].
+     - Challenger 1 (Adversarial stress testing 12+, 16, 20+ items, container height) [APPROVE].
+     - Challenger 2 (Multivendor flow empirical challenge, drawer F2/Enter) [APPROVE].
+     - Auditor 1 (Forensic Integrity Auditor) [CLEAN].
 3. **On failure** (in this order):
    - Retry: nudge stuck agent or re-send task
    - Replace: spawn fresh agent with partial progress
    - Skip: proceed without (only if non-critical)
    - Redistribute: split stuck agent's remaining work
    - Redesign: re-partition decomposition
-   - Escalate: report to parent (sub-orchestrator last resort)
+   - Escalate: report to parent (sub-orchestrators only, last resort)
 4. **Succession**: At 16 spawns, write handoff.md, spawn successor.
 - **Work items**:
-  1. Survey Phase (3 Explorers) [done]
-  2. E2E Testing Track Suite Creation [done: TEST_READY.md published]
-  3. Milestone M1: Tokens & Shell Foundation [done: PASS gate]
-  4. Milestone M2: POS Multivendedor & Ergonomía [in-progress: worker_m2_1]
-  5. Milestone M3: Caja Única & Tablero Kanban [in-progress: worker_m3_1]
-  6. Milestone M4: Catálogos (Clientes & Inventario) [in-progress: worker_m4_1]
-  7. Milestone M5: 100% E2E Pass & Hardening [pending M2-M4]
-- **Current phase**: 2 (Dispatch & Execute)
-- **Current focus**: Parallel execution of M2 (POS), M3 (Cash/Kanban), M4 (Catalogs/Inventory).
+  1. Survey Phase (3 parallel Explorers) [COMPLETED]
+  2. Synthesize Findings into PROJECT.md Feature Inventory & Milestone Decomposition [COMPLETED]
+  3. Milestone M1: CartPanel on-demand checkout & ParkedOrdersBar ergonomics (Worker M1) [COMPLETED]
+  4. Milestone M2: LineaVentaRow compact retail row & 12+ items scroll (Worker M2) [COMPLETED]
+  5. Milestone M3: Multi-Agent Gate (2 Reviewers, 2 Challengers, 1 Forensic Auditor) [COMPLETED - PASS]
+- **Current phase**: Complete (All Milestones Verified & Passed)
+- **Current focus**: Synthesis, final reporting and delivery to Sentinel (`8e1c21ac-13f1-464f-b829-42fe3f46557a`).
 
 ## 🔒 Key Constraints
 - NEVER write, modify, or create source code files directly.
@@ -43,58 +49,58 @@ Auditar, ajustar y verificar la integridad del frontend en pantallas prioritaria
 - Audit is a BINARY VETO — violation means failure, no exceptions.
 - Never reuse a subagent after it has delivered its handoff — always spawn fresh.
 - Always include ORIGINAL_REQUEST.md path in every subagent dispatch.
+- Maintain strict WCAG 2.2 AA+ contrast and min 44x44px touch targets for POS.
+- Ensure full multivendedor - caja única flow compatibility.
 
 ## Current Parent
-- Conversation ID: 820bee89-364a-4ed8-b947-e29ff3b0737a
-- Updated: 2026-10-29T12:35:47Z
+- Conversation ID: 8e1c21ac-13f1-464f-b829-42fe3f46557a
+- Updated: 2026-11-05T15:51:04Z
 
 ## Key Decisions Made
-- Project pattern selected for multi-milestone frontend audit, refactoring, and E2E verification.
-- Phase 0 Survey successfully completed by 3 Explorers.
-- `PROJECT.md` synthesized with full architecture, 32 inventoried features, 5 implementation milestones, and E2E Testing Track.
-- Milestone M1 implementation delivered by `worker_m1_1` (build and 7 unit tests passed).
-- Reviewer 1 crashed with INVALID_ARGUMENT (code 400); immediately replaced by `reviewer_m1_1_gen2`.
+- Survey Phase successfully completed and merged into PROJECT.md.
+- Adopted "Carrito Expandido + Liquidación on-Demand" paradigm.
+- Milestone M1 successfully decoupled `PaymentPanel` into on-demand modal/drawer, condensed `.pos-cart-footer` to <= 115px, streamlined `ParkedOrdersBar` and restored Fitts 44px buttons.
+- Milestone M2 condensed `LineaVentaRow.tsx` to ~60px retail format (58% vertical space saving) with full data legibility and priority scroll for 12+ items.
+- Milestone M3 Gate passed unanimously (2 APPROVE, 2 APPROVE, 1 CLEAN).
 
 ## Team Roster
 | Agent | Type | Work Item | Status | Conv ID |
 |-------|------|-----------|--------|---------|
-| explorer_survey_1 | teamwork_explorer | Survey: Layout & Overflow Audit | completed | 772a014c-3d43-4d61-ba3b-fc37da327bd9 |
-| explorer_survey_2 | teamwork_explorer | Survey: UX Laws & Ergonomics | completed | e626ef2a-628d-4cc1-9863-1b5b704dbae5 |
-| explorer_survey_3 | teamwork_explorer | Survey: E2E Suite & Harness² | completed | 09e56616-b160-46bb-93fb-011620fdb89f |
-| test_writer_e2e_1 | teamwork_test_writer | E2E Testing Track (Tiers 1-4) | failed (400) | 0522b6c9-5435-4250-aca6-d89183665042 |
-| test_writer_e2e_1_gen2 | teamwork_test_writer | E2E Testing Track (Tiers 1-4) | in-progress | f18c09ab-88d8-4d08-9052-25a698e8f4bb |
-| worker_m1_1 | teamwork_worker | Milestone M1: Tokens & Shell | completed | 4a63fefd-9ee3-4dee-9a4f-e1c4239e2086 |
-| reviewer_m1_1 | teamwork_reviewer | Reviewer M1 (orig) | failed (400) | bce04b9b-5739-4514-b85a-b22e617e5808 |
-| reviewer_m1_1_gen2 | teamwork_reviewer | Reviewer M1: Correctness & Tests | in-progress | 0b029039-c013-403e-82f5-097deed09e43 |
-| reviewer_m1_2 | teamwork_reviewer | Reviewer M1: Regression & Layout | in-progress | ec2bcf6b-76f0-4bcb-9dd6-7fdbc18a1bc3 |
-| reviewer_m1_2_gen2 | teamwork_reviewer | Reviewer M1: Regression & Layout | in-progress | 6e618c76-c865-41c3-891f-a0a3fc3e3cc3 |
-| challenger_m1_1 | teamwork_challenger | Challenger M1: Edge Cases & Bounds | completed (REJECT: topbar 73px overflow) | cd7dfb90-78e8-4bc7-91e2-2f34c9ad014b |
-| challenger_m1_2 | teamwork_challenger | Challenger M1: Contrast & Stress | completed (APPROVE) | 5a997820-2d04-44f8-a169-1257a2f4a004 |
-| auditor_m1_1 | teamwork_auditor | Auditor M1: Forensic Integrity | completed (CLEAN) | 5ec935b8-0795-4be0-8105-7b33cd1e7532 |
-| worker_m1_2 | teamwork_worker | M1 Iteration 2: Topbar 375px Fix | completed (33/33 tests passed) | 1b4b7a8e-c788-4019-a5d5-c7275699ef01 |
-| challenger_m1_1_gen2 | teamwork_challenger | Challenger M1 Iteration 2: Topbar Probe 4 | completed (APPROVE) | 1496b2b4-c46b-49c0-8ccb-efe09a6f3ce0 |
-| auditor_m1_2 | teamwork_auditor | Auditor M1 Iteration 2: Forensic Integrity | completed (CLEAN) | 811f1439-59c8-4350-8348-d2b0fd531a01 |
-| worker_m2_1 | teamwork_worker | Milestone M2: POS Multivendedor | in-progress | 3f87771b-1793-4024-9343-4094111b606d |
-| worker_m3_1 | teamwork_worker | Milestone M3: Caja Única & Kanban | in-progress | 632b38ae-c719-424c-9ec3-c4f62cfbe4f9 |
-| worker_m4_1 | teamwork_worker | Milestone M4: Catálogos & Inventario | in-progress | 72b3bd81-130b-4e58-afb2-9bb99f58ba58 |
+| explorer_survey_cart | teamwork_explorer | Survey R1: CartPanel & Vertical Collapse | completed | 654d4f39-3017-47d6-85e1-9ee8df379138 |
+| explorer_survey_parked | teamwork_explorer | Survey R2: ParkedOrders & Multivendor Flow | completed | 0e22abd8-1c4a-4906-bd32-1f9968a43299 |
+| explorer_survey_swarm | teamwork_explorer | Survey R3: Swarm UI, Tokens & Baseline | completed | e0d83e30-70a7-4a51-897e-dd7abfbe4ab8 |
+| worker_m1 | teamwork_worker | Milestone M1: CartPanel & ParkedOrdersBar | completed | 72a3ba2f-4fcb-42a2-98cc-219ea7f06780 |
+| worker_m2 | teamwork_worker | Milestone M2: LineaVentaRow & 12+ Items Scroll | completed | 381361d4-6539-4767-b4d0-a91bfd477439 |
+| reviewer_1 | teamwork_reviewer | Gate: Code Review CartPanel & Payment Drawer | completed (APPROVE) | 533f56b1-e053-4ae1-9e0c-a1707b3af03a |
+| reviewer_2 | teamwork_reviewer | Gate: Code Review LineaVentaRow & Fitts Tokens | completed (APPROVE) | 4fe4736d-4bb2-4da9-a548-7d6ad1ce2605 |
+| challenger_1 | teamwork_challenger | Gate: Adversarial Stress 12+, 16, 20+ Items | completed (APPROVE) | e0d95620-86d4-4a9d-a533-6754e00f033d |
+| challenger_2 | teamwork_challenger | Gate: Multivendor Flow Empirical Challenge | completed (APPROVE) | 7ee306e6-bad5-4891-81a6-338c4f627100 |
+| auditor_1 | teamwork_auditor | Gate: Forensic Integrity Auditor | completed (CLEAN) | 2ec04506-8297-44b9-acdf-c9bd86ed0918 |
 
 ## Succession Status
-- Succession required: no (orchestrator budget: 19 / 128)
-- Spawn count: 19 / 128
-- Pending subagents: 3f87771b-1793-4024-9343-4094111b606d, 632b38ae-c719-424c-9ec3-c4f62cfbe4f9, 72b3bd81-130b-4e58-afb2-9bb99f58ba58
+- Succession required: no
+- Spawn count: 10 / 16
+- Pending subagents: none
 - Predecessor: none
-- Successor: none (Direct Project Orchestration to 128 limit)
+- Successor: not required (mission completed within single generation)
 
 ## Active Timers
-- Heartbeat cron: 893a38d8-5827-40f7-afd9-ff6dab5d7849/task-688
-- Safety timer: 893a38d8-5827-40f7-afd9-ff6dab5d7849/task-234
+- Heartbeat cron: none (all tasks completed, task-30 killed)
+- Safety timer: none
 - On succession: kill all timers before spawning successor
 - On context truncation: handle timers as step 4 of the State Recovery section of your prompt says
 
 ## Artifact Index
-- ORIGINAL_REQUEST.md — c:\Users\Personal\Documents\Yurgen\Maestro_Pezcaderia_ERP\maestro_ERP_Pezcaderia\.agents\teamwork\ORIGINAL_REQUEST.md
-- DISPATCH.md — c:\Users\Personal\Documents\Yurgen\Maestro_Pezcaderia_ERP\maestro_ERP_Pezcaderia\.agents\teamwork\orchestrator\DISPATCH.md
-- BRIEFING.md — c:\Users\Personal\Documents\Yurgen\Maestro_Pezcaderia_ERP\maestro_ERP_Pezcaderia\.agents\teamwork\orchestrator\BRIEFING.md
-- progress.md — c:\Users\Personal\Documents\Yurgen\Maestro_Pezcaderia_ERP\maestro_ERP_Pezcaderia\.agents\teamwork\orchestrator\progress.md
-- GATE_STATUS.md — c:\Users\Personal\Documents\Yurgen\Maestro_Pezcaderia_ERP\maestro_ERP_Pezcaderia\.agents\teamwork\orchestrator\GATE_STATUS.md
-- PROJECT.md — c:\Users\Personal\Documents\Yurgen\Maestro_Pezcaderia_ERP\maestro_ERP_Pezcaderia\PROJECT.md
+- ORIGINAL_REQUEST.md — c:\Users\usuario\OneDrive\Documentos\Aplicaciones Pezca\MaestroPescaderia\.agents\teamwork\ORIGINAL_REQUEST.md
+- DISPATCH.md — c:\Users\usuario\OneDrive\Documentos\Aplicaciones Pezca\MaestroPescaderia\.agents\teamwork\orchestrator\DISPATCH.md
+- BRIEFING.md — c:\Users\usuario\OneDrive\Documentos\Aplicaciones Pezca\MaestroPescaderia\.agents\teamwork\orchestrator\BRIEFING.md
+- progress.md — c:\Users\usuario\OneDrive\Documentos\Aplicaciones Pezca\MaestroPescaderia\.agents\teamwork\orchestrator\progress.md
+- GATE_STATUS.md — c:\Users\usuario\OneDrive\Documentos\Aplicaciones Pezca\MaestroPescaderia\.agents\teamwork\orchestrator\GATE_STATUS.md
+- PROJECT.md — c:\Users\usuario\OneDrive\Documentos\Aplicaciones Pezca\MaestroPescaderia\PROJECT.md
+- handoff_m1.md — c:\Users\usuario\OneDrive\Documentos\Aplicaciones Pezca\MaestroPescaderia\.agents\teamwork\worker_m1\handoff.md
+- handoff_m2.md — c:\Users\usuario\OneDrive\Documentos\Aplicaciones Pezca\MaestroPescaderia\.agents\teamwork\worker_m2\handoff.md
+- handoff_reviewer1.md — c:\Users\usuario\OneDrive\Documentos\Aplicaciones Pezca\MaestroPescaderia\.agents\teamwork\reviewer_1\handoff.md
+- handoff_reviewer2.md — c:\Users\usuario\OneDrive\Documentos\Aplicaciones Pezca\MaestroPescaderia\.agents\teamwork\reviewer_2\handoff.md
+- handoff_challenger1.md — c:\Users\usuario\OneDrive\Documentos\Aplicaciones Pezca\MaestroPescaderia\.agents\teamwork\challenger_1\handoff.md
+- handoff_challenger2.md — c:\Users\usuario\OneDrive\Documentos\Aplicaciones Pezca\MaestroPescaderia\.agents\teamwork\challenger_2\handoff.md
+- handoff_auditor.md — c:\Users\usuario\OneDrive\Documentos\Aplicaciones Pezca\MaestroPescaderia\.agents\teamwork\auditor_1\handoff.md

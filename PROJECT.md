@@ -1,92 +1,62 @@
-# Project: Auditoría, Ajuste y Verificación de Integridad del Frontend (Pantallas Prioritarias)
+# Project: Optimización Ergonómica de Pantalla de Ventas POS (Multivendedor - Caja Única)
 
 ## Architecture
-- **Patrón de Arquitectura**: Single Page Application en React 18, Vite, TypeScript estricto, Tailwind CSS y Supabase (`localDb` híbrido).
-- **Enfoque de Diseño**: Light Mode canónico (`pezcaderia-light`) WCAG 2.2 AA+ (ratios 4.5:1 y 7:1) junto con soporte Dark Glassmorphism, ergonomía táctil (Leyes de Fitts, Hick, Doherty, Miller, Jakob) y maquetación adaptativa estricta sin desbordamiento horizontal (`scrollWidth <= clientWidth`) en móvil (375px) y escritorio (1366x768 / 1920x1080).
-- **Estrategia Dual Track**:
-  - **Implementation Track**: Corrección modular del frontend dividida en 4 hitos constructivos (M1: Tokens y Shell, M2: POS Táctil, M3: Caja y Kanban, M4: Catálogos de Clientes y Productos) culminando en el hito final M5 (100% E2E Pass + Adversarial Coverage).
-  - **E2E Testing Track**: Construcción independiente de la suite E2E en Playwright y Google Harness² (Tiers 1-4) derivada de los requerimientos de usuario, emitiendo `TEST_READY.md`.
+- **Patrón de Arquitectura**: Single Page Application en React 18, Vite, TypeScript estricto, Tailwind CSS y Supabase (`localDb` híbrido Dexie/IndexedDB).
+- **Paradigma de Pantalla POS**: "Carrito Expandido + Liquidación on-Demand".
+  - **Área de Lista de Carrito**: Ocupa >= 70% de la altura vertical de `CartPanel` con `flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar`, garantizando visualización espaciosa y scroll fluido para listas de 12+ ítems.
+  - **Pie de Carrito Condensado**: Footer de <= 115px anclado (`shrink-0 mt-auto`) con resumen compacto (Subtotal/Descuento/IVA), Total prominente en `font-mono font-black tabular-nums text-emerald-400` y botón de acción principal de ancho completo (`[ ⚡ COBRAR / LIQUIDAR (F2) ]` o `[ ⏸ EMITIR PREVENTA (F6) ]`).
+  - **Liquidación on-Demand**: `PaymentPanel` desacoplado del pie estático del carrito hacia un Slide-Over Drawer o Modal táctil rápido al presionar Cobrar o tecla `F2`, liberando 617px de interferencia visual durante el registro y verificación de productos.
+  - **Reorganización de Ventas en Espera**: `ParkedOrdersBar` extraída del flujo vertical de ítems del carrito y compactada en cabecera o integrada en `PendingOrdersDrawer` con contador badge `[ Ventas en Espera (N) ]`.
+  - **Fila Retail Compacta (`LineaVentaRow`)**: Altura optimizada a ~58-64px (~60px computados) con controles agrupados, mostrando nombre, cantidad/peso, precio unitario y subtotal con ratios de contraste WCAG 2.2 AA+ (>=18.5:1 texto principal) y targets táctiles >=44px/48px (Ley de Fitts).
 
 ## Feature Inventory
 | # | Feature | Description | Milestone | Source |
 |---|---------|-------------|-----------|--------|
-| F1 | Tokens de Diseño y Light Mode | Implementación de tema `pezcaderia-light` en CSS y store, garantizando contraste WCAG AA+ (4.5:1 / 7:1). | M1 | Survey (Exp 2) |
-| F2 | Ergonomía Global de Botones | Ajuste de tamaños en `Button.tsx` para garantizar que botones interactivos cumplan área mínima >=44x44px (Fitts). | M1 | Survey (Exp 2) |
-| F3 | Layout Shell & Topbar | Optimización de `EnterpriseTopbar.tsx` y contenedores raíz para evitar desbordamiento o recorte de controles en 375px. | M1 | Survey (Exp 1) |
-| F4 | SweetAlert2 Responsivo Global | Reemplazo de anchos fijos (550px) en modales de alerta por anchos porcentuales responsivos (`max-w-[92vw]`). | M1 | Survey (Exp 1, 2) |
-| F5 | POS Mobile Switcher (Catálogo/Carrito) | Conmutador de pestaña en `< lg` (`[Catálogo]` / `[Carrito]`) para evitar apilamiento ciego en móvil. | M2 | Survey (Exp 1) |
-| F6 | POS Asesores de Mostrador Fitts | Ampliación de botones de vendedores a `min-h-[44px]` con etiquetas claras en barra de mostrador. | M2 | Survey (Exp 2) |
-| F7 | POS Badges y Botones de Acción Fitts | Ajuste de `TerminalVendorBadge.tsx`, `+ Split` en pagos y botones de barra de herramientas a >=44px. | M2 | Survey (Exp 2) |
-| F8 | POS Barcode & Búsqueda Wrap | Flex-wrap en formulario de búsqueda y escaneo (`ProductSearchPanel.tsx`) para eliminar desbordamiento a 375px. | M2 | Survey (Exp 1, 2) |
-| F9 | POS Parked Orders Bar Wrap | Ajuste de `ParkedOrdersBar.tsx` con wrap y tipografía fluida para evitar overflow lateral. | M2 | Survey (Exp 1) |
-| F10 | POS Doherty & Miller Optimization | Debounce en búsqueda de productos y simplificación de tarjetas POS (ocultar desglose de 3 bodegas por defecto). | M2 | Survey (Exp 2) |
-| F11 | Caja Única Selectores Header Wrap | Ajuste responsivo de selectores de Bodega y Caja en `CashFlowView.tsx` (elimina blowout de 340px > 323px). | M3 | Survey (Exp 1) |
-| F12 | Caja Movimientos Responsive | Tabla de movimientos con envoltura responsiva o vista en tarjeta compacta para móviles sin scroll roto. | M3 | Survey (Exp 1) |
-| F13 | Caja Filtro Tabs Fitts | Pestañas de filtrado de movimientos (`Todo`, `Ventas`, `Gastos`) aumentadas a `min-h-[44px]`. | M3 | Survey (Exp 2) |
-| F14 | Caja Memoización de Ordenamiento | Erradicación de `.sort()` mutante dentro de JSX en `CashFlowView.tsx`, usando `useMemo`. | M3 | Survey (Exp 2) |
-| F15 | Caja Única Integración Kanban | Integración de vista / pestaña de `CashierKanbanView` en Caja para recaudo ágil de preventas (F9). | M3 | Survey (Exp 1) |
-| F16 | Kanban Chips y Cobro Fitts | Chips de asesor y botón `btn-iniciar-cobro-*` aumentados a `min-h-[44px]` en `CashierKanbanView.tsx`. | M3 | Survey (Exp 2) |
-| F17 | Kanban Search Input & Debounce | Corrección de conflicto `min-h-[48px] h-10` y debouncing en buscador de comandas. | M3 | Survey (Exp 1, 2) |
-| F18 | Kanban Touch Actions en Pestañas | Botones de transición táctil directa para tarjetas de comandas en vistas de bodega y despacho. | M3 | Survey (Exp 1) |
-| F19 | Clientes Fix Desbordamiento 350px | Eliminación de `flex: 0 0 350px` sin wrap en `ClientsView.tsx`, convirtiendo a layout responsivo (`flex-col lg:flex-row`). | M4 | Survey (Exp 1) |
-| F20 | Clientes Header Wrap & Padding | Envoltura responsiva en header de clientes y padding fluido `p-3 sm:p-6` eliminando blowout horizontal. | M4 | Survey (Exp 1) |
-| F21 | Clientes Contraste WCAG AA+ | Erradicación de texto fijo `#0F172A` sobre fondo oscuro, sustitución por token semántico `text-primary`. | M4 | Survey (Exp 2) |
-| F22 | Clientes Doherty Debounce & Memo | Debouncing de búsqueda (200ms) y memoización de cálculo O(N*M) de deuda en cartera. | M4 | Survey (Exp 2) |
-| F23 | Inventario Pestañas Chunks (Miller) | Agrupamiento de 14 pestañas en 5 macro-categorías o menú dropdown accesible en móvil. | M4 | Survey (Exp 2) |
-| F24 | Inventario Tabla Productos Móvil | Vista de tarjeta móvil para `ProductTable.tsx` evitando scroll horizontal forzado a 375px. | M4 | Survey (Exp 1) |
-| F25 | Inventario WMS Hover Fix (Jakob) | Botones `Trasladar` y `Merma` siempre visibles con tamaño táctil en `InventoryDataTable.tsx`. | M4 | Survey (Exp 2) |
-| F26 | E2E Fixture & Auth Session | Test fixture Playwright con inyección de sesión autenticada y monitor de `console.error` / `pageerror`. | E2E Track | Survey (Exp 3) |
-| F27 | E2E Tier 1 Smoke & Visual 375px | Pruebas automatizadas de 0 errores en consola y `scrollWidth <= clientWidth` en las 4 pantallas (375px y desktop). | E2E Track | Survey (Exp 3) |
-| F28 | E2E Tier 2 UX Ergonomics Gate | Pruebas de objetivos táctiles >=44x44px (Fitts) y respuesta <400ms (Doherty). | E2E Track | Survey (Exp 3) |
-| F29 | E2E Tier 3 Flujos Operativos | Pruebas de ciclo completo: Preventa POS -> Recaudo Caja -> Kanban live -> Búsqueda Catálogo. | E2E Track | Survey (Exp 3) |
-| F30 | E2E Tier 4 Resiliencia y Harness² | Validación de invariantes con Google Harness² y pruebas de estrés de catálogo. | E2E Track | Survey (Exp 3) |
-| F31 | Verificación Final 100% E2E Pass | Ejecución del 100% de la suite E2E Tiers 1-4 sobre el código consolidado. | M5 | Prompt |
-| F32 | Hardening Adversarial (Tier 5) | Generación de pruebas adversariales y cobertura de edge cases hasta convergencia. | M5 | Prompt |
+| F1 | Desacoplamiento de PaymentPanel on-Demand | Extraer el liquidador `PaymentPanel` del pie estático de `CartPanel.tsx` hacia un Drawer/Modal de cobro rápido on-demand (`[ ⚡ Cobrar ]` / F2), liberando ~617px de altura. | M1 | Survey (Exp 1, 2) |
+| F2 | Footer Condensado y Total Prominente | Reducir `.pos-cart-footer` a <= 115px con totales compactos y botón principal táctil (`min-h-[48px]`), anclado con `shrink-0 mt-auto` sin recortar ítems. | M1 | Survey (Exp 1, 3) |
+| F3 | Reorganización Ergonómica de ParkedOrdersBar | Reestructurar `ParkedOrdersBar` y cabecera de `CartPanel` para que no canibalicen el espacio del listado de ítems, manteniendo acceso ágil a borradores. | M1 | Survey (Exp 2) |
+| F4 | Restauración Tokens Fitts POSView | Restaurar `min-h-[44px]` en botones de asesores mostrador (línea 2290) y apertura drawer de comandas (línea 2399) en `POSView.tsx`, resolviendo 2 fallos de `m2POSMultivendor.test.tsx`. | M1 | Survey (Exp 3) |
+| F5 | Fila Retail Compacta (LineaVentaRow) | Optimizar `LineaVentaRow.tsx` a ~58-64px de alto con visualización clara y legible de nombre, cantidad/peso, precio unitario y subtotal sin wrapping roto. | M2 | Survey (Exp 1, 3) |
+| F6 | Scroll Vertical Prioritario (12+ Ítems) | Configurar `cart-items-container` / `.pos-cart-items-list` con `flex-1 min-h-0 overflow-y-auto overscroll-contain` verificado con 12+ productos sin colapso. | M2 | Survey (Exp 1, 3) |
+| F7 | Suite de Pruebas de Integración y Estrés | Pruebas automáticas Vitest verificando la visualización no colapsada con 12+ ítems, persistencia de totales y flujo multivendedor - caja única. | M2 | Survey (Exp 1, 2, 3) |
+| F8 | Certificación Gate Multi-Agente | Evaluación rigurosa e independiente por 2 Reviewers, 2 Challengers y 1 Forensic Auditor (`teamwork_auditor`). | M3 | System Pattern |
 
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| E2E | E2E Testing Track | Infraestructura de pruebas Playwright, fixture con captura de console.error, test cases Tiers 1-4 y emisión de `TEST_READY.md`. | none | DONE (`TEST_READY.md` publicado, 17 pruebas certificadas, live run OK) |
-| M1 | Tokens, Light Mode & Shell Foundation | `src/index.css`, `useAppStore.ts`, `EnterpriseTopbar.tsx`, responsive SweetAlert2 y `Button.tsx` (Fitts >=44px). | none | DONE (`GATE_STATUS.md` PASS, auditor CLEAN, 49 tests passing) |
-| M2 | POS Multivendedor & Ergonomía | `POSView.tsx`, `ProductSearchPanel.tsx`, `CartPanel.tsx`, `ParkedOrdersBar.tsx`, `LineaVentaRow.tsx`, `TerminalVendorBadge.tsx`, `PaymentPanel.tsx`. | M1 | DONE (`m2POSMultivendor.test.tsx` 11/11 tests passing, 0 errors tsc) |
-| M3 | Caja Única & Tablero Kanban | `CashFlowView.tsx`, `CashierKanbanView.tsx`, `OrderKanbanView.tsx` (selectores wrap, memoización sort, integración de preventas y acciones táctiles). | M1 | DONE (`m3CashAndKanban.test.tsx` 9/9 y `m3AdversarialChallenge.test.tsx` 10/10 passing) |
-| M4 | Catálogos (Clientes & Inventario) | `ClientsView.tsx`, `InventoryView.tsx`, `ProductTable.tsx`, `StockMatrizTable.tsx`, `InventoryDataTable.tsx` (desbordamiento 350px, debounce, contraste WCAG y chunking). | M1 | DONE (`m4CatalogsAndInventory.test.tsx` 17/17 tests passing, 0 errors tsc) |
-| M5 | Final Milestone: 100% E2E Pass & Hardening | Auditoría completa DevTools 0 errores consola, 0 desbordamiento horizontal (`scrollWidth <= clientWidth`), co-ejecución Harness² + Agency Swarm. | E2E, M1, M2, M3, M4 | DONE (Certificado con Chromium DevTools, Harness² Demo OK, 77/77 tests pasando) |
+| M1 | Desacoplamiento de Cobro, Footer Condensado y Ergonomía de Cabecera | `CartPanel.tsx`, `ParkedOrdersBar.tsx`, `POSView.tsx` (desacople de PaymentPanel a drawer/modal on-demand, footer <= 115px, acceso ergonómico a pedidos en espera y fix de Fitts min-h-[44px]). | none | DONE (`handoff.md`, 50/50 tests passing, 0 errors tsc) |
+| M2 | Fila Retail Compacta, Scroll Vertical Prioritario (12+ Ítems) y Pruebas | `LineaVentaRow.tsx`, `CartPanel.tsx`, `src/tests/posCart12ItemsScroll.test.tsx` (fila retail ~60px, datos esenciales legibles, scroll prioritario 12+ ítems, 43/43 tests Vitest y tsc verde). | M1 | DONE (`handoff.md`, 43/43 tests passing, 0 errors tsc) |
+| M3 | Gate Multi-Agente & Verificación Forense Final | Auditoría independiente de código, revisión de contratos, pruebas adversariales de estrés con 20+ ítems y auditoría forense de integridad. | M1, M2 | DONE (`GATE_STATUS.md` PASS, 2 Reviewers APPROVE, 2 Challengers APPROVE, Auditor CLEAN) |
 
 ## Interface Contracts
 
-### Shell & Design Tokens ↔ Application Views
-- **CSS Variables**: `[data-theme="pezcaderia-light"]` y `[data-theme="pezcaderia-glass"]` proveen:
-  - `--bg-color`: color de fondo principal (`#f8fafc` en light, `#070A10` en glass).
-  - `--card-bg`: color de tarjeta / contenedor (`#ffffff` en light, `rgba(15, 23, 42, 0.7)` en glass).
-  - `--text-primary`: color de texto principal (`#0f172a` en light, `#f8fafc` en glass).
-  - `--text-secondary`: `#334155` (light) / `#94a3b8` (glass).
-  - `--border-color`: `#e2e8f0` (light) / `rgba(255, 255, 255, 0.1)` (glass).
-- **Store Interface**: `useAppStore.themeMode` acepta `'pezcaderia-light' | 'pezcaderia-glass' | 'hyper-cobalt' | 'carbon-teal' | 'chrome-violet'`.
-- **Button Sizing Contract**: `<Button size="md">` y `<Button size="lg">` garantizan altura calculada mínima de `44px` (`min-h-[44px]`). `<Button size="sm">` para chips secundarios o con padding táctil extendido.
+### CartPanel ↔ Payment Checkout (On-Demand Drawer/Modal)
+- **Props de Cobro on-Demand**:
+  - `isPaymentDrawerOpen: boolean` (controlado internamente por estado y prop opcional).
+  - `onOpenPayment: () => void` (disparado por botón `⚡ Cobrar (F2)` o tecla F2/Enter).
+  - `onClosePayment: () => void` (cierre de drawer sin alterar ítems del carrito).
+  - `PaymentPanel` se renderiza dentro de un Drawer deslizable o Modal con backdrop `z-50`, preservando intactos sus handlers de pago (`onProcessPayment`, `onFinalizarVenta`, `handleCobrarDirecto`).
 
-### POS ↔ Cashier Central Queue Contract
-- **Preventa Draft Model**: Almacenado en `pezca_pos_drafts_v1` a través de `localDb`.
-  - Propiedades obligatorias: `{ id: string, consecutivo: string, vendedorId: string, vendedorNombre: string, items: CartItem[], total: number, createdAt: string, status: 'PENDIENTE' | 'EN_COBRO' | 'PAGADO' }`.
-- **PendingOrdersDrawer & CashierKanbanView**: Consumen la misma cola atómica para sincronizar preventas en espera y pasarlas a cobro directo en taquilla.
+### CartPanel ↔ Parked Orders Flow
+- **Identificación de Borradores**: Almacenados en `pezca_pos_drafts_v1` (`posDraftService.ts`).
+- **Trigger Ergonómico**: Cabecera de `CartPanel` muestra botón `[ ⏸ En Espera (F6) ]` y badge/botón `[ Borradores (N) ]` que alterna la visualización compacta o abre `PendingOrdersDrawer`.
+- **Contrato de Restauración**: `handleLoadDraft(draftId)` carga los ítems en el carrito y actualiza el cliente y vendedor sin recargar la página.
 
-### Testing Track ↔ Implementation Track Contract
-- **Test Runner Entrypoint**: `npx playwright test` (o archivo específico `tests/e2e/tier*.spec.ts`).
-- **Pass / Fail Semantic**: Código de salida 0; 0 logs de `console.error`; `scrollWidth <= clientWidth + 2` en viewport 375px y desktop 1366x768.
-- **Coordination Signal**: `TEST_READY.md` en raíz del proyecto certifica que la suite Tiers 1-4 está lista para ser consumida por el hito final M5.
+### LineaVentaRow Props & Display Contract
+- **Dimensiones**: Altura computada objetivo de `58px - 64px` (~60px verificado).
+- **Datos Esenciales Visibles**:
+  - `producto.nombre`: `font-bold text-xs sm:text-sm text-slate-900 dark:text-slate-100 truncate`.
+  - `cantidad / peso`: `font-mono font-semibold text-xs text-slate-300` con stepper táctil (+/-) de 48px.
+  - `precioUnitario`: `font-mono text-[11px] sm:text-xs text-slate-400`.
+  - `subtotal / totalLinea`: `font-mono font-black text-sm text-emerald-600 dark:text-emerald-400 tabular-nums`.
 
 ## Code Layout
-- `src/index.css`: Tokens de tema CSS, reset responsivo y variables CSS.
-- `src/store/useAppStore.ts`: Estado global de temas, alertas y navegación.
-- `src/components/layout/`: `EnterpriseTopbar.tsx`, `EnterpriseSidebar.tsx`, `layoutModes.ts`.
-- `src/components/ui/Button.tsx`: Componente base de botón accesible.
-- `src/views/POSView.tsx`: Vista principal de ventas multivendedor.
-- `src/views/pos/components/`: Subcomponentes de POS (`ProductSearchPanel`, `CartPanel`, `PaymentPanel`, `ParkedOrdersBar`, `LineaVentaRow`, `TerminalVendorBadge`, `PendingOrdersDrawer`).
-- `src/views/cash/`: Vista de caja y liquidación (`CashFlowView.tsx`, `ArqueoCajaModal.tsx`).
-- `src/views/pos/components/CashierKanbanView.tsx`: Tablero Kanban de caja única para preventas.
-- `src/views/OrderKanbanView.tsx`: Tablero Kanban de pedidos y alistamiento en bodega.
-- `src/views/ClientsView.tsx`: Directorio y catálogo de clientes.
-- `src/views/InventoryView.tsx`: Catálogo general de productos y existencias.
-- `src/views/inventory/components/`: Subcomponentes de inventario (`ProductTable.tsx`, `StockMatrizTable.tsx`, `InventoryDataTable.tsx`).
-- `tests/e2e/`: Suite de pruebas E2E (`tier1-visual-integrity.spec.ts`, `tier2-ux-ergonomics.spec.ts`, `tier3-operational-lifecycle.spec.ts`, `tier4-resilience.spec.ts`, `fixtures/testFixtures.ts`).
-- `tools/harness2/`: Arnés de verificación de invariantes Google Harness² (`run_harness2.ps1`, `run_harness2.py`).
+- `src/views/pos/components/CartPanel.tsx`: Panel principal de carrito, cabecera, lista de ítems y footer condensado.
+- `src/views/pos/components/LineaVentaRow.tsx`: Componente de fila individual de ítem agregado.
+- `src/views/pos/components/ParkedOrdersBar.tsx`: Barra / cinta compacta de pedidos en espera.
+- `src/views/pos/components/PaymentPanel.tsx`: Componente de medios de pago y liquidación.
+- `src/views/pos/components/PendingOrdersDrawer.tsx`: Cajón lateral de comandas y borradores.
+- `src/views/POSView.tsx`: Vista principal de ventas POS con cabeceras y grilla responsiva.
+- `src/tests/posCart12ItemsScroll.test.tsx`: Suite de pruebas de visualización con 12+ ítems, scroll y anclaje de footer.
+- `src/tests/challengerPOSCartStressAdvanced.test.tsx`: Suite adversarial de estrés extremo (25 ítems, float precision).
+- `src/tests/challengerMultivendorCajaUnicaFlow.test.tsx`: Suite de integración empírica de ciclo completo multivendedor - caja única.

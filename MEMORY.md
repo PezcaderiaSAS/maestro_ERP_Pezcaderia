@@ -23,9 +23,11 @@
    - Ensamblado en `BucaramangaReceivingWizard.tsx` (10/10 tests, 27/27 dock suite, DevTools 0 errores).
 6. **SPEC-051 (CI/CD PIPELINE VERCEL & GITHUB ACTIONS) ✅ (100% CERTIFICADO & DESPLEGADO):**
    - Workflow `.github/workflows/deploy-vercel.yml` con Quality Gates (`tsc` + Vitest 1420 tests).
-   - Pipeline prebuilt (`pull` -> `build` -> `deploy --prebuilt`) en `scripts/lifecycle/deploy-vercel.cjs`.
    - Producción activa y verificada en `https://maestro-erp-pezcaderia.vercel.app` (HTTP 200).
-   - OCC implementado en `prefacturaService.ts` contra colisión concurrente de cajeros.
+7. **SPEC-052 (CARRITO EXPANDIDO POS & MULTIVENDEDOR) ✅ (100% CERTIFICADO & DEVTOOLS 19/19 PROBES):**
+   - Liquidación on-demand (Drawer F2/Enter), scroll vertical prioritario 12+ ítems sin colapso.
+   - Fila retail compacta ~60px, ParkedOrdersBar cinta horizontal, Ley de Fitts $\ge 44/48\text{px}$.
+   - 88/88 tests POS pasando (Vitest), 0 errores `tsc`, 19/19 probes DevTools aprobados en producción Vercel.
 
 ## Cola de Tareas Priorizada (WIP = 1)
 1. **AUDITORÍA UX INTEGRAL (29 PANTALLAS):** Revisión de leyes de UX y accesibilidad WCAG 2.2 AA+.

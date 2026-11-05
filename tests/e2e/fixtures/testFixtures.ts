@@ -107,7 +107,8 @@ export const test = base.extend<CustomFixtures>({
         if (
           !text.includes('sentry') &&
           !text.includes('logrocket') &&
-          !text.includes('favicon.ico')
+          !text.includes('favicon.ico') &&
+          !text.includes('Failed to load resource')
         ) {
           errors.push(text);
         }

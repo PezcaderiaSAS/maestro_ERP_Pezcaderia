@@ -1,62 +1,67 @@
-# BRIEFING — 2026-10-29T16:30:00Z
+# BRIEFING — 2026-11-05T12:35:00Z
 
 ## Mission
-Implement Milestone M2: POS Multivendedor & Ergonomía (Features F5–F10 + responsive Swal) ensuring WCAG AA, Fitts's Law touch targets (min 44px), mobile tab switching (< lg), debouncing, Miller chunking, and responsive wrapping without horizontal overflow.
+Actualizar y blindar la especificación técnica SDD SPEC-053 (`spec.md`, `plan.md`, `tasks.md`, `audit-report.md`) incorporando de manera exhaustiva las mitigaciones mandatorias identificadas por Critic 1 y Challenger 2, asegurando 100% cumplimiento en auditoría de diagramas y rigor formal.
 
 ## 🔒 My Identity
-- Archetype: implementer, qa, specialist
+- Archetype: SDD Hardening Engineer
 - Roles: implementer, qa, specialist
-- Working directory: c:\Users\Personal\Documents\Yurgen\Maestro_Pezcaderia_ERP\maestro_ERP_Pezcaderia\.agents\teamwork\worker_m2_gen2\
-- Original parent: e42ef4de-8a0f-405a-9bf6-e0fafd6d44e7
-- Milestone: M2: POS Multivendedor & Ergonomía
+- Working directory: c:\Users\usuario\OneDrive\Documentos\Aplicaciones Pezca\MaestroPescaderia\.agents\teamwork\worker_m2_gen2
+- Original parent: 0a86b821-9cfb-4c7b-8c1f-3456c6f04c55
+- Milestone: M2 - Iteración 2
 
 ## 🔒 Key Constraints
-- Exclusive write ownership:
-  - `src/views/POSView.tsx`
-  - `src/views/pos/components/ProductSearchPanel.tsx`
-  - `src/views/pos/components/CartPanel.tsx`
-  - `src/views/pos/components/ParkedOrdersBar.tsx`
-  - `src/views/pos/components/LineaVentaRow.tsx`
-  - `src/views/pos/components/TerminalVendorBadge.tsx`
-  - `src/views/pos/components/PaymentPanel.tsx`
-  - `src/views/pos/components/PendingOrdersDrawer.tsx`
-  - `src/tests/m2POSMultivendor.test.tsx`
-- Integrity Mandate: No cheating, no hardcoding test results, genuine logic.
-- Run `npx tsc --noEmit` and `npx vitest run src/tests/m2POSMultivendor.test.tsx` + `src/tests/m1ShellAndTokens.test.tsx`.
+- Propiedad exclusiva de escritura: `specs/053-latency-optimization-sdd/` y `.agents/teamwork/worker_m2_gen2/`.
+- NO modificar código de producción fuera de `specs/053-latency-optimization-sdd/`.
+- NO inventar ni falsificar resultados de tests o auditorías.
+- Calibrar SLAs cuantitativos realistas con benchmarks reales (p95 exacto <2ms, fuzzy <=35ms en 16.000 SKUs; UI p95 <16ms 60 FPS).
+- Requisitos EARS multi-pestaña (BroadcastChannel + Web Locks), mitigación Thundering Herd L3 (Single-Flight + XFetch), seguridad multi-tenant (Edge Function proxy /functions/cache-proxy, purga en switchTenant), y resolución atómica relativa de stock en OCC (`SET stock = stock + p_delta`).
+- 5 diagramas canónicos en `plan.md` con 100% CUMPLE en `node scripts/architecture/audit-diagrams-compliance.cjs 053`.
 
 ## Current Parent
-- Conversation ID: e42ef4de-8a0f-405a-9bf6-e0fafd6d44e7
-- Updated: 2026-10-29T16:30:00Z
+- Conversation ID: 0a86b821-9cfb-4c7b-8c1f-3456c6f04c55
+- Updated: 2026-11-05T12:35:00Z
 
 ## Task Summary
-- **What to build**:
-  - F5: POS Mobile Switcher (Catálogo/Carrito) on `< lg` in `POSView.tsx`
-  - F6: POS Asesores de Mostrador Fitts's Law (min-h-[44px]) in `POSView.tsx`
-  - F7: POS Badges y Botones de Acción Fitts's Law in `TerminalVendorBadge.tsx`, `PaymentPanel.tsx`, `POSView.tsx`
-  - F8: POS Barcode & Búsqueda Wrap in `ProductSearchPanel.tsx` (wrap, min-h-[44px])
-  - F9: POS Parked Orders Bar Wrap in `ParkedOrdersBar.tsx`
-  - F10: POS Doherty (<400ms debounce 200ms) & Miller (Chunking stock warehouses) in `ProductSearchPanel.tsx`
-  - Responsive SweetAlert2 Modals in `POSView.tsx`
-- **Success criteria**: All tests pass, build passes (`tsc --noEmit`), genuine responsive layout & ergonomics.
-- **Interface contracts**: PROJECT.md, survey 1 & 2 handoff reports.
+- **What to build**: Actualización profunda y exhaustiva de `spec.md`, `plan.md`, `tasks.md`, `audit-report.md` en `specs/053-latency-optimization-sdd/`.
+- **Success criteria**:
+  1. `spec.md` con SLAs calibrados y requisitos EARS exhaustivos. (COMPLETADO)
+  2. `plan.md` con 5 diagramas canónicos con 100% CUMPLE en auditoría. (COMPLETADO)
+  3. `tasks.md` con tareas T-053-01 a T-053-20 blindadas según feedback. (COMPLETADO)
+  4. `audit-report.md` documentando hallazgos forenses y mitigaciones. (COMPLETADO)
+  5. `node scripts/architecture/audit-diagrams-compliance.cjs 053` = 100% CUMPLE. (COMPLETADO)
+  6. Handoff report completo de 5 secciones en `worker_m2_gen2/handoff.md`. (EN CURSO)
 
 ## Change Tracker
-- **Files modified**: None yet.
-- **Build status**: Pending.
-- **Pending issues**: None.
+- **Files modified**:
+  * `specs/053-latency-optimization-sdd/spec.md`: Blindado con SLAs calibrados (exacto <2ms, fuzzy <=35ms), requisitos EARS multi-pestaña, Edge Proxy L3, OCC relativo y 5 diagramas Mermaid.
+  * `specs/053-latency-optimization-sdd/plan.md`: Blindado con los 5 diagramas Mermaid canónicos, arquitectura Edge Proxy, Single-Flight, XFetch, BroadcastChannel, Web Locks, keyset cursor y purga hermética en switchTenant.
+  * `specs/053-latency-optimization-sdd/tasks.md`: 20 tareas atómicas T-053-01 a T-053-20 blindadas con Workbox runtime caching, prefix map 3-chars + Trie, stock por bodega, keyset cursor, Edge Proxy L3, BroadcastChannel, public.get_tenant_id(), chunking 500 y purga total.
+  * `specs/053-latency-optimization-sdd/audit-report.md`: Integración de hallazgos forenses comprobados de Critic 1 y Challenger 2.
+- **Build status**: `node scripts/architecture/audit-diagrams-compliance.cjs 053` -> 100% CUMPLE (código 0).
+- **Pending issues**: Ninguno
 
 ## Quality Status
-- **Build/test result**: Not run yet.
-- **Lint status**: Clean.
-- **Tests added/modified**: `src/tests/m2POSMultivendor.test.tsx` (to be written).
+- **Build/test result**: Auditoría de diagramas 100% CUMPLE en todos los 5 diagramas.
+- **Lint status**: Sin violaciones en especificaciones SDD.
+- **Tests added/modified**: Validación de diagramas con script canónico del proyecto.
 
 ## Loaded Skills
-- None explicitly assigned beyond standard skills.
+- **Source**: .agents/skills/sdd/SKILL.md
+- **Core methodology**: Spec-Driven Development (EARS, 5 diagramas canónicos, tareas atómicas)
 
 ## Key Decisions Made
-- [TBD]
+- Calibrar SLA de búsqueda POS: exacto p95 < 2ms, difuso/fuzzy p95 <= 35ms en 16K SKUs, resolviendo la contradicción física señalada por Critic 1 y Challenger 2.
+- Payload del worker: `string[]` (top 20-30 SKUs) eliminando 15-25ms de Structured Clone.
+- Prohibir credenciales Upstash en frontend; arquitectura exclusiva vía Supabase Edge Function `/functions/cache-proxy`.
+- OCC Delta-Merge con SQL atómico relativo en PostgreSQL (`UPDATE wms_stock SET stock = stock + p_delta`) eliminando lost updates.
+- Paginación Keyset Cursor `(created_at, id)` en Kardex.
+- Sincronización multi-pestaña con `BroadcastChannel('pezca_l1_cache')` y Web Locks API.
+- Purga hermética `resetAllStores()` en `switchTenant`.
 
 ## Artifact Index
-- DISPATCH.md — Assignment and constraints.
-- progress.md — Liveness heartbeat.
-- handoff.md — Verification report upon completion.
+- `specs/053-latency-optimization-sdd/spec.md` — Especificación técnica SDD blindada
+- `specs/053-latency-optimization-sdd/plan.md` — Plan de arquitectura técnica con 5 diagramas Mermaid
+- `specs/053-latency-optimization-sdd/tasks.md` — Desglose de 20 tareas atómicas blindadas
+- `specs/053-latency-optimization-sdd/audit-report.md` — Informe forense consolidado
+- `.agents/teamwork/worker_m2_gen2/handoff.md` — Handoff report formal de 5 secciones

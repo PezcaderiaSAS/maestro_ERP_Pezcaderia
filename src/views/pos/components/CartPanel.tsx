@@ -16,7 +16,7 @@ import { useAppStore } from '../../../store/useAppStore';
 import { PosButton } from './PosButton';
 import Swal from 'sweetalert2';
 
-interface CartPanelProps {
+export interface CartPanelProps {
   // Datos del carrito
   lineas: LineaVenta[];
     cliente: ClientePOS | null;
@@ -70,6 +70,10 @@ interface CartPanelProps {
   selectedCutNotes?: string[];
   onToggleCutNote?: (note: string) => void;
   onOpenNotasModal?: () => void;
+
+  // Cobro on-Demand (SPEC-055 / M1)
+  isPaymentDrawerOpen?: boolean;
+  onTogglePaymentDrawer?: (open: boolean) => void;
 }
 
 export const CartPanel: React.FC<CartPanelProps> = ({
@@ -110,6 +114,8 @@ export const CartPanel: React.FC<CartPanelProps> = ({
   selectedCutNotes = [],
   onToggleCutNote,
   onOpenNotasModal,
+  isPaymentDrawerOpen: propPaymentDrawerOpen,
+  onTogglePaymentDrawer,
 }) => {
   const activeTenant = useAuthStore((s) => s.activeTenant);
   const currentUser = useAppStore((s) => s.currentUser);
@@ -127,6 +133,39 @@ export const CartPanel: React.FC<CartPanelProps> = ({
   const [notasDespacho, setNotasDespacho] = useState('');
   const [showInternalNotasModal, setShowInternalNotasModal] = useState(false);
   const [localCutNotes, setLocalCutNotes] = useState<string[]>([]);
+  const [internalPaymentDrawerOpen, setInternalPaymentDrawerOpen] = useState(false);
+
+  const isPaymentDrawerOpen = propPaymentDrawerOpen !== undefined ? propPaymentDrawerOpen : internalPaymentDrawerOpen;
+  const setPaymentDrawerOpen = (open: boolean) => {
+    setInternalPaymentDrawerOpen(open);
+    if (onTogglePaymentDrawer) onTogglePaymentDrawer(open);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeTag = document.activeElement?.tagName?.toLowerCase();
+      const isInputFocused = activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select';
+
+      if (e.key === 'Escape' && isPaymentDrawerOpen) {
+        e.preventDefault();
+        setPaymentDrawerOpen(false);
+        return;
+      }
+
+      if (e.key === 'F2' && !isMostradorAuto && lineas.length > 0 && isTurnoAbierto) {
+        e.preventDefault();
+        setPaymentDrawerOpen(!isPaymentDrawerOpen);
+      } else if (e.key === 'Enter' && !isInputFocused && !isMostradorAuto && lineas.length > 0 && isTurnoAbierto && !isPaymentDrawerOpen) {
+        if (!document.querySelector('.swal2-container')) {
+          e.preventDefault();
+          setPaymentDrawerOpen(true);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isPaymentDrawerOpen, isMostradorAuto, lineas.length, isTurnoAbierto]);
 
   const handleToggleCutNote = (note: string) => {
     if (onToggleCutNote) {
@@ -144,6 +183,9 @@ export const CartPanel: React.FC<CartPanelProps> = ({
       : localCutNotes;
 
   const totalItems = lineas.reduce((sum, l) => sum + Number(l.cantidad), 0);
+  const formattedTotalItems = Number.isInteger(totalItems)
+    ? totalItems
+    : parseFloat(totalItems.toFixed(2));
 
   useEffect(() => {
     if (totalItems <= 0) return;
@@ -531,7 +573,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
       data-testid="cart-glass-panel"
       showMacControls={true}
       title="CARRITO DE VENTAS"
-      badge={`${totalItems} ${totalItems === 1 ? 'ítem' : 'ítems'}`}
+      badge={`${formattedTotalItems} ${formattedTotalItems === 1 ? 'ítem' : 'ítems'}`}
       badgeVariant="cyan"
       onMinimize={() => setIsCompactMode((prev) => !prev)}
       className="pos-cart-panel flex flex-col h-full min-h-0 overflow-hidden pr-1 p-2.5 sm:p-3 select-none"
@@ -644,7 +686,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
       {/* ── LISTA DE ÍTEMS: scroll táctil vertical aislado (overscroll-contain) ── */}
       <div
         data-testid="cart-items-container"
-        className={`pos-cart-items-list flex-1 min-h-0 overflow-y-auto overscroll-contain pr-1 space-y-1.5 ${isCompactMode ? 'hidden' : ''}`}
+        className={`pos-cart-items-list flex-1 min-h-0 overflow-y-auto overscroll-contain pr-1 space-y-1.5 custom-scrollbar ${isCompactMode ? 'hidden' : ''}`}
         style={{
           WebkitOverflowScrolling: 'touch',
           scrollSnapType: 'y proximity',
@@ -684,19 +726,45 @@ export const CartPanel: React.FC<CartPanelProps> = ({
         )}
       </div>
 
-      {/* ── FOOTER STICKY: Total + Descuento + Pago ── */}
+      {/* ── FOOTER CONDENSADO (<= 115px): Resumen Compacto + TOTAL Prominente + Acción Principal ── */}
       <div
-        className="pos-cart-footer shrink-0 mt-auto bg-slate-900/90 backdrop-blur-2xl p-2 sm:p-2.5 border-t border-white/10 flex flex-col gap-1 rounded-2xl shadow-2xl"
+        className="pos-cart-footer shrink-0 mt-auto bg-slate-900/90 backdrop-blur-2xl p-1.5 sm:p-2 border-t border-white/10 flex flex-col gap-1 rounded-2xl shadow-2xl"
       >
+        {/* Resumen Compacto de Totales (Subtotal, Base, IVA, F4 Descuento) */}
+        {lineas.length > 0 && (
+          <div className="flex items-center justify-between text-[11px] px-1 text-slate-400 select-none">
+            <div className="flex items-center gap-2 truncate">
+              <span>Sub: <strong className="text-slate-200 font-mono">${totales.subtotal.toLocaleString('es-CO')}</strong></span>
+              {(totales.totalIva ?? 0) > 0 && (
+                <span>IVA: <strong className="text-slate-300 font-mono">${(totales.totalIva ?? 0).toLocaleString('es-CO')}</strong></span>
+              )}
+              {totales.subtotalBaseGravable !== undefined && (totales.totalIva ?? 0) > 0 && (
+                <span className="hidden sm:inline text-slate-500 font-mono text-[10px]">
+                  Base: ${totales.subtotalBaseGravable.toLocaleString('es-CO')}
+                </span>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={onDescuentoClick}
+              className="flex items-center gap-1 text-[10px] font-bold text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer py-0.5 px-1.5 rounded hover:bg-white/5 active:scale-95"
+              title="Aplicar o modificar descuento global (Atajo: F4)"
+            >
+              <span>{descuentoGlobalPct > 0 ? `Desc: -${descuentoGlobalPct}%` : '+ Descuento'}</span>
+              <kbd className="px-1 py-0.2 font-mono text-[9px] bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 rounded">F4</kbd>
+            </button>
+          </div>
+        )}
+
         {/* Total prominente táctil con micro-animación y alto contraste */}
         {lineas.length > 0 && (
-          <div className="flex justify-between items-center py-1.5 px-3 bg-slate-950/80 rounded-xl border border-white/10 shadow-sm transition-all duration-200">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-black uppercase tracking-wider text-slate-400">TOTAL</span>
+          <div className="flex justify-between items-center py-1 px-2.5 bg-slate-950/80 rounded-xl border border-white/10 shadow-sm transition-all duration-200">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">TOTAL</span>
               <span 
-                className={`bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-xs font-black px-2 py-0.5 rounded-full ${isBouncing ? 'animate-bounce' : ''}`}
+                className={`bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-[10px] font-black px-1.5 py-0.2 rounded-full ${isBouncing ? 'animate-bounce' : ''}`}
               >
-                {totalItems} {totalItems === 1 ? 'ítem' : 'ítems'}
+                {formattedTotalItems} {formattedTotalItems === 1 ? 'ítem' : 'ítems'}
               </span>
             </div>
             <strong className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono tracking-tight tabular-nums transition-transform duration-150 active:scale-95">
@@ -705,84 +773,55 @@ export const CartPanel: React.FC<CartPanelProps> = ({
           </div>
         )}
 
-        {lineas.length > 0 && (
-          <DiscountPanel
-            subtotal={totales.subtotal}
-            totalItems={totalItems}
-            descuentoPct={descuentoGlobalPct}
-            descuentoValor={descuentoGlobalValor}
-            totalIva={totales.totalIva}
-            subtotalBaseGravable={totales.subtotalBaseGravable}
-            onDescuentoClick={onDescuentoClick}
-          />
-        )}
-
+        {/* Botón Principal de Acción */}
         {isMostradorAuto ? (
-          <div className="p-2 bg-slate-900/90 border border-cyan-500/30 rounded-xl backdrop-blur-xl shadow-xl space-y-1 select-none">
+          <div className="p-1 bg-slate-900/90 border border-cyan-500/30 rounded-xl backdrop-blur-xl shadow-xl space-y-1 select-none">
             {/* Header compacto con estado de mostrador y botón vaciar integrado */}
-            <div className="flex items-center justify-between text-xs pb-1 border-b border-white/10">
+            <div className="flex items-center justify-between text-xs pb-0.5 border-b border-white/10">
               <div className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
                 <span className="font-bold text-slate-200 uppercase tracking-wider text-[10px]">
                   Puesto de Mostrador
                 </span>
                 <span className="text-[9px] font-mono text-cyan-300 font-bold bg-cyan-950/60 border border-cyan-500/30 px-1.5 py-0.2 rounded">
-                  Cobro en Ventanilla
+                  Ventanilla
                 </span>
               </div>
-              {lineas.length > 0 && (
+              <div className="flex items-center gap-1.5">
                 <button
                   type="button"
-                  onClick={onLimpiarCarrito}
-                  title="Vaciar Carrito"
-                  aria-label="Vaciar Carrito"
-                  className="p-1 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer text-[10px] flex items-center gap-1"
+                  data-testid="btn-open-despacho-modal"
+                  onClick={() => {
+                    if (onOpenNotasModal) {
+                      onOpenNotasModal();
+                    } else {
+                      setShowInternalNotasModal(true);
+                    }
+                  }}
+                  className="flex items-center gap-1 text-[10px] text-cyan-400 hover:text-cyan-300 font-semibold cursor-pointer p-0.5 rounded hover:bg-white/5"
+                  title="Notas de preparación y corte de pescado"
                 >
-                  <Trash2 size={13} />
-                  <span>Vaciar</span>
-                </button>
-              )}
-            </div>
-
-            {/* Control On-Demand para Notas de Despacho y Corte (SPEC-052 R2) */}
-            <div className="space-y-1">
-              <button
-                type="button"
-                data-testid="btn-open-despacho-modal"
-                onClick={() => {
-                  if (onOpenNotasModal) {
-                    onOpenNotasModal();
-                  } else {
-                    setShowInternalNotasModal(true);
-                  }
-                }}
-                className="w-full flex items-center justify-between px-2.5 py-1.5 min-h-[34px] rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-cyan-500/30 text-xs text-slate-200 font-bold transition-all active:scale-[0.99] cursor-pointer shadow-sm"
-              >
-                <div className="flex items-center gap-1.5">
-                  <Scissors size={13} className="text-cyan-400" />
-                  <span className="text-[11px]">📝 Notas de Despacho / Corte</span>
+                  <Scissors size={11} />
+                  <span>{notasDespacho || activeCutNotes.length > 0 ? 'Modificar Notas' : '+ Notas Corte'}</span>
                   {activeCutNotes.length > 0 && (
-                    <span className="bg-cyan-500/20 text-cyan-300 text-[10px] px-1.5 py-0.2 rounded-full font-mono border border-cyan-500/30 font-bold">
+                    <span className="bg-cyan-500/20 text-cyan-300 text-[9px] px-1 rounded-full font-mono font-bold">
                       {activeCutNotes.length}
                     </span>
                   )}
-                </div>
-                <span className="text-[10px] text-cyan-400 font-semibold">
-                  {notasDespacho || activeCutNotes.length > 0 ? 'Modificar' : '+ Añadir'}
-                </span>
-              </button>
-
-              {(activeCutNotes.length > 0 || (notasDespacho && notasDespacho.trim())) ? (
-                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-slate-950/70 border border-cyan-500/20 rounded-lg text-[10px] text-slate-300">
-                  <span className="text-cyan-400 font-mono text-[9px] uppercase font-bold shrink-0">Notas:</span>
-                  <span className="truncate">
-                    {[
-                      activeCutNotes.length > 0 ? activeCutNotes.join(', ') : '',
-                      notasDespacho ? notasDespacho.trim() : ''
-                    ].filter(Boolean).join(' — ')}
-                  </span>
-                </div>
-              ) : null}
+                </button>
+                {lineas.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={onLimpiarCarrito}
+                    title="Vaciar Carrito"
+                    aria-label="Vaciar Carrito"
+                    className="p-1 rounded text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer text-[10px] flex items-center gap-0.5"
+                  >
+                    <Trash2 size={11} />
+                    <span>Vaciar</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             <PosButton
@@ -796,37 +835,106 @@ export const CartPanel: React.FC<CartPanelProps> = ({
                   : notasDespacho;
                 onGuardarBorrador(combined);
               }}
-              leftIcon={<PauseCircle size={17} />}
+              leftIcon={<PauseCircle size={16} />}
               shortcutBadge="(F6)"
-              className={`w-full tracking-wide shadow-lg min-h-[44px] py-1.5 text-sm ${
+              className={`w-full tracking-wide shadow-lg min-h-[44px] py-1 text-xs sm:text-sm ${
                 lineas.length > 0
                   ? 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-cyan-600/30 border border-cyan-400/40'
                   : 'bg-white/5 text-slate-500 cursor-not-allowed border border-white/5'
               }`}
             >
-              <span>EMITIR PREVENTA / COMANDA{' '}</span>
+              <span>EMITIR PREVENTA / COMANDA</span>
             </PosButton>
           </div>
         ) : (
-          <PaymentPanel
-            totalFinal={totales.totalFinal}
-            lineas={lineas}
-            cliente={cliente}
-            stock={stock}
-            bodegaActivaId={bodegaActivaId}
-            bodegaActivaNombre={bodegaActivaNombre}
-            onPagar={onPagar}
-            onGuardarBorrador={onGuardarBorrador}
-            onLimpiarCarrito={onLimpiarCarrito}
-            isDisabled={lineas.length === 0}
-            isTurnoAbierto={isTurnoAbierto}
-            onAbrirTurnoRequest={onAbrirTurnoRequest}
-            onRetiroParcialRequest={onRetiroParcialRequest}
-            saldoEfectivoGaveta={saldoEfectivoGaveta}
-            topeMaximoGaveta={topeMaximoGaveta}
-          />
+          <button
+            type="button"
+            id="btn-cobrar"
+            data-testid="btn-cobrar"
+            disabled={lineas.length === 0 || !isTurnoAbierto}
+            onClick={() => setPaymentDrawerOpen(true)}
+            className={`w-full tracking-wide shadow-lg min-h-[48px] h-12 lg:h-14 lg:min-h-[56px] font-bold rounded-xl transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer ${
+              lineas.length > 0 && isTurnoAbierto
+                ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/30'
+                : 'bg-white/5 text-slate-500 cursor-not-allowed border border-white/5'
+            }`}
+            title="Abrir panel de liquidación y cobro (Atajo: F2 / Enter)"
+          >
+            <span className="text-sm sm:text-base font-extrabold tracking-wide">⚡ COBRAR / LIQUIDAR</span>
+            <span className="flex items-center gap-1 text-xs opacity-90 font-mono">
+              <kbd className="px-1.5 py-0.5 rounded bg-black/40 border border-white/20 text-emerald-200">F2</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-black/40 border border-white/20 text-emerald-200">Enter</kbd>
+            </span>
+          </button>
         )}
       </div>
+
+      {/* ── MODAL / DRAWER ON-DEMAND: Cobro & Liquidación (Sin canibalizar el carrito) ── */}
+      {isPaymentDrawerOpen && (
+        <div
+          data-testid="payment-drawer-backdrop"
+          className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in select-none"
+          onClick={() => setPaymentDrawerOpen(false)}
+        >
+          <div
+            data-testid="payment-drawer-container"
+            className="w-full max-w-lg max-h-[92vh] flex flex-col bg-slate-900/95 border border-white/15 rounded-2xl shadow-2xl overflow-hidden relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Cabecera del Drawer */}
+            <div className="flex items-center justify-between px-4 py-2.5 bg-slate-950/80 border-b border-white/10 shrink-0">
+              <div className="flex items-center gap-2">
+                <span className="text-emerald-400 font-extrabold text-sm tracking-wide">
+                  ⚡ LIQUIDACIÓN & MEDIOS DE COBRO
+                </span>
+                <span className="font-mono text-xs font-black text-emerald-300 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded-lg">
+                  ${totales.totalFinal.toLocaleString('es-CO')}
+                </span>
+              </div>
+              <button
+                type="button"
+                data-testid="btn-close-payment-drawer"
+                onClick={() => setPaymentDrawerOpen(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                title="Cerrar liquidación (Escape)"
+                aria-label="Cerrar ventana de cobro"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Contenedor Scrolleable con PaymentPanel */}
+            <div className="flex-1 min-h-0 overflow-y-auto p-3 overscroll-contain">
+              <PaymentPanel
+                totalFinal={totales.totalFinal}
+                lineas={lineas}
+                cliente={cliente}
+                stock={stock}
+                bodegaActivaId={bodegaActivaId}
+                bodegaActivaNombre={bodegaActivaNombre}
+                onPagar={async (pagos, opts) => {
+                  await onPagar(pagos, opts);
+                  setPaymentDrawerOpen(false);
+                }}
+                onGuardarBorrador={() => {
+                  onGuardarBorrador();
+                  setPaymentDrawerOpen(false);
+                }}
+                onLimpiarCarrito={() => {
+                  onLimpiarCarrito();
+                  setPaymentDrawerOpen(false);
+                }}
+                isDisabled={lineas.length === 0}
+                isTurnoAbierto={isTurnoAbierto}
+                onAbrirTurnoRequest={onAbrirTurnoRequest}
+                onRetiroParcialRequest={onRetiroParcialRequest}
+                saldoEfectivoGaveta={saldoEfectivoGaveta}
+                topeMaximoGaveta={topeMaximoGaveta}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal Táctil On-Screen Keypad para Ajuste Rápido de Cantidad / Peso (Regla 12 Años) */}
       {keypadLinea && (
