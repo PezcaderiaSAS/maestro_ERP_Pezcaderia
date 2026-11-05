@@ -784,7 +784,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
                   Puesto de Mostrador
                 </span>
                 <span className="text-[9px] font-mono text-cyan-300 font-bold bg-cyan-950/60 border border-cyan-500/30 px-1.5 py-0.2 rounded">
-                  Ventanilla
+                  Cobro en Ventanilla
                 </span>
               </div>
               <div className="flex items-center gap-1.5">

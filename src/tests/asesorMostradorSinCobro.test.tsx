@@ -72,7 +72,7 @@ describe('Requisito Asesor de Mostrador: Segregación Estricta sin Sección de C
     expect(screen.getByText(/Cobro en Ventanilla/i)).toBeInTheDocument();
     const btnEmitir = screen.getByTestId('btn-emitir-preventa-mostrador');
     expect(btnEmitir).toBeInTheDocument();
-    expect(btnEmitir).toHaveTextContent(/EMITIR PREVENTA \/ COMANDA \(F6\)/i);
+    expect(btnEmitir).toHaveTextContent(/EMITIR PREVENTA \/ COMANDA\s*\(F6\)/i);
 
     // Al hacer clic, debe emitir el borrador/preventa
     fireEvent.click(btnEmitir);
@@ -96,9 +96,16 @@ describe('Requisito Asesor de Mostrador: Segregación Estricta sin Sección de C
       />
     );
 
-    // Debe mostrar el panel de cobro PaymentPanel
+    // En modo cajero/admin no se muestra el botón de preventa de mostrador
+    expect(screen.queryByTestId('btn-emitir-preventa-mostrador')).not.toBeInTheDocument();
+
+    // El cobro se realiza on-demand para evitar el colapso vertical del carrito
+    const btnCobrar = screen.getByTestId('btn-cobrar');
+    expect(btnCobrar).toBeInTheDocument();
+    fireEvent.click(btnCobrar);
+
+    // Debe mostrar el panel de cobro PaymentPanel dentro del drawer
     expect(screen.getByText(/TOTAL A LIQUIDAR/i)).toBeInTheDocument();
     expect(screen.getByTestId('btn-efectivo-exacto-directo')).toBeInTheDocument();
-    expect(screen.queryByTestId('btn-emitir-preventa-mostrador')).not.toBeInTheDocument();
   });
 });
