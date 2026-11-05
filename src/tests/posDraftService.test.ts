@@ -106,6 +106,8 @@ describe('PosDraftService - Persistencia y Sincronización de Borradores', () =>
   });
 
   it('sincroniza pedidos remotos desde Supabase y los combina con la base local', async () => {
+    (window as any).__ENABLE_REMOTE_DRAFTS__ = true;
+    PosDraftService.enableRemoteSync();
     await PosDraftService.saveDraft(sampleDraft);
 
     const allDrafts = await PosDraftService.fetchRemoteDrafts();
@@ -114,5 +116,6 @@ describe('PosDraftService - Persistencia y Sincronización de Borradores', () =>
     const remoteFound = allDrafts.find((d) => d.id === 'remote-uuid-1');
     expect(remoteFound).toBeDefined();
     expect(remoteFound?.alias).toBe('Cliente Remoto Mostrador');
+    delete (window as any).__ENABLE_REMOTE_DRAFTS__;
   });
 });

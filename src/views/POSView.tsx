@@ -15,7 +15,7 @@ import { BalanzaButton } from './pos/components/BalanzaButton.tsx';
 import { TicketBuilder } from './pos/components/TicketBuilder.tsx';
 import { CartPanel } from './pos/components/CartPanel.tsx';
 import { InternalQueueTicker } from './pos/components/InternalQueueTicker.tsx';
-import { QuickCutNotes } from './pos/components/QuickCutNotes.tsx';
+import { DespachoNotasModal } from './pos/components/DespachoNotasModal.tsx';
 import { VendorTicketSidebar, type VendorTicket, type EstadoTicket } from '../components/pos/VendorTicketSidebar.tsx';
 import { supabaseRealtimePreventasService } from '../services/supabaseRealtimePreventasService.ts';
 import { ProductSearchPanel } from './pos/components/ProductSearchPanel.tsx';
@@ -229,8 +229,10 @@ export default function POSView({
   );
   const comandasPendientes: PendingOrderComanda[] = [...draftComandas, ...syncComandasFiltered];
 
-  // Estado de notas de corte rápido para mostrador pescadería (SPEC-047)
+  // Estado de notas de corte rápido para mostrador pescadería (SPEC-047 / SPEC-052)
   const [selectedCutNotes, setSelectedCutNotes] = useState<string[]>([]);
+  const [showDespachoModal, setShowDespachoModal] = useState<boolean>(false);
+  const [customDespachoNotes, setCustomDespachoNotes] = useState<string>('');
   const toggleCutNote = (note: string) => {
     setSelectedCutNotes((prev) =>
       prev.includes(note) ? prev.filter((n) => n !== note) : [...prev, note]
@@ -2198,7 +2200,7 @@ export default function POSView({
   return (
     <div
       data-testid="pos-glass-container"
-      className="pos-layout w-full h-full min-h-0 flex flex-col gap-1.5 lg:gap-2 animate-fade-in relative p-0 pb-1 overflow-hidden"
+      className="pos-layout w-full h-full min-h-0 flex flex-col gap-1 sm:gap-1.5 animate-fade-in relative p-0 pb-1 overflow-hidden"
       style={{ transform: 'translateZ(0)' }}
     >
       {!isTurnoAbierto && activeSubView === 'venta_pos' && userRole !== 'vendedor' && !currentUser?.cargo?.toLowerCase().includes('mostrador') && (
@@ -2261,14 +2263,14 @@ export default function POSView({
 
       {/* ZONA 1.5: Barra de Asesores Mostrador (Caja Única Ferretería Josase) */}
       {isFerreteria && (
-        <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-1.5 rounded-xl bg-slate-900/80 backdrop-blur-xl border border-cyan-500/20 text-xs shrink-0 shadow-lg select-none">
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-            <span className="font-bold text-cyan-300 uppercase tracking-wider text-[11px]">
+        <div className="flex flex-wrap items-center justify-between gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900/80 backdrop-blur-xl border border-cyan-500/20 text-xs shrink-0 shadow-lg select-none">
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+            <span className="font-bold text-cyan-300 uppercase tracking-wider text-[10px]">
               Asesor Mostrador:
             </span>
           </div>
-          <div className="flex items-center gap-1.5 overflow-x-auto custom-scrollbar">
+          <div className="flex items-center gap-1 overflow-x-auto custom-scrollbar">
             {VENDEDORES_JOSASE.map((v) => (
               <button
                 key={v.id}
@@ -2285,7 +2287,7 @@ export default function POSView({
                     turnoIniciadoAt: new Date().toISOString(),
                   });
                 }}
-                className={`min-h-[44px] px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap active:scale-95 flex items-center justify-center ${
+                className={`min-h-[36px] px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap active:scale-95 flex items-center justify-center ${
                   selectedVendorJosase === v.id
                     ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20 font-bold'
                     : 'bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5'
@@ -2300,29 +2302,29 @@ export default function POSView({
       )}
 
       {/* ZONA 2: Barra de Control Ergonómica & Pestañas de Subvistas (Dark Glassmorphism) */}
-      <div className="flex flex-wrap items-center justify-between gap-2 py-1.5 px-3 bg-slate-900/85 backdrop-blur-2xl border border-white/12 rounded-xl shadow-xl shrink-0 text-slate-200">
-        <div className="flex items-center gap-1.5 overflow-x-auto">
+      <div className="flex flex-wrap items-center justify-between gap-1.5 py-1 px-2.5 bg-slate-900/85 backdrop-blur-2xl border border-white/12 rounded-xl shadow-xl shrink-0 text-slate-200">
+        <div className="flex items-center gap-1 overflow-x-auto">
           <button
             onClick={() => setActiveSubView('venta_pos')}
-            className={`flex items-center gap-1.5 min-h-[44px] py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 min-h-[36px] py-1 px-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeSubView === 'venta_pos'
                 ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-xs'
                 : 'bg-transparent text-slate-400 hover:bg-white/10 hover:text-slate-100 border border-transparent'
             }`}
           >
-            <CreditCard size={15} />
+            <CreditCard size={14} />
             <span>Venta Rápida (POS)</span>
           </button>
           
           <button
             onClick={() => setActiveSubView('consolidacion_b2b')}
-            className={`flex items-center gap-1.5 min-h-[44px] py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 min-h-[36px] py-1 px-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeSubView === 'consolidacion_b2b'
                 ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-xs'
                 : 'bg-transparent text-slate-400 hover:bg-white/10 hover:text-slate-100 border border-transparent'
             }`}
           >
-            <Truck size={15} />
+            <Truck size={14} />
             <span>Consolidación B2B</span>
             {(quotations || []).filter((q: any) => q.estado === 'Listo').length > 0 && (
               <span className="bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">
@@ -2333,13 +2335,13 @@ export default function POSView({
           
           <button
             onClick={() => setActiveSubView('canales_digitales')}
-            className={`flex items-center gap-1.5 min-h-[44px] py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 min-h-[36px] py-1 px-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeSubView === 'canales_digitales'
                 ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-xs'
                 : 'bg-transparent text-slate-400 hover:bg-white/10 hover:text-slate-100 border border-transparent'
             }`}
           >
-            <RefreshCw size={15} />
+            <RefreshCw size={14} />
             <span>Canales Digitales</span>
             {logIntegracion.filter((l: any) => l.estado === 'PENDIENTE').length > 0 && (
               <span className="bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">
@@ -2350,7 +2352,7 @@ export default function POSView({
           
           <button
             onClick={() => setActiveSubView('gestion_kanban')}
-            className={`flex items-center gap-1.5 min-h-[44px] py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 min-h-[36px] py-1 px-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeSubView === 'gestion_kanban'
                 ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-xs'
                 : 'bg-transparent text-slate-400 hover:bg-white/10 hover:text-slate-100 border border-transparent'
@@ -2362,14 +2364,14 @@ export default function POSView({
         </div>
         
         {/* Acciones Ergonómicas: Máximo 3 Botones Primarios + Dropdown 'Más Acciones...' */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {/* Botón Primario 1: Cobro 1-Tap / Buscar Producto */}
           <button
             onClick={() => {
               const searchInput = document.getElementById('pos-product-search-input');
               if (searchInput) searchInput.focus();
             }}
-            className="flex items-center gap-1.5 min-h-[44px] py-2 px-3 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
+            className="flex items-center gap-1.5 min-h-[36px] py-1.5 px-2.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
             title="Enfocar catálogo / Nuevo pedido rápido (F8)"
           >
             <span>⚡ Buscar (F8)</span>
@@ -2378,7 +2380,7 @@ export default function POSView({
           {/* Botón Primario 2: Poner en Espera / Preventa */}
           <button
             onClick={() => handleGuardarBorrador()}
-            className="flex items-center gap-1.5 min-h-[44px] py-2 px-3 rounded-lg bg-white/5 border border-white/10 text-slate-200 hover:bg-white/10 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+            className="flex items-center gap-1.5 min-h-[36px] py-1.5 px-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-200 hover:bg-white/10 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
             title={isFerreteria ? 'Guardar preventa con el asesor asignado' : 'Guardar carrito actual en espera'}
           >
             <span>⏸ {isFerreteria ? 'Preventa' : 'En Espera'}</span>
@@ -2394,7 +2396,7 @@ export default function POSView({
             data-testid="btn-open-comandas-drawer"
             id="btn-open-comandas-drawer"
             onClick={() => setShowComandasDrawer(true)}
-            className="flex items-center gap-1.5 min-h-[44px] py-2 px-3 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+            className="flex items-center gap-1.5 min-h-[36px] py-1.5 px-2.5 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
             title="Cola Central de Preventas / Comandas para cobro en caja única"
           >
             <span>📋 Comandas</span>
@@ -2562,7 +2564,7 @@ export default function POSView({
       </div>
 
       {/* Ticker Interno de Cola y Turnos de Mostrador (SPEC-047) */}
-      <div className="mb-2 px-1 shrink-0">
+      <div className="mb-0.5 px-1 shrink-0">
         <InternalQueueTicker
           currentTurn={comandasPendientes[0]?.consecutivoTicket || null}
           pendingCount={comandasPendientes.length}
@@ -2649,16 +2651,7 @@ export default function POSView({
                   </Button>
                 </GlassCard>
               ) : (
-                <div className="flex flex-col h-full min-h-0 gap-2">
-                  <div className="bg-slate-900/70 p-2.5 rounded-xl border border-white/10 shrink-0">
-                    <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider block mb-1.5">
-                      Corte y Preparación de Mostrador (1 Toque)
-                    </span>
-                    <QuickCutNotes
-                      selectedNotes={selectedCutNotes}
-                      onToggleNote={toggleCutNote}
-                    />
-                  </div>
+                <div className="flex flex-col h-full min-h-0 flex-1">
                   <CartPanel
                     lineas={cartLineas}
                     cliente={cliente}
@@ -2683,7 +2676,13 @@ export default function POSView({
                     onClearCliente={() => setCliente(defaultClient)}
                     onDescuentoClick={handleDescuentoGlobal}
                     onPagar={handlePagar}
-                    onGuardarBorrador={(notas) => handleGuardarBorrador(selectedCutNotes.length > 0 ? `${notas || ''} [${selectedCutNotes.join(', ')}]`.trim() : notas)}
+                    onGuardarBorrador={(notas) => {
+                      const hasCutNotesAlready = selectedCutNotes.length > 0 && notas && notas.includes(`[${selectedCutNotes.join(', ')}]`);
+                      const finalNotas = (selectedCutNotes.length > 0 && !hasCutNotesAlready)
+                        ? `${notas || ''} [${selectedCutNotes.join(', ')}]`.trim()
+                        : (notas || '');
+                      handleGuardarBorrador(finalNotas);
+                    }}
                     onSetActiveDraftId={setActiveDraftId}
                     onSetDrafts={setDrafts}
                     onSetDescuentoGlobal={setDescuentoGlobal}
@@ -2694,6 +2693,9 @@ export default function POSView({
                     topeMaximoGaveta={1500000}
                     onRetiroParcialRequest={() => setShowRetiroModal(true)}
                     isAsesorMostrador={isFerreteria || userRole === 'vendedor' || currentUser?.cargo?.toLowerCase().includes('mostrador')}
+                    selectedCutNotes={selectedCutNotes}
+                    onToggleCutNote={toggleCutNote}
+                    onOpenNotasModal={() => setShowDespachoModal(true)}
                   />
                 </div>
               )}
@@ -3657,6 +3659,17 @@ export default function POSView({
           supervisorAuthModal.onSuccess(auth);
           setSupervisorAuthModal((prev) => ({ ...prev, isOpen: false }));
         }}
+      />
+
+      {/* Modal Bajo Demanda de Notas de Corte y Despacho (SPEC-052) */}
+      <DespachoNotasModal
+        isOpen={showDespachoModal}
+        onClose={() => setShowDespachoModal(false)}
+        selectedNotes={selectedCutNotes}
+        onToggleNote={toggleCutNote}
+        customNotes={customDespachoNotes}
+        onCustomNotesChange={setCustomDespachoNotes}
+        onConfirm={() => setShowDespachoModal(false)}
       />
     </div>
   );

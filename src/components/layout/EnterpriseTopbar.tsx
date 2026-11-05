@@ -216,7 +216,7 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
       className="h-12 mx-2.5 mt-1.5 mb-1 flex items-center justify-between px-2.5 sm:px-3.5 lg:px-5 rounded-2xl bg-slate-900/85 backdrop-blur-2xl border border-white/12 text-slate-200 select-none z-30 sticky top-1.5 shadow-xl transition-all duration-200"
     >
       {/* Sección Izquierda: Toggle + Breadcrumb Flotante */}
-      <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+      <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 overflow-hidden">
         <button
           onClick={onToggleSidebar}
           className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer shrink-0"
@@ -227,7 +227,7 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
         </button>
 
         {/* Breadcrumb estilo Glassmorphism V8 */}
-        <div className="flex items-center gap-1.5 text-xs min-w-0">
+        <div className="flex items-center gap-1.5 text-xs min-w-0 overflow-hidden">
           <button
             onClick={onNavigateHome}
             className="text-slate-400 hover:text-white transition-colors flex items-center gap-1 font-semibold shrink-0"
@@ -236,10 +236,10 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
             <span className="hidden sm:inline">ERP</span>
           </button>
           <ChevronRight size={12} className="text-slate-500 shrink-0" />
-          <span className="text-slate-400 hidden md:inline font-semibold">{breadcrumb.domain}</span>
-          <ChevronRight size={12} className="text-slate-500 hidden md:inline shrink-0" />
+          <span className="text-slate-400 hidden xl:inline font-semibold">{breadcrumb.domain}</span>
+          <ChevronRight size={12} className="text-slate-500 hidden xl:inline shrink-0" />
           <span 
-            className="text-white font-black truncate max-w-[100px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[340px]"
+            className="text-white font-black truncate max-w-[100px] sm:max-w-[180px] md:max-w-[220px] lg:max-w-[260px] xl:max-w-[320px]"
             title={breadcrumb.sub}
           >
             {breadcrumb.sub}
@@ -260,7 +260,7 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
           aria-label="Conmutador de Empresa Activa"
         >
           <Building2 size={14} className="text-cyan-400 shrink-0 group-hover:scale-110 transition-transform" />
-          <span className="truncate max-w-[80px] sm:max-w-[130px] md:max-w-[160px] font-semibold">
+          <span className="truncate max-w-[80px] sm:max-w-[130px] font-semibold">
             {activeTenant?.razonSocial || activeTenant?.nombre || 'La Pezcaderia SAS'}
           </span>
           <ChevronDown size={12} className="text-cyan-400/70 shrink-0" />
@@ -281,7 +281,7 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
         </button>
 
         {/* Selector de Bodega / Sucursal Activa */}
-        <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs text-slate-300">
+        <div className="hidden 2xl:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs text-slate-300">
           <Store size={14} className="text-cyan-400" />
           <span className="font-bold text-white">{activeBodega}</span>
         </div>
@@ -352,7 +352,7 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
           id="topbar-btn-purge-db"
           data-testid="topbar-btn-purge-db"
           onClick={handlePurgeDatabase}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer active:scale-95 shrink-0 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border-rose-500/30 shadow-xs"
+          className="hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer active:scale-95 shrink-0 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border-rose-500/30 shadow-xs"
           title="Purgar datos masivos y resembrar catálogo ligero (Reset 1-Clic)"
         >
           <RotateCcw size={13} className="shrink-0 text-rose-400" />
@@ -467,7 +467,7 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
           >
             {getInitials(currentUser?.nombre || 'US')}
           </div>
-          <div className="hidden lg:flex flex-col text-left leading-none pr-1">
+          <div className="hidden xl:flex flex-col text-left leading-none pr-1">
             <span className="text-xs font-bold text-white truncate max-w-[100px]">
               {currentUser?.nombre ? currentUser.nombre.split(' ')[0] : 'Usuario'}
             </span>

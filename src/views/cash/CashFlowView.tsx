@@ -135,8 +135,8 @@ export default function CashFlowView() {
 
     return Array.from(conteo.entries()).map(([catKey, count]) => {
       const match = catalogoCategorias.find(c =>
-        c.nombre.toLowerCase() === catKey.toLowerCase() ||
-        c.id.toLowerCase() === catKey.toLowerCase()
+        (c.nombre || '').toLowerCase() === catKey.toLowerCase() ||
+        (c.id || '').toLowerCase() === catKey.toLowerCase()
       );
       return {
         key: catKey,
@@ -444,9 +444,9 @@ export default function CashFlowView() {
 
                   {/* Pestañas dinámicas de categorías con movimientos en el turno actual */}
                   {categoriasConMovimientos
-                    .filter(c => !c.nombre.toLowerCase().includes('flete') && !c.nombre.toLowerCase().includes('pescado'))
+                    .filter(c => !(c.nombre || '').toLowerCase().includes('flete') && !(c.nombre || '').toLowerCase().includes('pescado'))
                     .map(cat => {
-                      const isActive = filtroTab.toLowerCase() === cat.nombre.toLowerCase() || filtroTab === cat.key;
+                      const isActive = filtroTab.toLowerCase() === (cat.nombre || '').toLowerCase() || filtroTab === cat.key;
                       return (
                         <button
                           key={cat.key}
@@ -499,14 +499,15 @@ export default function CashFlowView() {
                       {movimientosOrdenados.map(mov => {
                           const esIngreso = mov.tipo.startsWith('INGRESO');
                           const catNombre = (mov.categoriaEgreso || '').toLowerCase();
-                          const esFlete = catNombre.includes('flete') || mov.concepto.toLowerCase().includes('flete');
-                          const esPescado = catNombre.includes('pescado') || mov.concepto.toLowerCase().includes('pescado');
-                          const esHielo = catNombre.includes('hielo') || mov.concepto.toLowerCase().includes('hielo');
+                          const concNombre = (mov.concepto || '').toLowerCase();
+                          const esFlete = catNombre.includes('flete') || concNombre.includes('flete');
+                          const esPescado = catNombre.includes('pescado') || concNombre.includes('pescado');
+                          const esHielo = catNombre.includes('hielo') || concNombre.includes('hielo');
 
                           // Buscar coincidencia en catálogo de categorías
                           const catConfig = catalogoCategorias.find(c =>
-                            c.nombre.toLowerCase() === catNombre ||
-                            c.id.toLowerCase() === catNombre
+                            (c.nombre || '').toLowerCase() === catNombre ||
+                            (c.id || '').toLowerCase() === catNombre
                           );
 
                           return (

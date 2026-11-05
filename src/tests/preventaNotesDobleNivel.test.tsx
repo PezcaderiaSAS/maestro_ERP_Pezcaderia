@@ -113,12 +113,20 @@ describe('TASK-043-03: Anotaciones de Despacho en Doble Nivel (Comanda + Ítem) 
     const btnEmitir = screen.getByTestId('btn-emitir-preventa-mostrador');
     expect(btnEmitir).toBeDefined();
 
-    // Debe mostrar el textarea o input de notas de despacho
-    const inputNotas = screen.getByPlaceholderText(/Instrucciones de entrega, corte o despacho/i);
+    // Debe abrir el modal bajo demanda de notas de despacho (SPEC-052 R2)
+    const btnOpenModal = screen.getByTestId('btn-open-despacho-modal');
+    fireEvent.click(btnOpenModal);
+
+    // Debe mostrar el textarea o input de notas de despacho dentro del modal
+    const inputNotas = screen.getByTestId('textarea-despacho-notas');
     expect(inputNotas).toBeDefined();
 
     fireEvent.change(inputNotas, { target: { value: 'Entregar urgente antes de las 3pm' } });
     expect((inputNotas as HTMLTextAreaElement).value).toBe('Entregar urgente antes de las 3pm');
+
+    // Confirmar notas en el modal
+    const btnConfirmar = screen.getByTestId('btn-confirm-despacho-notas');
+    fireEvent.click(btnConfirmar);
 
     // Debe ejecutar onGuardarBorrador al hacer click
     fireEvent.click(btnEmitir);

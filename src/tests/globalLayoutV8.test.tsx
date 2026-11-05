@@ -112,7 +112,7 @@ describe('Layout Shell Global V8 & Glassmorphism (SPEC-031)', () => {
 
       expect(isTransactionalFixedView('pos')).toBe(true);
       expect(isTransactionalFixedView('order-kanban')).toBe(true);
-      expect(isTransactionalFixedView('dashboard')).toBe(true);
+      expect(isTransactionalFixedView('dashboard')).toBe(false);
       expect(isTransactionalFixedView('cash-flow')).toBe(true);
       expect(isTransactionalFixedView('alistamiento')).toBe(true);
 

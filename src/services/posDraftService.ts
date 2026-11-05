@@ -15,7 +15,26 @@ export interface PosDraftRecord {
   expiresAt?: string;
 }
 
+let remoteDisabledDueToMissingSchema = true;
+
 export class PosDraftService {
+  /**
+   * Permite consultar o forzar el estado de disponibilidad remota
+   */
+  static isRemoteAvailable(): boolean {
+    if (typeof window !== 'undefined' && (window as any).__ENABLE_REMOTE_DRAFTS__) {
+      return !remoteDisabledDueToMissingSchema;
+    }
+    return false;
+  }
+
+  static disableRemoteSync(): void {
+    remoteDisabledDueToMissingSchema = true;
+  }
+
+  static enableRemoteSync(): void {
+    remoteDisabledDueToMissingSchema = false;
+  }
   /**
    * Obtiene los borradores activos en modo offline-first
    */
@@ -60,22 +79,29 @@ export class PosDraftService {
     } catch {}
 
     // 2. Sincronización remota resiliente con Supabase
-    try {
-      const supabase = getSupabaseClient();
-      if (supabase) {
-        const total = (draft.lineas || []).reduce((acc: number, l: LineaVenta) => acc + (l.totalLinea || 0), 0);
-        await supabase.rpc('manage_pos_draft', {
-          p_draft_id: draft.id.includes('-') && draft.id.length >= 32 ? draft.id : null,
-          p_alias: draft.alias || 'Borrador Mostrador',
-          p_cliente_id: draft.cliente?.id || null,
-          p_lineas: draft.lineas || [],
-          p_descuento_global: draft.descuentoGlobal || 0,
-          p_total_estimado: total,
-          p_cajero_nombre: null,
-        });
+    if (this.isRemoteAvailable()) {
+      try {
+        const supabase = getSupabaseClient();
+        if (supabase) {
+          const total = (draft.lineas || []).reduce((acc: number, l: LineaVenta) => acc + (l.totalLinea || 0), 0);
+          const { error } = await supabase.rpc('manage_pos_draft', {
+            p_draft_id: draft.id.includes('-') && draft.id.length >= 32 ? draft.id : null,
+            p_alias: draft.alias || 'Borrador Mostrador',
+            p_cliente_id: draft.cliente?.id || null,
+            p_lineas: draft.lineas || [],
+            p_descuento_global: draft.descuentoGlobal || 0,
+            p_total_estimado: total,
+            p_cajero_nombre: null,
+          });
+
+          if (error && (error.code === 'PGRST204' || (error as any).status === 404 || error.message?.includes('not find'))) {
+            this.disableRemoteSync();
+          }
+        }
+      } catch (err: any) {
+        this.disableRemoteSync();
+        console.warn('[PosDraftService] Error sincronizando borrador con Supabase (queda en cola local):', err?.message);
       }
-    } catch (err) {
-      console.warn('[PosDraftService] Error sincronizando borrador con Supabase (queda en cola local):', err);
     }
 
     return draft;
@@ -95,7 +121,8 @@ export class PosDraftService {
       }
     } catch {}
 
-    // 2. Notificar a Supabase
+    // 2. Notificar a Supabase solo si está explícitamente habilitado
+    if (!this.isRemoteAvailable()) return;
     try {
       const supabase = getSupabaseClient();
       if (supabase && draftId.includes('-') && draftId.length >= 32) {
@@ -120,6 +147,10 @@ export class PosDraftService {
    * Sincroniza y descarga pedidos en espera desde Supabase para la empresa activa
    */
   static async fetchRemoteDrafts(): Promise<CartDraft[]> {
+    if (!this.isRemoteAvailable()) {
+      return this.getLocalDrafts();
+    }
+
     try {
       const supabase = getSupabaseClient();
       if (!supabase) return this.getLocalDrafts();
@@ -132,6 +163,9 @@ export class PosDraftService {
         .order('creado_en', { ascending: false });
 
       if (error || !data) {
+        if (error && (error.code === 'PGRST204' || (error as any).status === 404 || error.message?.includes('does not exist'))) {
+          this.disableRemoteSync();
+        }
         return this.getLocalDrafts();
       }
 

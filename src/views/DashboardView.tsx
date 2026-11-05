@@ -95,7 +95,7 @@ export default function DashboardView({ ventas = [], parametros: _parametros = {
   };
 
   return (
-    <div className="animate-fade-in flex flex-col gap-3 md:gap-3.5 p-1 md:p-2 h-full">
+    <div className="animate-fade-in flex flex-col gap-3 md:gap-3.5 p-1 md:p-2 min-h-full pb-4">
       
       {/* Encabezado Compacto */}
       <div className="flex items-center justify-between pb-0.5">

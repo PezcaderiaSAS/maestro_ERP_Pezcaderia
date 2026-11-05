@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Check, X, Plus, PauseCircle, Clock, Trash2, Archive } from 'lucide-react';
+import { Check, X, Plus, PauseCircle, Clock, Trash2, Archive, Scissors, FileText } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import type { LineaVenta, CartDraft } from '../../../types/pos.types';
 import type { ClientePOS } from '../../../hooks/usePOSCart';
@@ -9,6 +9,7 @@ import { DiscountPanel } from './DiscountPanel';
 import { PaymentPanel, type MetodoCobroPos } from './PaymentPanel';
 import { ParkedOrdersBar } from './ParkedOrdersBar';
 import { OnScreenKeypadModal } from './OnScreenKeypadModal';
+import { DespachoNotasModal } from './DespachoNotasModal';
 import { GlassCard } from '../../../components/layout/components/GlassCard';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useAppStore } from '../../../store/useAppStore';
@@ -64,6 +65,11 @@ interface CartPanelProps {
   topeMaximoGaveta?: number;
   onRetiroParcialRequest?: () => void;
   isAsesorMostrador?: boolean;
+
+  // Ergonomía SPEC-052: Notas de corte y despacho bajo demanda
+  selectedCutNotes?: string[];
+  onToggleCutNote?: (note: string) => void;
+  onOpenNotasModal?: () => void;
 }
 
 export const CartPanel: React.FC<CartPanelProps> = ({
@@ -101,6 +107,9 @@ export const CartPanel: React.FC<CartPanelProps> = ({
   topeMaximoGaveta,
   onRetiroParcialRequest,
   isAsesorMostrador,
+  selectedCutNotes = [],
+  onToggleCutNote,
+  onOpenNotasModal,
 }) => {
   const activeTenant = useAuthStore((s) => s.activeTenant);
   const currentUser = useAppStore((s) => s.currentUser);
@@ -116,6 +125,24 @@ export const CartPanel: React.FC<CartPanelProps> = ({
   const [isBouncing, setIsBouncing] = useState(false);
   const [isCompactMode, setIsCompactMode] = useState(false);
   const [notasDespacho, setNotasDespacho] = useState('');
+  const [showInternalNotasModal, setShowInternalNotasModal] = useState(false);
+  const [localCutNotes, setLocalCutNotes] = useState<string[]>([]);
+
+  const handleToggleCutNote = (note: string) => {
+    if (onToggleCutNote) {
+      onToggleCutNote(note);
+    } else {
+      setLocalCutNotes((prev) =>
+        prev.includes(note) ? prev.filter((n) => n !== note) : [...prev, note]
+      );
+    }
+  };
+
+  const activeCutNotes =
+    selectedCutNotes && selectedCutNotes.length > 0
+      ? selectedCutNotes
+      : localCutNotes;
+
   const totalItems = lineas.reduce((sum, l) => sum + Number(l.cantidad), 0);
 
   useEffect(() => {
@@ -507,21 +534,21 @@ export const CartPanel: React.FC<CartPanelProps> = ({
       badge={`${totalItems} ${totalItems === 1 ? 'ítem' : 'ítems'}`}
       badgeVariant="cyan"
       onMinimize={() => setIsCompactMode((prev) => !prev)}
-      className="pos-cart-panel flex flex-col h-full min-h-0 overflow-hidden pr-1 p-4 select-none"
+      className="pos-cart-panel flex flex-col h-full min-h-0 overflow-hidden pr-1 p-2.5 sm:p-3 select-none"
     >
-      {/* ── HEADER: Selector de cliente + Borradores + En Espera (Targets >= 48px) ── */}
+      {/* ── HEADER: Selector de cliente + Borradores + En Espera (Targets Ergonómicos) ── */}
       <div
-        className="pos-cart-header flex flex-wrap justify-between items-center gap-2 py-2.5 px-3 border-b border-white/10 bg-slate-900/60 shrink-0 rounded-2xl backdrop-blur-xl"
+        className="pos-cart-header flex flex-wrap justify-between items-center gap-1.5 py-1.5 px-2.5 border-b border-white/10 bg-slate-900/60 shrink-0 rounded-xl backdrop-blur-xl"
       >
         {/* Selector de cliente en Dark Glassmorphism V8 */}
         {cliente ? (
           <button
             type="button"
             onClick={onSelectCliente}
-            className="flex items-center gap-2 px-3 min-h-[48px] h-12 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-white/10 text-white font-bold text-xs transition-all max-w-[220px] truncate shadow-sm cursor-pointer"
+            className="flex items-center gap-2 px-3 min-h-[40px] h-10 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-white/10 text-white font-bold text-xs transition-all max-w-[200px] truncate shadow-sm cursor-pointer"
             title={`${cliente.nombre} (${cliente.identificacion})`}
           >
-            <Check size={16} className="text-emerald-400 shrink-0" />
+            <Check size={15} className="text-emerald-400 shrink-0" />
             <span className="truncate text-left">
               {cliente.nombre.slice(0, 18)} ({cliente.identificacion})
             </span>
@@ -533,28 +560,28 @@ export const CartPanel: React.FC<CartPanelProps> = ({
                 onClearCliente();
               }}
             >
-              <X size={15} />
+              <X size={14} />
             </span>
           </button>
         ) : (
           <button
             type="button"
             onClick={onSelectCliente}
-            className="flex items-center gap-1.5 px-3 min-h-[48px] h-12 rounded-xl bg-slate-800/60 hover:bg-slate-700/80 border border-white/10 text-slate-200 hover:text-white font-bold text-xs transition-all cursor-pointer shadow-sm"
+            className="flex items-center gap-1.5 px-3 min-h-[40px] h-10 rounded-xl bg-slate-800/60 hover:bg-slate-700/80 border border-white/10 text-slate-200 hover:text-white font-bold text-xs transition-all cursor-pointer shadow-sm"
           >
-            <Plus size={16} className="text-cyan-400" />
+            <Plus size={15} className="text-cyan-400" />
             <span>Agregar Cliente</span>
           </button>
         )}
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {/* Botón Cerrar Turno (solo si está abierto) */}
           {isTurnoAbierto && onCerrarTurnoClick && (
             <PosButton
               size="touch"
               variant="danger"
               onClick={onCerrarTurnoClick}
-              className="text-xs font-bold"
+              className="text-xs font-bold min-h-[40px] h-10 py-1"
             >
               Cerrar Turno
             </PosButton>
@@ -566,10 +593,10 @@ export const CartPanel: React.FC<CartPanelProps> = ({
             variant="secondary"
             onClick={() => onGuardarBorrador()}
             disabled={lineas.length === 0}
-            className="border-indigo-500/30 bg-indigo-950/40 hover:bg-indigo-900/60 text-indigo-300"
+            className="border-indigo-500/30 bg-indigo-950/40 hover:bg-indigo-900/60 text-indigo-300 min-h-[40px] h-10 py-1"
             title="Poner pedido actual en espera (Atajo: F6)"
             aria-label="Poner pedido actual en espera (Atajo F6)"
-            leftIcon={<PauseCircle size={18} />}
+            leftIcon={<PauseCircle size={16} />}
             shortcutBadge="F6"
           >
             <span className="hidden sm:inline">En Espera</span>
@@ -579,7 +606,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
           <button
             type="button"
             onClick={handleOpenBorradores}
-            className={`relative flex items-center gap-1.5 px-3.5 min-h-[48px] h-12 rounded-xl border text-xs font-bold transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
+            className={`relative flex items-center gap-1.5 px-3 min-h-[40px] h-10 rounded-xl border text-xs font-bold transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
               drafts.length > 0
                 ? 'bg-amber-950/40 border-amber-500/30 text-amber-300 hover:bg-amber-900/60 shadow-sm'
                 : 'bg-slate-800/80 border-white/10 text-slate-300 hover:bg-slate-700/80 hover:text-white shadow-sm'
@@ -587,11 +614,11 @@ export const CartPanel: React.FC<CartPanelProps> = ({
             title="Ver pedidos guardados en espera"
             aria-label={`Ver ${drafts.length} pedidos guardados en espera`}
           >
-            <Archive size={16} className={drafts.length > 0 ? 'text-amber-400' : 'text-slate-400'} />
+            <Archive size={15} className={drafts.length > 0 ? 'text-amber-400' : 'text-slate-400'} />
             <span>Borradores</span>
             {drafts.length > 0 && (
               <span 
-                className="flex items-center justify-center min-w-[20px] h-[20px] px-1 bg-amber-500 text-slate-950 font-black rounded-full text-[11px] animate-pulse"
+                className="flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-amber-500 text-slate-950 font-black rounded-full text-[10px] animate-pulse"
                 aria-live="polite"
               >
                 {drafts.length}
@@ -617,18 +644,18 @@ export const CartPanel: React.FC<CartPanelProps> = ({
       {/* ── LISTA DE ÍTEMS: scroll táctil vertical aislado (overscroll-contain) ── */}
       <div
         data-testid="cart-items-container"
-        className={`pos-cart-items-list flex-1 overflow-y-auto overscroll-contain pr-1 space-y-1.5 ${isCompactMode ? 'hidden' : ''}`}
+        className={`pos-cart-items-list flex-1 min-h-0 overflow-y-auto overscroll-contain pr-1 space-y-1.5 ${isCompactMode ? 'hidden' : ''}`}
         style={{
           WebkitOverflowScrolling: 'touch',
           scrollSnapType: 'y proximity',
         }}
       >
         {lineas.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-6 px-4 text-center my-auto rounded-2xl border border-dashed border-white/10 bg-white/5 mx-1">
-            <span className="text-2xl mb-1 opacity-70">🛒</span>
+          <div className="flex flex-col items-center justify-center py-2.5 px-3 text-center my-auto rounded-xl border border-dashed border-white/10 bg-white/5 mx-1">
+            <span className="text-xl mb-0.5 opacity-70">🛒</span>
             <span className="text-xs font-bold text-slate-300">El carrito está vacío</span>
-            <span className="text-[11px] text-slate-400 mt-0.5">
-              Selecciona productos del catálogo o presiona <kbd className="px-1 py-0.5 font-mono text-[10px] bg-white/10 rounded text-cyan-300 border border-white/10">F2</kbd>
+            <span className="text-[10px] text-slate-400 mt-0.5">
+              Selecciona productos del catálogo o presiona <kbd className="px-1 py-0.5 font-mono text-[9px] bg-white/10 rounded text-cyan-300 border border-white/10">F2</kbd>
             </span>
           </div>
         ) : (
@@ -659,62 +686,103 @@ export const CartPanel: React.FC<CartPanelProps> = ({
 
       {/* ── FOOTER STICKY: Total + Descuento + Pago ── */}
       <div
-        className="pos-cart-footer shrink-0 mt-auto bg-slate-900/90 backdrop-blur-2xl p-3 border-t border-white/10 flex flex-col gap-2 rounded-2xl shadow-2xl"
+        className="pos-cart-footer shrink-0 mt-auto bg-slate-900/90 backdrop-blur-2xl p-2.5 sm:p-3 border-t border-white/10 flex flex-col gap-1.5 rounded-2xl shadow-2xl"
       >
         {/* Total prominente táctil con micro-animación y alto contraste */}
         {lineas.length > 0 && (
-          <div className="flex justify-between items-center py-2 px-3 bg-slate-950/80 rounded-xl border border-white/10 shadow-sm transition-all duration-200">
+          <div className="flex justify-between items-center py-1.5 px-3 bg-slate-950/80 rounded-xl border border-white/10 shadow-sm transition-all duration-200">
             <div className="flex items-center gap-2">
               <span className="text-xs font-black uppercase tracking-wider text-slate-400">TOTAL</span>
               <span 
-                className={`bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-xs font-black px-2.5 py-0.5 rounded-full ${isBouncing ? 'animate-bounce' : ''}`}
+                className={`bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-xs font-black px-2 py-0.5 rounded-full ${isBouncing ? 'animate-bounce' : ''}`}
               >
                 {totalItems} {totalItems === 1 ? 'ítem' : 'ítems'}
               </span>
             </div>
-            <strong className="text-3xl font-black text-emerald-400 font-mono tracking-tight tabular-nums transition-transform duration-150 active:scale-95">
+            <strong className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono tracking-tight tabular-nums transition-transform duration-150 active:scale-95">
               ${totales.totalFinal.toLocaleString('es-CO')}
             </strong>
           </div>
         )}
 
-        <DiscountPanel
-          subtotal={totales.subtotal}
-          totalItems={totalItems}
-          descuentoPct={descuentoGlobalPct}
-          descuentoValor={descuentoGlobalValor}
-          totalIva={totales.totalIva}
-          subtotalBaseGravable={totales.subtotalBaseGravable}
-          onDescuentoClick={onDescuentoClick}
-        />
+        {lineas.length > 0 && (
+          <DiscountPanel
+            subtotal={totales.subtotal}
+            totalItems={totalItems}
+            descuentoPct={descuentoGlobalPct}
+            descuentoValor={descuentoGlobalValor}
+            totalIva={totales.totalIva}
+            subtotalBaseGravable={totales.subtotalBaseGravable}
+            onDescuentoClick={onDescuentoClick}
+          />
+        )}
 
         {isMostradorAuto ? (
-          <div className="p-4 bg-slate-900/90 border border-cyan-500/30 rounded-2xl backdrop-blur-xl shadow-xl space-y-3 select-none">
-            <div className="flex items-center justify-between text-xs pb-2 border-b border-white/10">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
-                <span className="font-bold text-slate-200 uppercase tracking-wider text-[11px]">
-                  Puesto de Mostrador
+          <div className="p-2.5 bg-slate-900/90 border border-cyan-500/30 rounded-xl backdrop-blur-xl shadow-xl space-y-1.5 select-none">
+            {/* Header compacto con estado de mostrador y botón vaciar integrado */}
+            <div className="flex items-center justify-between text-xs pb-1 border-b border-white/10">
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                <span className="font-bold text-slate-200 uppercase tracking-wider text-[10px]">
+                  Mostrador
+                </span>
+                <span className="text-[9px] font-mono text-cyan-300 font-bold bg-cyan-950/60 border border-cyan-500/30 px-1.5 py-0.2 rounded">
+                  Cobro en Ventanilla
                 </span>
               </div>
-              <span className="text-[10px] font-mono text-cyan-300 font-bold bg-cyan-950/60 border border-cyan-500/30 px-2 py-0.5 rounded-lg">
-                Cobro en Ventanilla
-              </span>
+              {lineas.length > 0 && (
+                <button
+                  type="button"
+                  onClick={onLimpiarCarrito}
+                  title="Vaciar Carrito"
+                  aria-label="Vaciar Carrito"
+                  className="p-1 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer text-[10px] flex items-center gap-1"
+                >
+                  <Trash2 size={13} />
+                  <span>Vaciar</span>
+                </button>
+              )}
             </div>
 
-            {/* Campo de notas/instrucciones de despacho en mostrador */}
+            {/* Control On-Demand para Notas de Despacho y Corte (SPEC-052 R2) */}
             <div className="space-y-1">
-              <label className="text-[11px] font-bold text-slate-300 flex items-center justify-between">
-                <span>📝 Instrucciones / Notas de Despacho:</span>
-                <span className="text-[10px] text-cyan-400 font-mono">Doble nivel</span>
-              </label>
-              <textarea
-                rows={2}
-                value={notasDespacho}
-                onChange={(e) => setNotasDespacho(e.target.value)}
-                placeholder="Instrucciones de entrega, corte o despacho..."
-                className="w-full text-xs p-2 rounded-xl bg-slate-950/80 border border-slate-700/60 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 resize-none font-medium"
-              />
+              <button
+                type="button"
+                data-testid="btn-open-despacho-modal"
+                onClick={() => {
+                  if (onOpenNotasModal) {
+                    onOpenNotasModal();
+                  } else {
+                    setShowInternalNotasModal(true);
+                  }
+                }}
+                className="w-full flex items-center justify-between px-2.5 py-1.5 min-h-[34px] rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-cyan-500/30 text-xs text-slate-200 font-bold transition-all active:scale-[0.99] cursor-pointer shadow-sm"
+              >
+                <div className="flex items-center gap-1.5">
+                  <Scissors size={13} className="text-cyan-400" />
+                  <span className="text-[11px]">📝 Notas de Despacho / Corte</span>
+                  {activeCutNotes.length > 0 && (
+                    <span className="bg-cyan-500/20 text-cyan-300 text-[10px] px-1.5 py-0.2 rounded-full font-mono border border-cyan-500/30 font-bold">
+                      {activeCutNotes.length}
+                    </span>
+                  )}
+                </div>
+                <span className="text-[10px] text-cyan-400 font-semibold">
+                  {notasDespacho || activeCutNotes.length > 0 ? 'Modificar' : '+ Añadir'}
+                </span>
+              </button>
+
+              {(activeCutNotes.length > 0 || (notasDespacho && notasDespacho.trim())) ? (
+                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-slate-950/70 border border-cyan-500/20 rounded-lg text-[10px] text-slate-300">
+                  <span className="text-cyan-400 font-mono text-[9px] uppercase font-bold shrink-0">Notas:</span>
+                  <span className="truncate">
+                    {[
+                      activeCutNotes.length > 0 ? activeCutNotes.join(', ') : '',
+                      notasDespacho ? notasDespacho.trim() : ''
+                    ].filter(Boolean).join(' — ')}
+                  </span>
+                </div>
+              ) : null}
             </div>
 
             <PosButton
@@ -722,34 +790,22 @@ export const CartPanel: React.FC<CartPanelProps> = ({
               variant="action"
               data-testid="btn-emitir-preventa-mostrador"
               disabled={lineas.length === 0}
-              onClick={() => onGuardarBorrador(notasDespacho)}
-              leftIcon={<PauseCircle size={18} />}
+              onClick={() => {
+                const combined = activeCutNotes.length > 0
+                  ? `${notasDespacho || ''} [${activeCutNotes.join(', ')}]`.trim()
+                  : notasDespacho;
+                onGuardarBorrador(combined);
+              }}
+              leftIcon={<PauseCircle size={17} />}
               shortcutBadge="(F6)"
-              className={`w-full tracking-wide shadow-lg ${
+              className={`w-full tracking-wide shadow-lg min-h-[46px] py-2 text-sm ${
                 lineas.length > 0
                   ? 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-cyan-600/30 border border-cyan-400/40'
                   : 'bg-white/5 text-slate-500 cursor-not-allowed border border-white/5'
               }`}
             >
-              EMITIR PREVENTA / COMANDA{' '}
+              <span>EMITIR PREVENTA / COMANDA</span>
             </PosButton>
-
-            <div className="flex gap-2">
-              <PosButton
-                size="touch"
-                variant="ghost"
-                disabled={lineas.length === 0}
-                onClick={onLimpiarCarrito}
-                leftIcon={<Trash2 size={15} />}
-                className="flex-1 min-h-[48px] text-slate-400 hover:text-red-300 hover:bg-red-500/10 border border-white/10"
-              >
-                Vaciar Carrito
-              </PosButton>
-            </div>
-
-            <div className="text-[11px] text-slate-400 bg-cyan-950/20 border border-cyan-500/20 rounded-xl p-2.5 text-center leading-relaxed">
-              ℹ️ Los asesores de mostrador generan la preventa y envían al cliente a la <strong>Caja Única (Ventanilla)</strong> para realizar el pago y posterior despacho de bodega.
-            </div>
           </div>
         ) : (
           <PaymentPanel
@@ -788,6 +844,17 @@ export const CartPanel: React.FC<CartPanelProps> = ({
           onClose={() => setKeypadLinea(null)}
         />
       )}
+
+      {/* Modal DespachoNotasModal bajo demanda (SPEC-052) */}
+      <DespachoNotasModal
+        isOpen={showInternalNotasModal}
+        onClose={() => setShowInternalNotasModal(false)}
+        selectedNotes={activeCutNotes}
+        onToggleNote={handleToggleCutNote}
+        customNotes={notasDespacho}
+        onCustomNotesChange={setNotasDespacho}
+        onConfirm={() => setShowInternalNotasModal(false)}
+      />
 
       </GlassCard>
   );

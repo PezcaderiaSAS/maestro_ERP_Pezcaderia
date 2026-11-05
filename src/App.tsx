@@ -721,15 +721,39 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  // Sincronización hash URL para PWA standalone de repartidores y Portal SuperAdmin
+  // Sincronización hash URL para navegación fluida y PWA (SPEC-052 / SPEC-053)
   useEffect(() => {
     const syncHashRoute = () => {
       const hash = window.location.hash.replace('#', '').replace('/', '');
       const pathname = window.location.pathname.replace(/^\//, '');
-      if (hash === 'repartidor' || pathname === 'repartidor') {
-        setCurrentView('repartidor');
-      } else if (hash === 'superadmin' || pathname === 'superadmin') {
-        setCurrentView('superadmin' as any);
+      const candidate = (hash || pathname || '').toLowerCase().trim();
+
+      const VALID_ROUTES: (ERPViewKey | string)[] = [
+        'dashboard',
+        'pos',
+        'comandas_kanban',
+        'caja',
+        'inventario',
+        'configuracion_bodegas',
+        'kardex',
+        'compras_muelle',
+        'despiece',
+        'alistamiento',
+        'despachos',
+        'metricas_otif',
+        'precios',
+        'rrhh',
+        'nomina',
+        'cartera',
+        'clientes',
+        'compras',
+        'crm',
+        'repartidor',
+        'superadmin',
+      ];
+
+      if (VALID_ROUTES.includes(candidate)) {
+        setCurrentView(candidate as any);
       }
     };
     syncHashRoute();
