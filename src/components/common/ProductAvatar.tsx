@@ -23,6 +23,7 @@ export interface ProductAvatarProps {
   alt?: string;
   objectFit?: 'cover' | 'contain';
   vectorOnly?: boolean;
+  darkTheme?: boolean;
 }
 
 const SIZE_CLASSES: Record<ProductAvatarSize, string> = {
@@ -39,6 +40,9 @@ interface VectorMeta {
   bgColor: string;
   textColor: string;
   borderColor: string;
+  darkBgColor: string;
+  darkTextColor: string;
+  darkBorderColor: string;
 }
 
 const getVectorMeta = (nombre: string, categoria: string): VectorMeta => {
@@ -50,6 +54,9 @@ const getVectorMeta = (nombre: string, categoria: string): VectorMeta => {
       bgColor: 'bg-orange-50',
       textColor: 'text-orange-700',
       borderColor: 'border-orange-200',
+      darkBgColor: 'bg-amber-950/40',
+      darkTextColor: 'text-amber-400',
+      darkBorderColor: 'border-amber-500/30',
     };
   }
 
@@ -59,6 +66,9 @@ const getVectorMeta = (nombre: string, categoria: string): VectorMeta => {
       bgColor: 'bg-emerald-50',
       textColor: 'text-emerald-700',
       borderColor: 'border-emerald-200',
+      darkBgColor: 'bg-emerald-950/40',
+      darkTextColor: 'text-emerald-400',
+      darkBorderColor: 'border-emerald-500/30',
     };
   }
 
@@ -68,6 +78,9 @@ const getVectorMeta = (nombre: string, categoria: string): VectorMeta => {
       bgColor: 'bg-cyan-50',
       textColor: 'text-cyan-700',
       borderColor: 'border-cyan-200',
+      darkBgColor: 'bg-cyan-950/40',
+      darkTextColor: 'text-cyan-400',
+      darkBorderColor: 'border-cyan-500/30',
     };
   }
 
@@ -77,6 +90,9 @@ const getVectorMeta = (nombre: string, categoria: string): VectorMeta => {
       bgColor: 'bg-slate-50',
       textColor: 'text-slate-700',
       borderColor: 'border-slate-200',
+      darkBgColor: 'bg-slate-900/60',
+      darkTextColor: 'text-slate-300',
+      darkBorderColor: 'border-white/10',
     };
   }
 
@@ -85,6 +101,9 @@ const getVectorMeta = (nombre: string, categoria: string): VectorMeta => {
     bgColor: 'bg-sky-50',
     textColor: 'text-sky-700',
     borderColor: 'border-sky-200',
+    darkBgColor: 'bg-sky-950/40',
+    darkTextColor: 'text-sky-400',
+    darkBorderColor: 'border-sky-500/30',
   };
 };
 
@@ -104,6 +123,7 @@ export const ProductAvatar: React.FC<ProductAvatarProps> = ({
   alt,
   objectFit = 'cover',
   vectorOnly = false,
+  darkTheme = false,
 }) => {
   const [imageError, setImageError] = useState(false);
 
@@ -120,10 +140,14 @@ export const ProductAvatar: React.FC<ProductAvatarProps> = ({
   // Si se solicita vectorOnly (Regla de Cero Imágenes estricta)
   if (vectorOnly) {
     const IconComponent = vectorMeta.Icon;
+    const colorClasses = darkTheme
+      ? `${vectorMeta.darkBgColor} ${vectorMeta.darkTextColor} ${vectorMeta.darkBorderColor}`
+      : `${vectorMeta.bgColor} ${vectorMeta.textColor} ${vectorMeta.borderColor}`;
+
     return (
       <div
         data-testid="product-avatar-vector"
-        className={`relative flex items-center justify-center overflow-hidden flex-shrink-0 select-none border ${vectorMeta.bgColor} ${vectorMeta.textColor} ${vectorMeta.borderColor} ${sizeClass} ${className}`}
+        className={`relative flex items-center justify-center overflow-hidden flex-shrink-0 select-none border ${colorClasses} ${sizeClass} ${className}`}
         title={`${nombre} (${categoria || 'Producto'})`}
       >
         <IconComponent className="w-3/5 h-3/5 transition-transform duration-300 group-hover:scale-110" />

@@ -204,8 +204,8 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
           const unitLabel = isWeight ? 'kg' : 'und';
 
           return (
-            <Card glass key={prod.id} className={`product-card min-h-[72px] flex flex-col p-0 overflow-hidden cursor-pointer active:scale-95 transition-all duration-200 bg-slate-900/80 border border-white/10 hover:border-cyan-500/40 rounded-xl shadow-md ${isOutOfStock ? 'opacity-50 grayscale pointer-events-none' : ''}`} onClick={() => onAddProduct(prod)}>
-              <div className="product-image-container h-20 sm:h-22 overflow-hidden flex items-center justify-center relative bg-slate-950/40" style={{ position: 'relative' }}>
+            <Card glass key={prod.id} className={`product-card min-h-[72px] sm:min-h-[110px] flex flex-col p-0 overflow-hidden cursor-pointer active:scale-95 transition-all duration-200 bg-slate-900/80 border border-white/10 hover:border-cyan-500/40 rounded-xl shadow-md ${isOutOfStock ? 'opacity-50 grayscale pointer-events-none' : ''}`} onClick={() => onAddProduct(prod)}>
+              <div className="product-image-container h-16 sm:h-20 overflow-hidden flex items-center justify-center relative bg-slate-950/60 border-b border-white/5" style={{ position: 'relative' }}>
                 {/* Badge visual distintivo Kilos vs Unidad */}
                 <div style={{ position: 'absolute', top: '6px', left: '6px', zIndex: 10 }}>
                   {isWeight ? (
@@ -257,15 +257,16 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
                   imagen={prod.imagen}
                   size="full"
                   vectorOnly={true}
-                  className="product-image max-h-16 w-auto object-contain"
+                  darkTheme={true}
+                  className="product-image max-h-12 sm:max-h-14 w-auto object-contain"
                   alt={prod.nombre}
                 />
               </div>
-              <div className="product-info-panel p-2 sm:p-2.5 bg-transparent flex flex-col justify-between">
-                <span className="product-card-name text-xs sm:text-sm font-bold text-slate-100 line-clamp-1">{prod.nombre}</span>
+              <div className="product-info-panel p-2 sm:p-2.5 bg-transparent flex flex-col justify-between flex-1">
+                <span className="product-card-name text-xs sm:text-sm font-bold text-white line-clamp-1 drop-shadow-sm tracking-tight" title={prod.nombre}>{prod.nombre}</span>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '2px', marginTop: '2px' }}>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: '3px' }}>
-                    <span className="product-card-price-tag font-black text-sm sm:text-base text-white">
+                    <span className="product-card-price-tag font-black text-sm sm:text-base text-emerald-400">
                       ${(Math.round(getProductPrice(prod)) || 0).toLocaleString('es-CO')}
                     </span>
                     <span style={{ fontSize: '10px', color: isWeight ? '#38BDF8' : '#34D399', fontWeight: 700 }}>
