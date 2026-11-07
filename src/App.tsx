@@ -25,6 +25,7 @@ import { DriverPortalView } from './views/driver/DriverPortalView';
 import { OtifDashboardView } from './views/logistics/OtifDashboardView';
 import { B2BCustomerPortalView } from './views/b2b/portal/B2BCustomerPortalView';
 import { SuperAdminMasterView } from './views/admin/SuperAdminMasterView';
+import { MostradorView } from './views/mostrador/MostradorView';
 import { LoginView } from './views/auth/LoginView';
 import { useAuthStore } from './store/useAuthStore';
 import { EnterpriseSidebar, type ERPViewKey } from './components/layout/EnterpriseSidebar';
@@ -1458,6 +1459,8 @@ export default function App() {
         return <DriverPortalView />;
       case 'superadmin':
         return <SuperAdminMasterView />;
+      case 'mostrador':
+        return <MostradorView />;
       default:
         return <DashboardView />;
     }

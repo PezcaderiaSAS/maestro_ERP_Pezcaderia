@@ -22,6 +22,7 @@ import {
   PanelLeftClose,
   Shield,
   LogOut,
+  Zap,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 
@@ -97,6 +98,13 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
           label: 'Punto de Venta (POS)',
           icon: ShoppingBag,
           testId: 'nav-pos',
+          roles: ['admin', 'vendedor', 'cajero', 'supervisor'],
+        },
+        {
+          key: AppRouteId.MOSTRADOR,
+          label: 'Venta Mostrador (Tabla)',
+          icon: Zap,
+          testId: 'nav-mostrador',
           roles: ['admin', 'vendedor', 'cajero', 'supervisor'],
         },
         {

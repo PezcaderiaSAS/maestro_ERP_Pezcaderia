@@ -17,12 +17,16 @@ export interface LocalIndexedDbProduct {
   categoria: string;
   precioDetal: number;
   precioMayorista: number;
+  precioRestaurante?: number;
   cantidadMinimaMayorista: number;
   costoBase?: number;
   margenMinimoPct?: number;
   stockDisponible: number;
   ubicacionPasillo?: string;
   esParetoTop100?: boolean;
+  tarifaIva?: number;
+  ivaIncluido?: boolean;
+  unidadMedida?: string;
   activo: boolean;
   updatedAt: string;
 }

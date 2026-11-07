@@ -3,6 +3,13 @@
 
 import type { TenantIndexedDbService } from './tenantIndexedDbService';
 import type { LocalIndexedDbProduct, LocalIndexedDbClient } from '../types/indexedDb.types';
+import { getSupabaseClient } from '../lib/supabase';
+
+export interface HydrationProgress {
+  loaded: number;
+  total?: number;
+  percentage: number;
+}
 
 export class ProgressiveHydrationService {
   constructor(private dbService: TenantIndexedDbService) {}
@@ -106,6 +113,125 @@ export class ProgressiveHydrationService {
       clientsCount: rawClients.length,
       paretoCount,
     };
+  }
+
+  /**
+   * Carga progresiva desde Supabase en bloques (chunks) para evitar el límite de 1.000 filas de PostgREST
+   */
+  public async hydrateProductsFromSupabase(
+    tenantId: string,
+    options?: {
+      batchSize?: number;
+      onProgress?: (progress: HydrationProgress) => void;
+      tableOrView?: string;
+      supabaseClient?: any;
+    }
+  ): Promise<{ totalLoaded: number; paretoCount: number }> {
+    const supabase = options?.supabaseClient || getSupabaseClient();
+    const batchSize = Math.min(options?.batchSize ?? 1000, 1000);
+    const targetTable = options?.tableOrView || 'productos_unified';
+
+    let offset = 0;
+    let hasMore = true;
+    let totalLoaded = 0;
+    let paretoCount = 0;
+    let totalCount: number | undefined;
+
+    while (hasMore) {
+      const from = offset;
+      const to = offset + batchSize - 1;
+
+      // Consulta paginada con rango HTTP PostgREST y orden determinista
+      let query = supabase
+        .from(targetTable)
+        .select('*', offset === 0 ? { count: 'exact' } : undefined)
+        .order('sku', { ascending: true })
+        .range(from, to);
+
+      let { data, count, error } = await query;
+
+      // Fallback a productos_catalogo si productos_unified no está disponible
+      if (error && targetTable === 'productos_unified') {
+        console.warn('productos_unified no disponible, reintentando con productos_catalogo:', error);
+        const fallbackRes = await supabase
+          .from('productos_catalogo')
+          .select('*', offset === 0 ? { count: 'exact' } : undefined)
+          .order('sku', { ascending: true })
+          .range(from, to);
+        data = fallbackRes.data;
+        count = fallbackRes.count;
+        error = fallbackRes.error;
+      }
+
+      if (error) {
+        throw new Error(`Error en hidratación de Supabase [${from}..${to}]: ${error.message || error}`);
+      }
+
+      if (offset === 0 && typeof count === 'number') {
+        totalCount = count;
+      }
+
+      if (!data || data.length === 0) {
+        hasMore = false;
+        break;
+      }
+
+      // Normalización de registros al contrato LocalIndexedDbProduct
+      const normalizedProducts: LocalIndexedDbProduct[] = data.map((item: any, idx: number) => {
+        const absoluteIndex = offset + idx;
+        const isPareto = item.esParetoTop100 ?? (item.categoria_abc === 'A' || item.categoriaABC === 'A' || absoluteIndex < 100);
+        if (isPareto) paretoCount++;
+
+        return {
+          sku: item.sku || `SKU-${absoluteIndex}`,
+          tenantId,
+          nombre: item.nombre || item.name || 'Sin Nombre',
+          codigoBarras: item.codigo_barras || item.barcode || undefined,
+          categoria: item.categoria || item.category || 'GENERAL',
+          precioDetal: Number(item.precio_venta_pos || item.precioDetal || 0),
+          precioMayorista: Number(
+            item.precio_venta_mayorista || item.precioMayorista || item.precio_venta_pos || 0
+          ),
+          precioRestaurante: Number(
+            item.precio_venta_restaurante || item.precioRestaurante || item.precio_venta_pos || 0
+          ),
+          cantidadMinimaMayorista: Number(item.cantidad_minima_mayorista || 6),
+          costoBase: item.precio_compra || item.costo_unitario ? Number(item.precio_compra || item.costo_unitario) : undefined,
+          margenMinimoPct: item.margenMinimoPct ? Number(item.margenMinimoPct) : undefined,
+          stockDisponible: Number(item.stock || item.stockInicial || 0),
+          ubicacionPasillo: item.pasillo || item.ubicacion || undefined,
+          esParetoTop100: isPareto,
+          tarifaIva: item.iva !== undefined ? Number(item.iva) : 19,
+          ivaIncluido: item.iva_incluido !== false,
+          unidadMedida: item.unidad_medida || 'und',
+          activo: item.activo !== false,
+          updatedAt: item.actualizado_en || new Date().toISOString(),
+        };
+      });
+
+      // Inserción masiva del lote en IndexedDB
+      await this.dbService.bulkUpsertProducts(normalizedProducts);
+
+      totalLoaded += data.length;
+      offset += data.length;
+
+      // Reporte de progreso
+      if (options?.onProgress) {
+        const pct = totalCount && totalCount > 0
+          ? Math.min(100, Math.round((totalLoaded / totalCount) * 100))
+          : Math.min(100, Math.round((totalLoaded / 10000) * 100));
+        options.onProgress({ loaded: totalLoaded, total: totalCount, percentage: pct });
+      }
+
+      if (data.length < batchSize) {
+        hasMore = false;
+      }
+
+      // Ceder el hilo de ejecución para garantizar 60 FPS
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+
+    return { totalLoaded, paretoCount };
   }
 }
 

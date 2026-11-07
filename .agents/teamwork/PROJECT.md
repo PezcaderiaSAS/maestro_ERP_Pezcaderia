@@ -1,77 +1,102 @@
-# Project: SPEC-053 Latency Minimization & SDD Engineering Plan
+# Project: Vista Dedicada de Alto Rendimiento para Ventas de Mostrador Tipo Tabla (/mostrador)
 
-## Architecture Overview
-MaestroPescaderia ERP es una plataforma empresarial multi-inquilino (multi-tenant) de alto rendimiento para la comercialización, distribución, cuartos fríos (WMS) y punto de venta (POS) de productos perecederos del mar.
-La arquitectura de latencia cero se estructura en 5 subsistemas críticos:
-1. **Frontend Core & Bundle Management**: Code splitting con `React.lazy()`, dynamic imports en librerías pesadas (ExcelJS, jsPDF, Sentry, LogRocket), manualChunks optimizados en Vite y prefetching inteligente.
-2. **POS Mostrador Engine**: Motor de búsqueda sub-50ms indexado off-thread (Web Worker con `SearchEngineCore`), virtualización con `VirtualCatalogGrid`, y aislamiento del estado del carrito para eliminar re-renders en `POSView`.
-3. **WMS, Kardex & Masa Balance**: Persistencia relacional ACID en PostgreSQL/Supabase, índices compuestos para FEFO (`tenant_id, expiration_date`), paginación de Kardex con cursores y consolidación del balance de masa en muelle.
-4. **Jerarquía de Caché Multinivel (L1-L4)**:
-   - **L1**: Zustand unificado en memoria con selectores atómicos por tenant.
-   - **L2**: IndexedDB nativo multi-tenant (`PezcaderiaERP_{tenantId}`) para catálogos, stock y transacciones.
-   - **L3**: Upstash Redis REST con patrón Stale-While-Revalidate para stock en mostrador y locks distribuidos.
-   - **L4**: Supabase PostgreSQL con RLS optimizado (sin subconsultas en `stock_bodegas`) y RPCs protegidos con verificación de JWT claims.
-5. **Realtime Sync & Outbox Worker**: Cola outbox transaccional unificada, sincronización en background por lotes (batching HTTP), backoff exponencial con jitter y WebSockets con reconexión resiliente anti-thundering herd.
-
----
+## Architecture
+- **Patrón de Arquitectura**: Single Page Application en React 18, Vite, TypeScript estricto, Tailwind CSS y Supabase con jerarquía de caché multinivel (L1 RAM Zustand, L2 IndexedDB por Tenant, L3 Upstash Redis, L4 PostgreSQL Supabase).
+- **Enrutamiento Desacoplado**: Enrutador propio sincronizado por hash (`AppRouteId.COUNTER_POS = 'mostrador'`) en `src/routes/AppRoute.ts` y `src/App.tsx`, garantizando que la vista existente `POSView.tsx` (3,681 líneas) permanezca 100% intacta y sin modificaciones regresivas.
+- **Modo de Pantalla Fija Transaccional**: Integrado en `src/components/layout/layoutModes.ts` bajo `TRANSACTIONAL_FIXED_VIEWS` (`h-[calc(100vh-...)] overflow-hidden`) para eliminar scroll exterior accidental en desktop (1280x800), tablets y móviles.
+- **Motor de Datos y Búsqueda de Alta Velocidad (10.000 Productos)**:
+  - Carga masiva sin pérdida de registros evitando el límite de 1.000 filas de PostgREST mediante paginación por bloques / `ProgressiveHydrationService` hacia `TenantIndexedDbService` (L2).
+  - Diccionario en memoria $O(1)$ en Zustand L1 (`stock[bodega][sku]`) para disponibilidad inmediata de existencias.
+  - Búsqueda instantánea sub-10ms mediante `SearchEngineCore` ejecutado off-thread en Web Worker (`catalogSearch.worker.ts`), combinando mapas $O(1)$ de SKU y código de barras con índice invertido de vocabulario y distancia de Levenshtein acotada.
+  - Virtualización headless in-house vía `useVirtualGrid` (`columnsCount: 1`, `rowHeight: 44px`) que mantiene un número constante de nodos DOM (< 25 elementos) para un desplazamiento fluido a 60–120 FPS sin dependencias externas pesadas.
+- **Diseño Ultra Ligero y Ergonomía Accesible**:
+  - Cero renderizado de imágenes para máxima legibilidad, velocidad y densidad vertical.
+  - Paleta de alto contraste WCAG 2.2 AA+ (Light Mode: fondo `#f8fafc` `slate-50`, inputs `#ffffff` con borde `1.5px solid #cbd5e1`, texto `#0f172a` `slate-900`, badges de stock con semáforo esmeralda/ámbar/rojo) y compatibilidad con Dark Glassmorphism V8 (`pezcaderia-glass`).
+  - Navegación 100% por teclado con atajos globales (F2 comanda, F6 suspender, F8 búsqueda, F10 cobrar, Flechas, Enter, Tab) y targets táctiles mínimos de 44px (Ley de Fitts).
+- **Flujo Transaccional Multivendedor y Caja Única**:
+  - Emisión de comandas/preventas con numeración correlativa estricta `PRE-YYYY-XXXXX` a través de `prefacturaService.ts` y `useMultiVendorPosStore.ts`.
+  - Despacho y liquidación derivados a la taquilla de caja única (`CashierKanbanView` / RPC `registrar_venta_pos_concurrente`).
+  - Cálculos financieros exactos en COP con redondeo a cero centavos y fórmula de IVA incluido $\text{Base} = \text{round}(\text{Total}/(1 + \text{Tarifa}/100))$ y $\text{IVA} = \text{Total} - \text{Base}$.
 
 ## Feature Inventory
 | # | Feature | Description | Milestone | Source |
 |---|---------|-------------|-----------|--------|
-| 1 | Desglose y Auditoría de Bundle Size | Documentación de los 4,609 kB actuales, dependencias pesadas y fugas en path crítico | M2 | Survey Explorer 1 |
-| 2 | Diagnóstico de Cuellos de Botella en POS | Análisis del bloqueo por `.includes()`, 10,000 lecturas síncronas de stock y re-renders | M2 | Survey Explorer 1 |
-| 3 | Diagnóstico de WMS, Kardex y Balance de Masa | Identificación de 4 orígenes desconectados, consultas frías sin índices y despiece en localStorage | M2 | Survey Explorer 2 |
-| 4 | Diagnóstico de Caché Multinivel L1-L4 | Detección de brecha en L3 (0% Upstash), fragmentación en L1/L2 y vulnerabilidad RPC | M2 | Survey Explorer 2 |
-| 5 | Diagnóstico de Realtime y Outbox Sync | Identificación de transmisión serial O(N), debounce de 2s y thundering herd | M2 | Survey Spec Miner 3 |
-| 6 | Script Benchmark Bundle Size | Script ejecutable que analiza el output de build de Vite, tamaño de chunks y gzip | M1 | Survey Spec Miner 3 |
-| 7 | Script Benchmark Latencia POS | Script ejecutable que simula búsqueda y adición al carrito con 16,000 SKUs y mide p50, p95, p99 | M1 | Survey Spec Miner 3 |
-| 8 | Script Benchmark Consultas WMS | Script que evalúa tiempos de consulta de Kardex, lotes FEFO y balance de masa | M1 | Survey Spec Miner 3 |
-| 9 | Script Benchmark Outbox Throughput | Script que mide la tasa de inserción y vaciado (ops/sec) de la cola de transacciones | M1 | Survey Spec Miner 3 |
-| 10 | Runner Unificado de Benchmarks | Comando unificado `npm run benchmark:latency` que genera reporte consolidado | M1 | Survey Spec Miner 3 |
-| 11 | Especificación SDD SPEC-053 (spec.md) | Especificación en notación EARS formal con requisitos cuantitativos y cualitativos | M2 | Survey Spec Miner 3 |
-| 12 | Plan Técnico de Arquitectura (plan.md) | Plan técnico con los 5 diagramas canónicos de Mermaid validados contra directrices | M2 | Survey Spec Miner 3 |
-| 13 | Desglose de Tareas Atómicas (tasks.md) | Desglose granular con criterios de verificación independientes y aislamiento multi-tenant | M2 | Survey Spec Miner 3 |
-| 14 | Informe de Auditoría Consolidado | Informe técnico integral de auditoría (audit-report.md) con evidencia de código | M2 | All Explorers |
-
----
+| F1 | Motor de Búsqueda Sub-10ms para 10.000 Productos | Indexación invertida y búsqueda en Web Worker con tiempo de respuesta <10ms en 10.000 productos y O(1) en código de barras/SKU. | M1 | Survey (Exp 1, 2) |
+| F2 | Hidratación Masiva y Stock O(1) por Bodega | Ingesta paginada desde Supabase/IndexedDB evitando el límite de 1.000 filas y mapa en memoria `stock[bodega][sku]`. | M1 | Survey (Exp 2, 3) |
+| F3 | Registro de Ruta `/mostrador` y Layout Fijo | Registro de `AppRouteId.COUNTER_POS = 'mostrador'` en `AppRoute.ts`, `App.tsx`, `layoutModes.ts` y navegación lateral sin tocar `POSView.tsx`. | M2 | Survey (Exp 1) |
+| F4 | Barra Superior Condensada de Una Línea | Contexto operativo con asesor activo (conmutación rápida), cliente rápido (NIT/Cédula), bodega activa, turno y atajos. | M3 | Survey (Exp 1, 3) |
+| F5 | Cabecera de Entrada Rápida de Ítems | Input de código/SKU con autofoco y escaneo, selector de precio (Detal/Mayorista/Restaurante), cantidad rápida (default 1) y botón agregar (+ / Enter). | M3 | Survey (Exp 1, 3) |
+| F6 | Tabla Virtualizada de Venta ("Tu Carrito") sin Imágenes | Tabla pura de líneas de venta con virtualización headless (`useVirtualGrid`), columnas #, SKU, Producto, Cantidad, Precio, Total y acciones de fila. | M4 | Survey (Exp 1, 2) |
+| F7 | Navegación 100% por Teclado y Ergonomía Táctil | Atajos F2, F6, F8, F10, flechas, Enter, Tab para operar venta completa sin ratón, con targets táctiles >= 44px. | M4 | Survey (Exp 1, 3) |
+| F8 | Pie Financiero Exacto en COP | Cálculo matemático exacto de subtotal, descuento, IVA incluido y total general prominente en fuente monoespaciada sin decimales. | M5 | Survey (Exp 1, 3) |
+| F9 | Emisión de Preventas Correlativas PRE-YYYY-XXXXX | Generación de preventas consecutivas vinculadas al asesor y bodega, enrutadas a caja única (`CashierKanbanView`). | M5 | Survey (Exp 1, 2, 3) |
+| F10 | Suite de Pruebas Automatizadas y Hardening Adversarial | Suite de pruebas unitarias, de rendimiento y E2E (Tiers 1-5) certificando funcionalidad, cero regresiones y verificación forense. | M6 | Survey & Pattern |
 
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| M1 | Automated Benchmark Suite | Scripts ejecutables en `scripts/benchmark/` para bundle, POS, WMS y Outbox con runner unificado | Survey | DONE |
-| M2 | SDD SPEC-053 Engineering Specification | Especificación formal en `specs/053-latency-optimization-sdd/` (`spec.md`, `plan.md`, `tasks.md`, `audit-report.md`) con los 5 diagramas Mermaid | Survey | DONE |
-| M3 | Multi-Agent Review & Challenge | Auditoría de código y diseño por 2 Reviewers, 2 Challengers, 1 Critic y 1 Forensic Auditor | M1, M2 | DONE (PASS) |
-
----
+| M1 | Motor de Datos, Hidratación Masiva y Búsqueda Sub-10ms | Servicios de búsqueda e hidratación (`SearchEngineCore`, `catalogSearch.worker.ts`, `tenantIndexedDbService.ts`, `useInventoryStore.ts`): carga de 10.000 productos sin truncar, stock O(1) por bodega y respuesta sub-10ms. | none | PLANNED |
+| M2 | Enrutamiento Desacoplado y Layout de Mostrador | `src/routes/AppRoute.ts`, `src/App.tsx`, `src/components/layout/layoutModes.ts`, `src/components/layout/EnterpriseSidebar.tsx`, `src/views/pos/CounterPosView.tsx`: ruta `/mostrador` activa, fija y aislada de `POSView.tsx`. | none | PLANNED |
+| M3 | Barra Superior Condensada y Entrada Rápida de Ítems | Componentes de cabecera operativa: selector rápido de asesor, buscador modal/inline de cliente por NIT/Cédula, selector de bodega, input de código de barras/SKU con lectura de escáner, cantidad y precio. | M1, M2 | PLANNED |
+| M4 | Tabla Virtualizada sin Imágenes y Navegación por Teclado | Componente de tabla virtual "Tu Carrito": `useVirtualGrid` con $O(1)$ nodos DOM, diseño ultra ligero de alto contraste, columnas de producto/cantidad/total y navegación por teclado (F2, F6, F8, F10, Flechas, Enter, Tab). | M2, M3 | PLANNED |
+| M5 | Pie Financiero y Flujo Multivendedor a Caja Única | Footer financiero con desglose exacto en COP, barra de acciones rápidas, integración con `prefacturaService.ts` emitiendo `PRE-YYYY-XXXXX` y actualización reactiva de cola de caja única. | M3, M4 | PLANNED |
+| M6 | Certificación E2E 100% y Cobertura Adversarial | Ejecución y aprobación del 100% de la suite de pruebas E2E (Tiers 1-4) de `TEST_READY.md` + Fase 2: Hardening adversarial de cobertura (Tier 5) con Challengers y Forensic Auditor. | M1, M2, M3, M4, M5 | PLANNED |
 
 ## Interface Contracts
-### Benchmark Runner ↔ Individual Benchmark Scripts
-- Cada script exporta una función `runBenchmark(): Promise<BenchmarkResult>`
-- `BenchmarkResult`: `{ suite: string; metrics: Record<string, number>; passed: boolean; details?: string }`
-- Salida estándar por consola y guardado estructurado en JSON/Markdown.
 
-### L1 Zustand ↔ L2 IndexedDB ↔ L3 Redis ↔ L4 Supabase
-- Contrato de aislamiento multi-tenant:
-  ```ts
-  interface TenantContext {
-    tenantId: string;
-    branchId: string;
-    userId: string;
-  }
-  ```
-- Todas las claves de caché y transacciones outbox deben incorporar obligatoriamente `tenantId` como primer calificador de namespace: `tenant:${tenantId}:...`.
+### CounterPosView ↔ Data & Search Engine
+- **Search Query Interface**:
+  - `queryProducts(term: string, limit?: number): Promise<LocalIndexedDbProduct[]>`
+  - Retorna resultados en `< 10ms` vía Web Worker. Si `term` está vacío, retorna Top 100 Pareto.
+  - `lookupByBarcodeOrSku(code: string): LocalIndexedDbProduct | undefined` en `$O(1)` (< 0.05ms).
+- **Stock Resolution Contract**:
+  - `getStockAvailable(bodegaId: string, sku: string): number`
+  - Resuelve directamente desde `useInventoryStore.getState().stock[bodegaId]?.[sku] ?? 0`.
 
----
+### CounterPosView ↔ Routing & App State
+- **Route Key**: `AppRouteId.COUNTER_POS = 'mostrador'`.
+- **URL Path**: `/mostrador` (o `#/mostrador`).
+- **Sidebar Integration**: Ícono `Store` de Lucide, visible para roles `admin` y `vendedor`.
+- **Isolation Guarantee**: `src/views/POSView.tsx` no recibe ninguna modificación de código.
+
+### Rapid Entry Header ↔ Cart Table State
+- **Add Item Action**:
+  - `onAddItem(product: LocalIndexedDbProduct, quantity: number, priceTier: 'detal' | 'mayorista' | 'restaurante') => void`
+  - Si el producto ya existe en el carrito, incrementa la cantidad sin duplicar la fila.
+  - Autofoco restaurado inmediatamente en el input de código de barras para permitir escaneos continuos a alta velocidad.
+
+### Financial Calculator Contract (`src/services/posService.ts`)
+- **COP Precision**: Moneda entera sin decimales (`Math.round`).
+- **Fórmulas de Totales**:
+  - `subtotal = sum(item.cantidad * item.precioUnitario)`
+  - `descuento = sum(item.descuentoMonto)`
+  - `baseGravable = round(totalConIva / (1 + tarifaIva / 100))`
+  - `iva = totalConIva - baseGravable`
+  - Invariante estricto: `baseGravable + iva === totalConIva`.
+
+### Pre-Sale Emission Contract (`src/services/prefacturaService.ts`)
+- **Correlative Generator**: `PRE-YYYY-XXXXX` (ej. `PRE-2026-00001`).
+- **Required Metadata**:
+  - `vendedorId`: ID del asesor activo.
+  - `vendedorNombre`: Nombre del asesor activo.
+  - `bodegaId`: ID de la bodega de despacho seleccionada.
+  - `cliente`: Datos de cliente (Cédula/NIT, Nombre) o Consumidor Final por defecto.
+  - `items`: Lista de productos, cantidades, precios unitarios y subtotales.
+  - `estado`: `PENDIENTE_COBRO`.
+- **Destination**: Persistido en Supabase (`pos_prefacturas`) o en cola offline (`pezca_pos_drafts_v1`), inmediatamente visible en `CashierKanbanView` para cobro en caja única.
 
 ## Code Layout
-- `scripts/benchmark/`: Scripts ejecutables de benchmark y análisis de latencia.
-  - `measure-bundle-size.ts`: Análisis estático y dinámico de chunks Vite.
-  - `benchmark-pos-latency.ts`: Medición microbench de búsqueda y adición en POS (16K SKUs).
-  - `benchmark-wms-queries.ts`: Medición de consultas frías de WMS, Kardex y FEFO.
-  - `benchmark-outbox-sync.ts`: Medición de throughput y latencia de cola Outbox.
-  - `run-benchmarks.ts`: Runner unificado con exportación de reporte.
-- `specs/053-latency-optimization-sdd/`:
-  - `spec.md`: Requisitos funcionales/no-funcionales cuantitativos en notación EARS.
-  - `plan.md`: Arquitectura técnica y los 5 diagramas obligatorios de Mermaid.
-  - `tasks.md`: Plan de implementación secuencial con tareas atómicas a prueba de errores.
-  - `audit-report.md`: Diagnóstico y auditoría exhaustiva consolidada de los 5 módulos críticos.
+- `src/routes/AppRoute.ts`: Registro del enum `AppRouteId.COUNTER_POS`, metadatos y roles.
+- `src/App.tsx`: Mapeo de ruta `/mostrador` en `VALID_ROUTES` y switch de renderizado.
+- `src/components/layout/layoutModes.ts`: Declaración de vista fija en `TRANSACTIONAL_FIXED_VIEWS`.
+- `src/components/layout/EnterpriseSidebar.tsx`: Enlace en el menú lateral de navegación.
+- `src/views/pos/CounterPosView.tsx`: Contenedor principal de la vista de mostrador tipo tabla.
+- `src/views/pos/counter/CounterTopContextBar.tsx`: Barra superior condensada (asesor, cliente, bodega, turno, atajos).
+- `src/views/pos/counter/CounterItemQuickEntry.tsx`: Cabecera de entrada rápida para escáner/SKU, precio y cantidad.
+- `src/views/pos/counter/CounterCartTable.tsx`: Tabla pura de carrito virtualizada con `useVirtualGrid`.
+- `src/views/pos/counter/CounterCartRow.tsx`: Fila individual de venta ultra ligera y de alto contraste sin imágenes.
+- `src/views/pos/counter/CounterFinancialFooter.tsx`: Pie financiero con totales exactos en COP y botones de acción rápida.
+- `src/views/pos/counter/CounterSearchModal.tsx`: Modal / cajón rápido de búsqueda masiva (F8) para 10.000 productos.
+- `src/hooks/useCounterPosState.ts`: Hook orquestador de estado de mostrador (atajos F2/F6/F8/F10, carrito, selección).
+- `src/tests/counterPosPerformance.test.ts`: Pruebas automatizadas de rendimiento de búsqueda sub-10ms y virtualización.
+- `src/tests/counterPosWorkflow.test.tsx`: Pruebas de integración de la vista de mostrador, navegación por teclado y preventas.

@@ -22,7 +22,7 @@ vi.mock('../utils/soundEffects', () => ({
   playErrorAlert: vi.fn(),
 }));
 
-describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja Única & On-Demand Checkout', () => {
+describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja ÃƒÅ¡nica & On-Demand Checkout', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
@@ -45,7 +45,7 @@ describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja Única & On-Dema
     {
       productoId: 'p-camaron',
       sku: 'CAM-002',
-      nombre: 'Camarón Tigre Jumbo',
+      nombre: 'CamarÃƒÂ³n Tigre Jumbo',
       cantidad: 1,
       unidad: 'KG',
       precioLista: 48000,
@@ -73,9 +73,9 @@ describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja Única & On-Dema
       descuentoGlobalValor: 0,
       totales: {
         subtotal,
-        descuento: 0,
         subtotalBaseGravable: subtotal,
         totalIva: 0,
+        descuento: 0,
         totalFinal: subtotal,
       },
       drafts: [] as CartDraft[],
@@ -99,7 +99,6 @@ describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja Única & On-Dema
       onSetDrafts: vi.fn(),
       onSetDescuentoGlobal: vi.fn(),
       isTurnoAbierto: true,
-      isMostradorAuto: false,
       ...overrides,
     };
   };
@@ -108,24 +107,24 @@ describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja Única & On-Dema
   // 1. EMPIRICAL VERIFICATION: ON-DEMAND CHECKOUT DRAWER
   // =========================================================================
   describe('1. On-Demand Checkout Drawer (Cobrar, F2, Enter, Escape, X)', () => {
-    it('1.1 CartPanel en modo cajero renderiza footer condensado y NO incluye PaymentPanel estático', () => {
+    it('1.1 CartPanel en modo cajero renderiza footer condensado y NO incluye PaymentPanel estÃƒÂ¡tico', () => {
       render(<CartPanel {...createDefaultCartProps()} />);
 
-      // Verificamos que el botón de cobro on-demand está presente
+      // Verificamos que el botÃƒÂ³n de cobro on-demand estÃƒÂ¡ presente
       const btnCobrar = screen.getByTestId('btn-cobrar');
       expect(btnCobrar).toBeInTheDocument();
       expect(btnCobrar).not.toBeDisabled();
 
-      // Verificamos que el drawer de cobro NO está montado inicialmente
+      // Verificamos que el drawer de cobro NO estÃƒÂ¡ montado inicialmente
       expect(screen.queryByTestId('payment-drawer-container')).toBeNull();
       expect(screen.queryByTestId('payment-drawer-backdrop')).toBeNull();
 
-      // Verificamos que los textos del PaymentPanel detallado no están canibalizando el carrito
+      // Verificamos que los textos del PaymentPanel detallado no estÃƒÂ¡n canibalizando el carrito
       expect(screen.queryByText(/MEDIOS DE COBRO/i)).toBeNull();
       expect(screen.queryByText(/Billetes Sugeridos/i)).toBeNull();
     });
 
-    it('1.2 Clic en "⚡ COBRAR / LIQUIDAR (F2 / Enter)" despliega data-testid="payment-drawer-container"', () => {
+    it('1.2 Clic en "Ã¢Å¡Â¡ COBRAR / LIQUIDAR (F2 / Enter)" despliega data-testid="payment-drawer-container"', () => {
       render(<CartPanel {...createDefaultCartProps()} />);
 
       const btnCobrar = screen.getByTestId('btn-cobrar');
@@ -141,7 +140,7 @@ describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja Única & On-Dema
       expect(within(drawer).getAllByText('$83.000').length).toBeGreaterThanOrEqual(1);
     });
 
-    it('1.3 Cerrar el drawer con tecla Escape deja los ítems del carrito 100% intactos', () => {
+    it('1.3 Cerrar el drawer con tecla Escape deja los ÃƒÂ­tems del carrito 100% intactos', () => {
       render(<CartPanel {...createDefaultCartProps()} />);
 
       // Abrir drawer
@@ -156,13 +155,13 @@ describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja Única & On-Dema
 
       // Los productos del carrito permanecen intactos
       expect(screen.getByText('Mojarra Roja Fresca')).toBeInTheDocument();
-      expect(screen.getByText('Camarón Tigre Jumbo')).toBeInTheDocument();
+      expect(screen.getByText('CamarÃƒÂ³n Tigre Jumbo')).toBeInTheDocument();
       expect(screen.getByText('$35.000')).toBeInTheDocument();
       expect(screen.getByText('$48.000')).toBeInTheDocument();
       expect(screen.getAllByText('$83.000').length).toBeGreaterThanOrEqual(1);
     });
 
-    it('1.4 Cerrar el drawer con el botón X (btn-close-payment-drawer) cierra y preserva el carrito', () => {
+    it('1.4 Cerrar el drawer con el botÃƒÂ³n X (btn-close-payment-drawer) cierra y preserva el carrito', () => {
       render(<CartPanel {...createDefaultCartProps()} />);
 
       fireEvent.click(screen.getByTestId('btn-cobrar'));
@@ -185,7 +184,7 @@ describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja Única & On-Dema
       fireEvent.click(container);
       expect(screen.getByTestId('payment-drawer-container')).toBeInTheDocument();
 
-      // Clic en el backdrop sí debe cerrarlo
+      // Clic en el backdrop sÃƒÂ­ debe cerrarlo
       const backdrop = screen.getByTestId('payment-drawer-backdrop');
       fireEvent.click(backdrop);
       expect(screen.queryByTestId('payment-drawer-container')).toBeNull();
@@ -224,22 +223,22 @@ describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja Única & On-Dema
       expect(screen.getByTestId('payment-drawer-container')).toBeInTheDocument();
     });
 
-    it('1.8 Bloqueo de Drawer cuando el carrito está vacío o el turno está cerrado', () => {
+    it('1.8 Bloqueo de Drawer cuando el carrito estÃƒÂ¡ vacÃƒÂ­o o el turno estÃƒÂ¡ cerrado', () => {
       const { rerender } = render(
         <CartPanel
           {...createDefaultCartProps({
             lineas: [],
-            totales: { subtotal: 0, descuento: 0, totalFinal: 0 },
+            totales: { subtotal: 0, totalFinal: 0 },
             isTurnoAbierto: true,
           })}
         />
       );
 
-      // Carrito vacío: F2 o Enter no abren el drawer
+      // Carrito vacÃƒÂ­o: F2 o Enter no abren el drawer
       fireEvent.keyDown(window, { key: 'F2', code: 'F2' });
       expect(screen.queryByTestId('payment-drawer-container')).toBeNull();
 
-      // Turno cerrado con ítems
+      // Turno cerrado con ÃƒÂ­tems
       rerender(
         <CartPanel
           {...createDefaultCartProps({
@@ -277,7 +276,7 @@ describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja Única & On-Dema
       expect(found?.lineas).toHaveLength(2);
     });
 
-    it('2.2 Generación consecutiva de preventas multivendedor mediante useOutboxSyncStore', async () => {
+    it('2.2 GeneraciÃƒÂ³n consecutiva de preventas multivendedor mediante useOutboxSyncStore', async () => {
       const store = useOutboxSyncStore.getState();
 
       const res1 = await store.emitirPreventaVendedor({
@@ -300,7 +299,7 @@ describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja Única & On-Dema
         subtotal: 105000,
         descuentoTotal: 0,
         total: 105000,
-      });
+              });
 
       const res2 = await store.emitirPreventaVendedor({
         tenantId: 'tenant-test',
@@ -322,7 +321,7 @@ describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja Única & On-Dema
         subtotal: 80000,
         descuentoTotal: 0,
         total: 80000,
-      });
+              });
 
       expect(res1.ok).toBe(true);
       expect(res2.ok).toBe(true);
@@ -331,14 +330,14 @@ describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja Única & On-Dema
         expect(res1.preventa.codigoPreventa).toMatch(/^PRE-\d{4}-\d{5}$/);
         expect(res2.preventa.codigoPreventa).toMatch(/^PRE-\d{4}-\d{5}$/);
 
-        // Los números consecutivos deben ser crecientes y estrictamente distintos
+        // Los nÃƒÂºmeros consecutivos deben ser crecientes y estrictamente distintos
         const num1 = parseInt(res1.preventa.codigoPreventa.split('-')[2], 10);
         const num2 = parseInt(res2.preventa.codigoPreventa.split('-')[2], 10);
         expect(num2).toBeGreaterThan(num1);
       }
     });
 
-    it('2.3 Estrés: 5 terminales concurrentes emiten preventas sin colisión de consecutivos', async () => {
+    it('2.3 EstrÃƒÂ©s: 5 terminales concurrentes emiten preventas sin colisiÃƒÂ³n de consecutivos', async () => {
       const store = useOutboxSyncStore.getState();
       const promises = Array.from({ length: 5 }, (_, i) =>
         store.emitirPreventaVendedor({
@@ -360,13 +359,13 @@ describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja Única & On-Dema
           subtotal: 10000 * (i + 1),
           descuentoTotal: 0,
           total: 10000 * (i + 1),
-        })
+                  })
       );
 
       const results = await Promise.all(promises);
       const codigos = results.map((r) => (r.ok && r.preventa ? r.preventa.codigoPreventa : ''));
 
-      // Ningún código debe estar vacío y todos deben ser únicos
+      // NingÃƒÂºn cÃƒÂ³digo debe estar vacÃƒÂ­o y todos deben ser ÃƒÂºnicos
       expect(codigos.every((c) => c.length > 0)).toBe(true);
       const uniqueCodigos = new Set(codigos);
       expect(uniqueCodigos.size).toBe(5);
@@ -384,7 +383,7 @@ describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja Única & On-Dema
         terminalId: 'TERM-01',
         vendedorId: 'vend-01',
         vendedorNombre: 'Marcos Vendedor',
-        clienteNombre: 'Cevichería El Puerto',
+        clienteNombre: 'CevicherÃƒÂ­a El Puerto',
         montoTotal: 210000,
         itemsCount: 4,
         createdAt: new Date().toISOString(),
@@ -397,7 +396,7 @@ describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja Única & On-Dema
         terminalId: 'TERM-02',
         vendedorId: 'vend-02',
         vendedorNombre: 'Laura Mostrador',
-        clienteNombre: 'Restaurante Bahía',
+        clienteNombre: 'Restaurante BahÃƒÂ­a',
         montoTotal: 95000,
         itemsCount: 2,
         createdAt: new Date().toISOString(),
@@ -406,7 +405,7 @@ describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja Única & On-Dema
       },
     ];
 
-    it('3.1 Cajero visualiza comandas en cola central con número de ticket, terminal y total', () => {
+    it('3.1 Cajero visualiza comandas en cola central con nÃƒÂºmero de ticket, terminal y total', () => {
       render(
         <PendingOrdersDrawer
           isOpen={true}
@@ -441,7 +440,7 @@ describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja Única & On-Dema
       expect(screen.getByText('PRE-2026-00102')).toBeInTheDocument();
     });
 
-    it('3.3 Al presionar "Cobrar en Caja", se despacha onSelectOrder con la orden y sus líneas', () => {
+    it('3.3 Al presionar "Cobrar en Caja", se despacha onSelectOrder con la orden y sus lÃƒÂ­neas', () => {
       const onSelectOrder = vi.fn();
       render(
         <PendingOrdersDrawer
@@ -496,7 +495,7 @@ describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja Única & On-Dema
   // 4. EMPIRICAL VERIFICATION: COMPLETE LIQUIDATION CYCLE & DRAWER CLOSING
   // =========================================================================
   describe('4. Complete Liquidation Cycle: Payment & Order Resolution', () => {
-    it('4.1 Liquidación con 1-Tap Checkout ejecuta onPagar y cierra automáticamente el drawer', async () => {
+    it('4.1 LiquidaciÃƒÂ³n con 1-Tap Checkout ejecuta onPagar y cierra automÃƒÂ¡ticamente el drawer', async () => {
       const onPagar = vi.fn().mockResolvedValue({ id: 'VTA-1234', total: 83000 });
       const onLimpiarCarrito = vi.fn();
 
@@ -509,11 +508,11 @@ describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja Única & On-Dema
         />
       );
 
-      // 1. Abrir drawer de cobro con botón Cobrar
+      // 1. Abrir drawer de cobro con botÃƒÂ³n Cobrar
       fireEvent.click(screen.getByTestId('btn-cobrar'));
       expect(screen.getByTestId('payment-drawer-container')).toBeInTheDocument();
 
-      // 2. Liquidar con botón de Efectivo Exacto Directo (1-Tap Checkout F8)
+      // 2. Liquidar con botÃƒÂ³n de Efectivo Exacto Directo (1-Tap Checkout F8)
       const btn1Tap = screen.getByTestId('btn-efectivo-exacto-directo');
       fireEvent.click(btn1Tap);
 
@@ -522,13 +521,13 @@ describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja Única & On-Dema
         expect(onPagar.mock.calls[0][0]).toEqual([{ metodo: 'EFECTIVO', monto: 83000 }]);
       });
 
-      // 3. Verificar que el drawer se cierra automáticamente tras la liquidación
+      // 3. Verificar que el drawer se cierra automÃƒÂ¡ticamente tras la liquidaciÃƒÂ³n
       await waitFor(() => {
         expect(screen.queryByTestId('payment-drawer-container')).toBeNull();
       });
     });
 
-    it('4.2 Resolución de comanda en useOutboxSyncStore al completar cobro en caja única', async () => {
+    it('4.2 ResoluciÃƒÂ³n de comanda en useOutboxSyncStore al completar cobro en caja ÃƒÂºnica', async () => {
       const store = useOutboxSyncStore.getState();
 
       // Emitimos una preventa
@@ -551,12 +550,12 @@ describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja Única & On-Dema
         subtotal: 60000,
         descuentoTotal: 0,
         total: 60000,
-      });
+              });
 
       expect(emision.ok).toBe(true);
-      const prefacturaId = emision.preventa?.id as string;
+      const prefacturaId = emision.preventa?.id!;
 
-      // La comanda aparece como pendiente de cobro en caja única
+      // La comanda aparece como pendiente de cobro en caja ÃƒÂºnica
       const comandasAntes = store.getComandasCajaUnica();
       expect(comandasAntes.some((c) => c.id === prefacturaId)).toBe(true);
 
@@ -573,10 +572,10 @@ describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja Única & On-Dema
       expect(comandasDespues.some((c) => c.id === prefacturaId)).toBe(false);
     });
 
-    it('4.3 Estrés: Secuencia rápida de teclas F2 -> Enter -> Escape -> F2 no bloquea el estado', () => {
+    it('4.3 EstrÃƒÂ©s: Secuencia rÃƒÂ¡pida de teclas F2 -> Enter -> Escape -> F2 no bloquea el estado', () => {
       render(<CartPanel {...createDefaultCartProps()} />);
 
-      // Secuencia rápida
+      // Secuencia rÃƒÂ¡pida
       fireEvent.keyDown(window, { key: 'F2', code: 'F2' });
       expect(screen.getByTestId('payment-drawer-container')).toBeInTheDocument();
 
@@ -595,3 +594,8 @@ describe('CHALLENGER EMPIRICAL VERIFICATION: Multivendor - Caja Única & On-Dema
     });
   });
 });
+
+
+
+
+

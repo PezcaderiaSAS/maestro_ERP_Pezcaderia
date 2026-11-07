@@ -337,6 +337,81 @@ export class TenantIndexedDbService {
   }
 
   /**
+   * Ingesta masiva por lotes en el almacén 'stock'
+   */
+  public async bulkUpsertStock(
+    records: Array<{ sku: string; bodegaId: string; cantidad: number }>
+  ): Promise<number> {
+    if (this.isFallbackInMemory || !this.db) {
+      for (const r of records) {
+        this.memoryStock.set(`${r.sku}__${r.bodegaId}`, r.cantidad);
+      }
+      return records.length;
+    }
+
+    return new Promise((resolve, reject) => {
+      const tx = this.db!.transaction('stock', 'readwrite');
+      const store = tx.objectStore('stock');
+      for (const r of records) {
+        store.put({
+          sku_bodega: `${r.sku}__${r.bodegaId}`,
+          sku: r.sku,
+          bodegaId: r.bodegaId,
+          bodegaKey: r.bodegaId,
+          cantidad: r.cantidad,
+          updatedAt: new Date().toISOString(),
+        });
+      }
+      tx.oncomplete = () => resolve(records.length);
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  /**
+   * Carga directa de la matriz completa de stock en un solo cursor / transacción
+   */
+  public async getAllStockMatrix(): Promise<Record<string, Record<string, number>>> {
+    const matrix: Record<string, Record<string, number>> = {};
+
+    if (this.isFallbackInMemory || !this.db) {
+      for (const [key, qty] of this.memoryStock.entries()) {
+        const [sku, bodegaId] = key.split('__');
+        if (sku && bodegaId) {
+          if (!matrix[bodegaId]) matrix[bodegaId] = {};
+          matrix[bodegaId][sku] = qty;
+        }
+      }
+      return matrix;
+    }
+
+    return new Promise((resolve) => {
+      const tx = this.db!.transaction('stock', 'readonly');
+      const store = tx.objectStore('stock');
+      const request = store.openCursor();
+
+      request.onsuccess = (event) => {
+        const cursor = (event.target as IDBRequest).result as IDBCursorWithValue;
+        if (cursor) {
+          const val = cursor.value;
+          const sku = val.sku;
+          const bodegaId = val.bodegaId || val.bodegaKey || (val.sku_bodega ? val.sku_bodega.split('__')[1] : undefined);
+          const cantidad = typeof val.cantidad === 'number' ? val.cantidad : 0;
+          if (sku && bodegaId) {
+            if (!matrix[bodegaId]) matrix[bodegaId] = {};
+            matrix[bodegaId][sku] = cantidad;
+          }
+          cursor.continue();
+        } else {
+          resolve(matrix);
+        }
+      };
+
+      request.onerror = () => resolve({});
+    });
+  }
+
+
+  /**
    * Encolar una transacción en Outbox para resiliencia offline
    */
   public async addOutboxTransaction(

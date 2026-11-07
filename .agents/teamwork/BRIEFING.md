@@ -1,52 +1,37 @@
-# BRIEFING — 2026-11-05T11:27:00Z
+# BRIEFING — 2026-11-05T18:16:30Z
 
 ## Mission
-Coordinate and monitor project latency optimization workflow (SPEC-053) via Teamwork orchestrator.
+Oversee execution of the new high-performance table-based counter sales view (/mostrador or /pos-tabla) for MaestroPescaderia ERP, supporting up to 10,000 products, pure keyboard/touch navigation, and multivendor ticket generation, supervised by Project Orchestrator and verified by independent Victory Auditor.
 
 ## 🔒 My Identity
 - Archetype: sentinel
 - Working directory: c:\Users\usuario\OneDrive\Documentos\Aplicaciones Pezca\MaestroPescaderia\.agents\teamwork\
-- Orchestrator: 0a86b821-9cfb-4c7b-8c1f-3456c6f04c55
-- Victory Auditor: 150b71a3-5a95-4096-8280-634620594dc3
+- Orchestrator: 9ebc1657-dc1e-44a3-9753-0b36a02956d1
+- Victory Auditor: to be spawned on victory claim
 
 ## 🔒 Key Constraints
 - No technical decisions — relay only
 - Victory Audit is MANDATORY before reporting completion
-- Spec-Driven Development (SPEC-053)
-- Multi-tenant ERP safety (La Pezcadería del Mar S.A.S. / Ferretería & Eléctricos Josase)
-- Sub-50ms target for POS item search/addition
-- Bundle size optimization (4.6MB index JS reduction)
-- Multi-tier cache (L1-L4) architecture modeling
-- Automated benchmark suite requirement
-
-## Routing Decision
-- **Route**: General -> `teamwork_orchestrator`
-- **Rationale**: Multi-part full-stack engineering, performance auditing, architecture modeling, benchmark suite design, and SDD planning. No external pre-flight audit required.
+- Route: General (teamwork_orchestrator)
+- Dedicated route `/mostrador` or `/pos-tabla` without altering existing POS
+- Support catalogs up to 10,000 products with sub-10ms search and virtualization (no images)
+- Full keyboard (F2, F6, F8, F10, Enter, Tab, arrows) and touch navigation
+- PRE-YYYY-XXXXX multivendor order dispatch to central cashier
+- Automated unit and performance test suite verification required
 
 ## User Context
-- **Last user request**: Approved task prompt for latency optimization (SPEC-053).
+- **Last user request**: Approved task prompt received for high-performance table POS counter sales view.
 - **Pending clarifications**: none
-- **Delivered results**: 
-  - Complete Latency Audit Report across 5 critical modules (`specs/053-latency-optimization-sdd/audit-report.md`)
-  - Automated executable benchmark suite in `scripts/benchmark/` (`measure-bundle-size.ts`, `benchmark-pos-latency.ts`, `benchmark-wms-queries.ts`, `benchmark-outbox-sync.ts`, `run-benchmarks.ts`)
-  - Full SDD Specification SPEC-053 (`spec.md` with EARS notation, `plan.md` with 5 verified Mermaid models, `tasks.md` with 20 atomic tasks)
-  - Quantitative baseline metrics report (`docs/benchmarks/latency-baseline-report.md`)
-  - Verified by independent Victory Auditor (`VICTORY CONFIRMED`)
+- **Delivered results**: none
 
 ## Project Status
-- **Phase**: complete
+- **Phase**: in progress
 
 ## Victory Audit Status
-- **Triggered**: yes
-- **Verdict**: VICTORY CONFIRMED
+- **Triggered**: no
+- **Verdict**: pending
 - **Retry count**: 0
 
 ## Artifact Index
-- `.agents/teamwork/ORIGINAL_REQUEST.md` — Authoritative approved task prompt
-- `specs/053-latency-optimization-sdd/audit-report.md` — Forensic latency diagnostic across 5 modules
-- `specs/053-latency-optimization-sdd/spec.md` — Formal EARS specifications and calibrated SLAs
-- `specs/053-latency-optimization-sdd/plan.md` — 5 canonical Mermaid architecture diagrams (100% CUMPLE)
-- `specs/053-latency-optimization-sdd/tasks.md` — 20 atomic tasks (T-053-01 to T-053-20)
-- `scripts/benchmark/` — Automated benchmark suite
-- `docs/benchmarks/latency-baseline-report.md` — Baseline measurement report
-- `.agents/teamwork/victory_auditor/handoff.md` — Independent victory audit forensics
+- .agents/teamwork/ORIGINAL_REQUEST.md — Authoritative user intent and approved prompt
+- .agents/teamwork/orchestrator/ — Project Orchestrator workspace

@@ -29,6 +29,7 @@ export enum AppRouteId {
   CASHIER_KANBAN = 'comandas_kanban',
   B2B_EXTERNAL_SALES = 'ventas_b2b',
   B2B_PORTAL = 'portal_b2b',
+  MOSTRADOR = 'mostrador',
 
   // Dominio Operaciones & WMS
   INVENTORY = 'inventario',
@@ -80,6 +81,7 @@ export const COMMERCIAL_ROUTES: readonly AppRouteId[] = [
   AppRouteId.CASHIER_KANBAN,
   AppRouteId.B2B_EXTERNAL_SALES,
   AppRouteId.B2B_PORTAL,
+  AppRouteId.MOSTRADOR,
 ] as const;
 
 export const WMS_ROUTES: readonly AppRouteId[] = [
@@ -146,6 +148,7 @@ export interface RouteParamsMap {
     plantillaId?: string;
     tab?: 'catalogo' | 'plantillas' | 'pedidos';
   } | undefined;
+  [AppRouteId.MOSTRADOR]: undefined;
   [AppRouteId.INVENTORY]: {
     initialViewMode?: 'kardex' | 'configuracion_bodegas' | 'compras_muelle' | 'despiece';
     selectedBodegaId?: string;
@@ -565,6 +568,18 @@ export const APP_ROUTES_METADATA: Record<AppRouteId, AppRouteMetadata<AppRouteId
     allowedRoles: ['admin'],
     isPrimaryNav: false,
     testId: 'nav-superadmin',
+  },
+  [AppRouteId.MOSTRADOR]: {
+    id: AppRouteId.MOSTRADOR,
+    path: '/ventas/mostrador',
+    title: 'Venta Rápida de Mostrador',
+    domain: RouteDomain.COMMERCIAL,
+    subtitle: 'Tabla de Alto Rendimiento · 10K Productos',
+    description: 'Vista de mostrador sin imágenes, búsqueda sub-10ms, atajos de teclado y flujo multivendedor con caja única.',
+    iconName: 'Zap',
+    allowedRoles: ['admin', 'vendedor', 'administrativo'],
+    isPrimaryNav: true,
+    testId: 'nav-mostrador',
   },
 };
 

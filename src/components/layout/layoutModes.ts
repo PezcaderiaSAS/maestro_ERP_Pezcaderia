@@ -6,6 +6,7 @@ import { AppRouteId, type ERPViewKey } from '../../routes/AppRoute';
  */
 export const TRANSACTIONAL_FIXED_VIEWS: readonly ERPViewKey[] = [
   AppRouteId.POS,
+  AppRouteId.MOSTRADOR,  // 'mostrador'
   AppRouteId.ORDERS_KANBAN, // 'kanban'
   AppRouteId.CASH_DESK,     // 'caja'
   AppRouteId.ORDER_PICKING, // 'alistamiento'

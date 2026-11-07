@@ -16,15 +16,15 @@ import {
 import type { UserRole } from '../store/useAppStore';
 
 describe('AppRoute — Arquitectura Central de Rutas SDD', () => {
-  it('debe contener exactamente las 27 rutas oficiales del ERP sin duplicados', () => {
+  it('debe contener exactamente las 28 rutas oficiales del ERP sin duplicados', () => {
     const routeValues = Object.values(AppRouteId);
-    expect(routeValues.length).toBe(27);
+    expect(routeValues.length).toBe(28);
 
     const uniqueValues = new Set(routeValues);
-    expect(uniqueValues.size).toBe(27);
+    expect(uniqueValues.size).toBe(28);
   });
 
-  it('debe tener metadatos completos y válidos para cada AppRouteId, incluyendo OTIF_DASHBOARD y B2B_PORTAL', () => {
+  it('debe tener metadatos completos y válidos para cada AppRouteId, incluyendo OTIF_DASHBOARD, B2B_PORTAL y MOSTRADOR', () => {
     expect(AppRouteId.OTIF_DASHBOARD).toBe('metricas_otif');
     const otifMeta = APP_ROUTES_METADATA[AppRouteId.OTIF_DASHBOARD];
     expect(otifMeta).toBeDefined();
@@ -36,6 +36,12 @@ describe('AppRoute — Arquitectura Central de Rutas SDD', () => {
     expect(b2bMeta).toBeDefined();
     expect(b2bMeta.path).toBe('/ventas/portal-b2b');
     expect(b2bMeta.domain).toBe(RouteDomain.COMMERCIAL);
+
+    expect(AppRouteId.MOSTRADOR).toBe('mostrador');
+    const mostradorMeta = APP_ROUTES_METADATA[AppRouteId.MOSTRADOR];
+    expect(mostradorMeta).toBeDefined();
+    expect(mostradorMeta.path).toBe('/ventas/mostrador');
+    expect(mostradorMeta.domain).toBe(RouteDomain.COMMERCIAL);
 
     Object.values(AppRouteId).forEach((routeId) => {
       const meta = APP_ROUTES_METADATA[routeId];
@@ -59,9 +65,9 @@ describe('AppRoute — Arquitectura Central de Rutas SDD', () => {
       ...ADMIN_ROUTES,
     ];
 
-    expect(allCategorized.length).toBe(27);
+    expect(allCategorized.length).toBe(28);
     const uniqueCategorized = new Set(allCategorized);
-    expect(uniqueCategorized.size).toBe(27);
+    expect(uniqueCategorized.size).toBe(28);
 
     // Verificar correspondencia de dominio en metadatos
     COMMERCIAL_ROUTES.forEach((id) => {

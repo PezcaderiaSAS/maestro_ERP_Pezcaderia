@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Plus, X, Check, CreditCard, FileText, Truck, RefreshCw, AlertTriangle, AlertCircle, Menu, Trash2, Edit2, UserCheck, Search, ShoppingCart } from 'lucide-react';
+import { Plus, X, Check, CreditCard, FileText, Truck, RefreshCw, AlertTriangle, AlertCircle, Menu, Trash2, Edit2, UserCheck, Search, ShoppingCart, Zap } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { AppRouteId } from '../routes/AppRoute';
 import type { Product, Cliente, Venta, Conductor, DevolucionPedido } from '../types/erp.types';
@@ -2318,6 +2318,16 @@ export default function POSView({
           >
             <CreditCard size={14} />
             <span>Venta Rápida (POS)</span>
+          </button>
+          
+          <button
+            onClick={() => useAppStore.getState().setCurrentView('mostrador')}
+            className="flex items-center gap-1.5 min-h-[36px] py-1 px-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 border border-amber-500/30 shadow-xs"
+            title="Cambiar a la vista de mostrador tipo tabla ultra-ligera (10.000 productos sin imágenes)"
+            data-testid="btn-ir-a-mostrador-tabla"
+          >
+            <Zap size={14} className="text-amber-400" />
+            <span>Modo Tabla (10K)</span>
           </button>
           
           <button
