@@ -576,23 +576,23 @@ export const CartPanel: React.FC<CartPanelProps> = ({
       badge={`${formattedTotalItems} ${formattedTotalItems === 1 ? 'ítem' : 'ítems'}`}
       badgeVariant="cyan"
       onMinimize={() => setIsCompactMode((prev) => !prev)}
-      className="pos-cart-panel flex flex-col h-full min-h-0 overflow-hidden pr-1 p-2.5 sm:p-3 select-none"
+      className="pos-cart-panel flex flex-col h-full min-h-0 overflow-hidden pr-1 p-2 sm:p-2.5 select-none"
     >
-      {/* ── HEADER: Selector de cliente + Borradores + En Espera (Targets Ergonómicos) ── */}
+      {/* ── HEADER CONDENSADO (<= 40px): Selector de cliente + Borradores + En Espera ── */}
       <div
-        className="pos-cart-header flex flex-wrap justify-between items-center gap-1.5 py-1.5 px-2.5 border-b border-white/10 bg-slate-900/60 shrink-0 rounded-xl backdrop-blur-xl"
+        className="pos-cart-header flex justify-between items-center gap-1.5 py-1 px-2 border-b border-white/10 bg-slate-900/60 shrink-0 rounded-xl backdrop-blur-xl min-h-[38px]"
       >
         {/* Selector de cliente en Dark Glassmorphism V8 */}
         {cliente ? (
           <button
             type="button"
             onClick={onSelectCliente}
-            className="flex items-center gap-2 px-3 min-h-[40px] h-10 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-white/10 text-white font-bold text-xs transition-all max-w-[200px] truncate shadow-sm cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 min-h-[32px] h-8 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-white/10 text-white font-bold text-xs transition-all max-w-[180px] truncate shadow-2xs cursor-pointer"
             title={`${cliente.nombre} (${cliente.identificacion})`}
           >
-            <Check size={15} className="text-emerald-400 shrink-0" />
+            <Check size={14} className="text-emerald-400 shrink-0" />
             <span className="truncate text-left">
-              {cliente.nombre.slice(0, 18)} ({cliente.identificacion})
+              {cliente.nombre.slice(0, 16)} ({cliente.identificacion})
             </span>
             <span
               title="Quitar cliente"
@@ -602,28 +602,28 @@ export const CartPanel: React.FC<CartPanelProps> = ({
                 onClearCliente();
               }}
             >
-              <X size={14} />
+              <X size={13} />
             </span>
           </button>
         ) : (
           <button
             type="button"
             onClick={onSelectCliente}
-            className="flex items-center gap-1.5 px-3 min-h-[40px] h-10 rounded-xl bg-slate-800/60 hover:bg-slate-700/80 border border-white/10 text-slate-200 hover:text-white font-bold text-xs transition-all cursor-pointer shadow-sm"
+            className="flex items-center gap-1 px-2.5 min-h-[32px] h-8 rounded-lg bg-slate-800/60 hover:bg-slate-700/80 border border-white/10 text-slate-200 hover:text-white font-bold text-xs transition-all cursor-pointer shadow-2xs"
           >
-            <Plus size={15} className="text-cyan-400" />
+            <Plus size={14} className="text-cyan-400" />
             <span>Agregar Cliente</span>
           </button>
         )}
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           {/* Botón Cerrar Turno (solo si está abierto) */}
           {isTurnoAbierto && onCerrarTurnoClick && (
             <PosButton
-              size="touch"
+              size="compact"
               variant="danger"
               onClick={onCerrarTurnoClick}
-              className="text-xs font-bold min-h-[40px] h-10 py-1"
+              className="text-xs font-bold min-h-[32px] h-8 py-0.5 px-2"
             >
               Cerrar Turno
             </PosButton>
@@ -631,14 +631,14 @@ export const CartPanel: React.FC<CartPanelProps> = ({
 
           {/* Botón Poner en Espera Rápido */}
           <PosButton
-            size="touch"
+            size="compact"
             variant="secondary"
             onClick={() => onGuardarBorrador()}
             disabled={lineas.length === 0}
-            className="border-indigo-500/30 bg-indigo-950/40 hover:bg-indigo-900/60 text-indigo-300 min-h-[40px] h-10 py-1"
+            className="border-indigo-500/30 bg-indigo-950/40 hover:bg-indigo-900/60 text-indigo-300 min-h-[32px] touch:min-h-[48px] h-8 py-0.5 px-2 text-xs"
             title="Poner pedido actual en espera (Atajo: F6)"
             aria-label="Poner pedido actual en espera (Atajo F6)"
-            leftIcon={<PauseCircle size={16} />}
+            leftIcon={<PauseCircle size={14} />}
             shortcutBadge="F6"
           >
             <span className="hidden sm:inline">En Espera</span>
@@ -648,19 +648,19 @@ export const CartPanel: React.FC<CartPanelProps> = ({
           <button
             type="button"
             onClick={handleOpenBorradores}
-            className={`relative flex items-center gap-1.5 px-3 min-h-[40px] h-10 rounded-xl border text-xs font-bold transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
+            className={`relative flex items-center gap-1 px-2 min-h-[32px] h-8 rounded-lg border text-xs font-bold transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
               drafts.length > 0
-                ? 'bg-amber-950/40 border-amber-500/30 text-amber-300 hover:bg-amber-900/60 shadow-sm'
-                : 'bg-slate-800/80 border-white/10 text-slate-300 hover:bg-slate-700/80 hover:text-white shadow-sm'
+                ? 'bg-amber-950/40 border-amber-500/30 text-amber-300 hover:bg-amber-900/60 shadow-2xs'
+                : 'bg-slate-800/80 border-white/10 text-slate-300 hover:bg-slate-700/80 hover:text-white shadow-2xs'
             }`}
             title="Ver pedidos guardados en espera"
             aria-label={`Ver ${drafts.length} pedidos guardados en espera`}
           >
-            <Archive size={15} className={drafts.length > 0 ? 'text-amber-400' : 'text-slate-400'} />
-            <span>Borradores</span>
+            <Archive size={14} className={drafts.length > 0 ? 'text-amber-400' : 'text-slate-400'} />
+            <span className="hidden sm:inline">Borradores</span>
             {drafts.length > 0 && (
               <span 
-                className="flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-amber-500 text-slate-950 font-black rounded-full text-[10px] animate-pulse"
+                className="flex items-center justify-center min-w-[16px] h-[16px] px-1 bg-amber-500 text-slate-950 font-black rounded-full text-[9px] animate-pulse"
                 aria-live="polite"
               >
                 {drafts.length}
@@ -686,7 +686,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
       {/* ── LISTA DE ÍTEMS: scroll táctil vertical aislado (overscroll-contain) ── */}
       <div
         data-testid="cart-items-container"
-        className={`pos-cart-items-list flex-1 min-h-0 overflow-y-auto overscroll-contain pr-1 space-y-1.5 custom-scrollbar ${isCompactMode ? 'hidden' : ''}`}
+        className={`pos-cart-items-list flex-1 min-h-0 overflow-y-auto overscroll-contain pr-1 space-y-1 custom-scrollbar ${isCompactMode ? 'hidden' : ''}`}
         style={{
           WebkitOverflowScrolling: 'touch',
           scrollSnapType: 'y proximity',

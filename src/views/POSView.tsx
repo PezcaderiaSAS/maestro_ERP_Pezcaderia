@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Plus, X, Check, CreditCard, FileText, Truck, RefreshCw, AlertTriangle, AlertCircle, Menu, Trash2, Edit2, UserCheck, Search, ShoppingCart, Zap } from 'lucide-react';
+import { Plus, X, Check, CreditCard, FileText, Truck, RefreshCw, AlertTriangle, AlertCircle, Menu, Trash2, Edit2, UserCheck, Search, ShoppingCart, Zap, Receipt } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { AppRouteId } from '../routes/AppRoute';
 import type { Product, Cliente, Venta, Conductor, DevolucionPedido } from '../types/erp.types';
@@ -16,6 +16,8 @@ import { TicketBuilder } from './pos/components/TicketBuilder.tsx';
 import { CartPanel } from './pos/components/CartPanel.tsx';
 import { InternalQueueTicker } from './pos/components/InternalQueueTicker.tsx';
 import { DespachoNotasModal } from './pos/components/DespachoNotasModal.tsx';
+import { LiveComandasQueuePanel } from './pos/components/LiveComandasQueuePanel.tsx';
+import { DirectCashierCheckoutPanel } from './pos/components/DirectCashierCheckoutPanel.tsx';
 import { VendorTicketSidebar, type VendorTicket, type EstadoTicket } from '../components/pos/VendorTicketSidebar.tsx';
 import { supabaseRealtimePreventasService } from '../services/supabaseRealtimePreventasService.ts';
 import { ProductSearchPanel } from './pos/components/ProductSearchPanel.tsx';
@@ -482,6 +484,34 @@ export default function POSView({
   const [b2bFilter, setB2bFilter] = useState<'Listo' | 'Todos'>('Listo');
   const [tempRealQuantities, setTempRealQuantities] = useState<Record<string, number | string>>({});
   const [mobileTab, setMobileTab] = useState<'catalogo' | 'carrito'>('catalogo');
+
+  // Modo Cajero Híbrido (SPEC-054: Caja Única / Cola de Comandas en Vivo)
+  const [isModoCajero, setIsModoCajero] = useState<boolean>(() => {
+    return Boolean((userRole as string)?.toLowerCase().includes('caj'));
+  });
+
+  useEffect(() => {
+    const handleToggleModo = (e: KeyboardEvent) => {
+      if (e.key === 'F9') {
+        const activeTag = document.activeElement?.tagName?.toLowerCase();
+        if (activeTag !== 'input' && activeTag !== 'textarea') {
+          e.preventDefault();
+          setIsModoCajero((prev) => !prev);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleToggleModo);
+    return () => window.removeEventListener('keydown', handleToggleModo);
+  }, []);
+
+  useEffect(() => {
+    if (!isModoCajero) return;
+    const interval = setInterval(() => {
+      const fresh = PosDraftService.getLocalDrafts();
+      setDrafts(fresh);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [isModoCajero]);
 
   // Turno Management State (Turno físico compartido por sucursal / caja)
   const { turnoActivo, loadTurnoActivoPorCajero, loadTurnoActivo } = useCashStore();
@@ -1472,6 +1502,19 @@ export default function POSView({
     return newVenta;
   };
 
+  const handleCobroDirectoCajero = async (datos: {
+    metodo: 'EFECTIVO' | 'DATAFONO' | 'TRANSFERENCIA';
+    montoRecibido: number;
+    vueltas: number;
+  }) => {
+    let metodoPos: MetodoCobroPos = 'EFECTIVO';
+    if (datos.metodo === 'DATAFONO') metodoPos = 'DATAFONO';
+    else if (datos.metodo === 'TRANSFERENCIA') metodoPos = 'NEQUI';
+
+    await handlePagar([{ metodo: metodoPos, monto: totalFinal }]);
+    limpiarCarrito();
+  };
+
   const getReturnAmount = (dev: DevolucionPedido) => {
     return (dev.items || []).reduce((sum, item) => {
       const qty = item.cantidadRecibida || 0;
@@ -2319,6 +2362,26 @@ export default function POSView({
             <CreditCard size={14} />
             <span>Venta Rápida (POS)</span>
           </button>
+
+          {/* Toggle Modo Cajero (Caja Única / Cola de Comandas en Vivo) (SPEC-054) */}
+          <button
+            type="button"
+            onClick={() => {
+              setActiveSubView('venta_pos');
+              setIsModoCajero((prev) => !prev);
+            }}
+            className={`flex items-center gap-1.5 min-h-[36px] py-1 px-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              isModoCajero && activeSubView === 'venta_pos'
+                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-xs ring-1 ring-emerald-400/30'
+                : 'bg-transparent text-slate-400 hover:bg-white/10 hover:text-slate-100 border border-transparent'
+            }`}
+            title="Alternar entre Cola de Comandas en Vivo (Caja Única) y Venta Directa con Catálogo (Atajo: F9)"
+            data-testid="btn-toggle-modo-cajero"
+          >
+            <Receipt size={14} className={isModoCajero ? 'text-emerald-400' : 'text-slate-400'} />
+            <span>{isModoCajero ? 'Caja Única (Comandas)' : 'Modo Caja Única'}</span>
+            <kbd className="px-1 py-0.2 rounded text-[9px] font-mono bg-black/40 text-emerald-300 border border-emerald-500/20 hidden sm:inline">F9</kbd>
+          </button>
           
           <button
             onClick={() => useAppStore.getState().setCurrentView('mostrador')}
@@ -2626,110 +2689,175 @@ export default function POSView({
               <span>Carrito {cartLineas.length > 0 ? `(${cartLineas.length})` : ''}</span>
             </button>
           </div>
-          {/* Grilla Desacoplada: Catálogo, Carrito y Barra de Preventas del Asesor (SPEC-043) */}
-          <div className="flex-1 min-h-0 w-full flex flex-col lg:grid lg:grid-cols-[1fr_380px] xl:flex xl:flex-row gap-2.5 pt-0.5 overflow-hidden">
-            {/* Columna Izquierda: Catálogo de Productos con su propio scroll */}
-            <div className={`min-h-0 flex-1 overflow-hidden pr-0.5 ${mobileTab === 'catalogo' ? 'flex flex-col' : 'hidden lg:flex lg:flex-col'}`}>
-              <GlassCard
-                data-testid="pos-catalog-glass-card"
-                className="p-3 sm:p-4 flex flex-col h-full min-h-0 overflow-hidden"
-              >
-                <ProductSearchPanel 
-                  activeProducts={activeProducts} 
-                  dynamicFields={dynamicFields} 
-                  cliente={cliente} 
-                  getProductPrice={getProductPrice} 
-                  getProductStock={getProductStock} 
-                  onAddProduct={handleAddProduct} 
+          {/* Grilla Desacoplada: Catálogo, Carrito y Barra de Preventas del Asesor (SPEC-043) / Modo Cajero Híbrido (SPEC-054) */}
+          {isModoCajero ? (
+            <div
+              data-testid="modo-cajero-workspace"
+              className="flex-1 min-h-0 w-full flex flex-col lg:grid lg:grid-cols-[1fr_420px] xl:grid-cols-[1fr_460px] gap-2.5 pt-0.5 overflow-hidden"
+            >
+              {/* Columna Izquierda: Cola Viva FIFO de Comandas de Mostrador */}
+              <div className="min-h-0 flex-1 overflow-hidden">
+                <LiveComandasQueuePanel
+                  comandas={drafts}
+                  selectedComandaId={activeDraftId}
+                  onSelectComanda={(c) => handleRecuperarPreventa(c.id)}
+                  onRefresh={() => {
+                    const fresh = PosDraftService.getLocalDrafts();
+                    setDrafts(fresh);
+                  }}
                 />
-              </GlassCard>
-            </div>
+              </div>
 
-            {/* Columna Central: Carrito de Compras / Factura con scroll desacoplado */}
-            <div className={`min-h-0 h-full overflow-hidden w-full lg:w-[380px] xl:w-[420px] shrink-0 ${mobileTab === 'carrito' ? 'flex flex-col flex-1' : 'hidden lg:flex lg:flex-col'}`}>
-              {ultimoTicket ? (
-                <GlassCard
-                  className="pos-sidebar-cart p-4 sm:p-5 flex flex-col h-full min-h-0 overflow-y-auto"
-                >
-                  <h3 className="text-lg font-black text-white text-center mb-2">Venta Realizada con Éxito</h3>
-                  <TicketBuilder
-                    venta={ultimoTicket!.venta}
-                    cliente={ultimoTicket!.cliente}
-                  />
-                  <Button
-                    variant="primary"
-                    onClick={() => setUltimoTicket(null)}
-                    className="w-full mt-3 min-h-[48px] text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl active:scale-95 transition-all shadow-lg shadow-emerald-600/30"
+              {/* Columna Derecha: Panel de Liquidación Directa Fricción Cero */}
+              <div className="min-h-0 h-full overflow-hidden w-full lg:w-[420px] xl:w-[460px] shrink-0">
+                {ultimoTicket ? (
+                  <GlassCard
+                    className="pos-sidebar-cart p-4 sm:p-5 flex flex-col h-full min-h-0 overflow-y-auto"
                   >
-                    Nueva Venta
-                  </Button>
-                </GlassCard>
-              ) : (
-                <div className="flex flex-col h-full min-h-0 flex-1">
-                  <CartPanel
+                    <h3 className="text-lg font-black text-white text-center mb-2">Venta Realizada con Éxito</h3>
+                    <TicketBuilder
+                      venta={ultimoTicket!.venta}
+                      cliente={ultimoTicket!.cliente}
+                    />
+                    <Button
+                      variant="primary"
+                      onClick={() => setUltimoTicket(null)}
+                      className="w-full mt-3 min-h-[48px] text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl active:scale-95 transition-all shadow-lg shadow-emerald-600/30"
+                    >
+                      Siguiente Cobro
+                    </Button>
+                  </GlassCard>
+                ) : (
+                  <DirectCashierCheckoutPanel
+                    activeComanda={drafts.find((d) => d.id === activeDraftId) || null}
                     lineas={cartLineas}
-                    cliente={cliente}
-                    descuentoGlobalPct={descuentoGlobal}
-                    descuentoGlobalValor={descuentoGlobalValor}
-                    totales={{ subtotal, descuento: totalDescuento, totalFinal }}
-                    drafts={drafts}
-                    activeDraftId={activeDraftId}
-                    stock={stock as any}
-                    bodegaActivaId={bodegaActivaId}
-                    bodegaActivaNombre={bodegaActivaNombre}
-                    lastClientPrices={lastClientPrices}
-                    onUpdateCantidad={actualizarCantidad}
-                    onUpdateDescuentoLinea={actualizarDescuentoLinea}
-                    onRemoveLinea={removerProducto}
-                    onWeightRead={(pid, peso) => actualizarCantidad(pid, peso)}
-                    onLimpiarCarrito={limpiarCarrito}
-                    onSetLineas={setCartLineas}
-                    onUpdatePrecio={updateItemPrice}
-                    onResetItemPrice={resetItemPrice}
-                    onSelectCliente={handleAgregarCliente}
-                    onClearCliente={() => setCliente(defaultClient)}
-                    onDescuentoClick={handleDescuentoGlobal}
-                    onPagar={handlePagar}
-                    onGuardarBorrador={(notas) => {
-                      const hasCutNotesAlready = selectedCutNotes.length > 0 && notas && notas.includes(`[${selectedCutNotes.join(', ')}]`);
-                      const finalNotas = (selectedCutNotes.length > 0 && !hasCutNotesAlready)
-                        ? `${notas || ''} [${selectedCutNotes.join(', ')}]`.trim()
-                        : (notas || '');
-                      handleGuardarBorrador(finalNotas);
+                    totalFinal={totalFinal}
+                    subtotal={subtotal}
+                    totalIva={0}
+                    descuento={totalDescuento}
+                    onProcesarPago={handleCobroDirectoCajero}
+                    onDescartarComanda={() => {
+                      if (activeDraftId) {
+                        handleCancelarPreventa(activeDraftId);
+                      } else {
+                        limpiarCarrito();
+                      }
                     }}
-                    onSetActiveDraftId={setActiveDraftId}
-                    onSetDrafts={setDrafts}
-                    onSetDescuentoGlobal={setDescuentoGlobal}
-                    isTurnoAbierto={isTurnoAbierto}
-                    onAbrirTurnoRequest={() => setShowAperturaModal(true)}
-                    onCerrarTurnoClick={() => setShowArqueoModal(true)}
-                    saldoEfectivoGaveta={turnoActivo?.totalEfectivo ?? 0}
-                    topeMaximoGaveta={1500000}
-                    onRetiroParcialRequest={() => setShowRetiroModal(true)}
-                    isAsesorMostrador={isFerreteria || userRole === 'vendedor' || currentUser?.cargo?.toLowerCase().includes('mostrador')}
-                    selectedCutNotes={selectedCutNotes}
-                    onToggleCutNote={toggleCutNote}
-                    onOpenNotasModal={() => setShowDespachoModal(true)}
+                    onNuevaVentaDirecta={() => {
+                      setActiveDraftId(null);
+                      limpiarCarrito();
+                      setIsModoCajero(false);
+                    }}
+                    isProcessing={false}
+                  />
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1 min-h-0 w-full flex flex-col lg:grid lg:grid-cols-[1fr_380px] xl:flex xl:flex-row gap-2.5 pt-0.5 overflow-hidden">
+              {/* Columna Izquierda: Catálogo de Productos con su propio scroll */}
+              <div className={`min-h-0 flex-1 overflow-hidden pr-0.5 ${mobileTab === 'catalogo' ? 'flex flex-col' : 'hidden lg:flex lg:flex-col'}`}>
+                <GlassCard
+                  data-testid="pos-catalog-glass-card"
+                  className="p-3 sm:p-4 flex flex-col h-full min-h-0 overflow-hidden"
+                >
+                  <ProductSearchPanel 
+                    activeProducts={activeProducts} 
+                    dynamicFields={dynamicFields} 
+                    cliente={cliente} 
+                    getProductPrice={getProductPrice} 
+                    getProductStock={getProductStock} 
+                    onAddProduct={handleAddProduct} 
+                  />
+                </GlassCard>
+              </div>
+
+              {/* Columna Central: Carrito de Compras / Factura con scroll desacoplado */}
+              <div className={`min-h-0 h-full overflow-hidden w-full lg:w-[380px] xl:w-[420px] shrink-0 ${mobileTab === 'carrito' ? 'flex flex-col flex-1' : 'hidden lg:flex lg:flex-col'}`}>
+                {ultimoTicket ? (
+                  <GlassCard
+                    className="pos-sidebar-cart p-4 sm:p-5 flex flex-col h-full min-h-0 overflow-y-auto"
+                  >
+                    <h3 className="text-lg font-black text-white text-center mb-2">Venta Realizada con Éxito</h3>
+                    <TicketBuilder
+                      venta={ultimoTicket!.venta}
+                      cliente={ultimoTicket!.cliente}
+                    />
+                    <Button
+                      variant="primary"
+                      onClick={() => setUltimoTicket(null)}
+                      className="w-full mt-3 min-h-[48px] text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl active:scale-95 transition-all shadow-lg shadow-emerald-600/30"
+                    >
+                      Nueva Venta
+                    </Button>
+                  </GlassCard>
+                ) : (
+                  <div className="flex flex-col h-full min-h-0 flex-1">
+                    <CartPanel
+                      lineas={cartLineas}
+                      cliente={cliente}
+                      descuentoGlobalPct={descuentoGlobal}
+                      descuentoGlobalValor={descuentoGlobalValor}
+                      totales={{ subtotal, descuento: totalDescuento, totalFinal }}
+                      drafts={drafts}
+                      activeDraftId={activeDraftId}
+                      stock={stock as any}
+                      bodegaActivaId={bodegaActivaId}
+                      bodegaActivaNombre={bodegaActivaNombre}
+                      lastClientPrices={lastClientPrices}
+                      onUpdateCantidad={actualizarCantidad}
+                      onUpdateDescuentoLinea={actualizarDescuentoLinea}
+                      onRemoveLinea={removerProducto}
+                      onWeightRead={(pid, peso) => actualizarCantidad(pid, peso)}
+                      onLimpiarCarrito={limpiarCarrito}
+                      onSetLineas={setCartLineas}
+                      onUpdatePrecio={updateItemPrice}
+                      onResetItemPrice={resetItemPrice}
+                      onSelectCliente={handleAgregarCliente}
+                      onClearCliente={() => setCliente(defaultClient)}
+                      onDescuentoClick={handleDescuentoGlobal}
+                      onPagar={handlePagar}
+                      onGuardarBorrador={(notas) => {
+                        const hasCutNotesAlready = selectedCutNotes.length > 0 && notas && notas.includes(`[${selectedCutNotes.join(', ')}]`);
+                        const finalNotas = (selectedCutNotes.length > 0 && !hasCutNotesAlready)
+                          ? `${notas || ''} [${selectedCutNotes.join(', ')}]`.trim()
+                          : (notas || '');
+                        handleGuardarBorrador(finalNotas);
+                      }}
+                      onSetActiveDraftId={setActiveDraftId}
+                      onSetDrafts={setDrafts}
+                      onSetDescuentoGlobal={setDescuentoGlobal}
+                      isTurnoAbierto={isTurnoAbierto}
+                      onAbrirTurnoRequest={() => setShowAperturaModal(true)}
+                      onCerrarTurnoClick={() => setShowArqueoModal(true)}
+                      saldoEfectivoGaveta={turnoActivo?.totalEfectivo ?? 0}
+                      topeMaximoGaveta={1500000}
+                      onRetiroParcialRequest={() => setShowRetiroModal(true)}
+                      isAsesorMostrador={isFerreteria || userRole === 'vendedor' || currentUser?.cargo?.toLowerCase().includes('mostrador')}
+                      selectedCutNotes={selectedCutNotes}
+                      onToggleCutNote={toggleCutNote}
+                      onOpenNotasModal={() => setShowDespachoModal(true)}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Columna Derecha: Barra Lateral de Preventas Activas del Vendedor (SPEC-043) */}
+              {(isFerreteria || userRole === 'vendedor' || currentUser?.cargo?.toLowerCase().includes('mostrador')) && (
+                <div className="hidden xl:flex h-full min-h-0 shrink-0">
+                  <VendorTicketSidebar
+                    tickets={vendorTickets}
+                    vendedorNombre={activeVendorName}
+                    onRecuperarTicket={handleRecuperarPreventa}
+                    onCancelarTicket={handleCancelarPreventa}
+                    isOpen={isVendorSidebarOpen}
+                    onToggleOpen={() => setIsVendorSidebarOpen((prev) => !prev)}
+                    realtimeConnected={isRealtimeVendorConnected}
                   />
                 </div>
               )}
             </div>
-
-            {/* Columna Derecha: Barra Lateral de Preventas Activas del Vendedor (SPEC-043) */}
-            {(isFerreteria || userRole === 'vendedor' || currentUser?.cargo?.toLowerCase().includes('mostrador')) && (
-              <div className="hidden xl:flex h-full min-h-0 shrink-0">
-                <VendorTicketSidebar
-                  tickets={vendorTickets}
-                  vendedorNombre={activeVendorName}
-                  onRecuperarTicket={handleRecuperarPreventa}
-                  onCancelarTicket={handleCancelarPreventa}
-                  isOpen={isVendorSidebarOpen}
-                  onToggleOpen={() => setIsVendorSidebarOpen((prev) => !prev)}
-                  realtimeConnected={isRealtimeVendorConnected}
-                />
-              </div>
-            )}
-          </div>
+          )}
         </>
       ) : activeSubView === 'consolidacion_b2b' ? (
         <div className="animate-fade-in flex flex-col lg:grid lg:grid-cols-[1fr_2fr] gap-4 w-full box-border">

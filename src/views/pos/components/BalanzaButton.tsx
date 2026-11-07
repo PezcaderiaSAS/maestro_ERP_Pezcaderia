@@ -7,11 +7,13 @@ import Swal from 'sweetalert2';
 interface BalanzaButtonProps {
   onWeightRead: (peso: number, esManual: boolean) => void;
   unidadMedida: 'KG' | 'UNIDAD';
+  compact?: boolean;
 }
 
 export const BalanzaButton: React.FC<BalanzaButtonProps> = ({
   onWeightRead,
   unidadMedida,
+  compact = false,
 }) => {
   const { reading, leerPeso, simularLeerPeso, isSupported } = useBalanza();
 
@@ -68,17 +70,28 @@ export const BalanzaButton: React.FC<BalanzaButtonProps> = ({
       variant="secondary"
       onClick={handleRead}
       disabled={reading}
-      className={`min-h-[44px] h-11 px-3 inline-flex items-center gap-1.5 text-xs font-semibold rounded-lg transition-all active:scale-95 cursor-pointer shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 ${
-        reading
-          ? 'bg-slate-700/60 dark:bg-slate-800 text-slate-400 cursor-not-allowed border border-white/10 dark:border-slate-700'
-          : 'bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30'
-      }`}
+      className={compact
+        ? `w-8 sm:w-9 h-8 sm:h-9 min-h-0 p-0 flex items-center justify-center rounded-lg transition-all active:scale-95 cursor-pointer shadow-2xs shrink-0 ${
+            reading
+              ? 'bg-slate-700/60 dark:bg-slate-800 text-slate-400 cursor-not-allowed border border-white/10 dark:border-slate-700'
+              : 'bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30'
+          }`
+        : `min-h-[44px] h-11 px-3 inline-flex items-center gap-1.5 text-xs font-semibold rounded-lg transition-all active:scale-95 cursor-pointer shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 ${
+            reading
+              ? 'bg-slate-700/60 dark:bg-slate-800 text-slate-400 cursor-not-allowed border border-white/10 dark:border-slate-700'
+              : 'bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30'
+          }`
+      }
       title="Obtener peso desde balanza USB/Serial (Atajo: F8)"
       aria-label="Obtener peso desde balanza USB o Serial (Atajo F8)"
     >
-      <RefreshCw size={15} className={reading ? 'animate-spin' : ''} />
-      <span className="font-bold">{reading ? 'Pesando...' : 'Balanza'}</span>
-      <kbd className="px-1 py-0.5 text-[9px] font-mono bg-cyan-500/20 text-cyan-300 rounded border border-cyan-500/30 ml-0.5">F8</kbd>
+      <RefreshCw size={compact ? 13 : 15} className={reading ? 'animate-spin' : ''} />
+      {!compact && (
+        <>
+          <span className="font-bold">{reading ? 'Pesando...' : 'Balanza'}</span>
+          <kbd className="px-1 py-0.5 text-[9px] font-mono bg-cyan-500/20 text-cyan-300 rounded border border-cyan-500/30 ml-0.5">F8</kbd>
+        </>
+      )}
     </Button>
   );
 };
