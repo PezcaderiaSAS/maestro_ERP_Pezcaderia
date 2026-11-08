@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { vi } from 'vitest';
+import { vi, afterEach } from 'vitest';
 
 // Silenciar consoleLogger en tests
 (globalThis as any).__LOGGER_ENABLED__ = false;
@@ -92,4 +92,10 @@ if (typeof window !== 'undefined' && !window.matchMedia) {
     })),
   });
 }
+
+// Limpieza de Fake Timers después de cada test para prevenir congelamiento de RPC birpc
+afterEach(() => {
+  vi.useRealTimers();
+});
+
 
