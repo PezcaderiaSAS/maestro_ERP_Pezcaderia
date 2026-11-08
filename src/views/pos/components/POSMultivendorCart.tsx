@@ -88,7 +88,7 @@ export const POSMultivendorCart: React.FC<POSMultivendorCartProps> = ({
               Carrito de Ventas
             </span>
             <span className="text-[10px] font-medium text-slate-400">
-              Asesor: <strong className="text-slate-600">{activeVendorName}</strong>
+              Asesor: <strong className="text-slate-600">Asesor {activeVendorName}</strong>
             </span>
           </div>
         </div>

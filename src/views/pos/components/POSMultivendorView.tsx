@@ -37,6 +37,7 @@ export interface POSMultivendorViewProps {
   notasDespacho?: string;
   onNotasDespachoChange?: (val: string) => void;
   isSubmitting?: boolean;
+  modoCajeroWorkspace?: React.ReactNode;
 }
 
 export const POSMultivendorView: React.FC<POSMultivendorViewProps> = ({
@@ -65,6 +66,7 @@ export const POSMultivendorView: React.FC<POSMultivendorViewProps> = ({
   notasDespacho = '',
   onNotasDespachoChange,
   isSubmitting = false,
+  modoCajeroWorkspace,
 }) => {
   const [barcodeInput, setBarcodeInput] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -118,9 +120,14 @@ export const POSMultivendorView: React.FC<POSMultivendorViewProps> = ({
       />
 
       {/* 2. PESTAÑAS MÓVILES (Solo visibles en pantallas pequeñas < 1024px) */}
-      <div className="flex lg:hidden bg-white border-b border-slate-200 p-1 shrink-0">
+      <div 
+        data-testid="pos-mobile-switcher"
+        className="flex lg:hidden bg-white border-b border-slate-200 p-1 shrink-0"
+      >
         <button
+          role="tab"
           type="button"
+          aria-selected={mobileTab === 'catalogo'}
           data-testid="pos-mobile-tab-catalogo"
           onClick={() => setMobileTab('catalogo')}
           className={`flex-1 min-h-[44px] rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
@@ -133,7 +140,9 @@ export const POSMultivendorView: React.FC<POSMultivendorViewProps> = ({
           <span>Catálogo</span>
         </button>
         <button
+          role="tab"
           type="button"
+          aria-selected={mobileTab === 'carrito'}
           data-testid="pos-mobile-tab-carrito"
           onClick={() => setMobileTab('carrito')}
           className={`flex-1 min-h-[44px] rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
@@ -147,48 +156,53 @@ export const POSMultivendorView: React.FC<POSMultivendorViewProps> = ({
         </button>
       </div>
 
-      {/* 3. ESPACIO DE TRABAJO PRINCIPAL (75% Catálogo / 25% Carrito) */}
-      <main className="flex-1 flex flex-row overflow-hidden min-h-0">
-        {/* COLUMNA CATÁLOGO (75% de ancho en Desktop) */}
-        <div 
-          className={`flex-1 min-h-0 flex flex-col overflow-hidden ${
-            mobileTab === 'catalogo' ? 'flex' : 'hidden lg:flex'
-          }`}
-        >
-          <POSMultivendorCatalog
-            products={products}
-            stockMap={stockMap}
-            onAddToCart={onAddToCart}
-            onOpenScaleModal={onOpenScaleModal}
-            searchFilter={searchQuery}
-          />
-        </div>
+      {/* 3. ESPACIO DE TRABAJO PRINCIPAL (75% Catálogo / 25% Carrito o Modo Cajero) */}
+      {isModoCajero && modoCajeroWorkspace ? (
+        modoCajeroWorkspace
+      ) : (
+        <main className="flex-1 flex flex-row overflow-hidden min-h-0">
+          {/* COLUMNA CATÁLOGO (75% de ancho en Desktop) */}
+          <div 
+            data-testid="pos-catalog-glass-card"
+            className={`flex-1 min-h-0 flex flex-col overflow-hidden ${
+              mobileTab === 'catalogo' ? 'flex' : 'hidden lg:flex'
+            }`}
+          >
+            <POSMultivendorCatalog
+              products={products}
+              stockMap={stockMap}
+              onAddToCart={onAddToCart}
+              onOpenScaleModal={onOpenScaleModal}
+              searchFilter={searchQuery}
+            />
+          </div>
 
-        {/* COLUMNA CARRITO (25% / 400px en Desktop) */}
-        <div 
-          className={`h-full min-h-0 overflow-hidden ${
-            mobileTab === 'carrito' ? 'flex flex-1 w-full' : 'hidden lg:flex'
-          }`}
-        >
-          <POSMultivendorCart
-            items={cartItems}
-            onUpdateQuantity={onUpdateQuantity}
-            onRemoveItem={onRemoveItem}
-            onClearCart={onClearCart}
-            subtotal={subtotal}
-            descuento={descuento}
-            total={total}
-            onEmitirComanda={onEmitirComanda}
-            onCobrarCaja={onCobrarCaja}
-            isSubmitting={isSubmitting}
-            activeVendorName={activeVendorName}
-            cliente={cliente}
-            notasDespacho={notasDespacho}
-            onNotasDespachoChange={onNotasDespachoChange}
-            isModoCajero={isModoCajero}
-          />
-        </div>
-      </main>
+          {/* COLUMNA CARRITO (25% / 400px en Desktop) */}
+          <div 
+            className={`h-full min-h-0 overflow-hidden ${
+              mobileTab === 'carrito' ? 'flex flex-1 w-full' : 'hidden lg:flex'
+            }`}
+          >
+            <POSMultivendorCart
+              items={cartItems}
+              onUpdateQuantity={onUpdateQuantity}
+              onRemoveItem={onRemoveItem}
+              onClearCart={onClearCart}
+              subtotal={subtotal}
+              descuento={descuento}
+              total={total}
+              onEmitirComanda={onEmitirComanda}
+              onCobrarCaja={onCobrarCaja}
+              isSubmitting={isSubmitting}
+              activeVendorName={activeVendorName}
+              cliente={cliente}
+              notasDespacho={notasDespacho}
+              onNotasDespachoChange={onNotasDespachoChange}
+              isModoCajero={isModoCajero}
+            />
+          </div>
+        </main>
+      )}
     </div>
   );
 };

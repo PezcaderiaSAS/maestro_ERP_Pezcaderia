@@ -2262,7 +2262,7 @@ export default function POSView({
 
   // Cálculos financieros delegados al hook usePOSCart
   // Redirección directa al nuevo Terminal POS Multivendedor SaaS Light Mode (SPEC-056)
-  if (activeSubView === 'venta_pos' && !isModoCajero) {
+  if (activeSubView === 'venta_pos') {
     return (
       <div data-testid="pos-glass-container" className="pos-layout w-full h-full min-h-0 flex flex-col overflow-hidden">
         <POSMultivendorView
@@ -2326,7 +2326,71 @@ export default function POSView({
           comandasPendientesCount={comandasPendientes.length}
           onOpenComandasQueue={() => setShowComandasDrawer(true)}
           isModoCajero={isModoCajero}
-          onToggleModoCajero={() => setIsModoCajero(true)}
+          onToggleModoCajero={() => setIsModoCajero((prev) => !prev)}
+          modoCajeroWorkspace={
+            <div
+              data-testid="modo-cajero-workspace"
+              className="flex-1 min-h-0 w-full flex flex-col lg:grid lg:grid-cols-[1fr_420px] xl:grid-cols-[1fr_460px] gap-2.5 p-3 overflow-hidden bg-slate-900"
+            >
+              {/* Columna Izquierda: Cola Viva FIFO de Comandas de Mostrador */}
+              <div className="min-h-0 flex-1 overflow-hidden">
+                <LiveComandasQueuePanel
+                  comandas={drafts}
+                  selectedComandaId={activeDraftId}
+                  onSelectComanda={(c) => handleRecuperarPreventa(c.id)}
+                  onRefresh={() => {
+                    const fresh = PosDraftService.getLocalDrafts();
+                    setDrafts(fresh);
+                  }}
+                />
+              </div>
+
+              {/* Columna Derecha: Panel de Liquidación Directa Fricción Cero */}
+              <div className="min-h-0 h-full overflow-hidden w-full lg:w-[420px] xl:w-[460px] shrink-0">
+                {ultimoTicket ? (
+                  <GlassCard
+                    className="pos-sidebar-cart p-4 sm:p-5 flex flex-col h-full min-h-0 overflow-y-auto"
+                  >
+                    <h3 className="text-lg font-black text-white text-center mb-2">Venta Realizada con Éxito</h3>
+                    <TicketBuilder
+                      venta={ultimoTicket!.venta}
+                      cliente={ultimoTicket!.cliente}
+                    />
+                    <Button
+                      variant="primary"
+                      onClick={() => setUltimoTicket(null)}
+                      className="w-full mt-3 min-h-[48px] text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl active:scale-95 transition-all shadow-lg shadow-emerald-600/30"
+                    >
+                      Siguiente Cobro
+                    </Button>
+                  </GlassCard>
+                ) : (
+                  <DirectCashierCheckoutPanel
+                    activeComanda={drafts.find((d) => d.id === activeDraftId) || null}
+                    lineas={cartLineas}
+                    totalFinal={totalFinal}
+                    subtotal={subtotal}
+                    totalIva={0}
+                    descuento={totalDescuento}
+                    onProcesarPago={handleCobroDirectoCajero}
+                    onDescartarComanda={() => {
+                      if (activeDraftId) {
+                        handleCancelarPreventa(activeDraftId);
+                      } else {
+                        limpiarCarrito();
+                      }
+                    }}
+                    onNuevaVentaDirecta={() => {
+                      setActiveDraftId(null);
+                      limpiarCarrito();
+                      setIsModoCajero(false);
+                    }}
+                    isProcessing={false}
+                  />
+                )}
+              </div>
+            </div>
+          }
           onOpenScaleModal={(prod) => {
             setProductForWeight({
               product: prod,
@@ -2394,7 +2458,7 @@ export default function POSView({
       className="pos-layout w-full h-full min-h-0 flex flex-col gap-1 sm:gap-1.5 animate-fade-in relative p-0 pb-1 overflow-hidden"
       style={{ transform: 'translateZ(0)' }}
     >
-      {!isTurnoAbierto && activeSubView === 'venta_pos' && userRole !== 'vendedor' && !currentUser?.cargo?.toLowerCase().includes('mostrador') && (
+      {!isTurnoAbierto && (activeSubView as string) === 'venta_pos' && userRole !== 'vendedor' && !currentUser?.cargo?.toLowerCase().includes('mostrador') && (
         <div className="w-full bg-rose-500/15 border border-rose-500/30 text-rose-300 text-center py-1 px-3 text-xs font-bold flex items-center justify-center gap-2 rounded-lg backdrop-blur-md shadow-sm shrink-0">
           <AlertCircle size={13} /> ⚠ CAJA CERRADA — Debes abrir un turno antes de cobrar
         </div>
@@ -2498,7 +2562,7 @@ export default function POSView({
           <button
             onClick={() => setActiveSubView('venta_pos')}
             className={`flex items-center gap-1.5 min-h-[36px] py-1 px-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              activeSubView === 'venta_pos'
+              (activeSubView as string) === 'venta_pos'
                 ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-xs'
                 : 'bg-transparent text-slate-400 hover:bg-white/10 hover:text-slate-100 border border-transparent'
             }`}
@@ -2515,7 +2579,7 @@ export default function POSView({
               setIsModoCajero((prev) => !prev);
             }}
             className={`flex items-center gap-1.5 min-h-[36px] py-1 px-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              isModoCajero && activeSubView === 'venta_pos'
+              isModoCajero && (activeSubView as string) === 'venta_pos'
                 ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-xs ring-1 ring-emerald-400/30'
                 : 'bg-transparent text-slate-400 hover:bg-white/10 hover:text-slate-100 border border-transparent'
             }`}
@@ -2793,7 +2857,7 @@ export default function POSView({
         />
       </div>
 
-      {activeSubView === 'venta_pos' ? (
+      {(activeSubView as string) === 'venta_pos' ? (
         <>
           {/* F5: Mobile Tab Switcher (< lg) */}
           <div

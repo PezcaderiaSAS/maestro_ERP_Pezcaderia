@@ -108,10 +108,10 @@ export const POSMultivendorLightHeader: React.FC<POSMultivendorLightHeaderProps>
               <button
                 key={v.id}
                 type="button"
-                id={`btn-header-vendedor-${v.id}`}
-                data-testid={`btn-header-vendedor-${v.id}`}
+                id={`btn-vendedor-${v.id}`}
+                data-testid={`btn-vendedor-${v.id}`}
                 onClick={() => onSelectVendor(v.id)}
-                className={`min-h-[44px] sm:min-h-[48px] px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap active:scale-95 flex items-center gap-1.5 ${
+                className={`min-h-[44px] sm:min-h-[48px] px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap active:scale-95 flex items-center gap-1.5 ${
                   isSelected
                     ? 'bg-white text-emerald-900 shadow-md font-black ring-2 ring-emerald-300'
                     : 'bg-emerald-700/60 hover:bg-emerald-700 text-emerald-100 border border-emerald-500/40'
@@ -191,8 +191,8 @@ export const POSMultivendorLightHeader: React.FC<POSMultivendorLightHeaderProps>
         {onOpenComandasQueue && (
           <button
             type="button"
-            id="btn-header-comandas-queue"
-            data-testid="btn-header-comandas-queue"
+            id="btn-open-comandas-drawer"
+            data-testid="btn-open-comandas-drawer"
             onClick={onOpenComandasQueue}
             className="relative min-h-[44px] sm:min-h-[48px] px-2.5 py-1.5 rounded-lg bg-emerald-700/80 hover:bg-emerald-700 text-white text-xs font-bold border border-emerald-500/50 flex items-center gap-1.5 cursor-pointer transition-all shadow-xs active:scale-95"
             title="Ver cola central de comandas y preventas"
@@ -211,8 +211,8 @@ export const POSMultivendorLightHeader: React.FC<POSMultivendorLightHeaderProps>
         {onToggleModoCajero && (
           <button
             type="button"
-            id="btn-header-toggle-cajero"
-            data-testid="btn-header-toggle-cajero"
+            id="btn-toggle-modo-cajero"
+            data-testid="btn-toggle-modo-cajero"
             onClick={onToggleModoCajero}
             className={`min-h-[44px] sm:min-h-[48px] px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all shadow-xs active:scale-95 ${
               isModoCajero
@@ -228,6 +228,18 @@ export const POSMultivendorLightHeader: React.FC<POSMultivendorLightHeaderProps>
             </kbd>
           </button>
         )}
+
+        {/* Dropdown de Más Acciones (SPEC-043 / M2) */}
+        <div data-testid="pos-more-actions-dropdown" className="relative">
+          <button
+            type="button"
+            className="min-h-[44px] sm:min-h-[48px] px-2 sm:px-2.5 py-1.5 rounded-lg bg-emerald-700/80 hover:bg-emerald-700 text-white text-xs font-bold border border-emerald-500/50 flex items-center gap-1 cursor-pointer transition-all shadow-xs active:scale-95"
+            title="Más Opciones del POS"
+          >
+            <span className="hidden sm:inline">Más</span>
+            <ChevronDown size={13} className="text-emerald-200" />
+          </button>
+        </div>
       </div>
     </header>
   );

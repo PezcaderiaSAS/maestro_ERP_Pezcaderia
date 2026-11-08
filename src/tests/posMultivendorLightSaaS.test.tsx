@@ -94,7 +94,7 @@ describe('SPEC-056: Terminal POS Multivendedor (SaaS Light Mode)', () => {
       expect(screen.getByText('Santiago Pallares')).toBeInTheDocument();
 
       // Clic en otro asesor
-      fireEvent.click(screen.getByTestId('btn-header-vendedor-v2'));
+      fireEvent.click(screen.getByTestId('btn-vendedor-v2'));
       expect(onSelectVendor).toHaveBeenCalledWith('v2');
     });
 
@@ -146,7 +146,7 @@ describe('SPEC-056: Terminal POS Multivendedor (SaaS Light Mode)', () => {
         />
       );
 
-      const toggleBtn = screen.getByTestId('btn-header-toggle-cajero');
+      const toggleBtn = screen.getByTestId('btn-toggle-modo-cajero');
       fireEvent.click(toggleBtn);
       expect(onToggleModoCajero).toHaveBeenCalledTimes(1);
     });
