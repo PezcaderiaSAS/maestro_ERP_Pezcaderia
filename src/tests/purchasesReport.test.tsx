@@ -17,7 +17,11 @@ const MOCK_CATEGORIAS = [
   { id: 'cat-1', tipo: 'Producto', linea: 'Pescados', clase: 'Filetes' }
 ];
 
-const todayStr = new Date().toISOString();
+const now = new Date();
+const year = now.getFullYear();
+const month = String(now.getMonth() + 1).padStart(2, '0');
+const day = String(now.getDate()).padStart(2, '0');
+const todayStr = `${year}-${month}-${day}T10:00:00.000Z`;
 
 const MOCK_ORDENES = [
   {

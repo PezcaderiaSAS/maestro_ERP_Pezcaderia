@@ -156,7 +156,7 @@ export const LineaVentaRow: React.FC<LineaVentaRowProps> = ({
   return (
     <div
       data-testid={`cart-item-row-${linea.productoId}`}
-      className="cart-item-row group relative flex flex-col justify-between gap-1.5 p-2 sm:p-2.5 border-b border-slate-700/60 bg-slate-800/40 hover:bg-slate-800/70 transition-colors rounded-xl min-h-[58px]"
+      className="cart-item-row group relative flex flex-col justify-between gap-1.5 p-2 sm:p-2.5 border-b border-slate-700/60 bg-slate-800/40 hover:bg-slate-800/70 transition-colors rounded-xl min-h-[58px] max-h-[64px] sm:max-h-[85px] overflow-hidden"
     >
       {/* ── Tier 1: Información de Producto, Badges y Botón Eliminar ── */}
       <div className="flex items-center justify-between gap-2 min-w-0">
