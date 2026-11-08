@@ -28,6 +28,8 @@
    - Liquidación on-demand (Drawer F2/Enter), scroll vertical prioritario 12+ ítems sin colapso.
    - Fila retail compacta ~60px, ParkedOrdersBar cinta horizontal, Ley de Fitts $\ge 44/48\text{px}$.
    - 88/88 tests POS pasando (Vitest), 0 errores `tsc`, 19/19 probes DevTools aprobados en producción Vercel.
+8. **SPEC-056 (PANTALLA POS MULTIVENDEDOR SAAS LIGHT MODE) ✅ (100% CERTIFICADO):**
+   - Reingeniería total desde cero: cabecera única 56px (0 barras apiladas), catálogo 75% matriz 6x3 con paginación y precios esmeralda, carrito 25% con 85% altura para ítems y botón F6. 8/8 tests verdes.
 
 ## Cola de Tareas Priorizada (WIP = 1)
 1. **AUDITORÍA UX INTEGRAL (29 PANTALLAS):** Revisión de leyes de UX y accesibilidad WCAG 2.2 AA+.
