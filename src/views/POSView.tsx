@@ -21,6 +21,7 @@ import { DirectCashierCheckoutPanel } from './pos/components/DirectCashierChecko
 import { VendorTicketSidebar, type VendorTicket, type EstadoTicket } from '../components/pos/VendorTicketSidebar.tsx';
 import { supabaseRealtimePreventasService } from '../services/supabaseRealtimePreventasService.ts';
 import { ProductSearchPanel } from './pos/components/ProductSearchPanel.tsx';
+import { POSMultivendorView } from './pos/components/POSMultivendorView.tsx';
 import { AperturaCajaModal } from './pos/components/AperturaCajaModal.tsx';
 import { RetiroParcialModal } from './pos/components/RetiroParcialModal.tsx';
 import { RestockRequestModal } from './inventory/components/RestockRequestModal.tsx';
@@ -2260,6 +2261,133 @@ export default function POSView({
   }, [activeSubView, isTurnoAbierto, cartLineas.length, showAperturaModal, showArqueoModal, limpiarCarrito]);
 
   // Cálculos financieros delegados al hook usePOSCart
+  // Redirección directa al nuevo Terminal POS Multivendedor SaaS Light Mode (SPEC-056)
+  if (activeSubView === 'venta_pos' && !isModoCajero) {
+    return (
+      <div data-testid="pos-glass-container" className="pos-layout w-full h-full min-h-0 flex flex-col overflow-hidden">
+        <POSMultivendorView
+          products={activeProducts}
+          stockMap={stock as any}
+          cartItems={cartLineas.map((l: any, idx: number) => ({
+            id: l.id || l.lineId || `item-${idx}`,
+            product: l.producto || {
+              id: l.productoId || l.id || `prod-${idx}`,
+              sku: l.sku || `SKU-${idx}`,
+              nombre: l.nombre || l.descripcion || 'Producto',
+              precio_venta_pos: l.precioLista || l.precioFinal || l.precio || 0,
+              unidadMedida: l.unidadMedida || 'kg',
+              categoria: l.categoria,
+              activo: true,
+            },
+            cantidad: l.cantidad,
+            precioOverride: l.precioFinal,
+            notas: l.notas,
+          }))}
+          onAddToCart={(prod) => handleAddProduct(prod)}
+          onUpdateQuantity={(idx, delta) => {
+            const linea = cartLineas[idx];
+            if (linea) {
+              const currentQty = Number(linea.cantidad) || 0;
+              const newQty = Math.max(0, currentQty + delta);
+              actualizarCantidad(linea.productoId, newQty);
+            }
+          }}
+          onRemoveItem={(idx) => {
+            const linea = cartLineas[idx];
+            if (linea) removerProducto(linea.productoId);
+          }}
+          onClearCart={limpiarCarrito}
+          subtotal={subtotal}
+          descuento={totalDescuento}
+          total={totalFinal}
+          onEmitirComanda={async () => {
+            const finalNotas = selectedCutNotes.length > 0 ? `[${selectedCutNotes.join(', ')}]` : '';
+            await handleGuardarBorrador(finalNotas);
+          }}
+          onCobrarCaja={() => setIsModoCajero(true)}
+          selectedVendorId={selectedVendorJosase}
+          onSelectVendor={(vId) => {
+            setSelectedVendorJosase(vId);
+            const v = VENDEDORES_JOSASE.find((x) => x.id === vId);
+            if (v) {
+              useAppStore.getState().setCurrentUser({
+                empleadoId: v.id,
+                nombre: v.nombre,
+                identificacion: v.id,
+                cargo: 'ASESOR MOSTRADOR',
+                rol: 'vendedor',
+                turnoIniciadoAt: new Date().toISOString(),
+              });
+            }
+          }}
+          vendedores={VENDEDORES_JOSASE}
+          cliente={cliente}
+          onOpenClientModal={handleAgregarCliente}
+          comandasPendientesCount={comandasPendientes.length}
+          onOpenComandasQueue={() => setShowComandasDrawer(true)}
+          isModoCajero={isModoCajero}
+          onToggleModoCajero={() => setIsModoCajero(true)}
+          onOpenScaleModal={(prod) => {
+            setProductForWeight({
+              product: prod,
+              precioUnitario: getProductPrice(prod),
+              pesoInicial: 1.0,
+            });
+          }}
+          notasDespacho={selectedCutNotes.join(', ')}
+          onNotasDespachoChange={(val) => {
+            if (val) setSelectedCutNotes([val]);
+            else setSelectedCutNotes([]);
+          }}
+        />
+
+        {/* Modal de Balanza / Pesaje Táctil */}
+        <ManualWeightModal
+          isOpen={productForWeight !== null}
+          producto={productForWeight?.product || null}
+          precioUnitario={productForWeight?.precioUnitario || 0}
+          pesoInicial={productForWeight?.pesoInicial || 1.0}
+          onConfirm={(prod, peso) => {
+            agregarProducto(prod as any, peso, true);
+            setProductForWeight(null);
+          }}
+          onClose={() => setProductForWeight(null)}
+        />
+
+        {/* Modal Cola Central de Comandas en Espera */}
+        <PendingOrdersDrawer
+          isOpen={showComandasDrawer}
+          onClose={() => setShowComandasDrawer(false)}
+          orders={comandasPendientes}
+          onSelectOrder={(ord) => {
+            setShowComandasDrawer(false);
+            handleRecuperarPreventa(ord.id);
+          }}
+        />
+
+        {/* Modal de Creación de Producto Rápido */}
+        {showCrearProductoModal && (
+          <CrearProductoRapidoModal
+            isOpen={showCrearProductoModal}
+            onClose={() => setShowCrearProductoModal(false)}
+            onProductCreated={(prod) => {
+              handleAddProduct(prod);
+              setShowCrearProductoModal(false);
+            }}
+          />
+        )}
+
+        {/* Modal de Cambio de Usuario */}
+        {showUserSwitchModal && (
+          <UserSwitchModal
+            isOpen={showUserSwitchModal}
+            onClose={() => setShowUserSwitchModal(false)}
+          />
+        )}
+      </div>
+    );
+  }
+
   return (
     <div
       data-testid="pos-glass-container"
