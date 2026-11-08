@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Check, X, Plus, PauseCircle, Clock, Trash2, Archive, Scissors, FileText } from 'lucide-react';
+import { Check, X, Plus, PauseCircle, Clock, Trash2, Archive, Scissors, FileText, MoreVertical } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import type { LineaVenta, CartDraft } from '../../../types/pos.types';
 import type { ClientePOS } from '../../../hooks/usePOSCart';
@@ -10,6 +10,7 @@ import { PaymentPanel, type MetodoCobroPos } from './PaymentPanel';
 import { ParkedOrdersBar } from './ParkedOrdersBar';
 import { OnScreenKeypadModal } from './OnScreenKeypadModal';
 import { DespachoNotasModal } from './DespachoNotasModal';
+import { POSSecondaryActionsModal } from './POSSecondaryActionsModal';
 import { GlassCard } from '../../../components/layout/components/GlassCard';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useAppStore } from '../../../store/useAppStore';
@@ -134,6 +135,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
   const [showInternalNotasModal, setShowInternalNotasModal] = useState(false);
   const [localCutNotes, setLocalCutNotes] = useState<string[]>([]);
   const [internalPaymentDrawerOpen, setInternalPaymentDrawerOpen] = useState(false);
+  const [showSecondaryActionsModal, setShowSecondaryActionsModal] = useState(false);
 
   const isPaymentDrawerOpen = propPaymentDrawerOpen !== undefined ? propPaymentDrawerOpen : internalPaymentDrawerOpen;
   const setPaymentDrawerOpen = (open: boolean) => {
@@ -578,45 +580,48 @@ export const CartPanel: React.FC<CartPanelProps> = ({
       onMinimize={() => setIsCompactMode((prev) => !prev)}
       className="pos-cart-panel flex flex-col h-full min-h-0 overflow-hidden pr-1 p-2 sm:p-2.5 select-none"
     >
-      {/* ── HEADER CONDENSADO (<= 40px): Selector de cliente + Borradores + En Espera ── */}
+      {/* ── HEADER CONDENSADO (38px): Selector de cliente + Borradores + Cerrar Turno ── */}
       <div
-        className="pos-cart-header flex justify-between items-center gap-1.5 py-1 px-2 border-b border-white/10 bg-slate-900/60 shrink-0 rounded-xl backdrop-blur-xl min-h-[38px]"
+        className="pos-cart-header flex justify-between items-center gap-1.5 py-1 px-2 border-b border-white/10 bg-slate-900 shrink-0 rounded-xl backdrop-blur-xl min-h-[38px]"
       >
         {/* Selector de cliente en Dark Glassmorphism V8 */}
-        {cliente ? (
-          <button
-            type="button"
-            onClick={onSelectCliente}
-            className="flex items-center gap-1.5 px-2.5 min-h-[32px] h-8 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-white/10 text-white font-bold text-xs transition-all max-w-[180px] truncate shadow-2xs cursor-pointer"
-            title={`${cliente.nombre} (${cliente.identificacion})`}
-          >
-            <Check size={14} className="text-emerald-400 shrink-0" />
-            <span className="truncate text-left">
-              {cliente.nombre.slice(0, 16)} ({cliente.identificacion})
-            </span>
-            <span
-              title="Quitar cliente"
-              className="text-slate-400 hover:text-red-400 transition-colors shrink-0 ml-auto p-0.5 rounded-lg hover:bg-white/10"
-              onClick={(e) => {
-                e.stopPropagation();
-                onClearCliente();
-              }}
+        <div className="flex items-center gap-1 min-w-0 flex-1">
+          {cliente ? (
+            <button
+              type="button"
+              onClick={onSelectCliente}
+              className="flex items-center gap-1.5 px-2.5 min-h-[32px] h-8 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-white/10 text-white font-bold text-xs transition-all max-w-[200px] truncate shadow-2xs cursor-pointer"
+              title={`${cliente.nombre} (${cliente.identificacion})`}
             >
-              <X size={13} />
-            </span>
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={onSelectCliente}
-            className="flex items-center gap-1 px-2.5 min-h-[32px] h-8 rounded-lg bg-slate-800/60 hover:bg-slate-700/80 border border-white/10 text-slate-200 hover:text-white font-bold text-xs transition-all cursor-pointer shadow-2xs"
-          >
-            <Plus size={14} className="text-cyan-400" />
-            <span>Agregar Cliente</span>
-          </button>
-        )}
+              <Check size={14} className="text-emerald-400 shrink-0" />
+              <span className="truncate text-left">
+                👤 {cliente.nombre} {cliente.identificacion ? `(${cliente.identificacion})` : ''}
+              </span>
+              <span
+                title="Quitar cliente"
+                className="text-slate-400 hover:text-red-400 transition-colors shrink-0 ml-auto p-0.5 rounded-lg hover:bg-white/10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClearCliente();
+                }}
+              >
+                <X size={13} />
+              </span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={onSelectCliente}
+              className="flex items-center gap-1.5 px-2.5 min-h-[32px] h-8 rounded-lg bg-slate-800/60 hover:bg-slate-700/80 border border-white/10 text-slate-200 hover:text-white font-bold text-xs transition-all cursor-pointer shadow-2xs"
+              title="Seleccionar o buscar cliente"
+            >
+              <span>👤 CONSUMIDOR FINAL</span>
+              <Plus size={13} className="text-cyan-400" />
+            </button>
+          )}
+        </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 shrink-0">
           {/* Botón Cerrar Turno (solo si está abierto) */}
           {isTurnoAbierto && onCerrarTurnoClick && (
             <PosButton
@@ -624,48 +629,37 @@ export const CartPanel: React.FC<CartPanelProps> = ({
               variant="danger"
               onClick={onCerrarTurnoClick}
               className="text-xs font-bold min-h-[32px] h-8 py-0.5 px-2"
+              aria-label="Cerrar Turno"
             >
               Cerrar Turno
             </PosButton>
           )}
 
-          {/* Botón Poner en Espera Rápido */}
-          <PosButton
-            size="compact"
-            variant="secondary"
-            onClick={() => onGuardarBorrador()}
-            disabled={lineas.length === 0}
-            className="border-indigo-500/30 bg-indigo-950/40 hover:bg-indigo-900/60 text-indigo-300 min-h-[32px] touch:min-h-[48px] h-8 py-0.5 px-2 text-xs"
-            title="Poner pedido actual en espera (Atajo: F6)"
-            aria-label="Poner pedido actual en espera (Atajo F6)"
-            leftIcon={<PauseCircle size={14} />}
-            shortcutBadge="F6"
-          >
-            <span className="hidden sm:inline">En Espera</span>
-          </PosButton>
+          {/* Badge de Pedidos en Espera si drafts.length > 0 */}
+          {drafts.length > 0 && (
+            <button
+              type="button"
+              data-testid="badge-pedidos-espera"
+              onClick={() => setShowSecondaryActionsModal(true)}
+              className="relative flex items-center gap-1 px-2.5 min-h-[32px] h-8 rounded-lg border text-xs font-bold transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500/50 bg-amber-950/40 border-amber-500/30 text-amber-300 hover:bg-amber-900/60 shadow-2xs"
+              title="Ver pedidos guardados en espera"
+              aria-label={`Ver ${drafts.length} pedidos guardados en espera`}
+            >
+              <Archive size={14} className="text-amber-400" />
+              <span>⏸ {drafts.length} en espera</span>
+            </button>
+          )}
 
-          {/* Badge / Botón Ver Pedidos en Espera */}
+          {/* Botón [⋮] Trigger de Operaciones Secundarias de Caja */}
           <button
             type="button"
-            onClick={handleOpenBorradores}
-            className={`relative flex items-center gap-1 px-2 min-h-[32px] h-8 rounded-lg border text-xs font-bold transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
-              drafts.length > 0
-                ? 'bg-amber-950/40 border-amber-500/30 text-amber-300 hover:bg-amber-900/60 shadow-2xs'
-                : 'bg-slate-800/80 border-white/10 text-slate-300 hover:bg-slate-700/80 hover:text-white shadow-2xs'
-            }`}
-            title="Ver pedidos guardados en espera"
-            aria-label={`Ver ${drafts.length} pedidos guardados en espera`}
+            data-testid="btn-pos-secondary-actions"
+            onClick={() => setShowSecondaryActionsModal(true)}
+            className="p-1.5 min-h-[32px] h-8 w-8 flex items-center justify-center rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-white/10 text-slate-300 hover:text-white transition-all cursor-pointer shadow-2xs"
+            title="Más operaciones de caja (Cerrar turno, espera, notas, vaciar)"
+            aria-label="Más operaciones de caja"
           >
-            <Archive size={14} className={drafts.length > 0 ? 'text-amber-400' : 'text-slate-400'} />
-            <span className="hidden sm:inline">Borradores</span>
-            {drafts.length > 0 && (
-              <span 
-                className="flex items-center justify-center min-w-[16px] h-[16px] px-1 bg-amber-500 text-slate-950 font-black rounded-full text-[9px] animate-pulse"
-                aria-live="polite"
-              >
-                {drafts.length}
-              </span>
-            )}
+            <MoreVertical size={16} />
           </button>
         </div>
       </div>
@@ -847,25 +841,45 @@ export const CartPanel: React.FC<CartPanelProps> = ({
             </PosButton>
           </div>
         ) : (
-          <button
-            type="button"
-            id="btn-cobrar"
-            data-testid="btn-cobrar"
-            disabled={lineas.length === 0 || !isTurnoAbierto}
-            onClick={() => setPaymentDrawerOpen(true)}
-            className={`w-full tracking-wide shadow-lg min-h-[48px] h-12 lg:h-14 lg:min-h-[56px] font-bold rounded-xl transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer ${
-              lineas.length > 0 && isTurnoAbierto
-                ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/30'
-                : 'bg-white/5 text-slate-500 cursor-not-allowed border border-white/5'
-            }`}
-            title="Abrir panel de liquidación y cobro (Atajo: F2 / Enter)"
-          >
-            <span className="text-sm sm:text-base font-extrabold tracking-wide">⚡ COBRAR / LIQUIDAR</span>
-            <span className="flex items-center gap-1 text-xs opacity-90 font-mono">
-              <kbd className="px-1.5 py-0.5 rounded bg-black/40 border border-white/20 text-emerald-200">F2</kbd>
-              <kbd className="px-1.5 py-0.5 rounded bg-black/40 border border-white/20 text-emerald-200">Enter</kbd>
-            </span>
-          </button>
+          <div className="flex flex-col gap-1 w-full select-none">
+            <button
+              type="button"
+              id="btn-cobrar"
+              data-testid="btn-cobrar"
+              disabled={lineas.length === 0 || !isTurnoAbierto}
+              onClick={() => setPaymentDrawerOpen(true)}
+              className={`w-full tracking-wide shadow-lg min-h-[48px] h-12 lg:h-14 lg:min-h-[56px] font-bold rounded-xl transition-all active:scale-[0.99] flex items-center justify-between px-3 sm:px-4 cursor-pointer ${
+                lineas.length > 0 && isTurnoAbierto
+                  ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/30'
+                  : 'bg-white/5 text-slate-500 cursor-not-allowed border border-white/5'
+              }`}
+              title="Abrir panel de liquidación y cobro (Atajo: F2 / Enter)"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-sm sm:text-base font-extrabold tracking-wide">⚡ Vender / Cobrar</span>
+                <span className="hidden sm:flex items-center gap-1 text-xs opacity-90 font-mono">
+                  <kbd className="px-1.5 py-0.5 rounded bg-black/40 border border-white/20 text-emerald-200">F2</kbd>
+                  <kbd className="px-1.5 py-0.5 rounded bg-black/40 border border-white/20 text-emerald-200">Enter</kbd>
+                </span>
+              </div>
+              <span className="font-mono font-black text-sm sm:text-base lg:text-lg text-emerald-100 tabular-nums">
+                ${totales.totalFinal.toLocaleString('es-CO')}
+              </span>
+            </button>
+
+            {/* Botón Secundario: Guardar (En Espera F6) */}
+            <button
+              type="button"
+              onClick={() => onGuardarBorrador()}
+              disabled={lineas.length === 0}
+              className="w-full min-h-[44px] sm:min-h-[48px] h-11 flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 font-bold text-xs sm:text-sm transition-all active:scale-[0.99] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+              title="Poner pedido actual en espera (Atajo: F6)"
+              aria-label="Poner pedido actual en espera (Atajo F6)"
+            >
+              <PauseCircle size={15} className="text-indigo-400" />
+              <span>Guardar (En Espera F6)</span>
+            </button>
+          </div>
         )}
       </div>
 
@@ -962,6 +976,29 @@ export const CartPanel: React.FC<CartPanelProps> = ({
         customNotes={notasDespacho}
         onCustomNotesChange={setNotasDespacho}
         onConfirm={() => setShowInternalNotasModal(false)}
+      />
+
+      {/* Modal Desacoplado de Operaciones Secundarias de Caja (Milestone M2) */}
+      <POSSecondaryActionsModal
+        isOpen={showSecondaryActionsModal}
+        onClose={() => setShowSecondaryActionsModal(false)}
+        isTurnoAbierto={isTurnoAbierto}
+        onCerrarTurnoClick={onCerrarTurnoClick}
+        drafts={drafts}
+        activeDraftId={activeDraftId}
+        onSelectDraft={handleSelectDraftDirectly}
+        onDeleteDraft={handleDeleteDraftDirectly}
+        onNewParkedSale={onGuardarBorrador}
+        onOpenNotasModal={() => {
+          if (onOpenNotasModal) {
+            onOpenNotasModal();
+          } else {
+            setShowInternalNotasModal(true);
+          }
+        }}
+        selectedCutNotesCount={activeCutNotes.length}
+        onLimpiarCarrito={onLimpiarCarrito}
+        hasLineas={lineas.length > 0}
       />
 
       </GlassCard>

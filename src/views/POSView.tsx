@@ -26,6 +26,7 @@ import { RetiroParcialModal } from './pos/components/RetiroParcialModal.tsx';
 import { RestockRequestModal } from './inventory/components/RestockRequestModal.tsx';
 import { PendingOrdersDrawer, type PendingOrderComanda } from './pos/components/PendingOrdersDrawer.tsx';
 import { SupervisorPinModal, type SupervisorAuthResult } from './pos/components/SupervisorPinModal.tsx';
+import { CrearProductoRapidoModal } from './inventory/components/CrearProductoRapidoModal.tsx';
 import { GlassCard } from '../components/layout/components/GlassCard.tsx';
 import { Card } from '../components/ui/Card.tsx';
 import { Button } from '../components/ui/Button.tsx';
@@ -235,6 +236,21 @@ export default function POSView({
   const [selectedCutNotes, setSelectedCutNotes] = useState<string[]>([]);
   const [showDespachoModal, setShowDespachoModal] = useState<boolean>(false);
   const [customDespachoNotes, setCustomDespachoNotes] = useState<string>('');
+  
+  // Modal de Creación Rápida de Productos desde Barra Superior de Catálogo (M3)
+  const [showCrearProductoModal, setShowCrearProductoModal] = useState<boolean>(false);
+  const handleProductCreated = (newProduct: any) => {
+    useInventoryStore.getState().loadInventory();
+    setShowCrearProductoModal(false);
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: `Producto creado: ${newProduct?.nombre || ''}`,
+      showConfirmButton: false,
+      timer: 2000,
+    });
+  };
   const toggleCutNote = (note: string) => {
     setSelectedCutNotes((prev) =>
       prev.includes(note) ? prev.filter((n) => n !== note) : [...prev, note]
@@ -2768,6 +2784,7 @@ export default function POSView({
                     getProductPrice={getProductPrice} 
                     getProductStock={getProductStock} 
                     onAddProduct={handleAddProduct} 
+                    onOpenCrearProducto={() => setShowCrearProductoModal(true)}
                   />
                 </GlassCard>
               </div>
@@ -3812,6 +3829,14 @@ export default function POSView({
         customNotes={customDespachoNotes}
         onCustomNotesChange={setCustomDespachoNotes}
         onConfirm={() => setShowDespachoModal(false)}
+      />
+
+      {/* Modal de Creación Rápida de Producto POS (Benchmark SaaS M3) */}
+      <CrearProductoRapidoModal
+        isOpen={showCrearProductoModal}
+        onClose={() => setShowCrearProductoModal(false)}
+        onProductCreated={handleProductCreated}
+        categoriasExistentes={Array.from(new Set(activeProducts.map((p) => p.categoria).filter(Boolean)))}
       />
     </div>
   );
