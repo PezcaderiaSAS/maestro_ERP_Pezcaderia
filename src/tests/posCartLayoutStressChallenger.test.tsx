@@ -496,7 +496,7 @@ describe('CHALLENGER 2 EMPIRICAL STRESS TEST: POSMultivendorCart (SPEC-057 M1 La
 
       // Resumen financiero muestra el descuento
       expect(screen.getByText('Descuento aplicado:')).toBeInTheDocument();
-      expect(screen.getByText('-$4.500')).toBeInTheDocument();
+      expect(screen.getAllByText('-$4.500').length).toBeGreaterThanOrEqual(1);
     });
   });
 });

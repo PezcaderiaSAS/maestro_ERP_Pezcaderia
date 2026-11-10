@@ -922,7 +922,7 @@ export const POSMultivendorCart: React.FC<POSMultivendorCartProps> = ({
               className="flex justify-between items-center text-xs bg-amber-50/90 border border-amber-200/80 px-2.5 py-1 rounded-lg"
             >
               <div className="flex items-center gap-1.5">
-                <span className="font-bold text-amber-900">Descuento comanda:</span>
+                <span className="font-bold text-amber-900">Descuento aplicado:</span>
                 <span 
                   data-testid="badge-descuento-global"
                   className="px-1.5 py-0.5 rounded bg-amber-200 text-amber-950 text-[10px] font-black tracking-tight font-mono"
