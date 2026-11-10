@@ -161,16 +161,26 @@ export const POSMultivendorCatalog: React.FC<POSMultivendorCatalogProps> = ({
                   }`}
                   title={`${name} - $${price.toLocaleString('es-CO')} / ${unit}`}
                 >
-                  {/* Badge de Unidad y Modo Pesaje */}
+                  {/* Badge de Unidad, Modo Pesaje y Estado Agotado */}
                   <div className="flex items-center justify-between gap-1">
                     <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
                       {unit}
                     </span>
-                    {pesable && (
-                      <span className="text-[9px] font-bold px-1 py-0.5 rounded bg-cyan-50 text-cyan-700 border border-cyan-200 flex items-center gap-0.5">
-                        <Scale size={10} /> Balanza
-                      </span>
-                    )}
+                    <div className="flex items-center gap-1">
+                      {pesable && (
+                        <span className="text-[9px] font-bold px-1 py-0.5 rounded bg-cyan-50 text-cyan-700 border border-cyan-200 flex items-center gap-0.5">
+                          <Scale size={10} /> Balanza
+                        </span>
+                      )}
+                      {sinStock && (
+                        <span 
+                          data-testid={`badge-agotado-${product.sku || product.id}`}
+                          className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 border border-rose-200 tracking-wider shadow-2xs"
+                        >
+                          AGOTADO
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   {/* Icono / Avatar Vectorial Local (Cero <img> rotas) */}

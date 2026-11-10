@@ -22,6 +22,25 @@ export interface AplicarDescuentoResultado {
   error?: string;
 }
 
+export type TipoDescuentoGlobal = 'porcentaje' | 'monto';
+
+export interface DescuentoGlobalConfig {
+  tipo: TipoDescuentoGlobal;
+  valor: number;
+  montoCalculado?: number;
+  supervisorPinAutorizado?: boolean;
+  supervisorId?: string;
+}
+
+export interface TotalesCartResultado {
+  subtotalBruto: number;
+  descuentoLineas: number;
+  subtotalNeto: number;
+  descuentoGlobalMonto: number;
+  descuentoTotal: number;
+  totalFinal: number;
+}
+
 interface MultiVendorPosState {
   terminalId: string;
   vendedorActivo: VendedorSesion | null;
@@ -31,6 +50,7 @@ interface MultiVendorPosState {
   // Estado del Carrito de Preventa
   cartItems: ItemPrefacturaInput[];
   maxDescuentoVendedorPct: number;
+  descuentoGlobal: DescuentoGlobalConfig | null;
 
   // Acciones de Terminal y Vendedor
   setTerminalId: (id: string) => void;
@@ -54,7 +74,16 @@ interface MultiVendorPosState {
     supervisorPinAutorizado?: boolean,
     supervisorId?: string
   ) => AplicarDescuentoResultado;
+  aplicarDescuentoGlobal: (
+    tipo: TipoDescuentoGlobal,
+    valor: number,
+    supervisorPinAutorizado?: boolean,
+    supervisorId?: string
+  ) => AplicarDescuentoResultado;
+  limpiarDescuentoGlobal: () => void;
   obtenerSubtotalCart: () => number;
+  obtenerDescuentoGlobalMonto: () => number;
+  obtenerTotalesCart: () => TotalesCartResultado;
   obtenerTotalCart: () => number;
   limpiarCart: () => void;
 
@@ -87,6 +116,7 @@ export const useMultiVendorPosStore = create<MultiVendorPosState>()(
 
     cartItems: [],
     maxDescuentoVendedorPct: LIMITE_DESCUENTO_DEFAULT_PCT,
+    descuentoGlobal: null,
 
     setTerminalId: (id: string) => {
       if (typeof window !== 'undefined' && window.localStorage) {
@@ -213,22 +243,115 @@ export const useMultiVendorPosStore = create<MultiVendorPosState>()(
       };
     },
 
+    aplicarDescuentoGlobal: (
+      tipo: TipoDescuentoGlobal,
+      valor: number,
+      supervisorPinAutorizado?: boolean,
+      supervisorId?: string
+    ) => {
+      const cleanValor = Math.max(0, Number(valor) || 0);
+      if (cleanValor <= 0) {
+        set({ descuentoGlobal: null });
+        return { ok: true, requiereSupervisor: false };
+      }
+
+      const { cartItems, maxDescuentoVendedorPct } = get();
+      const subtotalNetoLineas = cartItems.reduce((acc, it) => {
+        const desc = it.descuentoPct || 0;
+        const precioFinal = Math.round(it.precioLista * (1 - desc / 100));
+        return acc + precioFinal * it.cantidad;
+      }, 0);
+
+      let montoCalculado = 0;
+      let pctEquivalente = 0;
+
+      if (tipo === 'porcentaje') {
+        const safePct = Math.min(100, cleanValor);
+        pctEquivalente = safePct;
+        montoCalculado = Math.round(subtotalNetoLineas * (safePct / 100));
+      } else {
+        montoCalculado = subtotalNetoLineas > 0 ? Math.min(subtotalNetoLineas, Math.round(cleanValor)) : Math.round(cleanValor);
+        pctEquivalente = subtotalNetoLineas > 0 ? (montoCalculado / subtotalNetoLineas) * 100 : 0;
+      }
+
+      const requiereSupervisor = pctEquivalente > maxDescuentoVendedorPct;
+
+      set({
+        descuentoGlobal: {
+          tipo,
+          valor: cleanValor,
+          montoCalculado,
+          supervisorPinAutorizado: Boolean(supervisorPinAutorizado),
+          supervisorId,
+        },
+      });
+
+      return {
+        ok: true,
+        requiereSupervisor,
+      };
+    },
+
+    limpiarDescuentoGlobal: () => {
+      set({ descuentoGlobal: null });
+    },
+
+    obtenerTotalesCart: (): TotalesCartResultado => {
+      const { cartItems, descuentoGlobal } = get();
+
+      let subtotalBruto = 0;
+      let subtotalNeto = 0;
+
+      for (const it of cartItems) {
+        const bruto = it.precioLista * it.cantidad;
+        const desc = it.descuentoPct || 0;
+        const precioFinal = Math.round(it.precioLista * (1 - desc / 100));
+        const neto = precioFinal * it.cantidad;
+
+        subtotalBruto += bruto;
+        subtotalNeto += neto;
+      }
+
+      const descuentoLineas = subtotalBruto - subtotalNeto;
+
+      let descuentoGlobalMonto = 0;
+      if (descuentoGlobal && descuentoGlobal.valor > 0 && subtotalNeto > 0) {
+        if (descuentoGlobal.tipo === 'porcentaje') {
+          const safePct = Math.min(100, Math.max(0, descuentoGlobal.valor));
+          descuentoGlobalMonto = Math.round(subtotalNeto * (safePct / 100));
+        } else {
+          descuentoGlobalMonto = Math.min(subtotalNeto, Math.round(Math.max(0, descuentoGlobal.valor)));
+        }
+      }
+
+      const descuentoTotal = descuentoLineas + descuentoGlobalMonto;
+      const totalFinal = Math.max(0, subtotalNeto - descuentoGlobalMonto);
+
+      return {
+        subtotalBruto,
+        descuentoLineas,
+        subtotalNeto,
+        descuentoGlobalMonto,
+        descuentoTotal,
+        totalFinal,
+      };
+    },
+
+    obtenerDescuentoGlobalMonto: () => {
+      return get().obtenerTotalesCart().descuentoGlobalMonto;
+    },
+
     obtenerSubtotalCart: () => {
       const { cartItems } = get();
       return cartItems.reduce((acc, it) => acc + it.precioLista * it.cantidad, 0);
     },
 
     obtenerTotalCart: () => {
-      const { cartItems } = get();
-      return cartItems.reduce((acc, it) => {
-        const desc = it.descuentoPct || 0;
-        const precioFinal = Math.round(it.precioLista * (1 - desc / 100));
-        return acc + precioFinal * it.cantidad;
-      }, 0);
+      return get().obtenerTotalesCart().totalFinal;
     },
 
     limpiarCart: () => {
-      set({ cartItems: [] });
+      set({ cartItems: [], descuentoGlobal: null });
     },
 
     emitirPreventaActual: async (cliente?: {
@@ -256,7 +379,7 @@ export const useMultiVendorPosStore = create<MultiVendorPosState>()(
 
       if (emisionRes.ok) {
         // Vaciar carrito tras emisión exitosa
-        set({ cartItems: [] });
+        set({ cartItems: [], descuentoGlobal: null });
       }
 
       return emisionRes;

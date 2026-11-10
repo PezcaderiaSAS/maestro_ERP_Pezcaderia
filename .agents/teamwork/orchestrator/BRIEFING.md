@@ -1,7 +1,7 @@
-# BRIEFING — 2026-11-08T02:23:00Z
+# BRIEFING — 2026-11-09T12:25:00Z
 
 ## Mission
-Reconstruir desde cero la pantalla de ventas POS (`POSView.tsx`, `CartPanel.tsx`, `LineaVentaRow.tsx`) para producción, eliminando la saturación visual actual y adoptando un diseño espacioso, altamente legible y ergonómico estilo SaaS maduro para los vendedores en mostrador, verificado con Chrome DevTools, Vitest y Harness².
+Orquestar el equipo multi-agente de Teamwork para ejecutar el Plan Integral de Refactorización y Desarrollo Frontend: Interfaz POS — La Pezcadería S.A.S. bajo metodología SDD v3.0 (SPEC-057), ejecutando quirúrgicamente el Hito M4 / Tarea 4 (Interceptor Global de Atajos de Teclado F8, Ctrl+K, F6, F4, F2, F9, Esc en `usePOSKeyboardShortcuts.ts` y `POSMultivendorView.tsx`).
 
 ## 🔒 My Identity
 - Archetype: teamwork_orchestrator
@@ -9,28 +9,30 @@ Reconstruir desde cero la pantalla de ventas POS (`POSView.tsx`, `CartPanel.tsx`
 - Working directory: c:\Users\usuario\OneDrive\Documentos\Aplicaciones Pezca\MaestroPescaderia
 - State folder: c:\Users\usuario\OneDrive\Documentos\Aplicaciones Pezca\MaestroPescaderia\.agents\teamwork\orchestrator
 - Original parent: parent
-- Original parent conversation ID: ccbf0674-ad34-44bc-9595-51f6599fc57e
+- Original parent conversation ID: 0a9634ce-9492-4eed-a19a-c03ad7c2eda2
 
 ## 🔒 My Workflow
 - **Pattern**: Project Pattern (Dual Track: Implementation + E2E Testing)
 - **Scope document**: c:\Users\usuario\OneDrive\Documentos\Aplicaciones Pezca\MaestroPescaderia\PROJECT.md
-1. **Decompose**: Survey completed. `PROJECT.md` synthesized with 13 features across 4 milestones.
+1. **Decompose**: Survey completed. PROJECT.md synthesized with 18 features across 6 milestones.
 2. **Dispatch & Execute**:
-   - Milestone M1: Remediación de Sintaxis y Rediseño Ergonómico de Carrito y Filas (`CartPanel.tsx`, `LineaVentaRow.tsx`) [DONE]
-   - Milestone M2: Desacoplamiento de Operaciones Secundarias a Menú/Modal de Caja (`POSSecondaryActionsModal.tsx`) [DONE]
-   - Milestone M3: Reconstrucción de la Experiencia de Catálogo y Navegación POS (`POSTopBar.tsx`, `POSCategoryTabs.tsx`, `POSProductGrid.tsx`, `POSProductCard.tsx`, `POSPagination.tsx`, `POSView.tsx`) [DONE]
-   - Milestone M4: Final Milestone (100% Vitest pass + Chrome DevTools + Harness² + Final Forensic Audit) [DONE]
-3. **On failure**: N/A - all milestones passed gates on Iteration 1.
-4. **Succession**: Completed project within single orchestrator lifecycle.
+   - Tarea 1 (Milestone M1): Fila de Carrito con Navegación [Tab] y Edición en Línea [DONE]
+   - Tarea 2 (Milestone M2): Motor de Descuento Global de Comanda [DONE]
+   - Tarea 3 (Milestone M3): Trigger Táctil de Pesaje Manual [DONE]
+   - Tarea 4 (Milestone M4): Interceptor Global de Atajos de Teclado [IN_PROGRESS]
+   - Tarea 5 (Milestone M5): Validación Comercial y PIN de Supervisor [PLANNED]
+   - Tarea 6 (Milestone M6): Calidad, Virtualización y Quality Gate Final [PLANNED]
+3. **On failure**: Retry -> Replace -> Skip -> Redistribute -> Redesign -> Escalate.
+4. **Succession**: At 16 spawns, write soft handoff, spawn successor, exit.
 - **Work items**:
-  1. Survey & Codebase Investigation [completed]
-  2. Architecture Decomposition & PROJECT.md [completed]
-  3. Milestone M1: Remediación de Sintaxis y Rediseño Ergonómico de Carrito y Filas [DONE]
-  4. Milestone M2: Desacoplamiento de Operaciones Secundarias de Caja [DONE]
-  5. Milestone M3: Reconstrucción de Catálogo y Navegación POS [DONE]
-  6. Milestone M4: Final Milestone (Vitest 100%, DevTools & Harness²) [DONE]
-- **Current phase**: 4 (Reporting)
-- **Current focus**: Synthesizing results and delivering human report to parent
+   1. Survey & Codebase Investigation [completed]
+   2. Architecture Decomposition & PROJECT.md [completed]
+   3. Milestone M1 (Tarea 1): Fila de Carrito con Navegación [Tab] y Edición en Línea [DONE]
+   4. Milestone M2 (Tarea 2): Motor de Descuento Global de Comanda [DONE]
+   5. Milestone M3 (Tarea 3): Trigger Táctil de Pesaje Manual [DONE]
+   6. Milestone M4 (Tarea 4): Interceptor Global de Atajos de Teclado [IN_PROGRESS]
+- **Current phase**: 2B.a (Iteration Loop - Milestone M4 Exploration)
+- **Current focus**: Milestone M4 Exploration (TDD Suite, Hook Architecture, View & Modals Integration).
 
 ## 🔒 Key Constraints
 - NEVER write, modify, or create source code files directly.
@@ -41,51 +43,45 @@ Reconstruir desde cero la pantalla de ventas POS (`POSView.tsx`, `CartPanel.tsx`
 - Do NOT cheat or allow dummy/hardcoded implementations.
 - Spanish language (es-419) for user interaction and documentation.
 - Mandatory Spec Kit (SDD v3.0) and Harness² compliance.
+- Sequential and surgical execution: execute ONE task at a time. Stop and wait for user confirmation after each task.
 
 ## Current Parent
-- Conversation ID: ccbf0674-ad34-44bc-9595-51f6599fc57e
-- Updated: 2026-11-07T18:30:00Z
+- Conversation ID: 0a9634ce-9492-4eed-a19a-c03ad7c2eda2
+- Updated: 2026-11-09T12:24:39Z
 
 ## Key Decisions Made
-- All milestones M1, M2, M3, M4 successfully completed, tested and certified.
-- Total POS test suite passing: 264/264 tests across 34 suites (0 failures).
-- Google Harness² & Agency Swarm Bridge verified with 0 violations and formal certification.
-- Production build confirmed clean (`npm run build` in 37.70s).
-- Final forensic audit certified CLEAN.
+- Milestone M1 successfully certified and approved by human user.
+- Milestone M2 successfully certified and approved by human user.
+- Milestone M3 successfully certified and approved by human user.
+- Milestone M4 authorized by user: deploying 3 parallel Explorers (`m4_explorer_tdd`, `m4_explorer_hook`, `m4_explorer_integration`).
 
 ## Team Roster
 | Agent | Type | Work Item | Status | Conv ID |
 |-------|------|-----------|--------|---------|
-| survey_explorer_pos | teamwork_explorer | POS Layout & Catalog Explorer | completed | 50e6ed7e-e6a2-4328-8fd4-ed5c69a1d3c1 |
-| survey_explorer_cart | teamwork_explorer | Cart Panel & Ergonomics Explorer | completed | 87c3fb9a-5407-43f5-b38c-bed230b1a53c |
-| survey_spec_miner_pos | teamwork_spec_miner | POS Specs & Harness Miner | completed | 67d9a3ac-1541-4bc6-972a-fef7226a6de5 |
-| m1_worker_cart | teamwork_worker | Cart & Line Items Worker | completed | 4f756d0a-e5f7-4fe1-9ee2-a456c386e602 |
-| m1_reviewer_1 | teamwork_reviewer | Milestone M1 Reviewer (Ergonomics) | completed | 39711c7c-3ba0-470a-a714-4a6f2e5550da |
-| m1_reviewer_2 | teamwork_reviewer | Milestone M1 Reviewer (Layout) | completed | dc8381cb-7e16-4cc7-87c6-a5d3de01a180 |
-| m1_challenger_1 | teamwork_challenger | Milestone M1 Challenger (Stress) | completed | 9c9b6f40-cf98-4ca6-bf3f-f51e83821530 |
-| m1_challenger_2 | teamwork_challenger | Milestone M1 Challenger (Precision) | completed | ce1d9b7f-422d-4fe7-84ab-2fd9c2dd5fc4 |
-| m1_auditor | teamwork_auditor | Forensic Auditor M1 | completed | c7039b43-e312-4b08-a55a-3740a269dbef |
-| m2_worker_actions | teamwork_worker | Secondary Actions Worker | completed | 55fbdcdb-17aa-4a1f-94b8-99fc29e805ea |
-| m2_reviewer_1 | teamwork_reviewer | Milestone M2 Reviewer (Modal UX) | completed | 068b5405-6b74-4019-8747-01887dc73608 |
-| m2_reviewer_2 | teamwork_reviewer | Milestone M2 Reviewer (Integration) | completed | 4b21d3de-9464-4592-b253-0fb1ea349181 |
-| m2_challenger_1 | teamwork_challenger | Milestone M2 Challenger (Drafts) | completed | ef329c88-c7f7-49a6-8f24-87c1dc831cc2 |
-| m2_challenger_2 | teamwork_challenger | Milestone M2 Challenger (Modal Lifecycle) | completed | cdfd9d26-6d6b-49b5-bf59-2bd61b273077 |
-| m2_auditor | teamwork_auditor | Forensic Auditor M2 | completed | c3c47265-8fe3-4a14-ab1b-f3937b6204f8 |
-| m3_worker_catalog | teamwork_worker | Catalog & Navigation Worker | completed | 1fc2d1cf-81ee-4f5d-b78c-5f0cde3b6136 |
-| m4_worker_harness | teamwork_worker | Harness & Certification Worker | completed | e225bdea-2d3e-464c-a42d-64d0ebd82218 |
-| m4_auditor | teamwork_auditor | Final Forensic Auditor | completed | b09792e7-387e-4b19-b81a-f3dc5e4f822b |
+| m4_explorer_tdd | teamwork_explorer | M4 TDD Strategy & Test Suite Explorer | completed | a12fb93c-d6fd-4357-acf6-d3de27256b80 |
+| m4_explorer_hook | teamwork_explorer | M4 Hook Architecture Explorer | completed | 8903e920-e9d1-4c56-bd36-fb960fcc197f |
+| m4_explorer_integration | teamwork_explorer | M4 View Integration & Targets Explorer | completed | 3ef507a8-e993-47b4-87be-43d4050dea68 |
+| worker_m4_shortcuts | teamwork_worker | Worker M4 Keyboard Shortcuts & TDD | completed | d3c63e90-69b0-454d-9904-772c9e1a0ffc |
+| m4_rev_shortcuts_correctness | teamwork_reviewer | M4 Correctness Reviewer | completed (APPROVE) | f63329a0-7fb8-4775-8210-dd3011a86152 |
+| m4_rev_shortcuts_ergonomics | teamwork_reviewer | M4 Ergonomics Reviewer | completed (REQUEST_CHANGES) | 597ab5a5-78ca-46e9-bd2f-3b763dd7a728 |
+| m4_chal_shortcuts_stress | teamwork_challenger | M4 Stress Challenger | completed (APPROVE) | 51fe28c4-6083-4fd1-b9bd-9eb6e4fdc881 |
+| m4_chal_shortcuts_integration | teamwork_challenger | M4 Integration Challenger | completed (APPROVE) | c0e16976-5b25-4130-a7cf-293ba7dcdd8f |
+| m4_audit_shortcuts | teamwork_auditor | M4 Forensic Auditor | completed (INTEGRITY VIOLATION) | bec7216d-94d2-43f9-bb11-6305e5001ebd |
+| m4_r2_exp_hooks | teamwork_explorer | M4 R2 Rules of Hooks Explorer | in-progress | 7b39299e-5d72-413b-9a9e-594e906e8231 |
+| m4_r2_exp_collisions | teamwork_explorer | M4 R2 Collision Prevention Explorer | in-progress | 89993142-d7c7-484e-8f7f-858f1bcb9ba0 |
+| m4_r2_exp_integration | teamwork_explorer | M4 R2 Regression & Lifecycle Explorer | in-progress | 57ce684a-4510-4062-b683-da6f13807f02 |
 
 ## Succession Status
-- Succession required: no
-- Spawn count: 18 / 128
-- Pending subagents: none
+- Succession required: no (continuing under 128 agent ceiling)
+- Spawn count: 42 / 128
+- Pending subagents: 7b39299e-5d72-413b-9a9e-594e906e8231, 89993142-d7c7-484e-8f7f-858f1bcb9ba0, 57ce684a-4510-4062-b683-da6f13807f02
 - Predecessor: none
 - Successor spawned: none
 - Successor generation: none
 - Successor state folder: none
 
 ## Active Timers
-- Heartbeat cron: none
+- Heartbeat cron: [to be started on dispatch]
 - Safety timer: none
 
 ## Artifact Index
@@ -94,9 +90,4 @@ Reconstruir desde cero la pantalla de ventas POS (`POSView.tsx`, `CartPanel.tsx`
 - .agents/teamwork/orchestrator/BRIEFING.md — Working memory and orchestrator state
 - .agents/teamwork/orchestrator/progress.md — Liveness heartbeat and milestone tracking
 - .agents/teamwork/orchestrator/GATE_STATUS.md — Gate verdicts log
-- PROJECT.md — Architecture, Feature Inventory, Milestones, Interface Contracts
-- .agents/teamwork/m1_worker_cart/handoff.md — M1 report (DONE)
-- .agents/teamwork/m2_worker_actions/handoff.md — M2 report (DONE)
-- .agents/teamwork/m3_worker_catalog/handoff.md — M3 report (DONE)
-- .agents/teamwork/m4_worker_harness/handoff.md — M4 technical certification (DONE)
-- .agents/teamwork/m4_auditor/handoff.md — M4 forensic audit (CLEAN)
+- PROJECT.md — Global architecture, feature inventory (F1-F18), milestones (M1-M6), contracts

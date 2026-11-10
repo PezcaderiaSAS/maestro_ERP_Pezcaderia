@@ -1,84 +1,94 @@
-# Project: Reconstrucción Integral Ergonómica de Pantalla de Ventas POS (Estilo SaaS Maduro)
+# Project: Plan Integral de Refactorización y Desarrollo Frontend: Interfaz POS — La Pezcadería S.A.S. (SPEC-057)
 
 ## Architecture
-- **Patrón de Arquitectura**: Single Page Application en React 18, Vite, TypeScript estricto, Tailwind CSS y Supabase (`localDb` híbrido Dexie/IndexedDB).
-- **Proporción y Balance de Pantalla (Benchmark SaaS Maduro 75/25)**:
-  - **Área de Catálogo (Izquierda, ~75% de ancho)**:
-    - Barra superior (`POSTopBar`): Input de código de barras, input de búsqueda con icono de lupa y botón "Crear Producto +" (conectado a `CrearProductoRapidoModal`).
-    - Navegación de categorías (`POSCategoryTabs`): Pestañas horizontales dinámicas con flechas `←` `TODOS` `→`.
-    - Cuadrícula de productos (`POSProductGrid`): Matriz espaciosa de 6 columnas × 3 filas (18 tarjetas por página), con nombre legible a 2 líneas, precio destacado en verde esmeralda (`#059669`) y click para agregar al carrito.
-    - Paginación inferior (`POSPagination`): Controles explícitos `< Anterior 1 2 3 ... Siguiente >`.
-  - **Panel de Carrito (Derecha, ~25% de ancho, `CartPanel`)**:
-    - Selector de cliente superior compacto: Barra de 38px `👤 CONSUMIDOR FINAL` con iconos de búsqueda/edición y acciones.
-    - Contenedor de líneas de venta desahogado: Ocupa el **75% a 80% de la altura vertical útil** (`flex-1 min-h-0 overflow-y-auto overscroll-contain`), eliminando la compresión de 40px y los artefactos blancos de contraste.
-    - Fila de venta ergonómica (`LineaVentaRow`): Diseño 2-tier sin cortes de texto, con stepper táctil de 48px, unit price editable y subtotal destacado.
-    - Barra inferior de carrito limpia: Resumen compacto de subtotales, botón primario verde "Vender $XX.XXX" y botón secundario tipo outline "Guardar" (En Espera F6).
-    - Desacoplamiento de operaciones secundarias (`POSSecondaryActionsModal`): "Cerrar turno", "Ventas en espera", "Borradores", "Multicliente" y notas de corte reubicadas en menú secundario o modal para no saturar el flujo de venta.
+- **Patrón de Arquitectura**: Single Page Application en React 18, Vite, TypeScript estricto, Tailwind CSS y Zustand en arquitectura de persistencia L1/Dexie.
+- **Enfoque de Desarrollo**: Spec-Driven Development (SDD v3.0 / Spec Kit) con ciclo TDD riguroso (RED -> GREEN -> REFACTOR) y Continuous Kanban Flow (WIP = 1).
+- **Módulos y Componentes Involucrados**:
+  - `src/views/pos/components/POSMultivendorCart.tsx`: Carrito multivendedor con flexbox vertical estricto (85% espacio de lista con `min-h-0`), inputs de cantidad y precio continuo con auto-selección en foco y navegación cíclica por [Tab], micro-botón `[+ Desc]` por ítem, y pie fijo anclado (`shrink-0 mt-auto`).
+  - `src/views/pos/components/POSMultivendorView.tsx`: Vista contenedora principal que orquesta el catálogo (75%), carrito (25%), atajos globales de teclado, trigger automático de balanza táctil e integración de modales de supervisor y pesaje.
+  - `src/views/pos/components/ManualWeightModal.tsx`: Modal táctil con teclado numérico en pantalla (teclas >= 48px), chips de acceso rápido (0.25 - 5 kg) y cálculo de subtotal en tiempo real.
+  - `src/views/pos/components/SupervisorPinModal.tsx`: Modal de seguridad táctil para autorización con PIN de 4 dígitos cuando se superan umbrales comerciales.
+  - `src/views/pos/components/POSMultivendorCatalog.tsx`: Matriz fija de 18 tarjetas (6x3) con paginación inferior `< Anterior 1 2 3 ... Siguiente >`, virtualizada en memoria (< 16ms, 60 FPS) y marcado de productos agotados (`opacity-60`, "AGOTADO").
+  - `src/stores/useMultiVendorPosStore.ts`: Store Zustand L1 con recálculo financiero síncrono (< 10ms) para subtotales, descuentos y totales.
+  - `src/tests/posCartEditableRow.test.tsx`: Suite de pruebas TDD exclusiva para el carrito editable y navegación por teclado.
 
 ## Feature Inventory
 | # | Feature | Description | Milestone | Source |
 |---|---------|-------------|-----------|--------|
-| F1 | Corrección de Sintaxis Crítica en CartPanel | Corregir `usa harneimport` en `CartPanel.tsx:1` por `import React...` para desbloquear la compilación de 15+ suites Vitest. | M1 | Survey (Exp 1, 2, Spec) |
-| F2 | Eliminación de Artefactos Blancos y Rediseño LineaVentaRow | Eliminar clases conflictivas `bg-white` en `LineaVentaRow.tsx`, aplicando tokens de alto contraste WCAG AA+ y layout 2-tier ergonómico con stepper de 48px. | M1 | Survey (Exp 1, 2, Spec) |
-| F3 | Carrito Vertical Desahogado (75-80% de Altura Útil) | Eliminar chrome fijo acumulado (~339px) en `CartPanel.tsx`, dedicando el 75-80% del alto a `pos-cart-items-list` con scroll aislado `flex-1 min-h-0 overflow-y-auto`. | M1 | Survey (Exp 1, 2, Spec) |
-| F4 | Selector de Cliente Superior Compacto | Implementar barra superior de cliente de 38px (`👤 CONSUMIDOR FINAL`) con controles discretos de búsqueda, edición y reset sin desplazar la lista. | M1 | Survey (Exp 1, 2, Spec) |
-| F5 | Reubicación de Operaciones Secundarias de Caja | Desacoplar "Cerrar turno", "Ventas en espera", "Borradores", "Multicliente" y notas de corte a un modal/dropdown secundario accesible (`POSSecondaryActionsModal`). | M2 | Survey (Exp 1, 2, Spec) |
-| F6 | Barra Inferior de Carrito Limpia y Despejada | Pie condensado (`shrink-0 mt-auto`) con resumen compacto, botón primario "Vender $XX.XXX" y botón secundario "Guardar" (F6). | M1 | Survey (Exp 1, 2, Spec) |
-| F7 | Barra Superior de Catálogo (Búsqueda, Barras y Crear Producto) | Barra superior en `POSView.tsx` con input de código de barras, input de búsqueda con lupa y botón "Crear Producto +" enlazado a `CrearProductoRapidoModal`. | M3 | Survey (Exp 1, Spec) |
-| F8 | Pestañas de Categorías con Flechas de Navegación | Pestañas horizontales con flechas de desplazamiento `←` y `→`, selector activo en verde esmeralda y filtrado instantáneo. | M3 | Survey (Exp 1, Spec) |
-| F9 | Cuadrícula de Productos Amplia de 6 Columnas (18 Tarjetas) | Matriz de 6 columnas × 3 filas con tarjetas limpias, nombre legible, precio visible en negrita verde esmeralda y click 1-tap para agregar. | M3 | Survey (Exp 1, Spec) |
-| F10 | Paginación Explícita de Catálogo | Control de paginación `< Anterior 1 2 3 ... Siguiente >` en la base del catálogo para evitar scroll infinito descontrolado. | M3 | Survey (Exp 1, Spec) |
-| F11 | Certificación de Pruebas Unitarias y de Componentes Vitest al 100% | Ejecución y pase al 100% de las 46 suites de pruebas Vitest relacionadas con POS, validando la preservación de todos los `data-testid`. | M4 | Survey (Spec Miner) |
-| F12 | Verificación Interactiva con Chrome DevTools (Desktop y Móvil 375px) | Validación en navegador con Chrome DevTools: 0 errores en consola JS, ergonomía visual en mostrador y responsividad en móvil a 375px. | M4 | System / Request |
-| F13 | Auditoría de Gobernanza Arquitectónica con Google Harness² | Verificación de invariantes, tokens y contratos con `run_agency_sdd_bridge.py` y `run_harness2.ps1` con 0 violaciones. | M4 | System / Request |
+| F1 | Input Cantidad Editable en Línea | `<input type="number">` continuo con auto-selección en foco para modificar cantidad/peso en cada fila del carrito. | M1 | Survey (Spec Miner, Explorers) |
+| F2 | Input Precio Unitario Editable en Línea | `<input type="number">` continuo con prefijo $ y auto-selección en foco para modificar precio unitario en cada fila. | M1 | Survey (Spec Miner, Explorers) |
+| F3 | Navegación Continua con Tecla [Tab] | Presionar [Tab] en Cantidad enfoca Precio de la misma fila; [Tab] en Precio enfoca Cantidad de la fila siguiente. | M1 | Survey (Spec Miner, Explorers) |
+| F4 | Micro-Botón de Descuento por Ítem [+ Desc] | Botón micro en cada fila que permite asignar descuento individual (% o $) mostrando badge en la línea. | M1 | Survey (Spec Miner, Explorers) |
+| F5 | Flexbox Vertical Estricto (85% Espacio de Ítems) | Contenedor con `h-full min-h-0 flex flex-col`, lista de productos con `flex-1 min-h-0 overflow-y-auto` y pie anclado `shrink-0 mt-auto`. | M1 | Survey (Spec Miner, Explorers) |
+| F6 | Suite TDD `posCartEditableRow.test.tsx` | Suite de pruebas unitarias e interactivas Vitest + RTL que valida la fila editable, navegación Tab y micro-descuento. | M1 | Survey (Spec Miner, Explorers) |
+| F7 | Botón Anclado `+ Descuento (F4)` en Footer | Botón permanente en el pie de totales del carrito para abrir popover/modal de descuento global de comanda. | M2 | Survey (Spec Miner) |
+| F8 | Selector de Descuento Global [% / $] | Selector interactivo de modo porcentual (%) o monto fijo ($) con inputs numéricos y presets en el footer del carrito. | M2 | Survey (Spec Miner) |
+| F9 | Recálculo Financiero Instantáneo Sub-10ms | Recálculo reactivo en Zustand de Subtotal, Descuento, IVA y Total a Pagar en tiempo real (< 10ms). | M2 | Survey (Spec Miner) |
+| F10 | Trigger Automático de `ManualWeightModal` | Despliegue inmediato del modal de pesaje al hacer clic o escanear productos a granel (`KG Balanza`) en `POSMultivendorView`. | M3 | Survey (Spec Miner, Explorers) |
+| F11 | Teclado Táctil y Chips de Pesaje en Balanza | Digitador táctil manual en pantalla con chips de peso rápido (0.25 - 5 kg) y cálculo en vivo sin bloqueo serial. | M3 | Survey (Spec Miner, Explorers) |
+| F12 | Interceptor Global de Atajos de Teclado | Captura unificada de atajos F8 (Buscador), Ctrl+K (Búsqueda rápida), F6 (Comanda), F4 (Descuento), F2 (Cobrar), F9 (Cajero), Esc (Cerrar). | M4 | Survey (Spec Miner, Explorers) |
+| F13 | Validación Comercial de Margen Mínimo | Validación: si `Precio Propuesto < Costo Base + 15%`, se exige obligatoriamente PIN de supervisor (4 dígitos). | M5 | Survey (Spec Miner, Explorers) |
+| F14 | Validación de Umbral Máximo de Descuento | Validación: si `Descuento > 10%`, se exige obligatoriamente PIN de supervisor vía `SupervisorPinModal`. | M5 | Survey (Spec Miner, Explorers) |
+| F15 | Mecanismo de Rollback ante Cancelación de PIN | Si el modal de supervisor se cancela o el PIN es inválido, se revierte inmediatamente el precio o descuento anterior. | M5 | Survey (Spec Miner) |
+| F16 | Matriz de Catálogo 18 Tarjetas (6x3) Virtualizada | Grid fijo de 18 tarjetas con paginación inferior `< Anterior ... Siguiente >` virtualizado en memoria para transiciones < 16ms (60 FPS). | M6 | Survey (Spec Miner, Explorers) |
+| F17 | Estado Visual de Productos Agotados | Indicador visual para items con `stock <= 0` (`opacity-60`, texto destacado "AGOTADO", clic inhabilitado). | M6 | Survey (Spec Miner) |
+| F18 | Quality Gate Final: TypeScript, Vitest y Responsive | Verificación con `tsc --noEmit` (0 errores), Vitest (100% verde) y renderizado responsive a 375px móvil y 1280px desktop. | M6 | Survey (Spec Miner, Explorers) |
 
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| M1 | Remediación de Sintaxis y Rediseño Ergonómico de Carrito y Filas | `CartPanel.tsx`, `LineaVentaRow.tsx` (F1, F2, F3, F4, F6) | none | DONE (Passed Gate: 2 Reviewers APPROVE, 2 Challengers APPROVE, Auditor CLEAN) |
-| M2 | Desacoplamiento de Operaciones Secundarias a Menú/Modal de Caja | `POSSecondaryActionsModal.tsx`, integración en `CartPanel.tsx` (F5) | M1 | DONE (Passed Gate: 2 Reviewers APPROVE, 2 Challengers APPROVE, Auditor CLEAN) |
-| M3 | Reconstrucción de la Experiencia de Catálogo y Navegación POS | `POSTopBar.tsx`, `POSCategoryTabs.tsx`, `POSProductGrid.tsx`, `POSProductCard.tsx`, `POSPagination.tsx`, `POSView.tsx` (F7, F8, F9, F10) | M1, M2 | DONE (41/41 target tests, 52/52 regression tests, 0 tsc errors) |
-| M4 | Final Milestone: Certificación Vitest 100%, Chrome DevTools y Harness² | Ejecución completa de pruebas, validación DevTools y Harness² (F11, F12, F13) | M1, M2, M3 | DONE (264/264 POS tests passing, Harness² exit 0, build exit 0, Auditor CLEAN) |
+| M1 | Fila de Carrito con Navegación [Tab], Edición en Línea, Botón [+ Desc] y Suite TDD (Tarea 1) | `src/views/pos/components/POSMultivendorCart.tsx`, `src/tests/posCartEditableRow.test.tsx` (F1, F2, F3, F4, F5, F6) | none | DONE (Gate PASSED: 2 Reviewers APPROVE, 2 Challengers APPROVE, Auditor CLEAN, 54/54 tests green, 0 tsc errors) |
+| M2 | Motor de Descuento Global de Comanda (F4) [% / $] y Recálculo Sub-10ms (Tarea 2) | `src/views/pos/components/POSMultivendorCart.tsx`, `src/stores/useMultiVendorPosStore.ts` (F7, F8, F9) | M1 | DONE (Gate PASSED: 2 Reviewers APPROVE, 2 Challengers APPROVE, Auditor CLEAN, 67/67 tests green, 0 tsc errors, p99 < 2ms) |
+| M3 | Trigger Táctil de Pesaje Manual (`ManualWeightModal`) para Ítems Balanza (Tarea 3) | `src/views/pos/components/POSMultivendorView.tsx`, `src/views/pos/components/ManualWeightModal.tsx` (F10, F11) | M1 | DONE (Gate PASSED: 2 Reviewers APPROVE, 2 Challengers APPROVE, Auditor CLEAN, 88/88 tests green, 0 tsc errors) |
+| M4 | Interceptor Global de Atajos de Teclado (F8, Ctrl+K, F6, F4, F2, F9, Esc) (Tarea 4) | `src/views/pos/components/POSMultivendorView.tsx`, `src/hooks/usePOSKeyboardShortcuts.ts` (F12) | M1, M2 | DONE (Gate PASSED: 2 Reviewers APPROVE, 2 Challengers APPROVE, Auditor CLEAN, 165+ tests green, 0 tsc errors) |
+| M5 | Validación Comercial de Margen, Umbral de Descuento y PIN de Supervisor (Tarea 5) | `src/views/pos/components/POSMultivendorCart.tsx`, `src/views/pos/components/SupervisorPinModal.tsx` (F13, F14, F15) | M1, M2 | DONE (Gate PASSED: 14/14 tests M5 green, 179/179 full suite green, 0 tsc errors) |
+| M6 | Quality Gate Final: Catálogo 18 Tarjetas, Virtualización, TypeScript 0 Errores, Vitest 100% y Responsive (Tarea 6) | `src/views/pos/components/POSMultivendorCatalog.tsx`, suites Vitest, validación responsive (F16, F17, F18) | M1, M2, M3, M4, M5 | DONE (Gate PASSED: 15/15 tests M6 green, 194/194 full suite green, 0 tsc errors, build 100% clean) |
+
+## Feature Inventory Cross-Check
+- Total Features: 18 (F1 a F18)
+- Features assigned to M1: F1, F2, F3, F4, F5, F6 (6 features)
+- Features assigned to M2: F7, F8, F9 (3 features)
+- Features assigned to M3: F10, F11 (2 features)
+- Features assigned to M4: F12 (1 feature)
+- Features assigned to M5: F13, F14, F15 (3 features)
+- Features assigned to M6: F16, F17, F18 (3 features)
+- Unassigned Features: 0 (Cross-check PASSED 100%).
 
 ## Interface Contracts
 
-### CartPanel ↔ LineaVentaRow
-- Props requeridas: `linea: LineaVenta`, `stockDisponible: number`, `precioFinalDisplay: number`, `onUpdateCantidad`, `onUpdateDescuentoLinea`, `onRemove`, `onWeightRead`, `onUpdatePrecio`, `onResetItemPrice`.
-- Contratos DOM / Tests:
-  - Fila: `data-testid="cart-item-row-${linea.productoId}"` con clase `.cart-item-row`.
-  - Nombre: `data-testid="cart-item-name-${linea.productoId}"` con clase `.cart-item-name`.
-  - Precio: `data-testid="cart-item-price-${linea.productoId}"` con clase `.cart-item-price`.
-  - Input: `data-testid="input-cantidad"` con `min-h-[48px]`.
-  - Botones stepper: `min-w-[48px] min-h-[48px]`, `data-testid="btn-aumentar-cantidad"`, `data-testid="btn-disminuir-cantidad"`, `data-testid="btn-eliminar-linea"`.
-
-### CartPanel ↔ Secondary Operations Popover / Modal
-- Contrato de desacoplamiento:
-  - Componente: `POSSecondaryActionsModal` o dropdown popover activable mediante icono `[⋮]` o botón "Más Acciones de Caja".
-  - Operaciones encapsuladas: `onCerrarTurnoClick`, `onGuardarBorrador` (En Espera), listado de borradores activos (`drafts`), multicliente y notas de corte (`onOpenNotasModal`).
-  - Badge visible en cabecera de carrito: Si `drafts.length > 0`, badge sutil `⏸ N en espera` que abre el modal sin consumir espacio vertical de la lista.
-
-### POSView ↔ POSTopBar & Product Grid
-- `POSTopBar`:
-  - Input código de barras con listener `onKeyDown` (Enter) y botón de simulación.
-  - Input búsqueda de productos con icono lupa y autofocus.
-  - Botón "+ Crear Producto" que conmuta estado local `showCrearProductoModal: boolean` renderizando `<CrearProductoRapidoModal />`.
-- `POSCategoryTabs`:
-  - Flechas `←` y `→` que disparan `scrollBy({ left: +/- 200, behavior: 'smooth' })`.
-  - Pestañas con clases activas en verde esmeralda (`bg-emerald-600 text-white`).
-- `POSProductGrid`:
-  - 18 productos por página (`currentPage`, `totalPages`, `pageSize = 18`).
-  - Tarjetas con nombre completo a 2 líneas, precio prominente en verde esmeralda y click inmediato que invoca `onAgregarProducto(producto)`.
-- `POSPagination`:
-  - Botones `< Anterior`, números de página `1 2 3 ...`, y botón `Siguiente >`.
+### POSMultivendorCart Props & Callbacks (Milestone M1)
+- **Props requeridas**:
+  - `items: MultivendorCartItem[]`
+  - `onUpdateQuantity: (index: number, delta: number) => void` (compatibilidad retroactiva)
+  - `onSetQuantity?: (index: number, quantity: number) => void` (nuevo para digitación directa)
+  - `onUpdatePrice?: (index: number, newPrice: number) => void` (nuevo para edición de precio en línea)
+  - `onUpdateDiscount?: (index: number, discountPct: number) => void` (nuevo para descuento de línea)
+  - `onRemoveItem: (index: number) => void`
+  - `onClearCart: () => void`
+  - `subtotal: number`
+  - `descuento?: number`
+  - `total: number`
+  - `onEmitirComanda: () => void`
+  - `onCobrarCaja?: () => void`
+- **Atributos y Contratos DOM en Cada Fila de Carrito**:
+  - Contenedor de fila: `data-testid="cart-row-${index}"`
+  - Display/Span de Cantidad (compatibilidad retroactiva): `data-testid="cart-qty-${index}"`
+  - Input Cantidad: `data-testid="cart-qty-input-${index}"` con `tabIndex={index * 2 + 1}` y `onFocus={(e) => e.target.select()}`
+  - Input Precio Unitario: `data-testid="cart-unit-price-input-${index}"` con `tabIndex={index * 2 + 2}` y `onFocus={(e) => e.target.select()}`
+  - Botón micro [+ Desc]: `data-testid="btn-cart-desc-${index}"`
+  - Steppers de incremento/decremento: `data-testid="btn-cart-inc-${index}"` y `data-testid="btn-cart-dec-${index}"` (con `tabIndex={-1}`)
+  - Botón eliminar ítem: `data-testid="btn-cart-remove-${index}"` (con `tabIndex={-1}`)
 
 ## Code Layout
-- `src/views/pos/components/CartPanel.tsx`: Panel de carrito con selector de cliente compacto, lista de 75-80% de alto y pie con Vender/Guardar.
-- `src/views/pos/components/LineaVentaRow.tsx`: Fila ergonómica 2-tier sin artefactos blancos.
-- `src/views/pos/components/POSSecondaryActionsModal.tsx`: Modal / Menú para operaciones secundarias de caja (R3).
-- `src/views/pos/components/POSTopBar.tsx`: Barra superior con lector de código de barras, buscador y botón "Crear Producto +".
-- `src/views/pos/components/POSCategoryTabs.tsx`: Pestañas horizontales de categorías con flechas de navegación.
-- `src/views/pos/components/POSProductGrid.tsx`: Cuadrícula espaciosa de 6 columnas con tarjetas optimizadas.
-- `src/views/pos/components/POSProductCard.tsx`: Tarjeta individual de producto estilo SaaS maduro.
-- `src/views/pos/components/POSPagination.tsx`: Controles de paginación explícita.
-- `src/views/POSView.tsx`: Vista orquestadora principal limpia con división 75% catálogo y 25% carrito.
-- `src/views/inventory/components/CrearProductoRapidoModal.tsx`: Modal de creación rápida existente reutilizado.
+- Componentes POS: `src/views/pos/components/`
+  - `POSMultivendorCart.tsx` (exclusivo para M1, M2, M5)
+  - `POSMultivendorView.tsx` (exclusivo para M3, M4)
+  - `POSMultivendorCatalog.tsx` (exclusivo para M6)
+  - `ManualWeightModal.tsx` (utilizado en M3)
+  - `SupervisorPinModal.tsx` (utilizado en M5)
+- Hooks y Stores: `src/hooks/`, `src/stores/`
+  - `useMultiVendorPosStore.ts` (M2, M5)
+  - `usePOSKeyboardShortcuts.ts` (M4)
+- Suites de Prueba: `src/tests/`
+  - `src/tests/posCartEditableRow.test.tsx` (creación en M1)
+  - `src/tests/posMultivendorLightSaaS.test.tsx` (suite de regresión)

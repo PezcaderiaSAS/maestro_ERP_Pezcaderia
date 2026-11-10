@@ -160,6 +160,7 @@ export const SupervisorPinModal: React.FC<SupervisorPinModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="supervisor-modal-title"
+      data-testid="modal-supervisor-pin"
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in"
     >
       <div
@@ -181,6 +182,7 @@ export const SupervisorPinModal: React.FC<SupervisorPinModalProps> = ({
           </div>
           <button
             onClick={onClose}
+            data-testid="modal-close-btn"
             className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
             title="Cancelar autorización"
             aria-label="Cerrar modal"
