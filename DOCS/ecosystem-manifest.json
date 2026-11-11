@@ -1,9 +1,9 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2026-11-04T12:21:59.765Z",
+  "lastUpdated": "2026-11-11T14:17:39.749Z",
   "totals": {
     "workflows": 116,
-    "skills": 12,
+    "skills": 122,
     "agencies": 7,
     "mcpServers": 14
   },
@@ -953,10 +953,87 @@
       "status": "ACTIVE"
     },
     {
+      "id": "archify",
+      "name": "archify",
+      "description": "\"Genera diagramas arquitectónicos C4, mapas de dependencias y análisis estructural de módulos con Mermaid.js.\"",
+      "path": ".agents/skills/archify",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "aside",
+      "name": "aside",
+      "description": "\"Answer a quick side question without interrupting or losing context from the current task. Resume work automatically after answering.\"",
+      "path": ".agents/skills/aside",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "async",
+      "name": "async",
+      "description": "\"Acceso rápido a patrones de ingeniería asíncrona, AbortController, useTransition y deduplicación de promesas.\"",
+      "path": ".agents/skills/async",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "auto-update",
+      "name": "auto-update",
+      "description": "\"Pull the latest ECC repo changes and reinstall the current managed targets.\"",
+      "path": ".agents/skills/auto-update",
+      "status": "ACTIVE"
+    },
+    {
       "id": "backend_db",
       "name": "backend_db",
       "description": "Habilidad de desarrollo especializada para ERP",
       "path": ".agents/skills/backend_db",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "build-fix",
+      "name": "build-fix",
+      "description": "\"Detect the project build system and incrementally fix build/type errors with minimal safe changes.\"",
+      "path": ".agents/skills/build-fix",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "cache",
+      "name": "cache",
+      "description": "\"Acceso rápido a la estrategia de caché multinivel con Zustand y Upstash Redis.\"",
+      "path": ".agents/skills/cache",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "checkpoint",
+      "name": "checkpoint",
+      "description": "\"Create, verify, or list workflow checkpoints after running verification checks.\"",
+      "path": ".agents/skills/checkpoint",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "code-review",
+      "name": "code-review",
+      "description": "\"Code review — local uncommitted changes or GitHub PR (pass PR number/URL for PR mode)\"",
+      "path": ".agents/skills/code-review",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "concurrency",
+      "name": "concurrency",
+      "description": "\"Control de concurrencia de usuarios simultáneos, OCC, locks distribuidos en Redis y transacciones atómicas en Supabase.\"",
+      "path": ".agents/skills/concurrency",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "continuous-kanban-flow",
+      "name": "continuous-kanban-flow",
+      "description": "\"Gestión de tareas mediante flujo continuo visual Lean Kanban con límite estricto WIP = 1, sin sprints rígidos y guiado por planos arquitectónicos.\"",
+      "path": ".agents/skills/continuous-kanban-flow",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "cost-report",
+      "name": "cost-report",
+      "description": "\"Generate a local Claude Code cost report from the ECC cost-tracker metrics log.\"",
+      "path": ".agents/skills/cost-report",
       "status": "ACTIVE"
     },
     {
@@ -967,10 +1044,94 @@
       "status": "ACTIVE"
     },
     {
+      "id": "design-system",
+      "name": "design-system",
+      "description": "\"Acceso rápido al sistema de diseño UI/UX y tokens de componentes en MaestroPescaderia.\"",
+      "path": ".agents/skills/design-system",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "ecc-guide",
+      "name": "ecc-guide",
+      "description": "\"Navigate ECC's current agents, skills, commands, hooks, install profiles, and docs from the live repository surface.\"",
+      "path": ".agents/skills/ecc-guide",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "epic-claim",
+      "name": "epic-claim",
+      "description": "\"Claim an epic issue, stamp coordination state, and sync local ownership.\"",
+      "path": ".agents/skills/epic-claim",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "epic-decompose",
+      "name": "epic-decompose",
+      "description": "\"Break an epic into task children without creating task branches.\"",
+      "path": ".agents/skills/epic-decompose",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "epic-publish",
+      "name": "epic-publish",
+      "description": "\"Publish a validated epic update back to the issue and local cache.\"",
+      "path": ".agents/skills/epic-publish",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "epic-review",
+      "name": "epic-review",
+      "description": "\"Mark epic review requested, approved, or changes requested.\"",
+      "path": ".agents/skills/epic-review",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "epic-sync",
+      "name": "epic-sync",
+      "description": "\"Sync epic issue bodies, labels, and local coordination snapshots from GitHub.\"",
+      "path": ".agents/skills/epic-sync",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "epic-unblock",
+      "name": "epic-unblock",
+      "description": "\"Sweep blocked epic issues and reopen anything whose dependencies are closed.\"",
+      "path": ".agents/skills/epic-unblock",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "epic-validate",
+      "name": "epic-validate",
+      "description": "\"Validate epic readiness, dependencies, and coordination policy.\"",
+      "path": ".agents/skills/epic-validate",
+      "status": "ACTIVE"
+    },
+    {
       "id": "erp-pos-design-tokens",
       "name": "erp-pos-design-tokens",
       "description": "|",
       "path": ".agents/skills/erp-pos-design-tokens",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "evolve",
+      "name": "evolve",
+      "description": "\"Analyze instincts and suggest or generate evolved structures\"",
+      "path": ".agents/skills/evolve",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "feature-dev",
+      "name": "feature-dev",
+      "description": "\"Guided feature development with codebase understanding and architecture focus\"",
+      "path": ".agents/skills/feature-dev",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "free-tier",
+      "name": "free-tier",
+      "description": "\"Acceso rápido a las optimizaciones y límites de capa gratuita en Supabase y Vercel.\"",
+      "path": ".agents/skills/free-tier",
       "status": "ACTIVE"
     },
     {
@@ -981,10 +1142,402 @@
       "status": "ACTIVE"
     },
     {
+      "id": "gan-build",
+      "name": "gan-build",
+      "description": "\"Run a generator/evaluator build loop for implementation tasks with bounded iterations and scoring.\"",
+      "path": ".agents/skills/gan-build",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "gan-design",
+      "name": "gan-design",
+      "description": "\"Run a generator/evaluator design loop for frontend or visual work with bounded iterations and scoring.\"",
+      "path": ".agents/skills/gan-design",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "graphify",
+      "name": "graphify",
+      "description": "\"Turn any folder of files into a navigable knowledge graph\"",
+      "path": ".agents/skills/graphify",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "grill-me",
+      "name": "grill-me",
+      "description": "\"Protocolo de interrogatorio continuo activo para eliminar ambigüedades y desafiar suposiciones antes de programar o mover tareas.\"",
+      "path": ".agents/skills/grill-me",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "harness-audit",
+      "name": "harness-audit",
+      "description": "\"Run a deterministic repository harness audit and return a prioritized scorecard.\"",
+      "path": ".agents/skills/harness-audit",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "harness2",
+      "name": "harness2",
+      "description": "\"Configura y ejecuta el framework Harness² de Google Research para autorreflexión recursiva y mejora continua de arneses de agentes de IA a Costo $0 en Español (es-419).\"",
+      "path": ".agents/skills/harness2",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "hookify",
+      "name": "hookify",
+      "description": "\"Create hooks to prevent unwanted behaviors from conversation analysis or explicit instructions\"",
+      "path": ".agents/skills/hookify",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "hookify-configure",
+      "name": "hookify-configure",
+      "description": "\"Enable or disable hookify rules interactively\"",
+      "path": ".agents/skills/hookify-configure",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "hookify-help",
+      "name": "hookify-help",
+      "description": "\"Get help with the hookify system\"",
+      "path": ".agents/skills/hookify-help",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "hookify-list",
+      "name": "hookify-list",
+      "description": "\"List all configured hookify rules\"",
+      "path": ".agents/skills/hookify-list",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "humanize",
+      "name": "humanize",
+      "description": "\"Audita y refina textos, documentación, mensajes de error y descripciones de PR para eliminar lenguaje robótico de IA y lograr un tono natural y profesional.\"",
+      "path": ".agents/skills/humanize",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "instinct-export",
+      "name": "instinct-export",
+      "description": "\"Export instincts from project/global scope to a file\"",
+      "path": ".agents/skills/instinct-export",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "instinct-import",
+      "name": "instinct-import",
+      "description": "\"Import instincts from file or URL into project/global scope\"",
+      "path": ".agents/skills/instinct-import",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "instinct-status",
+      "name": "instinct-status",
+      "description": "\"Show learned instincts (project + global) with confidence\"",
+      "path": ".agents/skills/instinct-status",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "jira",
+      "name": "jira",
+      "description": "\"Retrieve a Jira ticket, analyze requirements, update status, or add comments. Uses the jira-integration skill and MCP or REST API.\"",
+      "path": ".agents/skills/jira",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "learn",
+      "name": "learn",
+      "description": "\"Extract reusable patterns from the current session and save them as candidate skills or guidance.\"",
+      "path": ".agents/skills/learn",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "learn-eval",
+      "name": "learn-eval",
+      "description": "\"Extract reusable patterns from the session, self-evaluate quality before saving, and determine the right save location (Global vs Project).\"",
+      "path": ".agents/skills/learn-eval",
+      "status": "ACTIVE"
+    },
+    {
       "id": "local-dates",
       "name": "local-dates",
       "description": "Checklist estricto para operar siempre con fechas locales y nunca UTC al calcular rachas, semanas e historiales.",
       "path": ".agents/skills/local-dates",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "loop-start",
+      "name": "loop-start",
+      "description": "\"Start a managed autonomous loop pattern with safety defaults and explicit stop conditions.\"",
+      "path": ".agents/skills/loop-start",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "loop-status",
+      "name": "loop-status",
+      "description": "\"Inspect active loop state, progress, failure signals, and recommended intervention.\"",
+      "path": ".agents/skills/loop-status",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "model-route",
+      "name": "model-route",
+      "description": "\"Recommend the best model tier for the current task based on complexity, risk, and budget.\"",
+      "path": ".agents/skills/model-route",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "multi-backend",
+      "name": "multi-backend",
+      "description": "\"Run a backend-focused multi-model workflow for APIs, algorithms, data, and business logic.\"",
+      "path": ".agents/skills/multi-backend",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "multi-execute",
+      "name": "multi-execute",
+      "description": "\"Execute a multi-model implementation plan while preserving Claude as the only filesystem writer.\"",
+      "path": ".agents/skills/multi-execute",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "multi-frontend",
+      "name": "multi-frontend",
+      "description": "\"Run a frontend-focused multi-model workflow for components, layouts, animation, and UI polish.\"",
+      "path": ".agents/skills/multi-frontend",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "multi-plan",
+      "name": "multi-plan",
+      "description": "\"Create a multi-model implementation plan without modifying production code.\"",
+      "path": ".agents/skills/multi-plan",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "multi-tenant",
+      "name": "multi-tenant",
+      "description": "\"Arquitectura de seguridad multi-inquilino (Multi-Tenancy), aislamiento por tenant_id y roles RBAC en Supabase.\"",
+      "path": ".agents/skills/multi-tenant",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "multi-tier-cache",
+      "name": "multi-tier-cache",
+      "description": "\"Arquitectura de caché multinivel (Zustand L1 + IndexedDB L2 + Upstash Redis REST L3 + PostgreSQL L4) y control de concurrencia.\"",
+      "path": ".agents/skills/multi-tier-cache",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "multi-workflow",
+      "name": "multi-workflow",
+      "description": "\"Run a full multi-model development workflow with research, planning, execution, optimization, and review.\"",
+      "path": ".agents/skills/multi-workflow",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "offline-sync",
+      "name": "offline-sync",
+      "description": "\"Arquitectura Offline-First, IndexedDB, patrón Outbox y sincronización resiliente de transacciones para POS y WMS.\"",
+      "path": ".agents/skills/offline-sync",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "open-design",
+      "name": "open-design",
+      "description": "\"Genera y gestiona recursos gráficos abiertos, avatares SVG temáticos para productos a costo cero y micro-componentes visuales.\"",
+      "path": ".agents/skills/open-design",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "orch-add-feature",
+      "name": "orch-add-feature",
+      "description": "\"Orchestrate building a brand-new feature end to end — research, plan, TDD, review, gated commit. Wrapper that kicks off the orch-add-feature skill.\"",
+      "path": ".agents/skills/orch-add-feature",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "orch-build-mvp",
+      "name": "orch-build-mvp",
+      "description": "\"Orchestrate bootstrapping a working MVP from a design/spec doc — ingest, slice, scaffold, TDD, review, gated commit (reuses the GAN harness). Wrapper for the orch-build-mvp skill.\"",
+      "path": ".agents/skills/orch-build-mvp",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "orch-change-feature",
+      "name": "orch-change-feature",
+      "description": "\"Orchestrate altering an existing, working feature to new desired behavior — update tests to the new spec, change impl, review, gated commit. Wrapper for the orch-change-feature skill.\"",
+      "path": ".agents/skills/orch-change-feature",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "orch-fix-defect",
+      "name": "orch-fix-defect",
+      "description": "\"Orchestrate fixing a bug — reproduce it as a failing regression test, fix to green, review, gated commit. Wrapper for the orch-fix-defect skill.\"",
+      "path": ".agents/skills/orch-fix-defect",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "orch-refine-code",
+      "name": "orch-refine-code",
+      "description": "\"Orchestrate a behavior-preserving refactor — confirm tests green, restructure without changing behavior, keep green, review, gated commit. Wrapper for the orch-refine-code skill.\"",
+      "path": ".agents/skills/orch-refine-code",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "outbox",
+      "name": "outbox",
+      "description": "\"Acceso rápido al patrón Outbox y sincronización offline en IndexedDB.\"",
+      "path": ".agents/skills/outbox",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "pdf",
+      "name": "pdf",
+      "description": "\"Acceso rápido al motor de generación de documentos PDF empresariales en MaestroPescaderia.\"",
+      "path": ".agents/skills/pdf",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "pdf-docs",
+      "name": "pdf-docs",
+      "description": "\"Motor de generación de documentos PDF empresariales, facturas, remisiones WMS, nómina y tickets térmicos.\"",
+      "path": ".agents/skills/pdf-docs",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "penpot-ui",
+      "name": "penpot-ui",
+      "description": "\"Traduce bocetos y especificaciones de diseño basadas en Penpot (Flexbox, CSS Grid, SVG) en componentes React y Tailwind CSS de alta fidelidad.\"",
+      "path": ".agents/skills/penpot-ui",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "plan",
+      "name": "plan",
+      "description": "\"Restate requirements, assess risks, and create step-by-step implementation plan. WAIT for user CONFIRM before touching any code.\"",
+      "path": ".agents/skills/plan",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "plan-prd",
+      "name": "plan-prd",
+      "description": "\"Generate a lean, problem-first PRD and hand off to /plan for implementation planning.\"",
+      "path": ".agents/skills/plan-prd",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "pm2",
+      "name": "pm2",
+      "description": "\"Analyze a project and generate PM2 service commands for detected frontend, backend, or database services.\"",
+      "path": ".agents/skills/pm2",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "ponytail",
+      "name": "ponytail",
+      "description": "\"Ejecuta pipelines de tareas encadenadas por etapas con checkpoints de validación y control de errores para agentes de IA.\"",
+      "path": ".agents/skills/ponytail",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "pos-caja",
+      "name": "pos-caja",
+      "description": "\"Acceso rápido al motor de POS y arqueo de caja ciega en MaestroPescaderia.\"",
+      "path": ".agents/skills/pos-caja",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "pos-cash",
+      "name": "pos-cash",
+      "description": "\"Motor de Punto de Venta (POS), control de arqueos de caja ciega, turnos de cajeros y tesorería.\"",
+      "path": ".agents/skills/pos-cash",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "pr",
+      "name": "pr",
+      "description": "\"Create a GitHub PR from current branch with unpushed commits — discovers templates, analyzes changes, pushes\"",
+      "path": ".agents/skills/pr",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "product-image",
+      "name": "product-image",
+      "description": "\"Generación automática de avatares SVG vectoriales temáticos para productos del mar a Costo 0 y compresión WebP.\"",
+      "path": ".agents/skills/product-image",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "producto-foto",
+      "name": "producto-foto",
+      "description": "\"Acceso rápido a la generación y compresión visual de productos a Costo 0.\"",
+      "path": ".agents/skills/producto-foto",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "project-init",
+      "name": "project-init",
+      "description": "\"Detect a project's stack and produce a dry-run ECC onboarding plan using the repository's install manifests and stack mappings.\"",
+      "path": ".agents/skills/project-init",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "projects",
+      "name": "projects",
+      "description": "\"List known projects and their instinct statistics\"",
+      "path": ".agents/skills/projects",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "promote",
+      "name": "promote",
+      "description": "\"Promote project-scoped instincts to global scope\"",
+      "path": ".agents/skills/promote",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "prp-commit",
+      "name": "prp-commit",
+      "description": "\"Quick commit with natural language file targeting — describe what to commit in plain English\"",
+      "path": ".agents/skills/prp-commit",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "prp-implement",
+      "name": "prp-implement",
+      "description": "\"Execute an implementation plan with rigorous validation loops\"",
+      "path": ".agents/skills/prp-implement",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "prp-plan",
+      "name": "prp-plan",
+      "description": "\"Create comprehensive feature implementation plan with codebase analysis and pattern extraction\"",
+      "path": ".agents/skills/prp-plan",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "prp-pr",
+      "name": "prp-pr",
+      "description": "\"Create a GitHub PR from current branch with unpushed commits — discovers templates, analyzes changes, pushes\"",
+      "path": ".agents/skills/prp-pr",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "prp-prd",
+      "name": "prp-prd",
+      "description": "\"Interactive PRD generator - problem-first, hypothesis-driven product spec with back-and-forth questioning\"",
+      "path": ".agents/skills/prp-prd",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "prune",
+      "name": "prune",
+      "description": "\"Delete pending instincts older than 30 days that were never promoted\"",
+      "path": ".agents/skills/prune",
       "status": "ACTIVE"
     },
     {
@@ -995,10 +1548,164 @@
       "status": "ACTIVE"
     },
     {
+      "id": "quality-gate",
+      "name": "quality-gate",
+      "description": "\"Run the ECC formatter quality gate for a single file and report remediation steps.\"",
+      "path": ".agents/skills/quality-gate",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "react-build",
+      "name": "react-build",
+      "description": "\"Fix React build failures (Vite, webpack, Next.js, CRA, Parcel, esbuild, Bun) incrementally — JSX/TSX compile errors, hydration mismatches, server/client component boundary failures, missing types. Invokes the react-build-resolver agent for minimal, surgical fixes.\"",
+      "path": ".agents/skills/react-build",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "react-review",
+      "name": "react-review",
+      "description": "\"Comprehensive React/JSX code review for hook correctness, render performance, server/client component boundaries, accessibility, and React-specific security. Invokes the react-reviewer agent (and typescript-reviewer alongside on TSX/JSX changes).\"",
+      "path": ".agents/skills/react-review",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "react-test",
+      "name": "react-test",
+      "description": "\"Enforce TDD workflow for React. Write React Testing Library tests first (behavior-focused, accessibility-first), then implement components. Detects Vitest or Jest and verifies coverage targets.\"",
+      "path": ".agents/skills/react-test",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "refactor-clean",
+      "name": "refactor-clean",
+      "description": "\"Safely identify and remove dead code with verification after each change.\"",
+      "path": ".agents/skills/refactor-clean",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "resume-session",
+      "name": "resume-session",
+      "description": "\"Load the most recent session file from ~/.claude/session-data/ and resume work with full context from where the last session ended.\"",
+      "path": ".agents/skills/resume-session",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "review-pr",
+      "name": "review-pr",
+      "description": "\"Comprehensive PR review using specialized agents\"",
+      "path": ".agents/skills/review-pr",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "ricoui",
+      "name": "ricoui",
+      "description": "\"Acceso rápido a los sistemas de diseño de marcas globales de Rico UI Brands (design.ricoui.com/brands) y generación frontend.\"",
+      "path": ".agents/skills/ricoui",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "santa-loop",
+      "name": "santa-loop",
+      "description": "\"Adversarial dual-review convergence loop — two independent model reviewers must both approve before code ships.\"",
+      "path": ".agents/skills/santa-loop",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "save-session",
+      "name": "save-session",
+      "description": "\"Save current session state to a dated file in ~/.claude/session-data/ so work can be resumed in a future session with full context.\"",
+      "path": ".agents/skills/save-session",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "scientific-skills",
+      "name": "scientific-skills",
+      "description": "\"Ejecuta cálculos matemáticos deterministas de alta precisión para el ERP (Pareto ABC 80/20, mermas de despiece, stock de seguridad y conversión gramos/kilos).\"",
+      "path": ".agents/skills/scientific-skills",
+      "status": "ACTIVE"
+    },
+    {
       "id": "sdd",
       "name": "sdd",
       "description": "Enseña al agente la metodología Spec-Driven Development (SDD): redactar, revisar o cambiar specs (notación EARS), planes técnicos y tareas atómicas.",
       "path": ".agents/skills/sdd",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "security-scan",
+      "name": "security-scan",
+      "description": "\"Run AgentShield against agent, hook, MCP, permission, and secret surfaces.\"",
+      "path": ".agents/skills/security-scan",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "session-close",
+      "name": "session-close",
+      "description": "\"Protocolo profesional de cierre de sesión: audita deltas de herramientas y workflows, ejecuta quality gate estricto (tsc, vitest 100%, gitnexus), actualiza MEMORY.md y handover, y realiza git push.\"",
+      "path": ".agents/skills/session-close",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "session-open",
+      "name": "session-open",
+      "description": "\"Protocolo profesional de apertura de sesión: sincroniza git pull, verifica variables interactivas, activa agencias y herramientas, audita MCPs y despliega tareas pendientes (WIP = 1).\"",
+      "path": ".agents/skills/session-open",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "sessions",
+      "name": "sessions",
+      "description": "\"Manage Claude Code session history, aliases, and session metadata.\"",
+      "path": ".agents/skills/sessions",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "setup-pm",
+      "name": "setup-pm",
+      "description": "\"Configure your preferred package manager (npm/pnpm/yarn/bun)\"",
+      "path": ".agents/skills/setup-pm",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "skill-create",
+      "name": "skill-create",
+      "description": "\"Analyze local git history to extract coding patterns and generate SKILL.md files. Local version of the Skill Creator GitHub App.\"",
+      "path": ".agents/skills/skill-create",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "skill-health",
+      "name": "skill-health",
+      "description": "\"Show skill portfolio health dashboard with charts and analytics\"",
+      "path": ".agents/skills/skill-health",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "spa-architecture",
+      "name": "spa-architecture",
+      "description": "\"Ingeniería de optimización extrema para Supabase, Vercel y persistencia NoSQL JSONB operando al 100% en capas gratuitas.\"",
+      "path": ".agents/skills/spa-architecture",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "stack",
+      "name": "stack",
+      "description": "\"Acceso rápido a la matriz de gobernanza y stack tecnológico del ERP.\"",
+      "path": ".agents/skills/stack",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "stitch-design",
+      "name": "stitch-design",
+      "description": "\"Generación avanzada de componentes e interfaces frontend combinando Google Stitch, sistemas de diseño Rico UI Brands (Linear, Stripe, Raycast, Supabase, Vercel, Apple) y estética Dark Glassmorphism.\"",
+      "path": ".agents/skills/stitch-design",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "swarm",
+      "name": "swarm",
+      "description": "\"Formula, optimiza y ejecuta solicitudes dirigidas a La Pezcaderia Agency Swarm con Google AI Studio (Gemini 2.5 Flash Lite) a costo $0 sin saturar cuotas de API.\"",
+      "path": ".agents/skills/swarm",
       "status": "ACTIVE"
     },
     {
@@ -1009,6 +1716,41 @@
       "status": "ACTIVE"
     },
     {
+      "id": "tech-stack",
+      "name": "tech-stack",
+      "description": "\"Consulta de gobernanza técnica, stack aprobado, stack de expansión y tecnologías prohibidas en MaestroPescaderia.\"",
+      "path": ".agents/skills/tech-stack",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "tenant",
+      "name": "tenant",
+      "description": "\"Acceso rápido a la configuración de seguridad multi-inquilino y RLS en Supabase.\"",
+      "path": ".agents/skills/tenant",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "test-coverage",
+      "name": "test-coverage",
+      "description": "\"Analyze coverage, identify gaps, and generate missing tests toward the target threshold.\"",
+      "path": ".agents/skills/test-coverage",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "ui-tools",
+      "name": "ui-tools",
+      "description": "\"Hub de herramientas y librerías curadas de UI/UX (Awesome-Design-Tools, Awesome-UI, Awesome-Styleguides) para acelerar la maquetación.\"",
+      "path": ".agents/skills/ui-tools",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "ui-ux",
+      "name": "ui-ux",
+      "description": "\"Sistema de diseño UI/UX empresarial, tokens visuales, componentes atómicos, micro-animaciones y multi-tema.\"",
+      "path": ".agents/skills/ui-ux",
+      "status": "ACTIVE"
+    },
+    {
       "id": "ui-ux-pro-max",
       "name": "ui-ux-pro-max",
       "description": "|",
@@ -1016,10 +1758,38 @@
       "status": "ACTIVE"
     },
     {
+      "id": "update-codemaps",
+      "name": "update-codemaps",
+      "description": "\"Scan project structure and generate token-lean architecture codemaps.\"",
+      "path": ".agents/skills/update-codemaps",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "update-docs",
+      "name": "update-docs",
+      "description": "\"Sync documentation from source-of-truth files such as scripts, schemas, routes, and exports.\"",
+      "path": ".agents/skills/update-docs",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "wms",
+      "name": "wms",
+      "description": "\"Acceso rápido a la gestión WMS, cuartos fríos, FEFO y mermas en MaestroPescaderia.\"",
+      "path": ".agents/skills/wms",
+      "status": "ACTIVE"
+    },
+    {
       "id": "wms_pos_erp",
       "name": "wms_pos_erp",
       "description": "Habilidad de desarrollo especializada para ERP",
       "path": ".agents/skills/wms_pos_erp",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "wms-inventory",
+      "name": "wms-inventory",
+      "description": "\"Gestión de cuartos fríos WMS, trazabilidad de lotes perecederos FEFO/FIFO, mermas de despiece y cálculo ABC Pareto 80/20.\"",
+      "path": ".agents/skills/wms-inventory",
       "status": "ACTIVE"
     }
   ],
