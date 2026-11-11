@@ -304,9 +304,10 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
       {/* Tarjeta Flotante Glassmorphism (SPEC-030 & SPEC-037: Rail Ultra-Compacto 64px con Leyes de UX) */}
       <aside
         id="enterprise-sidebar"
-        style={{ transform: 'translateZ(0)' }}
-        className={`fixed top-3 bottom-3 left-3 z-50 flex flex-col bg-slate-900/85 backdrop-blur-2xl border border-white/12 shadow-2xl shadow-black/60 rounded-3xl select-none transition-all duration-300 ease-in-out text-slate-300 ${
-          isOpen ? 'w-64 translate-x-0' : 'w-16 -translate-x-full lg:translate-x-0'
+        className={`fixed top-3 bottom-3 z-50 will-change-transform flex flex-col bg-slate-900/85 backdrop-blur-2xl border border-white/12 shadow-2xl shadow-black/60 rounded-3xl select-none transition-all duration-300 ease-in-out text-slate-300 ${
+          isOpen
+            ? 'left-3 w-64 translate-x-0'
+            : 'left-0 lg:left-3 w-16 -translate-x-full lg:translate-x-0 pointer-events-none lg:pointer-events-auto'
         }`}
       >
         {/* Cabecera Superior con Controles macOS */}

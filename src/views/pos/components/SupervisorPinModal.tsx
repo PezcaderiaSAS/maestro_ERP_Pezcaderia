@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { ShieldCheck, KeyRound, Delete, X, AlertCircle } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { MacWindowControls } from '../../../components/layout/components/MacWindowControls';
@@ -155,13 +156,13 @@ export const SupervisorPinModal: React.FC<SupervisorPinModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
+  const modalContent = (
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="supervisor-modal-title"
       data-testid="modal-supervisor-pin"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in"
     >
       <div
         className={`relative w-full max-w-sm rounded-2xl bg-slate-900/95 border border-amber-500/30 text-white shadow-2xl p-5 sm:p-6 transition-transform ${
@@ -287,4 +288,6 @@ export const SupervisorPinModal: React.FC<SupervisorPinModalProps> = ({
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : modalContent;
 };

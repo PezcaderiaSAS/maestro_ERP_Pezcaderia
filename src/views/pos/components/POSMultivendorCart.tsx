@@ -419,7 +419,7 @@ export const POSMultivendorCart: React.FC<POSMultivendorCartProps> = ({
   return (
     <aside 
       data-testid="pos-multivendor-cart"
-      className="w-80 sm:w-96 md:w-[380px] lg:w-[420px] bg-white flex flex-col h-full min-h-0 border-l border-slate-200 select-none shrink-0 shadow-lg z-10"
+      className="flex-1 lg:flex-none min-w-0 max-w-full w-80 sm:w-96 md:w-[380px] lg:w-[420px] bg-white flex flex-col h-full min-h-0 border-l border-slate-200 select-none shrink-0 shadow-lg z-10"
     >
       {/* 1. CABECERA COMPACTA DEL CARRITO (48px) */}
       <div className="h-12 px-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">

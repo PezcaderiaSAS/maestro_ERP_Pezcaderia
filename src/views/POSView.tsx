@@ -585,6 +585,7 @@ export default function POSView({
     removerProducto,
     setCliente,
     setDescuentoGlobalPct: setDescuentoGlobal,
+    setDescuentoGlobalValor,
     limpiarCarrito,
     setLineas: setCartLineas
   } = usePOSCart(defaultClient as any);
@@ -643,7 +644,7 @@ export default function POSView({
     return product.precio_venta_pos;
   };
 
-  const handleAddProduct = (product: Product) => {
+  const handleAddProduct = (product: Product, cantidadPrevia?: number) => {
     const unidadNormalizada = (product.unidadMedida || (product as any).unidad || '').toString().trim().toUpperCase();
     const isWeighable =
       unidadNormalizada === 'KG' ||
@@ -651,6 +652,15 @@ export default function POSView({
       unidadNormalizada === 'KILOS' ||
       unidadNormalizada === 'GR' ||
       unidadNormalizada === 'GRAMOS';
+
+    if (typeof cantidadPrevia === 'number' && cantidadPrevia > 0) {
+      agregarProducto(product as any, cantidadPrevia, isWeighable);
+      setTimeout(() => {
+        const searchInput = document.getElementById('pos-light-product-search-input') || document.getElementById('pos-product-search-input');
+        if (searchInput) searchInput.focus();
+      }, 50);
+      return;
+    }
 
     if (isWeighable) {
       setProductForWeight({
@@ -661,7 +671,7 @@ export default function POSView({
     } else {
       agregarProducto(product as any, 1);
       setTimeout(() => {
-        const searchInput = document.getElementById('pos-product-search-input');
+        const searchInput = document.getElementById('pos-light-product-search-input') || document.getElementById('pos-product-search-input');
         if (searchInput) searchInput.focus();
       }, 50);
     }
@@ -2268,28 +2278,51 @@ export default function POSView({
         <POSMultivendorView
           products={activeProducts}
           stockMap={stock as any}
-          cartItems={cartLineas.map((l: any, idx: number) => ({
-            id: l.id || l.lineId || `item-${idx}`,
-            product: l.producto || {
-              id: l.productoId || l.id || `prod-${idx}`,
-              sku: l.sku || `SKU-${idx}`,
-              nombre: l.nombre || l.descripcion || 'Producto',
-              precio_venta_pos: l.precioLista || l.precioFinal || l.precio || 0,
-              unidadMedida: l.unidadMedida || 'kg',
-              categoria: l.categoria,
-              activo: true,
-            },
-            cantidad: l.cantidad,
-            precioOverride: l.precioFinal,
-            notas: l.notas,
-          }))}
-          onAddToCart={(prod) => handleAddProduct(prod)}
+          cartItems={cartLineas.map((l: any, idx: number) => {
+            const matchedProduct = l.producto || activeProducts.find((p) => p.id === l.productoId);
+            return {
+              id: l.id || l.lineId || `item-${idx}`,
+              product: matchedProduct || {
+                id: l.productoId || l.id || `prod-${idx}`,
+                sku: l.sku || `SKU-${idx}`,
+                nombre: l.nombre || l.descripcion || 'Producto',
+                precio_venta_pos: l.precioLista || l.precioFinal || l.precio || 0,
+                precio_compra: l.precioCompra || 0,
+                unidadMedida: l.unidadMedida || l.unidad || 'kg',
+                categoria: l.categoria,
+                activo: true,
+              },
+              cantidad: l.cantidad,
+              precioOverride: l.precioLista || l.precioFinal,
+              descuentoPct: l.descuentoPct || 0,
+              notas: l.notas,
+            };
+          })}
+          onAddToCart={(prod, cant) => handleAddProduct(prod, cant)}
           onUpdateQuantity={(idx, delta) => {
             const linea = cartLineas[idx];
             if (linea) {
               const currentQty = Number(linea.cantidad) || 0;
               const newQty = Math.max(0, currentQty + delta);
               actualizarCantidad(linea.productoId, newQty);
+            }
+          }}
+          onSetQuantity={(idx, newQty) => {
+            const linea = cartLineas[idx];
+            if (linea) {
+              actualizarCantidad(linea.productoId, Math.max(0, newQty));
+            }
+          }}
+          onUpdatePrice={(idx, newPrice) => {
+            const linea = cartLineas[idx];
+            if (linea) {
+              updateItemPrice(linea.productoId, newPrice);
+            }
+          }}
+          onUpdateDiscount={(idx, discountPct) => {
+            const linea = cartLineas[idx];
+            if (linea) {
+              actualizarDescuentoLinea(linea.productoId, discountPct);
             }
           }}
           onRemoveItem={(idx) => {
@@ -2300,6 +2333,21 @@ export default function POSView({
           subtotal={subtotal}
           descuento={totalDescuento}
           total={totalFinal}
+          descuentoGlobalTipo={descuentoGlobalValor > 0 ? 'monto' : 'porcentaje'}
+          descuentoGlobalValor={descuentoGlobalValor > 0 ? descuentoGlobalValor : descuentoGlobal}
+          onApplyGlobalDiscount={(tipo, valor) => {
+            if (tipo === 'porcentaje') {
+              setDescuentoGlobalValor(0);
+              setDescuentoGlobal(valor);
+            } else {
+              setDescuentoGlobal(0);
+              setDescuentoGlobalValor(valor);
+            }
+          }}
+          onRemoveGlobalDiscount={() => {
+            setDescuentoGlobal(0);
+            setDescuentoGlobalValor(0);
+          }}
           onEmitirComanda={async () => {
             const finalNotas = selectedCutNotes.length > 0 ? `[${selectedCutNotes.join(', ')}]` : '';
             await handleGuardarBorrador(finalNotas);
@@ -2391,13 +2439,6 @@ export default function POSView({
               </div>
             </div>
           }
-          onOpenScaleModal={(prod) => {
-            setProductForWeight({
-              product: prod,
-              precioUnitario: getProductPrice(prod),
-              pesoInicial: 1.0,
-            });
-          }}
           notasDespacho={selectedCutNotes.join(', ')}
           onNotasDespachoChange={(val) => {
             if (val) setSelectedCutNotes([val]);

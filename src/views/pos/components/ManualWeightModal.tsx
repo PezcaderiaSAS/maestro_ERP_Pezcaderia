@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Scale, Delete, Check, AlertCircle } from 'lucide-react';
 import type { Product } from '../../../types/erp.types';
 
@@ -174,13 +175,13 @@ export const ManualWeightModal: React.FC<ManualWeightModalProps> = ({
 
   const productName = producto?.nombre || producto?.name || 'Producto a Granel';
 
-  return (
+  const modalContent = (
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-manual-weight-title"
       data-testid="modal-manual-weight"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-150 select-none"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-150 select-none"
     >
       <div className="w-full max-w-md bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col text-slate-800">
         {/* 1. Cabecera del Producto */}
@@ -380,4 +381,6 @@ export const ManualWeightModal: React.FC<ManualWeightModalProps> = ({
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : modalContent;
 };

@@ -100,7 +100,7 @@ export const POSMultivendorCatalog: React.FC<POSMultivendorCatalogProps> = ({
   return (
     <section 
       data-testid="pos-multivendor-catalog"
-      className="flex-1 flex flex-col bg-slate-50 border-r border-slate-200 overflow-hidden select-none"
+      className="flex-1 min-w-0 flex flex-col bg-slate-50 border-r border-slate-200 overflow-hidden select-none"
     >
       {/* 1. BARRA DE CATEGORÍAS (Pills Horizontales Limpias) */}
       <div className="h-11 px-3 bg-white border-b border-slate-200 flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0">
@@ -162,11 +162,11 @@ export const POSMultivendorCatalog: React.FC<POSMultivendorCatalogProps> = ({
                   title={`${name} - $${price.toLocaleString('es-CO')} / ${unit}`}
                 >
                   {/* Badge de Unidad, Modo Pesaje y Estado Agotado */}
-                  <div className="flex items-center justify-between gap-1">
+                  <div className="flex flex-wrap items-center justify-between gap-1">
                     <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
                       {unit}
                     </span>
-                    <div className="flex items-center gap-1">
+                    <div className="flex flex-wrap items-center justify-end gap-1 min-w-0">
                       {pesable && (
                         <span className="text-[9px] font-bold px-1 py-0.5 rounded bg-cyan-50 text-cyan-700 border border-cyan-200 flex items-center gap-0.5">
                           <Scale size={10} /> Balanza

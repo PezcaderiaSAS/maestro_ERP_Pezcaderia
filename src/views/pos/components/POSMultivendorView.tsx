@@ -39,6 +39,7 @@ export interface POSMultivendorViewProps {
   cartItems: MultivendorCartItem[];
   onAddToCart: (product: Product, cantidad?: number) => void;
   onUpdateQuantity: (index: number, delta: number) => void;
+  onSetQuantity?: (index: number, quantity: number) => void;
   onUpdatePrice?: (index: number, newPrice: number) => void;
   onUpdateDiscount?: (index: number, discountPct: number) => void;
   onRemoveItem: (index: number) => void;
@@ -46,6 +47,10 @@ export interface POSMultivendorViewProps {
   subtotal: number;
   descuento?: number;
   total: number;
+  descuentoGlobalTipo?: 'porcentaje' | 'monto';
+  descuentoGlobalValor?: number;
+  onApplyGlobalDiscount?: (tipo: 'porcentaje' | 'monto', valor: number) => void;
+  onRemoveGlobalDiscount?: () => void;
   onEmitirComanda: () => void;
   onCobrarCaja?: () => void;
   selectedVendorId: string;
@@ -77,6 +82,7 @@ export const POSMultivendorView: React.FC<POSMultivendorViewProps> = ({
   cartItems,
   onAddToCart,
   onUpdateQuantity,
+  onSetQuantity,
   onUpdatePrice,
   onUpdateDiscount,
   onRemoveItem,
@@ -84,6 +90,10 @@ export const POSMultivendorView: React.FC<POSMultivendorViewProps> = ({
   subtotal,
   descuento = 0,
   total,
+  descuentoGlobalTipo,
+  descuentoGlobalValor,
+  onApplyGlobalDiscount,
+  onRemoveGlobalDiscount,
   onEmitirComanda,
   onCobrarCaja,
   selectedVendorId,
@@ -209,10 +219,13 @@ export const POSMultivendorView: React.FC<POSMultivendorViewProps> = ({
   const activeVendor = vendedores.find((v) => v.id === selectedVendorId);
   const activeVendorName = activeVendor ? activeVendor.corto : 'Asesor Mostrador';
 
-  // Manejar apertura de pesaje manual (Hito M3)
+  // Manejar apertura de pesaje manual (Hito M3): evitar doble modal si el host delega externamente
   const handleOpenScaleModal = (product: Product) => {
+    if (onOpenScaleModal) {
+      onOpenScaleModal(product);
+      return;
+    }
     setScaleModalProduct(product);
-    onOpenScaleModal?.(product);
   };
 
   // Manejar escaneo de código de barras
@@ -242,7 +255,7 @@ export const POSMultivendorView: React.FC<POSMultivendorViewProps> = ({
   return (
     <div 
       data-testid="pos-multivendor-saas-root"
-      className="h-screen w-screen flex flex-col bg-slate-100 text-slate-900 font-sans overflow-hidden select-none"
+      className="h-full w-full flex-1 min-h-0 min-w-0 flex flex-col rounded-xl bg-slate-100 text-slate-900 font-sans overflow-hidden select-none"
     >
       {/* 1. CABECERA ÚNICA COMPACTA (56px) — Elimina las 5 barras apiladas */}
       <POSMultivendorLightHeader
@@ -307,7 +320,7 @@ export const POSMultivendorView: React.FC<POSMultivendorViewProps> = ({
           {/* COLUMNA CATÁLOGO (75% de ancho en Desktop) */}
           <div 
             data-testid="pos-catalog-glass-card"
-            className={`flex-1 min-h-0 flex flex-col overflow-hidden ${
+            className={`flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden ${
               mobileTab === 'catalogo' ? 'flex' : 'hidden lg:flex'
             }`}
           >
@@ -329,6 +342,7 @@ export const POSMultivendorView: React.FC<POSMultivendorViewProps> = ({
             <POSMultivendorCart
               items={cartItems}
               onUpdateQuantity={onUpdateQuantity}
+              onSetQuantity={onSetQuantity}
               onUpdatePrice={onUpdatePrice}
               onUpdateDiscount={onUpdateDiscount}
               onRemoveItem={onRemoveItem}
@@ -336,6 +350,10 @@ export const POSMultivendorView: React.FC<POSMultivendorViewProps> = ({
               subtotal={subtotal}
               descuento={descuento}
               total={total}
+              descuentoGlobalTipo={descuentoGlobalTipo}
+              descuentoGlobalValor={descuentoGlobalValor}
+              onApplyGlobalDiscount={onApplyGlobalDiscount}
+              onRemoveGlobalDiscount={onRemoveGlobalDiscount}
               onEmitirComanda={onEmitirComanda}
               onCobrarCaja={onCobrarCaja}
               isSubmitting={isSubmitting}
