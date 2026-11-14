@@ -15,6 +15,11 @@
    - **M4 (Atajos Globales de Teclado):** `usePOSKeyboardShortcuts` intercepta F8, Ctrl+K, F6, F4, F2, F9, Esc con aislamiento y cero fugas.
    - **M5 (Validación Comercial & PIN):** Margen mínimo 15% sobre costo base y descuento > 10% requieren `SupervisorPinModal` con rollback.
    - **M6 (Catálogo 6x3 & Calidad Final):** Matriz virtualizada 18 tarjetas (6x3), paginación `< Ant ... Sig >`, badge AGOTADO y Vite build verde.
+4. **SPEC-060 (UNIFIED PAYMENT MODAL) ✅ (100%):** Integración unificada de Efectivo, Tarjeta, Transferencia y Crédito en POS con validaciones fiscales y UI responsive 375px.
+5. **SPEC-061 (GLOBAL OMNIBOX SRP REFACTOR) ✅ (100%):** Modularización de `GlobalOmniboxModal.tsx` de 797 a 84 líneas útiles en submódulos atómicos bajo 250 líneas en `src/components/layout/omnibox/`. Advertencia SOLID eliminada y 18/18 tests verdes.
+6. **SPEC-062 (USEPRICING SRP REFACTOR) ✅ (100%):** Modularización de `usePricing.ts` de 933 a 121 líneas en fachada orquestadora y 8 submódulos atómicos en `src/hooks/pricing/`. Advertencia SOLID eliminada (de 29 a 28), 18/18 tests verdes y 0 roturas.
+7. **SPEC-063 (COLD STORAGE PDF SRP REFACTOR) ✅ (100%):** Modularización de `coldStoragePdfService.ts` de 1092 a 70 líneas en fachada orquestadora y 6 submódulos atómicos en `src/services/coldStoragePdf/`. Advertencia SOLID eliminada (de 28 a 27), 56/56 tests verdes y 0 regresiones.
+8. **SPEC-064 (POS UI/UX OVERFLOW & BODEGA STOCK) ✅ (100%):** Eliminación del falso estado "Agotado" en catálogo con normalizador O(1) de stock multibodega (`posWarehouseStock.utils.ts`), visualización de mini-pills de stock por bodega (`POSProductBodegaStock.tsx`), eliminación de recortes en header y scroll suave con chevrons en pestañas de categoría. 36/36 tests POS verdes y 0 errores TypeScript.
 
 ## Despliegue a Producción (Vercel & Supabase)
 - **Vercel (Frontend SPA):** `https://maestro-erp-pezcaderia.vercel.app` (HTTP 200).

@@ -7,6 +7,7 @@ import { PosDraftService } from '../../../services/posDraftService';
 import { LineaVentaRow } from './LineaVentaRow';
 import { DiscountPanel } from './DiscountPanel';
 import { PaymentPanel, type MetodoCobroPos } from './PaymentPanel';
+import { UnifiedPaymentModal } from './payment/UnifiedPaymentModal';
 import { ParkedOrdersBar } from './ParkedOrdersBar';
 import { OnScreenKeypadModal } from './OnScreenKeypadModal';
 import { DespachoNotasModal } from './DespachoNotasModal';
@@ -883,72 +884,24 @@ export const CartPanel: React.FC<CartPanelProps> = ({
         )}
       </div>
 
-      {/* ── MODAL / DRAWER ON-DEMAND: Cobro & Liquidación (Sin canibalizar el carrito) ── */}
-      {isPaymentDrawerOpen && (
-        <div
-          data-testid="payment-drawer-backdrop"
-          className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in select-none"
-          onClick={() => setPaymentDrawerOpen(false)}
-        >
-          <div
-            data-testid="payment-drawer-container"
-            className="w-full max-w-lg max-h-[92vh] flex flex-col bg-slate-900/95 border border-white/15 rounded-2xl shadow-2xl overflow-hidden relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Cabecera del Drawer */}
-            <div className="flex items-center justify-between px-4 py-2.5 bg-slate-950/80 border-b border-white/10 shrink-0">
-              <div className="flex items-center gap-2">
-                <span className="text-emerald-400 font-extrabold text-sm tracking-wide">
-                  ⚡ LIQUIDACIÓN & MEDIOS DE COBRO
-                </span>
-                <span className="font-mono text-xs font-black text-emerald-300 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded-lg">
-                  ${totales.totalFinal.toLocaleString('es-CO')}
-                </span>
-              </div>
-              <button
-                type="button"
-                data-testid="btn-close-payment-drawer"
-                onClick={() => setPaymentDrawerOpen(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-                title="Cerrar liquidación (Escape)"
-                aria-label="Cerrar ventana de cobro"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* Contenedor Scrolleable con PaymentPanel */}
-            <div className="flex-1 min-h-0 overflow-y-auto p-3 overscroll-contain">
-              <PaymentPanel
-                totalFinal={totales.totalFinal}
-                lineas={lineas}
-                cliente={cliente}
-                stock={stock}
-                bodegaActivaId={bodegaActivaId}
-                bodegaActivaNombre={bodegaActivaNombre}
-                onPagar={async (pagos, opts) => {
-                  await onPagar(pagos, opts);
-                  setPaymentDrawerOpen(false);
-                }}
-                onGuardarBorrador={() => {
-                  onGuardarBorrador();
-                  setPaymentDrawerOpen(false);
-                }}
-                onLimpiarCarrito={() => {
-                  onLimpiarCarrito();
-                  setPaymentDrawerOpen(false);
-                }}
-                isDisabled={lineas.length === 0}
-                isTurnoAbierto={isTurnoAbierto}
-                onAbrirTurnoRequest={onAbrirTurnoRequest}
-                onRetiroParcialRequest={onRetiroParcialRequest}
-                saldoEfectivoGaveta={saldoEfectivoGaveta}
-                topeMaximoGaveta={topeMaximoGaveta}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ── MODAL UNIFICADO ON-DEMAND: Cobro & Liquidación POS (SPEC-060) ── */}
+      <UnifiedPaymentModal
+        isOpen={isPaymentDrawerOpen}
+        totalPagar={totales.totalFinal}
+        cliente={cliente}
+        saldoEfectivoGaveta={saldoEfectivoGaveta}
+        onClose={() => setPaymentDrawerOpen(false)}
+        onConfirmPayment={async (payload) => {
+          await onPagar(
+            payload.pagos.map((p) => ({
+              metodo: p.metodo as any,
+              monto: p.monto,
+            })),
+            { requiereFacturaElectronica: payload.requiereFacturaElectronica }
+          );
+          setPaymentDrawerOpen(false);
+        }}
+      />
 
       {/* Modal Táctil On-Screen Keypad para Ajuste Rápido de Cantidad / Peso (Regla 12 Años) */}
       {keypadLinea && (

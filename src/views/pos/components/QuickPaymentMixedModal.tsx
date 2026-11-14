@@ -36,11 +36,9 @@ export const QuickPaymentMixedModal: React.FC<QuickPaymentMixedModalProps> = ({
   onClose,
   onConfirmarPago,
 }) => {
-  if (!isOpen || !preventa) return null;
-
   // 1. Estado local de los ítems de la preventa (Permite edición libre en taquilla de precios/cantidades)
   const [itemsEditables, setItemsEditables] = useState<MixedPaymentItem[]>(() => {
-    return (preventa.items || []).map((item) => ({
+    return (preventa?.items || []).map((item) => ({
       productoId: item.productoId,
       sku: item.sku || '',
       nombre: item.nombre,
@@ -51,13 +49,31 @@ export const QuickPaymentMixedModal: React.FC<QuickPaymentMixedModalProps> = ({
     }));
   });
 
+  // Sincronizar ítems al cambiar o abrir preventa
+  useEffect(() => {
+    if (isOpen && preventa?.items) {
+      setItemsEditables(
+        preventa.items.map((item) => ({
+          productoId: item.productoId,
+          sku: item.sku || '',
+          nombre: item.nombre,
+          cantidad: Number(item.cantidad),
+          precioUnitario: Number(item.precioFinal || item.precioLista),
+          subtotal: Number(item.subtotal),
+          notaItem: item.notaItem || '',
+        }))
+      );
+    }
+  }, [isOpen, preventa]);
+
   const [showItemsInspector, setShowItemsInspector] = useState(false);
 
   // Recalcular total dinámicamente según ítems editados
   const totalCalculado = useMemo(() => {
-    if (itemsEditables.length === 0) return preventa.total;
+    if (!preventa) return 0;
+    if (itemsEditables.length === 0) return preventa.total || 0;
     return itemsEditables.reduce((acc, it) => acc + (it.cantidad * it.precioUnitario), 0);
-  }, [itemsEditables, preventa.total]);
+  }, [itemsEditables, preventa]);
 
   // 2. Método de pago activo (Pestaña principal)
   const [tabActiva, setTabActiva] = useState<TabCobro>('EFECTIVO');
@@ -163,6 +179,7 @@ export const QuickPaymentMixedModal: React.FC<QuickPaymentMixedModalProps> = ({
 
   // Confirmar y Construir Payload
   const handleConfirmar = useCallback(() => {
+    if (!preventa) return;
     let pagosFinales: MetodoPagoItem[] = [];
 
     if (tabActiva === 'MIXTO') {
@@ -241,6 +258,7 @@ export const QuickPaymentMixedModal: React.FC<QuickPaymentMixedModalProps> = ({
 
   // Listener para atajo F9 (Confirmar cobro) y Escape (Cerrar)
   useEffect(() => {
+    if (!isOpen || !preventa) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'F9') {
         e.preventDefault();
@@ -252,7 +270,7 @@ export const QuickPaymentMixedModal: React.FC<QuickPaymentMixedModalProps> = ({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleConfirmar, onClose]);
+  }, [isOpen, preventa, handleConfirmar, onClose]);
 
   // Validación si el botón Confirmar está habilitado
   const isSubmitDisabled = useMemo(() => {
@@ -264,6 +282,8 @@ export const QuickPaymentMixedModal: React.FC<QuickPaymentMixedModalProps> = ({
     }
     return false;
   }, [tabActiva, efectivoRecibido, totalCalculado, sumaPagosMixtos]);
+
+  if (!isOpen || !preventa) return null;
 
   return (
     <div

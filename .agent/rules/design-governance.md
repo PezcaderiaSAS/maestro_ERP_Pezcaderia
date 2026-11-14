@@ -45,3 +45,10 @@ Esta regla establece las directivas preceptivas y obligatorias que todo agente d
 1. **Conversión Estricta Gramos a Kilos:** En todas las operaciones de báscula, POS y WMS, la conversión debe realizarse obligatoriamente como:
    `const weightInKg = Math.round((weightInGrams / 1000) * 1000) / 1000;`
 2. **Análisis Pareto ABC (80/20):** La categorización de inventario debe realizarse con el algoritmo determinista de [`.agents/skills/scientific-agent-analytics/SKILL.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agents/skills/scientific-agent-analytics/SKILL.md).
+
+---
+
+## 5. Invariantes de Portales Modales, Drawers Responsivos y Shell Encajonado
+1. **Aislamiento de Modales vía Portal:** Todo modal operativo de pantalla completa renderizado dentro de vistas hijas de `<main>` debe montarse con `createPortal(..., document.body)` y nivel controlado (`z-[100]`), evitando quedar atrapado en el contexto `z-10` del shell principal.
+2. **Prohibición de `transform` en Línea sobre Drawers Responsivos:** En menús/sidebars que alternan `-translate-x-full lg:translate-x-0`, utilizar `will-change-transform` (nunca `style={{ transform: '...' }}`) y retirar desplazamientos positivos cuando esté colapsado en móvil (`left-0 lg:left-3`).
+3. **Contención Estricta sin `w-screen`/`h-screen` en Subvistas:** Las subvistas integradas dentro del shell principal deben dimensionarse con `w-full h-full flex-1 min-h-0 min-w-0` y aplicar `flex-wrap` en filas densas de badges. Consultar detalles en [`.agents/skills/pos-layout-portals/SKILL.md`](file:///c:/Users/usuario/OneDrive/Documentos/Aplicaciones%20Pezca/MaestroPescaderia/.agents/skills/pos-layout-portals/SKILL.md).

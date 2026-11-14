@@ -1,0 +1,22 @@
+{
+  "timestamp": "2026-11-11T13:40:29.923636",
+  "prompt": "Adaptador bidireccional Evolution API v1/v2 (webhook messages.upsert + sendText), carga automatica de .env/.env.local, timeout tsc 90s y modo ejecucion configurable para MaestroPescaderia Daemon 24/7",
+  "agent": "architect",
+  "total_duration_seconds": 100.45,
+  "results": {
+    "Google Harness²": {
+      "source": "Google Harness²",
+      "status": "ok",
+      "output": "======================================================================\n🚀 [HARNESS² ESPAÑOL] Iniciando ejecución segura con modelos a Costo $0\n======================================================================\n  • Idioma:          es-419\n  • Proveedor:       google_ai_studio\n  • Modelo Primario: gemini-3.8-flash\n  • Motor IDE:       antigravity-preview-09-2026\n  • Modo Recursión:  sequential (Protección Rate Limit activa)\n  • Presupuesto (k): 1 | Máx Tareas: 1\n======================================================================\n  [accounting] 1/2 skipped      ledger-1\n  [accounting] 2/2 skipped      ledger-2\nLocal demo: 2 tasks completed; 0 failed. C:\\Users\\usuario\\OneDrive\\Documentos\\Aplicaciones Pezca\\MaestroPescaderia\\tools\\harness2\\runs\\demo\\demo.json",
+      "returncode": 0,
+      "duration": 1.18
+    },
+    "Agency Swarm": {
+      "source": "Agency Swarm",
+      "status": "ok",
+      "output": "Inicializando La Pezcaderia Agency Swarm (Google AI Studio - gemini-3.5-flash-lite)...\n\n[Usuario] (Destinatario Directo: SoftwareArchitect) -> Adaptador bidireccional Evolution API v1/v2 (webhook messages.upsert + sendText), carga automatica de .env/.env.local, timeout tsc 90s y modo ejecucion configurable para MaestroPescaderia Daemon 24/7\n\n[Agencia Procesando con Gemini...]\n\n============================================================\n[Respuesta de SoftwareArchitect]:\n\nComo Arquitecto de Software Principal de **maestro_ERP_Pezcaderia**, he coordinado a nuestros especialistas (DataEngineer y QualityEngineer) para entregar la arquitectura completa, segura, robusta y alineada estrictamente con las directrices de la Gobernanza del proyecto (`ARCHITECT_GOVERNANCE.md`) para el **MaestroPescaderia Daemon 24/7**.\n\nA continuación, se resumen los componentes diseñados e implementados:\n\n---\n\n### Resumen de la Solución Arquitectónica\n\n1. **Modelo de Datos y Multi-Tenancy Estricto (DataEngineer):**\n   - Tablas normalizadas en Supabase: `whatsapp_instances`, `whatsapp_webhooks_log` (para auditoría e idempotencia) y `whatsapp_messages` (mensajería bidireccional).\n   - Políticas **RLS (Row Level Security)** activas que aíslan los datos por `company_id` o rol de servicio del Daemon.\n   - Función PL/pgSQL transaccional `process_incoming_whatsapp_message` con **bloqueo pesimista (`SELECT FOR UPDATE`)** para evitar condiciones de carrera ante picos de mensajes concurrentes (`messages.upsert`).\n\n2. **Validación Robusta y Tipado con Zod (QualityEngineer):**\n   - Esquemas estrictos `SendTextPayloadSchema` y `MessagesUpsertWebhookSchema` en TypeScript.\n   - Funciones defensivas (`validateSendTextPayload`, `validateMessagesUpsertWebhook`) que previenen fallos por payloads malformados en el Daemon 24/7 sin interrumpir la operación del sistema.\n   - Plan de pruebas unitarias preparado para `Vitest`.\n\n3. **Adaptador Bidireccional, Carga de Entorno y Timeout de 90s:**\n   - **Carga de Entorno (`env.ts`):** Validación estricta y automática de archivos `.env` y `.env.local` al arrancar el Daemon.\n   - **Adaptador Evolution API v1/v2 (`EvolutionAdapter`):** Normaliza de forma transparente las diferencias de endpoints y payloads entre la versión 1 y versión 2 de Evolution API tanto para envíos salientes (`sendText` / `sendMedia`) como para webhooks entrantes.\n   - **Timeout de Transpilación (90s):** Script bash automatizado (`build-daemon.sh`) para compilar TypeScript con límite de tiempo estricto.\n   - **Orquestador del Daemon 24/7 (`daemon.ts`):** Servidor HTTP con integración directa a Supabase y soporte para **Graceful Shutdown** (`SIGTERM` / `SIGINT`).\n\nTodo el código y los scripts están libres de placeholders y listos para su integración y despliegue productivo en el ecosistema ERP de la pescadería.\n============================================================",
+      "returncode": 0,
+      "duration": 100.45
+    }
+  }
+}

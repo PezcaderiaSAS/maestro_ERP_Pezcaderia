@@ -12,6 +12,7 @@ import {
 } from './POSMultivendorCart';
 import { ManualWeightModal } from './ManualWeightModal';
 import { usePOSKeyboardShortcuts } from '../../../hooks/usePOSKeyboardShortcuts';
+import type { BodegaStockItem } from '../posWarehouseStock.utils';
 
 /**
  * Función canónica para determinar si un producto es pesable (Balanza / KG)
@@ -36,6 +37,7 @@ export const isProductPesable = (p: Product): boolean => {
 export interface POSMultivendorViewProps {
   products: Product[];
   stockMap: Record<string, number>;
+  warehouseStockMap?: Record<string, BodegaStockItem[]>;
   cartItems: MultivendorCartItem[];
   onAddToCart: (product: Product, cantidad?: number) => void;
   onUpdateQuantity: (index: number, delta: number) => void;
@@ -79,6 +81,7 @@ export interface POSMultivendorViewProps {
 export const POSMultivendorView: React.FC<POSMultivendorViewProps> = ({
   products,
   stockMap,
+  warehouseStockMap,
   cartItems,
   onAddToCart,
   onUpdateQuantity,
@@ -327,6 +330,7 @@ export const POSMultivendorView: React.FC<POSMultivendorViewProps> = ({
             <POSMultivendorCatalog
               products={products}
               stockMap={stockMap}
+              warehouseStockMap={warehouseStockMap}
               onAddToCart={onAddToCart}
               onOpenScaleModal={handleOpenScaleModal}
               searchFilter={searchQuery}

@@ -70,4 +70,5 @@ repomix-*.md
 graphify-out/cache/
 graphify-out/.graphify_*
 .vercel
+.daemon/
 .env*

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -9,10 +9,13 @@ import {
 } from 'lucide-react';
 import type { Product } from '../../../types/erp.types';
 import { ProductAvatar } from '../../../components/common/ProductAvatar';
+import { POSProductBodegaStock } from './POSProductBodegaStock';
+import type { BodegaStockItem } from '../posWarehouseStock.utils';
 
 export interface POSMultivendorCatalogProps {
   products: Product[];
   stockMap: Record<string, number>;
+  warehouseStockMap?: Record<string, BodegaStockItem[]>;
   onAddToCart: (product: Product, cantidad?: number) => void;
   onOpenScaleModal?: (product: Product) => void;
   searchFilter: string;
@@ -23,12 +26,16 @@ const ITEMS_PER_PAGE = 18; // Matriz 6x3 canónica de alta densidad
 export const POSMultivendorCatalog: React.FC<POSMultivendorCatalogProps> = ({
   products,
   stockMap,
+  warehouseStockMap,
   onAddToCart,
   onOpenScaleModal,
   searchFilter,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('TODOS');
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [canScrollLeft, setCanScrollLeft] = useState<boolean>(false);
+  const [canScrollRight, setCanScrollRight] = useState<boolean>(true);
+  const categoryContainerRef = useRef<HTMLDivElement>(null);
 
   // Extraer categorías únicas disponibles
   const categories = useMemo(() => {
@@ -39,6 +46,28 @@ export const POSMultivendorCatalog: React.FC<POSMultivendorCatalogProps> = ({
     });
     return ['TODOS', ...Array.from(set)];
   }, [products]);
+
+  const checkScrollability = useCallback(() => {
+    const el = categoryContainerRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanScrollLeft(scrollLeft > 2);
+    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 2);
+  }, []);
+
+  useEffect(() => {
+    checkScrollability();
+    window.addEventListener('resize', checkScrollability);
+    return () => window.removeEventListener('resize', checkScrollability);
+  }, [checkScrollability, categories]);
+
+  const handleScrollLeft = () => {
+    categoryContainerRef.current?.scrollBy({ left: -200, behavior: 'smooth' });
+  };
+
+  const handleScrollRight = () => {
+    categoryContainerRef.current?.scrollBy({ left: 200, behavior: 'smooth' });
+  };
 
   // Filtrar productos por búsqueda y categoría
   const filteredProducts = useMemo(() => {
@@ -102,29 +131,63 @@ export const POSMultivendorCatalog: React.FC<POSMultivendorCatalogProps> = ({
       data-testid="pos-multivendor-catalog"
       className="flex-1 min-w-0 flex flex-col bg-slate-50 border-r border-slate-200 overflow-hidden select-none"
     >
-      {/* 1. BARRA DE CATEGORÍAS (Pills Horizontales Limpias) */}
-      <div className="h-11 px-3 bg-white border-b border-slate-200 flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0">
-        <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 mr-1 hidden sm:inline">
-          Categoría:
-        </span>
-        {categories.map((cat) => {
-          const isSelected = selectedCategory.toUpperCase() === cat.toUpperCase();
-          return (
-            <button
-              key={cat}
-              type="button"
-              data-testid={`btn-cat-${cat}`}
-              onClick={() => handleSelectCategory(cat)}
-              className={`min-h-[32px] px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap active:scale-95 ${
-                isSelected
-                  ? 'bg-emerald-600 text-white shadow-xs font-black'
-                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80'
-              }`}
-            >
-              {cat}
-            </button>
-          );
-        })}
+      {/* 1. BARRA DE CATEGORÍAS (Pills Horizontales con Flechas de Navegación Suave) */}
+      <div className="relative h-11 bg-white border-b border-slate-200 flex items-center shrink-0 overflow-hidden">
+        {/* Botón Scroll Izquierdo */}
+        <button
+          type="button"
+          data-testid="btn-category-scroll-left"
+          aria-label="Desplazar categorías a la izquierda"
+          onClick={handleScrollLeft}
+          className={`absolute left-0 z-10 h-full px-1.5 flex items-center justify-center bg-white/95 hover:bg-slate-100 text-slate-600 hover:text-emerald-700 shadow-xs border-r border-slate-200/80 transition-all cursor-pointer ${
+            canScrollLeft ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
+          }`}
+        >
+          <ChevronLeft size={16} />
+        </button>
+
+        {/* Contenedor desplazable de Categorías */}
+        <div
+          ref={categoryContainerRef}
+          data-testid="pos-category-tabs-container"
+          onScroll={checkScrollability}
+          className="h-full px-3 flex-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth"
+        >
+          <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 mr-1 hidden sm:inline shrink-0">
+            Categoría:
+          </span>
+          {categories.map((cat) => {
+            const isSelected = selectedCategory.toUpperCase() === cat.toUpperCase();
+            return (
+              <button
+                key={cat}
+                type="button"
+                data-testid={`btn-cat-${cat}`}
+                onClick={() => handleSelectCategory(cat)}
+                className={`min-h-[32px] px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap active:scale-95 shrink-0 ${
+                  isSelected
+                    ? 'bg-emerald-600 text-white shadow-xs font-black'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80'
+                }`}
+              >
+                {cat}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Botón Scroll Derecho */}
+        <button
+          type="button"
+          data-testid="btn-category-scroll-right"
+          aria-label="Desplazar categorías a la derecha"
+          onClick={handleScrollRight}
+          className={`absolute right-0 z-10 h-full px-1.5 flex items-center justify-center bg-white/95 hover:bg-slate-100 text-slate-600 hover:text-emerald-700 shadow-xs border-l border-slate-200/80 transition-all cursor-pointer ${
+            canScrollRight ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
+          }`}
+        >
+          <ChevronRight size={16} />
+        </button>
       </div>
 
       {/* 2. MATRIZ DE PRODUCTOS (6x3 Tarjetas - SaaS Light Mode) */}
@@ -142,8 +205,20 @@ export const POSMultivendorCatalog: React.FC<POSMultivendorCatalogProps> = ({
               const price = getProductPrice(product);
               const unit = getProductUnit(product);
               const pesable = isProductPesable(product);
-              const stock = stockMap[product.id] ?? stockMap[product.sku] ?? 0;
-              const sinStock = stock <= 0;
+              
+              const bodegasStock = warehouseStockMap?.[product.id] || warehouseStockMap?.[product.sku] || [];
+              
+              let stock = 0;
+              if (typeof stockMap?.[product.id] === 'number') {
+                stock = stockMap[product.id];
+              } else if (typeof stockMap?.[product.sku] === 'number') {
+                stock = stockMap[product.sku];
+              } else if (bodegasStock.length > 0) {
+                stock = bodegasStock.reduce((acc, b) => acc + (b.cantidad || 0), 0);
+              }
+
+              const isNoControl = product.control_inventario === false || (product as any).controlInventario === false;
+              const sinStock = !isNoControl && stock <= 0;
 
               return (
                 <div
@@ -200,11 +275,20 @@ export const POSMultivendorCatalog: React.FC<POSMultivendorCatalogProps> = ({
                     </h3>
                   </div>
 
+                  {/* Mini-Pills de Stock por Bodega (SaaS Light Mode WCAG AA+) */}
+                  {bodegasStock.length > 0 && (
+                    <POSProductBodegaStock
+                      bodegas={bodegasStock}
+                      unit={unit}
+                      maxVisible={3}
+                    />
+                  )}
+
                   {/* Precio Grande Destacado en Esmeralda & Stock */}
                   <div className="mt-1 pt-1 border-t border-slate-100 flex items-end justify-between">
                     <div className="flex flex-col">
                       <span className="text-[9px] font-medium text-slate-400">
-                        {sinStock ? 'Agotado' : `Stock: ${stock} ${unit}`}
+                        {sinStock ? 'Agotado' : isNoControl ? 'Venta libre' : `Stock: ${stock} ${unit}`}
                       </span>
                       <span className="text-emerald-600 font-mono font-black text-sm sm:text-base leading-none">
                         ${price.toLocaleString('es-CO')}

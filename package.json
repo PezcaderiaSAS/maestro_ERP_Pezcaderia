@@ -34,7 +34,19 @@
     "benchmark:pos": "npx tsx scripts/benchmark/benchmark-pos-latency.ts",
     "benchmark:wms": "npx tsx scripts/benchmark/benchmark-wms-queries.ts",
     "benchmark:sync": "npx tsx scripts/benchmark/benchmark-outbox-sync.ts",
-    "prepare": "husky || exit 0"
+    "prepare": "husky || exit 0",
+    "daemon:start": "node scripts/daemon/cli.cjs start --detached",
+    "daemon:stop": "node scripts/daemon/cli.cjs stop",
+    "daemon:status": "node scripts/daemon/cli.cjs status",
+    "daemon:restart": "node scripts/daemon/cli.cjs restart",
+    "daemon:logs": "node scripts/daemon/cli.cjs logs",
+    "daemon:logs:cycles": "node scripts/daemon/cli.cjs logs --cycles",
+    "evolution:up": "node scripts/daemon/evolution-bootstrap.cjs compose up -d",
+    "evolution:down": "node scripts/daemon/evolution-bootstrap.cjs compose down",
+    "evolution:logs": "node scripts/daemon/evolution-bootstrap.cjs compose logs -f evolution-api",
+    "evolution:bootstrap": "node scripts/daemon/evolution-bootstrap.cjs bootstrap",
+    "evolution:status": "node scripts/daemon/evolution-bootstrap.cjs status",
+    "evolution:qr": "node scripts/daemon/evolution-bootstrap.cjs qr"
   },
   "dependencies": {
     "@google/genai": "^2.25.0",

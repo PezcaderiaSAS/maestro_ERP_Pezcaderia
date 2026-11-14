@@ -54,9 +54,7 @@ export const SplitPaymentModal: React.FC<SplitPaymentModalProps> = ({
   onConfirmPayment,
   initialMethod = 'EFECTIVO',
 }) => {
-  if (!isOpen || !order) return null;
-
-  const totalPagar = order.montoTotal || 0;
+  const totalPagar = order?.montoTotal || 0;
 
   // Estado de líneas de pago fraccionado
   const [lines, setLines] = useState<SplitPaymentLine[]>(() => {
@@ -74,6 +72,7 @@ export const SplitPaymentModal: React.FC<SplitPaymentModalProps> = ({
 
   // Reiniciar líneas al cambiar de orden
   useEffect(() => {
+    if (!isOpen || !order) return;
     const defaultMetodo = initialMethod === 'MIXTO' ? 'EFECTIVO' : initialMethod;
     setLines([
       {
@@ -84,7 +83,7 @@ export const SplitPaymentModal: React.FC<SplitPaymentModalProps> = ({
         vueltoCalculado: 0,
       },
     ]);
-  }, [order.id, totalPagar, initialMethod]);
+  }, [isOpen, order, totalPagar, initialMethod]);
 
   // Cálculos reactivos de saldo
   const totalAsignado = useMemo(() => {
@@ -164,7 +163,7 @@ export const SplitPaymentModal: React.FC<SplitPaymentModalProps> = ({
   };
 
   const handleConfirm = () => {
-    if (!estaCubierto) return;
+    if (!estaCubierto || !order) return;
     onConfirmPayment({
       orderId: order.id,
       montoTotal: totalPagar,
@@ -174,13 +173,18 @@ export const SplitPaymentModal: React.FC<SplitPaymentModalProps> = ({
   };
 
   // Atajos de teclado en el modal
-  usePOSKeyboardShortcuts({
-    onEscape: onClose,
-    onF12Checkout: handleConfirm,
-    onEnter: () => {
-      if (estaCubierto) handleConfirm();
+  usePOSKeyboardShortcuts(
+    {
+      onEscape: onClose,
+      onF12Checkout: handleConfirm,
+      onEnter: () => {
+        if (estaCubierto) handleConfirm();
+      },
     },
-  });
+    { isEnabled: isOpen && !!order }
+  );
+
+  if (!isOpen || !order) return null;
 
   return (
     <div

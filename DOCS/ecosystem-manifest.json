@@ -1,9 +1,9 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2026-11-11T14:17:39.749Z",
+  "lastUpdated": "2026-11-14T12:11:21.691Z",
   "totals": {
     "workflows": 116,
-    "skills": 122,
+    "skills": 123,
     "agencies": 7,
     "mcpServers": 14
   },
@@ -1454,6 +1454,13 @@
       "name": "pos-cash",
       "description": "\"Motor de Punto de Venta (POS), control de arqueos de caja ciega, turnos de cajeros y tesorería.\"",
       "path": ".agents/skills/pos-cash",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "pos-layout-portals",
+      "name": "pos-layout-portals",
+      "description": "\"Invariantes verificados para portales modales en POS, drawers responsivos sin transform en línea y prevención de desbordamiento en vistas encajonadas.\"",
+      "path": ".agents/skills/pos-layout-portals",
       "status": "ACTIVE"
     },
     {

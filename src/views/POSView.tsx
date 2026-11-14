@@ -22,6 +22,7 @@ import { VendorTicketSidebar, type VendorTicket, type EstadoTicket } from '../co
 import { supabaseRealtimePreventasService } from '../services/supabaseRealtimePreventasService.ts';
 import { ProductSearchPanel } from './pos/components/ProductSearchPanel.tsx';
 import { POSMultivendorView } from './pos/components/POSMultivendorView.tsx';
+import { buildAllProductsStockMap } from './pos/posWarehouseStock.utils.ts';
 import { AperturaCajaModal } from './pos/components/AperturaCajaModal.tsx';
 import { RetiroParcialModal } from './pos/components/RetiroParcialModal.tsx';
 import { RestockRequestModal } from './inventory/components/RestockRequestModal.tsx';
@@ -63,6 +64,7 @@ import { useResolucionStore } from '../store/useResolucionStore.ts';
 import { siigoPayloadMapper } from '../services/siigoPayloadMapper.ts';
 import type { FacturaElectronicaRegistro } from '../types/resoluciones.types.ts';
 import { useAuthStore } from '../store/useAuthStore';
+import { UnifiedPaymentModal } from './pos/components/payment/UnifiedPaymentModal.tsx';
 
 export const VENDEDORES_JOSASE = [
   { id: 'user-josase-01', nombre: 'DIEGO IVAN DIAZ ANAYA', corto: 'Diego Díaz' },
@@ -501,6 +503,7 @@ export default function POSView({
   const [b2bFilter, setB2bFilter] = useState<'Listo' | 'Todos'>('Listo');
   const [tempRealQuantities, setTempRealQuantities] = useState<Record<string, number | string>>({});
   const [mobileTab, setMobileTab] = useState<'catalogo' | 'carrito'>('catalogo');
+  const [isUnifiedPaymentModalOpen, setIsUnifiedPaymentModalOpen] = useState(false);
 
   // Modo Cajero Híbrido (SPEC-054: Caja Única / Cola de Comandas en Vivo)
   const [isModoCajero, setIsModoCajero] = useState<boolean>(() => {
@@ -2270,14 +2273,20 @@ export default function POSView({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [activeSubView, isTurnoAbierto, cartLineas.length, showAperturaModal, showArqueoModal, limpiarCarrito]);
 
+  // Resumen y desglose normalizado de existencias por bodega para el POS (SPEC-064)
+  const { flatStockMap, breakdownMap: warehouseStockMap } = useMemo(() => {
+    return buildAllProductsStockMap(activeProducts, stock, bodegas);
+  }, [activeProducts, stock, bodegas]);
+
   // Cálculos financieros delegados al hook usePOSCart
   // Redirección directa al nuevo Terminal POS Multivendedor SaaS Light Mode (SPEC-056)
   if (activeSubView === 'venta_pos') {
     return (
-      <div data-testid="pos-glass-container" className="pos-layout w-full h-full min-h-0 flex flex-col overflow-hidden">
+      <div data-testid="pos-glass-container" className="pos-layout w-full h-full max-h-full min-h-0 flex flex-col overflow-hidden">
         <POSMultivendorView
           products={activeProducts}
-          stockMap={stock as any}
+          stockMap={flatStockMap}
+          warehouseStockMap={warehouseStockMap}
           cartItems={cartLineas.map((l: any, idx: number) => {
             const matchedProduct = l.producto || activeProducts.find((p) => p.id === l.productoId);
             return {
@@ -2352,7 +2361,20 @@ export default function POSView({
             const finalNotas = selectedCutNotes.length > 0 ? `[${selectedCutNotes.join(', ')}]` : '';
             await handleGuardarBorrador(finalNotas);
           }}
-          onCobrarCaja={() => setIsModoCajero(true)}
+          onCobrarCaja={() => {
+            if (!isTurnoAbierto || !turnoActivo) {
+              Swal.fire({
+                icon: 'error',
+                title: 'Turno de Caja Requerido',
+                text: 'Debe abrir un Turno de Caja antes de poder registrar cobros o facturar.',
+                confirmButtonColor: 'var(--primary-color)'
+              }).then(() => {
+                setShowAperturaModal(true);
+              });
+              return;
+            }
+            setIsUnifiedPaymentModalOpen(true);
+          }}
           selectedVendorId={selectedVendorJosase}
           onSelectVendor={(vId) => {
             setSelectedVendorJosase(vId);
@@ -2443,6 +2465,26 @@ export default function POSView({
           onNotasDespachoChange={(val) => {
             if (val) setSelectedCutNotes([val]);
             else setSelectedCutNotes([]);
+          }}
+        />
+
+        {/* Modal Unificado de Recaudo en Terminal POS (SPEC-060) */}
+        <UnifiedPaymentModal
+          isOpen={isUnifiedPaymentModalOpen}
+          totalPagar={totalFinal}
+          cliente={cliente}
+          onClose={() => setIsUnifiedPaymentModalOpen(false)}
+          onConfirmPayment={async (payload) => {
+            const pagosMapped: { metodo: MetodoCobroPos; monto: number }[] = payload.pagos.map((p) => {
+              let m: MetodoCobroPos = 'EFECTIVO';
+              if (p.metodo === 'DATAFONO') m = 'DATAFONO';
+              else if (p.metodo === 'TRANSFERENCIA') m = 'NEQUI';
+              else if (p.metodo === 'CREDITO') m = 'CREDITO';
+              return { metodo: m, monto: p.monto };
+            });
+            await handlePagar(pagosMapped);
+            limpiarCarrito();
+            setIsUnifiedPaymentModalOpen(false);
           }}
         />
 

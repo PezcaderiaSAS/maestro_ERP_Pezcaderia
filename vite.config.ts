@@ -27,7 +27,7 @@ export default defineConfig({
     hookTimeout: 30000,
     teardownTimeout: 30000,
     setupFiles: './src/tests/setup.ts',
-    include: ['src/tests/**/*.{test,spec}.{ts,tsx}'],
+    include: ['src/tests/**/*.{test,spec}.{ts,tsx}', 'tests/**/*.{test,spec}.{ts,tsx}'],
     exclude: ['**/node_modules/**', 'dist', '.idea', '.git', '.cache', 'tests/e2e/**', 'agent-skills/**'],
   },
 });

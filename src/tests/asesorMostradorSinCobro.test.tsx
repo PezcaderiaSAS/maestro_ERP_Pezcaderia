@@ -104,8 +104,8 @@ describe('Requisito Asesor de Mostrador: Segregación Estricta sin Sección de C
     expect(btnCobrar).toBeInTheDocument();
     fireEvent.click(btnCobrar);
 
-    // Debe mostrar el panel de cobro PaymentPanel dentro del drawer
-    expect(screen.getByText(/TOTAL A LIQUIDAR/i)).toBeInTheDocument();
-    expect(screen.getByTestId('btn-efectivo-exacto-directo')).toBeInTheDocument();
+    // Debe mostrar el modal unificado de cobro (SPEC-060)
+    expect(screen.getByTestId('unified-payment-modal')).toBeInTheDocument();
+    expect(screen.getByText(/Terminal de Cobro POS/i)).toBeInTheDocument();
   });
 });

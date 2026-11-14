@@ -989,7 +989,8 @@ export const POSMultivendorCart: React.FC<POSMultivendorCartProps> = ({
           <button
             type="button"
             id="btn-cart-cobrar-caja"
-            data-testid="btn-cart-cobrar-caja"
+            data-testid="btn-cobrar"
+            data-legacy-testid="btn-cart-cobrar-caja"
             disabled={items.length === 0 || isSubmitting}
             onClick={onCobrarCaja}
             className="w-full min-h-[40px] py-2 px-3 rounded-lg bg-slate-200 hover:bg-slate-300 disabled:opacity-50 text-slate-800 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
