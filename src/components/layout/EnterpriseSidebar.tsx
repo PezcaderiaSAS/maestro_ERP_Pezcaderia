@@ -20,6 +20,7 @@ import {
   DollarSign,
   PieChart,
   PanelLeftClose,
+  PanelLeftOpen,
   Shield,
   LogOut,
   Zap,
@@ -295,6 +296,8 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
     <>
       {/* Overlay translúcido para móvil */}
       <div
+        data-testid="sidebar-backdrop"
+        id="sidebar-backdrop"
         className={`fixed inset-0 z-40 bg-black/70 backdrop-blur-sm lg:hidden transition-opacity duration-300 ${
           isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
@@ -310,22 +313,31 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
             : 'left-0 lg:left-3 w-16 -translate-x-full lg:translate-x-0 pointer-events-none lg:pointer-events-auto'
         }`}
       >
-        {/* Cabecera Superior con Controles macOS */}
+        {/* Cabecera Superior con Controles macOS y Botón de Alternancia */}
         <div
           className={`flex items-center pt-4 pb-2 ${
-            isOpen ? 'justify-between px-4' : 'justify-center px-1'
+            isOpen ? 'justify-between px-4' : 'flex-col gap-2 px-1'
           }`}
         >
           <MacWindowControls onToggleOpen={onToggleOpen} onCloseSession={onCloseSession} isAppLevel={true} />
 
-          {isOpen && (
+          {isOpen ? (
             <button
               onClick={onToggleOpen}
-              className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors hidden lg:flex items-center justify-center cursor-pointer"
+              className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors flex items-center justify-center cursor-pointer"
               title="Colapsar menú (Ctrl+B)"
               aria-label="Colapsar menú"
             >
               <PanelLeftClose size={16} />
+            </button>
+          ) : (
+            <button
+              onClick={onToggleOpen}
+              className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors hidden lg:flex items-center justify-center cursor-pointer"
+              title="Expandir menú (Ctrl+B)"
+              aria-label="Expandir menú"
+            >
+              <PanelLeftOpen size={16} />
             </button>
           )}
         </div>

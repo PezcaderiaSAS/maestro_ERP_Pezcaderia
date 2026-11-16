@@ -20,6 +20,7 @@
 6. **SPEC-062 (USEPRICING SRP REFACTOR) ✅ (100%):** Modularización de `usePricing.ts` de 933 a 121 líneas en fachada orquestadora y 8 submódulos atómicos en `src/hooks/pricing/`. Advertencia SOLID eliminada (de 29 a 28), 18/18 tests verdes y 0 roturas.
 7. **SPEC-063 (COLD STORAGE PDF SRP REFACTOR) ✅ (100%):** Modularización de `coldStoragePdfService.ts` de 1092 a 70 líneas en fachada orquestadora y 6 submódulos atómicos en `src/services/coldStoragePdf/`. Advertencia SOLID eliminada (de 28 a 27), 56/56 tests verdes y 0 regresiones.
 8. **SPEC-064 (POS UI/UX OVERFLOW & BODEGA STOCK) ✅ (100%):** Eliminación del falso estado "Agotado" en catálogo con normalizador O(1) de stock multibodega (`posWarehouseStock.utils.ts`), visualización de mini-pills de stock por bodega (`POSProductBodegaStock.tsx`), eliminación de recortes en header y scroll suave con chevrons en pestañas de categoría. 36/36 tests POS verdes y 0 errores TypeScript.
+9. **SIDEBAR & PERFORMANCE FREEZE RESOLUTION ✅ (100% - VICTORY CONFIRMED):** Erradicación de congelamientos del hilo principal al eliminar serialización síncrona en `zustandConsoleMiddleware` y bucles en `useDataBootstrapper`. Corrección de superposición en `EnterpriseTopbar` (garantía táctil 44px para botón de menú), botón de expansión `PanelLeftOpen` en riel 64px (`EnterpriseSidebar`) y persistencia de sidebar en escritorio en `useAppStore`. 255/255 suites Vitest verdes.
 
 ## Despliegue a Producción (Vercel & Supabase)
 - **Vercel (Frontend SPA):** `https://maestro-erp-pezcaderia.vercel.app` (HTTP 200).

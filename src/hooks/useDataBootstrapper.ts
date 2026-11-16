@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import * as localDb from '../services/localDb';
 import { toTitleCase } from '../lib/utils';
 import { INITIAL_CLIENTS, INITIAL_PROVEEDORES, INITIAL_PRODUCTS, migrateProductsToCatalogAndPricing } from '../data/appSeedData';
@@ -156,8 +156,10 @@ export function useDataBootstrapper() {
     }
   }, [stock, bodegas, setStock]);
 
-  // 4. Migración idempotente a Title Case y saneamiento de campos heredados
+  // 4. Migración idempotente a Title Case y saneamiento de campos heredados (ejecución única al montar)
+  const hasMigratedRef = useRef(false);
   useEffect(() => {
+    if (hasMigratedRef.current) return;
     let migrated = false;
 
     // Migrar Clientes
@@ -219,11 +221,13 @@ export function useDataBootstrapper() {
     });
 
     if (migrated) {
-      console.log('Migración de datos ejecutada.');
+      hasMigratedRef.current = true;
       setClientes(migratedClientes);
       setProveedores(migratedProveedores);
       setProductsCatalog(migratedProducts);
       setEmpleados(migratedEmpleados);
+    } else if (clientes.length > 0 || proveedores.length > 0) {
+      hasMigratedRef.current = true;
     }
   }, [clientes, proveedores, productsCatalog, empleados, setClientes, setProveedores, setProductsCatalog, setEmpleados]);
 

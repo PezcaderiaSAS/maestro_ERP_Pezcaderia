@@ -216,7 +216,10 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
       className="h-12 mx-2.5 mt-1.5 mb-1 flex items-center justify-between px-2.5 sm:px-3.5 lg:px-5 rounded-2xl bg-slate-900/85 backdrop-blur-2xl border border-white/12 text-slate-200 select-none z-30 sticky top-1.5 shadow-xl transition-all duration-200"
     >
       {/* Sección Izquierda: Toggle + Breadcrumb Flotante */}
-      <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 overflow-hidden">
+      <div 
+        style={{ minWidth: '44px', flexShrink: 0 }}
+        className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 overflow-hidden"
+      >
         <button
           onClick={onToggleSidebar}
           className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer shrink-0"
@@ -248,7 +251,7 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
       </div>
 
       {/* Sección Derecha: Selector de Empresa, Omnibox, Selector de Bodega, Botón POS, Tema y Perfil */}
-      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto">
         {/* Selector y Badge de Empresa / Multi-Tenant V8 */}
         <button
           type="button"
@@ -339,7 +342,7 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
               });
             }
           }}
-          className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer active:scale-95 shrink-0 bg-white/5 hover:bg-white/10 text-cyan-300 border-cyan-400/30"
+          className="hidden xl:flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer active:scale-95 shrink-0 bg-white/5 hover:bg-white/10 text-cyan-300 border-cyan-400/30"
           title="Alternar en 1 clic entre Ferretería Josase y La Pezcadería"
         >
           <span>{(activeTenant?.id === 'tenant-03' || activeTenant?.razonSocial?.toLowerCase().includes('josase')) ? '🔨 Josase' : '🐟 Pezcadería'}</span>

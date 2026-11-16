@@ -60,7 +60,12 @@ export const useAppStore = create<AppState>()(
     set({ currentUser: null });
   },
 
-  setCurrentView: (view, params) => set({ currentView: view, currentRouteParams: params, sidebarOpen: false }),
+  setCurrentView: (view, params) =>
+    set((state) => ({
+      currentView: view,
+      currentRouteParams: params,
+      sidebarOpen: typeof window !== 'undefined' && window.innerWidth < 1024 ? false : state.sidebarOpen,
+    })),
 
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
 

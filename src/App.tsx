@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useAuthStore } from './store/useAuthStore';
 import { useAppStore } from './store/useAppStore';
 import { useOrderStore } from './store/useOrderStore';
@@ -58,10 +58,11 @@ export default function App() {
 
   const quotations = useOrderStore((s) => s.quotations);
   const [isOmniboxOpen, setIsOmniboxOpen] = useState(false);
+  const handleToggleOmnibox = useCallback(() => setIsOmniboxOpen((prev) => !prev), []);
 
   // Hooks orquestadores desacoplados (SRP)
   useHashRouting();
-  useAppListeners({ onToggleOmnibox: () => setIsOmniboxOpen((prev) => !prev) });
+  useAppListeners({ onToggleOmnibox: handleToggleOmnibox });
   useDataBootstrapper();
   useOutboxWorker();
   const { handleCancelarPedidoDigital, handleAprobarPedidoManual } = useDigitalOrdersIntegration();
