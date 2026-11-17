@@ -16,11 +16,11 @@ describe('TASK-043-01: Ferretería Josase - Carga IndexedDB Zero-LocalStorage (Q
   it('1. Debe realizar la indexación asíncrona masiva en TenantIndexedDbService sin desbordar localStorage', async () => {
     const result = await ferreteriaJosaseService.applyToIndexedDb(tenantId, dbService);
 
-    expect(result.clientesCount).toBe(9550);
+    expect(result.clientesCount).toBe(9538);
     expect(result.itemsCount).toBe(5351);
     expect(result.indexedDbReady).toBe(true);
 
-    // Verificar que localStorage NO contenga los 9.550 clientes serializados en crudo (> 4MB)
+    // Verificar que localStorage NO contenga los 9.538 clientes serializados en crudo (> 4MB)
     const rawClientesInLocalStorage = localStorage.getItem('erp_clientes') || localStorage.getItem('clientes');
     const localDbSize = rawClientesInLocalStorage ? new Blob([rawClientesInLocalStorage]).size : 0;
     

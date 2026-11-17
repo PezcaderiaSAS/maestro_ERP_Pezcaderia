@@ -1,6 +1,6 @@
 // src/tests/ferreteriaJosasePosIntegration.test.tsx
 // Suite de Integración Operativa: Ferretería Josase en el POS & Venta Concurrente
-// Valida el catálogo de 5.351 ítems, stock = 100, 9.550 clientes y conmutación multi-tenant
+// Valida el catálogo de 5.351 ítems, stock = 100, 9.538 clientes y conmutación multi-tenant
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ferreteriaJosaseService } from '../services/ferreteriaJosaseService';
@@ -16,11 +16,11 @@ describe('Integración Operativa POS — Ferretería Josase (tenant-03)', () => 
     vi.clearAllMocks();
   });
 
-  it('1. Carga dinámicamente y asigna 5.351 ítems y 9.550 clientes a los Stores con stock inicial = 100', async () => {
+  it('1. Carga dinámicamente y asigna 5.351 ítems y 9.538 clientes a los Stores con stock inicial = 100', async () => {
     const res = await ferreteriaJosaseService.applyToStores();
 
     expect(res.itemsCount).toBe(5351);
-    expect(res.clientesCount).toBe(9550);
+    expect(res.clientesCount).toBe(9538);
     expect(res.stockAsignado).toBe(5351);
 
     const inv = useInventoryStore.getState();
@@ -34,7 +34,7 @@ describe('Integración Operativa POS — Ferretería Josase (tenant-03)', () => 
 
     // Verificar clientes
     const clients = useClientStore.getState().clientes;
-    expect(clients.length).toBe(9550);
+    expect(clients.length).toBe(9538);
     expect((clients[0] as any).tenantId).toBe('tenant-03');
   }, 20000);
 
@@ -72,7 +72,7 @@ describe('Integración Operativa POS — Ferretería Josase (tenant-03)', () => 
     expect(itemsTubo.length).toBeGreaterThan(0);
   });
 
-  it('4. Permite seleccionar un cliente ferretero de los 9.550 registrados', () => {
+  it('4. Permite seleccionar un cliente ferretero de los 9.538 registrados', () => {
     const clients = useClientStore.getState().clientes;
     
     // Búsqueda por NIT

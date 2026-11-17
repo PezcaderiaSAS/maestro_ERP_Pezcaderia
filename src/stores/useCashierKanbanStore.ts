@@ -206,35 +206,64 @@ export const useCashierKanbanStore = create<CashierKanbanState>()(
       nuevoEstado: EstadoPrefactura,
       cajeroId?: string
     ) => {
+      let res: { ok: boolean; prefactura?: Prefactura; error?: string } = { ok: false };
+
       if (nuevoEstado === 'EN_COBRO') {
-        const res = prefacturaService.marcarEnCobro(
+        res = prefacturaService.marcarEnCobro(
           tenantId,
           prefacturaId,
           cajeroId || 'usr-cajero'
         );
-        if (res.ok) {
-          // Difundir evento de actualización en tiempo real a todos los puestos
-          const updated = res.prefactura;
-          if (updated) {
-            await supabaseRealtimePreventasService.broadcastEvent({
-              eventType: 'UPDATE_ESTADO_PREVENTA',
+      } else if (nuevoEstado === 'PENDIENTE_COBRO') {
+        res = prefacturaService.liberarDeCobro(
+          tenantId,
+          prefacturaId,
+          cajeroId
+        );
+      } else if (nuevoEstado === 'PAGADA' || nuevoEstado === 'DESPACHADA') {
+        const pref = prefacturaService.obtenerPrefacturaPorCodigoOId(tenantId, prefacturaId);
+        if (pref) {
+          if (pref.estado === 'PAGADA' || pref.estado === 'DESPACHADA') {
+            res = { ok: true, prefactura: pref };
+          } else {
+            res = await prefacturaService.registrarCobroEnCaja({
               tenantId,
-              prefacturaId: updated.id,
-              codigoPreventa: updated.codigoPreventa,
-              vendedorId: updated.vendedorId,
-              vendedorNombre: updated.vendedorNombre,
-              terminalId: updated.terminalId,
-              cajeroId: updated.cajeroId,
-              cajeroNombre: updated.cajeroNombre,
-              estado: updated.estado,
-              total: updated.total,
-              itemsCount: updated.items.length,
-              timestamp: updated.updatedAt,
+              prefacturaId: pref.id,
+              cajeroId: cajeroId || 'usr-cajero',
+              turnoId: 'TURNO-ACTUAL',
+              montoTotal: pref.total,
+              pagos: [{ metodoPago: 'EFECTIVO', monto: pref.total }],
             });
           }
-          get().cargarPreventas(tenantId);
-          return true;
         }
+      }
+
+      if (res.ok) {
+        // Difundir evento de actualización en tiempo real a todos los puestos
+        const updated = res.prefactura;
+        if (updated) {
+          await supabaseRealtimePreventasService.broadcastEvent({
+            eventType: 'UPDATE_ESTADO_PREVENTA',
+            tenantId,
+            prefacturaId: updated.id,
+            codigoPreventa: updated.codigoPreventa,
+            vendedorId: updated.vendedorId,
+            vendedorNombre: updated.vendedorNombre,
+            terminalId: updated.terminalId,
+            cajeroId: updated.cajeroId,
+            cajeroNombre: updated.cajeroNombre,
+            estado: updated.estado,
+            total: updated.total,
+            itemsCount: updated.items.length,
+            timestamp: updated.updatedAt,
+          });
+        }
+        get().cargarPreventas(tenantId);
+        return true;
+      }
+
+      if (res.error) {
+        set({ error: res.error });
       }
       return false;
     },

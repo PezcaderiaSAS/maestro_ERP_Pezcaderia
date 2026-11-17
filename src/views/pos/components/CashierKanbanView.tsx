@@ -12,9 +12,11 @@ import {
   AlertCircle,
   Receipt,
   User,
+  UserCheck,
   X,
   Layers,
   ArrowRight,
+  ArrowLeft,
   Filter,
   Eye,
   LayoutGrid,
@@ -51,9 +53,24 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
   const cajeroId = propCajeroId || currentUser?.id || 'usr-cajero-default';
   const userRole = useAppStore((s) => s.userRole);
   const appUser = useAppStore((s) => s.currentUser);
-  const isVendedor = userRole === 'vendedor' ||
+
+  // Desbloqueo de rol: Permite operación interactiva si el usuario tiene rol cajero,
+  // admin, o sesión activa en terminal de caja. Solo restringe a modo monitor si es vendedor puro.
+  const hasCashierAuthorization =
+    (userRole as string) === 'cajero' ||
+    userRole === 'admin' ||
+    currentUser?.rol === 'cajero' ||
+    currentUser?.rol === 'admin' ||
+    (appUser?.rol as string) === 'cajero' ||
+    appUser?.rol === 'admin' ||
+    Boolean(appUser?.cargo?.toLowerCase().includes('caj'));
+
+  const isVendedor = !hasCashierAuthorization && (
+    userRole === 'vendedor' ||
     currentUser?.rol === 'vendedor' ||
-    Boolean(appUser?.cargo?.toLowerCase().includes('mostrador') || appUser?.cargo?.toLowerCase().includes('vendedor'));
+    appUser?.rol === 'vendedor' ||
+    Boolean(appUser?.cargo?.toLowerCase().includes('mostrador') || appUser?.cargo?.toLowerCase().includes('vendedor'))
+  );
 
   const preventas = useCashierKanbanStore((s) => s.preventas);
   const filtroAsesorId = useCashierKanbanStore((s) => s.filtroAsesorId);
@@ -125,17 +142,21 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
     return preventas.filter((p) => p.vendedorId === filtroAsesorId);
   }, [preventas, filtroAsesorId]);
 
-  // Clasificación en las 3 columnas canónicas
+  const ESTADOS_ESPERA = ['PENDIENTE_COBRO', 'PENDIENTE_PAGO', 'EN_COLA', 'CREADO', 'POR_COBRAR'];
+  const ESTADOS_EN_COBRO = ['EN_COBRO', 'ATENDIENDO', 'EN_VENTANILLA'];
+  const ESTADOS_PAGADAS = ['PAGADA', 'PAGADO', 'DESPACHADA'];
+
+  // Clasificación en las 3 columnas canónicas con homologación de sinónimos
   const colEspera = useMemo(
-    () => preventasFiltradas.filter((p) => p.estado === 'PENDIENTE_COBRO'),
+    () => preventasFiltradas.filter((p) => ESTADOS_ESPERA.includes(p.estado)),
     [preventasFiltradas]
   );
   const colEnCobro = useMemo(
-    () => preventasFiltradas.filter((p) => p.estado === 'EN_COBRO'),
+    () => preventasFiltradas.filter((p) => ESTADOS_EN_COBRO.includes(p.estado)),
     [preventasFiltradas]
   );
   const colPagadas = useMemo(
-    () => preventasFiltradas.filter((p) => p.estado === 'PAGADA' || p.estado === 'DESPACHADA'),
+    () => preventasFiltradas.filter((p) => ESTADOS_PAGADAS.includes(p.estado)),
     [preventasFiltradas]
   );
 
@@ -168,6 +189,10 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
 
     if (destino === 'EN_COBRO') {
       await moverPreventaAColumna(tenantId, id, 'EN_COBRO', cajeroId);
+    } else if (destino === 'PENDIENTE_COBRO') {
+      await moverPreventaAColumna(tenantId, id, 'PENDIENTE_COBRO', cajeroId);
+    } else if (destino === 'PAGADA' || destino === 'DESPACHADA') {
+      await moverPreventaAColumna(tenantId, id, 'PAGADA', cajeroId);
     }
     setDraggedCardId(null);
   };
@@ -198,19 +223,22 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
 
   // Atajo de teclado F9 para cobro rápido en ventanilla (Solo cajeras y administradores)
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = async (e: KeyboardEvent) => {
       if (e.key === 'F9') {
         e.preventDefault();
         if (isVendedor) return;
         const target = colEnCobro[0] || colEspera[0];
         if (target && !isModalCobroOpen) {
+          if (target.estado !== 'EN_COBRO') {
+            await moverPreventaAColumna(tenantId, target.id, 'EN_COBRO', cajeroId);
+          }
           iniciarCobro(target);
         }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isVendedor, colEnCobro, colEspera, isModalCobroOpen]);
+  }, [isVendedor, colEnCobro, colEspera, isModalCobroOpen, tenantId, cajeroId, moverPreventaAColumna]);
 
   // Confirmar cobro mixto profesional desde QuickPaymentMixedModal (TASK-043-05)
   const handleConfirmarRecaudoMixto = async (payload: MixedPaymentPayload) => {
@@ -314,14 +342,14 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
   const handleConfirmSplitPayment = async (payload: SplitPaymentPayload) => {
     try {
       const pagosCobro: PagoCobroInput[] = payload.lineas.map((l) => ({
-        metodoPago: l.metodo as MetodoPagoPrefactura,
+        metodoPago: (l.metodo === 'TARJETA' ? 'DATAFONO' : l.metodo) as MetodoPagoPrefactura,
         monto: l.monto,
         referenciaComprobante: l.referencia,
       }));
 
       const totalEfectivoRecibido = payload.lineas.reduce((acc, l) => acc + (l.efectivoRecibido || 0), 0);
 
-      await procesarCobro({
+      const ok = await procesarCobro({
         tenantId,
         prefacturaId: payload.orderId,
         cajeroId,
@@ -331,6 +359,17 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
         efectivoRecibido: totalEfectivoRecibido > 0 ? totalEfectivoRecibido : undefined,
         cambioEntregado: payload.vueltoTotal,
       });
+
+      if (!ok) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al Cobrar',
+          text: 'No se pudo procesar el cobro fraccionado.',
+          background: '#0F172A',
+          color: '#F8FAFC',
+        });
+        return;
+      }
 
       setIsSplitPaymentOpen(false);
       setSelectedSupermarketOrder(null);
@@ -595,16 +634,33 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
                     </div>
                   </div>
 
-                  {/* Botón de Acción Rápida (Pasar a Cobro) (F16: Fitts >=44px) - Oculto para vendedores */}
+                  {/* Botones de Acción Ergonómicos (Atender en Ventanilla & Pasar a Cobro F9) */}
                   {!isVendedor ? (
-                    <button
-                      data-testid={`btn-iniciar-cobro-${pref.id}`}
-                      onClick={() => iniciarCobro(pref)}
-                      className="w-full mt-2.5 min-h-[44px] py-2.5 px-4 rounded-xl bg-cyan-600/90 hover:bg-cyan-500 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-md shadow-cyan-600/20 cursor-pointer"
-                    >
-                      <span>Pasar a Cobro (F9)</span>
-                      <ArrowRight size={13} />
-                    </button>
+                    <div className="mt-2.5 flex items-center gap-1.5">
+                      <button
+                        data-testid={`btn-atender-${pref.id}`}
+                        onClick={async () => {
+                          await moverPreventaAColumna(tenantId, pref.id, 'EN_COBRO', cajeroId);
+                        }}
+                        className="flex-1 min-h-[44px] py-2 px-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 text-[11px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer"
+                        title="Llamar y atender ticket en ventanilla de caja"
+                      >
+                        <UserCheck size={13} />
+                        <span>Atender en Ventanilla</span>
+                      </button>
+                      <button
+                        data-testid={`btn-iniciar-cobro-${pref.id}`}
+                        onClick={async () => {
+                          await moverPreventaAColumna(tenantId, pref.id, 'EN_COBRO', cajeroId);
+                          iniciarCobro(pref);
+                        }}
+                        className="min-h-[44px] py-2 px-3 rounded-xl bg-cyan-600/90 hover:bg-cyan-500 text-white text-[11px] font-bold transition-all flex items-center justify-center gap-1 shadow-md shadow-cyan-600/20 cursor-pointer"
+                        title="Pasar directamente a cobro (F9)"
+                      >
+                        <span>Pasar a Cobro (F9)</span>
+                        <ArrowRight size={13} />
+                      </button>
+                    </div>
                   ) : (
                     <div
                       data-testid={`badge-en-espera-${pref.id}`}
@@ -668,18 +724,31 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
                   </div>
 
                   {!isVendedor ? (
-                    <button
-                      data-testid={`btn-confirmar-cobro-${pref.id}`}
-                      onClick={() => iniciarCobro(pref)}
-                      className="w-full min-h-[44px] py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-600/30 cursor-pointer"
-                    >
-                      <CreditCard size={14} />
-                      <span>Confirmar Pago de Venta</span>
-                    </button>
+                    <div className="mt-2.5 flex items-center gap-1.5">
+                      <button
+                        data-testid={`btn-regresar-${pref.id}`}
+                        onClick={async () => {
+                          await moverPreventaAColumna(tenantId, pref.id, 'PENDIENTE_COBRO', cajeroId);
+                        }}
+                        className="min-h-[44px] py-2 px-2.5 rounded-xl bg-slate-700/60 hover:bg-slate-700 text-slate-300 hover:text-white border border-white/10 text-[11px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer"
+                        title="Liberar de ventanilla y regresar a cola de espera"
+                      >
+                        <ArrowLeft size={13} />
+                        <span>Regresar</span>
+                      </button>
+                      <button
+                        data-testid={`btn-confirmar-cobro-${pref.id}`}
+                        onClick={() => iniciarCobro(pref)}
+                        className="flex-1 min-h-[44px] py-2 px-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-amber-600/30 cursor-pointer"
+                      >
+                        <CreditCard size={13} />
+                        <span>Confirmar Pago</span>
+                      </button>
+                    </div>
                   ) : (
                     <div
                       data-testid={`badge-en-cobro-${pref.id}`}
-                      className="w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-amber-950/40 border border-amber-500/20 text-amber-300 text-xs font-semibold flex items-center justify-center gap-2 select-none"
+                      className="w-full mt-2.5 min-h-[44px] py-2.5 px-3 rounded-xl bg-amber-950/40 border border-amber-500/20 text-amber-300 text-xs font-semibold flex items-center justify-center gap-2 select-none"
                     >
                       <Clock size={13} className="text-amber-400 shrink-0 animate-pulse" />
                       <span>⏳ Atendiendo en Ventanilla</span>
@@ -692,7 +761,11 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
         </div>
 
         {/* COLUMNA 3: Pagado / Para Despacho */}
-        <div className="flex flex-col bg-slate-900/70 border border-white/10 rounded-2xl p-2.5 min-h-0">
+        <div
+          className="flex flex-col bg-slate-900/70 border border-white/10 rounded-2xl p-2.5 min-h-0"
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={(e) => handleDropOnColumn(e, 'PAGADA')}
+        >
           {/* Cabecera con Status Pill Esmeralda */}
           <div className="flex items-center justify-between px-2 py-1.5 mb-2 bg-white/5 rounded-xl border border-white/5">
             <div className="flex items-center gap-2">

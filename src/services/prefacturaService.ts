@@ -260,6 +260,13 @@ export class PrefacturaService {
   }
 
   /**
+   * Alias para obtener preventa por código o ID
+   */
+  public obtenerPrefacturaPorCodigoOId(tenantId: string, codigoOId: string): Prefactura | null {
+    return this.buscarPorCodigo(tenantId, codigoOId);
+  }
+
+  /**
    * Transiciona la preventa a estado 'EN_COBRO' cuando el cajero la toma en ventanilla
    */
   public marcarEnCobro(
@@ -275,8 +282,10 @@ export class PrefacturaService {
       return { ok: false, error: 'Preventa no encontrada en este tenant' };
     }
 
-        // Control de Concurrencia Optimista (OCC): Evita colisión entre múltiples cajeros concurrentes
-    if (pref.estado === 'EN_COBRO' && pref.cajeroId && pref.cajeroId !== cajeroId) {
+    // Control de Concurrencia Optimista (OCC): Evita colisión entre múltiples cajeros concurrentes
+    // Permite re-adquisición al mismo cajero de la sesión o a un usuario con rol de administración
+    const esAdmin = cajeroId === 'admin' || cajeroId.toLowerCase().includes('admin');
+    if (pref.estado === 'EN_COBRO' && pref.cajeroId && pref.cajeroId !== cajeroId && !esAdmin) {
       return {
         ok: false,
         error: `Preventa bloqueada en atención concurrente por otro cajero (${pref.cajeroNombre || pref.cajeroId})`,
@@ -293,6 +302,44 @@ export class PrefacturaService {
     pref.estado = 'EN_COBRO';
     pref.cajeroId = cajeroId;
     if (cajeroNombre) pref.cajeroNombre = cajeroNombre;
+    pref.updatedAt = new Date().toISOString();
+
+    return { ok: true, prefactura: pref };
+  }
+
+  /**
+   * Libera una preventa que está 'EN_COBRO' regresándola a 'PENDIENTE_COBRO' y limpiando el cajero asignado
+   */
+  public liberarDeCobro(
+    tenantId: string,
+    prefacturaId: string,
+    cajeroId?: string
+  ): ResultadoTransicionPrefactura {
+    const key = `${tenantId}:${prefacturaId}`;
+    const pref = this.prefacturas.get(key);
+
+    if (!pref) {
+      return { ok: false, error: 'Preventa no encontrada en este tenant' };
+    }
+
+    if (pref.estado !== 'EN_COBRO') {
+      return {
+        ok: false,
+        error: `No se puede liberar de cobro una preventa en estado ${pref.estado}`,
+      };
+    }
+
+    const esAdmin = cajeroId && (cajeroId === 'admin' || cajeroId.toLowerCase().includes('admin'));
+    if (cajeroId && pref.cajeroId && pref.cajeroId !== cajeroId && !esAdmin) {
+      return {
+        ok: false,
+        error: `Solo el cajero en atención (${pref.cajeroNombre || pref.cajeroId}) o un administrador puede liberar el ticket`,
+      };
+    }
+
+    pref.estado = 'PENDIENTE_COBRO';
+    pref.cajeroId = undefined;
+    pref.cajeroNombre = undefined;
     pref.updatedAt = new Date().toISOString();
 
     return { ok: true, prefactura: pref };

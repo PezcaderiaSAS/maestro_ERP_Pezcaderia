@@ -2,11 +2,13 @@
  * scripts/data/import-ferreteria-josase.cjs
  * Script de Procesamiento y Carga Masiva de Clientes e Inventario para Ferretería Josase
  * Parsea los Excel en Raw_Datos/Rwa_Ferreteria/ y genera datos normalizados con stock inicial = 100.
+ * Aislamiento Multi-Tenant estricto para tenant-03 / empresa_id: e3a1f820-2c7b-4d9a-9e1f-8a0b1c2d3e4f.
  */
 
 const fs = require('fs');
 const path = require('path');
 const ExcelJS = require('exceljs');
+const { z } = require('zod');
 
 const ROOT_DIR = path.resolve(__dirname, '../../');
 const CLIENTS_XLSX = path.join(ROOT_DIR, 'Raw_Datos/Rwa_Ferreteria/Raw_Clientes_Ferreteria/Clientes_ferreteria.xlsx');
@@ -17,6 +19,41 @@ const DATABASE_DIR = path.join(ROOT_DIR, 'database');
 
 const TENANT_ID = 'tenant-03';
 const TENANT_UUID = 'e3a1f820-2c7b-4d9a-9e1f-8a0b1c2d3e4f';
+
+// Esquemas de validación Zod con sanitización profesional
+const FerreteriaClientSchema = z.object({
+  identificacion: z
+    .string()
+    .trim()
+    .min(1, 'Identificación obligatoria')
+    .refine((val) => val !== '0' && !/^0+$/.test(val), {
+      message: 'Identificación "0" y duplicados de prueba no permitidos',
+    })
+    .refine((val) => !/[eE]\+\d+/.test(val) && !/^[a-zA-Z]{15,}$/.test(val), {
+      message: 'NIT inválido o en notación científica/basura',
+    }),
+  nombre: z
+    .string()
+    .trim()
+    .min(1, 'Nombre obligatorio')
+    .refine((val) => !/NO\s*SIRVE|\bNN\b|^\s*(.)\1{4,}\s*$/i.test(val), {
+      message: 'Registros de prueba y nombres basura no permitidos',
+    }),
+});
+
+const FerreteriaItemSchema = z.object({
+  sku: z
+    .string()
+    .trim()
+    .min(1, 'SKU requerido')
+    .refine((val) => typeof val === 'string', {
+      message: 'SKU debe preservarse estrictamente como String con ceros a la izquierda',
+    }),
+  nombre: z.string().trim().min(1, 'Nombre requerido'),
+  categoria: z.string().trim().default('FERRETERIA'),
+  tipo: z.string().trim().default('Producto'),
+  impuesto: z.string().trim().optional(),
+});
 
 function escapeSql(str) {
   if (str === null || str === undefined) return "''";
@@ -36,8 +73,12 @@ async function processClientes() {
   ws.eachRow((row, rowNumber) => {
     if (rowNumber === 1) return; // Cabecera
 
-    const rawNit = row.getCell(1).value;
-    const rawNombre = row.getCell(2).value;
+    // Bounded column access: estrictamente columnas 1 y 2 para prevenir desbordamiento de 16.384 columnas
+    const cell1 = row.getCell(1);
+    const cell2 = row.getCell(2);
+
+    const rawNit = cell1.text || cell1.value;
+    const rawNombre = cell2.text || cell2.value;
 
     if (!rawNit || !rawNombre) {
       skipped++;
@@ -47,7 +88,13 @@ async function processClientes() {
     const nit = String(rawNit).trim().replace(/\s+/g, '');
     const nombre = String(rawNombre).trim().replace(/\s+/g, ' ');
 
-    if (!nit || !nombre || seenNits.has(nit)) {
+    const validation = FerreteriaClientSchema.safeParse({ identificacion: nit, nombre });
+    if (!validation.success) {
+      skipped++;
+      return;
+    }
+
+    if (seenNits.has(nit)) {
       skipped++;
       return;
     }
@@ -74,6 +121,7 @@ async function processClientes() {
       isAutoretenedor: false,
       activo: true,
       tenantId: TENANT_ID,
+      empresaId: TENANT_UUID,
     });
   });
 
@@ -94,31 +142,54 @@ async function processItems() {
   ws.eachRow((row, rowNumber) => {
     if (rowNumber === 1) return; // Cabecera
 
-    const tipo = String(row.getCell(1).value || 'Producto').trim();
-    const rawSku = row.getCell(2).value;
-    const rawNombre = row.getCell(3).value;
-    const rawCat = row.getCell(4).value;
-    const rawEstado = row.getCell(5).value;
-    const rawImpuesto = row.getCell(6).value;
+    // Bounded column access: estrictamente columnas 1 a 6 para prevenir desbordamiento de 16.384 columnas
+    const cell1 = row.getCell(1);
+    const cell2 = row.getCell(2);
+    const cell3 = row.getCell(3);
+    const cell4 = row.getCell(4);
+    const cell5 = row.getCell(5);
+    const cell6 = row.getCell(6);
+
+    const rawTipo = cell1.text || cell1.value;
+    const rawSku = cell2.text || cell2.value;
+    const rawNombre = cell3.text || cell3.value;
+    const rawCat = cell4.text || cell4.value;
+    const rawEstado = cell5.text || cell5.value;
+    const rawImpuesto = cell6.text || cell6.value;
 
     if (!rawSku || !rawNombre) {
       skipped++;
       return;
     }
 
+    // Preservar estrictamente el SKU como String con ceros a la izquierda
     const sku = String(rawSku).trim();
     const nombre = String(rawNombre).trim().replace(/\s+/g, ' ');
+    const tipo = rawTipo ? String(rawTipo).trim() : 'Producto';
+    const categoria = rawCat ? String(rawCat).trim() : 'FERRETERIA';
+    const impuestoStr = rawImpuesto ? String(rawImpuesto).trim() : '';
 
-    if (!sku || !nombre || seenSkus.has(sku)) {
+    const validation = FerreteriaItemSchema.safeParse({
+      sku,
+      nombre,
+      categoria,
+      tipo,
+      impuesto: impuestoStr,
+    });
+
+    if (!validation.success) {
+      skipped++;
+      return;
+    }
+
+    if (seenSkus.has(sku)) {
       skipped++;
       return;
     }
 
     seenSkus.add(sku);
 
-    const categoria = rawCat ? String(rawCat).trim() : 'FERRETERIA';
     const estado = rawEstado ? String(rawEstado).trim().toLowerCase() : 'activo';
-    const impuestoStr = rawImpuesto ? String(rawImpuesto).trim() : '';
     const iva = impuestoStr.includes('19') ? 19 : 0;
 
     items.push({
@@ -144,8 +215,11 @@ async function processItems() {
         rubro: 'FERRETERIA',
         fuente: 'Siigo_Josase',
         tipoImpuesto: impuestoStr,
+        tenantId: TENANT_ID,
+        empresa_id: TENANT_UUID,
       },
       tenantId: TENANT_ID,
+      empresaId: TENANT_UUID,
     });
   });
 
@@ -156,9 +230,10 @@ async function processItems() {
 function generateSqlSeeds(clientes, items) {
   console.log('📝 Generando scripts SQL para Supabase...');
 
-  // 1. SQL Clientes
+  // 1. SQL Clientes con empresa_id inyectado explícitamente para aislamiento estricto
   let sqlClientes = `-- ==============================================================================
 -- SEED 40: CLIENTES FERRETERÍA JOSASE (TOTAL: ${clientes.length})
+-- TENANT: ${TENANT_ID} | EMPRESA_ID: ${TENANT_UUID}
 -- ==============================================================================
 
 `;
@@ -166,9 +241,9 @@ function generateSqlSeeds(clientes, items) {
   const CHUNK_SIZE = 500;
   for (let i = 0; i < clientes.length; i += CHUNK_SIZE) {
     const chunk = clientes.slice(i, i + CHUNK_SIZE);
-    sqlClientes += `INSERT INTO public.terceros (id, nombre, identificacion, tipo_identificacion, tipo_tercero, activo) VALUES\n`;
+    sqlClientes += `INSERT INTO public.terceros (id, empresa_id, nombre, identificacion, tipo_identificacion, tipo_tercero, activo) VALUES\n`;
     const rows = chunk.map(c => 
-      `  (gen_random_uuid(), ${escapeSql(c.nombre)}, ${escapeSql(c.identificacion)}, ${escapeSql(c.tipoIdentificacion)}, 'CLIENTE', true)`
+      `  (gen_random_uuid(), '${TENANT_UUID}', ${escapeSql(c.nombre)}, ${escapeSql(c.identificacion)}, ${escapeSql(c.tipoIdentificacion)}, 'CLIENTE', true)`
     );
     sqlClientes += rows.join(',\n') + '\nON CONFLICT (identificacion) DO NOTHING;\n\n';
   }
@@ -177,9 +252,10 @@ function generateSqlSeeds(clientes, items) {
   fs.writeFileSync(clientesSqlPath, sqlClientes, 'utf-8');
   console.log('  ✓ Archivo SQL generado:', path.relative(ROOT_DIR, clientesSqlPath));
 
-  // 2. SQL Items / Productos Catálogo
+  // 2. SQL Items / Productos Catálogo con empresa_id inyectado explícitamente
   let sqlItems = `-- ==============================================================================
 -- SEED 41: PRODUCTOS E INVENTARIO FERRETERÍA JOSASE (TOTAL: ${items.length})
+-- TENANT: ${TENANT_ID} | EMPRESA_ID: ${TENANT_UUID}
 -- STOCK INICIAL: 100 PARA TODOS LOS ÍTEMS
 -- ==============================================================================
 
@@ -187,9 +263,9 @@ function generateSqlSeeds(clientes, items) {
 
   for (let i = 0; i < items.length; i += CHUNK_SIZE) {
     const chunk = items.slice(i, i + CHUNK_SIZE);
-    sqlItems += `INSERT INTO public.productos_catalogo (id, sku, nombre, categoria, unidad_medida, iva, iva_incluido, control_inventario, activo, categoria_abc, metadata) VALUES\n`;
+    sqlItems += `INSERT INTO public.productos_catalogo (id, empresa_id, sku, nombre, categoria, unidad_medida, iva, iva_incluido, control_inventario, activo, categoria_abc, metadata) VALUES\n`;
     const rows = chunk.map(it => 
-      `  (gen_random_uuid(), ${escapeSql(it.sku)}, ${escapeSql(it.nombre)}, ${escapeSql(it.categoria)}, 'und', ${it.iva}, true, true, ${it.activo}, 'B', ${escapeSql(JSON.stringify(it.metadata))}::jsonb)`
+      `  (gen_random_uuid(), '${TENANT_UUID}', ${escapeSql(it.sku)}, ${escapeSql(it.nombre)}, ${escapeSql(it.categoria)}, 'und', ${it.iva}, true, true, ${it.activo}, 'B', ${escapeSql(JSON.stringify(it.metadata))}::jsonb)`
     );
     sqlItems += rows.join(',\n') + '\nON CONFLICT (sku) DO NOTHING;\n\n';
   }
@@ -244,8 +320,20 @@ async function main() {
   console.log('================================================================\n');
 }
 
-main().catch(err => {
-  console.error('❌ Error durante la importación:', err);
-  process.exit(1);
-});
+module.exports = {
+  processClientes,
+  processItems,
+  generateSqlSeeds,
+  FerreteriaClientSchema,
+  FerreteriaItemSchema,
+  TENANT_ID,
+  TENANT_UUID,
+  main,
+};
 
+if (require.main === module) {
+  main().catch(err => {
+    console.error('❌ Error durante la importación:', err);
+    process.exit(1);
+  });
+}

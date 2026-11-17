@@ -56,11 +56,20 @@ type ColumnId =
   | 'pagados';
 
 export default function OrderKanbanView({ onEditOrder }: OrderKanbanViewProps) {
-  const { ventas, setVentas, updateVenta, quotations, setQuotations, updateQuotation } = useOrderStore();
+  const { ventas, setVentas, updateVenta, quotations, setQuotations, updateQuotation, loadOrders } = useOrderStore();
   const publishEvent = useEventStore((s) => s.publishEvent);
   const userRole = useAppStore((s) => s.userRole);
   const { products, stock, setStock } = useInventoryStore();
   const { addMovimiento } = useMovementStore();
+
+  // Hidratación reactiva al montar si no hay órdenes cargadas en memoria
+  useEffect(() => {
+    if ((!ventas || ventas.length === 0) && (!quotations || quotations.length === 0)) {
+      if (typeof loadOrders === 'function') {
+        loadOrders();
+      }
+    }
+  }, [ventas, quotations, loadOrders]);
 
   // Pestañas activas: 'bodega' vs 'despacho' vs 'tactil_3_pasos' (Regla del Niño de 12 Años)
   const [activeTab, setActiveTab] = useState<'bodega' | 'despacho' | 'tactil_3_pasos'>('bodega');

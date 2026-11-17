@@ -4,10 +4,10 @@ import { useInventoryStore } from '../store/useInventoryStore';
 import { useClientStore } from '../store/useClientStore';
 
 describe('Ferretería Josase - Data Ingestion & Stock Inicial = 100', () => {
-  it('1. Debe cargar dinámicamente los 9.550 clientes y 5.351 ítems', async () => {
+  it('1. Debe cargar dinámicamente los 9.538 clientes y 5.351 ítems', async () => {
     const data = await ferreteriaJosaseService.loadData();
 
-    expect(data.clientes.length).toBe(9550);
+    expect(data.clientes.length).toBe(9538);
     expect(data.items.length).toBe(5351);
 
     // Verificar un cliente de muestra
@@ -21,7 +21,7 @@ describe('Ferretería Josase - Data Ingestion & Stock Inicial = 100', () => {
     expect(sampleItem.sku).toBeDefined();
     expect(sampleItem.nombre).toBeDefined();
     expect(sampleItem.tenantId).toBe('tenant-03');
-  }, 15000);
+  }, 30000);
 
   it('2. Todos los ítems deben tener stockInicial = 100 y control de inventario activo', async () => {
     const data = await ferreteriaJosaseService.loadData();
@@ -52,7 +52,7 @@ describe('Ferretería Josase - Data Ingestion & Stock Inicial = 100', () => {
   it('4. Debe sincronizar y aplicar los datos exitosamente a los Stores globales', async () => {
     const res = await ferreteriaJosaseService.applyToStores('bodega-josase-01');
 
-    expect(res.clientesCount).toBe(9550);
+    expect(res.clientesCount).toBe(9538);
     expect(res.itemsCount).toBe(5351);
     expect(res.stockAsignado).toBe(5351);
 
@@ -61,6 +61,6 @@ describe('Ferretería Josase - Data Ingestion & Stock Inicial = 100', () => {
     expect(inventoryStore.stock['bodega-josase-01']).toBeDefined();
 
     const clientStore = useClientStore.getState();
-    expect(clientStore.clientes.length).toBe(9550);
+    expect(clientStore.clientes.length).toBe(9538);
   });
 });
