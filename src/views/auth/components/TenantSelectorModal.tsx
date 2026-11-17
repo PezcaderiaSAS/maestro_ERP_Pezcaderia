@@ -72,7 +72,7 @@ export const TenantSelectorModal: React.FC<TenantSelectorModalProps> = ({
       createdAt: tenant.createdAt,
     };
 
-    switchTenant(tenantData);
+    switchTenant(tenantData, { syncStores: true });
 
     Swal.fire({
       toast: true,

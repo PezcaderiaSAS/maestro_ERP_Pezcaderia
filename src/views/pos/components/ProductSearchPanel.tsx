@@ -72,6 +72,14 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
     return ['TODOS', ...Array.from(set)];
   }, [activeProducts]);
 
+  // Si la categoría seleccionada no existe en el catálogo actual tras conmutar tenant, resetear a 'TODOS'
+  useEffect(() => {
+    if (selectedCategory !== 'TODOS' && !CATEGORIAS.includes(selectedCategory)) {
+      setSelectedCategory('TODOS');
+      setCurrentPage(1);
+    }
+  }, [CATEGORIAS, selectedCategory]);
+
   const handleSelectCategory = (cat: string) => {
     setSelectedCategory(cat);
     setCurrentPage(1);
@@ -146,7 +154,7 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
       return matchesSearch && matchesCategory && matchesStock;
     });
 
-    if (showTopSellers || (searchTerm === '' && selectedCategory === 'TODOS')) {
+    if (showTopSellers || (searchTerm === '' && selectedCategory === 'TODOS' && list.length < 500)) {
       const topKeywords = ['salmon', 'salmón', 'camaron', 'camarón', 'trucha', 'robalo', 'róbalo', 'langostino'];
       list = [...list].sort((a, b) => {
         const aTop = topKeywords.some((k) => a.nombre.toLowerCase().includes(k)) ? 1 : 0;
@@ -168,7 +176,7 @@ export const ProductSearchPanel: React.FC<ProductSearchPanelProps> = ({
   }, [filteredProducts, validCurrentPage]);
 
   return (
-    <div className="pos-catalog flex-1 flex flex-col overflow-hidden min-h-0 bg-slate-900/80">
+    <div className="pos-catalog flex-1 flex flex-col overflow-hidden min-h-0 min-w-0 w-full bg-slate-900/80">
       {/* 1. Barra Superior con Buscador, Código de Barras y + Crear Producto */}
       <POSTopBar
         searchTerm={searchTerm}

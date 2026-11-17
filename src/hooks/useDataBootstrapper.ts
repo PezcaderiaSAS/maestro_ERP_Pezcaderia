@@ -21,6 +21,8 @@ import { useIntegrationStore } from '../store/useIntegrationStore';
 import { usePurchaseStore } from '../store/usePurchaseStore';
 import { useMovementStore } from '../store/useMovementStore';
 import { useEventStore } from '../store/useEventStore';
+import { useAuthStore } from '../store/useAuthStore';
+import { ferreteriaJosaseService } from '../services/ferreteriaJosaseService';
 
 /**
  * Hook orquestador de inicialización, hidratación de almacenes y migraciones de datos en frío/caliente.
@@ -45,8 +47,22 @@ export function useDataBootstrapper() {
   const { loadMovimientos } = useMovementStore();
   const { loadEvents, loadSyncQueue } = useEventStore();
 
+  // 0. Hidratación inicial reactiva al conmutar o inicializar Ferretería Josase (tenant-03)
+  useEffect(() => {
+    const activeTenant = useAuthStore.getState().activeTenant;
+    if (activeTenant?.id === 'tenant-03') {
+      ferreteriaJosaseService.applyToStores().catch((err) => {
+        console.warn('Error en hidratación de Ferretería Josase:', err);
+      });
+    }
+  }, []);
+
   // 1. Carga inicial y migración del catálogo de productos
   useEffect(() => {
+    const activeTenant = useAuthStore.getState().activeTenant;
+    if (activeTenant?.id === 'tenant-03') {
+      return; // Ferretería Josase mantiene su propio catálogo masivo
+    }
     const savedCat = localDb.load('productsCatalog', null as ProductCatalog[] | null);
     if (!savedCat || savedCat.length === 0) {
       const oldSaved = localStorage.getItem('pezcaderia_products');
@@ -233,6 +249,10 @@ export function useDataBootstrapper() {
 
   // 5. Sincronizar stock según catálogo actual y bodegas activas
   useEffect(() => {
+    const activeTenant = useAuthStore.getState().activeTenant;
+    if (activeTenant?.id === 'tenant-03') {
+      return; // Ferretería Josase gestiona su stock en applyToStores
+    }
     setStock((prev: Record<string, Record<string, number>>) => {
       const newStock = { ...prev };
       const activeBodegas = bodegas.filter(b => b.activa).map(b => b.nombre);

@@ -86,7 +86,8 @@ describe('SPEC-056: Terminal POS Multivendedor (SaaS Light Mode)', () => {
 
       // Marca y contenedor
       expect(screen.getByTestId('pos-multivendor-light-header')).toBeInTheDocument();
-      expect(screen.getByText('PEZCADERIA S.A.S')).toBeInTheDocument();
+      expect(screen.getByTestId('pos-header-tenant-name')).toBeInTheDocument();
+      expect(screen.getByTestId('pos-header-tenant-name').textContent).toContain('La Pezcadería');
 
       // Chips de asesores
       expect(screen.getByText('Diego Díaz')).toBeInTheDocument();

@@ -4,6 +4,7 @@
 
 import { useClientStore } from '../store/useClientStore';
 import { useInventoryStore, type Producto } from '../store/useInventoryStore';
+import { useAuthStore } from '../store/useAuthStore';
 import { TenantIndexedDbService } from './tenantIndexedDbService';
 import { fastItemSearchEngine } from './fastItemSearchEngine';
 import type { LocalIndexedDbProduct, LocalIndexedDbClient } from '../types/indexedDb.types';
@@ -22,6 +23,15 @@ export interface FerreteriaJosaseData {
 
 export class FerreteriaJosaseService {
   private tenantIndexedDbService: TenantIndexedDbService | null = null;
+  private inFlightApply: Promise<{
+    clientesCount: number;
+    itemsCount: number;
+    stockAsignado: number;
+  }> | null = null;
+  private inFlightRestore: Promise<{
+    clientesCount: number;
+    itemsCount: number;
+  }> | null = null;
 
   /**
    * Carga dinámica de los datasets procesados de Ferretería Josase
@@ -114,61 +124,83 @@ export class FerreteriaJosaseService {
    * Aplica los 9.550 clientes y 5.351 ítems en los Stores globales
    * y guarda en IndexedDB, asegurando que localStorage nunca se desborde.
    */
-  public async applyToStores(bodegaKey = 'bodega-josase-01'): Promise<{
+  public applyToStores(bodegaKey = 'bodega-josase-01'): Promise<{
     clientesCount: number;
     itemsCount: number;
     stockAsignado: number;
   }> {
-    const data = await this.loadData();
-
-    // 1. Sincronizar en IndexedDB masivo
-    await this.applyToIndexedDb('tenant-03');
-
-    // 2. Aplicar en memoria en useClientStore
-    const clientStore = useClientStore.getState();
-    clientStore.setClientes(data.clientes);
-
-    // 3. Generar precios de catálogo para el motor de inventario unificado
-    const pricings = data.items.map((item) => ({
-      id: `prc-${item.id}`,
-      productoId: item.id,
-      precio_pos: item.precio_venta_pos || 0,
-      precio_restaurante: item.precio_venta_restaurante || 0,
-      precio_mayorista: item.precio_venta_mayorista || 0,
-      vigenciaDesde: new Date().toISOString(),
-    }));
-
-    // 4. Aplicar Ítems y Catálogo en useInventoryStore
-    const inventoryStore = useInventoryStore.getState();
-    inventoryStore.setProducts(data.items);
-    inventoryStore.setProductsCatalog(data.items);
-    inventoryStore.setProductPricings(pricings);
-    
-    // 5. Asignar stock de 100 unidades por ítem a las bodegas operativas
-    const stockJosase = data.stock[bodegaKey] || data.stock['bodega-josase-01'] || {};
-    const currentStock = {
-      ...inventoryStore.stock,
-      ...data.stock,
-      'Bodega Principal': { ...(inventoryStore.stock['Bodega Principal'] || {}), ...stockJosase },
-      'Bodega Secundaria': { ...(inventoryStore.stock['Bodega Secundaria'] || {}), ...stockJosase },
-      'b-1': { ...(inventoryStore.stock['b-1'] || {}), ...stockJosase },
-    };
-    inventoryStore.setStock(currentStock);
-
-    // 6. Almacenamiento seguro en LocalDb (guardar solo un subconjunto ligero para evitar QuotaExceededError)
-    try {
-      localDb.save('clientes', data.clientes.slice(0, 50)); // Muestra segura en localStorage (< 15KB)
-      localDb.save('productsCatalog', data.items.slice(0, 50)); // Muestra segura (< 15KB)
-      localDb.save('productPricings', pricings.slice(0, 50));
-    } catch (quotaErr) {
-      console.warn('LocalStorage saturado, continuando con IndexedDB como fuente primaria:', quotaErr);
+    if (this.inFlightApply) {
+      return this.inFlightApply;
     }
 
-    return {
-      clientesCount: data.clientes.length,
-      itemsCount: data.items.length,
-      stockAsignado: Object.keys(stockJosase).length,
-    };
+    this.inFlightApply = (async () => {
+      try {
+        const data = await this.loadData();
+
+        // 1. Sincronizar en IndexedDB masivo
+        await this.applyToIndexedDb('tenant-03');
+
+        // Seguridad multi-tenant: si el usuario cambió de tenant mientras cargaba, no pisar stores
+        const currentTenant = useAuthStore.getState().activeTenant;
+        if (currentTenant && currentTenant.id !== 'tenant-03') {
+          return {
+            clientesCount: data.clientes.length,
+            itemsCount: data.items.length,
+            stockAsignado: 0,
+          };
+        }
+
+        // 2. Aplicar en memoria en useClientStore
+        const clientStore = useClientStore.getState();
+        clientStore.setClientes(data.clientes);
+
+        // 3. Generar precios de catálogo para el motor de inventario unificado
+        const pricings = data.items.map((item) => ({
+          id: `prc-${item.id}`,
+          productoId: item.id,
+          precio_pos: item.precio_venta_pos || 0,
+          precio_restaurante: item.precio_venta_restaurante || 0,
+          precio_mayorista: item.precio_venta_mayorista || 0,
+          vigenciaDesde: new Date().toISOString(),
+        }));
+
+        // 4. Aplicar Ítems y Catálogo en useInventoryStore
+        const inventoryStore = useInventoryStore.getState();
+        inventoryStore.setProductsCatalog(data.items);
+        inventoryStore.setProductPricings(pricings);
+        inventoryStore.setProducts(data.items);
+        
+        // 5. Asignar stock de 100 unidades por ítem a las bodegas operativas
+        const stockJosase = data.stock[bodegaKey] || data.stock['bodega-josase-01'] || {};
+        const currentStock = {
+          ...inventoryStore.stock,
+          ...data.stock,
+          'Bodega Principal': { ...(inventoryStore.stock['Bodega Principal'] || {}), ...stockJosase },
+          'Bodega Secundaria': { ...(inventoryStore.stock['Bodega Secundaria'] || {}), ...stockJosase },
+          'b-1': { ...(inventoryStore.stock['b-1'] || {}), ...stockJosase },
+        };
+        inventoryStore.setStock(currentStock);
+
+        // 6. Almacenamiento seguro en LocalDb (guardar solo un subconjunto ligero para evitar QuotaExceededError)
+        try {
+          localDb.save('clientes', data.clientes.slice(0, 50)); // Muestra segura en localStorage (< 15KB)
+          localDb.save('productsCatalog', data.items.slice(0, 50)); // Muestra segura (< 15KB)
+          localDb.save('productPricings', pricings.slice(0, 50));
+        } catch (quotaErr) {
+          console.warn('LocalStorage saturado, continuando con IndexedDB como fuente primaria:', quotaErr);
+        }
+
+        return {
+          clientesCount: data.clientes.length,
+          itemsCount: data.items.length,
+          stockAsignado: Object.keys(stockJosase).length,
+        };
+      } finally {
+        this.inFlightApply = null;
+      }
+    })();
+
+    return this.inFlightApply;
   }
 
   /**
@@ -232,6 +264,133 @@ export class FerreteriaJosaseService {
         'Bodega Principal': stock3x,
       },
     };
+  }
+
+  /**
+   * Restaura el catálogo pesquero original de La Pezcadería (tenant-01)
+   * en useInventoryStore, useClientStore y stock operativo.
+   */
+  public restorePezcaderiaStores(userRole = 'admin'): Promise<{
+    clientesCount: number;
+    itemsCount: number;
+  }> {
+    if (this.inFlightRestore) {
+      return this.inFlightRestore;
+    }
+
+    this.inFlightRestore = (async () => {
+      try {
+        const { INITIAL_PRODUCTS, INITIAL_CLIENTS, migrateProductsToCatalogAndPricing } = await import(
+          '../data/appSeedData'
+        );
+        const { catalog, pricings } = migrateProductsToCatalogAndPricing(INITIAL_PRODUCTS, userRole);
+
+        // Seguridad multi-tenant: si el usuario cambió a tenant-03 mientras cargaba, no pisar stores
+        const currentTenant = useAuthStore.getState().activeTenant;
+        if (currentTenant && currentTenant.id === 'tenant-03') {
+          return {
+            clientesCount: 0,
+            itemsCount: 0,
+          };
+        }
+
+        // 1. Restaurar clientes en useClientStore
+        const clientStore = useClientStore.getState();
+        clientStore.setClientes(INITIAL_CLIENTS);
+
+        // 2. Restaurar catálogo y precios en useInventoryStore
+        const inventoryStore = useInventoryStore.getState();
+        inventoryStore.setProductsCatalog(catalog);
+        inventoryStore.setProductPricings(pricings);
+
+        // 3. Mapear productos pesqueros unificados
+        const unifiedProducts: Producto[] = catalog.map((cat: any) => {
+          const pr = pricings.find((p) => p.productoId === cat.id);
+          return {
+            precio_compra: cat.precio_compra ?? 0,
+            buffer_seguridad: cat.buffer_seguridad ?? 5,
+            precio_venta_pos: cat.precio_venta_pos ?? 0,
+            precio_venta_restaurante: cat.precio_venta_restaurante ?? cat.precio_venta_pos ?? 0,
+            precio_venta_mayorista: cat.precio_venta_mayorista ?? cat.precio_venta_pos ?? 0,
+            ...cat,
+            ...(pr || {}),
+            categoriaABC: cat.categoriaABC || 'C',
+          } as Producto;
+        });
+        inventoryStore.setProducts(unifiedProducts);
+
+        // 4. Restaurar existencias pesqueras predeterminadas
+        const stockPezcaderia: Record<string, Record<string, number>> = {
+          'Bodega Principal': {
+            'PES-ENT-001': 500,
+            'FIL-LIM-002': 120,
+            'CAM-TIG-003': 85,
+            'LAN-COL-004': 40,
+            'TRU-ARC-005': 95,
+            'SAL-POR-006': 150,
+            'ROB-ENT-007': 60,
+            'PUL-COC-008': 35,
+            'ANI-CAL-009': 75,
+            'ATU-ALE-010': 110,
+            'CAM-CRU-41-50': 50,
+            'CAM-CRU-41-50-500G': 30,
+          },
+          'Bodega Secundaria': {
+            'PES-ENT-001': 200,
+            'FIL-LIM-002': 45,
+            'SAL-POR-006': 50,
+          },
+          'Bodega de Tránsito': {
+            'PES-ENT-001': 200,
+            'FIL-LIM-002': 45,
+          },
+          'Bodega Averías': {
+            'FIL-LIM-002': 12,
+          },
+        };
+        inventoryStore.setStock(stockPezcaderia);
+
+        // 5. Restaurar índice del motor de búsqueda sub-2ms para La Pezcadería
+        try {
+          const mappedProducts: LocalIndexedDbProduct[] = catalog.map((item: any, index: number) => ({
+            sku: item.sku || item.id,
+            tenantId: 'tenant-01',
+            nombre: item.nombre,
+            codigoBarras: item.codigo_barras || '',
+            categoria: item.categoria || 'Pescados',
+            precioDetal: item.precio_venta_pos || 0,
+            precioMayorista: item.precio_venta_mayorista || 0,
+            cantidadMinimaMayorista: 1,
+            stockDisponible: 100,
+            esParetoTop100: index < 5,
+            activo: true,
+            updatedAt: new Date().toISOString(),
+          }));
+          await fastItemSearchEngine.init('tenant-01', mappedProducts);
+        } catch (err) {
+          console.warn('Advertencia re-indexando fastItemSearchEngine para La Pezcadería:', err);
+        }
+
+        // 6. Persistir catálogo pesquero limpio en localDb
+        try {
+          localDb.save('clientes', INITIAL_CLIENTS);
+          localDb.save('productsCatalog', catalog);
+          localDb.save('productPricings', pricings);
+          localDb.save('stock', stockPezcaderia);
+        } catch (err) {
+          console.warn('Advertencia guardando catálogo pesquero en localDb:', err);
+        }
+
+        return {
+          clientesCount: INITIAL_CLIENTS.length,
+          itemsCount: catalog.length,
+        };
+      } finally {
+        this.inFlightRestore = null;
+      }
+    })();
+
+    return this.inFlightRestore;
   }
 }
 

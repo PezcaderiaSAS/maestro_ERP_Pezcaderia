@@ -56,13 +56,14 @@ export const POSCategoryTabs: React.FC<POSCategoryTabsProps> = ({
               key={cat}
               type="button"
               onClick={() => onSelectCategory(cat)}
-              className={`min-h-[48px] h-9 px-4 py-1.5 text-xs font-bold whitespace-nowrap rounded-xl transition-all active:scale-95 cursor-pointer select-none flex items-center justify-center shrink-0 ${
+              title={cat}
+              className={`min-h-[48px] h-9 px-4 py-1.5 text-xs font-bold whitespace-nowrap rounded-xl transition-all active:scale-95 cursor-pointer select-none flex items-center justify-center shrink-0 max-w-[200px] truncate ${
                 isSelected
                   ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30 ring-1 ring-emerald-400/50'
                   : 'bg-slate-800/80 border border-white/10 text-slate-300 hover:text-white hover:bg-slate-700/80'
               }`}
             >
-              {cat}
+              <span className="truncate">{cat}</span>
             </button>
           );
         })}

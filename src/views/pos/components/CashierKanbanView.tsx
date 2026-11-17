@@ -654,7 +654,7 @@ export const CashierKanbanView: React.FC<CashierKanbanViewProps> = ({
                           await moverPreventaAColumna(tenantId, pref.id, 'EN_COBRO', cajeroId);
                           iniciarCobro(pref);
                         }}
-                        className="min-h-[44px] py-2 px-3 rounded-xl bg-cyan-600/90 hover:bg-cyan-500 text-white text-[11px] font-bold transition-all flex items-center justify-center gap-1 shadow-md shadow-cyan-600/20 cursor-pointer"
+                        className="min-h-[44px] py-2.5 px-4 rounded-xl bg-cyan-600/90 hover:bg-cyan-500 text-white text-[11px] font-bold transition-all flex items-center justify-center gap-1 shadow-md shadow-cyan-600/20 cursor-pointer"
                         title="Pasar directamente a cobro (F9)"
                       >
                         <span>Pasar a Cobro (F9)</span>

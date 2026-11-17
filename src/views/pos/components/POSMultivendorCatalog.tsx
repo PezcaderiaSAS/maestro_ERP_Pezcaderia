@@ -47,6 +47,14 @@ export const POSMultivendorCatalog: React.FC<POSMultivendorCatalogProps> = ({
     return ['TODOS', ...Array.from(set)];
   }, [products]);
 
+  // Si la categoría seleccionada no existe en el catálogo actual tras conmutación, resetear a 'TODOS'
+  useEffect(() => {
+    if (selectedCategory !== 'TODOS' && !categories.some((c) => c.toUpperCase() === selectedCategory.toUpperCase())) {
+      setSelectedCategory('TODOS');
+      setCurrentPage(1);
+    }
+  }, [categories, selectedCategory]);
+
   const checkScrollability = useCallback(() => {
     const el = categoryContainerRef.current;
     if (!el) return;
@@ -164,13 +172,14 @@ export const POSMultivendorCatalog: React.FC<POSMultivendorCatalogProps> = ({
                 type="button"
                 data-testid={`btn-cat-${cat}`}
                 onClick={() => handleSelectCategory(cat)}
-                className={`min-h-[32px] px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap active:scale-95 shrink-0 ${
+                title={cat}
+                className={`min-h-[32px] px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap active:scale-95 shrink-0 max-w-[200px] truncate ${
                   isSelected
                     ? 'bg-emerald-600 text-white shadow-xs font-black'
                     : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80'
                 }`}
               >
-                {cat}
+                <span className="truncate">{cat}</span>
               </button>
             );
           })}
@@ -270,7 +279,7 @@ export const POSMultivendorCatalog: React.FC<POSMultivendorCatalogProps> = ({
 
                   {/* Nombre del Producto (Legibilidad WCAG AAA en 2 líneas) */}
                   <div className="min-h-[32px] flex items-center justify-center">
-                    <h3 className="text-slate-800 text-xs font-bold text-center line-clamp-2 leading-tight group-hover:text-emerald-700 transition-colors">
+                    <h3 className="text-slate-800 text-xs font-bold text-center line-clamp-2 leading-tight group-hover:text-emerald-700 transition-colors break-words">
                       {name}
                     </h3>
                   </div>

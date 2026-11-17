@@ -59,19 +59,25 @@ export const useInventoryStore = create<InventoryState>()(
 
   loadInventory: async () => {
     try {
-      const [catalog, pricings] = await Promise.all([
-        dataService.getAll<any>('productos_catalogo'),
-        dataService.getAll<any>('productos_precios'),
-      ]);
+      const state = get();
+      const catalog = state.productsCatalog && state.productsCatalog.length > 0
+        ? state.productsCatalog
+        : await dataService.getAll<any>('productos_catalogo');
+      const pricings = state.productPricings && state.productPricings.length > 0
+        ? state.productPricings
+        : await dataService.getAll<any>('productos_precios');
+
+      const latestPricingMap = new Map<string, any>();
+      for (let i = 0; i < pricings.length; i++) {
+        const pr = pricings[i];
+        const existing = latestPricingMap.get(pr.productoId);
+        if (!existing || (pr.vigenciaDesde && existing.vigenciaDesde && new Date(pr.vigenciaDesde) > new Date(existing.vigenciaDesde))) {
+          latestPricingMap.set(pr.productoId, pr);
+        }
+      }
 
       const unifiedProducts: Producto[] = catalog.map((cat: any) => {
-        const productPricingsList = pricings.filter((pr: any) => pr.productoId === cat.id);
-        let currentPricing = productPricingsList[0];
-        if (productPricingsList.length > 1) {
-          currentPricing = productPricingsList.reduce((latest: any, current: any) =>
-            new Date(current.vigenciaDesde) > new Date(latest.vigenciaDesde) ? current : latest
-          );
-        }
+        const currentPricing = latestPricingMap.get(cat.id);
         return {
           precio_compra: cat.precio_compra ?? 0,
           buffer_seguridad: cat.buffer_seguridad ?? 5,
@@ -137,7 +143,15 @@ export const useInventoryStore = create<InventoryState>()(
   setProductsCatalog: (catalogOrUpdater: any) => {
     const current = get().productsCatalog;
     const newCatalog = typeof catalogOrUpdater === 'function' ? catalogOrUpdater(current) : catalogOrUpdater;
-    localDb.save('productsCatalog', newCatalog);
+    try {
+      if (Array.isArray(newCatalog) && newCatalog.length > 200) {
+        localDb.save('productsCatalog', newCatalog.slice(0, 50));
+      } else {
+        localDb.save('productsCatalog', newCatalog);
+      }
+    } catch (e) {
+      console.warn('QuotaExceeded in localDb for productsCatalog, keeping in memory:', e);
+    }
     set({ productsCatalog: newCatalog });
     get().loadInventory();
   },
@@ -145,7 +159,15 @@ export const useInventoryStore = create<InventoryState>()(
   setProductPricings: (pricingsOrUpdater: any) => {
     const current = get().productPricings;
     const newPricings = typeof pricingsOrUpdater === 'function' ? pricingsOrUpdater(current) : pricingsOrUpdater;
-    localDb.save('productPricings', newPricings);
+    try {
+      if (Array.isArray(newPricings) && newPricings.length > 200) {
+        localDb.save('productPricings', newPricings.slice(0, 50));
+      } else {
+        localDb.save('productPricings', newPricings);
+      }
+    } catch (e) {
+      console.warn('QuotaExceeded in localDb for productPricings, keeping in memory:', e);
+    }
     set({ productPricings: newPricings });
     get().loadInventory();
   },

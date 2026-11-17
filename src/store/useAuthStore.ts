@@ -17,6 +17,7 @@ import {
   ResultadoCanje,
 } from '../services/tenantOnboardingService';
 import { superAdminService } from '../services/superAdminService';
+import { ferreteriaJosaseService } from '../services/ferreteriaJosaseService';
 import { useSuperAdminStore } from './useSuperAdminStore';
 import * as localDb from '../services/localDb';
 import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
@@ -85,18 +86,21 @@ export interface AuthState {
   setPendingInviteToken: (token: string | null) => void;
   switchRoleDev: (role: RoleRbac) => void;
   setTenantSelectorOpen: (open: boolean) => void;
-  switchTenant: (tenant: TenantData | {
-    id: string;
-    razonSocial?: string;
-    nombre?: string;
-    nit?: string;
-    ciudad?: string;
-    direccion?: string;
-    telefono?: string;
-    regimenTributario?: string;
-    activo?: boolean;
-    createdAt?: string;
-  }) => void;
+  switchTenant: (
+    tenant: TenantData | {
+      id: string;
+      razonSocial?: string;
+      nombre?: string;
+      nit?: string;
+      ciudad?: string;
+      direccion?: string;
+      telefono?: string;
+      regimenTributario?: string;
+      activo?: boolean;
+      createdAt?: string;
+    },
+    options?: { syncStores?: boolean }
+  ) => void;
   clearError: () => void;
 }
 
@@ -585,7 +589,7 @@ export const useAuthStore = create<AuthState>()(
       set({ isTenantSelectorOpen: open });
     },
 
-    switchTenant: (tenantInput) => {
+    switchTenant: (tenantInput, options?: { syncStores?: boolean }) => {
       const normTenant: TenantData = {
         id: tenantInput.id,
         razonSocial: tenantInput.razonSocial || (tenantInput as any).nombre || 'Empresa',
@@ -620,6 +624,18 @@ export const useAuthStore = create<AuthState>()(
       });
 
       useSuperAdminStore.getState().selectTenant(normTenant.id);
+
+      if (options?.syncStores) {
+        if (normTenant.id === 'tenant-03') {
+          ferreteriaJosaseService.applyToStores().catch((err) => {
+            console.error('Error sincronizando stores de Ferretería Josase:', err);
+          });
+        } else if (normTenant.id === 'tenant-01') {
+          ferreteriaJosaseService.restorePezcaderiaStores().catch((err) => {
+            console.error('Error restaurando stores de La Pezcadería:', err);
+          });
+        }
+      }
     },
 
     clearError: () => set({ error: null }),

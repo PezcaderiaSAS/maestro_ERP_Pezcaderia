@@ -305,7 +305,8 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
                 razonSocial: 'La Pezcadería del Mar S.A.S.',
                 nit: '901.888.777-4',
                 ciudad: 'Bucaramanga',
-              });
+              }, { syncStores: true });
+              await ferreteriaJosaseService.restorePezcaderiaStores();
               Swal.fire({
                 toast: true,
                 position: 'top-end',
@@ -320,12 +321,8 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
                 razonSocial: 'Ferretería & Eléctricos Josase S.A.S.',
                 nit: '900.543.210-9',
                 ciudad: 'Bucaramanga',
-              });
-              await databasePurgeService.purgeLocalDatabase({
-                tenantId: 'tenant-03',
-                conservarSesionTurno: true,
-                limpiarRemotoSupabase: false,
-              });
+              }, { syncStores: true });
+              await ferreteriaJosaseService.applyToStores();
               prefacturaService.asegurarPreventasSemillaDemo('tenant-03');
               const t = cashService.getTurnoActivo('CAJA-1');
               if (!t) {

@@ -11,6 +11,7 @@ import {
   ClipboardList 
 } from 'lucide-react';
 import type { Cliente } from '../../../types/erp.types';
+import { useAuthStore } from '../../../store/useAuthStore';
 
 export interface VendorOption {
   id: string;
@@ -56,6 +57,14 @@ export const POSMultivendorLightHeader: React.FC<POSMultivendorLightHeaderProps>
   const barcodeInputRef = useRef<HTMLInputElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
+  const activeTenant = useAuthStore((s) => s.activeTenant);
+  const isFerreteria =
+    activeTenant?.id === 'tenant-03' ||
+    activeTenant?.razonSocial?.toLowerCase().includes('josase') ||
+    activeTenant?.razonSocial?.toLowerCase().includes('ferreter');
+  const tenantRazonSocial =
+    activeTenant?.razonSocial || activeTenant?.nombre || 'La Pezcadería';
+
   // Escuchar atajos globales de teclado F8 (Búsqueda) y F9 (Caja Única)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -83,16 +92,20 @@ export const POSMultivendorLightHeader: React.FC<POSMultivendorLightHeaderProps>
     >
       {/* SECCIÓN 1: Identidad Corporativa y Selector de Asesor Mostrador */}
       <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 min-w-0 max-w-[42%]">
-        <div className="flex items-center gap-1.5 pr-1.5 sm:pr-2 border-r border-emerald-500/50 shrink-0">
+        <div className="flex items-center gap-1.5 pr-1.5 sm:pr-2 border-r border-emerald-500/50 shrink-0 min-w-0">
           <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center font-black text-white text-sm shadow-inner shrink-0">
-            🐟
+            {isFerreteria ? '🔧' : '🐟'}
           </div>
-          <div className="hidden lg:block leading-tight">
-            <span className="text-[11px] font-black uppercase tracking-wider text-emerald-100 block whitespace-nowrap">
-              PEZCADERIA S.A.S
+          <div className="hidden lg:block leading-tight min-w-0 max-w-[130px] xl:max-w-[180px]">
+            <span 
+              data-testid="pos-header-tenant-name"
+              className="text-[11px] font-black uppercase tracking-wider text-emerald-100 block truncate"
+              title={tenantRazonSocial}
+            >
+              {tenantRazonSocial}
             </span>
-            <span className="text-[9px] font-semibold text-emerald-200 hidden 2xl:block whitespace-nowrap">
-              Terminal Mostrador
+            <span className="text-[9px] font-semibold text-emerald-200 hidden 2xl:block truncate">
+              {isFerreteria ? 'Terminal Ferretería' : 'Terminal Mostrador'}
             </span>
           </div>
         </div>
@@ -182,7 +195,7 @@ export const POSMultivendorLightHeader: React.FC<POSMultivendorLightHeaderProps>
         >
           <User size={15} className="text-emerald-200 shrink-0" />
           <span className="max-w-[70px] sm:max-w-[100px] xl:max-w-[130px] truncate font-bold text-left">
-            {clienteSeleccionado ? clienteSeleccionado.nombre : 'CONSUMIDOR FINAL'}
+            {clienteSeleccionado ? (clienteSeleccionado.nombre || clienteSeleccionado.razonSocial || clienteSeleccionado.razonSocialONombre) : 'CONSUMIDOR FINAL'}
           </span>
           <ChevronDown size={13} className="text-emerald-200 shrink-0" />
         </button>

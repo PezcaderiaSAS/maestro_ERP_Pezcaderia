@@ -130,9 +130,9 @@ export const POSProductCard: React.FC<POSProductCardProps> = ({
       </div>
 
       {/* Panel Inferior de Información y Precios */}
-      <div className="product-info-panel p-2 sm:p-2.5 bg-transparent flex flex-col justify-between flex-1">
+      <div className="product-info-panel p-2 sm:p-2.5 bg-transparent flex flex-col justify-between flex-1 overflow-hidden min-w-0">
         <span
-          className="product-card-name text-xs sm:text-sm font-bold text-white line-clamp-1 sm:line-clamp-2 drop-shadow-sm tracking-tight"
+          className="product-card-name text-xs sm:text-sm font-bold text-white line-clamp-1 sm:line-clamp-2 drop-shadow-sm tracking-tight break-words"
           title={product.nombre}
         >
           {product.nombre}
