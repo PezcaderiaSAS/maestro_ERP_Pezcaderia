@@ -137,9 +137,6 @@ export class FerreteriaJosaseService {
       try {
         const data = await this.loadData();
 
-        // 1. Sincronizar en IndexedDB masivo
-        await this.applyToIndexedDb('tenant-03');
-
         // Seguridad multi-tenant: si el usuario cambió de tenant mientras cargaba, no pisar stores
         const currentTenant = useAuthStore.getState().activeTenant;
         if (currentTenant && currentTenant.id !== 'tenant-03') {
@@ -150,12 +147,29 @@ export class FerreteriaJosaseService {
           };
         }
 
-        // 2. Aplicar en memoria en useClientStore
+        // 1. Enriquecer categorías de ferretería para navegación fluida
+        const enrichedItems: ProductoFerreteria[] = data.items.map((item) => {
+          let cat = item.categoria;
+          if (!cat || cat === 'PRODUCTOS' || cat === 'FERRETERIA') {
+            const n = item.nombre.toUpperCase();
+            if (/TORNILLO|CHAZO|REMACHE|PUNTILLA|TUERCA|ARANDELA/.test(n)) cat = 'Tornillería & Fijaciones';
+            else if (/TUBO|VALVULA|CODO|UNION|TEE|BUJE|MANGUERA|REJILLA|GRIF/.test(n)) cat = 'Tubería & Grifería';
+            else if (/CABLE|TOMA|PANEL|CAJA|INTERRUPTOR|PARARRAYO|BREAKER|DPS|ELECTR/.test(n)) cat = 'Eléctricos & Iluminación';
+            else if (/VINILO|ESMALTE|PINTURA|BROCHA|CINTA|RODILLO|AEROSOL/.test(n)) cat = 'Pinturas & Químicos';
+            else if (/LLAVE|BROCA|COPA|DISCO|CANDADO|CERRADURA|ALICATE|DESTORN/.test(n)) cat = 'Herramientas & Cerrajería';
+            else if (/CEMENTO|TEJA|MALLA|VARILLA|PERSIANA|YESO|LADRILLO/.test(n)) cat = 'Construcción & Materiales';
+            else if (/SERVICI|ALQUILER|TRANSPORTE|FLETE/.test(n)) cat = 'Servicios & Alquiler';
+            else cat = 'Ferretería General';
+          }
+          return { ...item, categoria: cat };
+        });
+
+        // 2. Aplicar en memoria en useClientStore inmediatamente
         const clientStore = useClientStore.getState();
         clientStore.setClientes(data.clientes);
 
         // 3. Generar precios de catálogo para el motor de inventario unificado
-        const pricings = data.items.map((item) => ({
+        const pricings = enrichedItems.map((item) => ({
           id: `prc-${item.id}`,
           productoId: item.id,
           precio_pos: item.precio_venta_pos || 0,
@@ -164,13 +178,8 @@ export class FerreteriaJosaseService {
           vigenciaDesde: new Date().toISOString(),
         }));
 
-        // 4. Aplicar Ítems y Catálogo en useInventoryStore
+        // 4. Aplicar Ítems, Catálogo y Stock atómicamente en useInventoryStore
         const inventoryStore = useInventoryStore.getState();
-        inventoryStore.setProductsCatalog(data.items);
-        inventoryStore.setProductPricings(pricings);
-        inventoryStore.setProducts(data.items);
-        
-        // 5. Asignar stock de 100 unidades por ítem a las bodegas operativas
         const stockJosase = data.stock[bodegaKey] || data.stock['bodega-josase-01'] || {};
         const currentStock = {
           ...inventoryStore.stock,
@@ -178,21 +187,33 @@ export class FerreteriaJosaseService {
           'Bodega Principal': { ...(inventoryStore.stock['Bodega Principal'] || {}), ...stockJosase },
           'Bodega Secundaria': { ...(inventoryStore.stock['Bodega Secundaria'] || {}), ...stockJosase },
           'b-1': { ...(inventoryStore.stock['b-1'] || {}), ...stockJosase },
+          'bodega-josase-01': stockJosase,
         };
-        inventoryStore.setStock(currentStock);
 
-        // 6. Almacenamiento seguro en LocalDb (guardar solo un subconjunto ligero para evitar QuotaExceededError)
+        useInventoryStore.setState({
+          productsCatalog: enrichedItems,
+          productPricings: pricings,
+          products: enrichedItems as any,
+          stock: currentStock,
+        });
+
+        // 5. Almacenamiento seguro en LocalDb (muestra ligera sin provocar QuotaExceededError)
         try {
-          localDb.save('clientes', data.clientes.slice(0, 50)); // Muestra segura en localStorage (< 15KB)
-          localDb.save('productsCatalog', data.items.slice(0, 50)); // Muestra segura (< 15KB)
+          localDb.save('clientes', data.clientes.slice(0, 50));
+          localDb.save('productsCatalog', enrichedItems.slice(0, 50));
           localDb.save('productPricings', pricings.slice(0, 50));
         } catch (quotaErr) {
           console.warn('LocalStorage saturado, continuando con IndexedDB como fuente primaria:', quotaErr);
         }
 
+        // 6. Sincronización masiva en IndexedDB en background (sin bloquear el hilo de la UI)
+        this.applyToIndexedDb('tenant-03').catch((idbErr) => {
+          console.warn('Advertencia en sincronización diferida de IndexedDB:', idbErr);
+        });
+
         return {
           clientesCount: data.clientes.length,
-          itemsCount: data.items.length,
+          itemsCount: enrichedItems.length,
           stockAsignado: Object.keys(stockJosase).length,
         };
       } finally {
@@ -298,12 +319,7 @@ export class FerreteriaJosaseService {
         const clientStore = useClientStore.getState();
         clientStore.setClientes(INITIAL_CLIENTS);
 
-        // 2. Restaurar catálogo y precios en useInventoryStore
-        const inventoryStore = useInventoryStore.getState();
-        inventoryStore.setProductsCatalog(catalog);
-        inventoryStore.setProductPricings(pricings);
-
-        // 3. Mapear productos pesqueros unificados
+        // 2. Mapear productos pesqueros unificados
         const unifiedProducts: Producto[] = catalog.map((cat: any) => {
           const pr = pricings.find((p) => p.productoId === cat.id);
           return {
@@ -317,9 +333,8 @@ export class FerreteriaJosaseService {
             categoriaABC: cat.categoriaABC || 'C',
           } as Producto;
         });
-        inventoryStore.setProducts(unifiedProducts);
 
-        // 4. Restaurar existencias pesqueras predeterminadas
+        // 3. Restaurar existencias pesqueras predeterminadas
         const stockPezcaderia: Record<string, Record<string, number>> = {
           'Bodega Principal': {
             'PES-ENT-001': 500,
@@ -348,7 +363,14 @@ export class FerreteriaJosaseService {
             'FIL-LIM-002': 12,
           },
         };
-        inventoryStore.setStock(stockPezcaderia);
+
+        // 4. Restaurar estado de useInventoryStore de forma atómica
+        useInventoryStore.setState({
+          productsCatalog: catalog,
+          productPricings: pricings,
+          products: unifiedProducts,
+          stock: stockPezcaderia,
+        });
 
         // 5. Restaurar índice del motor de búsqueda sub-2ms para La Pezcadería
         try {

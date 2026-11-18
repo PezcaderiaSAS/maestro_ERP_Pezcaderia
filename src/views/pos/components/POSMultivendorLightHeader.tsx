@@ -124,7 +124,7 @@ export const POSMultivendorLightHeader: React.FC<POSMultivendorLightHeaderProps>
                 id={`btn-vendedor-${v.id}`}
                 data-testid={`btn-vendedor-${v.id}`}
                 onClick={() => onSelectVendor(v.id)}
-                className={`min-h-[44px] px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap active:scale-95 flex items-center gap-1.5 shrink-0 ${
+                className={`min-h-[38px] px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap active:scale-95 flex items-center gap-1.5 shrink-0 ${
                   isSelected
                     ? 'bg-white text-emerald-900 shadow-md font-black ring-2 ring-emerald-300'
                     : 'bg-emerald-700/60 hover:bg-emerald-700 text-emerald-100 border border-emerald-500/40'
@@ -194,7 +194,7 @@ export const POSMultivendorLightHeader: React.FC<POSMultivendorLightHeaderProps>
           title="Seleccionar o cambiar cliente asignado"
         >
           <User size={15} className="text-emerald-200 shrink-0" />
-          <span className="max-w-[70px] sm:max-w-[100px] xl:max-w-[130px] truncate font-bold text-left">
+          <span className="max-w-[90px] sm:max-w-[130px] xl:max-w-[170px] truncate font-bold text-left">
             {clienteSeleccionado ? (clienteSeleccionado.nombre || clienteSeleccionado.razonSocial || clienteSeleccionado.razonSocialONombre) : 'CONSUMIDOR FINAL'}
           </span>
           <ChevronDown size={13} className="text-emerald-200 shrink-0" />

@@ -159,7 +159,7 @@ export const POSMultivendorCatalog: React.FC<POSMultivendorCatalogProps> = ({
           ref={categoryContainerRef}
           data-testid="pos-category-tabs-container"
           onScroll={checkScrollability}
-          className="h-full px-3 flex-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth"
+          className="h-full px-8 sm:px-9 flex-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth"
         >
           <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 mr-1 hidden sm:inline shrink-0">
             Categoría:
@@ -200,7 +200,7 @@ export const POSMultivendorCatalog: React.FC<POSMultivendorCatalogProps> = ({
       </div>
 
       {/* 2. MATRIZ DE PRODUCTOS (6x3 Tarjetas - SaaS Light Mode) */}
-      <div className="flex-1 p-3 overflow-y-auto">
+      <div className="flex-1 p-2 sm:p-2.5 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 hover:scrollbar-thumb-slate-400">
         {paginatedProducts.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-slate-400 p-8 text-center">
             <Package size={48} className="mb-2 opacity-30 text-slate-500" />
@@ -208,7 +208,7 @@ export const POSMultivendorCatalog: React.FC<POSMultivendorCatalogProps> = ({
             <p className="text-xs text-slate-400 mt-1">Prueba con otro término de búsqueda o selecciona "TODOS"</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-2.5">
             {paginatedProducts.map((product) => {
               const name = getProductName(product);
               const price = getProductPrice(product);
@@ -240,26 +240,26 @@ export const POSMultivendorCatalog: React.FC<POSMultivendorCatalogProps> = ({
                       onAddToCart(product, 1);
                     }
                   }}
-                  className={`bg-white border rounded-xl p-2.5 flex flex-col justify-between transition-all cursor-pointer active:scale-98 shadow-xs hover:shadow-md hover:border-emerald-500 min-h-[140px] relative group ${
+                  className={`bg-white border rounded-xl p-2 flex flex-col justify-between transition-all cursor-pointer active:scale-98 shadow-xs hover:shadow-md hover:border-emerald-500 min-h-[120px] sm:min-h-[130px] relative group ${
                     sinStock ? 'border-slate-200 opacity-60' : 'border-slate-200'
                   }`}
                   title={`${name} - $${price.toLocaleString('es-CO')} / ${unit}`}
                 >
                   {/* Badge de Unidad, Modo Pesaje y Estado Agotado */}
                   <div className="flex flex-wrap items-center justify-between gap-1">
-                    <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
+                    <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
                       {unit}
                     </span>
                     <div className="flex flex-wrap items-center justify-end gap-1 min-w-0">
                       {pesable && (
-                        <span className="text-[9px] font-bold px-1 py-0.5 rounded bg-cyan-50 text-cyan-700 border border-cyan-200 flex items-center gap-0.5">
-                          <Scale size={10} /> Balanza
+                        <span className="text-[8px] font-bold px-1 py-0.5 rounded bg-cyan-50 text-cyan-700 border border-cyan-200 flex items-center gap-0.5">
+                          <Scale size={9} /> Balanza
                         </span>
                       )}
                       {sinStock && (
                         <span 
                           data-testid={`badge-agotado-${product.sku || product.id}`}
-                          className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 border border-rose-200 tracking-wider shadow-2xs"
+                          className="text-[8px] font-black uppercase px-1 py-0.5 rounded bg-rose-100 text-rose-700 border border-rose-200 tracking-wider shadow-2xs"
                         >
                           AGOTADO
                         </span>
@@ -268,18 +268,18 @@ export const POSMultivendorCatalog: React.FC<POSMultivendorCatalogProps> = ({
                   </div>
 
                   {/* Icono / Avatar Vectorial Local (Cero <img> rotas) */}
-                  <div className="flex items-center justify-center my-1.5 py-1">
+                  <div className="flex items-center justify-center my-0.5 py-0.5">
                     <ProductAvatar
                       nombre={name}
                       categoria={product.categoria}
-                      size="md"
+                      size="sm"
                       darkTheme={false}
                     />
                   </div>
 
                   {/* Nombre del Producto (Legibilidad WCAG AAA en 2 líneas) */}
-                  <div className="min-h-[32px] flex items-center justify-center">
-                    <h3 className="text-slate-800 text-xs font-bold text-center line-clamp-2 leading-tight group-hover:text-emerald-700 transition-colors break-words">
+                  <div className="min-h-[26px] flex items-center justify-center">
+                    <h3 className="text-slate-800 text-[11px] sm:text-xs font-bold text-center line-clamp-2 leading-snug group-hover:text-emerald-700 transition-colors break-words">
                       {name}
                     </h3>
                   </div>
@@ -294,18 +294,18 @@ export const POSMultivendorCatalog: React.FC<POSMultivendorCatalogProps> = ({
                   )}
 
                   {/* Precio Grande Destacado en Esmeralda & Stock */}
-                  <div className="mt-1 pt-1 border-t border-slate-100 flex items-end justify-between">
+                  <div className="mt-0.5 pt-0.5 border-t border-slate-100 flex items-end justify-between">
                     <div className="flex flex-col">
-                      <span className="text-[9px] font-medium text-slate-400">
+                      <span className="text-[8px] sm:text-[9px] font-medium text-slate-400">
                         {sinStock ? 'Agotado' : isNoControl ? 'Venta libre' : `Stock: ${stock} ${unit}`}
                       </span>
-                      <span className="text-emerald-600 font-mono font-black text-sm sm:text-base leading-none">
+                      <span className="text-emerald-600 font-mono font-black text-xs sm:text-sm leading-none">
                         ${price.toLocaleString('es-CO')}
                       </span>
                     </div>
 
-                    <div className="w-6 h-6 rounded-lg bg-emerald-50 group-hover:bg-emerald-600 text-emerald-600 group-hover:text-white flex items-center justify-center transition-all">
-                      <Plus size={14} className="stroke-[3]" />
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-50 group-hover:bg-emerald-600 text-emerald-600 group-hover:text-white flex items-center justify-center transition-all">
+                      <Plus size={13} className="stroke-[3]" />
                     </div>
                   </div>
                 </div>

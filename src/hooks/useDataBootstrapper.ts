@@ -106,8 +106,11 @@ export function useDataBootstrapper() {
   useEffect(() => {
     loadOrders();
     loadBodegas();
-    loadInventory();
-    loadClientes(INITIAL_CLIENTS);
+    const activeTenant = useAuthStore.getState().activeTenant;
+    if (activeTenant?.id !== 'tenant-03') {
+      loadInventory();
+      loadClientes(INITIAL_CLIENTS);
+    }
     loadProveedores(INITIAL_PROVEEDORES);
     loadCategorias();
     loadConductores();

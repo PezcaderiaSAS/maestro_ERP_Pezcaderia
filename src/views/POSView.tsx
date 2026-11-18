@@ -23,6 +23,7 @@ import { supabaseRealtimePreventasService } from '../services/supabaseRealtimePr
 import { ProductSearchPanel } from './pos/components/ProductSearchPanel.tsx';
 import { POSMultivendorView } from './pos/components/POSMultivendorView.tsx';
 import { buildAllProductsStockMap } from './pos/posWarehouseStock.utils.ts';
+import { ferreteriaJosaseService } from '../services/ferreteriaJosaseService.ts';
 import { AperturaCajaModal } from './pos/components/AperturaCajaModal.tsx';
 import { RetiroParcialModal } from './pos/components/RetiroParcialModal.tsx';
 import { RestockRequestModal } from './inventory/components/RestockRequestModal.tsx';
@@ -189,6 +190,27 @@ export default function POSView({
       }
     }
   }, [isFerreteria]);
+
+  // Hidratación y conmutación reactiva garantizada de catálogos en el POS (Ferretería Josase vs La Pezcadería)
+  useEffect(() => {
+    if (isFerreteria) {
+      const currentProducts = useInventoryStore.getState().products;
+      const isFerreteriaActive = currentProducts.length > 50 && currentProducts.some((p) => p.sku === '0000' || p.sku === '#125478');
+      if (!isFerreteriaActive) {
+        ferreteriaJosaseService.applyToStores().catch((err) => {
+          console.error('Error aplicando catálogo de Ferretería Josase en POS:', err);
+        });
+      }
+    } else if (activeTenant?.id === 'tenant-01') {
+      const currentProducts = useInventoryStore.getState().products;
+      const isFishActive = currentProducts.some((p) => p.sku === 'PES-ENT-001' || p.sku === 'FIL-LIM-002');
+      if (!isFishActive && currentProducts.length > 100) {
+        ferreteriaJosaseService.restorePezcaderiaStores().catch((err) => {
+          console.error('Error restaurando catálogo de La Pezcadería en POS:', err);
+        });
+      }
+    }
+  }, [isFerreteria, activeTenant?.id]);
   const [ultimoTicket, setUltimoTicket] = useState<{ venta: any; cliente: any } | null>(null);
   const [showRestockModal, setShowRestockModal] = useState(false);
   const [showComandasDrawer, setShowComandasDrawer] = useState<boolean>(false);
