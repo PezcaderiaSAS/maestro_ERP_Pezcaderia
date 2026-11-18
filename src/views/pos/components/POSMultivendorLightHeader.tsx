@@ -124,7 +124,7 @@ export const POSMultivendorLightHeader: React.FC<POSMultivendorLightHeaderProps>
                 id={`btn-vendedor-${v.id}`}
                 data-testid={`btn-vendedor-${v.id}`}
                 onClick={() => onSelectVendor(v.id)}
-                className={`min-h-[38px] px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap active:scale-95 flex items-center gap-1.5 shrink-0 ${
+                className={`min-h-[44px] px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap active:scale-95 flex items-center gap-1.5 shrink-0 ${
                   isSelected
                     ? 'bg-white text-emerald-900 shadow-md font-black ring-2 ring-emerald-300'
                     : 'bg-emerald-700/60 hover:bg-emerald-700 text-emerald-100 border border-emerald-500/40'
