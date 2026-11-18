@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { 
   Barcode, 
   Search, 
@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import type { Cliente } from '../../../types/erp.types';
 import { useAuthStore } from '../../../store/useAuthStore';
+import { TenantDropdownPopover } from '../../../components/layout/TenantDropdownPopover';
 
 export interface VendorOption {
   id: string;
@@ -56,6 +57,7 @@ export const POSMultivendorLightHeader: React.FC<POSMultivendorLightHeaderProps>
 }) => {
   const barcodeInputRef = useRef<HTMLInputElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [isTenantMenuOpen, setIsTenantMenuOpen] = useState(false);
 
   const activeTenant = useAuthStore((s) => s.activeTenant);
   const isFerreteria =
@@ -92,22 +94,37 @@ export const POSMultivendorLightHeader: React.FC<POSMultivendorLightHeaderProps>
     >
       {/* SECCIÓN 1: Identidad Corporativa y Selector de Asesor Mostrador */}
       <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 min-w-0 max-w-[42%]">
-        <div className="flex items-center gap-1.5 pr-1.5 sm:pr-2 border-r border-emerald-500/50 shrink-0 min-w-0">
-          <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center font-black text-white text-sm shadow-inner shrink-0">
-            {isFerreteria ? '🔧' : '🐟'}
-          </div>
-          <div className="hidden lg:block leading-tight min-w-0 max-w-[130px] xl:max-w-[180px]">
-            <span 
-              data-testid="pos-header-tenant-name"
-              className="text-[11px] font-black uppercase tracking-wider text-emerald-100 block truncate"
-              title={tenantRazonSocial}
-            >
-              {tenantRazonSocial}
-            </span>
-            <span className="text-[9px] font-semibold text-emerald-200 hidden 2xl:block truncate">
-              {isFerreteria ? 'Terminal Ferretería' : 'Terminal Mostrador'}
-            </span>
-          </div>
+        <div className="relative shrink-0 min-w-0">
+          <button
+            type="button"
+            data-testid="pos-header-tenant-selector"
+            onClick={() => setIsTenantMenuOpen((prev) => !prev)}
+            className="flex items-center gap-1.5 pr-1.5 sm:pr-2 border-r border-emerald-500/50 shrink-0 min-w-0 text-left cursor-pointer hover:bg-white/10 rounded-lg p-1 transition-colors"
+            title="Clic para conmutar empresa"
+            aria-expanded={isTenantMenuOpen}
+          >
+            <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center font-black text-white text-sm shadow-inner shrink-0">
+              {isFerreteria ? '🔧' : '🐟'}
+            </div>
+            <div className="hidden lg:block leading-tight min-w-0 max-w-[130px] xl:max-w-[180px]">
+              <span 
+                data-testid="pos-header-tenant-name"
+                className="text-[11px] font-black uppercase tracking-wider text-emerald-100 block truncate"
+                title={tenantRazonSocial}
+              >
+                {tenantRazonSocial}
+              </span>
+              <span className="text-[9px] font-semibold text-emerald-200 hidden 2xl:block truncate">
+                {isFerreteria ? 'Terminal Ferretería ▾' : 'Terminal Mostrador ▾'}
+              </span>
+            </div>
+          </button>
+
+          {/* Menú Popover Flotante Ergonómico */}
+          <TenantDropdownPopover
+            isOpen={isTenantMenuOpen}
+            onClose={() => setIsTenantMenuOpen(false)}
+          />
         </div>
 
         {/* Chips de Asesores de Mostrador (Scroll Táctil Suave y Flexible sin recortes rígidos) */}

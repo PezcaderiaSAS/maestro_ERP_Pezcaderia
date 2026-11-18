@@ -7,6 +7,7 @@ import Swal from 'sweetalert2';
 import { Caja } from '../../../types/cash.types';
 import { useWarehouseStore } from '../../../store/useWarehouseStore';
 import { useCashStore } from '../../../store/useCashStore';
+import { useAuthStore } from '../../../store/useAuthStore';
 import { useActionLogger } from '../../../hooks/useActionLogger';
 import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
@@ -105,9 +106,11 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
     }
 
     try {
+      const currentAuthUser = useAuthStore.getState().currentUser;
+      const cajeroId = (currentAuthUser as any)?.empleadoId || currentAuthUser?.id || currentAuthUser?.nombre || userRole;
       const result = cashService.abrirTurno(
         cajaSeleccionada,
-        userRole,
+        cajeroId,
         baseDirecta,
         undefined,
         notasApertura
@@ -116,6 +119,10 @@ export const AperturaCajaModal: React.FC<AperturaCajaModalProps> = ({
       if (result.error) {
         Swal.fire({ icon: 'error', title: 'Error', text: result.error });
         return;
+      }
+
+      if (result.data || (result as any).datos) {
+        useCashStore.getState().setTurnoActivo(result.data || (result as any).datos);
       }
 
       Swal.fire({

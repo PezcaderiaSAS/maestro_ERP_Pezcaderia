@@ -579,6 +579,22 @@ export default function POSView({
     }
   }, [userRole, currentUser?.empleadoId, showAperturaModal, loadTurnoActivo, loadTurnoActivoPorCajero]);
 
+  // Gatekeeper de Turno de Caja (SPEC-065):
+  // Si el usuario opera en modo cajero y la caja está cerrada, auto-desplegar Apertura de Turno
+  useEffect(() => {
+    let timer: NodeJS.Timeout | null = null;
+    if (isModoCajero && !isTurnoAbierto && !showAperturaModal) {
+      timer = setTimeout(() => {
+        if (!useCashStore.getState().turnoActivo) {
+          setShowAperturaModal(true);
+        }
+      }, 400);
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [isModoCajero, isTurnoAbierto, showAperturaModal]);
+
   const { bodegas, getPrimaryBodega, activaId } = useWarehouseStore();
   const bodegaActivaId = activaId || getPrimaryBodega()?.id || 'b1';
   const bodegaActivaNombre = getPrimaryBodega()?.nombre || 'Bodega Principal';
@@ -2383,20 +2399,24 @@ export default function POSView({
             const finalNotas = selectedCutNotes.length > 0 ? `[${selectedCutNotes.join(', ')}]` : '';
             await handleGuardarBorrador(finalNotas);
           }}
-          onCobrarCaja={() => {
-            if (!isTurnoAbierto || !turnoActivo) {
-              Swal.fire({
-                icon: 'error',
-                title: 'Turno de Caja Requerido',
-                text: 'Debe abrir un Turno de Caja antes de poder registrar cobros o facturar.',
-                confirmButtonColor: 'var(--primary-color)'
-              }).then(() => {
-                setShowAperturaModal(true);
-              });
-              return;
-            }
-            setIsUnifiedPaymentModalOpen(true);
-          }}
+          onCobrarCaja={
+            (userRole === 'vendedor' && !isModoCajero)
+              ? undefined
+              : () => {
+                  if (!isTurnoAbierto || !turnoActivo) {
+                    Swal.fire({
+                      icon: 'error',
+                      title: 'Turno de Caja Requerido',
+                      text: 'Debe abrir un Turno de Caja antes de poder registrar cobros o facturar.',
+                      confirmButtonColor: 'var(--primary-color)'
+                    }).then(() => {
+                      setShowAperturaModal(true);
+                    });
+                    return;
+                  }
+                  setIsUnifiedPaymentModalOpen(true);
+                }
+          }
           selectedVendorId={selectedVendorJosase}
           onSelectVendor={(vId) => {
             setSelectedVendorJosase(vId);
@@ -2551,6 +2571,32 @@ export default function POSView({
           <UserSwitchModal
             isOpen={showUserSwitchModal}
             onClose={() => setShowUserSwitchModal(false)}
+          />
+        )}
+
+        {/* Modal de Apertura de Caja (SPEC-065 Gatekeeper) */}
+        {showAperturaModal && (
+          <AperturaCajaModal
+            userRole={userRole}
+            bodegaActiva={useWarehouseStore.getState().getPrimaryBodega()?.nombre || 'Bodega Principal'}
+            onSuccess={() => {
+              setShowAperturaModal(false);
+              loadTurnoActivo('caja-1');
+            }}
+            onCancel={() => setShowAperturaModal(false)}
+          />
+        )}
+
+        {/* Modal de Arqueo y Cierre de Caja Ciega (SPEC-065) */}
+        {showArqueoModal && turnoActivo && (
+          <ArqueoCajaModal
+            turnoActivo={turnoActivo}
+            usuarioId={userRole}
+            onSuccess={() => {
+              setShowArqueoModal(false);
+              loadTurnoActivo('caja-1');
+            }}
+            onClose={() => setShowArqueoModal(false)}
           />
         )}
       </div>

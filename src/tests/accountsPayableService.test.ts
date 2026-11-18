@@ -54,7 +54,7 @@ describe('TASK-022-02: accountsPayableService & useAccountsPayableStore', () => 
         proveedorNombre: 'Proveedor 1',
         proveedorNit: '9001',
         montoTotal: 1000000,
-        fechaEmision: '2026-10-18',
+        fechaEmision: new Date().toISOString().split('T')[0],
         diasCredito: 30
       });
 
@@ -157,7 +157,7 @@ describe('TASK-022-02: accountsPayableService & useAccountsPayableStore', () => 
         proveedorNombre: 'Pescados del Caribe',
         proveedorNit: '901234',
         montoTotal: 800000,
-        fechaEmision: '2026-10-18',
+        fechaEmision: new Date().toISOString().split('T')[0],
         diasCredito: 30
       });
 

@@ -20,7 +20,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { getInitials } from '../../utils/roleMapper';
 import { UserSwitchModal } from './UserSwitchModal';
-import { TenantSelectorModal } from '../../views/auth/components/TenantSelectorModal';
+import { TenantDropdownPopover } from './TenantDropdownPopover';
 import { ferreteriaJosaseService } from '../../services/ferreteriaJosaseService';
 import { databasePurgeService } from '../../services/databasePurgeService';
 import { prefacturaService } from '../../services/prefacturaService';
@@ -252,22 +252,31 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
 
       {/* Sección Derecha: Selector de Empresa, Omnibox, Selector de Bodega, Botón POS, Tema y Perfil */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto">
-        {/* Selector y Badge de Empresa / Multi-Tenant V8 */}
-        <button
-          type="button"
-          id="topbar-btn-tenant-selector"
-          data-testid="topbar-btn-tenant-selector"
-          onClick={() => setTenantSelectorOpen(true)}
-          className="hidden sm:flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-xs text-cyan-300 hover:text-white transition-all cursor-pointer font-bold shadow-xs active:scale-95 group shrink-0"
-          title={`Empresa activa: ${activeTenant?.razonSocial || activeTenant?.nombre || 'La Pezcaderia SAS'}. Clic para conmutar empresa.`}
-          aria-label="Conmutador de Empresa Activa"
-        >
-          <Building2 size={14} className="text-cyan-400 shrink-0 group-hover:scale-110 transition-transform" />
-          <span className="truncate max-w-[80px] sm:max-w-[130px] font-semibold">
-            {activeTenant?.razonSocial || activeTenant?.nombre || 'La Pezcaderia SAS'}
-          </span>
-          <ChevronDown size={12} className="text-cyan-400/70 shrink-0" />
-        </button>
+        {/* Selector y Badge de Empresa / Multi-Tenant V8 (Popover Ergonómico Flotante) */}
+        <div className="relative shrink-0">
+          <button
+            type="button"
+            id="topbar-btn-tenant-selector"
+            data-testid="topbar-btn-tenant-selector"
+            onClick={() => setTenantSelectorOpen(!isTenantSelectorOpen)}
+            className="hidden sm:flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-xs text-cyan-300 hover:text-white transition-all cursor-pointer font-bold shadow-xs active:scale-95 group shrink-0"
+            title={`Empresa activa: ${activeTenant?.razonSocial || activeTenant?.nombre || 'La Pezcaderia SAS'}. Clic para conmutar empresa.`}
+            aria-label="Conmutador de Empresa Activa"
+            aria-expanded={isTenantSelectorOpen}
+          >
+            <Building2 size={14} className="text-cyan-400 shrink-0 group-hover:scale-110 transition-transform" />
+            <span className="truncate max-w-[80px] sm:max-w-[130px] font-semibold">
+              {activeTenant?.razonSocial || activeTenant?.nombre || 'La Pezcaderia SAS'}
+            </span>
+            <ChevronDown size={12} className={`text-cyan-400/70 shrink-0 transition-transform ${isTenantSelectorOpen ? 'rotate-180' : ''}`} />
+          </button>
+
+          {/* Menú Desplegable Popover Flotante Ergonómico */}
+          <TenantDropdownPopover
+            isOpen={isTenantSelectorOpen}
+            onClose={() => setTenantSelectorOpen(false)}
+          />
+        </div>
 
         {/* Buscador Rápido Omnibox (F8 / Ctrl+K) */}
         <button
@@ -481,12 +490,6 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
         <UserSwitchModal
           isOpen={isUserSwitchOpen}
           onClose={() => setIsUserSwitchOpen(false)}
-        />
-
-        {/* Modal de Conmutación Multi-Empresa / Tenant */}
-        <TenantSelectorModal
-          isOpen={isTenantSelectorOpen}
-          onClose={() => setTenantSelectorOpen(false)}
         />
       </div>
     </header>
