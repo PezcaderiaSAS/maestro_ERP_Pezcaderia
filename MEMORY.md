@@ -23,5 +23,6 @@
    - **Auditoría Frontend 100/100:** Cabecera POS neutralizada (`bg-slate-900`) al 30% estructural, aislando el botón F6 (10% acento verde, Von Restorff) y microtextos con contraste WCAG 2.2 AAA ($\ge 7:1$).
 
 ## Despliegue a Producción (Vercel & Supabase)
-- **Vercel (Frontend SPA):** `https://maestro-erp-pezcaderia.vercel.app` (HTTP 200).
+- **Vercel CI/CD (7926313) ✅:** Despliegue en PRODUCCIÓN exitoso (State: READY, HTTP 200). Resuelto descarte de `packages/validation-schemas` en `.vercelignore` y exclusiones en `tsconfig.json`.
+- **UI Conmutador Opaco ✅:** Popover y Modal con superficies 100% sólidas (`bg-slate-900`/`bg-slate-950`), sin bleed-through y contraste WCAG AAA.
 - **Supabase (Backend PostgreSQL):** Proyecto activo (`gmvdrbtnogxafamdjzat`). Auth GoTrue & Postgres Pooler conectados.
