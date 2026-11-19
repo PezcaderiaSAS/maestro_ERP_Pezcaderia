@@ -37,6 +37,9 @@ interface InventoryState {
   products: Producto[];
   stock: Record<string, Record<string, number>>;
   stockReserved: Record<string, Record<string, number>>;
+  isSwitchingCatalog: boolean;
+  targetCatalogName: string | null;
+  setSwitchingCatalog: (isSwitching: boolean, targetName?: string | null) => void;
   loadInventory: () => void;
   loadStock: () => void;
   setProducts: (productsOrUpdater: any) => void;
@@ -56,6 +59,10 @@ export const useInventoryStore = create<InventoryState>()(
   products: [],
   stock: {},
   stockReserved: {},
+  isSwitchingCatalog: false,
+  targetCatalogName: null,
+  setSwitchingCatalog: (isSwitching: boolean, targetName: string | null = null) =>
+    set({ isSwitchingCatalog: isSwitching, targetCatalogName: targetName }),
 
   loadInventory: async () => {
     try {

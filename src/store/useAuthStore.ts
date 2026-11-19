@@ -19,6 +19,7 @@ import {
 import { superAdminService } from '../services/superAdminService';
 import { ferreteriaJosaseService } from '../services/ferreteriaJosaseService';
 import { useSuperAdminStore } from './useSuperAdminStore';
+import { useInventoryStore } from './useInventoryStore';
 import * as localDb from '../services/localDb';
 import { zustandConsoleMiddleware } from '../lib/consoleMiddleware';
 import { getSupabaseClient } from '../lib/supabase';
@@ -52,8 +53,11 @@ export interface AuthState {
   error: string | null;
   tenantInvitations: TenantInvitation[];
   isTenantSelectorOpen: boolean;
+  isSwitchingCatalog: boolean;
+  targetCatalogName: string | null;
 
   // Acciones
+  setSwitchingCatalog: (isSwitching: boolean, targetName?: string | null) => void;
   setSession: (session: {
     status: AuthStateStatus;
     user?: AuthUserProfile | null;
@@ -143,6 +147,10 @@ export const useAuthStore = create<AuthState>()(
     error: null,
     tenantInvitations: [],
     isTenantSelectorOpen: false,
+    isSwitchingCatalog: false,
+    targetCatalogName: null,
+    setSwitchingCatalog: (isSwitching: boolean, targetName: string | null = null) =>
+      set({ isSwitchingCatalog: isSwitching, targetCatalogName: targetName }),
 
     setSession: (session) => {
       const user = session.user || session.currentUser || null;
@@ -617,15 +625,43 @@ export const useAuthStore = create<AuthState>()(
       };
       localDb.save(STORAGE_KEY, sessionData);
 
+      const isSwitchingToJosase =
+        normTenant.id === 'tenant-03' ||
+        normTenant.razonSocial?.toLowerCase().includes('josase') ||
+        (normTenant as any).nombre?.toLowerCase().includes('josase');
+      const targetName = isSwitchingToJosase
+        ? 'Ferretería & Eléctricos Josase S.A.S.'
+        : 'La Pezcadería del Mar S.A.S.';
+
+      const currentTenant = get().activeTenant;
+      const isDifferentTenant = currentTenant ? currentTenant.id !== normTenant.id : true;
+      const shouldSyncStores = Boolean(options?.syncStores && isDifferentTenant);
+
+      // Desmontaje inmediato de productos al cambiar de empresa con sincronización activa (R1)
+      if (shouldSyncStores) {
+        useInventoryStore.setState({
+          isSwitchingCatalog: true,
+          targetCatalogName: targetName,
+          products: [],
+          productsCatalog: [],
+        });
+      }
+
       set({
         activeTenant: normTenant,
         currentUser: updatedUser,
         isTenantSelectorOpen: false,
+        ...(shouldSyncStores
+          ? {
+              isSwitchingCatalog: true,
+              targetCatalogName: targetName,
+            }
+          : {}),
       });
 
       useSuperAdminStore.getState().selectTenant(normTenant.id);
 
-      if (options?.syncStores) {
+      if (shouldSyncStores) {
         if (normTenant.id === 'tenant-03') {
           ferreteriaJosaseService.applyToStores().catch((err) => {
             console.error('Error sincronizando stores de Ferretería Josase:', err);

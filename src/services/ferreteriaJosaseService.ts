@@ -23,14 +23,18 @@ export interface FerreteriaJosaseData {
 
 export class FerreteriaJosaseService {
   private tenantIndexedDbService: TenantIndexedDbService | null = null;
+  private transitionSequence = 0;
+  private activeAbortController: AbortController | null = null;
   private inFlightApply: Promise<{
     clientesCount: number;
     itemsCount: number;
     stockAsignado: number;
+    aborted?: boolean;
   }> | null = null;
   private inFlightRestore: Promise<{
     clientesCount: number;
     itemsCount: number;
+    aborted?: boolean;
   }> | null = null;
 
   /**
@@ -128,14 +132,57 @@ export class FerreteriaJosaseService {
     clientesCount: number;
     itemsCount: number;
     stockAsignado: number;
+    aborted?: boolean;
   }> {
     if (this.inFlightApply) {
       return this.inFlightApply;
     }
 
+    // Abortar controlador y promesa de restauración previa si estaban en vuelo
+    if (this.activeAbortController) {
+      this.activeAbortController.abort();
+    }
+    this.inFlightRestore = null;
+
+    const sequenceId = ++this.transitionSequence;
+    this.activeAbortController = new AbortController();
+    const { signal } = this.activeAbortController;
+
+    // R1: Desmontaje inmediato de productos y activación del estado reactivo de conmutación
+    useInventoryStore.setState({
+      isSwitchingCatalog: true,
+      targetCatalogName: 'Ferretería & Eléctricos Josase S.A.S.',
+      products: [],
+      productsCatalog: [],
+    });
+    useAuthStore.setState({
+      isSwitchingCatalog: true,
+      targetCatalogName: 'Ferretería & Eléctricos Josase S.A.S.',
+    });
+
     this.inFlightApply = (async () => {
       try {
+        // Checkpoint 0: Cancelación anticipada
+        if (sequenceId !== this.transitionSequence || signal.aborted) {
+          return {
+            clientesCount: 0,
+            itemsCount: 0,
+            stockAsignado: 0,
+            aborted: true,
+          };
+        }
+
         const data = await this.loadData();
+
+        // Checkpoint 1: ¿Sigue siendo la conmutación más reciente tras la carga asíncrona?
+        if (sequenceId !== this.transitionSequence || signal.aborted) {
+          return {
+            clientesCount: 0,
+            itemsCount: 0,
+            stockAsignado: 0,
+            aborted: true,
+          };
+        }
 
         // Seguridad multi-tenant: si el usuario cambió de tenant mientras cargaba, no pisar stores
         const currentTenant = useAuthStore.getState().activeTenant;
@@ -144,6 +191,7 @@ export class FerreteriaJosaseService {
             clientesCount: data.clientes.length,
             itemsCount: data.items.length,
             stockAsignado: 0,
+            aborted: true,
           };
         }
 
@@ -164,11 +212,7 @@ export class FerreteriaJosaseService {
           return { ...item, categoria: cat };
         });
 
-        // 2. Aplicar en memoria en useClientStore inmediatamente
-        const clientStore = useClientStore.getState();
-        clientStore.setClientes(data.clientes);
-
-        // 3. Generar precios de catálogo para el motor de inventario unificado
+        // 2. Generar precios de catálogo para el motor de inventario unificado
         const pricings = enrichedItems.map((item) => ({
           id: `prc-${item.id}`,
           productoId: item.id,
@@ -177,6 +221,20 @@ export class FerreteriaJosaseService {
           precio_mayorista: item.precio_venta_mayorista || 0,
           vigenciaDesde: new Date().toISOString(),
         }));
+
+        // Checkpoint 2: Verificación previa a mutación de stores
+        if (sequenceId !== this.transitionSequence || signal.aborted) {
+          return {
+            clientesCount: 0,
+            itemsCount: 0,
+            stockAsignado: 0,
+            aborted: true,
+          };
+        }
+
+        // 3. Aplicar en memoria en useClientStore inmediatamente
+        const clientStore = useClientStore.getState();
+        clientStore.setClientes(data.clientes);
 
         // 4. Aplicar Ítems, Catálogo y Stock atómicamente en useInventoryStore
         const inventoryStore = useInventoryStore.getState();
@@ -207,9 +265,11 @@ export class FerreteriaJosaseService {
         }
 
         // 6. Sincronización masiva en IndexedDB en background (sin bloquear el hilo de la UI)
-        this.applyToIndexedDb('tenant-03').catch((idbErr) => {
-          console.warn('Advertencia en sincronización diferida de IndexedDB:', idbErr);
-        });
+        if (sequenceId === this.transitionSequence && !signal.aborted) {
+          this.applyToIndexedDb('tenant-03').catch((idbErr) => {
+            console.warn('Advertencia en sincronización diferida de IndexedDB:', idbErr);
+          });
+        }
 
         return {
           clientesCount: data.clientes.length,
@@ -218,6 +278,17 @@ export class FerreteriaJosaseService {
         };
       } finally {
         this.inFlightApply = null;
+        if (sequenceId === this.transitionSequence) {
+          useInventoryStore.setState({
+            isSwitchingCatalog: false,
+            targetCatalogName: null,
+          });
+          useAuthStore.setState({
+            isSwitchingCatalog: false,
+            targetCatalogName: null,
+          });
+          this.activeAbortController = null;
+        }
       }
     })();
 
@@ -294,16 +365,58 @@ export class FerreteriaJosaseService {
   public restorePezcaderiaStores(userRole = 'admin'): Promise<{
     clientesCount: number;
     itemsCount: number;
+    aborted?: boolean;
   }> {
     if (this.inFlightRestore) {
       return this.inFlightRestore;
     }
 
+    // Abortar controlador y promesa de aplicación previa si estaban en vuelo
+    if (this.activeAbortController) {
+      this.activeAbortController.abort();
+    }
+    this.inFlightApply = null;
+
+    const sequenceId = ++this.transitionSequence;
+    this.activeAbortController = new AbortController();
+    const { signal } = this.activeAbortController;
+
+    // R1: Desmontaje inmediato de productos y activación del estado reactivo de conmutación
+    useInventoryStore.setState({
+      isSwitchingCatalog: true,
+      targetCatalogName: 'La Pezcadería del Mar S.A.S.',
+      products: [],
+      productsCatalog: [],
+    });
+    useAuthStore.setState({
+      isSwitchingCatalog: true,
+      targetCatalogName: 'La Pezcadería del Mar S.A.S.',
+    });
+
     this.inFlightRestore = (async () => {
       try {
+        // Checkpoint 0: Cancelación anticipada
+        if (sequenceId !== this.transitionSequence || signal.aborted) {
+          return {
+            clientesCount: 0,
+            itemsCount: 0,
+            aborted: true,
+          };
+        }
+
         const { INITIAL_PRODUCTS, INITIAL_CLIENTS, migrateProductsToCatalogAndPricing } = await import(
           '../data/appSeedData'
         );
+
+        // Checkpoint 1: ¿Sigue siendo la conmutación más reciente?
+        if (sequenceId !== this.transitionSequence || signal.aborted) {
+          return {
+            clientesCount: 0,
+            itemsCount: 0,
+            aborted: true,
+          };
+        }
+
         const { catalog, pricings } = migrateProductsToCatalogAndPricing(INITIAL_PRODUCTS, userRole);
 
         // Seguridad multi-tenant: si el usuario cambió a tenant-03 mientras cargaba, no pisar stores
@@ -312,6 +425,16 @@ export class FerreteriaJosaseService {
           return {
             clientesCount: 0,
             itemsCount: 0,
+            aborted: true,
+          };
+        }
+
+        // Checkpoint 2: Verificación previa a mutación de stores
+        if (sequenceId !== this.transitionSequence || signal.aborted) {
+          return {
+            clientesCount: 0,
+            itemsCount: 0,
+            aborted: true,
           };
         }
 
@@ -373,24 +496,26 @@ export class FerreteriaJosaseService {
         });
 
         // 5. Restaurar índice del motor de búsqueda sub-2ms para La Pezcadería
-        try {
-          const mappedProducts: LocalIndexedDbProduct[] = catalog.map((item: any, index: number) => ({
-            sku: item.sku || item.id,
-            tenantId: 'tenant-01',
-            nombre: item.nombre,
-            codigoBarras: item.codigo_barras || '',
-            categoria: item.categoria || 'Pescados',
-            precioDetal: item.precio_venta_pos || 0,
-            precioMayorista: item.precio_venta_mayorista || 0,
-            cantidadMinimaMayorista: 1,
-            stockDisponible: 100,
-            esParetoTop100: index < 5,
-            activo: true,
-            updatedAt: new Date().toISOString(),
-          }));
-          await fastItemSearchEngine.init('tenant-01', mappedProducts);
-        } catch (err) {
-          console.warn('Advertencia re-indexando fastItemSearchEngine para La Pezcadería:', err);
+        if (sequenceId === this.transitionSequence && !signal.aborted) {
+          try {
+            const mappedProducts: LocalIndexedDbProduct[] = catalog.map((item: any, index: number) => ({
+              sku: item.sku || item.id,
+              tenantId: 'tenant-01',
+              nombre: item.nombre,
+              codigoBarras: item.codigo_barras || '',
+              categoria: item.categoria || 'Pescados',
+              precioDetal: item.precio_venta_pos || 0,
+              precioMayorista: item.precio_venta_mayorista || 0,
+              cantidadMinimaMayorista: 1,
+              stockDisponible: 100,
+              esParetoTop100: index < 5,
+              activo: true,
+              updatedAt: new Date().toISOString(),
+            }));
+            await fastItemSearchEngine.init('tenant-01', mappedProducts);
+          } catch (err) {
+            console.warn('Advertencia re-indexando fastItemSearchEngine para La Pezcadería:', err);
+          }
         }
 
         // 6. Persistir catálogo pesquero limpio en localDb
@@ -409,6 +534,17 @@ export class FerreteriaJosaseService {
         };
       } finally {
         this.inFlightRestore = null;
+        if (sequenceId === this.transitionSequence) {
+          useInventoryStore.setState({
+            isSwitchingCatalog: false,
+            targetCatalogName: null,
+          });
+          useAuthStore.setState({
+            isSwitchingCatalog: false,
+            targetCatalogName: null,
+          });
+          this.activeAbortController = null;
+        }
       }
     })();
 

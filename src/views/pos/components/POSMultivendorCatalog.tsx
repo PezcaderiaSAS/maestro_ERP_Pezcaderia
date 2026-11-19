@@ -10,6 +10,9 @@ import {
 import type { Product } from '../../../types/erp.types';
 import { ProductAvatar } from '../../../components/common/ProductAvatar';
 import { POSProductBodegaStock } from './POSProductBodegaStock';
+import { POSCatalogSkeletonGrid } from './POSCatalogSkeletonGrid';
+import { useInventoryStore } from '../../../store/useInventoryStore';
+import { useAuthStore } from '../../../store/useAuthStore';
 import type { BodegaStockItem } from '../posWarehouseStock.utils';
 
 export interface POSMultivendorCatalogProps {
@@ -19,6 +22,8 @@ export interface POSMultivendorCatalogProps {
   onAddToCart: (product: Product, cantidad?: number) => void;
   onOpenScaleModal?: (product: Product) => void;
   searchFilter: string;
+  isSwitchingCatalog?: boolean;
+  targetCatalogName?: string;
 }
 
 const ITEMS_PER_PAGE = 18; // Matriz 6x3 canónica de alta densidad
@@ -30,7 +35,33 @@ export const POSMultivendorCatalog: React.FC<POSMultivendorCatalogProps> = ({
   onAddToCart,
   onOpenScaleModal,
   searchFilter,
+  isSwitchingCatalog: propIsSwitching,
+  targetCatalogName: propTargetName,
 }) => {
+  const storeIsSwitching = useInventoryStore((s) => s.isSwitchingCatalog);
+  const storeTargetName = useInventoryStore((s) => s.targetCatalogName);
+  const authIsSwitching = useAuthStore((s) => s.isSwitchingCatalog);
+  const authTargetName = useAuthStore((s) => s.targetCatalogName);
+  const activeTenant = useAuthStore((s) => s.activeTenant);
+
+  const isFerreteria =
+    activeTenant?.id === 'tenant-03' ||
+    activeTenant?.razonSocial?.toLowerCase().includes('josase') ||
+    (activeTenant as any)?.nombre?.toLowerCase().includes('josase');
+
+  // Detección heurística de discrepancia de catálogo para defensa en profundidad
+  const hasFishProducts = products.some((p) => p.sku === 'PES-ENT-001' || p.sku === 'FIL-LIM-002');
+  const hasHardwareProducts = products.some((p) => p.sku === '0000' || p.sku === '#125478');
+  const isCatalogMismatched = (isFerreteria && hasFishProducts) || (!isFerreteria && hasHardwareProducts);
+
+  const isSwitching = propIsSwitching ?? storeIsSwitching ?? authIsSwitching ?? false;
+  const shouldShowSkeleton = isSwitching || isCatalogMismatched;
+
+  const displayCatalogName =
+    propTargetName ||
+    storeTargetName ||
+    authTargetName ||
+    (isFerreteria ? 'Ferretería Josase' : 'La Pezcadería');
   const [selectedCategory, setSelectedCategory] = useState<string>('TODOS');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [canScrollLeft, setCanScrollLeft] = useState<boolean>(false);
@@ -139,73 +170,94 @@ export const POSMultivendorCatalog: React.FC<POSMultivendorCatalogProps> = ({
       data-testid="pos-multivendor-catalog"
       className="flex-1 min-w-0 flex flex-col bg-slate-50 border-r border-slate-200 overflow-hidden select-none"
     >
-      {/* 1. BARRA DE CATEGORÍAS (Pills Horizontales con Flechas de Navegación Suave) */}
+      {/* 1. BARRA DE CATEGORÍAS O MICRO-INDICADOR DE CARGA (CLS = 0) */}
       <div className="relative h-11 bg-white border-b border-slate-200 flex items-center shrink-0 overflow-hidden">
-        {/* Botón Scroll Izquierdo */}
-        <button
-          type="button"
-          data-testid="btn-category-scroll-left"
-          aria-label="Desplazar categorías a la izquierda"
-          onClick={handleScrollLeft}
-          className={`absolute left-0 z-10 h-full px-1.5 flex items-center justify-center bg-white/95 hover:bg-slate-100 text-slate-600 hover:text-emerald-700 shadow-xs border-r border-slate-200/80 transition-all cursor-pointer ${
-            canScrollLeft ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
-          }`}
-        >
-          <ChevronLeft size={16} />
-        </button>
+        {shouldShowSkeleton ? (
+          <div 
+            data-testid="pos-catalog-micro-indicator"
+            role="status"
+            aria-live="polite"
+            className="w-full h-full px-4 flex items-center justify-center gap-2 bg-slate-50/90 border-b border-slate-200 text-slate-800"
+          >
+            <div className="w-2 h-2 rounded-full bg-emerald-600 animate-ping shrink-0" />
+            <span className="text-xs font-bold text-slate-800 tracking-tight">
+              Cargando catálogo de {displayCatalogName}...
+            </span>
+            <span className="text-[10px] font-semibold text-slate-600 uppercase tracking-wider font-mono">
+              (Sincronizando)
+            </span>
+          </div>
+        ) : (
+          <>
+            {/* Botón Scroll Izquierdo */}
+            <button
+              type="button"
+              data-testid="btn-category-scroll-left"
+              aria-label="Desplazar categorías a la izquierda"
+              onClick={handleScrollLeft}
+              className={`absolute left-0 z-10 h-full px-1.5 flex items-center justify-center bg-white/95 hover:bg-slate-100 text-slate-600 hover:text-emerald-700 shadow-xs border-r border-slate-200/80 transition-all cursor-pointer ${
+                canScrollLeft ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
+              }`}
+            >
+              <ChevronLeft size={16} />
+            </button>
 
-        {/* Contenedor desplazable de Categorías */}
-        <div
-          ref={categoryContainerRef}
-          data-testid="pos-category-tabs-container"
-          onScroll={checkScrollability}
-          className="h-full px-8 sm:px-9 flex-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth"
-        >
-          <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 mr-1 hidden sm:inline shrink-0">
-            Categoría:
-          </span>
-          {categories.map((cat) => {
-            const isSelected = selectedCategory.toUpperCase() === cat.toUpperCase();
-            return (
-              <button
-                key={cat}
-                type="button"
-                data-testid={`btn-cat-${cat}`}
-                onClick={() => handleSelectCategory(cat)}
-                title={cat}
-                className={`min-h-[32px] px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap active:scale-95 shrink-0 max-w-[200px] truncate ${
-                  isSelected
-                    ? 'bg-emerald-600 text-white shadow-xs font-black'
-                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80'
-                }`}
-              >
-                <span className="truncate">{cat}</span>
-              </button>
-            );
-          })}
-        </div>
+            {/* Contenedor desplazable de Categorías */}
+            <div
+              ref={categoryContainerRef}
+              data-testid="pos-category-tabs-container"
+              onScroll={checkScrollability}
+              className="h-full px-8 sm:px-9 flex-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth"
+            >
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-600 mr-1 hidden sm:inline shrink-0">
+                Categoría:
+              </span>
+              {categories.map((cat) => {
+                const isSelected = selectedCategory.toUpperCase() === cat.toUpperCase();
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    data-testid={`btn-cat-${cat}`}
+                    onClick={() => handleSelectCategory(cat)}
+                    title={cat}
+                    className={`min-h-[32px] px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap active:scale-95 shrink-0 max-w-[200px] truncate ${
+                      isSelected
+                        ? 'bg-emerald-600 text-white shadow-xs font-black'
+                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80'
+                    }`}
+                  >
+                    <span className="truncate">{cat}</span>
+                  </button>
+                );
+              })}
+            </div>
 
-        {/* Botón Scroll Derecho */}
-        <button
-          type="button"
-          data-testid="btn-category-scroll-right"
-          aria-label="Desplazar categorías a la derecha"
-          onClick={handleScrollRight}
-          className={`absolute right-0 z-10 h-full px-1.5 flex items-center justify-center bg-white/95 hover:bg-slate-100 text-slate-600 hover:text-emerald-700 shadow-xs border-l border-slate-200/80 transition-all cursor-pointer ${
-            canScrollRight ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
-          }`}
-        >
-          <ChevronRight size={16} />
-        </button>
+            {/* Botón Scroll Derecho */}
+            <button
+              type="button"
+              data-testid="btn-category-scroll-right"
+              aria-label="Desplazar categorías a la derecha"
+              onClick={handleScrollRight}
+              className={`absolute right-0 z-10 h-full px-1.5 flex items-center justify-center bg-white/95 hover:bg-slate-100 text-slate-600 hover:text-emerald-700 shadow-xs border-l border-slate-200/80 transition-all cursor-pointer ${
+                canScrollRight ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
+              }`}
+            >
+              <ChevronRight size={16} />
+            </button>
+          </>
+        )}
       </div>
 
-      {/* 2. MATRIZ DE PRODUCTOS (6x3 Tarjetas - SaaS Light Mode) */}
+      {/* 2. MATRIZ DE PRODUCTOS O SKELETON LOADER (6x3 Tarjetas - SaaS Light Mode) */}
       <div className="flex-1 p-2 sm:p-2.5 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 hover:scrollbar-thumb-slate-400">
-        {paginatedProducts.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-slate-400 p-8 text-center">
+        {shouldShowSkeleton ? (
+          <POSCatalogSkeletonGrid cardsCount={18} />
+        ) : paginatedProducts.length === 0 ? (
+          <div className="h-full flex flex-col items-center justify-center text-slate-500 p-8 text-center">
             <Package size={48} className="mb-2 opacity-30 text-slate-500" />
-            <p className="text-sm font-semibold text-slate-600">No se encontraron productos coincidentes</p>
-            <p className="text-xs text-slate-400 mt-1">Prueba con otro término de búsqueda o selecciona "TODOS"</p>
+            <p className="text-sm font-semibold text-slate-700">No se encontraron productos coincidentes</p>
+            <p className="text-xs text-slate-600 mt-1">Prueba con otro término de búsqueda o selecciona "TODOS"</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-2.5">
@@ -296,7 +348,7 @@ export const POSMultivendorCatalog: React.FC<POSMultivendorCatalogProps> = ({
                   {/* Precio Grande Destacado en Esmeralda & Stock */}
                   <div className="mt-0.5 pt-0.5 border-t border-slate-100 flex items-end justify-between">
                     <div className="flex flex-col">
-                      <span className="text-[8px] sm:text-[9px] font-medium text-slate-400">
+                      <span className="text-[8px] sm:text-[9px] font-medium text-slate-600">
                         {sinStock ? 'Agotado' : isNoControl ? 'Venta libre' : `Stock: ${stock} ${unit}`}
                       </span>
                       <span className="text-emerald-600 font-mono font-black text-xs sm:text-sm leading-none">
@@ -317,57 +369,71 @@ export const POSMultivendorCatalog: React.FC<POSMultivendorCatalogProps> = ({
 
       {/* 3. PAGINACIÓN INFERIOR (Estilo Sistema POS Maduro) */}
       <footer className="h-12 px-4 bg-white border-t border-slate-200 flex items-center justify-between shrink-0">
-        <div className="text-xs text-slate-500 font-medium">
-          Mostrando <span className="font-bold text-slate-800">{paginatedProducts.length}</span> de <span className="font-bold text-slate-800">{filteredProducts.length}</span> productos
-        </div>
+        {shouldShowSkeleton ? (
+          <>
+            <div className="text-xs text-slate-600 font-medium flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+              <span>Sincronizando inventario...</span>
+            </div>
+            <div className="flex items-center gap-1 opacity-40 pointer-events-none select-none">
+              <div className="h-7 w-20 bg-slate-100 rounded-lg" />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="text-xs text-slate-500 font-medium">
+              Mostrando <span className="font-bold text-slate-800">{paginatedProducts.length}</span> de <span className="font-bold text-slate-800">{filteredProducts.length}</span> productos
+            </div>
 
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            data-testid="btn-catalog-prev-page"
-            disabled={validCurrentPage <= 1}
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            className="min-h-[34px] px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
-          >
-            <ChevronLeft size={14} />
-            <span className="hidden sm:inline">Anterior</span>
-          </button>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                data-testid="btn-catalog-prev-page"
+                disabled={validCurrentPage <= 1}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                className="min-h-[34px] px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+              >
+                <ChevronLeft size={14} />
+                <span className="hidden sm:inline">Anterior</span>
+              </button>
 
-          {/* Números de página */}
-          <div className="flex items-center gap-1 px-1">
-            {Array.from({ length: totalPages }).map((_, idx) => {
-              const pageNum = idx + 1;
-              // Mostrar máximo 5 botones numéricos
-              if (pageNum < validCurrentPage - 2 || pageNum > validCurrentPage + 2) return null;
-              const isActive = pageNum === validCurrentPage;
-              return (
-                <button
-                  key={pageNum}
-                  type="button"
-                  onClick={() => setCurrentPage(pageNum)}
-                  className={`min-w-[32px] min-h-[32px] rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    isActive
-                      ? 'bg-emerald-600 text-white shadow-xs font-black'
-                      : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
-                  }`}
-                >
-                  {pageNum}
-                </button>
-              );
-            })}
-          </div>
+              {/* Números de página */}
+              <div className="flex items-center gap-1 px-1">
+                {Array.from({ length: totalPages }).map((_, idx) => {
+                  const pageNum = idx + 1;
+                  // Mostrar máximo 5 botones numéricos
+                  if (pageNum < validCurrentPage - 2 || pageNum > validCurrentPage + 2) return null;
+                  const isActive = pageNum === validCurrentPage;
+                  return (
+                    <button
+                      key={pageNum}
+                      type="button"
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`min-w-[32px] min-h-[32px] rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-emerald-600 text-white shadow-xs font-black'
+                          : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
 
-          <button
-            type="button"
-            data-testid="btn-catalog-next-page"
-            disabled={validCurrentPage >= totalPages}
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            className="min-h-[34px] px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
-          >
-            <span className="hidden sm:inline">Siguiente</span>
-            <ChevronRight size={14} />
-          </button>
-        </div>
+              <button
+                type="button"
+                data-testid="btn-catalog-next-page"
+                disabled={validCurrentPage >= totalPages}
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                className="min-h-[34px] px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+              >
+                <span className="hidden sm:inline">Siguiente</span>
+                <ChevronRight size={14} />
+              </button>
+            </div>
+          </>
+        )}
       </footer>
     </section>
   );
