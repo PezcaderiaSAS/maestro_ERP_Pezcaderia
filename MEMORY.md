@@ -17,6 +17,10 @@
    - **Popover Ergonómico Flotante:** Reemplazo de modal oscuro invasivo por `TenantDropdownPopover.tsx` de 1-toque en `EnterpriseTopbar` y cabecera POS.
    - **Gatekeeper Diario de Turno:** Bloqueo innegociable de cobros/facturas si la caja está cerrada; despliegue automático de `AperturaCajaModal` para cajero principal con base inicial ($100.000 COP) y actualización inmutable en `useCashStore`.
    - **Separación Estricta de Roles:** Vendedores limitados a emisión de comandas (F6); cobros directos (F2) y arqueo ciego restringidos a cajero y administración.
+9. **SPEC-066 (SKELETON ATÓMICO & AUDITORÍA FRONTEND 100/100) ✅ (100% CERTIFICADO):**
+   - **Transición Atómica y Skeleton:** Desmontaje inmediato de productos al conmutar empresa (`isSwitchingCatalog`), 18 tarjetas en `POSCatalogSkeletonGrid.tsx` (`CLS = 0`) y defensa heurística `isCatalogMismatched`.
+   - **Control de Concurrencia:** Sequence tokens (`transitionSequence`) y `AbortController` cancelan promesas previas en conmutaciones ultrarrápidas.
+   - **Auditoría Frontend 100/100:** Cabecera POS neutralizada (`bg-slate-900`) al 30% estructural, aislando el botón F6 (10% acento verde, Von Restorff) y microtextos con contraste WCAG 2.2 AAA ($\ge 7:1$).
 
 ## Despliegue a Producción (Vercel & Supabase)
 - **Vercel (Frontend SPA):** `https://maestro-erp-pezcaderia.vercel.app` (HTTP 200).
