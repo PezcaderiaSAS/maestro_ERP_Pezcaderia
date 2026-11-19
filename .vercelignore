@@ -24,7 +24,8 @@ specs
 Ejemplos
 output
 backend
-packages
+packages/api-server
+packages/database-shared
 playwright-report
 test-results
 tests

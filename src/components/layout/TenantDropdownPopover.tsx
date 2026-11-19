@@ -118,25 +118,25 @@ export const TenantDropdownPopover: React.FC<TenantDropdownPopoverProps> = ({
     <div
       ref={popoverRef}
       data-testid="tenant-dropdown-popover"
-      className={`absolute top-full mt-2 right-0 sm:right-auto sm:left-0 w-80 sm:w-96 rounded-2xl bg-[#070A10]/95 border border-white/15 shadow-2xl backdrop-blur-2xl text-slate-100 z-50 overflow-hidden animate-fadeIn ${className}`}
+      className={`absolute top-full mt-2 right-0 sm:right-auto sm:left-0 w-80 sm:w-96 rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl text-slate-100 z-50 overflow-hidden animate-fadeIn ${className}`}
       style={{
         boxShadow:
-          '0 20px 40px -10px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+          '0 25px 50px -12px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.1)',
       }}
       role="dialog"
       aria-label="Conmutador de Empresas"
     >
-      {/* Cabecera compacta */}
-      <div className="flex items-center justify-between px-3.5 py-2.5 bg-slate-900/80 border-b border-white/10">
+      {/* Cabecera compacta con fondo sólido opaco */}
+      <div className="flex items-center justify-between px-3.5 py-2.5 bg-slate-950 border-b border-slate-800">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+          <div className="w-6 h-6 rounded-lg bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-300">
             <Building2 className="w-3.5 h-3.5" />
           </div>
           <div>
             <h4 className="text-xs font-black text-white tracking-tight flex items-center gap-1.5">
               Conmutar Empresa
               {userIsSuperAdmin && (
-                <span className="px-1.5 py-0.2 rounded-full text-[9px] font-extrabold uppercase bg-rose-500/20 text-rose-300 border border-rose-500/40 font-mono">
+                <span className="px-1.5 py-0.2 rounded-full text-[9px] font-extrabold uppercase bg-rose-500/30 text-rose-200 border border-rose-500/50 font-mono">
                   GOD_MODE
                 </span>
               )}
@@ -146,14 +146,14 @@ export const TenantDropdownPopover: React.FC<TenantDropdownPopoverProps> = ({
         <button
           onClick={onClose}
           aria-label="Cerrar conmutador"
-          className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+          className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Lista de empresas */}
-      <div className="p-2 space-y-1.5 max-h-[380px] overflow-y-auto">
+      {/* Lista de empresas con fondos sólidos sin filtrado visual */}
+      <div className="p-2 space-y-1.5 max-h-[380px] overflow-y-auto bg-slate-900">
         {tenants.map((tenant) => {
           const isActive = activeTenant?.id === tenant.id;
           const isPescaderia = tenant.rubro === 'PESCADERIA';
@@ -166,16 +166,16 @@ export const TenantDropdownPopover: React.FC<TenantDropdownPopoverProps> = ({
               onClick={() => handleSelectTenant(tenant)}
               className={`w-full text-left p-2.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-2.5 group ${
                 isActive
-                  ? 'bg-cyan-950/40 border-cyan-500/60 ring-1 ring-cyan-500/40 shadow-sm'
-                  : 'bg-slate-900/40 border-white/5 hover:border-white/20 hover:bg-slate-800/60'
+                  ? 'bg-slate-950 border-2 border-cyan-400 ring-2 ring-cyan-500/30 shadow-md'
+                  : 'bg-slate-800 border border-slate-700/80 hover:border-slate-500 hover:bg-slate-700/80'
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <div
                   className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border ${
                     isPescaderia
-                      ? 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30 group-hover:scale-105'
-                      : 'bg-amber-500/15 text-amber-300 border-amber-500/30 group-hover:scale-105'
+                      ? 'bg-cyan-950 text-cyan-300 border-cyan-500/40 group-hover:scale-105'
+                      : 'bg-amber-950 text-amber-300 border-amber-500/40 group-hover:scale-105'
                   } transition-transform`}
                 >
                   <Store className="w-4 h-4" />
@@ -183,36 +183,36 @@ export const TenantDropdownPopover: React.FC<TenantDropdownPopoverProps> = ({
 
                 <div className="min-w-0 leading-tight">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-xs font-bold text-white truncate max-w-[170px] sm:max-w-[200px]">
+                    <span className="text-xs font-black text-white truncate max-w-[170px] sm:max-w-[200px]">
                       {tenant.nombre}
                     </span>
                     <span
                       className={`px-1.5 py-0.2 rounded-full text-[9px] font-bold border uppercase font-mono ${
                         isPescaderia
-                          ? 'border-cyan-500/30 text-cyan-400 bg-cyan-500/10'
-                          : 'border-amber-500/30 text-amber-400 bg-amber-500/10'
+                          ? 'border-cyan-500/40 text-cyan-300 bg-cyan-950'
+                          : 'border-amber-500/40 text-amber-300 bg-amber-950'
                       }`}
                     >
                       {tenant.rubro}
                     </span>
                   </div>
-                  <div className="text-[10px] text-slate-400 font-mono mt-0.5 truncate">
+                  <div className="text-[10px] text-slate-300 font-mono mt-0.5 truncate">
                     NIT: {tenant.nit} • {tenant.maxTerminales} Terminales
                   </div>
                 </div>
               </div>
 
-              {/* Indicador de estado */}
+              {/* Indicador de estado y botón conmutar */}
               <div className="shrink-0 flex items-center">
                 {isActive ? (
-                  <div className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-cyan-500/20 text-cyan-300 text-[10px] font-bold border border-cyan-500/40 shadow-xs">
-                    <CheckCircle2 className="w-3 h-3 text-cyan-400" />
+                  <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-cyan-500 text-slate-950 text-[10px] font-black border border-cyan-400 shadow-sm">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-slate-950" />
                     <span>Activa</span>
                   </div>
                 ) : (
-                  <span className="text-[11px] font-semibold text-slate-400 group-hover:text-cyan-300 transition-colors flex items-center gap-0.5">
+                  <span className="text-[11px] font-bold text-white bg-blue-600 hover:bg-blue-500 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1 shadow-sm">
                     Conmutar
-                    <ExternalLink className="w-3 h-3 opacity-70 group-hover:translate-x-0.5 transition-transform" />
+                    <ExternalLink className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                   </span>
                 )}
               </div>
@@ -221,13 +221,13 @@ export const TenantDropdownPopover: React.FC<TenantDropdownPopoverProps> = ({
         })}
       </div>
 
-      {/* Pie informativo sutil */}
-      <div className="px-3 py-2 bg-slate-900/60 border-t border-white/5 flex items-center justify-between text-[10px] text-slate-400 font-mono">
+      {/* Pie informativo sólido */}
+      <div className="px-3 py-2 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-400 font-mono">
         <span className="flex items-center gap-1">
           <Sparkles className="w-3 h-3 text-cyan-400" />
           Multi-Tenant RBAC V8
         </span>
-        <span>Aislamiento 100%</span>
+        <span className="text-slate-300 font-semibold">Aislamiento 100%</span>
       </div>
     </div>
   );
